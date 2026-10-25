@@ -32,6 +32,29 @@ final class AnalyzerTests: XCTestCase {
         XCTAssertEqual(c.maxUncorrectedDuration, 3.0)
     }
 
+    func testBackwardStillnessAndRelease() {
+        // Forward EMA keeps saying "still" a few samples into motion; the backward pass does not.
+        var t: [Double] = []
+        var acc: [Double] = []
+        for i in 0..<100 {
+            t.append(Double(i) * 0.005)
+            acc.append(i < 50 ? 0.0 : 1.0)
+        }
+        let rot = [Double](repeating: 0.0, count: 100)
+        let fwd = LiftAnalyzer.stillnessMask(t: t, rotNorm: rot, accNorm: acc, config: .default, reverse: false)
+        let bwd = LiftAnalyzer.stillnessMask(t: t, rotNorm: rot, accNorm: acc, config: .default, reverse: true)
+        XCTAssertTrue(fwd[49])
+        XCTAssertFalse(fwd[51])
+        XCTAssertFalse(bwd[49])                      // backward EMA already saw the motion
+        XCTAssertTrue(bwd[0])
+        let run = LiftAnalyzer.StillRun(start: 0, end: 50)
+        let r = LiftAnalyzer.releaseIndex(run, bwd)
+        XCTAssertLessThan(r, 50)
+        XCTAssertTrue(bwd[r])
+        XCTAssertFalse(bwd[r + 1])
+        XCTAssertEqual(LiftAnalyzer.releaseIndex(LiftAnalyzer.StillRun(start: 60, end: 70), bwd), 60)
+    }
+
     func testStillRuns() {
         let runs = LiftAnalyzer.stillRuns([true, true, false, false, true, false, true, true, true])
         XCTAssertEqual(runs.map { $0.start }, [0, 4, 6])
@@ -44,13 +67,16 @@ final class AnalyzerTests: XCTestCase {
         let rec = simplePull(attitude: hangingArm).recording()
         let a = try LiftAnalyzer.analyze(rec)
         XCTAssertEqual(a.recordingId, rec.id)
-        XCTAssertEqual(a.homingIndex, 199)
-        XCTAssertEqual(a.endIndex, 519)              // last sample of the overhead hold (drop follows)
-        XCTAssertEqual(a.path.count, 519 - 199 + 1)
+        // Release index (Revision A): the backward EMA flags the set as still only up to
+        // sample 156 (it lags symmetrically to the forward EMA), and the overhead-hold anchor
+        // run [363, 519] releases at 476. Values cross-checked with tools/barpath/analyzer.py.
+        XCTAssertEqual(a.homingIndex, 156)
+        XCTAssertEqual(a.endIndex, 476)              // release of the overhead hold (drop follows)
+        XCTAssertEqual(a.path.count, 476 - 156 + 1)
         XCTAssertEqual(a.path[0].t, 0)
         XCTAssertEqual(a.path[0].vertical, 0)
         XCTAssertEqual(a.metrics.peakVerticalVelocity, 2.975, accuracy: 1e-6)
-        XCTAssertEqual(a.metrics.timeToPeakVelocity, 0.3, accuracy: 1e-6)
+        XCTAssertEqual(a.metrics.timeToPeakVelocity, 0.515, accuracy: 1e-6)
         XCTAssertEqual(a.metrics.maxHeight, 0.9, accuracy: 1e-6)
         XCTAssertEqual(a.metrics.catchHeight ?? -1, 0.9, accuracy: 1e-6)
         XCTAssertEqual(a.metrics.dropUnderBar ?? -1, 0.0, accuracy: 1e-6)
@@ -60,7 +86,8 @@ final class AnalyzerTests: XCTestCase {
         XCTAssertEqual(a.metrics.maxBackward, 0, accuracy: 1e-9)
         XCTAssertEqual(a.segments.count, 1)
         XCTAssertEqual(a.segments[0].startIndex, 0)
-        XCTAssertEqual(a.segments[0].endIndex, 363 - 199)
+        XCTAssertEqual(a.segments[0].endIndex, 363 - 156)
+        XCTAssertEqual(a.segments[0].duration, 1.035, accuracy: 1e-9)
         XCTAssertEqual(a.segments[0].driftCorrection, 0, accuracy: 1e-9)
         XCTAssertEqual(a.segments[0].heightGain, 0.9, accuracy: 1e-6)
         XCTAssertEqual(a.confidence, .high)
@@ -104,18 +131,21 @@ final class AnalyzerTests: XCTestCase {
         b.phase(0.6, aUp: -standardGravity)
         b.hold(0.5)
         let a = try LiftAnalyzer.analyze(b.recording())
-        XCTAssertEqual(a.homingIndex, 199)
-        XCTAssertEqual(a.endIndex, 919)
+        XCTAssertEqual(a.homingIndex, 156)
+        XCTAssertEqual(a.endIndex, 876)
         XCTAssertEqual(a.segments.count, 2)
         XCTAssertEqual(a.metrics.peakVerticalVelocity, 2.975, accuracy: 1e-6)
         XCTAssertEqual(a.metrics.maxHeight, 0.9, accuracy: 1e-3)
         XCTAssertEqual(a.metrics.catchHeight ?? -1, 0.7, accuracy: 1e-3)
         XCTAssertEqual(a.metrics.dropUnderBar ?? -1, 0.2, accuracy: 2e-3)
-        XCTAssertEqual(a.metrics.finalHeight, 1.494, accuracy: 2e-3)
+        XCTAssertEqual(a.metrics.finalHeight, 1.5, accuracy: 1e-6)
         XCTAssertEqual(a.metrics.duration, 3.6, accuracy: 1e-6)
         XCTAssertEqual(a.confidence, .high)
         // Segment indices are into the path and chain anchor to anchor.
         XCTAssertEqual(a.segments[0].startIndex, 0)
+        XCTAssertEqual(a.segments[0].endIndex, 433 - 156)
+        XCTAssertEqual(a.segments[1].startIndex, 526 - 156)   // release of the catch anchor
+        XCTAssertEqual(a.segments[1].endIndex, 753 - 156)
         XCTAssertLessThan(a.segments[0].endIndex, a.segments[1].startIndex)
         XCTAssertLessThanOrEqual(a.segments[1].endIndex, a.path.count - 1)
     }
@@ -141,6 +171,7 @@ final class AnalyzerTests: XCTestCase {
         let a = try LiftAnalyzer.analyze(b.recording(homingTime: 0.5))
         XCTAssertEqual(a.homingIndex, 100)
         XCTAssertEqual(a.confidence, .low)
+        XCTAssertEqual(a.notes, ["Homing taken from the watch estimate", "No still recovery found: path uncorrected"])
     }
 
     func testNoHomingFound() {

@@ -57,8 +57,9 @@ final class FixtureTests: XCTestCase {
         let a = try LiftAnalyzer.analyze(try LiftRecording.decode(from: try fixtureData("sim_snatch", "json")))
         let b = try LiftAnalyzer.analyze(try LiftRecording.decode(from: try fixtureData("sim_snatch_conjugate", "json")))
         XCTAssertFalse(b.notes.contains(LiftAnalyzer.noteGravityOnly))
-        XCTAssertEqual(a.metrics.maxHeight, b.metrics.maxHeight, accuracy: 0.01)
-        XCTAssertEqual(a.metrics.peakVerticalVelocity, b.metrics.peakVerticalVelocity, accuracy: 0.01)
+        // Separately simulated (different noise), so compare loosely.
+        XCTAssertEqual(a.metrics.maxHeight, b.metrics.maxHeight, accuracy: 0.04)
+        XCTAssertEqual(a.metrics.peakVerticalVelocity, b.metrics.peakVerticalVelocity, accuracy: 0.08)
     }
 
     func testSimSessionDetector() throws {

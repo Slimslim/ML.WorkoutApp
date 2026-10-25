@@ -12,8 +12,9 @@ public enum SessionCSVError: Error, Equatable {
 ///     t,qw,qx,qy,qz,ax,ay,az,gx,gy,gz,rx,ry,rz
 ///     0.000000,...
 ///
-/// `header` holds the `key=value` pairs of the `#` comment line(s); a comment part without `=`
-/// (e.g. "barpath-session v1") is stored under the key "format".
+/// `header` holds the `key=value` pairs of the `# barpath-session` line; the part without `=`
+/// ("barpath-session v1") is stored under the key "format". Other `#` comment lines anywhere in
+/// the file (e.g. the watch's "# mark ..." / "# event ..." lines) are ignored.
 public enum SessionCSV {
     public static let columns: [String] = ["t", "qw", "qx", "qy", "qz", "ax", "ay", "az",
                                            "gx", "gy", "gz", "rx", "ry", "rz"]
@@ -33,7 +34,10 @@ public enum SessionCSV {
             if line.isEmpty { continue }
 
             if line.hasPrefix("#") {
-                let body = String(line.dropFirst())
+                let body = String(line.dropFirst()).trimmingCharacters(in: .whitespaces)
+                // Only the "# barpath-session ..." line is the header; other comment lines
+                // ("# mark ...", "# event ...") may appear anywhere and are skipped.
+                if !body.hasPrefix("barpath-session") { continue }
                 for part in body.split(separator: ",") {
                     let item = part.trimmingCharacters(in: .whitespaces)
                     if item.isEmpty { continue }

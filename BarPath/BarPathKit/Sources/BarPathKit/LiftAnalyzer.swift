@@ -141,17 +141,25 @@ public enum AnalysisError: Error, Equatable {
 
 // MARK: - Analyzer
 
+/// Offline analyzer (spec §5 incl. Revision A). Mirrors tools/barpath/analyzer.py.
 public enum LiftAnalyzer {
 
-    /// Human-readable notes (exact strings from the spec).
+    /// Human-readable notes (exact strings shared with the Python reference).
     public static let noteGravityOnly: String = "Orientation unavailable: vertical only"
     public static let noteNoAnchor: String = "No still recovery found: path uncorrected"
     public static let noteForwardEstimated: String = "Forward direction estimated"
-    public static let noteHomingFromWatch: String = "Homing taken from the watch's estimate"
+    public static let noteHomingFromWatch: String = "Homing taken from the watch estimate"
 
-    /// Inclusive range of sample indices where isStill is true.
+    /// Inclusive range of sample indices where the forward isStill mask is true.
     struct StillRun {
         var start: Int
+        var end: Int
+    }
+
+    /// Anchor run: velocity is forced to 0 on [start, release]; motion resumes after `release`.
+    struct Anchor {
+        var start: Int
+        var release: Int
         var end: Int
     }
 
@@ -168,8 +176,8 @@ public enum LiftAnalyzer {
         let G = standardGravity
         var notes: [String] = []
 
-        var quats: [Quat] = []
-        var aDev: [Vec3] = []
+        var quats: [Quat] = []      // normalized attitude quaternions
+        var aDev: [Vec3] = []       // userAccel * G (m/s²; = -physical acceleration)
         var grav: [Vec3] = []
         var rotNorm: [Double] = []
         var accNorm: [Double] = []
@@ -179,7 +187,7 @@ public enum LiftAnalyzer {
         rotNorm.reserveCapacity(n)
         accNorm.reserveCapacity(n)
         for i in 0..<n {
-            let q = Quat(w: motion.qw[i], x: motion.qx[i], y: motion.qy[i], z: motion.qz[i])
+            let q = normalizedQuat(Quat(w: motion.qw[i], x: motion.qx[i], y: motion.qy[i], z: motion.qz[i]))
             let ua = Vec3(motion.ax[i], motion.ay[i], motion.az[i])
             let g = Vec3(motion.gx[i], motion.gy[i], motion.gz[i])
             let rr = Vec3(motion.rx[i], motion.ry[i], motion.rz[i])
@@ -201,16 +209,24 @@ public enum LiftAnalyzer {
         }
         let zA = medianOf(zAvals)
         let zB = medianOf(zBvals)
+        let bestZ: Double
+        let candidate: FrameMode
+        if abs(zA + 1.0) <= abs(zB + 1.0) {
+            bestZ = zA
+            candidate = .direct
+        } else {
+            bestZ = zB
+            candidate = .conjugate
+        }
         let mode: FrameMode
-        if zA >= -0.8 && zB >= -0.8 {
+        if bestZ < -0.8 {
+            mode = candidate
+        } else {
             mode = .gravityOnly
             notes.append(noteGravityOnly)
-        } else if abs(zA + 1.0) <= abs(zB + 1.0) {
-            mode = .direct
-        } else {
-            mode = .conjugate
         }
 
+        // userAccel = -(physical acceleration)/G, so aW = -rot(userAccel)·G (world z up).
         var rot: [Quat] = []     // effective device -> world rotation
         rot.reserveCapacity(n)
         var aW: [Vec3] = []
@@ -219,29 +235,21 @@ public enum LiftAnalyzer {
             switch mode {
             case .direct:
                 rot.append(quats[i])
-                aW.append(quats[i].rotate(aDev[i]))
+                aW.append(-(quats[i].rotate(aDev[i])))
             case .conjugate:
                 let qc = quats[i].conjugate
                 rot.append(qc)
-                aW.append(qc.rotate(aDev[i]))
+                aW.append(-(qc.rotate(aDev[i])))
             case .gravityOnly:
                 rot.append(Quat.identity)
                 let ghat = grav[i].normalized
-                aW.append(Vec3(0.0, 0.0, -(aDev[i].dot(ghat))))
+                aW.append(Vec3(0.0, 0.0, aDev[i].dot(ghat)))
             }
         }
 
-        // 2. Stillness mask (same EMA formulas as the online detector, forward pass).
-        var still: [Bool] = [Bool](repeating: false, count: n)
-        var rotEMA: Double = 0.0
-        var accEMA: Double = 0.0
-        for i in 0..<n {
-            let dt: Double = i == 0 ? 0.0 : clampValue(t[i] - t[i - 1], 0.0, 0.05)
-            let alpha: Double = config.emaTau > 0 ? min(1.0, dt / config.emaTau) : 1.0
-            rotEMA += alpha * (rotNorm[i] - rotEMA)
-            accEMA += alpha * (accNorm[i] - accEMA)
-            still[i] = rotEMA < config.stillRot && accEMA < config.stillAcc
-        }
+        // 2. Stillness: forward mask (runs, durations) + backward mask (release index).
+        let still = stillnessMask(t: t, rotNorm: rotNorm, accNorm: accNorm, config: config, reverse: false)
+        let stillB = stillnessMask(t: t, rotNorm: rotNorm, accNorm: accNorm, config: config, reverse: true)
         let runs = stillRuns(still)
 
         // 3. Homing.
@@ -249,21 +257,22 @@ public enum LiftAnalyzer {
         var homingRun = StillRun(start: 0, end: 0)
         for run in runs {
             if t[run.end] - t[run.start] < config.homingMinStill { continue }
-            let s = run.end
+            let s0 = releaseIndex(run, stillB)
+            let tLimit = t[s0] + config.startWindow
+            if s0 + 1 >= n || t[s0 + 1] > tLimit { continue }   // fewer than 2 samples in the window
+            var found = config.startVelocity <= 0.0
             var vz: Double = 0.0
-            var k = s + 1
-            var found = false
-            while k < n && t[k] - t[s] <= config.startWindow {
+            var k = s0 + 1
+            while !found && k < n && t[k] <= tLimit {
                 let dt = t[k] - t[k - 1]
                 vz += 0.5 * (aW[k].z + aW[k - 1].z) * dt
                 if vz >= config.startVelocity {
                     found = true
-                    break
                 }
                 k += 1
             }
             if found {
-                homingIndex = s
+                homingIndex = s0
                 homingRun = run
                 break
             }
@@ -283,136 +292,122 @@ public enum LiftAnalyzer {
             homingRun = StillRun(start: best, end: best)
             for run in runs where run.start <= best && best <= run.end {
                 homingRun = run
+                break
             }
             notes.append(noteHomingFromWatch)
         }
         let h0 = homingIndex
         if t[n - 1] - t[h0] < 0.5 { throw AnalysisError.tooShort }
 
-        // 4. Anchors: still runs after homing, long enough.
-        var anchors: [StillRun] = []
-        for run in runs where run.start > h0 && t[run.end] - t[run.start] >= config.anchorMinStill {
-            anchors.append(run)
+        // 4. Anchors: forward still runs starting after the homing run, long enough.
+        var anchors: [Anchor] = []
+        for run in runs where run.start > homingRun.end && t[run.end] - t[run.start] >= config.anchorMinStill {
+            anchors.append(Anchor(start: run.start, release: releaseIndex(run, stillB), end: run.end))
         }
 
-        // 5./6. Velocity and position.
+        // 5. Velocity: piecewise ZUPT between still runs.
         var v: [Vec3] = [Vec3](repeating: Vec3.zero, count: n)
         var p: [Vec3] = [Vec3](repeating: Vec3.zero, count: n)
         var segBounds: [(s: Int, e: Int, drift: Double)] = []
-        var endIndex: Int = h0
-        var noAnchor = false
-
-        if anchors.isEmpty {
-            noAnchor = true
-            notes.append(noteNoAnchor)
-            var e = h0
-            while e + 1 < n && t[e + 1] - t[h0] <= config.maxUncorrectedDuration {
-                e += 1
-            }
-            if e == h0 { e = min(h0 + 1, n - 1) }
-            endIndex = e
-            if e > h0 {
-                for i in (h0 + 1)...e {
+        var s = h0
+        for a in anchors {
+            let e = a.start
+            var vRaw: [Vec3] = [Vec3](repeating: Vec3.zero, count: e - s + 1)
+            if e > s {
+                for i in (s + 1)...e {
                     let dt = t[i] - t[i - 1]
-                    v[i] = v[i - 1] + (aW[i] + aW[i - 1]) * (0.5 * dt)
+                    vRaw[i - s] = vRaw[i - s - 1] + ((aW[i] + aW[i - 1]) * 0.5) * dt
                 }
             }
-            segBounds.append((s: h0, e: e, drift: 0.0))
-        } else {
-            // Corrected velocity for every motion segment up to the last anchor.
-            var allBounds: [(s: Int, e: Int, drift: Double)] = []
-            var s = h0
-            for a in anchors {
-                let e = a.start
-                var vRaw: [Vec3] = [Vec3](repeating: Vec3.zero, count: e - s + 1)
-                if e > s {
-                    for i in (s + 1)...e {
-                        let dt = t[i] - t[i - 1]
-                        vRaw[i - s] = vRaw[i - s - 1] + (aW[i] + aW[i - 1]) * (0.5 * dt)
-                    }
-                }
-                let drift = vRaw[e - s]
-                let span = t[e] - t[s]
-                for i in s...e {
-                    let frac: Double = span > 0 ? (t[i] - t[s]) / span : 1.0
-                    v[i] = vRaw[i - s] - drift * frac
-                }
-                // Inside the anchor run velocity is forced to 0.
-                for i in a.start...a.end {
-                    v[i] = Vec3.zero
-                }
-                allBounds.append((s: s, e: e, drift: drift.norm))
-                s = a.end
+            let drift = vRaw[e - s]
+            let span = t[e] - t[s]
+            for i in s...e {
+                let frac: Double = span > 0 ? (t[i] - t[s]) / span : 0.0
+                v[i] = vRaw[i - s] - drift * frac
             }
-            let lastAnchorEnd = anchors[anchors.count - 1].end
-            if lastAnchorEnd > h0 {
-                for i in (h0 + 1)...lastAnchorEnd {
-                    let dt = t[i] - t[i - 1]
-                    p[i] = p[i - 1] + (v[i] + v[i - 1]) * (0.5 * dt)
-                }
+            segBounds.append((s: s, e: e, drift: drift.norm))
+            for i in a.start...a.release {
+                v[i] = Vec3.zero
             }
+            s = a.release
+        }
 
-            // Path end: first anchor whose open-ended tail falls more than dropDistance below it.
-            endIndex = lastAnchorEnd
-            var usedAnchors = anchors.count
-            for j in 0..<anchors.count {
-                let a = anchors[j]
-                let tailEnd: Int = j + 1 < anchors.count ? anchors[j + 1].start : n - 1
-                let anchorH = p[a.end].z
-                var tv: Double = 0.0
-                var tz: Double = anchorH
-                var dropped = false
-                if tailEnd > a.end {
-                    for k in (a.end + 1)...tailEnd {
-                        let dt = t[k] - t[k - 1]
-                        let tvNew = tv + 0.5 * (aW[k].z + aW[k - 1].z) * dt
-                        tz += 0.5 * (tv + tvNew) * dt
-                        tv = tvNew
-                        if anchorH - tz > config.dropDistance {
-                            dropped = true
-                            break
-                        }
-                    }
-                }
-                if dropped {
-                    endIndex = a.end
-                    usedAnchors = j + 1
-                    break
-                }
-            }
-            for j in 0..<usedAnchors {
-                segBounds.append(allBounds[j])
+        // Positions (0 at homing) over the corrected region.
+        let lastCorr: Int = anchors.isEmpty ? h0 : anchors[anchors.count - 1].release
+        if lastCorr > h0 {
+            for i in (h0 + 1)...lastCorr {
+                let dt = t[i] - t[i - 1]
+                p[i] = p[i - 1] + ((v[i] + v[i - 1]) * 0.5) * dt
             }
         }
 
-        // Positions for the no-anchor path (anchor case was integrated above).
-        if noAnchor && endIndex > h0 {
+        // 6. Path end.
+        let noAnchor = anchors.isEmpty
+        var endIndex: Int
+        if noAnchor {
+            let tLimit = t[h0] + config.maxUncorrectedDuration
+            var e = h0
+            while e + 1 < n && t[e + 1] <= tLimit {
+                e += 1
+            }
+            endIndex = max(min(e, n - 1), h0 + 1)
             for i in (h0 + 1)...endIndex {
                 let dt = t[i] - t[i - 1]
-                p[i] = p[i - 1] + (v[i] + v[i - 1]) * (0.5 * dt)
+                v[i] = v[i - 1] + ((aW[i] + aW[i - 1]) * 0.5) * dt
             }
+            for i in (h0 + 1)...endIndex {
+                let dt = t[i] - t[i - 1]
+                p[i] = p[i - 1] + ((v[i] + v[i - 1]) * 0.5) * dt
+            }
+            segBounds = [(s: h0, e: endIndex, drift: 0.0)]
+            notes.append(noteNoAnchor)
+        } else {
+            endIndex = anchors[anchors.count - 1].release
+            for k in 0..<anchors.count {
+                let ar = anchors[k].release
+                let tailEnd: Int = k + 1 < anchors.count ? anchors[k + 1].start : n - 1
+                if tailEnd <= ar { continue }
+                let anchorZ = p[ar].z
+                var tv: Double = 0.0
+                var cumZ: Double = 0.0
+                var dropped = false
+                for j in (ar + 1)...tailEnd {
+                    let dt = t[j] - t[j - 1]
+                    let tvNew = tv + 0.5 * (aW[j].z + aW[j - 1].z) * dt
+                    cumZ += 0.5 * (tvNew + tv) * dt
+                    tv = tvNew
+                    if anchorZ + cumZ < anchorZ - config.dropDistance {
+                        dropped = true
+                        break
+                    }
+                }
+                if dropped {
+                    endIndex = ar
+                    break
+                }
+            }
+            let endLimit = endIndex
+            segBounds = segBounds.filter { $0.e <= endLimit }
         }
 
         // 7. Horizontal axes.
         var forwardAxis = Vec3(1.0, 0.0, 0.0)
+        var lateralAxis = Vec3(0.0, 1.0, 0.0)
         if mode != .gravityOnly {
             var fSum = Vec3.zero
-            let runStart = min(homingRun.start, h0)
-            let runEnd = max(homingRun.end, h0)
-            for k in runStart...runEnd {
+            for k in homingRun.start...homingRun.end {
                 fSum = fSum + rot[k].rotate(Vec3(0.0, 0.0, 1.0))
             }
-            let f = fSum / Double(runEnd - runStart + 1)
+            let f = fSum / Double(homingRun.end - homingRun.start + 1)
             let fh = Vec3(f.x, f.y, 0.0)
             if fh.norm >= 0.3 {
-                forwardAxis = fh.normalized
+                forwardAxis = fh / fh.norm
             } else {
                 forwardAxis = pcaForward(p: p, from: h0, to: endIndex)
                 notes.append(noteForwardEstimated)
             }
+            lateralAxis = Vec3(0.0, 0.0, 1.0).cross(forwardAxis)
         }
-        let up = Vec3(0.0, 0.0, 1.0)
-        let lateralAxis = up.cross(forwardAxis)
 
         // Path samples.
         var path: [PathSample] = []
@@ -427,27 +422,6 @@ public enum LiftAnalyzer {
                                    speed: v[i].norm))
         }
 
-        // 9. Segments.
-        var segments: [LiftSegment] = []
-        for b in segBounds {
-            var segPeakV = -Double.infinity
-            var segMaxZ = -Double.infinity
-            var segMinZ = Double.infinity
-            for i in b.s...b.e {
-                segPeakV = max(segPeakV, v[i].z)
-                segMaxZ = max(segMaxZ, p[i].z)
-                segMinZ = min(segMinZ, p[i].z)
-            }
-            segments.append(LiftSegment(startIndex: b.s - h0,
-                                        endIndex: b.e - h0,
-                                        duration: t[b.e] - t[b.s],
-                                        peakVerticalVelocity: segPeakV,
-                                        heightGain: p[b.e].z - p[b.s].z,
-                                        maxHeight: segMaxZ,
-                                        minHeight: segMinZ,
-                                        driftCorrection: b.drift))
-        }
-
         // 8. Metrics.
         var peakIdx = 0
         for i in 0..<path.count where path[i].vVertical > path[peakIdx].vVertical {
@@ -455,16 +429,13 @@ public enum LiftAnalyzer {
         }
         let peakV = path[peakIdx].vVertical
         let timeToPeak = path[peakIdx].t
-        let peakTimeAbs = t[h0 + peakIdx]
 
-        var catchAnchor: StillRun? = nil
-        if !noAnchor {
-            for a in anchors where a.start <= endIndex && t[a.start] > peakTimeAbs {
-                catchAnchor = a
-                break
-            }
+        var catchStart: Int? = nil
+        for a in anchors where a.start <= endIndex && t[a.start] - t[h0] > timeToPeak {
+            catchStart = a.start
+            break
         }
-        let limit: Int = catchAnchor != nil ? catchAnchor!.start - h0 : path.count - 1
+        let limit: Int = (catchStart ?? endIndex) - h0
         var maxIdx = 0
         for i in 0...limit where path[i].vertical > path[maxIdx].vertical {
             maxIdx = i
@@ -472,7 +443,7 @@ public enum LiftAnalyzer {
         let maxHeight = path[maxIdx].vertical
         var catchHeight: Double? = nil
         var dropUnderBar: Double? = nil
-        if catchAnchor != nil {
+        if catchStart != nil {
             var lowest = Double.infinity
             for i in maxIdx...limit {
                 lowest = min(lowest, path[i].vertical)
@@ -496,6 +467,29 @@ public enum LiftAnalyzer {
                                   maxForward: maxForward,
                                   maxBackward: maxBackward,
                                   duration: lastPath.t)
+
+        // 9. Segments.
+        var segments: [LiftSegment] = []
+        for b in segBounds {
+            let i0 = b.s - h0
+            let i1 = b.e - h0
+            var segPeakV = -Double.infinity
+            var segMaxZ = -Double.infinity
+            var segMinZ = Double.infinity
+            for i in i0...i1 {
+                segPeakV = max(segPeakV, path[i].vVertical)
+                segMaxZ = max(segMaxZ, path[i].vertical)
+                segMinZ = min(segMinZ, path[i].vertical)
+            }
+            segments.append(LiftSegment(startIndex: i0,
+                                        endIndex: i1,
+                                        duration: t[b.e] - t[b.s],
+                                        peakVerticalVelocity: segPeakV,
+                                        heightGain: path[i1].vertical - path[i0].vertical,
+                                        maxHeight: segMaxZ,
+                                        minHeight: segMinZ,
+                                        driftCorrection: b.drift))
+        }
 
         // 10. Confidence.
         var maxDrift: Double = 0.0
@@ -529,6 +523,48 @@ public enum LiftAnalyzer {
 
     // MARK: Helpers
 
+    /// §4 EMA stillness, run forward or (reverse = true) backward in time with
+    /// dt_i = clamp(t[i+1] - t[i], 0, 0.05). EMAs start at 0; the first processed sample has dt = 0.
+    static func stillnessMask(t: [Double], rotNorm: [Double], accNorm: [Double],
+                              config: AnalyzerConfig, reverse: Bool) -> [Bool] {
+        let n = t.count
+        var mask: [Bool] = [Bool](repeating: false, count: n)
+        var rotEMA: Double = 0.0
+        var accEMA: Double = 0.0
+        var prev: Int = -1
+        for step in 0..<n {
+            let i = reverse ? n - 1 - step : step
+            var dt: Double = 0.0
+            if prev >= 0 {
+                let raw: Double = reverse ? t[prev] - t[i] : t[i] - t[prev]
+                dt = clampValue(raw, 0.0, 0.05)
+            }
+            prev = i
+            let alpha: Double = config.emaTau > 0 ? min(1.0, dt / config.emaTau) : 1.0
+            rotEMA += alpha * (rotNorm[i] - rotEMA)
+            accEMA += alpha * (accNorm[i] - accEMA)
+            mask[i] = rotEMA < config.stillRot && accEMA < config.stillAcc
+        }
+        return mask
+    }
+
+    /// Last index of the run that the backward mask also calls still, or the run's first index.
+    static func releaseIndex(_ run: StillRun, _ stillB: [Bool]) -> Int {
+        var i = run.end
+        while i >= run.start {
+            if stillB[i] { return i }
+            i -= 1
+        }
+        return run.start
+    }
+
+    /// Unit quaternion (zero quaternion if the norm is below 1e-12, like geometry.normalize).
+    static func normalizedQuat(_ q: Quat) -> Quat {
+        let nrm = (q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z).squareRoot()
+        if nrm < 1e-12 { return Quat(w: 0.0, x: 0.0, y: 0.0, z: 0.0) }
+        return Quat(w: q.w / nrm, x: q.x / nrm, y: q.y / nrm, z: q.z / nrm)
+    }
+
     /// Maximal runs of consecutive `true` values.
     static func stillRuns(_ mask: [Bool]) -> [StillRun] {
         var runs: [StillRun] = []
@@ -547,8 +583,9 @@ public enum LiftAnalyzer {
         return runs
     }
 
-    /// Principal axis of the horizontal positions over [from, to]; sign chosen so that
-    /// max(forward) >= |min(forward)|.
+    /// Principal axis of the horizontal positions over [from, to] (population covariance,
+    /// eigenvector (lambda - syy, sxy); if sxy ~ 0 the axis with the larger variance); sign chosen
+    /// so that max(forward) >= |min(forward)|.
     static func pcaForward(p: [Vec3], from: Int, to: Int) -> Vec3 {
         let m = Double(to - from + 1)
         var mx: Double = 0.0
@@ -573,20 +610,19 @@ public enum LiftAnalyzer {
         sxy /= m
         syy /= m
         var axis: Vec3
-        if abs(sxy) > 1e-15 {
-            let half = 0.5 * (sxx - syy)
-            let lambda = 0.5 * (sxx + syy) + (half * half + sxy * sxy).squareRoot()
-            axis = Vec3(lambda - syy, sxy, 0.0).normalized
-        } else if sxx >= syy {
-            axis = Vec3(1.0, 0.0, 0.0)
+        if abs(sxy) < 1e-12 {
+            axis = sxx >= syy ? Vec3(1.0, 0.0, 0.0) : Vec3(0.0, 1.0, 0.0)
         } else {
-            axis = Vec3(0.0, 1.0, 0.0)
+            let lambda = 0.5 * (sxx + syy) + (0.25 * (sxx - syy) * (sxx - syy) + sxy * sxy).squareRoot()
+            let ex = lambda - syy
+            let ey = sxy
+            let en = (ex * ex + ey * ey).squareRoot()
+            axis = Vec3(ex / en, ey / en, 0.0)
         }
-        if axis.norm < 1e-12 { axis = Vec3(1.0, 0.0, 0.0) }
         var fMax = -Double.infinity
         var fMin = Double.infinity
         for i in from...to {
-            let f = p[i].dot(axis)
+            let f = p[i].x * axis.x + p[i].y * axis.y
             fMax = max(fMax, f)
             fMin = min(fMin, f)
         }

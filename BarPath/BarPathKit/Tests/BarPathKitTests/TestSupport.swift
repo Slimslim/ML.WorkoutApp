@@ -3,7 +3,8 @@ import XCTest
 @testable import BarPathKit
 
 /// Builds synthetic 200 Hz device-motion streams out of simple phases.
-/// "up" is the device-frame direction opposite to gravity; accelerations are given in m/s².
+/// "up" is the device-frame direction opposite to gravity; accelerations are physical, in m/s².
+/// CoreMotion convention (spec §4 sign note): userAcceleration = -(physical acceleration)/G.
 struct SignalBuilder {
     var samples: [MotionSample] = []
     let dt: Double = 0.005
@@ -33,7 +34,7 @@ struct SignalBuilder {
 
     mutating func phase(_ duration: Double, aUp: Double, lateral: Double = 0.0) {
         let count = Int((duration / dt).rounded())
-        let ua = up * (aUp / standardGravity) + side * (lateral / standardGravity)
+        let ua = -(up * (aUp / standardGravity) + side * (lateral / standardGravity))
         for _ in 0..<count {
             samples.append(MotionSample(t: nextTime,
                                         attitude: attitude,

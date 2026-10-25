@@ -120,7 +120,9 @@ public final class OnlineLiftDetector {
         tPrev = t
 
         let ghat = s.gravity.normalized
-        let aUp = -(s.userAccel.dot(ghat)) * standardGravity
+        // CoreMotion: userAcceleration = -(physical acceleration)/G and ghat points down,
+        // so userAccel·ghat = a_up/G (spec §4 sign convention).
+        let aUp = s.userAccel.dot(ghat) * standardGravity
         let alpha: Double = config.emaTau > 0 ? min(1.0, dt / config.emaTau) : 1.0
         rotEMA += alpha * (s.rotationRate.norm - rotEMA)
         accEMA += alpha * (s.userAccel.norm - accEMA)
