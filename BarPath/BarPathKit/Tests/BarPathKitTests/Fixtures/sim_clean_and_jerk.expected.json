@@ -1,0 +1,12 @@
+{
+  "maxHeight": 1.1,
+  "peakVerticalVelocity": 1.72,
+  "catchHeight": 0.95,
+  "finalHeight": 1.75,
+  "maxBackward": -0.07,
+  "tolerance": {
+    "height": 0.04,
+    "velocity": 0.08,
+    "horizontal": 0.04
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "liftCount": 2,
+  "lifts": [
+    {
+      "homingTime": 10.8,
+      "endTime": 15.75
+    },
+    {
+      "homingTime": 33.7,
+      "endTime": 41.7
+    }
+  ],
+  "tolerance": {
+    "time": 0.5
+  }
+}

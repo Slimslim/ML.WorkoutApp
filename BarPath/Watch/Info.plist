@@ -23,7 +23,7 @@
 	<key>WKApplication</key>
 	<true/>
 	<key>WKCompanionAppBundleIdentifier</key>
-	<string>com.selimgawad.BarPath</string>
+	<string>com.slimslim.barpath</string>
 	<key>WKBackgroundModes</key>
 	<array>
 		<string>workout-processing</string>

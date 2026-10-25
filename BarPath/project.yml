@@ -1,0 +1,76 @@
+# XcodeGen spec. Generate the project with:  cd BarPath && xcodegen
+# BarPath.xcodeproj is generated (and git-ignored): edit this file, not the project.
+name: BarPath
+
+options:
+  bundleIdPrefix: com.slimslim
+  minimumXcodeGenVersion: "2.38.0"
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "17.0"
+    watchOS: "10.0"
+
+settings:
+  base:
+    # >>> Put your Apple Developer Team ID here (10 characters, e.g. AB12CD34EF), then
+    # >>> re-run `xcodegen`. Find it in Xcode > Settings > Accounts, or at
+    # >>> developer.apple.com > Membership. Leaving it empty works too: pick the team
+    # >>> in Xcode under Signing & Capabilities for both targets (lost on regeneration).
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+
+packages:
+  BarPathKit:
+    path: BarPathKit
+
+targets:
+  BarPath:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: iOS
+    settings:
+      base:
+        PRODUCT_NAME: BarPath
+        PRODUCT_BUNDLE_IDENTIFIER: com.slimslim.barpath
+        INFOPLIST_FILE: iOS/Info.plist
+        GENERATE_INFOPLIST_FILE: "NO"
+        CODE_SIGN_ENTITLEMENTS: iOS/BarPath.entitlements
+        TARGETED_DEVICE_FAMILY: "1"
+        SUPPORTS_MACCATALYST: "NO"
+        ENABLE_PREVIEWS: "YES"
+    dependencies:
+      - package: BarPathKit
+        product: BarPathKit
+      # An iOS app depending on a watchOS `application` target: XcodeGen embeds the
+      # watch app into the "Embed Watch Content" build phase ($(CONTENTS_FOLDER_PATH)/Watch),
+      # which is how Xcode's single-target watch apps (Xcode 14+) are shipped.
+      - target: BarPathWatch
+    scheme:
+      gatherCoverageData: false
+
+  BarPathWatch:
+    type: application
+    platform: watchOS
+    deploymentTarget: "10.0"
+    sources:
+      - path: Watch
+    settings:
+      base:
+        PRODUCT_NAME: BarPathWatch
+        PRODUCT_BUNDLE_IDENTIFIER: com.slimslim.barpath.watchkitapp
+        INFOPLIST_FILE: Watch/Info.plist
+        GENERATE_INFOPLIST_FILE: "NO"
+        CODE_SIGN_ENTITLEMENTS: Watch/BarPathWatch.entitlements
+        TARGETED_DEVICE_FAMILY: "4"
+        SKIP_INSTALL: "YES"
+        ENABLE_PREVIEWS: "YES"
+    dependencies:
+      - package: BarPathKit
+        product: BarPathKit
+    scheme:
+      gatherCoverageData: false
