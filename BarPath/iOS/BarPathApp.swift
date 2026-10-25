@@ -2,6 +2,7 @@ import SwiftUI
 import UIKit
 import HealthKit
 
+@MainActor
 final class AppDelegate: NSObject, UIApplicationDelegate {
     private let healthStore = HKHealthStore()
 

@@ -59,7 +59,10 @@ struct DebugView: View {
             .listStyle(.insetGrouped)
             .navigationTitle("Debug")
             .refreshable {
-                store.reloadDebugFiles()
+                // `refreshable`'s action is @Sendable (not main-actor isolated): hop explicitly.
+                await MainActor.run {
+                    store.reloadDebugFiles()
+                }
             }
             .onAppear {
                 store.reloadDebugFiles()
