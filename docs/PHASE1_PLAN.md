@@ -28,7 +28,7 @@ source files.
 | `notebooks/data_extraction_V1.ipynb` | Pulls watch accelerometer batches from MongoDB, trains an LSTM to output a *single rep count per recording* (Air Squats) | Archive |
 | `scripts/`, `main.py`, `plot_data.py` | Data extraction + plotting from MongoDB. Training/eval/inference scripts are empty stubs | Archive |
 | `notebooks/data/models/*.keras` | Two small trained LSTMs (10 units) | Archive |
-| iPhone / Watch app | **Not in this repo.** The Swift app that recorded the data lived somewhere else | Start fresh |
+| iPhone / Watch app | Lives in `Slimslim/WorkoutApp`, reviewed below | Start fresh, port the sensor code |
 
 What it tells us about the old approach, and why it stalled:
 
@@ -47,6 +47,41 @@ What it tells us about the old approach, and why it stalled:
 The good part: you already proved you can stream motion data off the watch in batches
 and store it. That instinct (collect real data first) is right. We keep it, with better
 sensors and labels.
+
+### The Swift app (`Slimslim/WorkoutApp`, last touched Aug 2024)
+
+iPhone + watchOS app (iOS 17.5 / watchOS 10.5, SwiftUI). The phone sends a movement/reps/weight
+form to the watch; the watch records motion during a workout session; the phone shows a
+confirmation form. No secrets in that repo.
+
+**Worth keeping (the right building blocks were chosen):**
+- `CMBatchedSensorManager` for 800 Hz accelerometer + 200 Hz device motion.
+- `HKWorkoutSession` + `HKLiveWorkoutBuilder` with the `workout-processing` background mode.
+- The idea of labeling each recording (movement, reps, weight, "data good" flag).
+
+**Why it doesn't work today:**
+1. **Recorded data is silently dropped.** `MotionManager.saveData()` writes into
+   `sharedWorkoutInfo.workoutData?…`, but `workoutData` is never created on the watch, so the
+   optional chain does nothing and an empty recording is sent.
+2. **Transfer can't carry the data anyway.** It uses `WCSession.sendMessage` with JSON. That's
+   meant for small messages (tens of KB). One minute at 800 Hz is roughly 4 MB of JSON. Needs
+   `transferFile` with a compact binary format.
+3. **Several competing WatchConnectivity delegates.** `WCSession.default` has one delegate, but
+   the phone creates `WatchConnector` three times (App, `WorkoutFormView`,
+   `WorkoutFormViewModel`) and the watch creates `PhoneConnector` three times. Whichever was
+   created last receives the messages, so the confirmation sheet may never appear.
+4. **The orientation data needed for bar path is thrown away.** From device motion only
+   `rotationRate` is kept. Attitude (quaternion), gravity and user acceleration are discarded.
+5. **Sessions are never properly ended.** It calls `stopActivity` but never `end()` /
+   `finishWorkout`. Sample arrays aren't cleared between sets, so sets accumulate. Activity type
+   is `.other` with `locationType = .outdoor` (should be strength training, indoor).
+6. **Uploading isn't implemented in this repo.** "Upload" only prints. The MongoDB upload that
+   produced the data in the ML repo isn't here.
+7. The watch can only start after the phone sends a form. Phase 1 should be watch-first.
+
+**Verdict:** start a clean project and port about 60 lines (the sensor and workout-session setup)
+by hand. Fixing the old app costs more than rewriting it, and the data model has to change
+anyway for bar path.
 
 **Recommendation:** move the old code into `legacy/` (or tag it `legacy-2024` and delete
 it from `main`), then start a clean project.
