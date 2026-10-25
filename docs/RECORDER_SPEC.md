@@ -293,7 +293,7 @@ Per sample (in order), with `dt = clamp(t - tPrev, 0, 0.05)` (first sample dt = 
 
 ```
 ghat     = gravity.normalized
-aUp      = -(userAccel · ghat) * G                      // m/s², + = up
+aUp      = +(userAccel · ghat) * G                      // m/s², + = up (see sign note below)
 rotEMA  += α (|rotationRate| - rotEMA)                  // α = min(1, dt / emaTau)
 accEMA  += α (|userAccel|   - accEMA)                   // g
 isStill  = rotEMA < stillRot && accEMA < stillAcc
@@ -350,15 +350,34 @@ metadata `["type": "lift", "id": <uuid string>]`.
 
 ---
 
+### Sign convention (revised after simulation review)
+
+CoreMotion reports raw = gravity + userAcceleration (g units, gravity vector points down).
+A physical accelerometer reads |raw| ≈ 1 + a_up/G, so `userAccel · ghat ≈ a_up / G`, i.e.
+**userAcceleration = −(physical acceleration)/G**. Hence `aUp = +(userAccel·ghat)·G` and
+world acceleration `aW = −rot(userAccel)·G`. The simulator generates data in this convention.
+
 ## 5. Offline analyzer (phone; precise)
+
+> **Revision A (release index).** The forward EMA lags: it still says "still" for 50–130 ms
+> after motion starts, and starting integration there loses real velocity (2–7 cm of height,
+> always downward). Also run the same EMA *backward* in time (i from n−1 down to 0,
+> `dt_i = clamp(t[i+1] − t[i], 0, 0.05)`, EMAs start at 0, same thresholds) → mask `stillB`.
+> For each still run [r0, r1] (from the forward mask), `release = max{ i ∈ [r0, r1] : stillB[i] }`,
+> or r0 if none. Everywhere below that says "last sample of the run", use `release` instead
+> (homing index and homing velocity test start; motion segment start after an anchor;
+> drop-test tail start; path end when a drop is found). Velocity is forced to 0 on
+> [r0, release]. Run detection, durations and anchor qualification use the forward mask;
+> anchors must start after the homing run's r1.
+
 
 Input: one `LiftRecording`. Steps:
 
-1. **World frame.** `aDev = userAccel * G`. CoreMotion's quaternion convention is easy to get
+1. **World frame.** `aDev = -userAccel * G` (physical acceleration, see §4 sign note). CoreMotion's quaternion convention is easy to get
    backwards, so **auto-detect** it: compute `zA = median_i q_i.rotate(gravity_i).z` and
    `zB = median_i q_i.conjugate.rotate(gravity_i).z`. Use the variant whose value is closer to
    −1 (gravity points down in the world frame). If neither is below −0.8, fall back to
-   *gravity-only* mode: vertical = `-(aDev · ghat)`, horizontal = 0, add note
+   *gravity-only* mode: vertical = `-(aDev · ghat)` (= `+(userAccel·ghat)·G`), horizontal = 0, add note
    `"Orientation unavailable: vertical only"`. World acceleration `aW_i = rot_i(aDev_i)`,
    with world z up.
 2. **Stillness mask** using the same EMA formulas as §4 (`emaTau`, `stillRot`, `stillAcc`), run forward.
