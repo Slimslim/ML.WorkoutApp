@@ -1,6 +1,6 @@
-import sys, os, numpy as np
-sys.path.insert(0, os.path.dirname(__file__)), datetime
-
+import sys, os, datetime
+import numpy as np
+sys.path.insert(0, os.path.dirname(__file__))
 from barpath import recording, analyzer
 from barpath.recording import LiftRecording, AccelSeries
 S = recording.load_session_csv(sys.argv[1]); m = S.motion; t = m.t
