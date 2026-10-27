@@ -19,3 +19,9 @@ Python reference at the time of commit (after Revision C), for regression tracki
 Observations: the finish was rarely held still (overhead wobble ≈ 0.1 g), which led to
 Revision C in `docs/RECORDER_SPEC.md`. Horizontal (forward/back) drift remains large on
 several lifts.
+
+## Athlete measurements (reported 2026-10-27, same athlete and broomstick)
+
+- Watch height in the set position (stick on the floor): **0.25 m**
+- Watch height at the top of the snatch (standing, arms locked overhead): **1.80 m**
+- So the expected watch rise from homing to snatch lockout is **≈ 1.55 m**.
