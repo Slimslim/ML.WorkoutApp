@@ -301,6 +301,28 @@ happens on your Mac.
 
 ---
 
+## 6a. Phase B: Hyrox (added 2026-10-27, before the full CrossFit app)
+
+A Hyrox race is a fixed format: 8 × (1 km run + 1 station), with transitions through the
+"Roxzone" between them. Stations in order: SkiErg 1000 m, Sled Push 50 m, Sled Pull 50 m,
+Burpee Broad Jumps 80 m, Row 1000 m, Farmers Carry 200 m, Sandbag Lunges 100 m, Wall Balls
+100 reps. Because the sequence is always the same, it's the easiest "multi-movement" workout
+to referee, much easier than an arbitrary CrossFit WOD.
+
+- **B1: splits (start here).** The watch knows the 16 segments in order. One gesture (tap
+  anywhere, double tap, or the Action button on an Ultra) advances to the next segment.
+  Shows the current segment, segment time, total time, HR, and pace on runs; haptic and
+  next-segment preview. Post-race split table on the phone vs a target or previous race.
+  Low technical risk, useful on day one. Note: races are indoors, so run distance/pace
+  comes from the watch's indoor running estimate, not GPS.
+- **B2: auto-splits.** Detect run ↔ station transitions from motion (running cadence vs.
+  everything else) and suggest or auto-advance; record full sessions to train it, using the
+  same debug-CSV pipeline as Phase 1.
+- **B3: station metrics.** Wall-ball rep counting (very distinct squat-and-throw), row/ski
+  stroke counting and stroke rate, burpee broad jump counts, lunge counts.
+- **Reuse from Phase 1:** workout session + sensor recorder, watch → phone transfer, file
+  formats, analysis pipeline, debug recordings and the Python tools.
+
 ## 6. How Phases 2 and 3 build on this
 
 - **Phase 2 (rep counting: bench, pull-ups, push-ups…):** reuses the recorder, segmenter
