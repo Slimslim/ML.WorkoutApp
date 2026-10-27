@@ -35,7 +35,7 @@ struct SessionView: View {
                     .minimumScaleFactor(0.6)
                     .frame(maxWidth: .infinity, minHeight: 56)
 
-                Text(model.liftType.displayName + (model.useLoad ? " · " + LoadPickerView.format(model.loadKg) : ""))
+                Text(model.liftType.displayName + (model.useLoad ? " · " + LoadPickerView.format(model.loadLb) : ""))
                     .font(.footnote)
                     .foregroundColor(.secondary)
                     .lineLimit(1)

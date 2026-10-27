@@ -54,12 +54,10 @@ enum Fmt {
         return String(format: "%.2f s", value)
     }
 
+    /// Recordings store kilograms; shown in lbs for now (unit setting comes later).
     static func load(_ kg: Double?) -> String? {
         guard let kg = kg else { return nil }
-        if kg.rounded() == kg {
-            return String(format: "%.0f kg", kg)
-        }
-        return String(format: "%.1f kg", kg)
+        return String(format: "%.0f lb", (kg / 0.45359237).rounded())
     }
 
     static func duration(_ seconds: Double) -> String {

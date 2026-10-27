@@ -38,10 +38,12 @@ final class SessionModel: ObservableObject {
             UserDefaults.standard.set(useLoad, forKey: Keys.useLoad)
         }
     }
-    @Published var loadKg: Double {
+    /// Load entered on the watch, in pounds (lbs for now; a unit setting comes later).
+    /// Recordings still store kilograms (`loadKg`), converted in `currentLoad`.
+    @Published var loadLb: Double {
         didSet {
             recorder.loadKg = currentLoad
-            UserDefaults.standard.set(loadKg, forKey: Keys.loadKg)
+            UserDefaults.standard.set(loadLb, forKey: Keys.loadLb)
         }
     }
     /// Full-session CSV. Defaults to ON for now (data collection phase).
@@ -68,7 +70,10 @@ final class SessionModel: ObservableObject {
     @Published private(set) var marksCount = 0
     @Published private(set) var isRecordingCSV = false
 
-    var currentLoad: Double? { useLoad ? loadKg : nil }
+    static let kgPerLb = 0.45359237
+
+    /// Load in kilograms for the recording, or nil when not logging load.
+    var currentLoad: Double? { useLoad ? loadLb * SessionModel.kgPerLb : nil }
 
     private let workout: WorkoutManager
     private let recorder: MotionRecorder
@@ -79,7 +84,7 @@ final class SessionModel: ObservableObject {
     private enum Keys {
         static let liftType = "liftType"
         static let useLoad = "useLoad"
-        static let loadKg = "loadKg"
+        static let loadLb = "loadLb"
         static let debugRecording = "debugRecording.v1"
     }
 
@@ -92,19 +97,19 @@ final class SessionModel: ObservableObject {
         let storedType = defaults.string(forKey: Keys.liftType).flatMap { LiftType(rawValue: $0) }
         let initialType = storedType ?? .snatch
         let initialUseLoad = defaults.bool(forKey: Keys.useLoad)
-        let storedLoad = defaults.double(forKey: Keys.loadKg)
-        let initialLoad = storedLoad > 0 ? storedLoad : 60
+        let storedLoad = defaults.double(forKey: Keys.loadLb)
+        let initialLoad = storedLoad > 0 ? storedLoad : 135
         let initialDebug = defaults.object(forKey: Keys.debugRecording) == nil
             ? true
             : defaults.bool(forKey: Keys.debugRecording)
 
         liftType = initialType
         useLoad = initialUseLoad
-        loadKg = initialLoad
+        loadLb = initialLoad
         debugRecording = initialDebug
 
         recorder.liftType = initialType
-        recorder.loadKg = initialUseLoad ? initialLoad : nil
+        recorder.loadKg = initialUseLoad ? initialLoad * SessionModel.kgPerLb : nil
         wireCallbacks()
     }
 

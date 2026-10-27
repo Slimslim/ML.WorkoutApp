@@ -27,7 +27,7 @@ struct StartView: View {
                         Text("Load")
                             .font(.caption2)
                             .foregroundColor(.secondary)
-                        Text(model.useLoad ? LoadPickerView.format(model.loadKg) : "None")
+                        Text(model.useLoad ? LoadPickerView.format(model.loadLb) : "None")
                             .font(.headline)
                     }
                     .padding(.vertical, 6)
@@ -98,7 +98,7 @@ struct LiftTypePickerView: View {
     }
 }
 
-/// Load in kg with the Digital Crown (0.5 kg steps) plus ±5 buttons.
+/// Load in lbs with the Digital Crown (1 lb steps) plus ±5 buttons.
 struct LoadPickerView: View {
     @EnvironmentObject var model: SessionModel
     @FocusState private var crownFocused: Bool
@@ -108,23 +108,23 @@ struct LoadPickerView: View {
             Toggle("Log load", isOn: $model.useLoad)
                 .font(.footnote)
 
-            Text(LoadPickerView.format(model.loadKg))
+            Text(LoadPickerView.format(model.loadLb))
                 .font(.system(size: 34, weight: .bold, design: .rounded))
                 .foregroundColor(model.useLoad ? Color.primary : Color.secondary)
                 .frame(maxWidth: .infinity, minHeight: 50)
                 .focusable(true)
                 .focused($crownFocused)
-                .digitalCrownRotation($model.loadKg,
+                .digitalCrownRotation($model.loadLb,
                                       from: 0,
-                                      through: 400,
-                                      by: 0.5,
+                                      through: 900,
+                                      by: 1,
                                       sensitivity: .medium,
                                       isContinuous: false,
                                       isHapticFeedbackEnabled: true)
 
             HStack(spacing: 8) {
                 Button {
-                    model.loadKg = max(0, model.loadKg - 5)
+                    model.loadLb = max(0, model.loadLb - 5)
                     model.useLoad = true
                 } label: {
                     Text("−5")
@@ -132,7 +132,7 @@ struct LoadPickerView: View {
                         .frame(maxWidth: .infinity, minHeight: 40)
                 }
                 Button {
-                    model.loadKg = min(400, model.loadKg + 5)
+                    model.loadLb = min(900, model.loadLb + 5)
                     model.useLoad = true
                 } label: {
                     Text("+5")
@@ -146,17 +146,14 @@ struct LoadPickerView: View {
         .onAppear {
             crownFocused = true
         }
-        .onChange(of: model.loadKg) { _, _ in
+        .onChange(of: model.loadLb) { _, _ in
             if !model.useLoad {
                 model.useLoad = true
             }
         }
     }
 
-    static func format(_ kg: Double) -> String {
-        if kg.rounded() == kg {
-            return String(format: "%.0f kg", kg)
-        }
-        return String(format: "%.1f kg", kg)
+    static func format(_ lb: Double) -> String {
+        return String(format: "%.0f lb", lb.rounded())
     }
 }
