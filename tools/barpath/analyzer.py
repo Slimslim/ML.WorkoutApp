@@ -24,6 +24,7 @@ from .recording import LiftRecording
 
 NOTE_GRAVITY_ONLY = "Orientation unavailable: vertical only"
 NOTE_PSEUDO_ANCHOR = "No still hold at the finish: end estimated at the calmest point before the drop"
+NOTE_LATERAL = "Large sideways drift: horizontal path unreliable"
 NOTE_NO_ANCHOR = "No still recovery found: path uncorrected"
 NOTE_FORWARD_ESTIMATED = "Forward direction estimated"
 
@@ -55,6 +56,8 @@ class AnalyzerConfig:
     armsDownMin: float = 0.8      # forearm back 'down' (bar released) when hang > this
     pseudoAnchorWindow: float = 1.0  # search the calmest point in this window before arms-down
     pseudoAnchorSmooth: float = 0.1  # s, moving-average width for the calmness score
+    catchRiseVelocity: float = 0.15  # m/s, vz above this after the catch = stand-up has begun
+    maxLateral: float = 0.15         # m, sideways excursion above this lowers confidence
 
 
 @dataclass
@@ -380,19 +383,36 @@ def analyze(rec: LiftRecording, config: AnalyzerConfig = AnalyzerConfig(), *, sp
     spd = np.linalg.norm(v[hs], axis=1)
     path = PathSeries(tt, fwd, lat, vert, vf, vv, spd)
 
-    # 8. metrics
+    # 8. metrics (kinematic phases, Revision D): pull top = first vz <= 0 after peak velocity;
+    # catch = lowest point between the pull top and the start of the stand-up (vz back above
+    # catchRiseVelocity) or the path end. No still pause in the catch is needed.
     ipk = int(np.argmax(vv))
     t_pk = tt[ipk]
-    catch_anchor = next(((a0, a1) for (a0, ar, a1) in anchors
-                         if a0 <= end_idx and t[a0] - t[homing_idx] > t_pk), None)
-    lim = (catch_anchor[0] if catch_anchor else end_idx) - homing_idx
-    imax = int(np.argmax(vert[:lim + 1]))
-    max_h = float(vert[imax])
-    if catch_anchor is not None:
-        catch_h = float(np.min(vert[imax:lim + 1]))
-        dub = max_h - catch_h
+    if spec_literal:
+        catch_anchor = next(((a0, a1) for (a0, ar, a1) in anchors
+                             if a0 <= end_idx and t[a0] - t[homing_idx] > t_pk), None)
+        lim = (catch_anchor[0] if catch_anchor else end_idx) - homing_idx
+        imax = int(np.argmax(vert[:lim + 1]))
+        max_h = float(vert[imax])
+        if catch_anchor is not None:
+            catch_h = float(np.min(vert[imax:lim + 1]))
+            dub = max_h - catch_h
+        else:
+            catch_h = dub = None
     else:
-        catch_h = dub = None
+        last = len(vv) - 1
+        itop = next((i for i in range(ipk, last + 1) if vv[i] <= 0.0), last)
+        max_h = float(np.max(vert[:itop + 1]))
+        ibot = next((i for i in range(itop, last + 1) if vv[i] > c.catchRiseVelocity), last)
+        if itop < last:
+            icatch = itop + int(np.argmin(vert[itop:ibot + 1]))
+            catch_h = float(vert[icatch])
+            dub = max_h - catch_h
+        else:
+            catch_h = dub = None
+    lat_extent = float(np.max(np.abs(lat))) if len(lat) else 0.0
+    if not spec_literal and mode != "gravityOnly" and lat_extent > c.maxLateral:
+        notes.append(NOTE_LATERAL)
     metrics = LiftMetrics(
         peakVerticalVelocity=float(vv[ipk]), timeToPeakVelocity=float(t_pk), maxHeight=max_h,
         catchHeight=catch_h, dropUnderBar=dub, finalHeight=float(vert[-1]),
@@ -416,6 +436,8 @@ def analyze(rec: LiftRecording, config: AnalyzerConfig = AnalyzerConfig(), *, sp
         conf = "medium"
     if no_anchor:
         conf = "low"
+    if NOTE_LATERAL in notes and conf == "high":
+        conf = "medium"
 
     return LiftAnalysis(recordingId=rec.id, homingIndex=int(homing_idx), endIndex=int(end_idx), path=path,
                         segments=segments, metrics=metrics, confidence=conf, notes=notes,

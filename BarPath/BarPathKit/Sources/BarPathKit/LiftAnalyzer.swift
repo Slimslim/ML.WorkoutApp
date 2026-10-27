@@ -17,6 +17,8 @@ public struct AnalyzerConfig: Equatable, Sendable {
     public var armsDownMin: Double             // forearm back 'down' (bar released) when hang > this
     public var pseudoAnchorWindow: Double      // s, search window before arms-down
     public var pseudoAnchorSmooth: Double      // s, moving-average width of the calmness score
+    public var catchRiseVelocity: Double       // m/s, vVertical above this after the catch = stand-up
+    public var maxLateral: Double              // m, sideways excursion above this lowers confidence
 
     public init(emaTau: Double = 0.08,
                 stillRot: Double = 0.5,
@@ -30,7 +32,9 @@ public struct AnalyzerConfig: Equatable, Sendable {
                 armsUpMax: Double = 0.3,
                 armsDownMin: Double = 0.8,
                 pseudoAnchorWindow: Double = 1.0,
-                pseudoAnchorSmooth: Double = 0.1) {
+                pseudoAnchorSmooth: Double = 0.1,
+                catchRiseVelocity: Double = 0.15,
+                maxLateral: Double = 0.15) {
         self.emaTau = emaTau
         self.stillRot = stillRot
         self.stillAcc = stillAcc
@@ -44,6 +48,8 @@ public struct AnalyzerConfig: Equatable, Sendable {
         self.armsDownMin = armsDownMin
         self.pseudoAnchorWindow = pseudoAnchorWindow
         self.pseudoAnchorSmooth = pseudoAnchorSmooth
+        self.catchRiseVelocity = catchRiseVelocity
+        self.maxLateral = maxLateral
     }
 
     public static let `default`: AnalyzerConfig = AnalyzerConfig()
@@ -159,6 +165,7 @@ public enum LiftAnalyzer {
     /// Human-readable notes (exact strings shared with the Python reference).
     public static let noteGravityOnly: String = "Orientation unavailable: vertical only"
     public static let noteNoAnchor: String = "No still recovery found: path uncorrected"
+    public static let noteLateral: String = "Large sideways drift: horizontal path unreliable"
     public static let notePseudoAnchor: String = "No still hold at the finish: end estimated at the calmest point before the drop"
     public static let noteForwardEstimated: String = "Forward direction estimated"
     public static let noteHomingFromWatch: String = "Homing taken from the watch estimate"
@@ -518,26 +525,40 @@ public enum LiftAnalyzer {
         let peakV = path[peakIdx].vVertical
         let timeToPeak = path[peakIdx].t
 
-        var catchStart: Int? = nil
-        for a in anchors where a.start <= endIndex && t[a.start] - t[h0] > timeToPeak {
-            catchStart = a.start
+        // Kinematic phases (Revision D): pull top = first vVertical <= 0 after peak velocity;
+        // catch = lowest point between the pull top and the start of the stand-up (vVertical back
+        // above catchRiseVelocity) or the path end. No still pause in the catch is needed.
+        let last = path.count - 1
+        var topIdx = last
+        for i in peakIdx...last where path[i].vVertical <= 0.0 {
+            topIdx = i
             break
         }
-        let limit: Int = (catchStart ?? endIndex) - h0
-        var maxIdx = 0
-        for i in 0...limit where path[i].vertical > path[maxIdx].vertical {
-            maxIdx = i
+        var maxHeight = path[0].vertical
+        for i in 0...topIdx where path[i].vertical > maxHeight {
+            maxHeight = path[i].vertical
         }
-        let maxHeight = path[maxIdx].vertical
+        var bottomIdx = last
+        for i in topIdx...last where path[i].vVertical > config.catchRiseVelocity {
+            bottomIdx = i
+            break
+        }
         var catchHeight: Double? = nil
         var dropUnderBar: Double? = nil
-        if catchStart != nil {
-            var lowest = Double.infinity
-            for i in maxIdx...limit {
-                lowest = min(lowest, path[i].vertical)
+        if topIdx < last {
+            var lowest = path[topIdx].vertical
+            for i in topIdx...bottomIdx where path[i].vertical < lowest {
+                lowest = path[i].vertical
             }
             catchHeight = lowest
             dropUnderBar = maxHeight - lowest
+        }
+        var lateralExtent: Double = 0.0
+        for ps in path {
+            lateralExtent = max(lateralExtent, abs(ps.lateral))
+        }
+        if mode != .gravityOnly && lateralExtent > config.maxLateral {
+            notes.append(noteLateral)
         }
         var maxForward = -Double.infinity
         var maxBackward = Double.infinity
@@ -597,6 +618,9 @@ public enum LiftAnalyzer {
         }
         if noAnchor {
             confidence = .low
+        }
+        if notes.contains(noteLateral) && confidence == .high {
+            confidence = .medium
         }
 
         return LiftAnalysis(recordingId: recording.id,

@@ -517,3 +517,22 @@ both Python and Swift:
 - `noAnchorTimeout` 4 s → 8 s (fallback only).
 - Confirmed on hardware: `corr(|raw| − 1, userAccel·ĝ) ≈ +0.7…0.9`, i.e. the physical sign
   convention of §4 is right. Arm hanging reads ĝ.x ≈ −0.95 on a Series 12 (left wrist).
+
+## Revision D (after the calibration session and an independent review, 2026-10-27)
+
+- **Kinematic pull / catch / lockout.** `maxHeight` is now the *pull height*: the highest point
+  up to the first sample after peak vertical velocity where `vVertical ≤ 0`. `catchHeight` is
+  the lowest point from there until `vVertical > catchRiseVelocity (0.15 m/s)` (the stand-up has
+  begun) or the path end; nil only if the bar never stops rising. `dropUnderBar = pull − catch`;
+  `finalHeight` is the lockout. No still pause in the catch is needed any more.
+- **Sagittal-plane check.** If the sideways excursion `max |lateral| > maxLateral (0.15 m)`
+  (not in gravity-only mode), add the note "Large sideways drift: horizontal path unreliable"
+  and cap confidence at medium.
+- The phone labels the chart "Wrist path" (it is the watch's path; bar = wrist + lever-arm
+  offset, which isn't modelled yet) and shows Pull / Catch / Lockout heights.
+- Review findings (see the calibration README): vertical ≈ ±2 cm on the snatch rise; the
+  horizontal error is a repeatable dynamic velocity error during the fast phase (not static
+  bias, not attitude), sensitive to accel–attitude timing (fused userAcceleration = raw 800 Hz
+  delayed ~15 ms); where the ZUPT drift is placed changes the catch position by 1–11 cm.
+  Next candidates: lever-arm (wrist → bar) offset calibrated from known bar heights,
+  validated accel/attitude lag, energy-weighted drift placement — all need video ground truth.

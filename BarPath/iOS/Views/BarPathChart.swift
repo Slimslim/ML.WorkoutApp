@@ -63,7 +63,7 @@ struct BarPathChart: View {
                                      widthOverHeight: plotAspect)
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("Bar path")
+                Text("Wrist path")
                     .font(.headline)
                 Spacer()
                 if previous != nil {

@@ -60,10 +60,10 @@ struct MetricTiles: View {
                        unit: "m/s",
                        detail: "at \(Fmt.seconds(m.timeToPeakVelocity))",
                        tint: Theme.accent)
-            MetricTile(title: "Max height",
+            MetricTile(title: "Pull height",
                        value: Fmt.cm(m.maxHeight),
                        unit: "cm",
-                       detail: "above start")
+                       detail: "top of the pull, above start")
             MetricTile(title: "Catch height",
                        value: m.catchHeight.map { Fmt.cm($0) } ?? "—",
                        unit: m.catchHeight == nil ? "" : "cm",
@@ -71,7 +71,11 @@ struct MetricTiles: View {
             MetricTile(title: "Drop under bar",
                        value: m.dropUnderBar.map { Fmt.cm($0) } ?? "—",
                        unit: m.dropUnderBar == nil ? "" : "cm",
-                       detail: "max → catch")
+                       detail: "pull → catch")
+            MetricTile(title: "Lockout height",
+                       value: Fmt.cm(m.finalHeight),
+                       unit: "cm",
+                       detail: "finish, above start")
             MetricTile(title: "Confidence",
                        value: Labels.confidence(display.confidence),
                        unit: "",

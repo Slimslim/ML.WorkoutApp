@@ -160,8 +160,10 @@ final class AnalyzerTests: XCTestCase {
         XCTAssertEqual(a.confidence, .low)
         XCTAssertTrue(a.notes.contains("No still recovery found: path uncorrected"))
         XCTAssertEqual(a.metrics.duration, 3.0, accuracy: 1e-6)
-        XCTAssertNil(a.metrics.catchHeight)
-        XCTAssertNil(a.metrics.dropUnderBar)
+        // Revision D: the catch comes from vVertical, so it exists even without anchors.
+        XCTAssertEqual(a.metrics.catchHeight ?? -1, 0.9, accuracy: 1e-6)
+        XCTAssertEqual(a.metrics.dropUnderBar ?? -1, 0.0, accuracy: 1e-6)
+        XCTAssertTrue(a.notes.contains(LiftAnalyzer.noteLateral))
         XCTAssertEqual(a.metrics.maxHeight, 0.9, accuracy: 1e-6)
     }
 

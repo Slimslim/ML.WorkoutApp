@@ -100,7 +100,8 @@ def test_no_anchor_path_uncorrected():
     a = analyze(rec)
     assert NOTE_NO_ANCHOR in a.notes and a.confidence == "low"
     assert len(a.segments) == 1 and a.segments[0].driftCorrection == 0
-    assert a.metrics.catchHeight is None
+    # Revision D: the catch is found from vz (no still pause needed), even without anchors
+    assert a.metrics.catchHeight is not None
     assert a.path.t[-1] <= AnalyzerConfig().maxUncorrectedDuration + 1e-9
 
 

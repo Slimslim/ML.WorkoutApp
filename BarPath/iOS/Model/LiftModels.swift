@@ -237,7 +237,7 @@ enum LiftProcessor {
         }
         guard let mi = maxIndex else { return out }
         let top = path[mi]
-        out.append(PathMarker(kind: .maxHeight, label: "Max",
+        out.append(PathMarker(kind: .maxHeight, label: "Pull",
                               forwardCm: top.forward * 100.0, verticalCm: top.vertical * 100.0))
         if let catchHeight = metrics.catchHeight {
             if let ci = path[mi...].firstIndex(where: { $0.vertical <= catchHeight + eps }) {
