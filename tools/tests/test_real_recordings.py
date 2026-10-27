@@ -1,0 +1,43 @@
+"""Smoke tests over real watch recordings in data/raw/ (no ground truth yet).
+
+They guard against regressions that break real data: every recording must load, analyze
+without raising, and confirm the physical CoreMotion sign convention (spec §4)."""
+import glob
+import os
+
+import numpy as np
+import pytest
+
+from barpath import analyzer, recording
+
+ROOT = os.path.join(os.path.dirname(__file__), "..", "..", "data", "raw")
+FILES = sorted(glob.glob(os.path.join(ROOT, "**", "*.json"), recursive=True))
+
+
+@pytest.mark.skipif(not FILES, reason="no real recordings in data/raw")
+@pytest.mark.parametrize("path", FILES, ids=[os.path.basename(f) for f in FILES])
+def test_real_recording_analyzes(path):
+    rec = recording.load_recording(path)
+    a = analyzer.analyze(rec)
+    assert a.endIndex > a.homingIndex
+    assert np.all(np.isfinite(a.path.vertical))
+    assert a.metrics.peakVerticalVelocity > 0.5
+
+
+@pytest.mark.skipif(not FILES, reason="no real recordings in data/raw")
+@pytest.mark.parametrize("path", FILES, ids=[os.path.basename(f) for f in FILES])
+def test_real_recording_sign_convention(path):
+    """userAccel·ĝ must track |raw| − 1 (userAccel = −a/G), see spec §4.
+
+    |raw| − 1 ≈ a_up/G only holds for small accelerations, so compare where |userAccel| < 0.5 g
+    (impacts and large horizontal jerks otherwise dominate the magnitude)."""
+    rec = recording.load_recording(path)
+    if len(rec.accel) == 0:
+        pytest.skip("no 800 Hz accel stream")
+    m = rec.motion
+    ghat = m.gravity / np.linalg.norm(m.gravity, axis=1)[:, None]
+    up = np.sum(m.user_accel * ghat, axis=1)
+    raw_mag = np.linalg.norm(rec.accel.accel, axis=1) - 1.0
+    up_i = np.interp(rec.accel.t, m.t, up)
+    small = np.interp(rec.accel.t, m.t, np.linalg.norm(m.user_accel, axis=1)) < 0.5
+    assert np.corrcoef(raw_mag[small], up_i[small])[0, 1] > 0.4
