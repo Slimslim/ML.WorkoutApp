@@ -23,6 +23,7 @@ from .geometry import G, normalize, quat_conj, quat_rotate
 from .recording import LiftRecording
 
 NOTE_GRAVITY_ONLY = "Orientation unavailable: vertical only"
+NOTE_PSEUDO_ANCHOR = "No still hold at the finish: end estimated at the calmest point before the drop"
 NOTE_NO_ANCHOR = "No still recovery found: path uncorrected"
 NOTE_FORWARD_ESTIMATED = "Forward direction estimated"
 
@@ -50,6 +51,10 @@ class AnalyzerConfig:
     anchorMinStill: float = 0.25
     dropDistance: float = 0.5
     maxUncorrectedDuration: float = 3.0
+    armsUpMax: float = 0.3        # forearm 'up' (turned over) when hang < this
+    armsDownMin: float = 0.8      # forearm back 'down' (bar released) when hang > this
+    pseudoAnchorWindow: float = 1.0  # search the calmest point in this window before arms-down
+    pseudoAnchorSmooth: float = 0.1  # s, moving-average width for the calmness score
 
 
 @dataclass
@@ -268,6 +273,34 @@ def analyze(rec: LiftRecording, config: AnalyzerConfig = AnalyzerConfig(), *, sp
     anchors = [(r0, release((r0, r1)), r1) for (r0, r1) in runs
                if r0 > homing_run[1] and t[r1] - t[r0] >= c.anchorMinStill]
 
+    # 4b. arms-down: after the turnover the forearm points up; when it points down again the
+    # bar has been dropped/lowered. Everything after that is not part of the lift.
+    arms_down_idx = None
+    if not spec_literal:
+        r0h, r1h = homing_run
+        ghat = normalize(m.gravity)
+        hang_sign = 1.0 if np.mean(ghat[r0h:r1h + 1, 0]) >= 0 else -1.0
+        hang = hang_sign * ghat[:, 0]
+        up_idx = next((i for i in range(homing_idx, n) if hang[i] < c.armsUpMax), None)
+        if up_idx is not None:
+            arms_down_idx = next((i for i in range(up_idx, n) if hang[i] > c.armsDownMin), None)
+        if arms_down_idx is not None:
+            anchors = [a for a in anchors if a[0] < arms_down_idx]
+            if not any(a[0] > up_idx for a in anchors):
+                # no still hold at the finish: the lifter is (nearly) at rest just before the
+                # drop, so use the calmest point of the last second before arms-down
+                calm = np.linalg.norm(m.user_accel, axis=1) + 0.05 * np.linalg.norm(m.rotation_rate, axis=1)
+                dt_med = float(np.median(np.diff(t))) if n > 1 else 0.005
+                w = max(1, int(round(c.pseudoAnchorSmooth / dt_med)))
+                calm_s = np.convolve(calm, np.ones(w) / w, mode="same")
+                j0 = max(up_idx, int(np.searchsorted(t, t[arms_down_idx] - c.pseudoAnchorWindow)))
+                j1 = arms_down_idx
+                if j1 > j0:
+                    pa = j0 + int(np.argmin(calm_s[j0:j1]))
+                    if pa > homing_idx + 1:
+                        anchors.append((pa, pa, pa))
+                        notes.append(NOTE_PSEUDO_ANCHOR)
+
     # 5. velocity: piecewise ZUPT between still runs
     v = np.zeros((n, 3))
     seg_bounds: List[Tuple[int, int, float]] = []  # (s, e, driftCorrection)
@@ -297,6 +330,9 @@ def analyze(rec: LiftRecording, config: AnalyzerConfig = AnalyzerConfig(), *, sp
         p[sl] = _cumtrapz(v[sl], t[sl])
         seg_bounds = [(homing_idx, end_idx, 0.0)]
         notes.append(NOTE_NO_ANCHOR)
+    elif arms_down_idx is not None:
+        end_idx = anchors[-1][1]
+        seg_bounds = [sb for sb in seg_bounds if sb[1] <= end_idx]
     else:
         end_idx = anchors[-1][1]
         for k, (a0, ar, a1) in enumerate(anchors):

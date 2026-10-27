@@ -17,6 +17,8 @@ public struct DetectorConfig: Equatable, Sendable {
     public var noAnchorTimeout: Double  // s, lift with no anchor at all => end
     public var maxLiftDuration: Double  // s, hard cap
     public var cooldown: Double         // s, ignore input after an end
+    public var armsUpMax: Double        // forearm counts as 'up' (turned over) when hang < this
+    public var armsDownMin: Double      // ... and back 'down' (bar released) when hang > this
 
     public init(emaTau: Double = 0.08,
                 stillRot: Double = 0.5,
@@ -30,9 +32,11 @@ public struct DetectorConfig: Equatable, Sendable {
                 dropDistance: Double = 0.5,
                 returnHeight: Double = 0.15,
                 returnStill: Double = 0.5,
-                noAnchorTimeout: Double = 4.0,
+                noAnchorTimeout: Double = 8.0,
                 maxLiftDuration: Double = 15.0,
-                cooldown: Double = 1.5) {
+                cooldown: Double = 1.5,
+                armsUpMax: Double = 0.3,
+                armsDownMin: Double = 0.8) {
         self.emaTau = emaTau
         self.stillRot = stillRot
         self.stillAcc = stillAcc
@@ -48,6 +52,8 @@ public struct DetectorConfig: Equatable, Sendable {
         self.noAnchorTimeout = noAnchorTimeout
         self.maxLiftDuration = maxLiftDuration
         self.cooldown = cooldown
+        self.armsUpMax = armsUpMax
+        self.armsDownMin = armsDownMin
     }
 
     public static let `default`: DetectorConfig = DetectorConfig()
@@ -87,6 +93,9 @@ public final class OnlineLiftDetector {
     private var anchorH: Double = 0.0
     private var liftStart: Double = 0.0
     private var cooldownUntil: Double = 0.0
+    private var hangSign: Double = 1.0
+    private var homingHangSign: Double = 1.0
+    private var armsUp: Bool = false
 
     public init(config: DetectorConfig = .default) {
         self.config = config
@@ -108,6 +117,9 @@ public final class OnlineLiftDetector {
         anchorH = 0.0
         liftStart = 0.0
         cooldownUntil = 0.0
+        hangSign = 1.0
+        homingHangSign = 1.0
+        armsUp = false
     }
 
     /// Feed every 200 Hz sample in order. Returns at most one event per sample.
@@ -135,6 +147,7 @@ public final class OnlineLiftDetector {
             if stillDur >= config.armMinStill && armVertical {
                 state = .armed
                 homingTime = t
+                homingHangSign = ghat.x >= 0 ? 1.0 : -1.0
                 v = 0.0
                 motionTime = 0.0
                 return .armed(homingTime: t)
@@ -144,6 +157,7 @@ public final class OnlineLiftDetector {
         case .armed:
             if stillDur >= config.rehomeStill {
                 homingTime = t
+                homingHangSign = ghat.x >= 0 ? 1.0 : -1.0
                 v = 0.0
                 motionTime = 0.0
                 if !armVertical {
@@ -163,6 +177,8 @@ public final class OnlineLiftDetector {
                 anchorTime = homingTime
                 anchorH = 0.0
                 liftStart = homingTime
+                hangSign = homingHangSign
+                armsUp = false
                 return .liftStarted(homingTime: homingTime)
             } else if motionTime > config.startWindow {
                 state = .idle
@@ -180,10 +196,19 @@ public final class OnlineLiftDetector {
                 anchorTime = t
                 anchorH = h
             }
+            // Forearm orientation: hang ≈ +1 with the arm hanging (as at homing), ≈ -1 overhead.
+            let hang = hangSign * ghat.x
+            if hang < config.armsUpMax {
+                armsUp = true
+            }
             // End checks, in order.
             var endTime: Double? = nil
             var reason: EndReason = .timeout
-            if hadAnchor && anchorH - h > config.dropDistance {
+            if armsUp && hang > config.armsDownMin {
+                // Arms back down after the turnover: the bar was dropped or lowered.
+                endTime = t
+                reason = .drop
+            } else if hadAnchor && anchorH - h > config.dropDistance {
                 endTime = anchorTime
                 reason = .drop
             } else if hadAnchor && stillDur >= config.returnStill && abs(h) < config.returnHeight

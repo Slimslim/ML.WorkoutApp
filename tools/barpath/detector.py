@@ -43,7 +43,9 @@ class DetectorConfig:
     dropDistance: float = 0.5
     returnHeight: float = 0.15
     returnStill: float = 0.5
-    noAnchorTimeout: float = 4.0
+    noAnchorTimeout: float = 8.0
+    armsUpMax: float = 0.3      # forearm counts as 'up' (turned over) when hang < this
+    armsDownMin: float = 0.8    # ... and back 'down' (bar released) when hang > this
     maxLiftDuration: float = 15.0
     cooldown: float = 1.5
 
@@ -99,6 +101,9 @@ class OnlineLiftDetector:
         self.anchor_h = 0.0
         self.lift_start = 0.0
         self.cooldown_until = 0.0
+        self.hang_sign = 1.0
+        self.homing_hang_sign = 1.0
+        self.arms_up = False
 
     # ----------------------------------------------------------------------------------
     def process(self, t: float, user_accel: Sequence[float], gravity: Sequence[float],
@@ -132,6 +137,7 @@ class OnlineLiftDetector:
             if self.still_dur >= c.armMinStill and self.arm_vertical:
                 self.state = self.ARMED
                 self.homing_time = t
+                self.homing_hang_sign = 1.0 if ghat[0] >= 0 else -1.0
                 self.v = 0.0
                 self.motion_time = 0.0
                 return Armed(t)
@@ -140,6 +146,7 @@ class OnlineLiftDetector:
         if st == self.ARMED:
             if self.still_dur >= c.rehomeStill:
                 self.homing_time = t
+                self.homing_hang_sign = 1.0 if ghat[0] >= 0 else -1.0
                 self.v = 0.0
                 self.motion_time = 0.0
                 if not self.arm_vertical:
@@ -154,6 +161,8 @@ class OnlineLiftDetector:
                 self.max_h = max(0.0, self.h)
                 self.had_anchor = False
                 self.lift_start = self.homing_time
+                self.hang_sign = self.homing_hang_sign
+                self.arms_up = False
                 return LiftStarted(self.homing_time)
             if self.motion_time > c.startWindow:
                 self.state = self.IDLE
@@ -169,8 +178,15 @@ class OnlineLiftDetector:
                 self.had_anchor = True
                 self.anchor_time = t
                 self.anchor_h = self.h
+            # Forearm orientation: hang ≈ +1 with the arm hanging (as at homing), ≈ -1 overhead.
+            hang = self.hang_sign * ghat[0]
+            if hang < c.armsUpMax:
+                self.arms_up = True
             end: Optional[Tuple[float, str]] = None
-            if self.had_anchor and self.anchor_h - self.h > c.dropDistance:
+            if self.arms_up and hang > c.armsDownMin:
+                # arms back down after the turnover: the bar was dropped/lowered
+                end = (t, "drop")
+            elif self.had_anchor and self.anchor_h - self.h > c.dropDistance:
                 end = (self.anchor_time, "drop")
             elif (self.had_anchor and self.still_dur >= c.returnStill and abs(self.h) < c.returnHeight
                   and t - self.lift_start > 1.0):

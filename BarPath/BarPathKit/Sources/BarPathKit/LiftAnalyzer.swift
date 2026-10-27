@@ -13,6 +13,10 @@ public struct AnalyzerConfig: Equatable, Sendable {
     public var anchorMinStill: Double          // s
     public var dropDistance: Double            // m
     public var maxUncorrectedDuration: Double  // s
+    public var armsUpMax: Double               // forearm 'up' (turned over) when hang < this
+    public var armsDownMin: Double             // forearm back 'down' (bar released) when hang > this
+    public var pseudoAnchorWindow: Double      // s, search window before arms-down
+    public var pseudoAnchorSmooth: Double      // s, moving-average width of the calmness score
 
     public init(emaTau: Double = 0.08,
                 stillRot: Double = 0.5,
@@ -22,7 +26,11 @@ public struct AnalyzerConfig: Equatable, Sendable {
                 startWindow: Double = 1.0,
                 anchorMinStill: Double = 0.25,
                 dropDistance: Double = 0.5,
-                maxUncorrectedDuration: Double = 3.0) {
+                maxUncorrectedDuration: Double = 3.0,
+                armsUpMax: Double = 0.3,
+                armsDownMin: Double = 0.8,
+                pseudoAnchorWindow: Double = 1.0,
+                pseudoAnchorSmooth: Double = 0.1) {
         self.emaTau = emaTau
         self.stillRot = stillRot
         self.stillAcc = stillAcc
@@ -32,6 +40,10 @@ public struct AnalyzerConfig: Equatable, Sendable {
         self.anchorMinStill = anchorMinStill
         self.dropDistance = dropDistance
         self.maxUncorrectedDuration = maxUncorrectedDuration
+        self.armsUpMax = armsUpMax
+        self.armsDownMin = armsDownMin
+        self.pseudoAnchorWindow = pseudoAnchorWindow
+        self.pseudoAnchorSmooth = pseudoAnchorSmooth
     }
 
     public static let `default`: AnalyzerConfig = AnalyzerConfig()
@@ -147,6 +159,7 @@ public enum LiftAnalyzer {
     /// Human-readable notes (exact strings shared with the Python reference).
     public static let noteGravityOnly: String = "Orientation unavailable: vertical only"
     public static let noteNoAnchor: String = "No still recovery found: path uncorrected"
+    public static let notePseudoAnchor: String = "No still hold at the finish: end estimated at the calmest point before the drop"
     public static let noteForwardEstimated: String = "Forward direction estimated"
     public static let noteHomingFromWatch: String = "Homing taken from the watch estimate"
 
@@ -305,6 +318,77 @@ public enum LiftAnalyzer {
             anchors.append(Anchor(start: run.start, release: releaseIndex(run, stillB), end: run.end))
         }
 
+        // 4b. Arms-down: after the turnover the forearm points up; when it points down again the
+        // bar has been dropped or lowered. Nothing after that is part of the lift.
+        var armsDownIndex: Int? = nil
+        var hangMean: Double = 0.0
+        for k in homingRun.start...homingRun.end {
+            hangMean += grav[k].normalized.x
+        }
+        let hangSign: Double = hangMean >= 0 ? 1.0 : -1.0
+        var upIndex: Int? = nil
+        for i in h0..<n where hangSign * grav[i].normalized.x < config.armsUpMax {
+            upIndex = i
+            break
+        }
+        if let up = upIndex {
+            for i in up..<n where hangSign * grav[i].normalized.x > config.armsDownMin {
+                armsDownIndex = i
+                break
+            }
+        }
+        if let down = armsDownIndex, let up = upIndex {
+            anchors = anchors.filter { $0.start < down }
+            let hasFinishAnchor = anchors.contains { $0.start > up }
+            if !hasFinishAnchor {
+                // No still hold at the finish: the lifter is (nearly) at rest just before the
+                // drop, so use the calmest point of the last second before arms-down.
+                var calm: [Double] = []
+                calm.reserveCapacity(n)
+                for i in 0..<n {
+                    calm.append(accNorm[i] + 0.05 * rotNorm[i])
+                }
+                var diffs: [Double] = []
+                diffs.reserveCapacity(max(0, n - 1))
+                for i in 1..<n {
+                    diffs.append(t[i] - t[i - 1])
+                }
+                let dtMed: Double = diffs.isEmpty ? 0.005 : medianOf(diffs)
+                let w: Int = dtMed > 0 ? max(1, Int((config.pseudoAnchorSmooth / dtMed).rounded())) : 1
+                let half = (w - 1) / 2
+                // j0 = first index with t >= t[down] - window (like numpy searchsorted), at least up.
+                let tStart = t[down] - config.pseudoAnchorWindow
+                var j0 = 0
+                while j0 < n && t[j0] < tStart {
+                    j0 += 1
+                }
+                j0 = max(up, j0)
+                let j1 = down
+                if j1 > j0 {
+                    var best = j0
+                    var bestScore = Double.infinity
+                    for i in j0..<j1 {
+                        // numpy convolve(mode: "same") with a box of width w
+                        let lo = max(0, i + half - (w - 1))
+                        let hi = min(n - 1, i + half)
+                        var sum: Double = 0.0
+                        for k in lo...hi {
+                            sum += calm[k]
+                        }
+                        let score = sum / Double(w)
+                        if score < bestScore {
+                            bestScore = score
+                            best = i
+                        }
+                    }
+                    if best > h0 + 1 {
+                        anchors.append(Anchor(start: best, release: best, end: best))
+                        notes.append(notePseudoAnchor)
+                    }
+                }
+            }
+        }
+
         // 5. Velocity: piecewise ZUPT between still runs.
         var v: [Vec3] = [Vec3](repeating: Vec3.zero, count: n)
         var p: [Vec3] = [Vec3](repeating: Vec3.zero, count: n)
@@ -361,6 +445,10 @@ public enum LiftAnalyzer {
             }
             segBounds = [(s: h0, e: endIndex, drift: 0.0)]
             notes.append(noteNoAnchor)
+        } else if armsDownIndex != nil {
+            endIndex = anchors[anchors.count - 1].release
+            let endLimit = endIndex
+            segBounds = segBounds.filter { $0.e <= endLimit }
         } else {
             endIndex = anchors[anchors.count - 1].release
             for k in 0..<anchors.count {

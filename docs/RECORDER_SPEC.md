@@ -495,3 +495,25 @@ Swift tests load them with `Bundle.module` (`resources: [.copy("Fixtures")]`).
 - Forward direction assumes the watch is on the back of the wrist.
 - Horizontal path is lower confidence than vertical.
 - Standing up from the set without pulling the bar may produce a small false "lift".
+
+---
+
+## Revision C (after the first real recordings, 2026-10-27)
+
+Real broomstick lifts showed lifters rarely hold the finish perfectly still (overhead wobble
+≈ 0.1 g ≥ `stillAcc`), so the lift never got a closing anchor, the watch cut it after
+`noAnchorTimeout` and the path was integrated uncorrected (≈ 0.5–1 m of drift). Changes, in
+both Python and Swift:
+
+- **Arms-down end (detector and analyzer).** `hang = s · ĝ.x` with `s = sign(ĝ.x)` at homing
+  (≈ +1 arm hanging, ≈ −1 overhead). Once `hang < armsUpMax (0.3)` after homing (turnover),
+  the first sample with `hang > armsDownMin (0.8)` means the bar was dropped/lowered.
+  Detector: end the lift there (`.drop`, endTime = that t), checked before the other end rules.
+  Analyzer: discard anchors starting at/after it; the path ends at the last anchor before it.
+- **Pseudo-anchor (analyzer).** If no anchor starts after the turnover, take the calmest
+  sample (min of a 0.1 s box-average of `|userAccel| + 0.05·|rotationRate|`) in the last 1.0 s
+  before arms-down as a zero-velocity point; note "No still hold at the finish: end estimated
+  at the calmest point before the drop".
+- `noAnchorTimeout` 4 s → 8 s (fallback only).
+- Confirmed on hardware: `corr(|raw| − 1, userAccel·ĝ) ≈ +0.7…0.9`, i.e. the physical sign
+  convention of §4 is right. Arm hanging reads ĝ.x ≈ −0.95 on a Series 12 (left wrist).
