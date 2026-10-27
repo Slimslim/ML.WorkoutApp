@@ -142,7 +142,14 @@ struct WatchStatusChip: View {
         if link.activationState != .activated { return "Connecting…" }
         if !link.isPaired { return "No watch paired" }
         if !link.isWatchAppInstalled { return "Watch app missing" }
-        return "Watch idle"
+        if link.isLaunchingWatchApp { return "Opening on watch…" }
+        if link.watchLaunchError != nil { return "Unlock watch, tap to retry" }
+        return "Tap to open on watch"
+    }
+
+    private var canLaunch: Bool {
+        return !link.isReachable && link.activationState == .activated
+            && link.isPaired && link.isWatchAppInstalled
     }
 
     private var color: Color {
@@ -152,6 +159,16 @@ struct WatchStatusChip: View {
     }
 
     var body: some View {
+        Button {
+            link.launchWatchApp()
+        } label: {
+            chip
+        }
+        .buttonStyle(.plain)
+        .disabled(!canLaunch)
+    }
+
+    private var chip: some View {
         HStack(spacing: 5) {
             Image(systemName: "applewatch")
                 .font(.caption)

@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import WatchConnectivity
+import HealthKit
 
 /// The single WCSessionDelegate of the iPhone app (one shared instance).
 ///
@@ -17,6 +18,11 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     @Published private(set) var lastFileReceivedAt: Date?
     @Published private(set) var lastStatusText: String?
     @Published private(set) var lastError: String?
+    /// True while a "open the watch app" request (HKHealthStore.startWatchApp) is in flight.
+    @Published private(set) var isLaunchingWatchApp = false
+    @Published private(set) var watchLaunchError: String?
+
+    private let healthStore = HKHealthStore()
 
     private override init() {
         super.init()
@@ -28,6 +34,26 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         let session = WCSession.default
         session.delegate = self
         session.activate()
+    }
+
+    /// Opens BarPath on the paired watch (it comes to the foreground on the start screen).
+    /// Uses HKHealthStore.startWatchApp, which works even when the watch app isn't running.
+    func launchWatchApp() {
+        guard activationState == .activated, isPaired, isWatchAppInstalled else { return }
+        guard !isLaunchingWatchApp else { return }
+        isLaunchingWatchApp = true
+        watchLaunchError = nil
+        let configuration = HKWorkoutConfiguration()
+        configuration.activityType = .traditionalStrengthTraining
+        configuration.locationType = .indoor
+        healthStore.startWatchApp(with: configuration) { success, error in
+            DispatchQueue.main.async {
+                self.isLaunchingWatchApp = false
+                if !success {
+                    self.watchLaunchError = error?.localizedDescription ?? "Couldn't open the watch app"
+                }
+            }
+        }
     }
 
     var activationDescription: String {

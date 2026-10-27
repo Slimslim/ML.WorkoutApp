@@ -26,6 +26,7 @@ struct BarPathApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var store = LiftStore.shared
     @StateObject private var link = PhoneLink.shared
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
         WindowGroup {
@@ -36,6 +37,22 @@ struct BarPathApp: App {
                 .onAppear {
                     store.loadIfNeeded()
                 }
+                .onChange(of: scenePhase) { _, phase in
+                    if phase == .active {
+                        openWatchAppSoon()
+                    }
+                }
+        }
+    }
+
+    /// When the phone app comes to the foreground, bring BarPath up on the watch too.
+    /// WatchConnectivity needs a moment after launch to report pairing/installation.
+    private func openWatchAppSoon() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            let watch = PhoneLink.shared
+            if !watch.isReachable {
+                watch.launchWatchApp()
+            }
         }
     }
 }
