@@ -1,103 +1,187 @@
 import SwiftUI
 import BarPathKit
 
+/// Session screen, no scrolling and display-only: one signal per state. Only READY fills
+/// the screen (green); every other state is black with text. End is offered only while
+/// walking to the bar; in Data mode a Mark button and the data line are added.
 struct SessionView: View {
     @EnvironmentObject var model: SessionModel
     @ObservedObject private var link = PhoneLink.shared
-    @State private var showLiftPicker = false
+    @Environment(\.isLuminanceReduced) private var isLuminanceReduced
     @State private var confirmEnd = false
 
     var body: some View {
         TimelineView(.periodic(from: Date(), by: 1.0)) { context in
             content(now: context.date)
         }
-        .sheet(isPresented: $showLiftPicker) {
-            LiftTypePickerView(selection: $model.liftType)
-        }
-        .confirmationDialog("End session?", isPresented: $confirmEnd, titleVisibility: .visible) {
-            Button("End Session", role: .destructive) {
+        .sheet(isPresented: $confirmEnd) {
+            EndConfirmView(liftCount: model.liftCount) {
+                confirmEnd = false
                 model.end()
+            } onKeepGoing: {
+                confirmEnd = false
             }
-            Button("Cancel", role: .cancel) {}
         }
     }
 
     @ViewBuilder
     private func content(now: Date) -> some View {
         let status = model.status(at: now)
-        ScrollView {
+        if status == .ready {
+            readyScreen
+        } else {
+            darkScreen(status: status, now: now)
+        }
+    }
+
+    // MARK: - READY (the only bright screen)
+
+    private var readyScreen: some View {
+        let fill = isLuminanceReduced ? Color(red: 0.12, green: 0.50, blue: 0.23) : Color.green
+        let ink = isLuminanceReduced ? Color.white : Color.black
+        return ZStack {
+            fill.ignoresSafeArea()
             VStack(spacing: 6) {
-                Text(title(for: status))
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
-                    .foregroundColor(color(for: status))
-                    .multilineTextAlignment(.center)
-                    .lineLimit(2)
+                Image(systemName: "dumbbell.fill")
+                    .font(.system(size: 30, weight: .bold))
+                    .foregroundColor(ink)
+                Text("READY")
+                    .font(.system(size: 40, weight: .heavy, design: .rounded))
+                    .foregroundColor(ink)
                     .minimumScaleFactor(0.6)
-                    .frame(maxWidth: .infinity, minHeight: 56)
-
-                Text(model.liftType.displayName + (model.useLoad ? " · " + LoadPickerView.format(model.loadLb) : ""))
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-
-                HStack(spacing: 4) {
-                    stat(value: "\(model.liftCount)", label: "lifts")
-                    stat(value: elapsed(now: now), label: "time")
-                    stat(value: heartRateText, label: "bpm")
-                }
-
-                dataLine
-
-                HStack(spacing: 6) {
-                    Button {
-                        showLiftPicker = true
-                    } label: {
-                        Text("Lift")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                    }
-                    .disabled(model.phase != .running)
-
-                    Button {
-                        model.mark()
-                    } label: {
-                        Text("Mark")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                    }
-                    .tint(.yellow)
-                    .disabled(model.phase != .running || !model.isRecordingCSV)
-                }
-
-                Button(role: .destructive) {
-                    confirmEnd = true
-                } label: {
-                    Text("End")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                }
-                .tint(.red)
-                .disabled(model.phase == .ending)
-
-                if let error = model.errorMessage {
-                    Text(error)
-                        .font(.caption2)
-                        .foregroundColor(.red)
-                        .multilineTextAlignment(.center)
-                }
+                Text(setupLine)
+                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    .foregroundColor(ink)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
             }
         }
     }
 
-    /// "Data is flowing" line: samples recorded, CSV size, marks, pending transfers.
+    // MARK: - Dark states
+
+    private func darkScreen(status: SessionModel.Status, now: Date) -> some View {
+        VStack(spacing: 4) {
+            Text(setupLine)
+                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                .foregroundColor(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+
+            Spacer(minLength: 0)
+            statusBlock(status)
+            Spacer(minLength: 0)
+
+            HStack {
+                Text("\(model.liftCount) lift\(model.liftCount == 1 ? "" : "s")")
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                Spacer()
+                Text(elapsed(now: now))
+                    .font(.system(size: 15, weight: .semibold, design: .rounded).monospacedDigit())
+                    .foregroundColor(.secondary)
+            }
+            .padding(.horizontal, 6)
+
+            if let error = model.errorMessage {
+                Text("⚠ " + error)
+                    .font(.caption2)
+                    .foregroundColor(.orange)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+            }
+
+            bottomControls(status: status)
+        }
+        .padding(.horizontal, 2)
+    }
+
+    @ViewBuilder
+    private func statusBlock(_ status: SessionModel.Status) -> some View {
+        switch status {
+        case .saved(let index):
+            VStack(spacing: 0) {
+                Image(systemName: "checkmark")
+                    .font(.system(size: 22, weight: .bold))
+                Text("\(index)")
+                    .font(.system(size: 52, weight: .heavy, design: .rounded))
+                    .lineLimit(1)
+                Text(link.pendingTransfers > 0 ? "lift saved · ↑\(link.pendingTransfers)" : "lift saved")
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .foregroundColor(.secondary)
+            }
+            .foregroundColor(.white)
+        case .lifting:
+            HStack(spacing: 6) {
+                Circle()
+                    .fill(Color.orange)
+                    .frame(width: 12, height: 12)
+                Text("LIFTING")
+                    .font(.system(size: 28, weight: .heavy, design: .rounded))
+                    .foregroundColor(.orange)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+            }
+        default:
+            Text(title(for: status))
+                .font(.system(size: 28, weight: .heavy, design: .rounded))
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.6)
+        }
+    }
+
+    @ViewBuilder
+    private func bottomControls(status: SessionModel.Status) -> some View {
+        let canEnd = status == .walkToBar || status == .starting
+        if model.isRecordingCSV {
+            VStack(spacing: 3) {
+                HStack(spacing: 4) {
+                    Button {
+                        model.mark()
+                    } label: {
+                        Label("Mark", systemImage: "flag.fill")
+                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .foregroundColor(.black)
+                            .frame(maxWidth: .infinity, minHeight: 40)
+                            .background(Capsule().fill(Color.yellow))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(model.phase != .running)
+
+                    if canEnd {
+                        endButton
+                            .frame(width: 58)
+                    }
+                }
+                dataLine
+            }
+        } else if canEnd {
+            endButton
+        }
+    }
+
+    private var endButton: some View {
+        Button {
+            confirmEnd = true
+        } label: {
+            Text("End")
+                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .foregroundColor(Color(red: 1.0, green: 0.41, blue: 0.38))
+                .frame(maxWidth: .infinity, minHeight: 40)
+                .background(Capsule().fill(Color(white: 0.11)))
+        }
+        .buttonStyle(.plain)
+        .disabled(model.phase == .ending)
+    }
+
+    /// Data mode line: samples recorded, CSV size, marks, pending transfers.
     private var dataLine: some View {
         var parts: [String] = []
         if model.phase == .running {
             parts.append("\(SessionModel.formatCount(model.motionSamples)) smp")
-            if model.isRecordingCSV {
-                parts.append("CSV " + SessionModel.formatBytes(model.csvBytes))
-            }
+            parts.append("CSV " + SessionModel.formatBytes(model.csvBytes))
             if model.marksCount > 0 {
                 parts.append("\(model.marksCount) mk")
             }
@@ -111,30 +195,16 @@ struct SessionView: View {
             parts.append("↑\(link.pendingTransfers)")
         }
         return Text(parts.joined(separator: " · "))
-            .font(.caption2.monospacedDigit())
+            .font(.system(size: 11, design: .monospaced))
             .foregroundColor(.secondary)
             .lineLimit(1)
             .minimumScaleFactor(0.6)
     }
 
-    private func stat(value: String, label: String) -> some View {
-        VStack(spacing: 0) {
-            Text(value)
-                .font(.system(.body, design: .rounded).weight(.semibold).monospacedDigit())
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-            Text(label)
-                .font(.caption2)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-    }
+    // MARK: - Helpers
 
-    private var heartRateText: String {
-        if let hr = model.heartRate {
-            return "\(Int(hr.rounded()))"
-        }
-        return "--"
+    private var setupLine: String {
+        return model.liftType.displayName + (model.useLoad ? " · " + LoadPickerView.format(model.loadLb) : "")
     }
 
     private func elapsed(now: Date) -> String {
@@ -145,23 +215,53 @@ struct SessionView: View {
     private func title(for status: SessionModel.Status) -> String {
         switch status {
         case .starting: return "Starting…"
-        case .walkToBar: return "Walk to the bar"
-        case .ready: return "Ready"
-        case .lifting: return "Lifting…"
+        case .walkToBar: return "Walk to\nthe bar"
+        case .ready: return "READY"
+        case .lifting: return "LIFTING"
         case .saving: return "Saving…"
-        case .saved(let index): return "Lift \(index) saved ✓"
+        case .saved(let index): return "Lift \(index) saved"
         case .ending: return "Ending…"
         }
     }
+}
 
-    private func color(for status: SessionModel.Status) -> Color {
-        switch status {
-        case .ready: return .green
-        case .lifting: return .orange
-        case .saved: return .green
-        case .saving: return .yellow
-        case .starting, .ending: return .secondary
-        case .walkToBar: return .primary
+/// Full-screen "End session?" with Keep going as the default (top, highlighted).
+struct EndConfirmView: View {
+    let liftCount: Int
+    let onEnd: () -> Void
+    let onKeepGoing: () -> Void
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Spacer(minLength: 0)
+            Text("End session?")
+                .font(.system(size: 22, weight: .heavy, design: .rounded))
+            Text("\(liftCount) lift\(liftCount == 1 ? "" : "s") sent")
+                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                .foregroundColor(.secondary)
+            Spacer(minLength: 0)
+            Button {
+                onKeepGoing()
+            } label: {
+                Text("Keep going")
+                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .background(Capsule().fill(Color(white: 0.23)))
+                    .overlay(Capsule().stroke(Color.white, lineWidth: 2))
+            }
+            .buttonStyle(.plain)
+            Button {
+                onEnd()
+            } label: {
+                Text("End")
+                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .foregroundColor(Color(red: 1.0, green: 0.41, blue: 0.38))
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .background(Capsule().fill(Color(white: 0.11)))
+            }
+            .buttonStyle(.plain)
         }
+        .padding(.horizontal, 4)
     }
 }
