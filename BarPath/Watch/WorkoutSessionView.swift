@@ -18,12 +18,10 @@ final class CrownAdvanceController: ObservableObject {
     static let sensitivity: DigitalCrownRotationalSensitivity = .low
 
     /// Crown "units" (change of the bound value) for ONE FULL TURN at `sensitivity`.
-    /// UNVERIFIED: Apple doesn't document the scale of `digitalCrownRotation` without a
-    /// stride, so this is a guess. Calibrate on the watch: on the main page turn the Crown
-    /// exactly one full turn in one go (slowly, no flick), then swipe to page 2 and read
-    /// `cr <n>` in the data strip (= peak of the last gesture), or watch the "crown" log
-    /// category in Console. Put that number here.
-    static let unitsPerTurn: Double = 10.0
+    /// Measured 2026-10-28 on a Series 12 (watchOS 27): one slow full turn = 5.59 units.
+    /// To re-calibrate: turn exactly one full turn on the main page, then read `cr <n>` on
+    /// page 2 (peak of the last gesture) or the "crown" log category.
+    static let unitsPerTurn: Double = 5.6
 
     /// Advance/undo threshold in crown units: 0.6 of a full turn (spec start value).
     static let crownThreshold: Double = 0.6 * unitsPerTurn
