@@ -69,11 +69,14 @@ struct WorkoutListView: View {
                     ContentUnavailableView {
                         Label("No workouts yet", systemImage: "figure.run")
                     } description: {
-                        Text("Finish a workout on your watch — results appear here")
+                        Text("Choose a workout above and send it to your watch. Results appear here when you finish.")
                     }
                 } else {
                     resultList
                 }
+            }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                NextWorkoutBar()
             }
             .navigationTitle("Workouts")
             .navigationDestination(for: WorkoutRoute.self) { route in

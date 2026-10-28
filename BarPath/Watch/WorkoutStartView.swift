@@ -96,7 +96,7 @@ struct WorkoutStartView: View {
                     .foregroundColor(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
-                Text("\(count) segment\(count == 1 ? "" : "s")")
+                Text("\(count) segment\(count == 1 ? "" : "s")" + (model.isSelectedFromPhone ? " · from iPhone" : ""))
                     .font(.system(size: 12, weight: .semibold, design: .rounded))
                     .foregroundColor(.secondary)
                     .lineLimit(1)

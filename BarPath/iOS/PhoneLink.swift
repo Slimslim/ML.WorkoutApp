@@ -2,6 +2,7 @@ import Foundation
 import Combine
 import WatchConnectivity
 import HealthKit
+import BarPathKit
 
 /// The single WCSessionDelegate of the iPhone app (one shared instance).
 ///
@@ -21,11 +22,18 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     /// True while a "open the watch app" request (HKHealthStore.startWatchApp) is in flight.
     @Published private(set) var isLaunchingWatchApp = false
     @Published private(set) var watchLaunchError: String?
+    /// Last workout sent to the watch (definition id + time), and why sending failed.
+    @Published private(set) var sentWorkoutId: String?
+    @Published private(set) var sentWorkoutAt: Date?
+    @Published private(set) var sendWorkoutError: String?
 
     private let healthStore = HKHealthStore()
 
+    private static let sentWorkoutIdKey = "sentWorkoutId.v1"
+
     private override init() {
         super.init()
+        sentWorkoutId = UserDefaults.standard.string(forKey: PhoneLink.sentWorkoutIdKey)
     }
 
     /// Call once at launch.
@@ -38,13 +46,13 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
 
     /// Opens BarPath on the paired watch (it comes to the foreground on the start screen).
     /// Uses HKHealthStore.startWatchApp, which works even when the watch app isn't running.
-    func launchWatchApp() {
+    func launchWatchApp(activityType: HKWorkoutActivityType = .traditionalStrengthTraining) {
         guard activationState == .activated, isPaired, isWatchAppInstalled else { return }
         guard !isLaunchingWatchApp else { return }
         isLaunchingWatchApp = true
         watchLaunchError = nil
         let configuration = HKWorkoutConfiguration()
-        configuration.activityType = .traditionalStrengthTraining
+        configuration.activityType = activityType
         configuration.locationType = .indoor
         healthStore.startWatchApp(with: configuration) { success, error in
             DispatchQueue.main.async {
@@ -54,6 +62,57 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
                 }
             }
         }
+    }
+
+    /// Sends a workout to the watch as the next workout, then opens the watch app on its
+    /// Workouts page. Call on the main thread (UI).
+    ///
+    /// Payload `["type": "selectWorkout", "workoutDefinition": <JSON Data>, "sentAt": Double]`
+    /// as application context (delivered whenever the watch app next runs) and, when the watch
+    /// is reachable, also as a message (instant). The watch applies it once per `sentAt`.
+    func sendWorkout(_ definition: WorkoutDefinition) {
+        guard WCSession.isSupported() else {
+            sendWorkoutError = "This iPhone can't talk to a watch."
+            return
+        }
+        let session = WCSession.default
+        guard session.activationState == .activated, session.isPaired else {
+            sendWorkoutError = "Watch not connected yet. Try again in a moment."
+            return
+        }
+        guard session.isWatchAppInstalled else {
+            sendWorkoutError = "BarPath isn't installed on the watch."
+            return
+        }
+        let data: Data
+        do {
+            data = try JSONEncoder().encode(definition)
+        } catch {
+            sendWorkoutError = "Could not prepare the workout: \(error.localizedDescription)"
+            return
+        }
+        let now = Date()
+        let payload: [String: Any] = [
+            "type": "selectWorkout",
+            "workoutDefinition": data,
+            "sentAt": now.timeIntervalSince1970
+        ]
+        do {
+            try session.updateApplicationContext(payload)
+        } catch {
+            sendWorkoutError = "Could not send to the watch: \(error.localizedDescription)"
+            return
+        }
+        if session.isReachable {
+            session.sendMessage(payload, replyHandler: nil) { error in
+                NSLog("BarPath: selectWorkout message failed (context still queued): %@", error.localizedDescription)
+            }
+        }
+        sentWorkoutId = definition.id
+        UserDefaults.standard.set(definition.id, forKey: PhoneLink.sentWorkoutIdKey)
+        sentWorkoutAt = now
+        sendWorkoutError = nil
+        launchWatchApp(activityType: .crossTraining)
     }
 
     var activationDescription: String {

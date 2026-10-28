@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import WatchConnectivity
+import BarPathKit
 
 /// Where the watch keeps files.
 ///
@@ -38,6 +39,8 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     /// Number of file transfers still queued/in flight.
     @Published private(set) var pendingTransfers = 0
     @Published private(set) var isReachable = false
+    /// Workout picked on the iPhone ("selectWorkout" application context / message).
+    @Published private(set) var phoneWorkout: WorkoutDefinition?
 
     private struct QueuedFile {
         let url: URL
@@ -49,6 +52,9 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     private var retryCounts: [String: Int] = [:]
     private var activated = false
     private static let maxRetries = 3
+    /// `sentAt` of the last applied phone workout, persisted so an old application context
+    /// re-delivered at launch doesn't override a later choice made on the watch.
+    private static let phoneWorkoutSentAtKey = "phoneWorkoutSentAt.v1"
 
     private override init() {
         super.init()
@@ -115,6 +121,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
 
     private func didActivate(_ session: WCSession) {
         activated = true
+        handleWorkoutSelection(session.receivedApplicationContext)
         isReachable = session.isReachable
         let queued = queuedUntilActivated
         queuedUntilActivated = []
@@ -257,7 +264,38 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     }
 
     func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
-        // The phone doesn't send anything to the watch in v1.
-        Log.link.debug("Ignoring message from phone")
+        DispatchQueue.main.async {
+            self.handleWorkoutSelection(message)
+        }
+    }
+
+    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
+        DispatchQueue.main.async {
+            self.handleWorkoutSelection(applicationContext)
+        }
+    }
+
+    // MARK: - Workout selection from the phone (main queue)
+
+    /// `["type": "selectWorkout", "workoutDefinition": <JSON Data>, "sentAt": <seconds since 1970>]`.
+    /// The phone sends the same payload as application context and, when reachable, as a
+    /// message; the `sentAt` check applies it once.
+    private func handleWorkoutSelection(_ payload: [String: Any]) {
+        guard (payload["type"] as? String) == "selectWorkout",
+              let data = payload["workoutDefinition"] as? Data else { return }
+        let sentAt = (payload["sentAt"] as? Double) ?? 0
+        let defaults = UserDefaults.standard
+        let lastSentAt = defaults.double(forKey: PhoneLink.phoneWorkoutSentAtKey)
+        if sentAt > 0 && sentAt <= lastSentAt { return }
+        let definition: WorkoutDefinition
+        do {
+            definition = try JSONDecoder().decode(WorkoutDefinition.self, from: data)
+        } catch {
+            Log.link.error("Could not decode workout from phone: \(error.localizedDescription, privacy: .public)")
+            return
+        }
+        defaults.set(sentAt, forKey: PhoneLink.phoneWorkoutSentAtKey)
+        Log.link.info("Workout from phone: \(definition.id, privacy: .public)")
+        phoneWorkout = definition
     }
 }

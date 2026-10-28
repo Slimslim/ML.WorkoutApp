@@ -1,6 +1,8 @@
 import SwiftUI
 import WatchKit
 import HealthKit
+import Combine
+import BarPathKit
 
 /// Receives the iPhone's "open the watch app" request (HKHealthStore.startWatchApp).
 /// The app is brought to the foreground on the start screen; the athlete picks the lift
@@ -8,6 +10,11 @@ import HealthKit
 final class WatchAppDelegate: NSObject, WKApplicationDelegate {
     func handle(_ workoutConfiguration: HKWorkoutConfiguration) {
         Log.link.info("Opened from iPhone")
+        // The phone opens us with a non-strength configuration when it sent a workout:
+        // show the Workouts page (RootView reads this through @AppStorage).
+        if workoutConfiguration.activityType != .traditionalStrengthTraining {
+            UserDefaults.standard.set(1, forKey: "rootPage.v1")
+        }
     }
 }
 
@@ -54,6 +61,14 @@ struct RootView: View {
                         .tag(1)
                 }
                 .tabViewStyle(.page)
+            }
+        }
+        .onReceive(PhoneLink.shared.$phoneWorkout) { (definition: WorkoutDefinition?) in
+            guard let definition = definition else { return }
+            workoutModel.selectFromPhone(definition)
+            if model.phase == .idle && workoutModel.phase == .idle {
+                rootPage = 1
+                WKInterfaceDevice.current().play(.click)
             }
         }
     }

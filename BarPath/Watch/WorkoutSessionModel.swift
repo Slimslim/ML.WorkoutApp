@@ -67,6 +67,7 @@ final class WorkoutSessionModel: ObservableObject {
         static let dataMode = "workoutDataMode.v1"
         static let definitionId = "workoutDefinitionId.v1"
         static let lastSummary = "workoutLastSummary.v1"
+        static let phoneDefinition = "phoneWorkoutDefinition.v1"
     }
 
     // MARK: Settings (persisted)
@@ -79,8 +80,29 @@ final class WorkoutSessionModel: ObservableObject {
         didSet { UserDefaults.standard.set(definitionId, forKey: Keys.definitionId) }
     }
 
+    /// The last workout picked on the iPhone (any definition, not only the built-in library).
+    @Published private(set) var phoneDefinition: WorkoutDefinition?
+
     var selectedDefinition: WorkoutDefinition {
+        if let phone = phoneDefinition, phone.id == definitionId {
+            return phone
+        }
         return WorkoutLibrary.definition(id: definitionId) ?? WorkoutLibrary.partnerWod1
+    }
+
+    /// True when the selected workout came from the iPhone.
+    var isSelectedFromPhone: Bool {
+        return phoneDefinition?.id == definitionId
+    }
+
+    /// Selects a workout sent by the iPhone. Safe during a session: the running workout keeps
+    /// its own definition; this only changes what the next START uses.
+    func selectFromPhone(_ definition: WorkoutDefinition) {
+        phoneDefinition = definition
+        if let data = try? JSONEncoder().encode(definition) {
+            UserDefaults.standard.set(data, forKey: Keys.phoneDefinition)
+        }
+        definitionId = definition.id
     }
 
     // MARK: Session state
@@ -115,11 +137,18 @@ final class WorkoutSessionModel: ObservableObject {
     init() {
         let defaults = UserDefaults.standard
         let initialData = defaults.object(forKey: Keys.dataMode) == nil ? true : defaults.bool(forKey: Keys.dataMode)
+        var storedPhoneDefinition: WorkoutDefinition? = nil
+        if let data = defaults.data(forKey: Keys.phoneDefinition) {
+            storedPhoneDefinition = try? JSONDecoder().decode(WorkoutDefinition.self, from: data)
+        }
         var initialId = defaults.string(forKey: Keys.definitionId) ?? WorkoutLibrary.partnerWod1.id
-        if WorkoutLibrary.definition(id: initialId) == nil {
+        if WorkoutLibrary.definition(id: initialId) == nil && storedPhoneDefinition?.id != initialId {
             initialId = WorkoutLibrary.partnerWod1.id
         }
-        let initialDefinition = WorkoutLibrary.definition(id: initialId) ?? WorkoutLibrary.partnerWod1
+        var initialDefinition = WorkoutLibrary.definition(id: initialId) ?? WorkoutLibrary.partnerWod1
+        if let phone = storedPhoneDefinition, phone.id == initialId {
+            initialDefinition = phone
+        }
 
         dataMode = initialData
         definitionId = initialId
@@ -129,6 +158,7 @@ final class WorkoutSessionModel: ObservableObject {
         link = PhoneLink.shared
         // All stored properties are initialized now; this one has a default, so it's a setter.
         lastSummary = defaults.string(forKey: Keys.lastSummary)
+        phoneDefinition = storedPhoneDefinition
         wireWorkoutCallbacks()
         recorder.onBatchWritten = { [weak self] in
             self?.refreshCounters()
