@@ -15,6 +15,7 @@ final class WatchAppDelegate: NSObject, WKApplicationDelegate {
 struct BarPathWatchApp: App {
     @WKApplicationDelegateAdaptor(WatchAppDelegate.self) private var appDelegate
     @StateObject private var model = SessionModel()
+    @StateObject private var workoutModel = WorkoutSessionModel()
 
     init() {
         // The single WCSessionDelegate; activate as early as possible so queued/orphaned
@@ -26,19 +27,33 @@ struct BarPathWatchApp: App {
         WindowGroup {
             RootView()
                 .environmentObject(model)
+                .environmentObject(workoutModel)
         }
     }
 }
 
+/// Lifting session → SessionView; workout session → WorkoutSessionView; otherwise two
+/// horizontal pages: Lifting (StartView) and Workouts (WorkoutStartView). The last page is
+/// remembered.
 struct RootView: View {
     @EnvironmentObject var model: SessionModel
+    @EnvironmentObject var workoutModel: WorkoutSessionModel
+    @AppStorage("rootPage.v1") private var rootPage: Int = 0
 
     var body: some View {
         Group {
-            if model.phase == .idle {
-                StartView()
-            } else {
+            if model.phase != .idle {
                 SessionView()
+            } else if workoutModel.phase != .idle {
+                WorkoutSessionView()
+            } else {
+                TabView(selection: $rootPage) {
+                    StartView()
+                        .tag(0)
+                    WorkoutStartView()
+                        .tag(1)
+                }
+                .tabViewStyle(.page)
             }
         }
     }
