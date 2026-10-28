@@ -90,6 +90,13 @@ class Movement:
     devilPress = "devilPress"
     dumbbellOverShoulder = "dumbbellOverShoulder"
     airSquats = "airSquats"
+    kettlebellSwings = "kettlebellSwings"
+    pullUps = "pullUps"
+    thrusters = "thrusters"
+    lateralBurpeeOverDumbbell = "lateralBurpeeOverDumbbell"
+    doubleUnders = "doubleUnders"
+    dumbbellSnatch = "dumbbellSnatch"
+    rest = "rest"
 
     NAMES = {
         "run": "Run", "skiErg": "SkiErg", "sledPush": "Sled Push", "sledPull": "Sled Pull",
@@ -98,6 +105,9 @@ class Movement:
         "dumbbellWalkingLunges": "DB Walking Lunges", "burpees": "Burpees",
         "medBallBoxStepOvers": "Med Ball Box Step-Overs", "devilPress": "Devil Press",
         "dumbbellOverShoulder": "DB Over-Shoulder", "airSquats": "Air Squats",
+        "kettlebellSwings": "KB Swings", "pullUps": "Pull-ups", "thrusters": "Thrusters",
+        "lateralBurpeeOverDumbbell": "Lateral Burpee Over DB", "doubleUnders": "Double Unders",
+        "dumbbellSnatch": "Alt. DB Snatch", "rest": "Rest",
     }
 
     @staticmethod
@@ -152,6 +162,10 @@ def _station(movement: str, value: float, unit: str) -> WorkoutSegment:
                           SegmentTarget(value, unit))
 
 
+def _rest() -> WorkoutSegment:
+    return WorkoutSegment("rest", Movement.rest, Movement.display_name(Movement.rest), None)
+
+
 def _runs_and_stations(run_meters: float, stations: list) -> list:
     out = []
     for s in stations:
@@ -197,7 +211,20 @@ class WorkoutLibrary:
         "quick.test", "Quick Test", "Test", "forTime", "solo", None, "crossTraining",
         [_run(200), _station(Movement.airSquats, 20, "reps"),
          _run(200), _station(Movement.burpees, 10, "reps")])
-    all = [hyroxSolo, hyroxDoubles, halfHyrox, partnerWod1, partnerWod2, quickTest]
+    helen = WorkoutDefinition(
+        "wod.helen", "Helen", "Helen", "forTime", "solo", 16 * 60, "crossTraining",
+        [_run(400), _station(Movement.kettlebellSwings, 21, "reps"),
+         _station(Movement.pullUps, 12, "reps")] * 3)
+    rowThrusters = WorkoutDefinition(
+        "wod.rowThrusters", "Every 3:00 × 6: Row + Thrusters", "Row Thrust", "emom", "solo", 18 * 60,
+        "crossTraining",
+        ([_station(Movement.row, 15, "calories"), _station(Movement.thrusters, 12, "reps"), _rest()] * 6)[:-1])
+    amrap20 = WorkoutDefinition(
+        "wod.nightmareAmrap", "Nightmare AMRAP 20", "AMRAP 20", "amrap", "solo", 20 * 60, "crossTraining",
+        [_station(Movement.lateralBurpeeOverDumbbell, 10, "reps"), _station(Movement.doubleUnders, 31, "reps"),
+         _station(Movement.dumbbellSnatch, 10, "reps"), _station(Movement.doubleUnders, 31, "reps")] * 10)
+    all = [hyroxSolo, hyroxDoubles, halfHyrox, partnerWod1, partnerWod2, quickTest,
+           helen, rowThrusters, amrap20]
 
     @staticmethod
     def definition(id: str) -> Optional[WorkoutDefinition]:

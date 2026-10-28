@@ -34,10 +34,17 @@ GOLDEN_PED = [PedometerSample(1030, 90, 100), PedometerSample(1060, 180, 200),
 
 
 def test_library():
-    assert len(WorkoutLibrary.all) == 6
+    assert len(WorkoutLibrary.all) == 9
     assert [d.id for d in WorkoutLibrary.all] == [
-        "hyrox.solo", "hyrox.doubles", "hyrox.half", "partner.wod1", "partner.wod2", "quick.test"]
-    assert len({d.id for d in WorkoutLibrary.all}) == 6
+        "hyrox.solo", "hyrox.doubles", "hyrox.half", "partner.wod1", "partner.wod2", "quick.test",
+        "wod.helen", "wod.rowThrusters", "wod.nightmareAmrap"]
+    assert len({d.id for d in WorkoutLibrary.all}) == 9
+    assert len(WorkoutLibrary.helen.segments) == 9 and WorkoutLibrary.helen.run_count == 3
+    assert WorkoutLibrary.helen.segments[1].title == "KB Swings 21"
+    assert len(WorkoutLibrary.rowThrusters.segments) == 17
+    assert WorkoutLibrary.rowThrusters.segments[0].title == "Row 15 cal"
+    assert WorkoutLibrary.rowThrusters.segments[2].title == "Rest"
+    assert len(WorkoutLibrary.amrap20.segments) == 40
     solo = WorkoutLibrary.hyroxSolo
     assert len(solo.segments) == 16 and solo.run_count == 8 and solo.station_count == 8
     assert [s.kind for s in solo.segments] == ["run", "station"] * 8

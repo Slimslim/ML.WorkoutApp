@@ -88,6 +88,13 @@ public enum Movement {
     public static let devilPress = "devilPress"
     public static let dumbbellOverShoulder = "dumbbellOverShoulder"
     public static let airSquats = "airSquats"
+    public static let kettlebellSwings = "kettlebellSwings"
+    public static let pullUps = "pullUps"
+    public static let thrusters = "thrusters"
+    public static let lateralBurpeeOverDumbbell = "lateralBurpeeOverDumbbell"
+    public static let doubleUnders = "doubleUnders"
+    public static let dumbbellSnatch = "dumbbellSnatch"
+    public static let rest = "rest"
 
     private static let names: [String: String] = [
         "run": "Run",
@@ -104,7 +111,14 @@ public enum Movement {
         "medBallBoxStepOvers": "Med Ball Box Step-Overs",
         "devilPress": "Devil Press",
         "dumbbellOverShoulder": "DB Over-Shoulder",
-        "airSquats": "Air Squats"
+        "airSquats": "Air Squats",
+        "kettlebellSwings": "KB Swings",
+        "pullUps": "Pull-ups",
+        "thrusters": "Thrusters",
+        "lateralBurpeeOverDumbbell": "Lateral Burpee Over DB",
+        "doubleUnders": "Double Unders",
+        "dumbbellSnatch": "Alt. DB Snatch",
+        "rest": "Rest"
     ]
 
     /// Display name; falls back to the id.

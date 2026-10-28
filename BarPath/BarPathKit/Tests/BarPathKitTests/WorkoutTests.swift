@@ -6,19 +6,32 @@ final class WorkoutTests: XCTestCase {
 
     // MARK: Library
 
-    func testLibraryHasSixUniqueDefinitionsInOrder() {
+    func testLibraryHasNineUniqueDefinitionsInOrder() {
         let all = WorkoutLibrary.all
-        XCTAssertEqual(all.count, 6)
+        XCTAssertEqual(all.count, 9)
         XCTAssertEqual(all.map { (d: WorkoutDefinition) -> String in d.id },
                        [WorkoutLibrary.hyroxSolo.id, WorkoutLibrary.hyroxDoubles.id, WorkoutLibrary.halfHyrox.id,
-                        WorkoutLibrary.partnerWod1.id, WorkoutLibrary.partnerWod2.id, WorkoutLibrary.quickTest.id])
+                        WorkoutLibrary.partnerWod1.id, WorkoutLibrary.partnerWod2.id, WorkoutLibrary.quickTest.id,
+                        WorkoutLibrary.helen.id, WorkoutLibrary.rowThrusters.id, WorkoutLibrary.amrap20.id])
         let ids = Set(all.map { (d: WorkoutDefinition) -> String in d.id })
-        XCTAssertEqual(ids.count, 6)
+        XCTAssertEqual(ids.count, 9)
         for d in all {
             XCTAssertEqual(WorkoutLibrary.definition(id: d.id), d)
             XCTAssertLessThanOrEqual(d.shortName.count, 12)
         }
         XCTAssertNil(WorkoutLibrary.definition(id: "nope"))
+    }
+
+    func testClassWorkouts() {
+        XCTAssertEqual(WorkoutLibrary.helen.segments.count, 9)
+        XCTAssertEqual(WorkoutLibrary.helen.runCount, 3)
+        XCTAssertEqual(WorkoutLibrary.helen.segments[1].title, "KB Swings 21")
+        XCTAssertEqual(WorkoutLibrary.rowThrusters.segments.count, 17)
+        XCTAssertEqual(WorkoutLibrary.rowThrusters.segments[0].title, "Row 15 cal")
+        XCTAssertEqual(WorkoutLibrary.rowThrusters.segments[2].kind, SegmentKind.rest)
+        XCTAssertEqual(WorkoutLibrary.rowThrusters.segments[2].title, "Rest")
+        XCTAssertEqual(WorkoutLibrary.rowThrusters.segments.last?.movement, Movement.thrusters)
+        XCTAssertEqual(WorkoutLibrary.amrap20.segments.count, 40)
     }
 
     func testHyroxSoloStructure() {

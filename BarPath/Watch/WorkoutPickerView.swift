@@ -1,7 +1,7 @@
 import SwiftUI
 import BarPathKit
 
-/// 2×3 grid of `WorkoutLibrary.all` short names, no scrolling. Selected = filled.
+/// 3×3 grid of `WorkoutLibrary.all` short names, no scrolling. Selected = filled.
 /// Tap selects and closes.
 struct WorkoutPickerView: View {
     @Binding var selection: String
@@ -11,12 +11,14 @@ struct WorkoutPickerView: View {
 
     var body: some View {
         let defs = definitions
-        let rows: Int = (defs.count + 1) / 2
-        return VStack(spacing: 6) {
+        let columns: Int = 3
+        let rows: Int = (defs.count + columns - 1) / columns
+        return VStack(spacing: 5) {
             ForEach(0..<rows, id: \.self) { row in
-                HStack(spacing: 6) {
-                    tile(defs, index: row * 2)
-                    tile(defs, index: row * 2 + 1)
+                HStack(spacing: 5) {
+                    tile(defs, index: row * columns)
+                    tile(defs, index: row * columns + 1)
+                    tile(defs, index: row * columns + 2)
                 }
             }
         }
@@ -33,12 +35,12 @@ struct WorkoutPickerView: View {
                 onDone()
             } label: {
                 Text(definition.shortName)
-                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
                     .foregroundColor(selected ? .black : .white)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
                     .minimumScaleFactor(0.6)
-                    .padding(.horizontal, 4)
+                    .padding(.horizontal, 2)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(
                         RoundedRectangle(cornerRadius: 12)

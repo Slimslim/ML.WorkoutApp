@@ -83,8 +83,8 @@ public enum WorkoutLibrary {
     public static let partnerWod1: WorkoutDefinition    // Sat Oct 31, part 1
     public static let partnerWod2: WorkoutDefinition    // Sat Oct 31, part 2
     public static let quickTest: WorkoutDefinition      // 4 segments, for testing at home
-    /// Exactly 6, in this order (fills the watch's 2×3 picker): hyroxSolo, hyroxDoubles,
-    /// halfHyrox, partnerWod1, partnerWod2, quickTest.
+    /// Exactly 9, in this order (fills the watch's 3×3 picker): hyroxSolo, hyroxDoubles,
+    /// halfHyrox, partnerWod1, partnerWod2, quickTest, helen, rowThrusters, amrap20.
     public static let all: [WorkoutDefinition]
     public static func definition(id: String) -> WorkoutDefinition?
 }
@@ -272,7 +272,7 @@ at 1110, 1170, 1200 (the last one finishes).
   isn't idle → `WorkoutSessionView`; else a horizontal page `TabView` (`.tabViewStyle(.page)`)
   with `StartView` (Lifting) and `WorkoutStartView` (Workouts). Remember the last page.
 - **WorkoutStartView:** a top row with the phone dot and the DATA chip (its own setting,
-  default ON); a big workout tile (name plus "10 segments"), tap → `WorkoutPickerView` (2×3
+  default ON); a big workout tile (name plus "10 segments"), tap → `WorkoutPickerView` (3×3
   grid of the 6 `WorkoutLibrary.all` short names, selected = filled); a green START (≥ 60 pt).
   Below that, a one-line summary of the last workout ("Last: WOD 1 · 41:12 · sent").
 - **WorkoutSessionView**, page 1 (main):
