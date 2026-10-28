@@ -83,3 +83,55 @@ keep the detector in shadow mode.
   about a day), so the first TestFlight build should go out by about **Nov 16–20**.
 - App Store release: after the race. A public release needs a privacy policy, HealthKit
   review notes and more polish, which is not worth doing before Dec 3.
+
+## 5. Workout library (draft, 2026-10-28)
+
+Testers need shorter workouts to practise with before a full race. Every workout is a
+**definition** (data, not code), so adding one doesn't need new watch code.
+
+| Workout | Content | Length | Purpose |
+|---|---|---|---|
+| HYROX Solo | 8 × (1 km run + station) | 60–100 min | Race |
+| HYROX Doubles | as Solo; stations shared | 55–90 min | Race |
+| Half HYROX (all stations) | 8 × (500 m run + half-volume station) | 30–45 min | Tests all 16 changes |
+| Half HYROX (4 rounds) | 4 × (1 km run + station 1–4 or 5–8) | 30–45 min | Race-pace runs |
+| Compromised run | N × (1 km run + one chosen station) | 20–40 min | Classic Hyrox training |
+| Station circuit | stations only, no runs | 15–30 min | Station data (rep-counting groundwork) |
+| Custom | phone builder: rounds, run distance, station list, volumes | any | Gyms without sleds, coach workouts |
+
+Built-in presets ship first. The phone builder (sent to the watch with
+`updateApplicationContext`) comes in week 2–3, as the first step toward the general workout
+engine.
+
+## 6. Data strategy
+
+Two kinds of recording:
+
+1. **Always (every user): the race file plus a 1 Hz feature log.** Segment times, HR,
+   pace, cadence, detector decisions, Next/Undo taps, and per-second features (cadence, arm
+   swing, wrist orientation, motion intensity, detector score). About 100 KB per hour. Enough
+   to see *why* the detector made each decision, without raw data.
+2. **Data mode (opt-in testers only): raw motion.** Device motion at 100 Hz, stored as
+   compact binary (float32) rather than CSV, ≈ 20 MB per hour. Sent to the phone with
+   `transferFile` at the end. 800 Hz accelerometer stays off (lifting only).
+
+**Labels are free:** every segment boundary is a label, whether it's a manual Next, an
+automatic switch that stayed, or an automatic switch fixed with Undo. Undo is the most valuable
+label, because it marks exactly where the detector was wrong. Rep counts have known totals
+(100 wall balls Solo, 80 m of burpee broad jumps, 100 m of lunges), which gives weak labels.
+A few sessions filmed on a phone give exact rep timestamps.
+
+**Getting tester data to us (5-week version):** a "Share recording" button on the phone
+(AirDrop / email / Drive). Testers agree first, and files get anonymous IDs. **Tester data
+does not go into this public repo.** It goes in a private folder or private repo. Only small,
+trimmed fixtures are committed, and only with the tester's permission. Automatic cloud upload
+comes later.
+
+**Expected volume:** 4 testers × 2–3 sessions a week × 4 weeks ≈ 40 h of labelled data
+(≈ 1 GB), plus up to 4 full races at Anaheim in Data mode, which is the most valuable set.
+
+**Models:** per-window features (2 s) with rules plus a small classifier (decision tree or
+gradient boosting). These port to Swift as plain code or Core ML and run live on the watch.
+The known segment order means the detector only has to decide "has the next segment started
+yet?". Rep counting later: peak detection per known station, checked against the known
+totals.
