@@ -268,11 +268,27 @@ struct WorkoutMainPage: View {
                 .lineLimit(2)
                 .minimumScaleFactor(0.6)
 
-            Text(SessionModel.formatElapsed(p.segmentElapsed(now: nowT)))
-                .font(.system(size: 48, weight: .heavy, design: .rounded).monospacedDigit())
-                .foregroundColor(.white)
-                .lineLimit(1)
-                .minimumScaleFactor(0.5)
+            if let clock = model.nextClockEvent(), !clock.isFinish {
+                // Timed rest: count down to the next set (3-2-1 haptics on the watch model).
+                Text(SessionModel.formatElapsed(max(0, clock.time - nowT).rounded(.up)))
+                    .font(.system(size: 48, weight: .heavy, design: .rounded).monospacedDigit())
+                    .foregroundColor(.yellow)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+            } else {
+                Text(SessionModel.formatElapsed(p.segmentElapsed(now: nowT)))
+                    .font(.system(size: 48, weight: .heavy, design: .rounded).monospacedDigit())
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                if let clock = model.nextClockEvent(), clock.isFinish {
+                    Text("Time cap in " + SessionModel.formatElapsed(max(0, clock.time - nowT).rounded(.up)))
+                        .font(.system(size: 14, weight: .semibold, design: .rounded).monospacedDigit())
+                        .foregroundColor(.yellow)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                }
+            }
 
             if let run = model.runLine(now: now) {
                 Text(runText(run))

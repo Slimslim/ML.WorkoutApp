@@ -217,4 +217,49 @@ final class WorkoutTests: XCTestCase {
         let obj = try jsonObject(data)
         XCTAssertTrue(obj["startDate"] is String)
     }
+
+    // MARK: Timed segments
+
+    func testIntervalRestEndsOnTheClock() {
+        var p = WorkoutProgress(definition: WorkoutLibrary.rowThrusters)
+        p.start(at: 1000)
+        XCTAssertNil(p.autoAdvanceTime())
+        p.advance(at: 1060, source: .crown)
+        XCTAssertNil(p.autoAdvanceTime())
+        p.advance(at: 1100, source: .crown)
+        XCTAssertEqual(p.autoAdvanceTime(), 1180)
+        p.advance(at: 1180, source: .auto)
+        p.advance(at: 1250, source: .crown)
+        p.advance(at: 1370, source: .crown)
+        XCTAssertEqual(p.autoAdvanceTime(), 1540)
+    }
+
+    func testFixedRestAndAmrapCap() {
+        let d = WorkoutDefinition(
+            id: "t.rest", name: "Rest test", shortName: "Rest", format: .forTime, team: .solo,
+            timeCapSeconds: nil, healthKitActivity: "crossTraining",
+            segments: [
+                WorkoutSegment(kind: .station, movement: Movement.burpees, name: "Burpees", target: SegmentTarget(10, .reps)),
+                WorkoutSegment(kind: .rest, movement: Movement.rest, name: "Rest", target: SegmentTarget(60, .seconds)),
+                WorkoutSegment(kind: .station, movement: Movement.burpees, name: "Burpees", target: SegmentTarget(10, .reps))
+            ])
+        var p = WorkoutProgress(definition: d)
+        p.start(at: 0)
+        p.advance(at: 42, source: .crown)
+        XCTAssertEqual(p.autoAdvanceTime(), 102)
+        XCTAssertNil(p.capTime)
+
+        var a = WorkoutProgress(definition: WorkoutLibrary.amrap20)
+        a.start(at: 500)
+        XCTAssertEqual(a.capTime, 1700)
+        XCTAssertTrue(a.finish(at: 1700, source: .auto))
+        XCTAssertTrue(a.isFinished)
+        XCTAssertEqual(a.events.last?.kind, WorkoutEventKind.finish)
+    }
+
+    func testDefinitionWithoutIntervalDecodes() throws {
+        let json = "{\"id\":\"x\",\"name\":\"X\",\"shortName\":\"X\",\"format\":\"forTime\",\"team\":\"solo\",\"healthKitActivity\":\"crossTraining\",\"segments\":[]}"
+        let d = try JSONDecoder().decode(WorkoutDefinition.self, from: Data(json.utf8))
+        XCTAssertNil(d.intervalSeconds)
+    }
 }

@@ -177,3 +177,35 @@ def test_csv_without_lift_type_header_is_tolerated(tmp_path):
     w = load_workout_csv(path)
     assert w.workout_id == "quickTest" and w.definition is WorkoutLibrary.quickTest
     assert not w.progress.is_started
+
+
+def test_interval_rest_ends_on_the_clock():
+    p = WorkoutProgress(WorkoutLibrary.rowThrusters)
+    p.start(1000)
+    assert p.auto_advance_time() is None          # rowing
+    p.advance(1060, "crown")                       # thrusters
+    assert p.auto_advance_time() is None
+    p.advance(1100, "crown")                       # rest from 1:40
+    assert p.auto_advance_time() == 1180          # next set at 3:00
+    p.advance(1180, "auto")                        # set 2 row
+    p.advance(1250, "crown")
+    p.advance(1370, "crown")                       # rest starts late (6:10): next boundary 9:00
+    assert p.auto_advance_time() == 1540
+
+
+def test_fixed_rest_and_amrap_cap():
+    from barpath.workout import WorkoutDefinition, WorkoutSegment, SegmentTarget
+    d = WorkoutDefinition("t.rest", "Rest test", "Rest", "forTime", "solo", None, "crossTraining",
+                          [WorkoutSegment("station", "burpees", "Burpees", SegmentTarget(10, "reps")),
+                           WorkoutSegment("rest", "rest", "Rest", SegmentTarget(60, "seconds")),
+                           WorkoutSegment("station", "burpees", "Burpees", SegmentTarget(10, "reps"))])
+    p = WorkoutProgress(d)
+    p.start(0)
+    p.advance(42, "crown")
+    assert p.auto_advance_time() == 102
+    assert p.cap_time is None
+    a = WorkoutProgress(WorkoutLibrary.amrap20)
+    a.start(500)
+    assert a.cap_time == 1700
+    assert a.finish(1700, "auto") and a.is_finished
+    assert a.events[-1].kind == "finish"

@@ -130,6 +130,14 @@ final class WorkoutSessionModel: ObservableObject {
     private var pedometerSamples: [PedometerSnapshot] = []
     private var finalized = false
     private var startTimeoutTask: Task<Void, Never>?
+    /// Drives timed segments (rest on the clock, AMRAP cap) and the 3-2-1 countdown.
+    private var clockTask: Task<Void, Never>?
+    private var countdownTarget: Double?
+    private var countdownLastBeep: Int?
+    /// After an undo into a timed rest whose time has already passed, don't auto-advance it
+    /// again (keyed by that segment's start time); same for a passed AMRAP cap.
+    private var autoSuppressedStart: Double?
+    private var capSuppressed = false
     private var endTimeoutTask: Task<Void, Never>?
     /// Managers replaced because they got stuck (kept alive so they can still finish).
     private var retiredManagers: [WorkoutManager] = []
@@ -234,6 +242,10 @@ final class WorkoutSessionModel: ObservableObject {
         csvBytes = 0
         marksCount = 0
         finalized = false
+        autoSuppressedStart = nil
+        capSuppressed = false
+        countdownTarget = nil
+        countdownLastBeep = nil
         phase = .starting
 
         if workout.hasSession {
@@ -268,7 +280,8 @@ final class WorkoutSessionModel: ObservableObject {
                                  description: "name=finish index=\(progress.currentIndex) source=\(source.rawValue)")
         } else {
             let kind = progress.currentSegment?.kind ?? .station
-            play(kind == .run ? .start : .directionUp)
+            // "Go" after a timed rest is always the strong haptic.
+            play(kind == .run || source == .auto ? .start : .directionUp)
             recorder.appendEvent(atUptime: uptime,
                                  description: "name=segment index=\(progress.currentIndex) kind=\(kind.rawValue) source=\(source.rawValue)")
         }
@@ -287,6 +300,12 @@ final class WorkoutSessionModel: ObservableObject {
         let wasFinished = progress.isFinished
         guard progress.undo(at: t, source: source) else { return false }
         play(.directionDown)
+        if let auto = progress.autoAdvanceTime(), auto <= t {
+            autoSuppressedStart = progress.segmentStarts.last
+        }
+        if let cap = progress.capTime, cap <= t {
+            capSuppressed = true
+        }
         let name = wasFinished ? "unfinish" : "undo"
         recorder.appendEvent(atUptime: uptime,
                              description: "name=\(name) index=\(progress.currentIndex) source=\(source.rawValue)")
@@ -339,9 +358,80 @@ final class WorkoutSessionModel: ObservableObject {
         recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
                              description: "name=segment index=0 kind=\(kind.rawValue) source=start")
         persistProgress()
+        startClock()
         startPedometer(from: Date(timeIntervalSince1970: t))
         play(kind == .run ? .start : .directionUp)
         workoutLog.info("Workout started: \(self.progress.definition.id, privacy: .public), HK \(self.healthKitRunning), data \(self.dataMode)")
+    }
+
+    // MARK: - Clock (timed rests, AMRAP cap)
+
+    /// The next automatic change, if any: a timed rest ending (advance) or the AMRAP cap
+    /// (finish), whichever comes first.
+    func nextClockEvent() -> (time: Double, isFinish: Bool)? {
+        guard phase == .running, progress.isStarted, !progress.isFinished else { return nil }
+        var best: (time: Double, isFinish: Bool)? = nil
+        if let t = progress.autoAdvanceTime(), progress.segmentStarts.last != autoSuppressedStart {
+            best = (time: t, isFinish: false)
+        }
+        if let cap = progress.capTime, !capSuppressed {
+            if let current = best {
+                if cap <= current.time { best = (time: cap, isFinish: true) }
+            } else {
+                best = (time: cap, isFinish: true)
+            }
+        }
+        return best
+    }
+
+    private func startClock() {
+        clockTask?.cancel()
+        clockTask = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 200_000_000)
+                guard let self = self else { return }
+                if self.phase != .running { return }
+                self.clockTick()
+            }
+        }
+    }
+
+    private func clockTick() {
+        guard let event = nextClockEvent() else {
+            countdownTarget = nil
+            return
+        }
+        if countdownTarget != event.time {
+            countdownTarget = event.time
+            countdownLastBeep = nil
+        }
+        let remaining = event.time - Date().timeIntervalSince1970
+        if remaining <= 0 {
+            countdownTarget = nil
+            if event.isFinish {
+                finishByCap()
+            } else {
+                _ = advance(source: .auto)
+            }
+            return
+        }
+        // Ready, set, go: one tap at 3, 2 and 1 s; the advance itself plays the "go".
+        let second = Int(remaining.rounded(.up))
+        if second >= 1 && second <= 3 && countdownLastBeep != second {
+            countdownLastBeep = second
+            play(.click)
+        }
+    }
+
+    private func finishByCap() {
+        let t = Date().timeIntervalSince1970
+        guard progress.finish(at: t, source: .auto) else { return }
+        play(.success)
+        recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
+                             description: "name=finish index=\(progress.currentIndex) source=auto")
+        lastChangeDate = Date()
+        persistProgress()
+        workoutLog.info("time cap reached at segment \(self.progress.currentIndex)")
     }
 
     // MARK: - HealthKit callbacks
@@ -416,6 +506,8 @@ final class WorkoutSessionModel: ObservableObject {
     private func goIdle() {
         endTimeoutTask?.cancel()
         endTimeoutTask = nil
+        clockTask?.cancel()
+        clockTask = nil
         phase = .idle
         heartRate = nil
         healthKitRunning = false

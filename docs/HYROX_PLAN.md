@@ -135,3 +135,14 @@ gradient boosting). These port to Swift as plain code or Core ML and run live on
 The known segment order means the detector only has to decide "has the next segment started
 yet?". Rep counting later: peak detection per known station, checked against the known
 totals.
+
+## 7. Backlog from the athlete (2026-10-28)
+
+- **Timed segments:** a rest ends by itself on the clock: "every 3:00" sets (`intervalSeconds`)
+  and fixed rests ("1:00 rest", a rest segment with a seconds target). Countdown haptic at 3, 2
+  and 1 s, then a strong "go". The AMRAP finishes itself at the time cap. *(Built 2026-10-28.)*
+- **Phone Live tab after a workout:** an overview of the workout that just finished: total
+  time, splits, HR, rounds (AMRAP), average pace per run segment and anything else useful.
+  This is the Live tab's "last workout" state.
+- **Live screen per workout type:** what the watch shows during a segment should depend on the
+  workout (runs vs stations vs rests vs AMRAP rounds).

@@ -103,6 +103,41 @@ public struct WorkoutProgress: Codable, Equatable {
         return true
     }
 
+    /// Finishes the workout now, whatever the current segment (AMRAP time cap).
+    @discardableResult
+    public mutating func finish(at t: Double, source: AdvanceSource) -> Bool {
+        guard isStarted, !isFinished, let last = segmentStarts.last, t >= last else { return false }
+        finishTime = t
+        events.append(WorkoutEvent(t: t, kind: .finish, segmentIndex: currentIndex, source: source))
+        return true
+    }
+
+    /// When the current segment ends by itself (seconds since 1970), or nil if only the
+    /// athlete ends it:
+    /// - a rest with a seconds target ends after that long ("1:00 rest");
+    /// - another rest in a definition with `intervalSeconds` ends on the next interval
+    ///   boundary after it began ("every 3:00": the next set starts on the clock).
+    public func autoAdvanceTime() -> Double? {
+        guard isStarted, !isFinished, let segment = currentSegment, segment.kind == .rest,
+              let segmentStart = segmentStarts.last, let start = startTime else { return nil }
+        if let target = segment.target, target.unit == .seconds, target.value > 0 {
+            return segmentStart + target.value
+        }
+        if let interval = definition.intervalSeconds, interval > 0 {
+            let elapsed = segmentStart - start
+            let next = (elapsed / interval).rounded(.down) + 1.0
+            return start + next * interval
+        }
+        return nil
+    }
+
+    /// AMRAP time cap: when the workout finishes by itself, or nil.
+    public var capTime: Double? {
+        guard definition.format == .amrap, let cap = definition.timeCapSeconds, cap > 0,
+              let start = startTime else { return nil }
+        return start + cap
+    }
+
     public mutating func recordEnd(at t: Double) {
         events.append(WorkoutEvent(t: t, kind: .end, segmentIndex: currentIndex, source: nil))
     }

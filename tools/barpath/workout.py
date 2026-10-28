@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import uuid as _uuid
+import math
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional
@@ -125,6 +126,7 @@ class WorkoutDefinition:
     time_cap_seconds: Optional[float]
     health_kit_activity: str
     segments: list = field(default_factory=list)
+    interval_seconds: Optional[float] = None
 
     @property
     def run_count(self) -> int:
@@ -140,14 +142,18 @@ class WorkoutDefinition:
              "segments": [s.to_dict() for s in self.segments]}
         if self.time_cap_seconds is not None:
             d["timeCapSeconds"] = self.time_cap_seconds
+        if self.interval_seconds is not None:
+            d["intervalSeconds"] = self.interval_seconds
         return d
 
     @classmethod
     def from_dict(cls, d: dict) -> "WorkoutDefinition":
         cap = d.get("timeCapSeconds")
+        interval = d.get("intervalSeconds")
         return cls(d["id"], d["name"], d["shortName"], d["format"], d["team"],
                    None if cap is None else float(cap), d["healthKitActivity"],
-                   [WorkoutSegment.from_dict(s) for s in d["segments"]])
+                   [WorkoutSegment.from_dict(s) for s in d["segments"]],
+                   None if interval is None else float(interval))
 
 
 # ---- library ----------------------------------------------------------------------------------
@@ -218,7 +224,8 @@ class WorkoutLibrary:
     rowThrusters = WorkoutDefinition(
         "wod.rowThrusters", "Every 3:00 × 6: Row + Thrusters", "Row Thrust", "emom", "solo", 18 * 60,
         "crossTraining",
-        ([_station(Movement.row, 15, "calories"), _station(Movement.thrusters, 12, "reps"), _rest()] * 6)[:-1])
+        ([_station(Movement.row, 15, "calories"), _station(Movement.thrusters, 12, "reps"), _rest()] * 6)[:-1],
+        interval_seconds=180.0)
     amrap20 = WorkoutDefinition(
         "wod.nightmareAmrap", "Nightmare AMRAP 20", "AMRAP 20", "amrap", "solo", 20 * 60, "crossTraining",
         [_station(Movement.lateralBurpeeOverDumbbell, 10, "reps"), _station(Movement.doubleUnders, 31, "reps"),
@@ -333,6 +340,38 @@ class WorkoutProgress:
         self.segment_starts.pop()
         self.events.append(WorkoutEvent(t, "undo", self.current_index, source))
         return True
+
+    def finish(self, t: float, source: str) -> bool:
+        """Finishes now, whatever the current segment (AMRAP time cap)."""
+        if not self.is_started or self.is_finished or t < self.segment_starts[-1]:
+            return False
+        self.finish_time = t
+        self.events.append(WorkoutEvent(t, "finish", self.current_index, source))
+        return True
+
+    def auto_advance_time(self) -> Optional[float]:
+        """When the current rest ends by itself: a seconds target, or the next interval boundary."""
+        if not self.is_started or self.is_finished:
+            return None
+        seg = self.current_segment
+        if seg is None or seg.kind != "rest":
+            return None
+        seg_start = self.segment_starts[-1]
+        start = self.start_time
+        if seg.target is not None and seg.target.unit == "seconds" and seg.target.value > 0:
+            return seg_start + seg.target.value
+        interval = self.definition.interval_seconds
+        if interval is not None and interval > 0:
+            nxt = math.floor((seg_start - start) / interval) + 1.0
+            return start + nxt * interval
+        return None
+
+    @property
+    def cap_time(self) -> Optional[float]:
+        d = self.definition
+        if d.format != "amrap" or d.time_cap_seconds is None or d.time_cap_seconds <= 0 or not self.is_started:
+            return None
+        return self.start_time + d.time_cap_seconds
 
     def record_end(self, t: float) -> None:
         self.events.append(WorkoutEvent(t, "end", self.current_index, None))

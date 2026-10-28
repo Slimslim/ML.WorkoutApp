@@ -129,7 +129,7 @@ public enum WorkoutLibrary {
         ], rounds: 3))
 
     /// Class workout: every 3:00 × 6 sets of 15 cal row + 12 thrusters; rest until the next set.
-    /// v1 has no clock-driven advance, so the athlete turns the Crown into each set.
+    /// The rest ends by itself on the 3:00 clock (`intervalSeconds`), with a 3-2-1 countdown.
     public static let rowThrusters: WorkoutDefinition = WorkoutDefinition(
         id: "wod.rowThrusters", name: "Every 3:00 × 6: Row + Thrusters", shortName: "Row Thrust",
         format: .emom, team: .solo, timeCapSeconds: 1080.0, healthKitActivity: "crossTraining",
@@ -137,7 +137,8 @@ public enum WorkoutLibrary {
             station(Movement.row, 15, .calories),
             station(Movement.thrusters, 12, .reps),
             restSegment()
-        ], rounds: 6).dropLast()))
+        ], rounds: 6).dropLast()),
+        intervalSeconds: 180.0)
 
     /// Class workout: "Nightmare Before Halloween", 20:00 AMRAP. 10 rounds listed; end the
     /// workout at 20:00 wherever you are.

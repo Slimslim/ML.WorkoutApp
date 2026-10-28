@@ -140,10 +140,14 @@ public struct WorkoutDefinition: Codable, Equatable, Identifiable {
     public var timeCapSeconds: Double?
     public var healthKitActivity: String
     public var segments: [WorkoutSegment]
+    /// "Every N:00" workouts: sets start on multiples of this from the workout start, so a
+    /// rest segment without its own duration ends on the next boundary. Optional in JSON.
+    public var intervalSeconds: Double?
 
     public init(id: String, name: String, shortName: String, format: WorkoutFormat,
                 team: TeamFormat, timeCapSeconds: Double?, healthKitActivity: String,
-                segments: [WorkoutSegment]) {
+                segments: [WorkoutSegment], intervalSeconds: Double? = nil) {
+        self.intervalSeconds = intervalSeconds
         self.id = id
         self.name = name
         self.shortName = shortName
