@@ -123,8 +123,19 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         let isMarks = type == "marks" || name.hasSuffix("-marks.csv")
         let isSessionCSV = !isMarks && (type == "session" || type == "sessioncsv" || (type != "lift" && isCSV))
 
+        let isWorkoutResult = type == "workoutresult"
+            || (name.hasPrefix("workout-") && name.hasSuffix(".json"))
+
         do {
-            if isMarks || isSessionCSV {
+            if isWorkoutResult {
+                // Synchronous move: the system deletes `source` when this method returns.
+                let destination = try WorkoutFiles.storeIncomingResult(from: source,
+                                                                       metadataId: metadata["id"] as? String)
+                notifyReceived()
+                Task { @MainActor in
+                    WorkoutStore.shared.ingest(at: destination)
+                }
+            } else if isMarks || isSessionCSV {
                 // Synchronous move: the system deletes `source` when this method returns.
                 _ = try LiftFiles.storeIncomingDebugFile(from: source,
                                                          isMarks: isMarks,
