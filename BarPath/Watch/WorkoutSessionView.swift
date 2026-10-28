@@ -227,13 +227,14 @@ struct WorkoutMainPage: View {
             crownFocused = true
         }
         .onChange(of: isActivePage) { _, active in
-            if active { crownFocused = true }
+            // Off page 1 the Crown must not advance/undo unseen: drop focus there.
+            crownFocused = active
         }
         .onChange(of: focusToken) { _, _ in
             crownFocused = true
         }
         .onChange(of: isLuminanceReduced) { _, reduced in
-            if !reduced { crownFocused = true }
+            if !reduced && isActivePage { crownFocused = true }
         }
     }
 
