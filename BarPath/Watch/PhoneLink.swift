@@ -168,8 +168,15 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     }
 
     /// Metadata reconstructed from the file name (used for re-sends).
-    /// `<uuid>.json` → lift, `session-<uuid>.csv` → debug session CSV.
+    /// `workout-<uuid>.json` → workout result, `<uuid>.json` → lift,
+    /// `session-<uuid>.csv` → debug session CSV.
     static func metadata(forFileNamed name: String) -> [String: Any]? {
+        // Workout results first: they also end in ".json".
+        if name.hasPrefix("workout-") && name.hasSuffix(".json") {
+            let id = String(name.dropFirst(8).dropLast(5))
+            guard UUID(uuidString: id) != nil else { return nil }
+            return workoutResultMetadata(id: id)
+        }
         if name.hasSuffix(".json") {
             let id = String(name.dropLast(5))
             guard UUID(uuidString: id) != nil else { return nil }
@@ -184,6 +191,10 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
 
     static func liftMetadata(id: String) -> [String: Any] {
         return ["type": "lift", "id": id]
+    }
+
+    static func workoutResultMetadata(id: String) -> [String: Any] {
+        return ["type": "workoutResult", "id": id]
     }
 
     static func sessionCSVMetadata(sessionId: String) -> [String: Any] {

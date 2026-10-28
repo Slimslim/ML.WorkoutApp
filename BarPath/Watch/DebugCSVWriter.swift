@@ -18,6 +18,8 @@ final class DebugCSVWriter {
     let sessionId: UUID
     private let bootDate: Date
     private let liftType: LiftType
+    /// Replaces `liftType=<raw>` in the header line when set (workout mode: `workout=<id>`).
+    private let headerTag: String?
     private let recordingURL: URL
     private var handle: FileHandle?
     private var failed = false
@@ -33,10 +35,11 @@ final class DebugCSVWriter {
 
     var fileName: String { "session-\(sessionId.uuidString).csv" }
 
-    init(sessionId: UUID, bootDate: Date, liftType: LiftType) {
+    init(sessionId: UUID, bootDate: Date, liftType: LiftType, headerTag: String? = nil) {
         self.sessionId = sessionId
         self.bootDate = bootDate
         self.liftType = liftType
+        self.headerTag = headerTag
         self.recordingURL = WatchFiles.recording.appendingPathComponent("session-\(sessionId.uuidString).csv")
     }
 
@@ -132,7 +135,8 @@ final class DebugCSVWriter {
         t0 = startTime
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        var header = "# barpath-session v1, sessionId=\(sessionId.uuidString), startDate=\(formatter.string(from: startDate)), liftType=\(liftType.rawValue)\n"
+        let tag: String = headerTag ?? "liftType=\(liftType.rawValue)"
+        var header = "# barpath-session v1, sessionId=\(sessionId.uuidString), startDate=\(formatter.string(from: startDate)), \(tag)\n"
         header += "t,qw,qx,qy,qz,ax,ay,az,gx,gy,gz,rx,ry,rz\n"
         for comment in pendingComments {
             if let t0 = startTime {

@@ -18,6 +18,9 @@ final class WorkoutManager: NSObject, ObservableObject {
     private var builder: HKLiveWorkoutBuilder?
     private var isFinishing = false
     private(set) var startDate: Date?
+    /// Used by `beginSession()`. Lifting keeps the defaults; workout mode sets them before `start()`.
+    var activityType: HKWorkoutActivityType = .traditionalStrengthTraining
+    var locationType: HKWorkoutSessionLocationType = .indoor
 
     var onStateChange: (@MainActor (HKWorkoutSessionState) -> Void)?
     var onHeartRate: (@MainActor (Double) -> Void)?
@@ -64,8 +67,8 @@ final class WorkoutManager: NSObject, ObservableObject {
     private func beginSession() {
         guard session == nil else { return }
         let configuration = HKWorkoutConfiguration()
-        configuration.activityType = .traditionalStrengthTraining
-        configuration.locationType = .indoor
+        configuration.activityType = activityType
+        configuration.locationType = locationType
 
         let newSession: HKWorkoutSession
         do {
