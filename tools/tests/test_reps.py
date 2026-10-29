@@ -65,3 +65,78 @@ def test_set_tracker_replay_finds_one_set_of_six(sid):
     assert len(sets) == 1 and len(sets[0][3]) == 6
     live = [e[1] for e in events if e[0] == "rep"]
     assert live == [1, 2, 3, 4, 5, 6]
+
+
+# --- synthetic sets (code review 2026-10-29: slow sets, duplicate flush, long sets) ---
+
+FS = 200.0
+
+
+def _synthetic_set(n_reps, period, rom=0.6, up=1.0, down=1.0, lead=8.0, tail=10.0):
+    """Arms hanging (ĝ = -x), bar pulled `rom` m in `up` s (half-sine velocity), held,
+    lowered in `down` s, paused on the floor; one rep every `period` s."""
+    def rep_v(t):
+        v = np.zeros_like(t)
+        vu = np.pi * rom / (2 * up)
+        vd = np.pi * rom / (2 * down)
+        m = (t >= 0) & (t < up)
+        v[m] = vu * np.sin(np.pi * t[m] / up)
+        t2 = t - (up + 0.4)
+        m = (t2 >= 0) & (t2 < down)
+        v[m] = -vd * np.sin(np.pi * t2[m] / down)
+        return v
+    total = lead + n_reps * period + tail
+    t = np.arange(0, total, 1 / FS)
+    v = np.zeros_like(t)
+    for k in range(n_reps):
+        v += rep_v(t - lead - k * period)
+    a_up = np.gradient(v, t)
+    g = np.tile([-1.0, 0.0, 0.0], (len(t), 1))
+    ua = g * (a_up / 9.80665)[:, None]
+    return t, ua, g
+
+
+def _replay(t, ua, g, flush_after_set=False):
+    from barpath.reps import SetTracker
+    tr = SetTracker()
+    events, dup = [], []
+    for k in range(0, len(t), 200):
+        ev = tr.process(t, ua, g, np.arange(k, min(len(t), k + 200)))
+        events += ev
+        if flush_after_set and any(e[0] == "set" for e in ev):
+            d = tr.flush(t, ua, g)
+            if d:
+                dup.append(d)
+    last = tr.flush(t, ua, g)
+    if last:
+        events.append(last)
+    sets = [e for e in events if e[0] == "set"]
+    live = [e[1] for e in events if e[0] == "rep"]
+    return sets, live, dup
+
+
+def test_synthetic_fast_set_is_one_set():
+    sets, live, _ = _replay(*_synthetic_set(6, 2.5))
+    assert [len(s[3]) for s in sets] == [6]
+    assert live == list(range(1, 7))
+
+
+def test_slow_dead_stop_set_is_not_split():
+    # reps 5 s apart: the next rep is detected but not yet confirmed when 6 s pass
+    sets, live, _ = _replay(*_synthetic_set(5, 5.0, up=1.6, down=1.4))
+    assert [len(s[3]) for s in sets] == [5]
+    assert live == list(range(1, 6))
+
+
+def test_flush_right_after_set_end_does_not_duplicate():
+    sets, _, dup = _replay(*_synthetic_set(6, 2.5), flush_after_set=True)
+    assert [len(s[3]) for s in sets] == [6]
+    assert dup == []
+
+
+def test_long_set_keeps_counting():
+    # 25 reps × 4.5 s ≈ 112 s, longer than the old 90 s history cap
+    sets, live, _ = _replay(*_synthetic_set(25, 4.5))
+    assert [len(s[3]) for s in sets] == [25]
+    assert live == list(range(1, 26))
+    assert sets[0][1] < 8.0   # recording still starts before the first rep

@@ -8,9 +8,12 @@ public enum SetEvent: Equatable, Sendable {
     case setEnded(start: Double, end: Double, firstRepStart: Double, lastRepEnd: Double, reps: [Rep])
 }
 
-/// Live rep counting for strength mode on the watch. Runs RepCounter on the samples since the
-/// end of the previous set; a rep is "confirmed" once its top is `settle` s old (the centred
-/// moving averages need that much future), so the live count lags the bar by ~2 s.
+/// Live rep counting for strength mode on the watch (mirrors `SetTracker` in
+/// tools/barpath/reps.py). RepCounter runs on the last `countWindow` s; a rep is confirmed
+/// once its top is `settle` s old (the centred moving averages need that much future, so the
+/// live count lags the bar by ~2 s) and is appended, never recomputed, if it starts after the
+/// last confirmed rep. The set ends `setEndGap` s after the last *detected* rep (so slow sets
+/// are not split), or when its recording would exceed `maxHistory` s.
 public struct SetTracker {
     public var config: RepConfig
     /// Seconds without a new rep that end the set.
@@ -19,8 +22,10 @@ public struct SetTracker {
     public var postRoll: Double = 2.0
     /// While no set is in progress, keep only this much history (s).
     public var idleHistory: Double = 20.0
-    /// Hard cap on the history (s); a longer set is cut at this length.
-    public var maxHistory: Double = 90.0
+    /// RepCounter looks at this much recent history (s) per batch.
+    public var countWindow: Double = 30.0
+    /// Longest set recording (s); a longer set is ended there.
+    public var maxHistory: Double = 180.0
 
     public private(set) var liveReps: [Rep] = []
     private var samples: [MotionSample] = []
@@ -52,32 +57,53 @@ public struct SetTracker {
             samples.append(s)
         }
         guard let latest = samples.last?.t else { return [] }
-        trim(latest: latest)
+        let keepFrom: Double
+        if let first = liveReps.first {
+            keepFrom = max(floorTime, first.start - preRoll)
+        } else {
+            keepFrom = max(floorTime, latest - idleHistory)
+        }
+        drop(before: keepFrom)
 
         var events: [SetEvent] = []
-        let all = RepCounter.count(MotionSeries(samples), config: config).reps
-        let confirmed = all.filter { $0.end <= latest - settle }
-        if confirmed.count > liveReps.count {
-            events.append(.repCounted(confirmed.count))
+        let reps = countRecent(latest: latest)
+        let after = liveReps.last?.end ?? -Double.greatestFiniteMagnitude
+        let fresh = reps.filter { $0.start > after }
+        let confirmed = fresh.filter { $0.end <= latest - settle }
+        if !confirmed.isEmpty {
+            liveReps += confirmed
+            events.append(.repCounted(liveReps.count))
         }
-        if confirmed.count >= liveReps.count {
-            liveReps = confirmed
-        }
-        if let last = liveReps.last, latest - last.end >= setEndGap {
-            events.append(finishSet())
+        if let first = liveReps.first, let last = liveReps.last {
+            var lastEnd = last.end
+            for r in fresh where r.end > lastEnd {
+                lastEnd = r.end
+            }
+            let tooLong = latest - (first.start - preRoll) >= maxHistory
+            if latest - lastEnd >= setEndGap || tooLong {
+                events.append(finishSet())
+            }
         }
         return events
     }
 
     /// Ends a set in progress now (session end / Change). Nil if no rep was counted.
     public mutating func flush() -> SetEvent? {
-        guard !samples.isEmpty else { return nil }
-        let all = RepCounter.count(MotionSeries(samples), config: config).reps
-        if all.count > liveReps.count {
-            liveReps = all
+        // Samples of a set that already ended are not counted again.
+        drop(before: floorTime)
+        if let latest = samples.last?.t {
+            let after = liveReps.last?.end ?? -Double.greatestFiniteMagnitude
+            liveReps += countRecent(latest: latest).filter { $0.start > after }
         }
         guard !liveReps.isEmpty else { return nil }
         return finishSet()
+    }
+
+    private func countRecent(latest: Double) -> [Rep] {
+        let from = latest - countWindow
+        let start = samples.firstIndex(where: { $0.t >= from }) ?? samples.count
+        guard start < samples.count else { return [] }
+        return RepCounter.count(MotionSeries(Array(samples[start...])), config: config).reps
     }
 
     private mutating func finishSet() -> SetEvent {
@@ -92,15 +118,9 @@ public struct SetTracker {
         return event
     }
 
-    private mutating func trim(latest: Double) {
-        var keepFrom = max(floorTime, latest - (inSet ? maxHistory : idleHistory))
-        if inSet {
-            // never cut away the set's own pre-roll
-            keepFrom = min(keepFrom, max(floorTime, liveReps[0].start - preRoll))
-            keepFrom = max(keepFrom, latest - maxHistory)
-        }
-        if let first = samples.first, first.t < keepFrom {
-            let idx = samples.firstIndex(where: { $0.t >= keepFrom }) ?? samples.count
+    private mutating func drop(before t: Double) {
+        if let first = samples.first, first.t < t {
+            let idx = samples.firstIndex(where: { $0.t >= t }) ?? samples.count
             samples.removeFirst(idx)
         }
     }

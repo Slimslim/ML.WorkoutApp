@@ -170,6 +170,7 @@ final class SessionModel: ObservableObject {
         guard phase == .idle else { return }
         errorMessage = nil
         lastSummary = nil
+        pendingPhoneLift = nil
         sessionId = UUID()
         liftCount = 0
         savedLiftCount = 0
@@ -336,7 +337,7 @@ final class SessionModel: ObservableObject {
             stopRecording()
         }
         if sessionStartDate != nil {
-            var summary = "\(liftCount) lift\(liftCount == 1 ? "" : "s") sent"
+            var summary = "\(liftCount) recording\(liftCount == 1 ? "" : "s") sent"
             if isRecordingCSV {
                 summary += " + session CSV (\(SessionModel.formatBytes(csvBytes)))"
             }
@@ -346,6 +347,10 @@ final class SessionModel: ObservableObject {
         sessionStartDate = nil
         heartRate = nil
         detectorState = .idle
+        // A lift sent from the phone during the session is the setup for the next one.
+        if let selection = pendingPhoneLift {
+            apply(selection)
+        }
         sendStatus()
     }
 

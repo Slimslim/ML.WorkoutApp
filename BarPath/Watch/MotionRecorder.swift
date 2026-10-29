@@ -215,7 +215,8 @@ final class MotionRecorder {
             }
         }
 
-        if CMBatchedSensorManager.isAccelerometerSupported {
+        // Strength mode records motion only (sets are analyzed by RepCounter): no 800 Hz stream.
+        if CMBatchedSensorManager.isAccelerometerSupported && !repMode {
             accelActive = true
             accelTask = Task { @MainActor [weak self] in
                 do {

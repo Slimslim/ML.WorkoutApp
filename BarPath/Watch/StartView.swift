@@ -71,7 +71,7 @@ struct StartView: View {
                     Button {
                         confirmFinish = true
                     } label: {
-                        Text("Finish workout · \(model.liftCount) lift\(model.liftCount == 1 ? "" : "s")")
+                        Text("Finish workout · \(model.liftCount) saved")
                             .font(.system(size: 13, weight: .bold, design: .rounded))
                             .foregroundColor(Color(red: 1.0, green: 0.41, blue: 0.38))
                             .lineLimit(1)

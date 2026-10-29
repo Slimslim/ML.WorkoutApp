@@ -70,4 +70,96 @@ final class RepCounterTests: XCTestCase {
         XCTAssertEqual(sets.first?.count, expectedReps)
         XCTAssertEqual(live, Array(1...expectedReps))
     }
+
+    // MARK: - Synthetic sets (code review 2026-10-29), same as tools/tests/test_reps.py
+
+    /// Arms hanging (ĝ = -x); bar pulled `rom` m in `up` s (half-sine velocity), held 0.4 s,
+    /// lowered in `down` s, paused on the floor; one rep every `period` s.
+    private func syntheticSet(reps: Int, period: Double, rom: Double = 0.6, up: Double = 1.0,
+                              down: Double = 1.0, lead: Double = 8.0, tail: Double = 10.0) -> [MotionSample] {
+        let fs = 200.0
+        let n = Int(((lead + Double(reps) * period + tail) * fs).rounded(.down))
+        var t = [Double](repeating: 0, count: n)
+        var v = [Double](repeating: 0, count: n)
+        let vu = Double.pi * rom / (2 * up)
+        let vd = Double.pi * rom / (2 * down)
+        for i in 0..<n {
+            t[i] = Double(i) / fs
+            for k in 0..<reps {
+                let tr = t[i] - lead - Double(k) * period
+                if tr >= 0 && tr < up {
+                    v[i] += vu * sin(Double.pi * tr / up)
+                }
+                let td = tr - (up + 0.4)
+                if td >= 0 && td < down {
+                    v[i] -= vd * sin(Double.pi * td / down)
+                }
+            }
+        }
+        var out: [MotionSample] = []
+        out.reserveCapacity(n)
+        let g = Vec3(-1, 0, 0)
+        for i in 0..<n {
+            let lo = max(0, i - 1)
+            let hi = min(n - 1, i + 1)
+            let a = (v[hi] - v[lo]) / (t[hi] - t[lo])
+            out.append(MotionSample(t: t[i], attitude: Quat.identity, userAccel: g * (a / standardGravity),
+                                    gravity: g, rotationRate: Vec3.zero))
+        }
+        return out
+    }
+
+    private func replay(_ samples: [MotionSample], flushAfterSet: Bool = false)
+        -> (sets: [[Rep]], live: [Int], duplicates: Int, firstStart: Double?) {
+        var tracker = SetTracker()
+        var sets: [[Rep]] = []
+        var live: [Int] = []
+        var duplicates = 0
+        var firstStart: Double?
+        func record(_ e: SetEvent) {
+            switch e {
+            case .repCounted(let n): live.append(n)
+            case .setEnded(let start, _, _, _, let reps):
+                sets.append(reps)
+                if firstStart == nil { firstStart = start }
+            }
+        }
+        var k = 0
+        while k < samples.count {
+            let end = min(samples.count, k + 200)
+            let events = tracker.process(Array(samples[k..<end]))
+            events.forEach(record)
+            if flushAfterSet && events.contains(where: { if case .setEnded = $0 { return true } else { return false } }) {
+                if tracker.flush() != nil { duplicates += 1 }
+            }
+            k = end
+        }
+        if let last = tracker.flush() { record(last) }
+        return (sets, live, duplicates, firstStart)
+    }
+
+    func testSyntheticFastSetIsOneSet() {
+        let r = replay(syntheticSet(reps: 6, period: 2.5))
+        XCTAssertEqual(r.sets.map { $0.count }, [6])
+        XCTAssertEqual(r.live, Array(1...6))
+    }
+
+    func testSlowDeadStopSetIsNotSplit() {
+        let r = replay(syntheticSet(reps: 5, period: 5.0, up: 1.6, down: 1.4))
+        XCTAssertEqual(r.sets.map { $0.count }, [5])
+        XCTAssertEqual(r.live, Array(1...5))
+    }
+
+    func testFlushRightAfterSetEndDoesNotDuplicate() {
+        let r = replay(syntheticSet(reps: 6, period: 2.5), flushAfterSet: true)
+        XCTAssertEqual(r.sets.map { $0.count }, [6])
+        XCTAssertEqual(r.duplicates, 0)
+    }
+
+    func testLongSetKeepsCounting() {
+        let r = replay(syntheticSet(reps: 25, period: 4.5))
+        XCTAssertEqual(r.sets.map { $0.count }, [25])
+        XCTAssertEqual(r.live, Array(1...25))
+        XCTAssertLessThan(r.firstStart ?? 99, 8.0)
+    }
 }

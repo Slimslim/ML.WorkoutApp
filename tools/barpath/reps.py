@@ -119,14 +119,19 @@ def count_reps(t, user_accel, gravity, cfg: RepConfig = RepConfig()) -> RepAnaly
 
 @dataclass
 class SetTracker:
-    """Live strength-mode tracker (mirrors BarPathKit SetTracker): feed ~1 s batches; a rep is
-    confirmed once its top is `settle` s old; `setEndGap` s without a new rep ends the set."""
+    """Live strength-mode tracker (mirrors BarPathKit SetTracker): feed ~1 s batches.
+
+    RepCounter runs on the last `countWindow` s only; a rep is confirmed once its top is
+    `settle` s old and is appended (never recomputed) if it starts after the last confirmed
+    rep. The set ends `setEndGap` s after the last *detected* rep (confirmed or not), so slow
+    sets are not split; a set whose recording would exceed `maxHistory` s is ended there."""
     cfg: RepConfig = RepConfig()
     setEndGap: float = 6.0
     preRoll: float = 3.0
     postRoll: float = 2.0
     idleHistory: float = 20.0
-    maxHistory: float = 90.0
+    countWindow: float = 30.0
+    maxHistory: float = 180.0
 
     def __post_init__(self):
         self.live: List[Rep] = []
@@ -144,29 +149,31 @@ class SetTracker:
         if len(self.idx) == 0:
             return []
         latest = t[self.idx[-1]]
-        keep = max(self.floor, latest - (self.maxHistory if self.live else self.idleHistory))
-        if self.live:
-            keep = min(keep, max(self.floor, self.live[0].start - self.preRoll))
-            keep = max(keep, latest - self.maxHistory)
+        keep = max(self.floor, self.live[0].start - self.preRoll if self.live else latest - self.idleHistory)
         self.idx = self.idx[t[self.idx] >= keep]
         ev = []
-        i = self.idx
+        i = self.idx[t[self.idx] >= latest - self.countWindow]
         reps = count_reps(t[i], ua[i], g[i], self.cfg).reps
-        conf = [r for r in reps if r.end <= latest - self.settle]
-        if len(conf) > len(self.live):
-            ev.append(("rep", len(conf), latest))
-        if len(conf) >= len(self.live):
-            self.live = conf
-        if self.live and latest - self.live[-1].end >= self.setEndGap:
-            ev.append(self._finish())
+        after = self.live[-1].end if self.live else -np.inf
+        new = [r for r in reps if r.start > after and r.end <= latest - self.settle]
+        if new:
+            self.live += new
+            ev.append(("rep", len(self.live), latest))
+        if self.live:
+            last_end = max([self.live[-1].end] + [r.end for r in reps if r.start > after])
+            too_long = latest - (self.live[0].start - self.preRoll) >= self.maxHistory
+            if latest - last_end >= self.setEndGap or too_long:
+                ev.append(self._finish())
         return ev
 
     def flush(self, t, ua, g):
-        if len(self.idx):
-            i = self.idx
-            reps = count_reps(t[i], ua[i], g[i], self.cfg).reps
-            if len(reps) > len(self.live):
-                self.live = reps
+        """End a set in progress now (session end / Change); None if no rep."""
+        i = self.idx[t[self.idx] >= self.floor] if len(self.idx) else self.idx
+        if len(i):
+            latest = t[i[-1]]
+            i = i[t[i] >= latest - self.countWindow]
+            after = self.live[-1].end if self.live else -np.inf
+            self.live += [r for r in count_reps(t[i], ua[i], g[i], self.cfg).reps if r.start > after]
         return self._finish() if self.live else None
 
     def _finish(self):

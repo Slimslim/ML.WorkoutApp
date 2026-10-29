@@ -4,11 +4,6 @@ import WatchConnectivity
 import HealthKit
 import BarPathKit
 
-/// The single WCSessionDelegate of the iPhone app (one shared instance).
-///
-/// WatchConnectivity calls the delegate on a background queue. Published state is only
-/// mutated on the main queue. Incoming files are moved synchronously inside
-/// `session(_:didReceive:)`, because the system deletes them when that call returns.
 /// Live rep count of the set in progress, from the watch's status messages.
 struct LiveSetStatus: Equatable {
     let setNumber: Int
@@ -28,6 +23,11 @@ struct LiveSetStatus: Equatable {
     }
 }
 
+/// The single WCSessionDelegate of the iPhone app (one shared instance).
+///
+/// WatchConnectivity calls the delegate on a background queue. Published state is only
+/// mutated on the main queue. Incoming files are moved synchronously inside
+/// `session(_:didReceive:)`, because the system deletes them when that call returns.
 final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     static let shared = PhoneLink()
 
@@ -39,6 +39,9 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     @Published private(set) var lastStatusText: String?
     /// Strength-mode set in progress on the watch (live rep count), nil between sets.
     @Published private(set) var liveSet: LiveSetStatus?
+    /// Main-queue only: bumps on every status so a stale expiry doesn't clear a newer one.
+    private var liveSetGeneration = 0
+    private static let liveSetTimeout: TimeInterval = 15
     @Published private(set) var lastError: String?
     /// True while a "open the watch app" request (HKHealthStore.startWatchApp) is in flight.
     @Published private(set) var isLaunchingWatchApp = false
@@ -319,6 +322,17 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         DispatchQueue.main.async {
             self.lastStatusText = text.isEmpty ? nil : text
             self.liveSet = live
+            // The watch sends a status on every counted rep and at the end of the set; if
+            // that last message is lost, don't leave "Set in progress" up forever.
+            self.liveSetGeneration += 1
+            let generation = self.liveSetGeneration
+            if live != nil {
+                DispatchQueue.main.asyncAfter(deadline: .now() + PhoneLink.liveSetTimeout) {
+                    if self.liveSetGeneration == generation {
+                        self.liveSet = nil
+                    }
+                }
+            }
         }
     }
 }

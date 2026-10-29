@@ -279,7 +279,7 @@ struct EndConfirmView: View {
             Spacer(minLength: 0)
             Text("End session?")
                 .font(.system(size: 22, weight: .heavy, design: .rounded))
-            Text("\(liftCount) lift\(liftCount == 1 ? "" : "s") sent")
+            Text("\(liftCount) saved")
                 .font(.system(size: 14, weight: .semibold, design: .rounded))
                 .foregroundColor(.secondary)
             Spacer(minLength: 0)
