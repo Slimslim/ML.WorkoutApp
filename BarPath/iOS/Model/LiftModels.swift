@@ -53,7 +53,11 @@ struct LiftEntry: Identifiable, Sendable {
     let fileURL: URL
     let receivedAt: Date
     let display: LiftDisplay?
+    /// Strength-mode sets (deadlift): reps from RepCounter instead of a bar path.
+    let reps: RepAnalysis?
     let failure: String?
+
+    var isSet: Bool { return reps != nil }
 
     var subtitle: String {
         var parts: [String] = [liftType.displayName]
@@ -124,23 +128,32 @@ enum LiftProcessor {
         }
 
         var display: LiftDisplay? = nil
+        var reps: RepAnalysis? = nil
         var failure: String? = nil
-        do {
-            let analysis = try LiftAnalyzer.analyze(recording)
-            display = makeDisplay(from: analysis, liftType: recording.liftType)
-            if display == nil {
-                failure = "The analyzer returned an empty path."
+        if recording.liftType.countsReps {
+            let analysis = RepCounter.count(recording.motion)
+            reps = analysis
+            if analysis.count == 0 {
+                failure = "No reps found in this set."
             }
-        } catch let error as AnalysisError {
-            if error == .tooShort {
-                failure = "Recording too short to analyze (needs at least 0.5 s after the set position)."
-            } else if error == .noHomingFound {
-                failure = "Couldn't find a still set position before the pull."
-            } else {
-                failure = "Analysis failed: \(error)"
+        } else {
+            do {
+                let analysis = try LiftAnalyzer.analyze(recording)
+                display = makeDisplay(from: analysis, liftType: recording.liftType)
+                if display == nil {
+                    failure = "The analyzer returned an empty path."
+                }
+            } catch let error as AnalysisError {
+                if error == .tooShort {
+                    failure = "Recording too short to analyze (needs at least 0.5 s after the set position)."
+                } else if error == .noHomingFound {
+                    failure = "Couldn't find a still set position before the pull."
+                } else {
+                    failure = "Analysis failed: \(error)"
+                }
+            } catch {
+                failure = "Analysis failed: \(error.localizedDescription)"
             }
-        } catch {
-            failure = "Analysis failed: \(error.localizedDescription)"
         }
 
         let entry = LiftEntry(id: recording.id,
@@ -153,6 +166,7 @@ enum LiftProcessor {
                               fileURL: fileURL,
                               receivedAt: LiftFiles.modificationDate(fileURL) ?? Date(),
                               display: display,
+                              reps: reps,
                               failure: failure)
         return .entry(entry)
     }
@@ -163,7 +177,7 @@ enum LiftProcessor {
     /// Lifts that start with the bar on the floor are shown as height from the floor.
     static func floorOffset(for type: LiftType) -> Double {
         switch type {
-        case .hangSnatch, .hangClean, .jerk, .other:
+        case .hangSnatch, .hangClean, .jerk, .deadlift, .other:
             return 0.0
         default:
             return barHeightOnFloor

@@ -115,3 +115,62 @@ def count_reps(t, user_accel, gravity, cfg: RepConfig = RepConfig()) -> RepAnaly
         ok = rom >= cfg.minRange and abs(ghat[e, 0]) >= cfg.armHangMin
         (out.reps if ok else out.rejected).append(rep)
     return out
+
+
+@dataclass
+class SetTracker:
+    """Live strength-mode tracker (mirrors BarPathKit SetTracker): feed ~1 s batches; a rep is
+    confirmed once its top is `settle` s old; `setEndGap` s without a new rep ends the set."""
+    cfg: RepConfig = RepConfig()
+    setEndGap: float = 6.0
+    preRoll: float = 3.0
+    postRoll: float = 2.0
+    idleHistory: float = 20.0
+    maxHistory: float = 90.0
+
+    def __post_init__(self):
+        self.live: List[Rep] = []
+        self.idx = np.zeros(0, int)   # indices into the session arrays
+        self.floor = -np.inf
+
+    @property
+    def settle(self):
+        return self.cfg.detrend / 2 + 0.3
+
+    def process(self, t, ua, g, new_idx):
+        """`new_idx`: indices of this batch in the session arrays. Returns events."""
+        new_idx = new_idx[t[new_idx] >= self.floor]
+        self.idx = np.concatenate([self.idx, new_idx])
+        if len(self.idx) == 0:
+            return []
+        latest = t[self.idx[-1]]
+        keep = max(self.floor, latest - (self.maxHistory if self.live else self.idleHistory))
+        if self.live:
+            keep = min(keep, max(self.floor, self.live[0].start - self.preRoll))
+            keep = max(keep, latest - self.maxHistory)
+        self.idx = self.idx[t[self.idx] >= keep]
+        ev = []
+        i = self.idx
+        reps = count_reps(t[i], ua[i], g[i], self.cfg).reps
+        conf = [r for r in reps if r.end <= latest - self.settle]
+        if len(conf) > len(self.live):
+            ev.append(("rep", len(conf), latest))
+        if len(conf) >= len(self.live):
+            self.live = conf
+        if self.live and latest - self.live[-1].end >= self.setEndGap:
+            ev.append(self._finish())
+        return ev
+
+    def flush(self, t, ua, g):
+        if len(self.idx):
+            i = self.idx
+            reps = count_reps(t[i], ua[i], g[i], self.cfg).reps
+            if len(reps) > len(self.live):
+                self.live = reps
+        return self._finish() if self.live else None
+
+    def _finish(self):
+        reps = self.live
+        self.live = []
+        self.floor = reps[-1].end + self.postRoll
+        return ("set", reps[0].start - self.preRoll, reps[-1].end + self.postRoll, reps)

@@ -46,3 +46,22 @@ def test_moving_average_edges():
     x = np.arange(5, dtype=float)
     assert np.allclose(moving_average(x, 3), [0.5, 1, 2, 3, 3.5])
     assert np.allclose(moving_average(x, 1), x)
+
+
+@pytest.mark.parametrize("sid", ["0A3AE1B5", "8B36E5AE"])
+def test_set_tracker_replay_finds_one_set_of_six(sid):
+    from barpath.reps import SetTracker
+    s = _session(sid)
+    m = s.motion
+    t = m.t - m.t[0]
+    tr = SetTracker()
+    events = []
+    for k in range(0, len(t), 200):   # ~1 s batches, as on the watch
+        events += tr.process(t, m.user_accel, m.gravity, np.arange(k, min(len(t), k + 200)))
+    last = tr.flush(t, m.user_accel, m.gravity)
+    if last:
+        events.append(last)
+    sets = [e for e in events if e[0] == "set"]
+    assert len(sets) == 1 and len(sets[0][3]) == 6
+    live = [e[1] for e in events if e[0] == "rep"]
+    assert live == [1, 2, 3, 4, 5, 6]

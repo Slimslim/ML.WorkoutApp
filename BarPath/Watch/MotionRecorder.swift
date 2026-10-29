@@ -34,6 +34,10 @@ final class MotionRecorder {
     var onError: (@MainActor (String) -> Void)?
     /// Called after each processed motion batch (for the "data is flowing" counters).
     var onBatchProcessed: (@MainActor () -> Void)?
+    /// Strength mode: live rep count of the set in progress (0 when a set ends).
+    var onRepCount: (@MainActor (Int) -> Void)?
+    /// Strength mode: a set ended (set index, reps).
+    var onSetEnded: (@MainActor (Int, Int) -> Void)?
 
     // MARK: Settings for the next lift
 
@@ -63,6 +67,9 @@ final class MotionRecorder {
     private var motionBuffer = MotionRingBuffer(capacity: 6000)    // 30 s @ 200 Hz
     private var accelBuffer = AccelRingBuffer(capacity: 24000)     // 30 s @ 800 Hz
     private let detector = OnlineLiftDetector()
+    /// Strength mode (liftType.countsReps): reps and sets instead of the lift detector.
+    private var setTracker = SetTracker()
+    private var repMode = false
     private var lastPublishedState: DetectorState = .idle
 
     private var sessionId = UUID()
@@ -106,6 +113,8 @@ final class MotionRecorder {
         accelBuffer.removeAll()
         detector.reset()
         lastPublishedState = detector.state
+        setTracker.reset()
+        repMode = liftType.countsReps
         pending = []
         currentLift = nil
         liftCount = liftIndexOffset
@@ -154,7 +163,10 @@ final class MotionRecorder {
         }
         accelActive = false
 
-        // A lift still in progress is saved with what we have.
+        // A set or lift still in progress is saved with what we have.
+        if repMode, let event = setTracker.flush() {
+            handleSet(event)
+        }
         if detector.state == .lifting, let lift = currentLift, let latest = motionBuffer.latestTime {
             liftCount += 1
             pending.append(PendingSnippet(index: liftCount, liftType: lift.liftType, loadKg: lift.loadKg,
@@ -304,11 +316,16 @@ final class MotionRecorder {
         csvWriter?.append(accepted)
         motionSampleCount += accepted.count
 
-        // 2. Ring buffer + detector.
+        // 2. Ring buffer + detector (strength mode: the set tracker instead).
         for s in accepted {
             motionBuffer.append(s)
-            if let event = detector.process(s) {
+            if !repMode, let event = detector.process(s) {
                 handle(event, sample: s)
+            }
+        }
+        if repMode {
+            for event in setTracker.process(accepted) {
+                handleSet(event)
             }
         }
 
@@ -356,6 +373,39 @@ final class MotionRecorder {
         onDetectorEvent?(event)
     }
 
+    /// Strength mode: one recording per set (motion only, from the tracker's history, which
+    /// can be longer than the 30 s ring buffer), analyzed with RepCounter on the phone.
+    private func handleSet(_ event: SetEvent) {
+        switch event {
+        case .repCounted(let n):
+            onRepCount?(n)
+        case .setEnded(let start, let end, let firstRepStart, let lastRepEnd, let reps):
+            liftCount += 1
+            let t0 = csvWriter?.t0 ?? 0
+            csvWriter?.appendEvent(atUptime: end,
+                                   description: String(format: "name=setEnded start=%.3f end=%.3f reps=%ld",
+                                                       firstRepStart - t0, lastRepEnd - t0, reps.count))
+            let motion = setTracker.samples(from: start, to: end)
+            onRepCount?(0)
+            onSetEnded?(liftCount, reps.count)
+            guard !motion.isEmpty else {
+                onError?("Set \(liftCount) could not be saved (no data)")
+                return
+            }
+            let recording = SnippetBuilder.makeRecording(sessionId: sessionId,
+                                                         index: liftCount,
+                                                         liftType: liftType,
+                                                         loadKg: loadKg,
+                                                         bootDate: bootDate,
+                                                         motion: motion,
+                                                         accel: [],
+                                                         homingTime: firstRepStart,
+                                                         endTime: lastRepEnd,
+                                                         endReason: .returned)
+            write(recording)
+        }
+    }
+
     private func processPending(force: Bool) {
         guard !pending.isEmpty else { return }
         guard let latestMotion = motionBuffer.latestTime else { return }
@@ -397,10 +447,13 @@ final class MotionRecorder {
                                                      homingTime: p.homingTime,
                                                      endTime: p.endTime,
                                                      endReason: p.reason)
-        let index = p.index
-        let directory = WatchFiles.outbox
-        Log.motion.info("Lift \(index): \(motion.count) motion, \(accel.count) accel samples")
+        Log.motion.info("Lift \(p.index): \(motion.count) motion, \(accel.count) accel samples")
+        write(recording)
+    }
 
+    private func write(_ recording: LiftRecording) {
+        let index = recording.index
+        let directory = WatchFiles.outbox
         // JSON encoding of ~2 MB takes a moment; do it off the main actor.
         Task.detached(priority: .utility) { [weak self] in
             var failure: String?

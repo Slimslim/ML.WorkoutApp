@@ -565,3 +565,25 @@ Accuracy vs video (median of aligned lifts): snatch vertical RMS 3–6 cm (was 1
 3–9 cm (was 24–30); power clean vertical 4–11 cm (was up to 81 cm short), horizontal 3–11 cm;
 peak vertical velocity within ~0.1 m/s. Remaining misses: lifts that really finish away from the
 start (e.g. jumping forward into the catch) and clean & jerks recorded with the old 8 s timeout.
+
+## Strength mode: deadlift rep counter (2026-10-29)
+
+`LiftType.deadlift` (`countsReps`) switches the watch from the lift detector to rep counting:
+
+- **RepCounter** (`BarPathKit/RepCounter.swift`, reference `tools/barpath/reps.py`, parity fixture
+  `real_deadlift_set`): a_up = (userAccel·ĝ)·G → centred moving average (0.15 s) → trapezoid
+  integration → minus a centred moving average of v (3.0 s). Reps = velocity peaks ≥ 0.2 m/s,
+  ≥ 1.2 s apart (greedy by height); concentric phase between the zero crossings around the
+  peak; ROM = ∫v ≥ 0.30 m and |ĝ.x| ≥ 0.8 at the top (arms hanging). Per rep: ROM, mean and
+  peak concentric velocity; per set: velocity loss = last rep vs the faster of the first two.
+- **SetTracker** (watch, ~1 s batches): a rep is confirmed once its top is detrend/2 + 0.3 s old
+  (≈ 2–3 s behind the bar; one click haptic per rep); 6 s without a rep ends the set
+  (success haptic). One `LiftRecording` per set: liftType `deadlift`, motion from the first rep
+  − 3 s to the last rep + 2 s, no 800 Hz accel, homing/end = first rep start / last rep top.
+  The debug CSV gets `name=setEnded start= end= reps=` events.
+- **Phone**: sets show count, velocity loss and a per-rep table (ROM, mean, peak) instead of
+  the bar path.
+- **Validation** (2026-10-29, 275 / 300 lb × 6, filmed): 6/6 and 6/6 reps, one set each when
+  the whole session is replayed in 1 s batches; inner-rep ROM 55–60 cm (video 56–58) and
+  69–72 cm (video 57–61); first and last reps read 10–15 cm low. Not yet checked: sets of
+  10+, very slow grinders, touch-and-go vs dead-stop, squat and bench.

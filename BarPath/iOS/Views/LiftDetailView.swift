@@ -43,7 +43,7 @@ struct LiftDetailView: View {
 
     private var titleText: String {
         if let entry = store.entry(id: liftId) {
-            return "Lift \(entry.index)"
+            return "\(entry.isSet ? "Set" : "Lift") \(entry.index)"
         }
         return "Lift"
     }

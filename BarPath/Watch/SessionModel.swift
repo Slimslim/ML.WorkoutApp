@@ -23,6 +23,9 @@ final class SessionModel: ObservableObject {
         case saving
         case saved(Int)
         case ending
+        // Strength mode (deadlift)
+        case waitingForSet
+        case reps(Int)
     }
 
     // MARK: Settings (persisted)
@@ -70,6 +73,9 @@ final class SessionModel: ObservableObject {
     @Published private(set) var csvBytes = 0
     @Published private(set) var marksCount = 0
     @Published private(set) var isRecordingCSV = false
+    /// Strength mode: live reps in the set in progress, and the last finished set's reps.
+    @Published private(set) var repCount = 0
+    @Published private(set) var lastSetReps: Int?
 
     static let kgPerLb = 0.45359237
 
@@ -145,6 +151,12 @@ final class SessionModel: ObservableObject {
         recorder.onBatchProcessed = { [weak self] in
             self?.refreshCounters()
         }
+        recorder.onRepCount = { [weak self] n in
+            self?.repCountChanged(n)
+        }
+        recorder.onSetEnded = { [weak self] index, reps in
+            self?.setEnded(index: index, reps: reps)
+        }
     }
 
     // MARK: - Actions
@@ -169,6 +181,8 @@ final class SessionModel: ObservableObject {
         csvBytes = 0
         marksCount = 0
         isRecordingCSV = false
+        repCount = 0
+        lastSetReps = nil
         phase = .starting
         workout.start()
     }
@@ -195,6 +209,7 @@ final class SessionModel: ObservableObject {
         isRecordingCSV = recorder.isRecordingCSV
         detectorState = .idle
         marksCount = 0
+        repCount = 0
         phase = .running
         sendStatus()
     }
@@ -230,12 +245,20 @@ final class SessionModel: ObservableObject {
 
     // MARK: - Status
 
+    /// The running block counts reps (deadlift) instead of tracking single lifts.
+    var isRepMode: Bool { liftType.countsReps }
+
     func status(at date: Date) -> Status {
         switch phase {
         case .idle, .paused: return .walkToBar
         case .starting: return .starting
         case .ending: return .ending
         case .running: break
+        }
+        if isRepMode {
+            if repCount > 0 { return .reps(repCount) }
+            if let until = savedBannerUntil, date < until, let index = lastSavedIndex { return .saved(index) }
+            return .waitingForSet
         }
         if detectorState == .lifting { return .lifting }
         if let until = savedBannerUntil, date < until, let index = lastSavedIndex { return .saved(index) }
@@ -329,6 +352,20 @@ final class SessionModel: ObservableObject {
         case .liftStarted, .disarmed:
             break
         }
+    }
+
+    private func repCountChanged(_ n: Int) {
+        if n > repCount {
+            playHaptic(.click, minimumGap: 0)
+        }
+        repCount = n
+    }
+
+    private func setEnded(index: Int, reps: Int) {
+        liftCount = recorder.liftCount
+        lastSetReps = reps
+        repCount = 0
+        playHaptic(.success, minimumGap: 0)
     }
 
     private func liftSaved(_ index: Int) {

@@ -36,7 +36,16 @@ struct LiftRow: View {
 
             Spacer(minLength: 8)
 
-            if let d = entry.display {
+            if let r = entry.reps, r.count > 0 {
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text("\(r.count) rep\(r.count == 1 ? "" : "s")")
+                        .font(.subheadline.weight(.semibold))
+                    Text(r.count >= 2 ? "loss \(Fmt.percent(r.velocityLoss))" : "\(Fmt.mps(r.reps[0].meanVelocity)) m/s")
+                        .font(.caption)
+                        .monospacedDigit()
+                        .foregroundStyle(.secondary)
+                }
+            } else if let d = entry.display {
                 VStack(alignment: .trailing, spacing: 2) {
                     Text("\(Fmt.mps(d.metrics.peakVerticalVelocity)) m/s")
                         .font(.subheadline.weight(.semibold))
@@ -69,7 +78,7 @@ struct LiftTitle: View {
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("Lift \(entry.index)")
+                Text("\(entry.isSet ? "Set" : "Lift") \(entry.index)")
                     .font(.system(size: 28, weight: .heavy, design: .rounded))
                 Text(entry.subtitle)
                     .font(.subheadline.weight(.medium))
@@ -119,7 +128,9 @@ struct LiftAnalysisContent: View {
     let previous: LiftEntry?
 
     var body: some View {
-        if let d = entry.display {
+        if let r = entry.reps, r.count > 0 {
+            RepSetView(analysis: r)
+        } else if let d = entry.display {
             VStack(alignment: .leading, spacing: 16) {
                 BarPathChart(display: d,
                              previous: previous?.display,
@@ -131,6 +142,72 @@ struct LiftAnalysisContent: View {
         } else {
             AnalysisFailedView(message: entry.failure ?? "This lift has not been analyzed.")
         }
+    }
+}
+
+/// Strength-mode set: count, velocity loss and one row per rep (VBT).
+struct RepSetView: View {
+    let analysis: RepAnalysis
+
+    private var fastest: Double {
+        return analysis.reps.map { $0.meanVelocity }.max() ?? 0
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 10) {
+                tile("REPS", "\(analysis.count)")
+                tile("VELOCITY LOSS", analysis.count >= 2 ? Fmt.percent(analysis.velocityLoss) : "—")
+                tile("BEST MEAN", "\(Fmt.mps(fastest)) m/s")
+            }
+            Grid(alignment: .trailing, horizontalSpacing: 12, verticalSpacing: 8) {
+                GridRow {
+                    Text("Rep").gridColumnAlignment(.leading)
+                    Text("ROM")
+                    Text("Mean")
+                    Text("Peak")
+                    Text("")
+                }
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+                ForEach(Array(analysis.reps.enumerated()), id: \.offset) { item in
+                    let rep = item.element
+                    GridRow {
+                        Text("\(item.offset + 1)").gridColumnAlignment(.leading)
+                        Text("\(Fmt.cm(rep.range)) cm")
+                        Text("\(Fmt.mps(rep.meanVelocity)) m/s")
+                        Text("\(Fmt.mps(rep.peakVelocity)) m/s")
+                        bar(rep.meanVelocity)
+                    }
+                    .font(.subheadline)
+                    .monospacedDigit()
+                }
+            }
+            Text("Mean = average upward bar speed over the rep (concentric). Velocity loss compares the last rep with the faster of the first two. ROM is from the wrist and reads low on the first and last rep.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private func tile(_ label: String, _ value: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label)
+                .font(.caption2.weight(.bold))
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.title3.weight(.bold))
+                .monospacedDigit()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// Mean velocity relative to the set's fastest rep.
+    private func bar(_ v: Double) -> some View {
+        let fraction = fastest > 0 ? max(0, min(1, v / fastest)) : 0
+        return Capsule()
+            .fill(Theme.accent)
+            .frame(width: 60 * fraction, height: 6)
+            .frame(width: 60, alignment: .leading)
     }
 }
 

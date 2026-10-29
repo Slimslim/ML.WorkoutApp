@@ -74,7 +74,7 @@ struct SessionView: View {
             Spacer(minLength: 0)
 
             HStack {
-                Text("\(model.liftCount) lift\(model.liftCount == 1 ? "" : "s")")
+                Text(countLine)
                     .font(.system(size: 15, weight: .bold, design: .rounded))
                 Spacer()
                 Text(elapsed(now: now))
@@ -106,11 +106,21 @@ struct SessionView: View {
                 Text("\(index)")
                     .font(.system(size: 52, weight: .heavy, design: .rounded))
                     .lineLimit(1)
-                Text(link.pendingTransfers > 0 ? "lift saved · ↑\(link.pendingTransfers)" : "lift saved")
+                Text(savedLine)
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                     .foregroundColor(.secondary)
             }
             .foregroundColor(.white)
+        case .reps(let n):
+            VStack(spacing: 0) {
+                Text("\(n)")
+                    .font(.system(size: 64, weight: .heavy, design: .rounded))
+                    .foregroundColor(.green)
+                    .lineLimit(1)
+                Text(n == 1 ? "rep" : "reps")
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .foregroundColor(.secondary)
+            }
         case .lifting:
             HStack(spacing: 6) {
                 Circle()
@@ -134,7 +144,7 @@ struct SessionView: View {
 
     @ViewBuilder
     private func bottomControls(status: SessionModel.Status) -> some View {
-        let canEnd = status == .walkToBar || status == .starting
+        let canEnd = status == .walkToBar || status == .starting || status == .waitingForSet
         VStack(spacing: 3) {
             if model.isRecordingCSV {
                 Button {
@@ -221,6 +231,23 @@ struct SessionView: View {
         return model.liftType.displayName + (model.useLoad ? " · " + LoadPickerView.format(model.loadLb) : "")
     }
 
+    private var countLine: String {
+        let n = model.liftCount
+        let unit = model.isRepMode ? "set" : "lift"
+        return "\(n) \(unit)\(n == 1 ? "" : "s")"
+    }
+
+    private var savedLine: String {
+        var line = model.isRepMode ? "set saved" : "lift saved"
+        if model.isRepMode, let reps = model.lastSetReps {
+            line = "\(reps) rep\(reps == 1 ? "" : "s") · saved"
+        }
+        if link.pendingTransfers > 0 {
+            line += " · ↑\(link.pendingTransfers)"
+        }
+        return line
+    }
+
     private func elapsed(now: Date) -> String {
         guard let start = model.sessionStartDate else { return "0:00" }
         return SessionModel.formatElapsed(now.timeIntervalSince(start))
@@ -235,6 +262,8 @@ struct SessionView: View {
         case .saving: return "Saving…"
         case .saved(let index): return "Lift \(index) saved"
         case .ending: return "Ending…"
+        case .waitingForSet: return "Grip the\nbar"
+        case .reps(let n): return "\(n) reps"
         }
     }
 }
