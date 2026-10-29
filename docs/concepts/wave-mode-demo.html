@@ -175,31 +175,33 @@ p{margin:0}
 .scr.rest.ready::after{content:"";position:absolute;inset:0;border-radius:45px;box-shadow:inset 0 0 0 4px var(--rest-ink);opacity:0;animation:rdy 1s ease-in-out infinite;pointer-events:none}
 @keyframes rdy{50%{opacity:.9}}
 .k-rest{background:var(--calm)}
-/* always-on (wrist down): top bar + segment timer centred on the screen (big) + HR small under it; the Exit soon banner survives */
-.screen.aod .x,.screen.aod .w-foot:not(.ban),.screen.aod .ring,.screen.aod .burst,.screen.aod .hero,.screen.aod .scr.pre .w-body>div:first-child{display:none}
-.screen.aod .w-foot.ban{font-size:16px;line-height:1.15;padding:5px 9px;margin-top:auto;margin-right:0}
+/* always-on (wrist down): top bar + segment timer centred on the screen (big) + HR small under it.
+   Exit soon drops the filled banner for one blue line in its own slot at the bottom (below the HR, inside the corners), so nothing overlaps */
+.w-cue{display:none}
+.screen.aod .x,.screen.aod .w-foot,.screen.aod .ring,.screen.aod .burst,.screen.aod .hero,.screen.aod .scr.pre .w-body>div:first-child{display:none}
+.screen.aod .w-cue{display:block;position:absolute;left:0;right:0;bottom:24px;text-align:center;white-space:nowrap;font-size:13px;font-weight:900;line-height:1;letter-spacing:.6px;text-transform:uppercase;color:var(--run)}
 .screen.aod .scr:not(.rox):not(.rest){filter:brightness(.8)}
 .screen.aod .w-el,.screen.aod .scr.pre .hero,.screen.aod .fin-t{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;justify-content:center}
 .screen.aod .w-el{font-size:60px;letter-spacing:-1.2px}
 .screen.aod .scr.pre .hero{display:flex;align-items:center;padding:0;gap:0}
 .screen.aod .scr.pre .hero b{font-size:56px;line-height:1}
 .screen.aod .scr.pre .hero .u{display:none}
-.screen.aod .r3.x{display:flex;position:absolute;left:0;right:0;top:calc(50% + 38px);justify-content:center;padding:0}
+.screen.aod .r3.x{display:flex;position:absolute;left:0;right:0;top:calc(50% + 48px);justify-content:center;padding:0}
 .screen.aod .r3>.c:not(.hr){display:none}
 .screen.aod .r3 .c.hr{text-align:center}
 .screen.aod .r3 .c.hr .l{display:none}
-.screen.aod .fin-h{position:absolute;left:0;right:0;bottom:calc(50% + 26px);text-align:center}
+.screen.aod .fin-h{position:absolute;left:0;right:0;bottom:calc(50% + 29px);text-align:center}
 .screen.aod .scr.rox{background:var(--screen);color:var(--rox);box-shadow:inset 0 0 0 6px var(--rox)}
 .screen.aod .scr.rox .rox-pulse{display:none}
 .screen.aod .scr.rox .w-top,.screen.aod .scr.rox .w-nm,.screen.aod .scr.rox .w-nm em{color:var(--rox)}
 .screen.aod .scr.rox .w-nm i{background:var(--rox)}
 .screen.aod .rox-b{--oy:0px}
 .screen.aod .rox-t{font-size:58px}
-.screen.aod .rox-hr.x{display:block;top:calc(50% + 38px)}
+.screen.aod .rox-hr.x{display:block;top:calc(50% + 43px)}
 .screen.aod .rox-hr b{font-size:22px}
 .screen.aod .scr.rest{background:var(--screen);color:color-mix(in oklab,var(--zb) var(--zf),var(--za));justify-content:flex-start}
 .screen.aod .rest-t{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%)}
-.screen.aod .rest-hr{position:absolute;left:0;right:0;top:calc(50% + 40px)}
+.screen.aod .rest-hr{position:absolute;left:0;right:0;top:calc(50% + 47px)}
 .screen.aod .rest-hr b{font-size:24px}
 .screen.aod .rest-hr span{font-size:11px}
 .screen.aod .scr.rest.ready::after{box-shadow:inset 0 0 0 4px currentColor}
@@ -1110,8 +1112,10 @@ function screenHTML(st){
   if (st.k === 'run'){
     const i = st.seg.i, nx = STN[i].n;
     const foot = st.ph === 'exit' ? FOOT('Exit soon · Next: ' + nx, 'ban') : FOOT('Next: ' + nx);
+    /* wrist-down twin of the banner: one short line, own slot, short station name */
+    const cue = st.ph === 'exit' ? '<div class="w-cue">Exit soon · ' + esc(STN[i].tb) + '</div>' : '';
     return '<div class="scr run">' + wTop('Run', (i + 1) + '/8', 'run') + '<div class="w-body">' + EL +
-      H('pace', '/km', 'pace', 'run') + R3(C('m', 'm', 'into km', 'volt')) + SEGS(8, 'run') + '</div>' + foot + '</div>';
+      H('pace', '/km', 'pace', 'run') + R3(C('m', 'm', 'into km', 'volt')) + SEGS(8, 'run') + '</div>' + foot + cue + '</div>';
   }
   if (st.k === 'rox'){
     const s = st.seg;
@@ -1158,7 +1162,7 @@ function caption(st){
   if (st.k === 'pre') return {s:'Before the wave', t:'Armed. Waiting for you.', b:'Your watch loads Anaheim\'s format, your ' + (race.mode === 'off' ? race.wave + ' wave' : 'session') + ' and every station in order. No button at the start line: the clock starts on your first running steps.', c:SOON('auto-arm') + SOON('start on first steps')};
   if (st.k === 'run'){
     const n = st.seg.i + 1, nx = STN[st.seg.i].n;
-    if (st.ph === 'exit') return {s:'Run ' + n + ' of 8 · tap', t:'Exit soon', b:'One tap on the wrist as you pass about 850 m, and the bottom line turns into a blue banner: “Exit soon · Next: ' + nx + '.” Laps per km differ by venue, so the watch reminds you by distance instead of counting laps. The banner stays on the always-on screen when your wrist is down.', c:SOON('exit-soon tap') + TODAY('run distance (step estimate)')};
+    if (st.ph === 'exit') return {s:'Run ' + n + ' of 8 · tap', t:'Exit soon', b:'One tap on the wrist as you pass about 850 m, and the bottom line turns into a blue banner: “Exit soon · Next: ' + nx + '.” Laps per km differ by venue, so the watch reminds you by distance instead of counting laps. Wrist down, the banner shrinks to one blue line at the bottom, “Exit soon · ' + STN[st.seg.i].tb + '”, under your heart rate, so it never covers a number.', c:SOON('exit-soon tap') + TODAY('run distance (step estimate)')};
     return {s:'Run ' + n + ' of 8', t:'Run ' + n + ' of 8', b:'Run time in yellow, live pace as the big number, metres into this km and heart rate, eight km dots across the full width, and the station waiting for you on the bottom line: “Next: ' + nx + '.” Eyes down for half a second, back to work.' + ' Wrist down, the always-on screen keeps the top bar, your segment time big in the centre and your heart rate small under it.', c:TODAY('pace, HR, splits') + TODAY('run detection prototype')};
   }
   if (st.k === 'rox') return {s:'Transition ' + (st.seg.r + 1) + ' of 15', t:'Roxzone', b:'The screen goes pulsing pink the moment you\'re in transition, and that time is the big number, clocked on its own. Heart rate under it, one line for what comes next. Walk-time is race-time; now you can see it. Wrist down, the pink drops to a thin border on black.', c:TODAY('Crown to switch + undo') + SOON('auto-detect')};

@@ -29,7 +29,7 @@ p{margin:0}
 /* header */
 .head{display:grid;gap:10px}
 .kick{font-family:var(--f-disp);font-weight:700;font-size:15px;letter-spacing:1.4px;text-transform:uppercase;color:var(--volt)}
-.head h1{font-size:clamp(36px,6vw,64px);font-style:italic}
+.head h1,.head .h1{font-size:clamp(36px,6vw,64px);font-style:italic}
 .lede{color:var(--fg2);max-width:760px;font-size:17px}
 .quotes{display:grid;gap:6px;margin:0;padding:0;list-style:none;max-width:860px}
 .quotes li{font-size:14px;color:var(--fg2);border-left:3px solid var(--line);padding:2px 0 2px 10px}
@@ -146,20 +146,47 @@ figcaption b{color:var(--fg);font-weight:700}
 .D .row b{font-size:22px}
 .D .ban{bottom:13px;left:22px;right:22px;font-size:12px;font-weight:900;white-space:normal;background:var(--run);color:var(--ink);border-radius:8px;padding:4px 8px;line-height:1.2}
 .D.aod .row{top:calc(50% + 36px)}
+
+/* E: where the movement name goes (all on A) */
+.grp{display:grid;gap:14px}
+.grp>h2{font-size:clamp(30px,4.6vw,44px);font-style:italic}
+.chip.rec{color:var(--ink);background:var(--volt);border-color:var(--volt)}
+.dl.sm{font-size:22px}
+.rec-why{font-size:14px;color:var(--fg);border-left:3px solid var(--volt);padding:2px 0 2px 10px;max-width:900px}
+.rec-why b{color:var(--volt)}
+.nm{font-weight:900;line-height:1;text-transform:uppercase;color:var(--sc)}
+.nm em{font-style:normal;opacity:.6}
+.E1 .nm{top:calc(50% - 47px);font-size:12px;letter-spacing:1.2px}
+.E2 .nm{top:calc(50% - 53px)}
+.E2 .nm span{display:inline-block;font-size:12px;letter-spacing:.8px;line-height:1.1;padding:3px 9px 2px;border-radius:999px;background:var(--sc);color:var(--ink)}
+.E2.rox .nm span{color:var(--rox)}
+.E2.aod .nm span{background:none;color:var(--sc);box-shadow:inset 0 0 0 1.5px var(--sc)}
+.E3 .nm{top:14px;font-size:15px;letter-spacing:1px}
+.E3 .nm em{font-size:11px;letter-spacing:.4px}
+.E3 .tot{top:auto;bottom:15px}
 </style>
 
 <div class="page">
 <main class="wrap">
   <header class="head">
-    <div class="kick">Wave Mode · watch layout study</div>
-    <h1>Four ways to lay out the watch</h1>
+    <div class="kick">Wave Mode · watch layout study · new</div>
+    <h1>Where does the movement name go?</h1>
+    <p class="lede">All four keep direction A, the athlete's pick so far: timer big and centred, the key number smaller below, heart rate small. Only the movement name and the total race time move. Same five moments, real watch size.</p>
+    <ul class="quotes">
+      <li>“We still have the name of the movement at the top left, and it's taking too much space. I don't like it. Should we put it above the timer? Could you recommend a few ideas?”</li>
+    </ul>
+    <p class="picked" id="picked" aria-live="polite">Nothing picked yet. One pick across the whole page.</p>
+  </header>
+  <div id="titles" class="wrap"></div>
+  <header class="head">
+    <div class="kick">Earlier round · whole-layout directions</div>
+    <h2 class="h1">Four ways to lay out the watch</h2>
     <p class="lede">The athlete asked for the timer in the middle, the key number smaller below it and the movement title at the bottom. Here are four directions, each on the same five race moments plus the wrist-down run screen, at real watch size. Pick the one to build next.</p>
     <ul class="quotes">
       <li>“The run screen is also not very nice. I'd prefer the timer in the middle and the pace below and smaller. Or give me a few other alternatives.”</li>
       <li>“I don't like the titles for the movements; the top-left is not really nice. Should we put the title at the bottom in the middle?”</li>
     </ul>
     <div class="meta"><span class="chip">Sample values</span><span>Static numbers, same colours as the demo: yellow segment time, red heart rate, blue run, orange station, pink Roxzone, volt progress, teal rates.</span></div>
-    <p class="picked" id="picked" aria-live="polite">No direction picked yet.</p>
   </header>
   <div id="dirs" class="wrap"></div>
 </main>
@@ -237,6 +264,38 @@ const DIRS = [
    }}
 ];
 
+/* E: title placement, all built on A (timer centred, key metric below, HR small) */
+const NM = s => '<div class="ab nm">' + s.name + '<em> · ' + s.idx + '</em></div>';
+const MID = s => {
+  if (s.k === 'rox') return '<div class="ab hr" style="top:calc(50% + 34px)">' + HRV(s).replace('<b>', '<b style="font-size:22px">') + '</div><div class="ab nx" style="top:calc(50% + 64px)">' + s.next + '</div>';
+  if (s.aod) return '<div class="ab hr">' + HRV(s) + '</div>';
+  return '<div class="ab met">' + V(s.met) + '</div><div class="ab hr">' + HRV(s) + '</div>';
+};
+const TITLES = [
+  {id:'E1', name:'Name above the timer', rec:true,
+   why:'Put the name where your eye already lands: one small line in the segment colour right above the clock, so one glance reads “SkiErg, 2:14”.',
+   pros:['Name and timer read together in one glance, no eye travel to an edge.','Centre placement stays clear of the rounded corners at any name length.','Top keeps the race clock, bottom stays free for alerts like Exit soon.','Quietest option: colour text, no box.'],
+   cons:['Small (12 px) name: you read it, it does not shout.','The centre grows to four lines (name, timer, metric, HR), so the middle is busier.','In the Roxzone it repeats what the pink already says.'],
+   draw:s => scr('A E1', s, TOT(s) + NM(s) + TMR(s) + MID(s))},
+  {id:'E2', name:'Name chip',
+   why:'Same spot above the timer, but the name sits in a small pill of the segment colour, so the colour itself tells you run (blue) or station (orange).',
+   pros:['Strongest identity of the four: a coloured tag you see even out of focus.','Still centred and away from the corners.','Wrist down it turns into an outline, so the always-on screen stays dark.'],
+   cons:['A filled colour block competes with the yellow timer for attention.','Adds a shape that looks like a button but does nothing.','Long names make a wide chip (WALL BALLS · 8/8).'],
+   draw:s => scr('A E2', s, TOT(s) + '<div class="ab nm"><span>' + s.name + '<em> · ' + s.idx + '</em></span></div>' + TMR(s) + MID(s))},
+  {id:'E3', name:'Name at the top, time at the bottom',
+   why:'Make the name a centred headline (15 px) at the top and move the total race time to the bottom centre.',
+   pros:['Bigger name than E1 and E2, easy to read on a hard effort.','Centred, so it clears the top corners that the old top-left name fought with.','Race clock moves to the bottom, where it is out of the way.'],
+   cons:['Eye travels from the top edge to the centre: two glances, not one.','The total race time takes the bottom slot that Exit soon and the Crown hint need.','Close to the old top-left layout, which the athlete did not like.'],
+   draw:s => scr('A E3', s, NM(s) + TMR(s) + MID(s) + '<div class="ab tot">' + s.tot + '</div>')},
+  {id:'E4', name:'Name at the bottom (= A today)',
+   why:'Keep direction A as it is: name small at the bottom centre, total race time at the top.',
+   pros:['Already designed and checked, nothing new to learn.','Name is out of the way of the numbers.','Bottom centre clears the corners.'],
+   cons:['Name is the furthest thing from the timer: you have to look for it.','Shares the bottom with the Exit soon cue, so one of them has to give way.','In the Roxzone the name stacks under “SkiErg next”, two text lines at the bottom.'],
+   draw:s => DIRS[0].draw(s)}
+];
+const REC_WHY = 'E1. Mid-effort you need the clock first and the name only as a confirmation, so the name belongs one line above the clock, small and in colour, not in a box. It stays clear of the corners, leaves the bottom free for Exit soon, and the Roxzone is already identified by its pink.';
+const ST_E = [0, 1, 2, 4, 5].map(i => ST[i]);
+
 const watch = inner => '<div class="watchwrap"><div class="watch"><div class="band t"></div><div class="band b"></div><div class="case"><div class="bezel"><div class="screen">' + inner + '</div></div></div><div class="crown"></div><div class="sidebtn"></div></div></div>';
 const esc = t => String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const label = s => {
@@ -244,29 +303,32 @@ const label = s => {
   if (s.aod) parts.push('always-on'); else if (s.met) parts.push(s.met.v + ' ' + s.met.u);
   return 'Sample watch screen, ' + parts.join(', ') + ', segment time ' + s.el + ', heart rate ' + s.hr;
 };
-const host = document.getElementById('dirs');
-host.innerHTML = DIRS.map(d => '<section class="dir" id="dir-' + d.id + '" aria-labelledby="h-' + d.id + '">' +
-  '<div class="dh"><span class="dl" aria-hidden="true">' + d.id + '</span><h2 id="h-' + d.id + '">' + esc(d.name) + '</h2>' +
-  (d.mine ? '<span class="chip mine">The athlete’s idea</span>' : '') + '<span class="sp"></span>' +
+const host = document.getElementById('dirs'), thost = document.getElementById('titles');
+const rows = (list, sts) => list.map(d => '<section class="dir" id="dir-' + d.id + '" aria-labelledby="h-' + d.id + '">' +
+  '<div class="dh"><span class="dl' + (d.id.length > 1 ? ' sm' : '') + '" aria-hidden="true">' + d.id + '</span><h2 id="h-' + d.id + '">' + esc(d.name) + '</h2>' +
+  (d.mine ? '<span class="chip mine">The athlete’s idea</span>' : '') + (d.rec ? '<span class="chip rec">Recommended</span>' : '') + '<span class="sp"></span>' +
   '<button type="button" class="pick" data-pick="' + d.id + '" aria-pressed="false">Pick ' + d.id + '</button></div>' +
   '<div class="strip" tabindex="0" role="region" aria-label="' + esc(d.name) + ' screens, scroll sideways"><div class="cols">' +
-  ST.map(s => '<figure><div role="img" aria-label="' + esc(label(s)) + '">' + watch(d.draw(s)) + '</div><figcaption><b>' + esc(s.cap) + '</b> · Sample</figcaption></figure>').join('') +
+  sts.map(s => '<figure><div role="img" aria-label="' + esc(label(s)) + '">' + watch(d.draw(s)) + '</div><figcaption><b>' + esc(s.cap) + '</b> · Sample</figcaption></figure>').join('') +
   '</div></div>' +
-  '<div class="why"><p>' + esc(d.why) + '</p><div class="pc"><div class="pro"><h3>Pros</h3><ul>' + d.pros.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></div>' +
+  '<div class="why"><p>' + esc(d.why) + '</p>' + (d.rec ? '<p class="rec-why"><b>Recommended:</b> ' + esc(REC_WHY) + '</p>' : '') + '<div class="pc"><div class="pro"><h3>Pros</h3><ul>' + d.pros.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></div>' +
   '<div class="con"><h3>Cons</h3><ul>' + d.cons.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></div></div></div></section>').join('');
+thost.innerHTML = rows(TITLES, ST_E);
+host.innerHTML = rows(DIRS, ST);
+const ALL = TITLES.concat(DIRS);
 
 const picked = document.getElementById('picked');
 function setPick(id){
-  DIRS.forEach(d => {
-    const on = d.id === id;
+  ALL.forEach(d => {
+    const on = d.id === id, b = document.querySelector('[data-pick="' + d.id + '"]');
     document.getElementById('dir-' + d.id).classList.toggle('sel', on);
-    host.querySelector('[data-pick="' + d.id + '"]').setAttribute('aria-pressed', String(on));
-    host.querySelector('[data-pick="' + d.id + '"]').textContent = on ? 'Picked ' + d.id : 'Pick ' + d.id;
+    b.setAttribute('aria-pressed', String(on));
+    b.textContent = on ? 'Picked ' + d.id : 'Pick ' + d.id;
   });
-  const d = DIRS.find(x => x.id === id);
-  picked.innerHTML = d ? 'Your pick: <b>' + d.id + ' · ' + esc(d.name) + '</b>' : 'No direction picked yet.';
+  const d = ALL.find(x => x.id === id);
+  picked.innerHTML = d ? 'Your pick: <b>' + d.id + ' · ' + esc(d.name) + '</b>' : 'Nothing picked yet. One pick across the whole page.';
 }
-host.addEventListener('click', e => {
+document.querySelector('main').addEventListener('click', e => {
   const b = e.target.closest('[data-pick]'); if (!b) return;
   const id = b.getAttribute('aria-pressed') === 'true' ? '' : b.dataset.pick;
   setPick(id);
