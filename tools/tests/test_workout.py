@@ -209,3 +209,42 @@ def test_fixed_rest_and_amrap_cap():
     assert a.cap_time == 1700
     assert a.finish(1700, "auto") and a.is_finished
     assert a.events[-1].kind == "finish"
+
+
+def test_round_sizes_and_heart_rate_series(tmp_path):
+    from barpath.workout import HeartRateSeries, RESULT_VERSION
+    assert WorkoutLibrary.helen.round_size == 3
+    assert WorkoutLibrary.rowThrusters.round_size == 3
+    assert WorkoutLibrary.amrap20.round_size == 4
+    assert WorkoutLibrary.hyroxSolo.round_size == 2 and WorkoutLibrary.partnerWod1.round_size == 2
+    assert WorkoutLibrary.partnerWod2.round_size is None
+    d = WorkoutLibrary.helen.to_dict()
+    assert d["roundSize"] == 3
+    assert type(WorkoutLibrary.helen).from_dict(d) == WorkoutLibrary.helen
+    # Same cases as WorkoutSummaryTests.testHeartRateSeriesBucketsAndGaps.
+    samples = [TimedValue(12, 120), TimedValue(0, 100), TimedValue(1, 110), TimedValue(40, 130),
+               TimedValue(-3, 999), TimedValue(100, 999)]
+    s = HeartRateSeries.make(samples, 0, 80)
+    assert s.bpm == [105, 115.9, 120, 120, 120, 130, 130, 130, 130, 130, 130, None, None, None, None, None]
+    assert s.value_at(2) == 105 and s.value_at(56) is None and s.value_at(80) is None
+    assert HeartRateSeries.make([TimedValue(10, 90)], 0, 10, max_gap=0).bpm == [None, 90]
+    # Version 2 round trip with nulls and heartRateMin.
+    p = golden_progress()
+    segs = split_stats(p, 1300, golden_hr(), GOLDEN_PED)
+    assert segs[0].heart_rate_min == pytest.approx(100)
+    start = datetime(2026, 10, 31, 9, 0, 0, tzinfo=timezone.utc)
+    series = HeartRateSeries(1000.0, 5.0, [100.0, None, 102.5])
+    res = WorkoutResult(WorkoutLibrary.quickTest, start, start, start, 200.0, segs, p.events,
+                        110.0, 120.0, None, id="ABC", heart_rate_series=series)
+    assert res.version == RESULT_VERSION == 2
+    path = tmp_path / "workout-v2.json"
+    res.save(path)
+    assert '"heartRateMin"' in path.read_text() and "null" in path.read_text()
+    back = WorkoutResult.load(path)
+    assert back == res and back.heart_rate_series.bpm[1] is None
+    # Version 1 file (no new fields) still loads.
+    d1 = res.to_dict()
+    d1["version"] = 1
+    del d1["heartRateSeries"]
+    v1 = WorkoutResult.from_dict(d1)
+    assert v1.version == 1 and v1.heart_rate_series is None

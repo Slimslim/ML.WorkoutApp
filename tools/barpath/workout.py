@@ -127,6 +127,7 @@ class WorkoutDefinition:
     health_kit_activity: str
     segments: list = field(default_factory=list)
     interval_seconds: Optional[float] = None
+    round_size: Optional[int] = None   # segments per round/set (rest included); last round may be partial
 
     @property
     def run_count(self) -> int:
@@ -144,16 +145,20 @@ class WorkoutDefinition:
             d["timeCapSeconds"] = self.time_cap_seconds
         if self.interval_seconds is not None:
             d["intervalSeconds"] = self.interval_seconds
+        if self.round_size is not None:
+            d["roundSize"] = self.round_size
         return d
 
     @classmethod
     def from_dict(cls, d: dict) -> "WorkoutDefinition":
         cap = d.get("timeCapSeconds")
         interval = d.get("intervalSeconds")
+        round_size = d.get("roundSize")
         return cls(d["id"], d["name"], d["shortName"], d["format"], d["team"],
                    None if cap is None else float(cap), d["healthKitActivity"],
                    [WorkoutSegment.from_dict(s) for s in d["segments"]],
-                   None if interval is None else float(interval))
+                   None if interval is None else float(interval),
+                   None if round_size is None else int(round_size))
 
 
 # ---- library ----------------------------------------------------------------------------------
@@ -196,18 +201,20 @@ def _half_hyrox_stations() -> list:
 
 class WorkoutLibrary:
     hyroxSolo = WorkoutDefinition("hyrox.solo", "HYROX Solo", "Hyrox Solo", "forTime", "solo", None,
-                                  "mixedCardio", _runs_and_stations(1000, _hyrox_stations()))
+                                  "mixedCardio", _runs_and_stations(1000, _hyrox_stations()), round_size=2)
     hyroxDoubles = WorkoutDefinition("hyrox.doubles", "HYROX Doubles", "Hyrox Dbl", "forTime", "doubles",
-                                     None, "mixedCardio", _runs_and_stations(1000, _hyrox_stations()))
+                                     None, "mixedCardio", _runs_and_stations(1000, _hyrox_stations()),
+                                     round_size=2)
     halfHyrox = WorkoutDefinition("hyrox.half", "Half HYROX", "Half Hyrox", "forTime", "solo", None,
-                                  "mixedCardio", _runs_and_stations(500, _half_hyrox_stations()))
+                                  "mixedCardio", _runs_and_stations(500, _half_hyrox_stations()), round_size=2)
     partnerWod1 = WorkoutDefinition(
         "partner.wod1", "Partner WOD 1", "WOD 1", "forTime", "doubles", None, "crossTraining",
         [_run(1000), _station(Movement.wallBalls, 100, "reps"),
          _run(800), _station(Movement.dumbbellWalkingLunges, 80, "reps"),
          _run(600), _station(Movement.burpees, 60, "reps"),
          _run(400), _station(Movement.medBallBoxStepOvers, 40, "reps"),
-         _run(200), _station(Movement.devilPress, 20, "reps")])
+         _run(200), _station(Movement.devilPress, 20, "reps")],
+        round_size=2)
     partnerWod2 = WorkoutDefinition(
         "partner.wod2", "Partner WOD 2", "WOD 2", "forTime", "doubles", None, "crossTraining",
         [_station(Movement.skiErg, 1000, "meters"), _station(Movement.sledPush, 40, "meters"),
@@ -220,16 +227,18 @@ class WorkoutLibrary:
     helen = WorkoutDefinition(
         "wod.helen", "Helen", "Helen", "forTime", "solo", 16 * 60, "crossTraining",
         [_run(400), _station(Movement.kettlebellSwings, 21, "reps"),
-         _station(Movement.pullUps, 12, "reps")] * 3)
+         _station(Movement.pullUps, 12, "reps")] * 3,
+        round_size=3)
     rowThrusters = WorkoutDefinition(
         "wod.rowThrusters", "Every 3:00 × 6: Row + Thrusters", "Row Thrust", "emom", "solo", 18 * 60,
         "crossTraining",
         ([_station(Movement.row, 15, "calories"), _station(Movement.thrusters, 12, "reps"), _rest()] * 6)[:-1],
-        interval_seconds=180.0)
+        interval_seconds=180.0, round_size=3)
     amrap20 = WorkoutDefinition(
         "wod.nightmareAmrap", "Nightmare AMRAP 20", "AMRAP 20", "amrap", "solo", 20 * 60, "crossTraining",
         [_station(Movement.lateralBurpeeOverDumbbell, 10, "reps"), _station(Movement.doubleUnders, 31, "reps"),
-         _station(Movement.dumbbellSnatch, 10, "reps"), _station(Movement.doubleUnders, 31, "reps")] * 10)
+         _station(Movement.dumbbellSnatch, 10, "reps"), _station(Movement.doubleUnders, 31, "reps")] * 10,
+        round_size=4)
     all = [hyroxSolo, hyroxDoubles, halfHyrox, partnerWod1, partnerWod2, quickTest,
            helen, rowThrusters, amrap20]
 
@@ -431,9 +440,11 @@ class SegmentResult:
     distance: Optional[float] = None
     cadence: Optional[float] = None
     pace_seconds_per_km: Optional[float] = None
+    heart_rate_min: Optional[float] = None
 
     _KEYS = (("heartRateAvg", "heart_rate_avg"), ("heartRateMax", "heart_rate_max"), ("steps", "steps"),
-             ("distance", "distance"), ("cadence", "cadence"), ("paceSecondsPerKm", "pace_seconds_per_km"))
+             ("distance", "distance"), ("cadence", "cadence"), ("paceSecondsPerKm", "pace_seconds_per_km"),
+             ("heartRateMin", "heart_rate_min"))
 
     def to_dict(self) -> dict:
         d = {"index": self.index, "kind": self.kind, "movement": self.movement, "title": self.title,
@@ -489,6 +500,7 @@ def split_stats(progress: WorkoutProgress, now: float, heart_rates: list, pedome
         hrs = [h.value for h in heart_rates if sp.start <= h.t < sp.end]
         hr_avg = sum(hrs) / len(hrs) if hrs else None
         hr_max = max(hrs) if hrs else None
+        hr_min = min(hrs) if hrs else None
         steps = None
         if step_pts:
             steps = _interpolate(step_pts, sp.end, origin) - _interpolate(step_pts, sp.start, origin)
@@ -501,8 +513,79 @@ def split_stats(progress: WorkoutProgress, now: float, heart_rates: list, pedome
         if kind == "run" and distance is not None and distance > 50:
             pace = duration / (distance / 1000.0)
         out.append(SegmentResult(sp.index, kind, movement, title, sp.start, sp.end, duration,
-                                 hr_avg, hr_max, steps, distance, cadence, pace))
+                                 hr_avg, hr_max, steps, distance, cadence, pace, hr_min))
     return out
+
+
+def _round_tenth(v: float) -> float:
+    """Half away from zero, like Swift's rounded()."""
+    return math.copysign(math.floor(abs(v) * 10 + 0.5), v) / 10
+
+
+@dataclass
+class HeartRateSeries:
+    """HR on a fixed grid (HeartRateSeries.swift): bpm[k] covers [start + k*interval, start + (k+1)*interval),
+    None (JSON null) where there was no reading. start is seconds since 1970."""
+    start: float
+    interval: float
+    bpm: list
+
+    def value_at(self, t: float) -> Optional[float]:
+        if self.interval <= 0 or t < self.start:
+            return None
+        k = int(math.floor((t - self.start) / self.interval))
+        return self.bpm[k] if 0 <= k < len(self.bpm) else None
+
+    def to_dict(self) -> dict:
+        return {"start": self.start, "interval": self.interval, "bpm": list(self.bpm)}
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "HeartRateSeries":
+        return cls(float(d["start"]), float(d["interval"]),
+                   [None if v is None else float(v) for v in d.get("bpm", [])])
+
+    @classmethod
+    def make(cls, samples: list, start: float, end: float, interval: float = 5.0,
+             max_gap: float = 15.0) -> "HeartRateSeries":
+        """Same rule as Swift: mean of the samples in the bucket; else interpolate between the
+        nearest samples before/after the centre that are within max_gap (or carry the one that is);
+        else None. Rounded to 0.1 bpm. Samples outside [start, end] are ignored."""
+        if interval <= 0 or not end > start:
+            return cls(start, interval, [])
+        n = int(math.ceil((end - start) / interval))
+        kept = sorted((s for s in samples if start <= s.t <= end), key=lambda s: s.t)
+        out = []
+        j = 0
+        for k in range(n):
+            lo = start + k * interval
+            hi = lo + interval
+            c = lo + 0.5 * interval
+            while j < len(kept) and kept[j].t < lo:
+                j += 1
+            vals = []
+            m = j
+            while m < len(kept) and (kept[m].t < hi or (k == n - 1 and kept[m].t <= hi)):
+                vals.append(kept[m].value)
+                m += 1
+            if vals:
+                out.append(_round_tenth(sum(vals) / len(vals)))
+                continue
+            before = kept[j - 1] if j > 0 and c - kept[j - 1].t <= max_gap else None
+            after = kept[j] if j < len(kept) and kept[j].t - c <= max_gap else None
+            if before and after:
+                span = after.t - before.t
+                v = before.value + (after.value - before.value) * (c - before.t) / span if span > 0 else before.value
+                out.append(_round_tenth(v))
+            elif before:
+                out.append(_round_tenth(before.value))
+            elif after:
+                out.append(_round_tenth(after.value))
+            else:
+                out.append(None)
+        return cls(start, interval, out)
+
+
+RESULT_VERSION = 2  # 2 adds heartRateSeries, heartRateMin per segment, definition.roundSize (all optional)
 
 
 @dataclass
@@ -518,7 +601,8 @@ class WorkoutResult:
     heart_rate_max: Optional[float] = None
     recording_file_name: Optional[str] = None
     id: str = field(default_factory=lambda: str(_uuid.uuid4()).upper())
-    version: int = 1
+    version: int = RESULT_VERSION
+    heart_rate_series: Optional[HeartRateSeries] = None
 
     @property
     def run_seconds(self) -> float:
@@ -542,14 +626,17 @@ class WorkoutResult:
             d["heartRateMax"] = self.heart_rate_max
         if self.recording_file_name is not None:
             d["recordingFileName"] = self.recording_file_name
+        if self.heart_rate_series is not None:
+            d["heartRateSeries"] = self.heart_rate_series.to_dict()
         return d
 
     @classmethod
     def from_dict(cls, d: dict) -> "WorkoutResult":
         version = int(d.get("version", 1))
-        if version != 1:
+        if version not in (1, 2):
             raise ValueError(f"unsupported WorkoutResult version {version}")
         fin = d.get("finishDate")
+        series = d.get("heartRateSeries")
         return cls(
             definition=WorkoutDefinition.from_dict(d["definition"]),
             start_date=parse_iso8601(d["startDate"]),
@@ -561,7 +648,8 @@ class WorkoutResult:
             heart_rate_avg=None if d.get("heartRateAvg") is None else float(d["heartRateAvg"]),
             heart_rate_max=None if d.get("heartRateMax") is None else float(d["heartRateMax"]),
             recording_file_name=d.get("recordingFileName"),
-            id=d["id"], version=version)
+            id=d["id"], version=version,
+            heart_rate_series=None if series is None else HeartRateSeries.from_dict(series))
 
     def save(self, path) -> None:
         with open(path, "w") as f:

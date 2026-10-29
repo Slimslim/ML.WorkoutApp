@@ -40,6 +40,8 @@ HANG_WINDOW_S = 0.5
 HANG_STEP_S = 0.25
 HANG_GX_MIN = 0.5           # mean gravity.x of the window above this = arm overhead
 HANG_MIN_DURATION_S = 1.5   # a set of >= 1 pull-up lasts at least ~2 s on the bar
+HANG_ACTIVE_SD_MIN = 0.5    # SD of |userAccel| (g) over the bout: real sets 0.72-1.74, resting with the hands
+                            # up on the rack (Helen R3, athlete-confirmed) 0.34. Arms up + still = not a set.
 HANG_MERGE_GAP_S = 1.0      # bouts closer than this are one set (a grip re-adjust). Real gaps between sets are
                             # >= 2.0 s (2.0-2.5 s between the short sets of round 3); do not raise above ~1.5
 
@@ -147,7 +149,8 @@ def detect_running(motion, t_from: Optional[float] = None, t_to: Optional[float]
 def bar_hangs(motion, start: float, end: float):
     """Wrist-up bouts [(start, end)] in [start, end): mean gravity.x over 0.5 s windows above
     HANG_GX_MIN, bouts closer than HANG_MERGE_GAP_S merged, bouts shorter than
-    HANG_MIN_DURATION_S dropped. Meant for pull-up (bar) segments only."""
+    HANG_MIN_DURATION_S dropped, and bouts without movement (SD of |userAccel| below
+    HANG_ACTIVE_SD_MIN) dropped. Meant for pull-up (bar) segments only."""
     raw = []
     inside, b0 = False, 0.0
     w = start
@@ -171,7 +174,15 @@ def bar_hangs(motion, start: float, end: float):
             merged[-1] = (merged[-1][0], b[1])
         else:
             merged.append(b)
-    return [(a, b) for (a, b) in merged if b - a >= HANG_MIN_DURATION_S]
+    out = []
+    for (a, b) in merged:
+        if b - a < HANG_MIN_DURATION_S:
+            continue
+        f = window_features(motion, a, b)
+        if f is None or f["sd"] < HANG_ACTIVE_SD_MIN:
+            continue   # hands up but not pulling (e.g. leaning on the rack to breathe)
+        out.append((a, b))
+    return out
 
 
 def kb_swing_onset(motion, start: float, end: float) -> Optional[float]:

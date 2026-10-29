@@ -65,13 +65,9 @@ def test_no_running_inside_stations(helen):
 def test_bar_hangs_per_round(helen):
     motion, segs, _ = helen
     counts = [len(segments.bar_hangs(motion, g["start"], g["end"])) for g in of_kind(segs, "pull")]
-    # Athlete: 5 sets per round. Rounds 1-2 match exactly. Round 3 yields 6 bouts: a short
-    # first grab (3.2 s) plus 5 bouts whose durations fit the 3-3-2-2-2 labels; no merge gap
-    # separates it from real sets (gaps between sets are 2.0-2.5 s, same as round 1), so we
-    # accept 5-6 rather than tune a rule to the label.
-    assert counts[0] == 5
-    assert counts[1] == 5
-    assert counts[2] in (5, 6)
+    # Athlete: 5 sets per round (2-3-3-2-2, 1-2-3-3-3, 3-3-2-2-2). Round 3 starts with ~3 s of
+    # hands up on the rack while catching breath (athlete-confirmed); the activity check drops it.
+    assert counts == [5, 5, 5]
 
 
 def test_hangs_are_inside_segment_and_ordered(helen):
@@ -99,7 +95,8 @@ def test_pull_and_run_onsets(helen):
     motion, segs, _ = helen
     for g in of_kind(segs, "pull"):
         on = segments.work_onset(motion, g["start"], g["end"], "pull")
-        assert on is not None and 1.0 <= on - g["start"] <= 8.0
+        # rounds 1-2: 3-5 s to the bar; round 3: ~11 s (hands on the rack to breathe, then chalk)
+        assert on is not None and 1.0 <= on - g["start"] <= 12.0
     for g in of_kind(segs, "run")[1:]:
         on = segments.work_onset(motion, g["start"], g["end"], "run")
         assert on is not None and 0.0 <= on - g["start"] <= 10.0
