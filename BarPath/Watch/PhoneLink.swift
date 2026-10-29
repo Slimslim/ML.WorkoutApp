@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import WatchConnectivity
+import BarPathKit
 
 /// Where the watch keeps files.
 ///
@@ -38,6 +39,10 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     /// Number of file transfers still queued/in flight.
     @Published private(set) var pendingTransfers = 0
     @Published private(set) var isReachable = false
+    /// Workout picked on the iPhone ("selectWorkout" application context / message).
+    @Published private(set) var phoneWorkout: WorkoutDefinition?
+    /// Lift + load picked on the iPhone's Lifts tab (`liftSelection` in context / message).
+    @Published private(set) var phoneLift: LiftSelection?
 
     private struct QueuedFile {
         let url: URL
@@ -49,6 +54,17 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     private var retryCounts: [String: Int] = [:]
     private var activated = false
     private static let maxRetries = 3
+    /// `sentAt` of the last applied phone workout, persisted so an old application context
+    /// re-delivered at launch doesn't override a later choice made on the watch.
+    private static let phoneWorkoutSentAtKey = "phoneWorkoutSentAt.v1"
+    private static let phoneLiftSentAtKey = "phoneLiftSentAt.v1"
+
+    /// Whether the last phone choice was a lift (Lifting page) rather than a workout.
+    var lastPhoneChoiceWasLift: Bool {
+        let defaults = UserDefaults.standard
+        return defaults.double(forKey: PhoneLink.phoneLiftSentAtKey)
+            > defaults.double(forKey: PhoneLink.phoneWorkoutSentAtKey)
+    }
 
     private override init() {
         super.init()
@@ -115,6 +131,8 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
 
     private func didActivate(_ session: WCSession) {
         activated = true
+        handleWorkoutSelection(session.receivedApplicationContext)
+        handleLiftSelection(session.receivedApplicationContext)
         isReachable = session.isReachable
         let queued = queuedUntilActivated
         queuedUntilActivated = []
@@ -168,8 +186,15 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     }
 
     /// Metadata reconstructed from the file name (used for re-sends).
-    /// `<uuid>.json` → lift, `session-<uuid>.csv` → debug session CSV.
+    /// `workout-<uuid>.json` → workout result, `<uuid>.json` → lift,
+    /// `session-<uuid>.csv` → debug session CSV.
     static func metadata(forFileNamed name: String) -> [String: Any]? {
+        // Workout results first: they also end in ".json".
+        if name.hasPrefix("workout-") && name.hasSuffix(".json") {
+            let id = String(name.dropFirst(8).dropLast(5))
+            guard UUID(uuidString: id) != nil else { return nil }
+            return workoutResultMetadata(id: id)
+        }
         if name.hasSuffix(".json") {
             let id = String(name.dropLast(5))
             guard UUID(uuidString: id) != nil else { return nil }
@@ -184,6 +209,10 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
 
     static func liftMetadata(id: String) -> [String: Any] {
         return ["type": "lift", "id": id]
+    }
+
+    static func workoutResultMetadata(id: String) -> [String: Any] {
+        return ["type": "workoutResult", "id": id]
     }
 
     static func sessionCSVMetadata(sessionId: String) -> [String: Any] {
@@ -246,7 +275,53 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     }
 
     func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
-        // The phone doesn't send anything to the watch in v1.
-        Log.link.debug("Ignoring message from phone")
+        DispatchQueue.main.async {
+            self.handleWorkoutSelection(message)
+            self.handleLiftSelection(message)
+        }
+    }
+
+    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
+        DispatchQueue.main.async {
+            self.handleWorkoutSelection(applicationContext)
+            self.handleLiftSelection(applicationContext)
+        }
+    }
+
+    // MARK: - Lift selection from the phone (main queue)
+
+    private func handleLiftSelection(_ payload: [String: Any]) {
+        guard let d = payload[LiftSelection.contextKey] as? [String: Any],
+              let selection = LiftSelection(dictionary: d) else { return }
+        let defaults = UserDefaults.standard
+        let lastSentAt = defaults.double(forKey: PhoneLink.phoneLiftSentAtKey)
+        if selection.sentAt > 0 && selection.sentAt <= lastSentAt { return }
+        defaults.set(selection.sentAt, forKey: PhoneLink.phoneLiftSentAtKey)
+        Log.link.info("Lift from phone: \(selection.liftType.rawValue, privacy: .public)")
+        phoneLift = selection
+    }
+
+    // MARK: - Workout selection from the phone (main queue)
+
+    /// `["type": "selectWorkout", "workoutDefinition": <JSON Data>, "sentAt": <seconds since 1970>]`.
+    /// The phone sends the same payload as application context and, when reachable, as a
+    /// message; the `sentAt` check applies it once.
+    private func handleWorkoutSelection(_ payload: [String: Any]) {
+        guard (payload["type"] as? String) == "selectWorkout",
+              let data = payload["workoutDefinition"] as? Data else { return }
+        let sentAt = (payload["sentAt"] as? Double) ?? 0
+        let defaults = UserDefaults.standard
+        let lastSentAt = defaults.double(forKey: PhoneLink.phoneWorkoutSentAtKey)
+        if sentAt > 0 && sentAt <= lastSentAt { return }
+        let definition: WorkoutDefinition
+        do {
+            definition = try JSONDecoder().decode(WorkoutDefinition.self, from: data)
+        } catch {
+            Log.link.error("Could not decode workout from phone: \(error.localizedDescription, privacy: .public)")
+            return
+        }
+        defaults.set(sentAt, forKey: PhoneLink.phoneWorkoutSentAtKey)
+        Log.link.info("Workout from phone: \(definition.id, privacy: .public)")
+        phoneWorkout = definition
     }
 }

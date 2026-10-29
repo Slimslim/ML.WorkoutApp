@@ -1,0 +1,300 @@
+{
+  "definition" : {
+    "format" : "forTime",
+    "healthKitActivity" : "crossTraining",
+    "id" : "wod.helen",
+    "name" : "Helen",
+    "segments" : [
+      {
+        "kind" : "run",
+        "movement" : "run",
+        "name" : "Run",
+        "target" : {
+          "unit" : "meters",
+          "value" : 400
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "kettlebellSwings",
+        "name" : "KB Swings",
+        "target" : {
+          "unit" : "reps",
+          "value" : 21
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "pullUps",
+        "name" : "Pull-ups",
+        "target" : {
+          "unit" : "reps",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "run",
+        "movement" : "run",
+        "name" : "Run",
+        "target" : {
+          "unit" : "meters",
+          "value" : 400
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "kettlebellSwings",
+        "name" : "KB Swings",
+        "target" : {
+          "unit" : "reps",
+          "value" : 21
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "pullUps",
+        "name" : "Pull-ups",
+        "target" : {
+          "unit" : "reps",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "run",
+        "movement" : "run",
+        "name" : "Run",
+        "target" : {
+          "unit" : "meters",
+          "value" : 400
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "kettlebellSwings",
+        "name" : "KB Swings",
+        "target" : {
+          "unit" : "reps",
+          "value" : 21
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "pullUps",
+        "name" : "Pull-ups",
+        "target" : {
+          "unit" : "reps",
+          "value" : 12
+        }
+      }
+    ],
+    "shortName" : "Helen",
+    "team" : "solo",
+    "timeCapSeconds" : 960
+  },
+  "endDate" : "2026-10-29T02:15:47.988Z",
+  "events" : [
+    {
+      "kind" : "start",
+      "segmentIndex" : 0,
+      "t" : 1793239365.245584
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 1,
+      "source" : "crown",
+      "t" : 1793239493.8216681
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 2,
+      "source" : "crown",
+      "t" : 1793239546.442174
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 3,
+      "source" : "crown",
+      "t" : 1793239600.956287
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 4,
+      "source" : "crown",
+      "t" : 1793239749.9991732
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 5,
+      "source" : "crown",
+      "t" : 1793239802.5795
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 6,
+      "source" : "crown",
+      "t" : 1793239864.8336658
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 7,
+      "source" : "crown",
+      "t" : 1793240020.97549
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 8,
+      "source" : "crown",
+      "t" : 1793240077.728209
+    },
+    {
+      "kind" : "finish",
+      "segmentIndex" : 8,
+      "source" : "crown",
+      "t" : 1793240132.541947
+    },
+    {
+      "kind" : "end",
+      "segmentIndex" : 8,
+      "t" : 1793240147.987887
+    }
+  ],
+  "finishDate" : "2026-10-29T02:15:32.542Z",
+  "heartRateAvg" : 168.0952380952381,
+  "heartRateMax" : 180,
+  "id" : "21A8BA29-DD40-4B74-83D8-8915347F738C",
+  "recordingFileName" : "session-21A8BA29-DD40-4B74-83D8-8915347F738C.csv",
+  "segments" : [
+    {
+      "cadence" : 163.4428658109123,
+      "distance" : 348.24607818750115,
+      "duration" : 128.5760841369629,
+      "end" : 1793239493.8216681,
+      "heartRateAvg" : 145.1875,
+      "heartRateMax" : 162,
+      "index" : 0,
+      "kind" : "run",
+      "movement" : "run",
+      "paceSecondsPerKm" : 369.2104296081563,
+      "start" : 1793239365.245584,
+      "steps" : 350.24739443483656,
+      "title" : "Run 400 m"
+    },
+    {
+      "cadence" : 26.590581903936574,
+      "distance" : 13.925630627997009,
+      "duration" : 52.620505809783936,
+      "end" : 1793239546.442174,
+      "heartRateAvg" : 172.63636363636363,
+      "heartRateMax" : 179,
+      "index" : 1,
+      "kind" : "station",
+      "movement" : "kettlebellSwings",
+      "start" : 1793239493.8216681,
+      "steps" : 23.320164492693834,
+      "title" : "KB Swings 21"
+    },
+    {
+      "cadence" : 19.499992463637817,
+      "distance" : 12.742963899392748,
+      "duration" : 54.51411294937134,
+      "end" : 1793239600.956287,
+      "heartRateAvg" : 176.9090909090909,
+      "heartRateMax" : 180,
+      "index" : 2,
+      "kind" : "station",
+      "movement" : "pullUps",
+      "start" : 1793239546.442174,
+      "steps" : 17.71707986124403,
+      "title" : "Pull-ups 12"
+    },
+    {
+      "cadence" : 157.73156566275,
+      "distance" : 384.653496784484,
+      "duration" : 149.04288625717163,
+      "end" : 1793239749.9991732,
+      "heartRateAvg" : 169.27586206896552,
+      "heartRateMax" : 176,
+      "index" : 3,
+      "kind" : "run",
+      "movement" : "run",
+      "paceSecondsPerKm" : 387.4731089229595,
+      "start" : 1793239600.956287,
+      "steps" : 391.8127966706474,
+      "title" : "Run 400 m"
+    },
+    {
+      "cadence" : 18.14659456462211,
+      "distance" : 9.631813054345571,
+      "duration" : 52.580326795578,
+      "end" : 1793239802.5795,
+      "heartRateAvg" : 170.72727272727272,
+      "heartRateMax" : 176,
+      "index" : 4,
+      "kind" : "station",
+      "movement" : "kettlebellSwings",
+      "start" : 1793239749.9991732,
+      "steps" : 15.902564540578169,
+      "title" : "KB Swings 21"
+    },
+    {
+      "cadence" : 9.794895405652897,
+      "distance" : 7.120204923024744,
+      "duration" : 62.25416588783264,
+      "end" : 1793239864.8336658,
+      "heartRateAvg" : 177.33333333333334,
+      "heartRateMax" : 180,
+      "index" : 5,
+      "kind" : "station",
+      "movement" : "pullUps",
+      "start" : 1793239802.5795,
+      "steps" : 10.162884057291421,
+      "title" : "Pull-ups 12"
+    },
+    {
+      "cadence" : 155.10227522750031,
+      "distance" : 394.2774082728748,
+      "duration" : 156.14182424545288,
+      "end" : 1793240020.97549,
+      "heartRateAvg" : 166.8125,
+      "heartRateMax" : 177,
+      "index" : 6,
+      "kind" : "run",
+      "movement" : "run",
+      "paceSecondsPerKm" : 396.02021563809444,
+      "start" : 1793239864.8336658,
+      "steps" : 403.6325366440369,
+      "title" : "Run 400 m"
+    },
+    {
+      "cadence" : 30.29738979877792,
+      "distance" : 16.175913915603132,
+      "duration" : 56.752718925476074,
+      "end" : 1793240077.728209,
+      "heartRateAvg" : 166.27272727272728,
+      "heartRateMax" : 172,
+      "index" : 7,
+      "kind" : "station",
+      "movement" : "kettlebellSwings",
+      "start" : 1793240020.97549,
+      "steps" : 28.657654123760494,
+      "title" : "KB Swings 21"
+    },
+    {
+      "cadence" : 11.560353561883618,
+      "distance" : 6.826833696063886,
+      "duration" : 54.813737869262695,
+      "end" : 1793240132.541947,
+      "heartRateAvg" : 175.72727272727272,
+      "heartRateMax" : 178,
+      "index" : 8,
+      "kind" : "station",
+      "movement" : "pullUps",
+      "start" : 1793240077.728209,
+      "steps" : 10.5611031636181,
+      "title" : "Pull-ups 12"
+    }
+  ],
+  "startDate" : "2026-10-29T02:02:45.246Z",
+  "totalSeconds" : 767.2963628768921,
+  "version" : 1
+}

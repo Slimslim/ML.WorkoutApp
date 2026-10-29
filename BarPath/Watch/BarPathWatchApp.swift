@@ -1,6 +1,8 @@
 import SwiftUI
 import WatchKit
 import HealthKit
+import Combine
+import BarPathKit
 
 /// Receives the iPhone's "open the watch app" request (HKHealthStore.startWatchApp).
 /// The app is brought to the foreground on the start screen; the athlete picks the lift
@@ -8,6 +10,11 @@ import HealthKit
 final class WatchAppDelegate: NSObject, WKApplicationDelegate {
     func handle(_ workoutConfiguration: HKWorkoutConfiguration) {
         Log.link.info("Opened from iPhone")
+        // The phone opens us with a non-strength configuration when it sent a workout:
+        // show the Workouts page (RootView reads this through @AppStorage).
+        if workoutConfiguration.activityType != .traditionalStrengthTraining {
+            UserDefaults.standard.set(1, forKey: "rootPage.v1")
+        }
     }
 }
 
@@ -15,6 +22,7 @@ final class WatchAppDelegate: NSObject, WKApplicationDelegate {
 struct BarPathWatchApp: App {
     @WKApplicationDelegateAdaptor(WatchAppDelegate.self) private var appDelegate
     @StateObject private var model = SessionModel()
+    @StateObject private var workoutModel = WorkoutSessionModel()
 
     init() {
         // The single WCSessionDelegate; activate as early as possible so queued/orphaned
@@ -26,19 +34,53 @@ struct BarPathWatchApp: App {
         WindowGroup {
             RootView()
                 .environmentObject(model)
+                .environmentObject(workoutModel)
         }
     }
 }
 
+/// Lifting session → SessionView; workout session → WorkoutSessionView; otherwise two
+/// horizontal pages: Lifting (StartView) and Workouts (WorkoutStartView). The last page is
+/// remembered.
 struct RootView: View {
     @EnvironmentObject var model: SessionModel
+    @EnvironmentObject var workoutModel: WorkoutSessionModel
+    @AppStorage("rootPage.v1") private var rootPage: Int = 0
 
     var body: some View {
         Group {
-            if model.phase == .idle || model.phase == .paused {
+            if model.phase == .paused {
+                // Lifting workout still running after "Change": setup only (no Workouts page,
+                // a second HealthKit workout can't start while this one runs).
                 StartView()
-            } else {
+            } else if model.phase != .idle {
                 SessionView()
+            } else if workoutModel.phase != .idle {
+                WorkoutSessionView()
+            } else {
+                TabView(selection: $rootPage) {
+                    StartView()
+                        .tag(0)
+                    WorkoutStartView()
+                        .tag(1)
+                }
+                .tabViewStyle(.page)
+            }
+        }
+        .onReceive(PhoneLink.shared.$phoneWorkout) { (definition: WorkoutDefinition?) in
+            guard let definition = definition else { return }
+            workoutModel.selectFromPhone(definition)
+            if model.phase == .idle && workoutModel.phase == .idle && !PhoneLink.shared.lastPhoneChoiceWasLift {
+                rootPage = 1
+                WKInterfaceDevice.current().play(.click)
+            }
+        }
+        .onReceive(PhoneLink.shared.$phoneLift) { (selection: LiftSelection?) in
+            guard let selection = selection else { return }
+            model.selectFromPhone(selection)
+            if (model.phase == .idle || model.phase == .paused) && workoutModel.phase == .idle {
+                rootPage = 0
+                WKInterfaceDevice.current().play(.click)
             }
         }
     }

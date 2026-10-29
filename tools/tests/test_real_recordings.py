@@ -11,7 +11,9 @@ import pytest
 from barpath import analyzer, recording
 
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..", "data", "raw")
-FILES = sorted(glob.glob(os.path.join(ROOT, "**", "*.json"), recursive=True))
+# Lift recordings only: WorkoutResult files (workout-<id>.json) are a different format.
+FILES = sorted(f for f in glob.glob(os.path.join(ROOT, "**", "*.json"), recursive=True)
+               if not os.path.basename(f).startswith("workout-"))
 
 
 @pytest.mark.skipif(not FILES, reason="no real recordings in data/raw")

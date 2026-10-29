@@ -11,6 +11,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         // Scan stored lifts first, then start WatchConnectivity so queued transfers are
         // delivered into a ready store.
         LiftStore.shared.loadIfNeeded()
+        WorkoutStore.shared.loadIfNeeded()
         PhoneLink.shared.activate()
         return true
     }
@@ -25,6 +26,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
 struct BarPathApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var store = LiftStore.shared
+    @StateObject private var workoutStore = WorkoutStore.shared
     @StateObject private var link = PhoneLink.shared
     @Environment(\.scenePhase) private var scenePhase
 
@@ -32,10 +34,12 @@ struct BarPathApp: App {
         WindowGroup {
             RootView()
                 .environmentObject(store)
+                .environmentObject(workoutStore)
                 .environmentObject(link)
                 .tint(Theme.accent)
                 .onAppear {
                     store.loadIfNeeded()
+                    workoutStore.loadIfNeeded()
                 }
                 .onChange(of: scenePhase) { _, phase in
                     if phase == .active {
@@ -63,6 +67,14 @@ struct RootView: View {
             LiveView()
                 .tabItem {
                     Label("Live", systemImage: "waveform.path.ecg")
+                }
+            LiftChooserView()
+                .tabItem {
+                    Label("Lifts", systemImage: "figure.strengthtraining.traditional")
+                }
+            WorkoutListView()
+                .tabItem {
+                    Label("Workouts", systemImage: "figure.run")
                 }
             HistoryView()
                 .tabItem {

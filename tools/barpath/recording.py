@@ -177,6 +177,7 @@ class SessionCSV:
     motion: MotionSeries
     marks: list = field(default_factory=list)    # [{"t": float, "n": int, "label": str}]
     events: list = field(default_factory=list)   # [{"t": float, "name": str, "homing": .., ...}]
+    workout: Optional[str] = None                # workout definition id (header 'workout=', no liftType)
 
 
 _HEADER_RE = re.compile(r"(\w+)=([^,\s]+)")
@@ -225,7 +226,7 @@ def load_session_csv(path) -> SessionCSV:
         if "n" in m and isinstance(m["n"], float):
             m["n"] = int(m["n"])
     return SessionCSV(meta.get("sessionId"), start, meta.get("liftType"), MotionSeries.from_columns(d),
-                      marks, events)
+                      marks, events, meta.get("workout"))
 
 
 def save_session_csv(path, motion: MotionSeries, session_id: str, start_date: datetime,

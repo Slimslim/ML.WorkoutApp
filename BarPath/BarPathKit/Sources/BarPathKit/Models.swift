@@ -247,3 +247,41 @@ public struct AccelSeries: Codable, Equatable, Sendable {
         try c.encode(z, forKey: .z)
     }
 }
+
+// MARK: - Phone → watch lift selection
+
+/// Next lift chosen on the phone's Lifts tab. Travels as a plain dictionary under
+/// `contextKey` in the WatchConnectivity application context / a message.
+public struct LiftSelection: Equatable, Sendable {
+    public static let contextKey = "liftSelection"
+
+    public var liftType: LiftType
+    public var loadLb: Double?      // nil = don't log load
+    public var sentAt: Double       // seconds since 1970; the watch applies each one once
+
+    public init(liftType: LiftType, loadLb: Double?, sentAt: Double) {
+        self.liftType = liftType
+        self.loadLb = loadLb
+        self.sentAt = sentAt
+    }
+
+    public var dictionary: [String: Any] {
+        var d: [String: Any] = ["liftType": liftType.rawValue, "sentAt": sentAt]
+        if let lb = loadLb {
+            d["loadLb"] = lb
+        }
+        return d
+    }
+
+    public init?(dictionary d: [String: Any]) {
+        guard let raw = d["liftType"] as? String, let type = LiftType(rawValue: raw) else { return nil }
+        liftType = type
+        loadLb = (d["loadLb"] as? NSNumber)?.doubleValue
+        sentAt = (d["sentAt"] as? NSNumber)?.doubleValue ?? 0
+    }
+
+    public var summary: String {
+        guard let lb = loadLb else { return liftType.displayName }
+        return liftType.displayName + String(format: " · %.0f lb", lb)
+    }
+}

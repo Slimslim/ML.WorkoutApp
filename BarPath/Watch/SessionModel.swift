@@ -89,6 +89,7 @@ final class SessionModel: ObservableObject {
     /// Names the current block's debug CSV (a new one after each Change).
     private var csvId = UUID()
     private var lastHapticDate: Date?
+    private var pendingPhoneLift: LiftSelection?
 
     private enum Keys {
         static let liftType = "liftType"
@@ -187,6 +188,27 @@ final class SessionModel: ObservableObject {
         workout.start()
     }
 
+    /// Lift + load sent from the phone's Lifts tab. Applied on the setup screen (idle or after
+    /// Change); while a block is recording it waits for the next Change.
+    func selectFromPhone(_ selection: LiftSelection) {
+        guard phase == .idle || phase == .paused else {
+            pendingPhoneLift = selection
+            return
+        }
+        apply(selection)
+    }
+
+    private func apply(_ selection: LiftSelection) {
+        liftType = selection.liftType
+        if let lb = selection.loadLb {
+            loadLb = lb
+            useLoad = true
+        } else {
+            useLoad = false
+        }
+        pendingPhoneLift = nil
+    }
+
     /// "Change": stop recording this block (lift type / load) and go back to setup while the
     /// HealthKit workout keeps running, so one gym session stays one workout in Fitness.
     func change() {
@@ -194,6 +216,9 @@ final class SessionModel: ObservableObject {
         stopRecording()
         detectorState = .idle
         phase = .paused
+        if let selection = pendingPhoneLift {
+            apply(selection)
+        }
         sendStatus()
     }
 

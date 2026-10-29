@@ -43,11 +43,21 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     /// True while a "open the watch app" request (HKHealthStore.startWatchApp) is in flight.
     @Published private(set) var isLaunchingWatchApp = false
     @Published private(set) var watchLaunchError: String?
+    /// Last workout sent to the watch (definition id + time), and why sending failed.
+    @Published private(set) var sentWorkoutId: String?
+    @Published private(set) var sentWorkoutAt: Date?
+    @Published private(set) var sendWorkoutError: String?
+    /// Last lift + load sent from the Lifts tab.
+    @Published private(set) var sentLift: LiftSelection?
+    @Published private(set) var sendLiftError: String?
 
     private let healthStore = HKHealthStore()
 
+    private static let sentWorkoutIdKey = "sentWorkoutId.v1"
+
     private override init() {
         super.init()
+        sentWorkoutId = UserDefaults.standard.string(forKey: PhoneLink.sentWorkoutIdKey)
     }
 
     /// Call once at launch.
@@ -60,13 +70,13 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
 
     /// Opens BarPath on the paired watch (it comes to the foreground on the start screen).
     /// Uses HKHealthStore.startWatchApp, which works even when the watch app isn't running.
-    func launchWatchApp() {
+    func launchWatchApp(activityType: HKWorkoutActivityType = .traditionalStrengthTraining) {
         guard activationState == .activated, isPaired, isWatchAppInstalled else { return }
         guard !isLaunchingWatchApp else { return }
         isLaunchingWatchApp = true
         watchLaunchError = nil
         let configuration = HKWorkoutConfiguration()
-        configuration.activityType = .traditionalStrengthTraining
+        configuration.activityType = activityType
         configuration.locationType = .indoor
         healthStore.startWatchApp(with: configuration) { success, error in
             DispatchQueue.main.async {
@@ -76,6 +86,96 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
                 }
             }
         }
+    }
+
+    /// Sends a workout to the watch as the next workout, then opens the watch app on its
+    /// Workouts page. Call on the main thread (UI).
+    ///
+    /// Payload `["type": "selectWorkout", "workoutDefinition": <JSON Data>, "sentAt": Double]`
+    /// as application context (delivered whenever the watch app next runs) and, when the watch
+    /// is reachable, also as a message (instant). The watch applies it once per `sentAt`.
+    func sendWorkout(_ definition: WorkoutDefinition) {
+        guard WCSession.isSupported() else {
+            sendWorkoutError = "This iPhone can't talk to a watch."
+            return
+        }
+        let session = WCSession.default
+        guard session.activationState == .activated, session.isPaired else {
+            sendWorkoutError = "Watch not connected yet. Try again in a moment."
+            return
+        }
+        guard session.isWatchAppInstalled else {
+            sendWorkoutError = "BarPath isn't installed on the watch."
+            return
+        }
+        let data: Data
+        do {
+            data = try JSONEncoder().encode(definition)
+        } catch {
+            sendWorkoutError = "Could not prepare the workout: \(error.localizedDescription)"
+            return
+        }
+        let now = Date()
+        var payload: [String: Any] = [
+            "type": "selectWorkout",
+            "workoutDefinition": data,
+            "sentAt": now.timeIntervalSince1970
+        ]
+        // The application context holds one dictionary: keep the last lift choice in it too.
+        if let lift = session.applicationContext[LiftSelection.contextKey] {
+            payload[LiftSelection.contextKey] = lift
+        }
+        do {
+            try session.updateApplicationContext(payload)
+        } catch {
+            sendWorkoutError = "Could not send to the watch: \(error.localizedDescription)"
+            return
+        }
+        if session.isReachable {
+            session.sendMessage(payload, replyHandler: nil) { error in
+                NSLog("BarPath: selectWorkout message failed (context still queued): %@", error.localizedDescription)
+            }
+        }
+        sentWorkoutId = definition.id
+        UserDefaults.standard.set(definition.id, forKey: PhoneLink.sentWorkoutIdKey)
+        sentWorkoutAt = now
+        sendWorkoutError = nil
+        launchWatchApp(activityType: .crossTraining)
+    }
+
+    /// Sends the next lift (type + load) to the watch's Lifting page, then opens the watch app.
+    /// Same delivery as `sendWorkout`: application context (merged with the last workout
+    /// choice) plus a message when reachable; the watch applies it once per `sentAt`.
+    func sendLift(_ selection: LiftSelection) {
+        guard WCSession.isSupported() else {
+            sendLiftError = "This iPhone can't talk to a watch."
+            return
+        }
+        let session = WCSession.default
+        guard session.activationState == .activated, session.isPaired else {
+            sendLiftError = "Watch not connected yet. Try again in a moment."
+            return
+        }
+        guard session.isWatchAppInstalled else {
+            sendLiftError = "BarPath isn't installed on the watch."
+            return
+        }
+        var context = session.applicationContext
+        context[LiftSelection.contextKey] = selection.dictionary
+        do {
+            try session.updateApplicationContext(context)
+        } catch {
+            sendLiftError = "Could not send to the watch: \(error.localizedDescription)"
+            return
+        }
+        if session.isReachable {
+            session.sendMessage([LiftSelection.contextKey: selection.dictionary], replyHandler: nil) { error in
+                NSLog("BarPath: lift selection message failed (context still queued): %@", error.localizedDescription)
+            }
+        }
+        sentLift = selection
+        sendLiftError = nil
+        launchWatchApp(activityType: .traditionalStrengthTraining)
     }
 
     var activationDescription: String {
@@ -148,8 +248,19 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         let isMarks = type == "marks" || name.hasSuffix("-marks.csv")
         let isSessionCSV = !isMarks && (type == "session" || type == "sessioncsv" || (type != "lift" && isCSV))
 
+        let isWorkoutResult = type == "workoutresult"
+            || (name.hasPrefix("workout-") && name.hasSuffix(".json"))
+
         do {
-            if isMarks || isSessionCSV {
+            if isWorkoutResult {
+                // Synchronous move: the system deletes `source` when this method returns.
+                let destination = try WorkoutFiles.storeIncomingResult(from: source,
+                                                                       metadataId: metadata["id"] as? String)
+                notifyReceived()
+                Task { @MainActor in
+                    WorkoutStore.shared.ingest(at: destination)
+                }
+            } else if isMarks || isSessionCSV {
                 // Synchronous move: the system deletes `source` when this method returns.
                 _ = try LiftFiles.storeIncomingDebugFile(from: source,
                                                          isMarks: isMarks,

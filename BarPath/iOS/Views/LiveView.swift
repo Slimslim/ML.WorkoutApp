@@ -3,10 +3,13 @@ import UIKit
 import BarPathKit
 
 /// The screen that sits on the bench: newest lift of the newest session as a hero card,
-/// earlier lifts of that session below.
+/// earlier lifts of that session below. Right after a workout (newer than the newest lift)
+/// it shows the workout overview instead, with the lifting content one tap away in History.
 struct LiveView: View {
     @EnvironmentObject private var store: LiftStore
+    @EnvironmentObject private var workoutStore: WorkoutStore
     @EnvironmentObject private var link: PhoneLink
+    @AppStorage(WorkoutViewed.key) private var lastViewedWorkoutId: String = ""
 
     var body: some View {
         NavigationStack {
@@ -14,6 +17,9 @@ struct LiveView: View {
                 .navigationTitle("Live")
                 .navigationDestination(for: LiftRoute.self) { route in
                     LiftDetailView(liftId: route.id)
+                }
+                .navigationDestination(for: WorkoutRoute.self) { route in
+                    WorkoutDetailView(resultId: route.id)
                 }
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
@@ -27,14 +33,82 @@ struct LiveView: View {
         }
         .onDisappear {
             UIApplication.shared.isIdleTimerDisabled = false
+            if let workout = workoutToShow {
+                lastViewedWorkoutId = workout.id.uuidString
+            }
         }
+    }
+
+    // MARK: - Workout or lifts
+
+    /// The newest workout, when it is newer than the newest lift session (or there are no lifts).
+    private var workoutToShow: WorkoutResult? {
+        guard let workout = workoutStore.newestResult else { return nil }
+        if store.isLoading { return nil }
+        if let session = store.currentSession {
+            return workout.endDate > session.latestDate ? workout : nil
+        }
+        return workout
     }
 
     @ViewBuilder
     private var content: some View {
+        // A deadlift set in progress always wins: show the live rep count.
+        if link.liveSet == nil, let workout = workoutToShow {
+            workoutContent(workout)
+        } else {
+            liftContent
+        }
+    }
+
+    private func workoutContent(_ workout: WorkoutResult) -> some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                WorkoutOverviewView(result: workout,
+                                    previous: workoutStore.previousAttempt(before: workout),
+                                    kicker: workoutKicker(workout),
+                                    isNew: lastViewedWorkoutId != workout.id.uuidString)
+                    .id(workout.id)
+                NavigationLink(value: WorkoutRoute(id: workout.id)) {
+                    HStack {
+                        Text("Details & share")
+                            .font(.subheadline.weight(.semibold))
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption.weight(.semibold))
+                    }
+                    .padding(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .fill(Theme.cardBackground)
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(16)
+        }
+        .background(Theme.pageBackground)
+    }
+
+    /// "JUST FINISHED · 14:05" for 3 hours, then "LAST WORKOUT · Oct 28, 14:05".
+    private func workoutKicker(_ workout: WorkoutResult) -> String {
+        let age: TimeInterval = Date().timeIntervalSince(workout.endDate)
+        if age < 3 * 3600 {
+            return "JUST FINISHED \u{00B7} " + OverviewFormat.timeOfDay(workout.endDate)
+        }
+        return "LAST WORKOUT \u{00B7} " + OverviewFormat.dayAndTime(workout.endDate)
+    }
+
+    // MARK: - Lifting
+
+    @ViewBuilder
+    private var liftContent: some View {
         if let session = store.currentSession, let newest = session.newestLift {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
+                    if let lastWorkout = workoutStore.newestResult {
+                        LastWorkoutRow(result: lastWorkout)
+                    }
                     sessionHeader(session)
                     if let live = link.liveSet {
                         LiveSetCard(status: live)
