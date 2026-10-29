@@ -150,3 +150,16 @@ totals.
   absolute seconds, so the run (longest part) always wins. Replace it with a relative measure
   (% slower than that movement's round 1) or drop it. "Drift" is OK for now. The Every 3:00
   view (set timing + rest management) is the most valued so far.
+- **Look like a first-class workout in Apple Fitness (later; athlete request 2026-10-29):** the
+  athlete wants BarPath workouts in the Fitness app to look like Apple's own (e.g. an outdoor
+  run page): activity type + **workout name** ("Cross Training · Helen"), **location** and map,
+  weather, and **intervals** (one row per segment: time, distance, pace, HR). To investigate on
+  device:
+  - Name: HealthKit workout metadata (`HKMetadataKeyWorkoutBrandName`, custom keys) vs WorkoutKit
+    custom workouts (`displayName`), and what Fitness actually shows for third-party workouts.
+  - Intervals: `HKWorkoutActivity` per segment (allowed for any type when all activities share
+    the workout's type; metadata names the segment) — either live with `beginNewActivity` or
+    added at the end with corrected (undo-aware) times. This is the A/B spike in §1.
+  - Location/map: needs Core Location + `HKWorkoutRouteBuilder` (outdoor workouts only; location
+    permission, battery). Weather: `HKMetadataKeyWeatherTemperature` / `…Humidity`.
+  - HR chart and calories already come from the live workout builder.
