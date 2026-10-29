@@ -1,0 +1,1605 @@
+<title>Wave Mode</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&family=Nunito:wght@700;800;900&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0C0D0F; --bg2:#121418; --card:#191B1F; --tile:#24272C; --line:#2E3238;
+  --fg:#F3F4F6; --fg2:#A4A8B0; --fg3:#6D727B; --ink:#0C0D0F;
+  --volt:#B8FF3C; --volt-dim:#26330F;
+  --run:#4D8EFF; --run-dim:#17243F;
+  --station:#FF7A1A; --station-dim:#3A2212;
+  --rox:#FF2E88; --rox-dim:#3E1229; --rox-ink:#1C0611;
+  --hr:#FF5B4F; --rate:#3FD1BE; --accent:#C9A0FF; --elapsed:#FFD60A;
+  --z-lo:#2A1C1D; --z-hi:#4A2523;
+  --case-hi:#6A6E76; --case:#3A3D43; --case-lo:#1D1F23; --band:#141518; --screen:#000000;
+  --focus:#8FB8FF; --shadow:#000000;
+  --calm:#A3A6FF; --calm-2:#5ED6CB; --calm-dim:#1A1B3A;
+  --z1c:#2F8BFF; --z2c:#1FC9C3; --z3c:#A6E22E; --z4c:#FF9F0A; --z5c:#FF3B30; --rest-ink:#0C0D0F;
+  --you:#B8FF3C; --mate:#3EC6F2; --mate-dim:#0D2A36;
+  --f-disp:"Barlow Condensed","Roboto Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --f-round:ui-rounded,"SF Pro Rounded","Nunito",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%}
+.page{padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:14px 32px;overflow-x:hidden}
+.wrap{max-width:1120px;margin:0 auto;min-width:0}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:inherit}
+button:focus-visible,input:focus-visible,a:focus-visible,textarea:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:8px}
+a{color:var(--volt)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.tn{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+h1,h2,h3{font-family:var(--f-disp);font-weight:800;letter-spacing:.2px;margin:0;line-height:.98;text-transform:uppercase}
+p{margin:0}
+
+/* top bar */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:18px}
+.brand{white-space:nowrap;font-family:var(--f-disp);font-weight:800;font-size:20px;letter-spacing:.6px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.brand i{width:10px;height:10px;border-radius:3px;background:var(--volt);transform:skewX(-14deg)}
+.brand span{color:var(--fg2);font-weight:600}
+.pill{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--fg2);border:1px solid var(--line);border-radius:999px;padding:4px 10px;white-space:nowrap}
+
+/* hero */
+.hero{display:grid;gap:10px;padding-bottom:18px}
+.kick{font-family:var(--f-disp);font-weight:700;font-size:15px;letter-spacing:1.4px;text-transform:uppercase;color:var(--volt)}
+.hero h1{font-size:clamp(44px,8.6vw,96px);font-style:italic;letter-spacing:-.5px}
+.hero h1 em{font-style:inherit;color:var(--volt)}
+.lede{font-size:clamp(16px,2vw,19px);color:var(--fg2);max-width:640px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;color:var(--fg3)}
+
+/* chips */
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-radius:999px;padding:3px 9px;white-space:nowrap;line-height:1.3}
+.chip::before{content:"";width:7px;height:7px;border-radius:50%}
+.today{color:var(--volt);background:var(--volt-dim);border:1px solid var(--volt)}
+.today::before{background:var(--volt)}
+.soon{color:var(--fg2);border:1px dashed var(--fg3)}
+.soon::before{border:1.5px solid var(--fg2);width:5px;height:5px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.cap .chip{white-space:normal;max-width:100%}
+
+/* simulator */
+.sim{background:var(--bg2);border:1px solid var(--line);border-radius:28px;padding:18px;display:grid;gap:16px;min-width:0}
+.sim-main{display:grid;gap:18px;align-items:center;justify-items:center}
+@media (min-width:760px){.sim-main{grid-template-columns:auto minmax(0,1fr);justify-items:stretch;gap:32px}.stage{justify-self:center}}
+.stage{display:grid;justify-items:center;gap:10px}
+.watchwrap{--s:1;width:calc(244px * var(--s));height:calc(330px * var(--s));position:relative}
+@media (max-width:420px){.watchwrap{--s:.9}}
+.watch{position:absolute;left:0;top:0;width:244px;height:330px;transform:scale(var(--s));transform-origin:top left}
+.band{position:absolute;left:39px;width:150px;height:44px;background:linear-gradient(180deg,var(--band),var(--case-lo));}
+.band.t{top:0;border-radius:14px 14px 4px 4px}
+.band.b{bottom:0;border-radius:4px 4px 14px 14px;background:linear-gradient(0deg,var(--band),var(--case-lo))}
+.case{position:absolute;left:0;top:30px;width:228px;height:270px;border-radius:56px;background:linear-gradient(145deg,var(--case-hi),var(--case) 30%,var(--case-lo) 85%);box-shadow:0 18px 40px -12px var(--shadow),inset 0 1px 1px var(--case-hi)}
+.crown{position:absolute;left:224px;top:92px;width:14px;height:40px;border-radius:5px;background:repeating-linear-gradient(180deg,var(--case-hi) 0 2px,var(--case) 2px 4px);box-shadow:inset -2px 0 2px var(--case-lo)}
+.sidebtn{position:absolute;left:225px;top:158px;width:7px;height:52px;border-radius:3px;background:linear-gradient(90deg,var(--case),var(--case-lo))}
+.bezel{position:absolute;left:8px;top:8px;width:212px;height:254px;border-radius:49px;background:var(--screen);padding:4px}
+.screen{position:relative;width:204px;height:246px;border-radius:45px;overflow:hidden;background:var(--screen);color:var(--fg);font-family:var(--f-round);font-variant-numeric:tabular-nums}
+.watch.wiggle{animation:wig .32s ease-in-out 2}
+@keyframes wig{25%{transform:scale(var(--s)) translateX(-2px)}75%{transform:scale(var(--s)) translateX(2px)}}
+
+/* watch screens: one slot grid. top bar · row 1 elapsed · hero · row 3 (work | HR) · row 4 progress · bottom line */
+.scr{position:absolute;inset:0;border-radius:45px;padding:15px 16px 14px 19px;display:flex;flex-direction:column;align-items:stretch;text-align:left}
+.w-top{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--fg2);padding:0 6px 0 3px;min-height:15px;white-space:nowrap;flex:none}
+.w-nm{display:flex;align-items:center;gap:5px;min-width:0;overflow:hidden;color:var(--fg)}
+.w-nm i{flex:none;width:7px;height:7px;border-radius:50%;background:var(--mc,var(--station))}
+.w-nm span{overflow:hidden;text-overflow:ellipsis}
+.w-nm em{font-style:normal;color:var(--fg3)}
+.w-ck{flex:none}
+.w-body{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-between;padding:2px 0 4px}
+.w-el{font-size:26px;font-weight:800;line-height:1;letter-spacing:-.3px;color:var(--elapsed)}
+.hero{--mc:var(--fg);display:flex;align-items:flex-end;gap:6px;color:var(--mc);white-space:nowrap;min-width:0}
+.hero b{font-size:42px;font-weight:900;line-height:.84;letter-spacing:-.6px}
+.hero .u{display:flex;flex-direction:column;font-size:11px;font-weight:800;letter-spacing:.4px;line-height:1.15;text-transform:uppercase;min-width:0}
+.hero .u .l{color:var(--fg2)}
+.hero .dl.slower{color:var(--station)}
+.hero .dl.faster{color:var(--volt)}
+.hero .dl{color:var(--fg2)}
+.r3{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding-right:4px}
+.c{--mc:var(--fg);color:var(--mc);min-width:0;white-space:nowrap}
+.c b{font-size:24px;font-weight:900;line-height:.9;letter-spacing:-.3px}
+.c .u{font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;margin-left:3px}
+.c .l{display:block;font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--fg2);margin-top:3px}
+.c.hr{--mc:var(--hr);text-align:right}
+.w-sub{font-size:12px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--fg);white-space:nowrap}
+.w-sub b{font-weight:900}
+.w-segs{--mc:var(--run);display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:3px;padding-right:4px}
+.w-segs i{height:5px;border-radius:2px;background:var(--tile);position:relative;overflow:hidden}
+.w-segs i b{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--mc)}
+.w-bar{height:5px;border-radius:2px;background:var(--tile);margin-right:4px;position:relative;overflow:hidden}
+.w-bar b{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--mc);border-radius:2px}
+.w-foot{flex:none;font-size:12px;font-weight:800;color:var(--fg2);line-height:1.22;min-height:15px;padding:0 12px 1px 0}
+.w-foot.hint{color:var(--fg)}
+.w-foot.ban{color:var(--ink);background:var(--run);border-radius:8px;padding:4px 8px;margin-right:8px}
+/* the old metric row stays for the phone badges */
+.m{--mc:var(--fg);display:flex;align-items:flex-end;gap:5px;margin-top:6px;color:var(--mc);white-space:nowrap;min-width:0}
+/* wall balls */
+.ring{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.ring path{fill:none;stroke-width:4}
+.ring .rt{stroke:var(--tile)}
+.ring .rf{stroke:var(--volt)}
+.hero.wb b{font-size:58px;letter-spacing:-1.5px}
+.hero.wb .u{font-size:19px;letter-spacing:0;color:var(--fg2)}
+.scr .off{display:none}
+.scr.brk .on{display:none}
+.scr.brk .off{display:flex}
+.scr.brk .c.off{display:block}
+.scr.brk .hero{--mc:var(--accent)}
+.scr.brk .ring .rf{stroke:var(--accent)}
+/* pre */
+.pre-l1{font-size:20px;font-weight:900;line-height:1.05}
+.pre-l2{font-size:11px;font-weight:700;color:var(--fg2);margin-top:2px}
+/* rox: full-colour variant */
+.scr.rox{background:var(--rox);color:var(--rox-ink);text-align:center;padding-inline:17px}
+.rox-pulse{position:absolute;inset:0;background:var(--rox-ink);opacity:0;animation:pulse 1.4s ease-in-out infinite;pointer-events:none}
+@keyframes pulse{50%{opacity:.22}}
+.scr.rox>*:not(.rox-pulse){position:relative}
+.scr.rox .w-top,.scr.rox .w-nm{color:var(--rox-ink)}
+.scr.rox .w-nm i{background:var(--rox-ink)}
+.scr.rox .w-nm em{color:var(--rox-ink);opacity:.7}
+.rox-b{flex:1;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.rox-t{font-size:54px;font-weight:900;line-height:1;letter-spacing:-1px}
+.rox-hr b{font-size:24px;font-weight:900}
+.rox-hr span{font-size:11px;font-weight:900;margin-left:3px}
+.rox-next{font-size:13px;font-weight:900;line-height:1.2;padding:0 6px 2px}
+/* finish */
+.scr.fin{background:radial-gradient(circle at 50% 120%,var(--volt-dim),var(--screen) 70%)}
+.burst{position:absolute;inset:0;pointer-events:none}
+.burst i{position:absolute;left:50%;top:50%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;border:3px solid var(--volt);opacity:0}
+.burst i:nth-child(2){border-color:var(--rox)}.burst i:nth-child(3){border-color:var(--run)}.burst i:nth-child(4){border-color:var(--station)}
+.fin .burst i{animation:ring 1.3s cubic-bezier(.2,.7,.3,1) forwards}
+.fin .burst i:nth-child(2){animation-delay:.12s}.fin .burst i:nth-child(3){animation-delay:.24s}.fin .burst i:nth-child(4){animation-delay:.36s}
+@keyframes ring{0%{transform:scale(.2);opacity:.9}100%{transform:scale(7);opacity:0}}
+.fin-h{font-size:22px;font-weight:900;line-height:1}
+.fin-t{font-size:34px;font-weight:900;line-height:1;letter-spacing:-.4px}
+.fr{--mc:var(--fg);display:flex;align-items:baseline;gap:6px;color:var(--mc);white-space:nowrap}
+.fr b{font-size:24px;font-weight:900;line-height:1;letter-spacing:-.3px}
+.fr span{font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--fg2)}
+.scr.fin>*:not(.burst){position:relative}
+.w-link{align-self:flex-start;color:var(--volt);font-weight:900;font-size:13px;font-family:var(--f-round);padding:2px 0;min-height:20px}
+.bg-run{background:var(--run)}.bg-st{background:var(--station)}.bg-rox{background:var(--rox)}.bg-volt{background:var(--volt)}
+/* doubles: resting = one full-screen colour that follows your HR zone (Apple's zone colours) */
+.scr.rest{--za:var(--z1c);--zb:var(--z1c);--zf:0%;background:color-mix(in oklab,var(--zb) var(--zf),var(--za));color:var(--rest-ink);align-items:center;text-align:center;justify-content:space-between;padding:16px 15px 20px}
+.rest-top{display:flex;justify-content:space-between;align-items:flex-start;gap:5px;width:100%;font-size:11px;font-weight:900;letter-spacing:.1px;text-transform:uppercase;text-align:left;padding:0 2px}
+.rest-k{min-width:0}
+.rest-top .w-ck{opacity:.75}
+.rest-t{font-size:62px;font-weight:900;line-height:1;letter-spacing:-1.5px}
+.rest-hr{display:flex;align-items:baseline;justify-content:center;gap:5px}
+.rest-hr b{font-size:40px;font-weight:900;line-height:1;letter-spacing:-.5px}
+.rest-hr span{font-size:13px;font-weight:900}
+.rest-s{font-size:13px;font-weight:900;min-height:16px}
+.scr.rest.ready::after{content:"";position:absolute;inset:0;border-radius:45px;box-shadow:inset 0 0 0 4px var(--rest-ink);opacity:0;animation:rdy 1s ease-in-out infinite;pointer-events:none}
+@keyframes rdy{50%{opacity:.9}}
+.k-rest{background:var(--calm)}
+/* always-on (wrist down): top bar + row 1 + hero only; the Exit soon banner survives */
+.screen.aod .x,.screen.aod .w-foot:not(.ban),.screen.aod .ring,.screen.aod .burst{display:none}
+.screen.aod .w-body{justify-content:flex-start;gap:12px}
+.screen.aod .w-foot.ban{font-size:16px;line-height:1.15;padding:5px 9px}
+.screen.aod .scr:not(.rox):not(.rest){filter:brightness(.8)}
+.screen.aod .scr.rox{background:var(--screen);color:var(--rox);box-shadow:inset 0 0 0 6px var(--rox)}
+.screen.aod .scr.rox .rox-pulse{display:none}
+.screen.aod .scr.rox .w-top,.screen.aod .scr.rox .w-nm,.screen.aod .scr.rox .w-nm em{color:var(--rox)}
+.screen.aod .scr.rox .w-nm i{background:var(--rox)}
+.screen.aod .scr.rest{background:var(--screen);color:color-mix(in oklab,var(--zb) var(--zf),var(--za));justify-content:flex-start;gap:14px}
+.screen.aod .scr.rest.ready::after{box-shadow:inset 0 0 0 4px currentColor}
+.aodbtn{font-size:13px;font-weight:700;padding:6px 12px;border-radius:999px;border:1px solid var(--line);color:var(--fg2);min-height:36px;display:inline-flex;align-items:center;gap:7px}
+.aodbtn::before{content:"";width:9px;height:9px;border-radius:50%;border:2px solid var(--fg3)}
+.aodbtn[aria-pressed="true"]{color:var(--fg);border-color:var(--fg2);background:var(--tile)}
+.aodbtn[aria-pressed="true"]::before{background:var(--volt);border-color:var(--volt)}
+
+/* haptic */
+.hap{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--fg3);min-height:26px}
+.hap .ic{position:relative;width:22px;height:22px;border-radius:7px;border:2px solid var(--fg3)}
+.hap .ic::after{content:"";position:absolute;inset:-6px;border-radius:11px;border:2px solid var(--volt);opacity:0}
+.hap.on{color:var(--fg)}
+.hap.on .ic{border-color:var(--volt)}
+.hap.on .ic::after{animation:tap .5s ease-out 2}
+@keyframes tap{0%{opacity:.9;transform:scale(.8)}100%{opacity:0;transform:scale(1.3)}}
+.hap b{color:var(--volt);font-weight:700}
+
+/* caption */
+.cap{display:grid;gap:10px;min-width:0;align-content:center}
+.cap .st{font-family:var(--f-disp);font-weight:700;font-size:14px;letter-spacing:1.3px;text-transform:uppercase;color:var(--fg3)}
+.cap h2{font-size:clamp(30px,4vw,44px)}
+.cap p{color:var(--fg2);max-width:520px}
+.cap .clock{font-family:var(--f-disp);font-weight:700;font-size:17px;color:var(--fg2);letter-spacing:.5px}
+.cap .clock b{color:var(--fg);font-size:22px}
+.sample{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--fg3)}
+
+/* controls */
+.ctrls{display:grid;gap:12px;border-top:1px solid var(--line);padding-top:14px;min-width:0}
+.row1{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;font-weight:700;font-size:15px;background:var(--tile);color:var(--fg)}
+.btn.pri{background:var(--volt);color:var(--ink);min-width:116px}
+.btn svg{width:14px;height:14px;fill:currentColor}
+.seg{display:inline-flex;background:var(--tile);border-radius:999px;padding:3px;gap:2px}
+.seg button{min-height:38px;padding:0 13px;border-radius:999px;font-weight:700;font-size:14px;color:var(--fg2)}
+.seg button[aria-pressed="true"]{background:var(--fg);color:var(--ink)}
+.scrub{position:relative;height:46px;min-width:0}
+.ticks{position:absolute;left:9px;right:9px;top:0;height:14px}
+.ticks span{position:absolute;transform:translateX(-50%);font-size:10.5px;font-weight:700;color:var(--fg3);font-variant-numeric:tabular-nums}
+.strip{position:absolute;left:9px;right:9px;top:20px;height:10px;display:flex;gap:1px;border-radius:5px;overflow:hidden}
+.strip i{height:100%;min-width:1px}
+.k-pre{background:var(--volt-dim)}.k-run{background:var(--run)}.k-rox{background:var(--rox)}.k-st{background:var(--station)}
+.future{position:absolute;top:20px;height:10px;right:9px;background:var(--bg2);opacity:.6;border-radius:0 5px 5px 0;pointer-events:none}
+.scrub input{position:absolute;left:0;right:0;top:12px;width:100%;height:26px;margin:0;background:transparent;-webkit-appearance:none;appearance:none;cursor:pointer}
+.scrub input::-webkit-slider-runnable-track{height:26px;background:transparent}
+.scrub input::-moz-range-track{height:26px;background:transparent}
+.scrub input::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:26px;border-radius:7px;background:var(--fg);border:3px solid var(--bg2)}
+.scrub input::-moz-range-thumb{width:14px;height:22px;border-radius:7px;background:var(--fg);border:3px solid var(--bg2)}
+.jumps{display:flex;flex-wrap:wrap;gap:6px}
+.jumps button{font-size:13px;font-weight:700;padding:6px 11px;border-radius:999px;border:1px solid var(--line);color:var(--fg2);display:inline-flex;align-items:center;gap:6px;min-height:32px}
+.jumps button i{width:7px;height:7px;border-radius:2px}
+.jumps button[aria-current="true"]{color:var(--fg);border-color:var(--fg2);background:var(--tile)}
+
+/* story sections */
+.sec{padding-block:56px 8px;display:grid;gap:22px;min-width:0}
+.num{font-family:var(--f-disp);font-weight:800;font-size:15px;letter-spacing:1.4px;color:var(--fg3)}
+.sec h2{font-size:clamp(36px,6vw,64px);font-style:italic}
+.sec .body{color:var(--fg2);font-size:17px;max-width:600px}
+.two{display:grid;gap:26px;align-items:center;min-width:0}
+@media (min-width:860px){.two{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.two.flip>:first-child{order:2}}
+.txt{display:grid;gap:14px;align-content:start;min-width:0}
+.note{font-size:14px;color:var(--fg3);border-left:3px solid var(--line);padding-left:12px}
+.linkbtn{color:var(--volt);font-weight:700;font-size:15px;display:inline-flex;align-items:center;gap:6px;min-height:36px}
+.anat{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.anat li{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px;font-size:15px;color:var(--fg2);border-bottom:1px solid var(--line);padding-bottom:8px}
+.anat b{font-family:var(--f-round);font-weight:900;color:var(--fg);font-size:14px;letter-spacing:.4px}
+
+/* phone frame */
+.phone{width:100%;max-width:360px;justify-self:center;border-radius:46px;padding:10px;background:linear-gradient(145deg,var(--case),var(--case-lo));box-shadow:0 20px 50px -20px var(--shadow)}
+.ph{border-radius:37px;background:var(--bg);padding:12px 14px 18px;font-family:var(--f-body);min-width:0;overflow:hidden}
+.ph-bar{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700;padding:2px 10px 10px;font-family:var(--f-round)}
+.ph-bar i{width:84px;height:24px;border-radius:14px;background:var(--screen)}
+.ph-h{font-family:var(--f-round);font-weight:900;font-size:26px;margin:2px 2px 10px;display:flex;justify-content:space-between;align-items:baseline}
+.ph-h small{font-size:11px;font-weight:800;color:var(--fg3);letter-spacing:.6px;text-transform:uppercase}
+.ph .seg{display:grid;grid-template-columns:1fr 1fr;border-radius:10px;width:100%}
+.ph .seg button{border-radius:8px;min-height:34px;text-align:center;font-size:13px}
+.lst{display:grid;gap:6px;margin-top:10px}
+.ev{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;background:var(--card);border-radius:14px;padding:10px 12px;width:100%}
+.ev b{display:block;font-size:15px}
+.ev span{font-size:12.5px;color:var(--fg2)}
+.ev .ck{width:22px;height:22px;border-radius:50%;border:2px solid var(--fg3)}
+.ev[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--volt)}
+.ev[aria-pressed="true"] .ck{background:var(--volt);border-color:var(--volt)}
+.ev.dis{background:none;border:1px dashed var(--line);color:var(--fg3);font-size:13px;display:block}
+.plbl{font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--fg3);margin:12px 2px 5px}
+.opts{display:flex;flex-wrap:wrap;gap:5px}
+.opts button{font-size:13px;font-weight:700;padding:6px 10px;border-radius:9px;background:var(--card);color:var(--fg2);min-height:32px}
+.opts button[aria-pressed="true"]{background:var(--fg);color:var(--ink)}
+.sum{margin-top:14px;background:var(--volt-dim);border:1px solid var(--volt);border-radius:16px;padding:11px 13px}
+.sum b{display:block;font-family:var(--f-round);font-weight:900;font-size:15px;color:var(--fg)}
+.sum span{font-size:12.5px;color:var(--fg2)}
+
+/* roxzone splits */
+.roxbars{display:flex;align-items:flex-end;gap:4px;height:110px;padding-top:8px}
+.roxbars div{flex:1;background:var(--rox);border-radius:4px 4px 1px 1px;min-width:0;position:relative}
+.roxbars div.after{background:var(--rox-dim);box-shadow:inset 0 0 0 1.5px var(--rox)}
+.roxcap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:13px;color:var(--fg2);margin-top:8px}
+.roxcap b{font-family:var(--f-round);font-weight:900;color:var(--fg);font-size:20px}
+.panel{background:var(--card);border-radius:22px;padding:18px;min-width:0}
+
+/* stations grid */
+.stgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:10px}
+.stc{background:var(--card);border-radius:18px;padding:14px;display:grid;gap:4px;width:100%;border-top:4px solid var(--station);min-height:132px}
+.stc .i{font-family:var(--f-disp);font-weight:700;font-size:13px;letter-spacing:1px;color:var(--station)}
+.stc .n{font-family:var(--f-disp);font-weight:800;font-size:25px;text-transform:uppercase;line-height:1}
+.stc .c{color:var(--fg2);font-size:14.5px}
+.stc .f{display:flex;justify-content:space-between;margin-top:auto;font-size:12.5px;color:var(--fg3);padding-top:6px}
+.stc .f b{font-family:var(--f-round);color:var(--fg);font-weight:900}
+.stc:hover .f span{color:var(--volt)}
+
+/* celebration */
+.cele{position:relative;overflow:hidden;border-radius:30px;background:var(--card);padding:clamp(22px,5vw,48px);min-height:380px;display:grid;align-content:center;gap:14px;isolation:isolate}
+.stripes{position:absolute;inset:-40% -20%;z-index:-1;transform:rotate(-14deg)}
+.stripes i{position:absolute;left:0;right:0;height:56px;transform:translateX(0)}
+.stripes i:nth-child(1){top:22%;background:color-mix(in srgb,var(--volt) 30%,var(--card))}
+.stripes i:nth-child(2){top:calc(22% + 64px);background:color-mix(in srgb,var(--rox) 24%,var(--card))}
+.stripes i:nth-child(3){top:calc(22% + 128px);background:color-mix(in srgb,var(--run) 26%,var(--card))}
+.stripes i:nth-child(4){top:calc(22% + 192px);background:color-mix(in srgb,var(--station) 24%,var(--card))}
+.stripes i:nth-child(5){top:calc(22% + 256px);height:20px;background:color-mix(in srgb,var(--volt) 18%,var(--card))}
+.cele .veil{position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,var(--card) 20%,color-mix(in srgb,var(--card) 40%,transparent))}
+.cele .k{font-family:var(--f-disp);font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--volt);font-size:15px}
+.cele h3{font-size:clamp(52px,10vw,120px);font-style:italic;letter-spacing:-1px}
+.cele .line{font-size:clamp(17px,2.3vw,22px);color:var(--fg);font-weight:600;min-height:1.4em}
+.cele .tot{font-family:var(--f-round);font-weight:900;font-size:clamp(56px,10vw,104px);line-height:1;letter-spacing:-2px}
+.cele .tot small{font-family:var(--f-body);font-size:13px;font-weight:700;letter-spacing:1px;color:var(--fg2);text-transform:uppercase;margin-left:10px;letter-spacing:.8px}
+.splitbar{display:flex;gap:3px;height:16px;border-radius:8px;overflow:hidden;max-width:620px}
+.splitbar i{display:block;height:100%;transition:flex-grow .9s cubic-bezier(.2,.8,.2,1)}
+.splitlbl{display:flex;flex-wrap:wrap;gap:6px 26px;font-size:13px;color:var(--fg2)}
+.splitlbl b{display:block;font-family:var(--f-round);font-weight:900;font-size:24px;color:var(--fg)}
+.splitlbl i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px}
+.cele.anim .stripes i{transform:translateX(-130%)}
+.cele.anim .k,.cele.anim h3,.cele.anim .line,.cele.anim .tot{opacity:0;transform:translateY(14px)}
+.cele.go .stripes i{transform:translateX(0);transition:transform .9s cubic-bezier(.2,.8,.2,1)}
+.cele.go .stripes i:nth-child(2){transition-delay:.08s}.cele.go .stripes i:nth-child(3){transition-delay:.16s}.cele.go .stripes i:nth-child(4){transition-delay:.24s}.cele.go .stripes i:nth-child(5){transition-delay:.32s}
+.cele.go .k,.cele.go h3,.cele.go .line,.cele.go .tot{opacity:1;transform:none;transition:opacity .5s ease .35s,transform .6s cubic-bezier(.2,.8,.2,1) .35s}
+.cele.go h3{transition-delay:.45s}.cele.go .line{transition-delay:.6s}.cele.go .tot{transition-delay:.5s}
+
+/* overview (look of the loved mockup) */
+.ov{display:grid;gap:10px}
+.ocard{background:var(--card);border-radius:20px;padding:14px;min-width:0}
+.ok{font-size:11.5px;font-weight:800;letter-spacing:1px;color:var(--station);text-transform:uppercase;display:flex;justify-content:space-between;gap:6px}
+.ok span{color:var(--fg3)}
+.oname{font-family:var(--f-round);font-weight:900;font-size:19px;margin-top:3px}
+.oscore{font-family:var(--f-round);font-weight:900;font-size:50px;line-height:1.05;letter-spacing:-1px}
+.facts{display:flex;flex-wrap:wrap;gap:3px 14px;margin-top:8px;font-size:12.5px;color:var(--fg2)}
+.facts b{font-family:var(--f-round);font-weight:800;font-size:16px;color:var(--fg)}
+.delta{display:inline-block;margin-top:9px;font-size:13px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--tile);color:var(--rate)}
+.oh{font-size:15.5px;font-weight:700;margin:0 0 2px}
+.ocap{font-size:12px;color:var(--fg2);margin:0 0 8px}
+svg{display:block;overflow:visible}
+svg text{font-family:var(--f-body);font-size:10px;fill:var(--fg2)}
+.b-run{fill:var(--run-dim)}.b-st{fill:var(--station-dim)}.b-rox{fill:var(--rox-dim)}
+.hrl{fill:none;stroke:var(--hr);stroke-width:1.8;stroke-linejoin:round}
+.gl{stroke:var(--line);stroke-width:1}
+.pl{fill:none;stroke:var(--run);stroke-width:2}
+.pd{stroke:var(--card);stroke-width:2}
+.pf{fill:var(--rate)} .ps{fill:var(--accent)}
+.ref{stroke:var(--fg3);stroke-width:1;stroke-dasharray:3 3}
+.fadeA{fill:url(#fadeg)}
+.fstop1{stop-color:var(--run);stop-opacity:.35}.fstop2{stop-color:var(--run);stop-opacity:0}
+.olg{display:flex;flex-wrap:wrap;gap:3px 10px;font-size:11px;color:var(--fg2);margin-top:6px}
+.olg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.flag{margin-top:8px;font-size:12.5px;border-left:3px solid var(--accent);padding:3px 0 3px 9px}
+.flag b{color:var(--accent)}
+.strow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr) 40px 40px;gap:7px;align-items:center;padding:4px 0;font-size:13px}
+.strow .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.trk{position:relative;height:9px;background:var(--tile);border-radius:5px}
+.trk b{position:absolute;left:0;top:0;bottom:0;background:var(--station);border-radius:5px}
+.trk u{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--fg);border-radius:1px}
+.strow .t{font-family:var(--f-round);font-weight:800;text-align:right;font-variant-numeric:tabular-nums}
+.strow .d{font-size:11.5px;font-weight:800;text-align:right;font-variant-numeric:tabular-nums}
+.fast{color:var(--rate)}.slow{color:var(--accent)}
+/* history */
+.hist{display:grid;gap:6px}
+.hrow{display:grid;grid-template-columns:4px minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--card);border-radius:14px;padding:10px 12px 10px 10px}
+.hrow i{align-self:stretch;border-radius:2px}
+.hrow b{display:block;font-size:14.5px}
+.hrow span{font-size:12px;color:var(--fg2)}
+.hrow .tm{font-family:var(--f-round);font-weight:900;font-size:17px;text-align:right;line-height:1.1}
+.pb{display:inline-block;font-size:10px;font-weight:900;color:var(--ink);background:var(--volt);border-radius:4px;padding:0 4px;margin-left:4px;vertical-align:2px;letter-spacing:.4px}
+.pbs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+.pbs div{background:var(--card);border-radius:10px;padding:6px 7px;min-width:0}
+.pbs span{display:block;font-size:10.5px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pbs b{font-family:var(--f-round);font-weight:900;font-size:15px}
+.badges{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px 6px}
+.bdg{display:grid;justify-items:center;gap:4px;text-align:center;font-size:10.5px;line-height:1.2;color:var(--fg2);min-width:0}
+.bdg .m{width:52px;height:58px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);display:grid;place-items:center;font-family:var(--f-disp);font-weight:800;font-size:15px;color:var(--ink);letter-spacing:.2px}
+.bdg.got .m{background:linear-gradient(160deg,var(--volt),var(--rate))}
+.bdg.got:nth-child(2) .m{background:linear-gradient(160deg,var(--station),var(--volt))}
+.bdg.got:nth-child(3) .m{background:linear-gradient(160deg,var(--run),var(--rate))}
+.bdg.lock .m{background:var(--tile);color:var(--fg3)}
+.bdg.got{color:var(--fg)}
+.bdg small{color:var(--fg3);font-size:10px}
+
+/* team view */
+.tv .chip{white-space:normal;max-width:100%}
+.syn{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px;font-size:12.5px;color:var(--fg2)}
+.ath{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.ath div{background:var(--tile);border-radius:12px;padding:7px 9px;min-width:0;border-top:3px solid var(--you)}
+.ath div.b{border-top-color:var(--mate)}
+.ath b{display:block;font-family:var(--f-round);font-weight:900;font-size:15px}
+.ath span{display:block;font-size:11.5px;color:var(--fg2)}
+.wd{padding:6px 0 7px;border-bottom:1px solid var(--line)}
+.wd:last-child{border-bottom:0}
+.wd-h{display:flex;justify-content:space-between;align-items:baseline;gap:6px;font-size:13px}
+.wd-h b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.wd-h span{font-size:11px;color:var(--fg3);white-space:nowrap}
+.wd-bar{display:flex;height:17px;border-radius:5px;overflow:hidden;margin:4px 0 3px;gap:2px}
+.wd-bar i{display:flex;align-items:center;font-style:normal;font-size:10.5px;font-weight:800;padding:0 5px;color:var(--ink);min-width:0;white-space:nowrap;overflow:hidden}
+.wd-bar .a{background:var(--you)}
+.wd-bar .bb{background:var(--mate);justify-content:flex-end}
+.wd-t{display:flex;justify-content:space-between;gap:6px;font-size:11.5px;color:var(--fg2)}
+.wd-t b{color:var(--fg);font-weight:700}
+.wd.tot{border-top:1px solid var(--fg3);border-bottom:0;margin-top:2px;padding-top:8px}
+.wd.tot .wd-h b{font-family:var(--f-round);font-weight:900;font-size:15px}
+.wd.tot .wd-bar{height:20px}
+.dy{fill:var(--you);opacity:.12}
+.hra{fill:none;stroke:var(--you);stroke-width:1.5;stroke-linejoin:round}
+.hrb{fill:none;stroke:var(--mate);stroke-width:1.5;stroke-linejoin:round}
+.tvb{fill:transparent;cursor:pointer}
+.tvsel{fill:none;stroke:var(--fg);stroke-width:1.2}
+.stb{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:3px;margin-top:8px}
+.stb button{min-height:32px;border-radius:8px;background:var(--tile);font-size:12.5px;font-weight:800;color:var(--fg2);text-align:center}
+.stb button[aria-pressed="true"]{background:var(--station);color:var(--ink)}
+.tvinfo{margin-top:8px;font-size:12.5px;color:var(--fg2);min-height:4.4em;background:var(--tile);border-radius:10px;padding:7px 9px}
+.tvinfo b{color:var(--fg)}
+.tvinfo .ya{color:var(--you)}.tvinfo .yb{color:var(--mate)}
+.trrow{display:grid;grid-template-columns:minmax(0,1fr) 42px 42px 52px;gap:6px;font-size:13px;padding:4px 0;align-items:center}
+.trrow span:not(:first-child){text-align:right;font-family:var(--f-round);font-weight:800;font-variant-numeric:tabular-nums}
+.trrow.hd span{font-family:var(--f-body) !important;font-weight:700 !important;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--fg3)}
+.trrow .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.trrow.tot{border-top:1px solid var(--line);margin-top:3px;padding-top:7px}
+
+/* join */
+.join{background:var(--card);border:1px solid var(--line);border-radius:30px;padding:clamp(20px,4vw,40px);display:grid;gap:18px}
+.join h2{font-size:clamp(34px,5.5vw,60px);font-style:italic}
+.join h2 em{font-style:inherit;color:var(--volt)}
+.msg{width:100%;min-height:150px;resize:vertical;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:16px;padding:14px;font:15px/1.45 var(--f-body)}
+.copyrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.copied{font-size:14px;color:var(--volt);min-height:20px}
+footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);display:grid;gap:8px;font-size:13px;color:var(--fg3)}
+footer .disc{color:var(--fg2);font-size:13.5px}
+
+@media (prefers-reduced-motion: reduce){
+  .rox-pulse{animation:none;opacity:.08}
+  .fin .burst i,.hap.on .ic::after,.watch.wiggle{animation:none}
+  .scr.rest.ready::after{animation:none;opacity:.7}
+  .cele.anim .stripes i,.cele.anim .k,.cele.anim h3,.cele.anim .line,.cele.anim .tot{transform:none;opacity:1}
+  .cele.go *, .splitbar i{transition:none !important}
+}
+</style>
+
+<div class="page"><div class="wrap">
+
+<header class="topbar">
+  <div class="brand"><i></i>BarPath <span>Wave Mode</span></div>
+  <span class="pill">Concept demo · Sample race</span>
+</header>
+
+<section class="hero" aria-labelledby="h1">
+  <div class="kick">For Anaheim · Dec 3–6, 2026</div>
+  <h1 id="h1">Eight runs. Eight stations. <em>Zero taps.</em></h1>
+  <p class="lede">Wave Mode arms your watch before your start time and switches itself between running and stations. Watch a full sample race below, fast-forwarded.</p>
+  <div class="legend"><span class="chip today">Working today</span><span>built and raced with</span><span class="chip soon">Coming</span><span>concept, not built yet</span></div>
+</section>
+
+<section class="sim" id="sim" aria-label="Watch simulator">
+  <div class="sim-main">
+    <div class="stage">
+      <div class="watchwrap">
+        <div class="watch" id="watch">
+          <div class="band t"></div><div class="band b"></div>
+          <div class="case"><div class="bezel"><div class="screen" id="screen" role="group" aria-roledescription="watch screen" aria-label="Apple Watch, Wave Mode"></div></div></div>
+          <div class="crown" style="top:122px"></div><div class="sidebtn" style="top:188px"></div>
+        </div>
+      </div>
+      <div class="hap" id="hap" aria-hidden="true"><span class="ic"></span><span id="haptxt">Haptic taps show here</span></div>
+      <button type="button" class="aodbtn" id="aod" aria-pressed="false">Wrist down</button>
+    </div>
+    <div class="cap">
+      <div class="st" id="capst">Run 3 of 8</div>
+      <h2 id="capt">Run 3 of 8</h2>
+      <p id="capb"></p>
+      <div class="chips" id="capc"></div>
+      <div class="clock tn">Race clock <b id="clock">0:00:00</b> <span id="clocktot"></span></div>
+      <div class="sample">Sample race · splits are illustrative</div>
+    </div>
+  </div>
+  <p class="sr" id="live" aria-live="polite"></p>
+  <div class="ctrls">
+    <div class="row1">
+      <button class="btn pri" id="play" type="button" aria-label="Play simulation"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2 1l11 6-11 6z"/></svg><span>Play</span></button>
+      <div class="seg" role="group" aria-label="Playback speed">
+        <button type="button" data-sp="20" aria-pressed="false">20×</button>
+        <button type="button" data-sp="60" aria-pressed="true">60×</button>
+        <button type="button" data-sp="200" aria-pressed="false">200×</button>
+      </div>
+      <div class="seg" role="group" aria-label="Race format">
+        <button type="button" data-fmt="solo" aria-pressed="true">Solo</button>
+        <button type="button" data-fmt="duo" aria-pressed="false">Doubles</button>
+      </div>
+      <button class="btn" id="restart" type="button">Restart</button>
+    </div>
+    <div class="scrub">
+      <div class="ticks" id="ticks" aria-hidden="true"></div>
+      <div class="strip" id="strip" aria-hidden="true"></div>
+      <div class="future" id="future" aria-hidden="true"></div>
+      <input type="range" id="range" aria-label="Race timeline" step="1">
+    </div>
+    <div class="jumps" id="jumps" role="group" aria-label="Jump to a moment"></div>
+  </div>
+</section>
+
+<section class="sec" id="pick" aria-labelledby="h-pick">
+  <div class="two">
+    <div class="txt">
+      <div class="num">01 · On your phone</div>
+      <h2 id="h-pick">Pick your race</h2>
+      <p class="body">Choose your event: <b>Anaheim · Sat Dec 5 · Wave 10:40 · Men's Open.</b> Your watch loads the format, your start time and every station in order. It arms before your wave and starts the clock on your first running steps.</p>
+      <div class="chips"><span class="chip soon">Coming · race picker</span><span class="chip soon">Coming · auto-arm + start</span><span class="chip today">Working today · manual start + Crown</span></div>
+      <p class="note">Try it: change the wave or division here and the watch's armed screen follows.</p>
+      <button class="linkbtn" type="button" data-jump="pre">See the armed screen ↑</button>
+    </div>
+    <div class="phone" aria-label="Phone: race picker">
+      <div class="ph">
+        <div class="ph-bar"><span>9:41</span><i></i><span>●●●</span></div>
+        <div class="ph-h">Race <small>BarPath Wave</small></div>
+        <div class="seg" role="group" aria-label="Race type">
+          <button type="button" data-tab="off" aria-pressed="true">Official events</button>
+          <button type="button" data-tab="home" aria-pressed="false">Home simulation</button>
+        </div>
+        <div id="pk-off">
+          <div class="lst">
+            <button type="button" class="ev" aria-pressed="true"><div><b>HYROX Anaheim</b><span>Anaheim, CA · Dec 3–6, 2026</span></div><i class="ck"></i></button>
+            <div class="ev dis">More events appear here as they're announced.</div>
+          </div>
+          <div class="plbl">Day</div>
+          <div class="opts" data-g="day" role="group" aria-label="Day">
+            <button type="button" aria-pressed="false" data-v="Thu Dec 3">Thu 3</button><button type="button" aria-pressed="false" data-v="Fri Dec 4">Fri 4</button><button type="button" aria-pressed="true" data-v="Sat Dec 5">Sat 5</button><button type="button" aria-pressed="false" data-v="Sun Dec 6">Sun 6</button>
+          </div>
+          <div class="plbl">Wave</div>
+          <div class="opts" data-g="wave" role="group" aria-label="Wave">
+            <button type="button" aria-pressed="false" data-v="10:00">10:00</button><button type="button" aria-pressed="false" data-v="10:20">10:20</button><button type="button" aria-pressed="true" data-v="10:40">10:40</button><button type="button" aria-pressed="false" data-v="11:00">11:00</button><button type="button" aria-pressed="false" data-v="11:20">11:20</button>
+          </div>
+          <div class="plbl">Division</div>
+          <div class="opts" data-g="div" role="group" aria-label="Division">
+            <button type="button" aria-pressed="true" data-v="Men's Open">Men's Open</button><button type="button" aria-pressed="false" data-v="Women's Open">Women's Open</button><button type="button" aria-pressed="false" data-v="Men's Pro">Men's Pro</button><button type="button" aria-pressed="false" data-v="Women's Pro">Women's Pro</button><button type="button" aria-pressed="false" data-v="Doubles">Doubles</button>
+          </div>
+        </div>
+        <div id="pk-home" hidden>
+          <div class="lst" data-g="sim" role="group" aria-label="Home simulation">
+            <button type="button" class="ev" aria-pressed="true" data-v="Full simulation"><div><b>Full simulation</b><span>8 runs · 8 stations · your gym</span></div><i class="ck"></i></button>
+            <button type="button" class="ev" aria-pressed="false" data-v="Half HYROX"><div><b>Half HYROX</b><span>4 runs · 4 stations</span></div><i class="ck"></i></button>
+            <button type="button" class="ev" aria-pressed="false" data-v="Partner WOD"><div><b>Partner WOD</b><span>Split the work, one clock</span></div><i class="ck"></i></button>
+          </div>
+        </div>
+        <div class="sum"><b id="sumline">Anaheim · Sat Dec 5 · Wave 10:40 · Men's Open</b><span id="sumsub">Watch arms at 10:30 · starts on your first steps</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="run" aria-labelledby="h-run">
+  <div class="two flip">
+    <div class="txt">
+      <div class="num">02 · Race-day watch</div>
+      <h2 id="h-run">One glance per km</h2>
+      <p class="body">Live pace, run time, metres into the km and the next station. Eyes down for half a second, back to work.</p>
+      <ul class="anat">
+        <li><b>PACE</b><span>Big, heavy numerals. Readable mid-stride.</span></li>
+        <li><b>8 KM DOTS</b><span>Where you are in the race, not just this run, across the full width.</span></li>
+        <li><b>NEXT: SKIERG</b><span>The bottom line, always: the full name of the station waiting for you.</span></li>
+        <li><b>EXIT SOON</b><span>A tap on the wrist near 850 m and a blue banner: “Exit soon · Next: SkiErg.” Laps differ per venue, so it goes by distance.</span></li>
+      </ul>
+      <div class="chips"><span class="chip today">Working today · pace, HR, splits</span><span class="chip today">Working today · run detection prototype</span><span class="chip soon">Coming · exit-soon tap</span></div>
+      <button class="linkbtn" type="button" data-jump="exit">Show the exit-soon tap ↑</button>
+    </div>
+    <div class="panel">
+      <div class="oh">Sample race · run splits</div>
+      <p class="ocap">8 × 1 km. The fade is normal; the watch makes it visible.</p>
+      <div id="runbars"></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="rox" aria-labelledby="h-rox">
+  <div class="two">
+    <div class="txt">
+      <div class="num">03 · Transitions</div>
+      <h2 id="h-rox">The Roxzone, <span style="color:var(--rox)">in pink</span></h2>
+      <p class="body">The screen goes pulsing pink the moment you're in transition, and that time is the big number, clocked on its own. Heart rate under it and one line for what's next. Walk-time is race-time; now you can see it. Wrist down, it drops to a pink border on black.</p>
+      <div class="chips"><span class="chip today">Working today · Crown to switch + undo</span><span class="chip soon">Coming · auto-detect transitions</span></div>
+      <button class="linkbtn" type="button" data-jump="rox">Show the Roxzone screen ↑</button>
+    </div>
+    <div class="panel">
+      <div class="oh">Sample race · 15 transitions</div>
+      <p class="ocap">Solid: run → station. Outlined: station → run.</p>
+      <div class="roxbars" id="roxbars"></div>
+      <div class="roxcap"><span>Roxzone total <b id="roxtot">7:11</b></span><span>Slowest <b id="roxmax">0:33</b></span><span>Roxzone Ruler badge at <b>&lt; 5:00</b></span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="stations" aria-labelledby="h-st">
+  <div class="txt">
+    <div class="num">04 · Stations</div>
+    <h2 id="h-st">Eight stations. Real numbers.</h2>
+    <p class="body">Each station gets its own data screen and a haptic on start: an estimated split and stroke rate on the ergs, the length you're on for the sleds, metres on the carry, a live rep count on wall balls, broad jumps and lunges. Tap a card to see it on the watch.</p>
+    <div class="chips"><span class="chip today">Working today · HR, time, Crown to advance + undo</span><span class="chip soon">Coming · station auto-detect</span><span class="chip soon">Coming · rep counts</span><span class="chip soon">Coming · erg pace</span></div>
+  </div>
+  <div class="stgrid" id="stgrid"></div>
+</section>
+
+<section class="sec" id="finish" aria-labelledby="h-fin">
+  <div class="num">05 · Finish</div>
+  <div class="cele anim" id="cele">
+    <div class="stripes" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><div class="veil" aria-hidden="true"></div>
+    <div class="k">HYROX Anaheim · Men's Open · Sample race</div>
+    <h3 id="h-fin">Well done.</h3>
+    <p class="line" id="celeline">That one's yours.</p>
+    <div class="tot tn"><span id="celetot">1:17:52</span><small>total</small></div>
+    <div class="splitbar" id="splitbar" aria-hidden="true"><i class="bg-run"></i><i class="bg-st"></i><i class="bg-rox"></i></div>
+    <div class="splitlbl" id="splitlbl"></div>
+    <div><button class="btn" type="button" id="replay">Play it again</button></div>
+  </div>
+</section>
+
+<section class="sec" id="overview" aria-labelledby="h-ov">
+  <div class="txt">
+    <div class="num">06 · On your phone, after</div>
+    <h2 id="h-ov">The whole race, broken down</h2>
+    <p class="body">Your total and the breakdown: runs, stations, Roxzone, and how much you faded. Heart rate over the whole race and per-station times vs your last race. Every race and home simulation saved, with PBs per station and badges to chase.</p>
+    <div class="chips"><span class="chip today">Working today · overview, HR, splits</span><span class="chip soon">Coming · history, PBs, badges</span></div>
+  </div>
+  <div class="two" style="align-items:start">
+    <div class="phone" aria-label="Phone: race overview">
+      <div class="ph">
+        <div class="ph-bar"><span>12:04</span><i></i><span>●●●</span></div>
+        <div class="ov">
+          <div class="ocard">
+            <div class="ok">HYROX · Men's Open <span>Sample race</span></div>
+            <div class="oname">Anaheim · Sat Dec 5</div>
+            <div class="oscore tn" id="ovtot">1:17:52</div>
+            <div class="facts tn" id="ovfacts"></div>
+            <span class="delta">−3:34 vs last race</span>
+          </div>
+          <div class="ocard">
+            <div class="oh">Heart rate</div>
+            <p class="ocap">Bands show what you were doing.</p>
+            <div id="hrsvg"></div>
+            <div class="olg"><span><i class="bg-run"></i>Run</span><span><i class="bg-st"></i>Station</span><span><i class="bg-rox"></i>Roxzone</span><span><i style="background:var(--hr)"></i>HR</span></div>
+          </div>
+          <div class="ocard">
+            <div class="oh">Run pace</div>
+            <p class="ocap">Per km. Dashed line = your average.</p>
+            <div id="pacesvg"></div>
+            <div class="flag" id="fadeflag"></div>
+          </div>
+          <div class="ocard">
+            <div class="oh">Stations vs last race</div>
+            <p class="ocap">Bar = this race · tick = last race.</p>
+            <div id="strows"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone" aria-label="Phone: history and badges">
+      <div class="ph">
+        <div class="ph-bar"><span>12:05</span><i></i><span>●●●</span></div>
+        <div class="ph-h">History <small>Races + sims</small></div>
+        <div class="hist" id="hist"></div>
+        <div class="plbl">Station PBs</div>
+        <div class="pbs" id="pbs"></div>
+        <div class="plbl">Badges</div>
+        <div class="badges" id="badges"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="team" aria-labelledby="h-team">
+  <div class="two" style="align-items:start">
+    <div class="txt">
+      <div class="num">07 · Doubles, after the race</div>
+      <h2 id="h-team">Team view</h2>
+      <p class="body">Each watch records its own race: your work and rest from wrist motion, your heart rate, your reps, the transitions. The two watches never need to talk. After the race both results sync from the phones to your accounts online, and the app merges them by time into one Team view: who did how much at every station, both heart rates on one chart, and the Roxzone you ran together.</p>
+      <div class="chips"><span class="chip today">Working today · HR, time on each watch</span><span class="chip soon">Coming · work/rest detection</span><span class="chip soon">Coming · sync + merge after the race</span><span class="chip soon">Coming · live partner data · later (cellular watches)</span></div>
+      <p class="note">Honest bit: two Apple Watches can't talk to each other directly. Anything live from your partner during the race waits for cellular watches; everything on this screen works from the two recordings after the race.</p>
+      <button class="linkbtn" type="button" data-jump="rest">See the resting screen ↑</button>
+    </div>
+    <div class="phone tv" aria-label="Phone: doubles team view">
+      <div class="ph">
+        <div class="ph-bar"><span>12:20</span><i></i><span>●●●</span></div>
+        <div class="ph-h">Team <small>Doubles</small></div>
+        <div class="ov">
+          <div class="ocard">
+            <div class="ok">HYROX · Doubles <span>Sample race</span></div>
+            <div class="oname">Anaheim · Sat Dec 5</div>
+            <div class="oscore tn" id="tvtot">0:00:00</div>
+            <div class="facts tn" id="tvfacts"></div>
+            <div class="syn"><span>Synced from 2 watches</span><span class="chip soon">Coming · sync + merge after the race</span></div>
+            <div class="ath tn" id="tvath"></div>
+          </div>
+          <div class="ocard">
+            <div class="oh">Work split</div>
+            <p class="ocap">Time each of you worked per station. Runs and Roxzone you do together.</p>
+            <div id="tvwd"></div>
+          </div>
+          <div class="ocard">
+            <div class="oh">Heart rate, both of you</div>
+            <p class="ocap">Light shading: your work bouts. Tap a station.</p>
+            <div id="tvhr"></div>
+            <div class="olg"><span><i style="background:var(--you)"></i>You</span><span><i style="background:var(--mate)"></i>Sam</span><span><i class="bg-run"></i>Run</span><span><i class="bg-st"></i>Station</span><span><i class="bg-rox"></i>Roxzone</span></div>
+            <div class="stb" id="tvstb" role="group" aria-label="Pick a station"></div>
+            <div class="tvinfo tn" id="tvinfo" aria-live="polite"></div>
+          </div>
+          <div class="ocard">
+            <div class="oh">Transitions, as a pair</div>
+            <p class="ocap">Roxzone is shared: you run in and out together. Changes = handovers inside the station.</p>
+            <div id="tvtr"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="join" aria-labelledby="h-join">
+  <div class="join">
+    <div class="num">08 · Join the test</div>
+    <h2 id="h-join">Racing Anaheim? <em>Break it before race day.</em></h2>
+    <p class="body">BarPath is a prototype built by one athlete, and your feedback shapes it. Get on TestFlight before Anaheim and put it through a real session. Reply to whoever sent you this link and you're in.</p>
+    <p class="note">Honest bit: auto-switching works off wrist motion and has been tested on one athlete so far. Turn the Crown if it ever misses.</p>
+    <div>
+      <div class="plbl" style="margin-left:0">Send it to your wave</div>
+      <textarea class="msg" id="msg" aria-label="Message to share on WhatsApp" spellcheck="false">Yo, building a thing for Anaheim. It's a watch + phone mode that knows the HYROX format, arms before your wave, flips between runs and stations on its own, and turns pink in the Roxzone. Honest warning: prototype, one-athlete tested. Have a look and tell me what's broken, and I'll add you to TestFlight if you want to try it before Dec 5: [demo link]</textarea>
+    </div>
+    <div class="copyrow">
+      <button class="btn pri" type="button" id="copy">Copy message</button>
+      <span class="copied" id="copied" role="status"></span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p class="disc">BarPath is an independent project and is not affiliated with, endorsed by, or sponsored by HYROX. HYROX and the Roxzone are trademarks of their respective owners.</p>
+  <p>Concept demo. All race data on this page is a sample race, not a real result. Features marked “Coming” are not built yet.</p>
+</footer>
+
+</div></div>
+
+<script>
+(function(){
+'use strict';
+const $ = id => document.getElementById(id);
+/* the exit prompt comes as you pass ~850 m (laps per km differ per venue, so no lap counter) */
+const EXIT_AT = .85;
+const RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- sample race ---------- */
+const RUNS = [258,264,269,275,280,286,290,298];
+const STN = [
+  {n:'SkiErg', tb:'SkiErg', tg:'1000 m', cue:'Long pulls. Breathe.', d:262, last:275},
+  {n:'Sled Push', tb:'Sled Push', tg:'50 m', cue:'Low hips. Keep it moving.', d:184, last:205},
+  {n:'Sled Pull', tb:'Sled Pull', tg:'50 m', cue:'Hand over hand. Stay tall.', d:250, last:268},
+  {n:'Burpee Broad Jumps', tb:'Burpees', sh:'Burpee BJ', tg:'80 m', cue:'Smooth, not fast. Pick a rhythm.', d:278, last:296},
+  {n:'Row', tb:'Row', tg:'1000 m', cue:'Hold your split. Legs, then back.', d:271, last:264},
+  {n:'Farmers Carry', tb:'Farmers', sh:'Farmers', tg:'200 m', cue:"Tight grip, short steps. Don't stop.", d:122, last:120},
+  {n:'Sandbag Lunges', tb:'Lunges', sh:'Lunges', tg:'100 m', cue:'Tall chest. Slow is smooth.', d:260, last:284},
+  {n:'Wall Balls', tb:'Wall Balls', tg:'100 reps', cue:'Breathe at the top. Small breaks only.', d:394, last:432}
+];
+const ROX = [28,31,27,30,26,33,29,27,31,28,30,26,29,32,24];
+const PRE = 252;
+const FINISH_LINES = ["That one's yours.","Finished. Eight for eight.","Every rep counted. Every km earned.","That's a race. Go sit down.","Done. Now go tell everyone about the sled."];
+
+const SEG = [];
+let acc = 0, rx = 0;
+for (let i = 0; i < 8; i++){
+  SEG.push({k:'run', i, d:RUNS[i]});
+  SEG.push({k:'rox', r:rx, d:ROX[rx], next:STN[i].n, after:'run'}); rx++;
+  SEG.push({k:'st', i, d:STN[i].d});
+  if (i < 7){ SEG.push({k:'rox', r:rx, d:ROX[rx], next:'Run ' + (i + 2), after:'st'}); rx++; }
+}
+SEG.forEach(s => { s.s = acc; acc += s.d; s.e = acc; });
+const T = acc;
+const sum = a => a.reduce((x, y) => x + y, 0);
+const TOT_RUN = sum(RUNS), TOT_ST = sum(STN.map(s => s.d)), TOT_ROX = sum(ROX);
+
+/* events that tap the wrist */
+const EVENTS = [];
+SEG.forEach(s => {
+  if (s.k === 'run'){
+    EVENTS.push({t:s.s, txt:'Run ' + (s.i + 1) + ' started'});
+    EVENTS.push({t:s.s + Math.round(s.d * EXIT_AT), txt:'Exit soon · Next: ' + STN[s.i].n});
+  } else if (s.k === 'rox'){
+    EVENTS.push({t:s.s, txt:'Roxzone'});
+  } else {
+    EVENTS.push({t:s.s, txt:STN[s.i].n + ' started'});
+  }
+});
+EVENTS.push({t:T, txt:'Finish'});
+EVENTS.sort((a, b) => a.t - b.t);
+
+/* ---------- formatting ---------- */
+function ms(s){ s = Math.max(0, Math.floor(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+function hms(s){ s = Math.max(0, Math.floor(s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60); return h + ':' + String(m).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- race settings (from picker) ---------- */
+const race = {mode:'off', day:'Sat Dec 5', wave:'10:40', div:"Men's Open", sim:'Full simulation'};
+
+/* ---------- state ---------- */
+function stateAt(t){
+  if (t < 0) return {k:'pre', left:-t};
+  if (t >= SIM.T) return {k:'fin'};
+  const s = SIM.seg.find(x => t >= x.s && t < x.e);
+  const el = t - s.s;
+  if (s.k === 'st' && s.b){
+    const b = s.b.find(q => el >= q.s && el < q.e) || s.b[s.b.length - 1];
+    if (b.who === 'A') return {k:'st', seg:s, el, b};
+    return {k:'rest', seg:s, el, b, rel:el - b.s, left:b.e - el, ready:el >= b.ready};
+  }
+  if (s.k === 'run'){
+    const p = el / s.d, lap = p < .5 ? 1 : 2;
+    let ph = 'mid';
+    if (p >= EXIT_AT) ph = 'exit';
+    else if (el < 14) ph = 'go';
+    return {k:'run', seg:s, el, p, lap, ph};
+  }
+  return {k:s.k, seg:s, el};
+}
+function keyOf(st){
+  if (st.k === 'run') return 'run' + st.seg.i + '-' + st.lap + '-' + st.ph;
+  if (st.k === 'rox') return 'rox' + st.seg.r;
+  if (st.k === 'st') return 'st' + st.seg.i + (st.b ? '-' + st.b.ix : '');
+  if (st.k === 'rest') return 'rest' + st.seg.i + '-' + st.b.ix + (st.ready ? 'r' : '');
+  return st.k + SIM.id;
+}
+
+/* station models: what each screen measures, simulated from the sample duration */
+const SUI = [
+  {k:'erg', spm:42, amp:.07, w:17, ph:.4},
+  {k:'sled', per:.42, cnt:'Steps', amp:.32, w:8, ph:1.1},
+  {k:'sled', per:.8, cnt:'Pulls', amp:.3, w:10, ph:2},
+  {k:'bbj', per:1.75, n:Math.ceil(80 / 1.75), amp:.12, w:21, ph:.7},
+  {k:'erg', spm:29, amp:.06, w:23, ph:1.6},
+  {k:'farm', cad:150, amp:.08, w:13, ph:.3},
+  {k:'lunge', per:.9, amp:.1, w:19, ph:2.4},
+  {k:'wb'}
+];
+const ST_HR = [171,178,176,174,167,172,170,181];
+/* wall balls: 5 sets, 4 short breaks; later sets a little slower */
+const WB = {lead:3, sets:[28,24,20,16,12], rests:[7,10,12,9], tl:[]};
+(function(){
+  const d = STN[7].d, work = d - WB.lead - sum(WB.rests);
+  const base = work / WB.sets.reduce((a, r, k) => a + r * (1 + .07 * k), 0);
+  let x = WB.lead;
+  WB.sets.forEach((r, k) => {
+    const rt = base * (1 + .07 * k);
+    WB.tl.push({k:'w', s:x, e:x + r * rt, n:r, rt}); x += r * rt;
+    if (k < WB.rests.length){ WB.tl.push({k:'b', s:x, e:x + WB.rests[k]}); x += WB.rests[k]; }
+  });
+})();
+function wbAt(el){
+  let reps = 0, set = 0;
+  for (const p of WB.tl){
+    if (p.k === 'w'){
+      set++;
+      if (el < p.e) return {reps:reps + Math.max(0, Math.floor((el - p.s) / p.rt)), set, brk:-1};
+      reps += p.n;
+    } else if (el < p.e) return {reps, set, brk:el - p.s};
+  }
+  return {reps:100, set:WB.sets.length, brk:-1};
+}
+/* erg split vs your running average: signed delta, orange when slower, volt when faster */
+function trendOf(sp, avg, el){
+  if (el < 8) return {trend:'', trendc:''};
+  const d = Math.round(sp - avg);
+  if (Math.abs(d) < 1) return {trend:'±0 s vs avg', trendc:''};
+  return {trend:(d > 0 ? '+' : '−') + Math.abs(d) + ' s vs avg', trendc:d > 0 ? 'slower' : 'faster'};
+}
+/* uneven progress: p in 0..1 plus the current rate dp/dt */
+function prog(el, d, u){
+  const g = x => x + u.amp * u.w * (Math.sin(x / u.w + u.ph) - Math.sin(u.ph));
+  return {p:Math.max(0, Math.min(1, g(el) / g(d))), v:(1 + u.amp * Math.cos(el / u.w + u.ph)) / g(d)};
+}
+function hrNow(st){
+  const w = 1.5 * Math.sin(t / 7) + 2 * Math.sin(t / 23);
+  if (st.k === 'pre') return Math.round(84 + 14 * (1 - st.left / PRE) + w);
+  if (SIM.duo) return Math.round(HRA[Math.max(0, Math.min(SIM.T, Math.floor(t)))]);
+  if (st.k === 'run') return Math.round(158 + 9 * st.p + st.seg.i * 1.1 + w - (st.el < 40 ? 6 * (1 - st.el / 40) : 0));
+  if (st.k === 'rox') return Math.round(166 - st.el * .25 + w);
+  let h = ST_HR[st.seg.i] - 6 + 8 * Math.min(1, st.el / 90) + w;
+  if (st.seg.i === 7){ const b = wbAt(st.el).brk; if (b >= 0) h -= Math.min(9, b * .9); }
+  return Math.round(h);
+}
+/* values for the current second; keys match data-f fields */
+function stVals(st){
+  const i = st.seg.i, u = SUI[i], el = st.el, d = st.seg.d, v = {};
+  let p = 0, brk = -1;
+  if (u.k === 'wb'){
+    const w = wbAt(el); p = w.reps / 100; brk = w.brk;
+    v.reps = v.reps2 = w.reps;
+    v.rate = el >= 10 && w.reps ? (w.reps / el * 60).toFixed(1) : '–';
+    v.proj = w.reps >= 5 ? 'On pace for ' + ms(el * 100 / w.reps) : '';
+    v.brkt = ms(Math.max(0, brk)); v.foot = 'Set ' + w.set;
+  } else {
+    const q = prog(el, d, u); p = q.p;
+    if (u.k === 'erg'){
+      const m = 1000 * p, sp = 500 / (1000 * q.v);
+      v.m = Math.floor(m); v.split = el < 4 ? '–' : ms(sp);
+      Object.assign(v, trendOf(sp, m > 0 ? el / (m / 500) : sp, el));
+      v.spm = Math.round(u.spm * (1 + .03 * Math.cos(el / u.w + u.ph) + .03 * Math.sin(el / 5)));
+      v.strokes = Math.floor(u.spm * el / 60);
+    } else if (u.k === 'sled'){
+      const m = 50 * p; v.m = Math.floor(m); v.cnt = Math.floor(m / u.per); v.len = Math.min(4, Math.floor(m / 12.5) + 1);
+    } else if (u.k === 'bbj'){
+      const n = Math.min(u.n, Math.floor(p * u.n + .001)); p = Math.min(1, n * u.per / 80);
+      v.cnt = n; v.m = Math.min(80, Math.round(n * u.per)); v.spr = n ? (el / n).toFixed(1) : '–';
+    } else if (u.k === 'farm'){
+      const m = 200 * p; v.m = Math.floor(m); v.cad = Math.round(u.cad + 5 * Math.sin(el / 9) - 4 * p);
+    } else if (u.k === 'lunge'){
+      const n = Math.floor(p * 100 / u.per + .001); p = Math.min(1, n * u.per / 100);
+      v.cnt = n; v.m = Math.min(100, Math.floor(n * u.per)); v.rate = el >= 10 ? Math.round(n / el * 60) : '–';
+    }
+  }
+  v.hr = hrNow(st);
+  return {v, p, brk};
+}
+
+/* ---------- doubles: deterministic sample timeline (You = A, the wearer; Sam = B) ---------- */
+const MATE = 'Sam';
+const TGT = [1000, 50, 50, 80, 1000, 200, 100, 100];
+const DPLAN = [
+  {b:[['A',250],['B',250],['A',250],['B',250]], fb:1.06},
+  {b:[['A',12.5],['B',12.5],['A',12.5],['B',12.5]], fb:1.05},
+  {b:[['B',12.5],['A',12.5],['B',12.5],['A',12.5]], fb:1.02},
+  {b:[['A',20],['B',20],['A',20],['B',20]], fb:1.04},
+  {b:[['B',250],['A',250],['B',250],['A',250]], fb:.97},
+  {b:[['A',60],['B',40],['A',60],['B',40]], fb:1.03},
+  {b:[['A',30],['B',20],['A',30],['B',20]], fb:1.05},
+  {b:[['A',15],['B',12],['A',15],['B',12],['A',13],['B',11],['A',12],['B',10]], fb:1.06}
+];
+const D_ST = .8, D_RUN = .97, HAND = 3, READY_HR = 150;
+const DSEG = [];
+(function(){
+  let a = 0, r = 0;
+  const stSeg = i => {
+    const P = DPLAN[i], b = []; let x = 0;
+    const cnt = {A:0, B:0};
+    P.b.forEach(([who, amt], k) => {
+      const h = k ? HAND : 0, w = Math.round(amt / TGT[i] * STN[i].d * D_ST * (who === 'B' ? P.fb : 1));
+      b.push({ix:k, who, amt, h, w, d:h + w, s:x, e:x + h + w, n:cnt[who]++});
+      x += h + w;
+    });
+    P.own = sum(b.filter(q => q.who === 'A').map(q => q.amt));
+    P.nA = cnt.A;
+    return {k:'st', i, d:x, b};
+  };
+  for (let i = 0; i < 8; i++){
+    DSEG.push({k:'run', i, d:Math.round(RUNS[i] * D_RUN)});
+    DSEG.push({k:'rox', r, d:ROX[r], next:STN[i].n, after:'run'}); r++;
+    DSEG.push(stSeg(i));
+    if (i < 7){ DSEG.push({k:'rox', r, d:ROX[r], next:'Run ' + (i + 2), after:'st'}); r++; }
+  }
+  DSEG.forEach(s => { s.s = a; a += s.d; s.e = a; });
+})();
+const DT = DSEG[DSEG.length - 1].e;
+/* HR for both athletes, one value per second, first-order response to what each one is doing */
+function simHR(who){
+  const arr = new Float32Array(DT + 1), off = who === 'A' ? 0 : -6, ph = who === 'A' ? 0 : 2.1;
+  let hr = 122, j = 0;
+  for (let x = 0; x <= DT; x++){
+    while (j < DSEG.length - 1 && x >= DSEG[j].e) j++;
+    const s = DSEG[j], el = x - s.s;
+    let tg, k;
+    if (s.k === 'run'){ tg = 158 + 9 * (el / s.d) + s.i * 1.1 + off; k = .06; }
+    else if (s.k === 'rox'){ tg = 150 + off; k = .04; }
+    else {
+      const b = s.b.find(q => el >= q.s && el < q.e) || s.b[s.b.length - 1];
+      const working = b.who === who && el - b.s >= b.h;
+      if (working){ tg = ST_HR[s.i] + 4 + off; k = .08; } else { tg = ST_HR[s.i] - 30 + off; k = .035; }
+    }
+    hr += (tg - hr) * k + .35 * Math.sin(x / 11 + ph) + .25 * Math.sin(x / 4.3 + ph);
+    arr[x] = hr;
+  }
+  return arr;
+}
+const HRA = simHR('A'), HRB = simHR('B');
+/* recovered: once your HR is back under your target. When to go back in is the team's call, so no countdown */
+DSEG.forEach(s => {
+  if (!s.b) return;
+  s.b.forEach(b => {
+    if (b.who !== 'B') return;
+    b.hr0 = HRA[s.s + b.s];
+    b.ready = Infinity;
+    for (let x = b.s + 8; x < b.e; x++) if (Math.round(HRA[s.s + x]) < READY_HR){ b.ready = x; break; }
+  });
+});
+const zoneOf = h => h >= 173 ? 5 : h >= 162 ? 4 : h >= 150 ? 3 : h >= 135 ? 2 : 1;
+/* resting screen colour: blend between the two nearest zone colours, so it glides red → orange → green → teal → blue as HR comes down */
+const ZMID = [125, 142, 156, 167, 178];
+function zoneBlend(h){
+  if (h <= ZMID[0]) return {a:1, b:1, f:0};
+  if (h >= ZMID[4]) return {a:5, b:5, f:0};
+  let k = 0; while (h > ZMID[k + 1]) k++;
+  return {a:k + 1, b:k + 2, f:(h - ZMID[k]) / (ZMID[k + 1] - ZMID[k])};
+}
+
+/* doubles events: same runs/Roxzone taps; at stations, your turn + get ready */
+const DEVENTS = [];
+DSEG.forEach(s => {
+  if (s.k === 'run'){
+    DEVENTS.push({t:s.s, txt:'Run ' + (s.i + 1) + ' started'});
+    DEVENTS.push({t:s.s + Math.round(s.d * EXIT_AT), txt:'Exit soon · Next: ' + STN[s.i].n});
+  } else if (s.k === 'rox') DEVENTS.push({t:s.s, txt:'Roxzone'});
+  else s.b.forEach(b => {
+    if (b.who === 'B' && isFinite(b.ready)) DEVENTS.push({t:s.s + b.ready, txt:'Recovered · ready'});
+  });
+});
+DEVENTS.push({t:DT, txt:'Finish'});
+DEVENTS.sort((a, b) => a.t - b.t);
+const totsOf = sg => ({run:sum(sg.filter(s => s.k === 'run').map(s => s.d)), st:sum(sg.filter(s => s.k === 'st').map(s => s.d)), rox:sum(sg.filter(s => s.k === 'rox').map(s => s.d))});
+const SOLO = {id:'solo', seg:SEG, T, ev:EVENTS, tot:{run:TOT_RUN, st:TOT_ST, rox:TOT_ROX}};
+const DUO = {id:'duo', duo:true, seg:DSEG, T:DT, ev:DEVENTS, tot:totsOf(DSEG)};
+let SIM = SOLO;
+
+/* the wearer's own numbers while working a doubles bout */
+function duoVals(st){
+  const i = st.seg.i, u = SUI[i], P = DPLAN[i], b = st.b, el = st.el, v = {};
+  const bel = el - b.s, bp = Math.max(0, Math.min(1, (bel - b.h) / b.w));
+  let own = 0, team = 0, ownEl = 0;
+  st.seg.b.forEach(x => { if (x.e <= b.s){ team += x.amt; if (x.who === 'A'){ own += x.amt; ownEl += x.w; } } });
+  own += b.amt * bp; team += b.amt * bp; ownEl += Math.max(0, bel - b.h);
+  let p = own / P.own;
+  if (u.k === 'erg'){
+    const sp = 500 / (b.amt / b.w) * (1 + .03 * Math.sin(el / 5)), avs = 500 / (P.own / sum(st.seg.b.filter(q => q.who === 'A').map(q => q.w)));
+    v.m = Math.floor(own); v.split = bel - b.h < 4 ? '–' : ms(sp);
+    Object.assign(v, trendOf(sp, avs, bel - b.h));
+    v.spm = Math.round(u.spm * 1.04 * (1 + .03 * Math.sin(el / 5))); v.strokes = Math.floor(u.spm * 1.04 * ownEl / 60);
+  } else if (u.k === 'sled'){
+    v.m = Math.floor(own); v.cnt = Math.floor(own / u.per); v.len = b.ix + 1; p = (b.ix + bp) / 4;
+  } else if (u.k === 'bbj'){
+    const n = Math.floor(own / u.per + .001); v.cnt = n; v.m = Math.min(P.own, Math.round(n * u.per)); v.spr = n ? (ownEl / n).toFixed(1) : '–';
+  } else if (u.k === 'farm'){
+    v.m = Math.floor(own); v.cad = Math.round(u.cad + 5 * Math.sin(el / 9));
+  } else if (u.k === 'lunge'){
+    const n = Math.floor(own / u.per + .001); v.cnt = n; v.m = Math.min(P.own, Math.floor(n * u.per)); v.rate = ownEl >= 10 ? Math.round(n / ownEl * 60) : '–';
+  } else {
+    const reps = Math.floor(own + .001); v.reps = v.reps2 = reps;
+    v.rate = ownEl >= 10 && reps ? (reps / ownEl * 60).toFixed(1) : '–';
+    v.proj = team >= 5 ? 'On pace for · team ' + ms(el * 100 / team) : '';
+    v.foot = 'Your set ' + (b.n + 1) + ' · ' + b.amt + ' reps';
+    p = reps / P.own;
+  }
+  v.hr = hrNow(st);
+  return {v, p, brk:-1};
+}
+
+/* ---------- watch screens ---------- */
+function waveTod(left){
+  const [h, m] = race.wave.split(':').map(Number);
+  let mins = h * 60 + m - Math.ceil(left / 60);
+  const hh = Math.floor(mins / 60) % 12 || 12;
+  return hh + ':' + String(mins % 60).padStart(2, '0');
+}
+/* slot grid. Hero: the one number for this state (unit + label stacked to its right) */
+function H(f, unit, lbl, col, cls){
+  return '<div class="hero' + (cls ? ' ' + cls : '') + '" style="--mc:var(--' + col + ')"><b data-f="' + f + '">–</b><span class="u"><span>' + unit + '</span>' + (lbl ? '<span class="l">' + lbl + '</span>' : '') + '</span></div>';
+}
+/* row 3 cell: 24 px value, 11 px unit, optional 11 px label underneath */
+function C(f, unit, lbl, col, cls){
+  return '<div class="c' + (cls ? ' ' + cls : '') + '" style="--mc:var(--' + col + ')"><div><b data-f="' + f + '">–</b>' + (unit ? '<span class="u">' + unit + '</span>' : '') + '</div>' + (lbl ? '<span class="l">' + lbl + '</span>' : '') + '</div>';
+}
+/* row 3: work metric left, heart rate ALWAYS right, in red */
+const R3 = (left, hrLbl) => '<div class="r3 x">' + (left || '<div></div>') + '<div class="c hr"><div><b data-f="hr">–</b><span class="u">bpm</span></div>' + (hrLbl ? '<span class="l">' + hrLbl + '</span>' : '') + '</div></div>';
+const EL = '<div class="w-el" data-f="el"></div>';
+const BAR = col => '<div class="w-bar x" style="--mc:var(--' + col + ')"><b data-f="bar"></b></div>';
+const SEGS = (n, col) => '<div class="w-segs x" data-f="segs" style="--n:' + n + ';--mc:var(--' + col + ')">' + '<i><b></b></i>'.repeat(n) + '</div>';
+function wTop(name, idx, col, right){
+  return '<div class="w-top"><span class="w-nm" style="--mc:var(--' + col + ')"><i></i><span>' + esc(name) + '</span>' + (idx ? '<em>' + idx + '</em>' : '') + '</span>' +
+    (right === false ? '' : '<span class="w-ck" data-f="' + (right || 'clock') + '"></span>') + '</div>';
+}
+const FOOT = (txt, cls) => '<div class="w-foot' + (cls ? ' ' + cls : '') + '" data-f="foot">' + (txt ? esc(txt) : '') + '</div>';
+const RING_D = 'M102 2.5H159.5A42.5 42.5 0 0 1 201.5 45V201A42.5 42.5 0 0 1 159.5 243.5H44.5A42.5 42.5 0 0 1 2.5 201V45A42.5 42.5 0 0 1 44.5 2.5Z';
+function stRows(i, o){
+  const u = SUI[i], yours = o ? 'yours' : '';
+  if (u.k === 'erg') return H('split', '<span class="dl" data-f="trend"></span>', 'est /500 m', 'rate') +
+    R3(C('spm', 'spm', '', 'rate')) + '<div class="w-sub x"><b data-f="strokes">0</b> strokes</div>';
+  if (u.k === 'sled') return H('len', 'of 4', 'length', 'volt') + R3(C('cnt', u.cnt, yours, 'fg')) + SEGS(4, 'volt');
+  if (u.k === 'bbj') return H('cnt', '', o ? 'your jumps' : 'jumps', 'volt') + R3(C('spr', 's/jump', '', 'rate')) + BAR('volt');
+  if (u.k === 'farm') return H('m', 'of ' + (o ? o.tot : 200) + ' m', yours, 'volt') + R3(C('cad', 'spm', '', 'rate')) + BAR('volt');
+  if (u.k === 'lunge') return H('cnt', '', o ? 'your lunges' : 'lunges', 'volt') + R3(C('rate', '/min', '', 'rate')) + BAR('volt');
+  const tot = '/' + (o ? o.tot : 100);
+  return '<div class="hero wb on" style="--mc:var(--fg)"><b data-f="reps">0</b><span class="u">' + tot + '</span></div>' +
+    H('brkt', '', 'break', 'accent', 'off') +
+    '<div class="r3 x">' + C('rate', '/min', '', 'rate', 'on') + C('reps2', tot, '', 'fg3', 'off') + '<div class="c hr"><div><b data-f="hr">–</b><span class="u">bpm</span></div></div></div>' +
+    '<div class="w-sub x" data-f="proj"></div>';
+}
+function screenHTML(st){
+  if (st.k === 'pre'){
+    const l1 = race.mode === 'off' ? 'Wave ' + race.wave : 'Home sim';
+    const l2 = race.mode === 'off' ? 'Anaheim · ' + race.div : race.sim;
+    return '<div class="scr pre">' + wTop('Armed', '', 'volt', 'tod') + '<div class="w-body">' +
+      '<div><div class="pre-l1">' + esc(l1) + '</div><div class="pre-l2">' + esc(l2) + '</div></div>' +
+      H('cd', '', 'starts in', 'volt') + R3('', 'resting hr') + '</div>' + FOOT('Starts on your first steps.') + '</div>';
+  }
+  if (st.k === 'run'){
+    const i = st.seg.i, nx = STN[i].n;
+    const foot = st.ph === 'exit' ? FOOT('Exit soon · Next: ' + nx, 'ban') : FOOT('Next: ' + nx);
+    return '<div class="scr run">' + wTop('Run', (i + 1) + '/8', 'run') + '<div class="w-body">' + EL +
+      H('pace', '/km', 'pace', 'run') + R3(C('m', 'm', 'into km', 'volt')) + SEGS(8, 'run') + '</div>' + foot + '</div>';
+  }
+  if (st.k === 'rox'){
+    const s = st.seg;
+    return '<div class="scr rox"><div class="rox-pulse"></div>' + wTop('Roxzone', (s.r + 1) + '/15', 'rox-ink') +
+      '<div class="rox-b"><div class="rox-t" data-f="el"></div><div class="rox-hr x"><b data-f="hr"></b><span>BPM</span></div></div>' +
+      '<div class="rox-next x">' + esc(s.next) + ' next</div></div>';
+  }
+  if (st.k === 'st'){
+    const i = st.seg.i, S = STN[i], wb = SUI[i].k === 'wb';
+    return '<div class="scr st' + (wb ? ' wb' : '') + '">' +
+      (wb ? '<svg class="ring" viewBox="0 0 204 246" aria-hidden="true"><path class="rt" d="' + RING_D + '" pathLength="100"/><path class="rf" data-f="ring" d="' + RING_D + '" pathLength="100" stroke-dasharray="0 100"/></svg>' : '') +
+      wTop(S.tb, (i + 1) + '/8', 'station') +
+      '<div class="w-body">' + EL + stRows(i, st.b ? {tot:DPLAN[i].own} : null) + '</div>' + FOOT('') + '</div>';
+  }
+  if (st.k === 'rest'){
+    return '<div class="scr rest' + (st.ready ? ' ready' : '') + '" data-f="restscr">' +
+      '<div class="rest-top"><span class="rest-k">' + (st.ready ? 'Recovered' : 'Resting') + ' · ' + esc(STN[st.seg.i].tb) + '</span><span class="w-ck" data-f="clock"></span></div>' +
+      '<div class="rest-t" data-f="rel"></div>' +
+      '<div class="rest-hr"><b data-f="hr"></b><span>BPM</span></div>' +
+      '<div class="rest-s x" data-f="foot"></div></div>';
+  }
+  const FR = (v, l, col) => '<div class="fr x" style="--mc:var(--' + col + ')"><b>' + ms(v) + '</b><span>' + l + '</span></div>';
+  return '<div class="scr fin"><div class="burst" aria-hidden="true"><i></i><i></i><i></i><i></i></div>' + wTop('Finish', '', 'volt', false) +
+    '<div class="w-body"><div class="fin-h">Well done.</div><div class="fin-t">' + hms(SIM.T) + '</div>' +
+    FR(SIM.tot.run, 'runs', 'run') + FR(SIM.tot.st, 'stations', 'station') + FR(SIM.tot.rox, 'roxzone', 'rox') + '</div>' +
+    '<button type="button" class="w-link x" data-goto="' + (SIM.duo ? 'team">See team view ›' : 'overview">See overview ›') + '</button></div>';
+}
+
+/* ---------- captions ---------- */
+const TODAY = t => '<span class="chip today">Working today · ' + t + '</span>';
+const SOON = t => '<span class="chip soon">Coming · ' + t + '</span>';
+const REPS_SOON = SOON('rep count (KB swings already counted 21/21/21 in testing)');
+const ST_CAP = [
+  {b:'The estimated /500 m split is the big number, from your pull rhythm, with a signed delta next to it once there is data: “+4 s vs avg” in orange when slower, “−3 s vs avg” in volt when faster. Stroke rate in teal below, strokes as a small count. No distance guess on the watch: exact metres and pace come from a Bluetooth link to the Concept2 monitor (PM5).', c:SOON('stroke rate + est. split') + SOON('exact metres + pace · Concept2 PM5 Bluetooth link')},
+  {b:'The big number is the length you are on, “3 of 4”, with a four-part bar under it. Steps while you drive on the left, heart rate on the right. No metres number: lengths are what you can trust.', c:SOON('step count + length')},
+  {b:'The big number is the length you are on, “3 of 4”, with a four-part bar. Arm pulls counted on the left, heart rate on the right.', c:SOON('pull count + length')},
+  {b:'Every jump counted, big. Seconds per jump in teal so you know if the rhythm holds, and a bar toward 80 m at about 1.75 m per jump (bar only, no metres number).', c:REPS_SOON},
+  {b:'The estimated /500 m split is the big number, from your pull rhythm, with a signed delta next to it once there is data: “+4 s vs avg” in orange when slower, “−3 s vs avg” in volt when faster. Stroke rate in teal below, strokes as a small count. No distance guess on the watch: exact metres and pace come from a Bluetooth link to the Concept2 monitor (PM5).', c:SOON('stroke rate + est. split') + SOON('exact metres + pace · Concept2 PM5 Bluetooth link')},
+  {b:'Metres from your steps as the big number, “113 of 200 m”, with a bar. Cadence in teal to keep the short quick steps, heart rate on the right.', c:SOON('step count + metres')},
+  {b:'Every lunge counted, big. Lunges per minute in teal, heart rate on the right, and a bar toward 100 m at about 0.9 m per lunge (bar only).', c:REPS_SOON},
+  {b:'A big rep count with a ring around the screen edge, reps per minute, heart rate, and one line: “On pace for 5:48”. The bottom line says which set you are on. When you break, a purple break clock takes the big slot and the reps step down to the row below.', c:REPS_SOON}
+];
+function caption(st){
+  if (st.k === 'pre') return {s:'Before the wave', t:'Armed. Waiting for you.', b:'Your watch loads Anaheim\'s format, your ' + (race.mode === 'off' ? race.wave + ' wave' : 'session') + ' and every station in order. No button at the start line: the clock starts on your first running steps.', c:SOON('auto-arm') + SOON('start on first steps')};
+  if (st.k === 'run'){
+    const n = st.seg.i + 1, nx = STN[st.seg.i].n;
+    if (st.ph === 'exit') return {s:'Run ' + n + ' of 8 · tap', t:'Exit soon', b:'One tap on the wrist as you pass about 850 m, and the bottom line turns into a blue banner: “Exit soon · Next: ' + nx + '.” Laps per km differ by venue, so the watch reminds you by distance instead of counting laps. The banner stays on the always-on screen when your wrist is down.', c:SOON('exit-soon tap') + TODAY('run distance (step estimate)')};
+    return {s:'Run ' + n + ' of 8', t:'Run ' + n + ' of 8', b:'Run time in yellow, live pace as the big number, metres into this km and heart rate, eight km dots across the full width, and the station waiting for you on the bottom line: “Next: ' + nx + '.” Eyes down for half a second, back to work.' + ' Wrist down, the always-on screen keeps only the top bar, the elapsed time and the big number.', c:TODAY('pace, HR, splits') + TODAY('run detection prototype')};
+  }
+  if (st.k === 'rox') return {s:'Transition ' + (st.seg.r + 1) + ' of 15', t:'Roxzone', b:'The screen goes pulsing pink the moment you\'re in transition, and that time is the big number, clocked on its own. Heart rate under it, one line for what comes next. Walk-time is race-time; now you can see it. Wrist down, the pink drops to a thin border on black.', c:TODAY('Crown to switch + undo') + SOON('auto-detect')};
+  if (st.k === 'st' && st.b){
+    const S = STN[st.seg.i], C = ST_CAP[st.seg.i], P = DPLAN[st.seg.i];
+    return {s:'Station ' + (st.seg.i + 1) + ' of 8 · Doubles · your bout ' + (st.b.n + 1) + ' of ' + P.nA, t:S.n + ' · your bout', b:'Your share only: ' + P.own + (S.tg.indexOf('reps') > 0 ? ' of 100 reps' : ' of ' + S.tg) + ' is yours in this sample split. The screen counts your own work from your wrist; ' + MATE + '\'s reps stay on ' + MATE + '\'s watch and merge with yours after the race.', c:TODAY('HR, time') + SOON('work/rest detection') + C.c};
+  }
+  if (st.k === 'rest'){
+    const S = STN[st.seg.i], n = 'Station ' + (st.seg.i + 1) + ' of 8 · Doubles';
+    if (st.ready) return {s:n + ' · tap', t:'Recovered', b:'One tap when your heart rate is back under your target (' + READY_HR + ' bpm here, you set it): the edge pulses and the bottom line reads “Zone ' + zoneOf(hrNow(st)) + ' · ready”. When to jump back in is your team\'s call, so the watch never counts down a switch; it just tells you you\'re ready.', c:TODAY('HR, time') + SOON('recovered tap') + SOON('live partner data · later (cellular watches)')};
+    return {s:n + ' · resting', t:'Resting', b:MATE + ' is on the ' + S.n + '. Your watch sees you stop working and switches to rest on its own: the whole screen turns the colour of your heart-rate zone (Apple Watch zone colours: red, orange, green, teal, blue) and glides toward blue as you recover. The rest timer, your heart rate and the zone number, so it works even if colours aren\'t your thing. Total race time stays top right.', c:TODAY('HR, time') + SOON('work/rest detection') + SOON('live partner reps · later (cellular watches)')};
+  }
+  if (st.k === 'st'){
+    const S = STN[st.seg.i], C = ST_CAP[st.seg.i];
+    return {s:'Station ' + (st.seg.i + 1) + ' of 8 · ' + S.tg, t:S.n, b:C.b + ' Total race time stays top right. Missed the switch? For the first 5 s the bottom line says “Wrong station? Turn Crown.” Wrist down, the always-on screen keeps only the top bar, the elapsed time and the big number.', c:TODAY('HR, time, Crown') + C.c + SOON('station auto-detect')};
+  }
+  return {s:'Finish · sample race' + (SIM.duo ? ' · Doubles' : ''), t:'Well done.', b:'Total time and the breakdown: runs ' + ms(SIM.tot.run) + ', stations ' + ms(SIM.tot.st) + ', Roxzone ' + ms(SIM.tot.rox) + '. ' + (SIM.duo ? 'Once both watches have synced, the Team view merges your race with ' + MATE + '\'s.' : 'The full overview is waiting on your phone.'), c:TODAY('splits + overview') + SOON('finish celebration') + (SIM.duo ? SOON('sync + merge after the race') : '')};
+}
+
+/* ---------- render ---------- */
+function setSegs(p){
+  if (!F.segs) return;
+  const c = F.segs.children, n = c.length;
+  for (let k = 0; k < n; k++) c[k].firstChild.style.width = (Math.max(0, Math.min(1, p * n - k)) * 100).toFixed(1) + '%';
+}
+const screen = $('screen');
+let t = 0, playing = false, speed = 60, holdUntil = 0, lastNow = null, lastKey = '', lastLive = '', F = {};
+const range = $('range');
+range.min = -PRE; range.max = T; range.value = 0;
+$('clocktot').textContent = '/ ' + hms(T);
+
+function render(force){
+  const st = stateAt(t);
+  const key = keyOf(st) + (st.k === 'pre' ? race.mode + race.wave + race.div + race.sim : '');
+  if (force || key !== lastKey){
+    lastKey = key;
+    screen.innerHTML = screenHTML(st);
+    F = {};
+    screen.querySelectorAll('[data-f]').forEach(el => { F[el.dataset.f] = el; });
+    const c = caption(st);
+    $('capst').textContent = c.s; $('capt').textContent = c.t; $('capb').textContent = c.b; $('capc').innerHTML = c.c;
+    const liveTxt = c.t + '. ' + c.s + '.';
+    if (liveTxt !== lastLive){ lastLive = liveTxt; $('live').textContent = 'Watch shows: ' + liveTxt; }
+    markJump(st);
+  }
+  const clock = hms(Math.max(0, Math.min(t, SIM.T)));
+  if (F.clock) F.clock.textContent = clock;
+  if (st.k === 'pre'){ F.cd.textContent = ms(st.left); F.tod.textContent = waveTod(st.left); }
+  if (st.k !== 'fin' && F.hr) F.hr.textContent = hrNow(st);
+  if (st.k === 'run'){
+    const d = st.seg.d;
+    const pace = d + 7 * Math.sin(st.el / 13 + st.seg.i) + (st.el < 40 ? -8 * (1 - st.el / 40) : 0);
+    F.pace.textContent = ms(pace); F.el.textContent = ms(st.el);
+    F.m.textContent = Math.min(999, Math.round(st.p * 1000));
+    setSegs((st.seg.i + st.p) / 8);
+  }
+  if (st.k === 'rox' || st.k === 'st') F.el.textContent = ms(st.el);
+  if (st.k === 'rest'){
+    const hr = hrNow(st), c = zoneBlend(hr);
+    F.rel.textContent = ms(st.rel);
+    F.restscr.style.setProperty('--za', 'var(--z' + c.a + 'c)');
+    F.restscr.style.setProperty('--zb', 'var(--z' + c.b + 'c)');
+    F.restscr.style.setProperty('--zf', (c.f * 100).toFixed(0) + '%');
+    F.foot.textContent = 'Zone ' + zoneOf(hr) + (st.ready ? ' · ready' : '');
+  }
+  if (st.k === 'st'){
+    const r = st.b ? duoVals(st) : stVals(st);
+    for (const k in r.v) if (F[k] && k !== 'foot') F[k].textContent = r.v[k];
+    if (F.trend) F.trend.className = 'dl ' + (r.v.trendc || '');
+    if (F.bar) F.bar.style.width = (r.p * 100).toFixed(1) + '%';
+    setSegs(r.p);
+    if (F.ring) F.ring.setAttribute('stroke-dasharray', (Math.min(1, r.p) * 100).toFixed(2) + ' 100');
+    if (F.reps) screen.firstElementChild.classList.toggle('brk', r.brk >= 0);
+    /* Undo is a Crown turn: the bottom line says so for the first 5 s; the total race time never moves */
+    const hint = st.el < 5;
+    F.foot.textContent = hint ? 'Wrong station? Turn Crown' : (r.v.foot || ''); F.foot.classList.toggle('hint', hint);
+  }
+  $('clock').textContent = t < 0 ? '−' + ms(-t) : clock;
+  if (document.activeElement !== range || playing) range.value = Math.round(t);
+  range.setAttribute('aria-valuetext', $('capt').textContent + ', race clock ' + (t < 0 ? 'minus ' + ms(-t) : clock));
+  const pct = (t + PRE) / (SIM.T + PRE) * 100;
+  $('future').style.left = 'calc(9px + (100% - 18px) * ' + (pct / 100).toFixed(4) + ')';
+}
+
+/* ---------- haptics ---------- */
+let hapTimer = 0;
+function haptic(ev){
+  const h = $('hap');
+  $('haptxt').innerHTML = 'Tap · <b>' + esc(ev.txt) + '</b>';
+  h.classList.remove('on'); void h.offsetWidth; h.classList.add('on');
+  const w = $('watch');
+  if (!RM){ w.classList.remove('wiggle'); void w.offsetWidth; w.classList.add('wiggle'); }
+  clearTimeout(hapTimer);
+  hapTimer = setTimeout(() => { h.classList.remove('on'); }, 1600);
+}
+
+/* ---------- playback ---------- */
+function frame(now){
+  if (!playing){ lastNow = null; return; }
+  if (lastNow == null) lastNow = now;
+  const dt = Math.min(100, now - lastNow) / 1000; lastNow = now;
+  if (now >= holdUntil){
+    const nt = Math.min(SIM.T, t + dt * speed);
+    const ev = SIM.ev.find(e => e.t > t && e.t <= nt);
+    if (ev){ t = ev.t; holdUntil = now + (speed >= 200 ? 700 : speed >= 60 ? 1300 : 1600); haptic(ev); }
+    else t = nt;
+  }
+  render();
+  if (t >= SIM.T && now >= holdUntil){ setPlaying(false); return; }
+  requestAnimationFrame(frame);
+}
+function setPlaying(on){
+  if (on && t >= SIM.T){ t = -PRE; holdUntil = 0; }
+  playing = on;
+  const b = $('play');
+  b.querySelector('span').textContent = on ? 'Pause' : 'Play';
+  b.setAttribute('aria-label', on ? 'Pause simulation' : 'Play simulation');
+  b.querySelector('svg').innerHTML = on ? '<path d="M2 1h3.5v12H2zM8.5 1H12v12H8.5z"/>' : '<path d="M2 1l11 6-11 6z"/>';
+  if (on){ lastNow = null; requestAnimationFrame(frame); }
+}
+$('play').addEventListener('click', () => setPlaying(!playing));
+$('restart').addEventListener('click', () => { t = -PRE; holdUntil = 0; render(); if (!playing) setPlaying(true); });
+document.querySelectorAll('[data-sp]').forEach(b => b.addEventListener('click', () => {
+  speed = +b.dataset.sp;
+  document.querySelectorAll('[data-sp]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  try { localStorage.setItem('wavemode.speed', String(speed)); } catch(e){}
+}));
+try {
+  const sv = +localStorage.getItem('wavemode.speed');
+  if ([20,60,200].includes(sv)){ speed = sv; document.querySelectorAll('[data-sp]').forEach(x => x.setAttribute('aria-pressed', String(+x.dataset.sp === sv))); }
+} catch(e){}
+range.addEventListener('input', () => { t = +range.value; holdUntil = 0; render(); });
+
+/* ---------- timeline strip, ticks, jumps ---------- */
+function buildStrip(){
+  const all = [{k:'pre', d:PRE}].concat(SIM.seg), T_ = SIM.T;
+  $('strip').innerHTML = all.map(s => s.b ? s.b.map(q => '<i class="' + (q.who === 'A' ? 'k-st' : 'k-rest') + '" style="flex-grow:' + q.d + '"></i>').join('') : '<i class="k-' + s.k + '" style="flex-grow:' + s.d + '"></i>').join('');
+  const pos = x => ((x + PRE) / (T_ + PRE) * 100).toFixed(2);
+  let h = '<span style="left:' + pos(0) + '%">GO</span>';
+  SIM.seg.filter(s => s.k === 'st').forEach(s => { h += '<span style="left:' + pos(s.s + s.d / 2) + '%;color:var(--station)">' + (s.i + 1) + '</span>'; });
+  const lastSt = SIM.seg.filter(s => s.k === 'st').pop();
+  if (T_ - (lastSt.s + lastSt.d / 2) > (T_ + PRE) * .05) h += '<span style="left:calc(' + pos(T_) + '% - 8px)">FIN</span>';
+  $('ticks').innerHTML = h;
+}
+/* resting / recovered moments live in the doubles timeline: SkiErg, Sam's first 250 m */
+const dSki = DSEG.find(s => s.k === 'st' && s.i === 0), dRest = dSki.b.find(q => q.who === 'B');
+let JUMPS = [];
+function buildJumps(){
+  const sg = SIM.seg, fRox = sg.find(s => s.k === 'rox');
+  JUMPS = [
+    {id:'pre', l:'Armed', c:'k-pre', t:-PRE + 8},
+    {id:'run', l:'Run 3', c:'k-run', t:sg.find(s => s.k === 'run' && s.i === 2).s + 60},
+    {id:'exit', l:'Exit soon', c:'k-run', t:sg[0].s + Math.round(sg[0].d * EXIT_AT) + 2},
+    {id:'rox', l:'Roxzone', c:'k-rox', t:fRox.s + 9}
+  ].concat(STN.map((S, i) => {
+    const s = sg.find(x => x.k === 'st' && x.i === i), a = s.b ? s.b.find(q => q.who === 'A').s : 0;
+    return {id:'st' + i, l:S.sh || S.n, c:'k-st', t:s.s + a + 3};
+  }))
+   .concat([{id:'rest', l:'Resting', c:'k-rest', t:dSki.s + dRest.s + 4, duo:true}, {id:'ready', l:'Recovered', c:'k-rest', t:dSki.s + (isFinite(dRest.ready) ? dRest.ready + 1 : dRest.e - 2), duo:true}])
+   .concat([{id:'fin', l:'Finish', c:'bg-volt', t:SIM.T}]);
+  $('jumps').innerHTML = JUMPS.map(j => '<button type="button" data-j="' + j.id + '"' + (j.duo && !SIM.duo ? ' title="Switches to Doubles"' : '') + '><i class="' + j.c + '"></i>' + esc(j.l) + (j.duo && !SIM.duo ? ' · Doubles' : '') + '</button>').join('');
+}
+function jumpTo(id, scroll){
+  let j = JUMPS.find(x => x.id === id); if (!j) return;
+  if (j.duo && !SIM.duo){ setFormat('duo', true); j = JUMPS.find(x => x.id === id); }
+  t = j.t; holdUntil = 0; render(true);
+  if (scroll) $('sim').scrollIntoView({behavior: RM ? 'auto' : 'smooth', block:'start'});
+}
+$('jumps').addEventListener('click', e => { const b = e.target.closest('[data-j]'); if (b) jumpTo(b.dataset.j, false); });
+document.querySelectorAll('[data-jump]').forEach(b => b.addEventListener('click', () => jumpTo(b.dataset.jump, true)));
+function markJump(st){
+  let id = '';
+  if (st.k === 'pre') id = 'pre';
+  else if (st.k === 'fin') id = 'fin';
+  else if (st.k === 'st') id = 'st' + st.seg.i;
+  else if (st.k === 'rest') id = st.ready ? 'ready' : 'rest';
+  else if (st.k === 'rox') id = 'rox';
+  else if (st.k === 'run') id = st.ph === 'exit' ? 'exit' : 'run';
+  document.querySelectorAll('#jumps [data-j]').forEach(b => { if (b.dataset.j === id) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+}
+/* Solo / Doubles: keep the same moment (segment + fraction) when switching */
+function setFormat(f, quiet){
+  const nx = f === 'duo' ? DUO : SOLO;
+  document.querySelectorAll('[data-fmt]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.fmt === f)));
+  try { localStorage.setItem('wavemode.format', f); } catch(e){}
+  if (nx === SIM && JUMPS.length) return;
+  const old = SIM; SIM = nx;
+  if (t >= old.T) t = SIM.T;
+  else if (t >= 0){
+    const k = old.seg.findIndex(x => t >= x.s && t < x.e);
+    if (k >= 0){ const o = old.seg[k], n = SIM.seg[k]; t = Math.round(n.s + (t - o.s) / o.d * n.d); }
+  }
+  range.max = SIM.T; $('clocktot').textContent = '/ ' + hms(SIM.T);
+  holdUntil = 0; lastKey = '';
+  buildStrip(); buildJumps();
+  if (!quiet) render(true);
+}
+document.querySelectorAll('[data-fmt]').forEach(b => b.addEventListener('click', () => setFormat(b.dataset.fmt)));
+(function(){
+  let f = 'solo';
+  try { if (localStorage.getItem('wavemode.format') === 'duo') f = 'duo'; } catch(e){}
+  SIM = f === 'duo' ? DUO : SOLO;
+  document.querySelectorAll('[data-fmt]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.fmt === f)));
+  range.max = SIM.T; $('clocktot').textContent = '/ ' + hms(SIM.T);
+  buildStrip(); buildJumps();
+})();
+$('aod').addEventListener('click', () => {
+  const on = $('aod').getAttribute('aria-pressed') !== 'true';
+  $('aod').setAttribute('aria-pressed', String(on));
+  screen.classList.toggle('aod', on);
+});
+screen.addEventListener('click', e => {
+  const b = e.target.closest('[data-goto]');
+  if (b) $(b.dataset.goto).scrollIntoView({behavior: RM ? 'auto' : 'smooth', block:'start'});
+});
+
+/* ---------- race picker ---------- */
+function updatePicker(){
+  if (race.mode === 'off'){
+    $('sumline').textContent = 'Anaheim · ' + race.day + ' · Wave ' + race.wave + ' · ' + race.div;
+    const [h, m] = race.wave.split(':').map(Number), a = h * 60 + m - 10;
+    $('sumsub').textContent = 'Watch arms at ' + Math.floor(a / 60) + ':' + String(a % 60).padStart(2, '0') + ' · starts on your first steps';
+  } else {
+    $('sumline').textContent = 'Home simulation · ' + race.sim;
+    $('sumsub').textContent = 'Arms when you open it · starts on your first steps';
+  }
+  $('cele').querySelector('.k').textContent = (race.mode === 'off' ? 'HYROX Anaheim · ' + race.div : 'Home simulation · ' + race.sim) + ' · Sample race';
+  if (t < 0) render(true);
+}
+document.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => {
+  race.mode = b.dataset.tab;
+  document.querySelectorAll('[data-tab]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  $('pk-off').hidden = race.mode !== 'off'; $('pk-home').hidden = race.mode !== 'home';
+  updatePicker();
+}));
+document.querySelectorAll('[data-g]').forEach(g => g.addEventListener('click', e => {
+  const b = e.target.closest('button[data-v]'); if (!b) return;
+  race[g.dataset.g] = b.dataset.v;
+  g.querySelectorAll('button[data-v]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  updatePicker();
+}));
+
+/* ---------- story: run bars, roxzone bars, stations ---------- */
+(function(){
+  const lo = 240, hi = 305, W = 320, H = 120, bw = W / 8;
+  const avg = TOT_RUN / 8;
+  let s = '<svg viewBox="0 0 ' + W + ' ' + (H + 20) + '" width="100%" role="img" aria-label="Run splits from ' + ms(RUNS[0]) + ' to ' + ms(RUNS[7]) + ' per km">';
+  RUNS.forEach((r, i) => {
+    const h = (r - lo) / (hi - lo) * H, x = i * bw + 5;
+    s += '<rect x="' + x + '" y="' + (H - h) + '" width="' + (bw - 10) + '" height="' + h + '" rx="4" class="' + (r <= avg ? 'pf' : 'ps') + '"/>';
+    s += '<text x="' + (x + (bw - 10) / 2) + '" y="' + (H - h - 5) + '" text-anchor="middle" style="font-weight:700;fill:var(--fg)">' + ms(r) + '</text>';
+    s += '<text x="' + (x + (bw - 10) / 2) + '" y="' + (H + 14) + '" text-anchor="middle">R' + (i + 1) + '</text>';
+  });
+  const ay = H - (avg - lo) / (hi - lo) * H;
+  s += '<line x1="0" x2="' + W + '" y1="' + ay + '" y2="' + ay + '" class="ref"/></svg>';
+  $('runbars').innerHTML = s + '<div class="olg"><span><i class="pf" style="background:var(--rate)"></i>Faster than average</span><span><i style="background:var(--accent)"></i>Slower</span><span>Dashed: average ' + ms(avg) + '/km</span></div>';
+  const mx = Math.max.apply(null, ROX);
+  $('roxbars').innerHTML = SEG.filter(x => x.k === 'rox').map(x => '<div class="' + (x.after === 'st' ? 'after' : '') + '" style="height:' + (x.d / mx * 100).toFixed(1) + '%" title="Transition ' + (x.r + 1) + ': ' + ms(x.d) + '"></div>').join('');
+  $('roxtot').textContent = ms(TOT_ROX); $('roxmax').textContent = ms(mx);
+  $('stgrid').innerHTML = STN.map((S, i) => '<button type="button" class="stc" data-st="' + i + '"><span class="i">Station ' + (i + 1) + ' · ' + esc(S.tg) + '</span><span class="n">' + esc(S.n) + '</span><span class="c">“' + esc(S.cue) + '”</span><span class="f"><span>Show on watch ↑</span><span>Sample <b>' + ms(S.d) + '</b></span></span></button>').join('');
+  $('stgrid').addEventListener('click', e => { const b = e.target.closest('[data-st]'); if (b) jumpTo('st' + b.dataset.st, true); });
+})();
+
+/* ---------- celebration (the one orchestrated moment) ---------- */
+(function(){
+  const cele = $('cele');
+  const parts = [[TOT_RUN, 'bg-run', 'Runs'], [TOT_ST, 'bg-st', 'Stations'], [TOT_ROX, 'bg-rox', 'Roxzone']];
+  $('splitlbl').innerHTML = parts.map(p => '<span><i class="' + p[1] + '"></i>' + p[2] + '<b class="tn">' + ms(p[0]) + '</b></span>').join('');
+  const bars = $('splitbar').querySelectorAll('i');
+  let lineIx = 0, raf = 0;
+  function setBars(on){ bars.forEach((b, i) => { b.style.flexGrow = on ? parts[i][0] : (i === 0 ? 1 : 0.0001); }); }
+  function play(){
+    cancelAnimationFrame(raf);
+    $('celeline').textContent = FINISH_LINES[lineIx % FINISH_LINES.length]; lineIx++;
+    if (RM){ cele.classList.remove('anim'); setBars(true); $('celetot').textContent = hms(T); return; }
+    cele.classList.remove('go'); cele.classList.add('anim'); setBars(false);
+    void cele.offsetWidth;
+    requestAnimationFrame(() => {
+      cele.classList.add('go'); setBars(true);
+      const t0 = performance.now() + 450, dur = 1200;
+      const step = now => {
+        const p = Math.max(0, Math.min(1, (now - t0) / dur)), e = 1 - Math.pow(1 - p, 3);
+        $('celetot').textContent = hms(T * e);
+        if (p < 1) raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+    });
+  }
+  setBars(RM);
+  if (RM) cele.classList.remove('anim');
+  if ('IntersectionObserver' in window && !RM){
+    const io = new IntersectionObserver(es => { es.forEach(en => { if (en.isIntersecting){ play(); io.disconnect(); } }); }, {threshold:.35});
+    io.observe(cele);
+  } else { cele.classList.remove('anim'); setBars(true); }
+  $('replay').addEventListener('click', play);
+})();
+
+/* ---------- phone overview ---------- */
+(function(){
+  /* hero facts */
+  const intens = [171, 178, 176, 174, 167, 172, 170, 181];
+  const pts = [];
+  let hr = 120, n = 0;
+  SEG.forEach(s => {
+    for (let x = 0; x < s.d; x += 10){
+      let target;
+      if (s.k === 'run') target = 158 + 9 * (x / s.d) + s.i * 1.1;
+      else if (s.k === 'st') target = intens[s.i] - 6 + 8 * Math.min(1, x / 90);
+      else target = hr - 2;
+      hr += (target - hr) * .22 + 1.6 * Math.sin((s.s + x) / 37) * .5;
+      pts.push([s.s + x, hr]); n++;
+    }
+  });
+  pts.push([T, hr]);
+  const avgHr = Math.round(pts.reduce((a, p) => a + p[1], 0) / pts.length);
+  const maxHr = Math.round(Math.max.apply(null, pts.map(p => p[1])));
+  $('ovfacts').innerHTML = '<span><b>' + ms(TOT_RUN) + '</b> runs</span><span><b>' + ms(TOT_ST) + '</b> stations</span><span><b>' + ms(TOT_ROX) + '</b> Roxzone</span><span><b>' + avgHr + '</b> avg bpm</span>';
+
+  /* HR timeline */
+  const W = 300, H = 110, lo = 110, hi = 195;
+  const X = s => (s / T * W).toFixed(1), Y = v => (H - (v - lo) / (hi - lo) * H).toFixed(1);
+  let s = '<svg viewBox="0 0 ' + W + ' ' + (H + 16) + '" width="100%" role="img" aria-label="Heart rate over the race, average ' + avgHr + ', max ' + maxHr + ' bpm">';
+  SEG.forEach(g => { s += '<rect x="' + X(g.s) + '" y="0" width="' + Math.max(.6, g.d / T * W).toFixed(1) + '" height="' + H + '" class="b-' + g.k + '"/>'; });
+  [140, 160, 180].forEach(v => { s += '<line x1="0" x2="' + W + '" y1="' + Y(v) + '" y2="' + Y(v) + '" class="gl"/><text x="' + (W - 2) + '" y="' + (Y(v) - 3) + '" text-anchor="end">' + v + '</text>'; });
+  s += '<path class="hrl" d="M' + pts.map(p => X(p[0]) + ' ' + Y(p[1])).join(' L') + '"/>';
+  s += '<text x="0" y="' + (H + 13) + '">0:00</text><text x="' + (W / 2) + '" y="' + (H + 13) + '" text-anchor="middle">' + hms(T / 2) + '</text><text x="' + W + '" y="' + (H + 13) + '" text-anchor="end">' + hms(T) + '</text></svg>';
+  $('hrsvg').innerHTML = s;
+
+  /* pace strip with fade */
+  const PW = 300, PH = 80, plo = 250, phi = 305, avg = TOT_RUN / 8;
+  const px = i => (14 + i * (PW - 28) / 7).toFixed(1), py = v => (6 + (v - plo) / (phi - plo) * (PH - 12)).toFixed(1);
+  let p = '<svg viewBox="0 0 ' + PW + ' ' + (PH + 16) + '" width="100%" role="img" aria-label="Run pace per km, slowing from ' + ms(RUNS[0]) + ' to ' + ms(RUNS[7]) + '">';
+  p += '<defs><linearGradient id="fadeg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="fstop1"/><stop offset="1" class="fstop2"/></linearGradient></defs>';
+  const line = RUNS.map((r, i) => px(i) + ' ' + py(r)).join(' L');
+  p += '<path class="fadeA" d="M' + px(0) + ' ' + PH + ' L' + line + ' L' + px(7) + ' ' + PH + 'Z"/>';
+  p += '<line x1="0" x2="' + PW + '" y1="' + py(avg) + '" y2="' + py(avg) + '" class="ref"/>';
+  p += '<path class="pl" d="M' + line + '"/>';
+  RUNS.forEach((r, i) => { p += '<circle cx="' + px(i) + '" cy="' + py(r) + '" r="4.5" class="pd ' + (r <= avg ? 'pf' : 'ps') + '"/><text x="' + px(i) + '" y="' + (PH + 13) + '" text-anchor="middle">' + ms(r) + '</text>'; });
+  p += '</svg>';
+  $('pacesvg').innerHTML = p;
+  const h1 = sum(RUNS.slice(0, 4)) / 4, h2 = sum(RUNS.slice(4)) / 4;
+  $('fadeflag').innerHTML = '<b>Fade +' + ((h2 / h1 - 1) * 100).toFixed(1) + '%</b> · second half ' + Math.round(h2 - h1) + ' s/km slower than the first.';
+
+  /* stations vs last race */
+  const mx = Math.max.apply(null, STN.map(S => Math.max(S.d, S.last)));
+  $('strows').innerHTML = STN.map(S => {
+    const d = S.d - S.last;
+    return '<div class="strow"><span class="n">' + esc(S.sh || S.n) + '</span><span class="trk"><b style="width:' + (S.d / mx * 100).toFixed(1) + '%"></b><u style="left:' + (S.last / mx * 100).toFixed(1) + '%"></u></span><span class="t">' + ms(S.d) + '</span><span class="d ' + (d <= 0 ? 'fast' : 'slow') + '">' + (d <= 0 ? '−' : '+') + ms(Math.abs(d)) + '</span></div>';
+  }).join('');
+
+  /* history */
+  const H_ = [
+    {c:'var(--volt)', n:'Anaheim 2026 · Men\'s Open', d:'Sat Dec 5 · race · sample', tm:hms(T), pb:true},
+    {c:'var(--fg3)', n:'Home simulation · Full', d:'Nov 14 · 8 × 8 at the gym', tm:'1:24:05'},
+    {c:'var(--fg3)', n:'Half HYROX simulation', d:'Oct 31 · 4 × 4', tm:'39:48', pb:true},
+    {c:'var(--fg3)', n:'Partner WOD', d:'Oct 10 · with a training partner', tm:'41:12'},
+    {c:'var(--volt)', n:'Last race · Men\'s Open', d:'Mar 2026 · race', tm:'1:21:26'}
+  ];
+  $('hist').innerHTML = H_.map(h => '<div class="hrow"><i style="background:' + h.c + '"></i><div><b>' + esc(h.n) + '</b><span>' + esc(h.d) + '</span></div><div class="tm tn">' + h.tm + (h.pb ? '<span class="pb">PB</span>' : '') + '</div></div>').join('');
+  $('pbs').innerHTML = STN.map(S => '<div><span>' + esc(S.sh || S.n) + '</span><b class="tn">' + ms(Math.min(S.d, S.last)) + '</b></div>').join('');
+
+  /* badges */
+  const fade = (h2 / h1 - 1) * 100;
+  const B = [
+    {m:'ANA 26', n:'Anaheim 2026 Finisher', got:true},
+    {m:'SLED', n:'Sled Season', got:STN[1].d < STN[1].last && STN[2].d < STN[2].last},
+    {m:'1:30', n:'Sub-1:30', got:T < 5400},
+    {m:'HOME', n:'Home Hero', got:true},
+    {m:'NEG', n:'Negative Split', got:h2 < h1, hint:'2nd half faster'},
+    {m:'ROX', n:'Roxzone Ruler', got:TOT_ROX < 300, hint:ms(TOT_ROX - 300) + ' to cut'},
+    {m:'5%', n:'Steady Runner', got:fade < 5, hint:'fade ' + fade.toFixed(1) + '%'},
+    {m:'WB', n:'Unbroken Wall Balls', got:false, hint:'needs rep count'}
+  ];
+  $('badges').innerHTML = B.map(b => '<div class="bdg ' + (b.got ? 'got' : 'lock') + '"><div class="m" aria-hidden="true">' + b.m + '</div><span>' + esc(b.n) + '</span>' + (b.got ? '' : '<small>' + esc(b.hint) + '</small>') + '</div>').join('');
+})();
+
+/* ---------- team view (doubles, merged after the race) ---------- */
+(function(){
+  const sts = DSEG.filter(s => s.k === 'st');
+  const avg = (arr, a, b) => { let x = 0; for (let k = a; k < b; k++) x += arr[k]; return x / Math.max(1, b - a); };
+  const mx = arr => Math.max.apply(null, Array.from(arr));
+  const rows = sts.map(s => {
+    let wa = 0, wb = 0;
+    s.b.forEach(q => { if (q.who === 'A') wa += q.w; else wb += q.w; });
+    return {s, i:s.i, wa, wb, sw:s.b.length - 1, ha:Math.round(avg(HRA, s.s, s.e)), hb:Math.round(avg(HRB, s.s, s.e))};
+  });
+  const TA = sum(rows.map(r => r.wa)), TB = sum(rows.map(r => r.wb));
+  const pA = Math.round(TA / (TA + TB) * 100);
+  $('tvtot').textContent = hms(DT);
+  $('tvfacts').innerHTML = '<span><b>' + ms(DUO.tot.run) + '</b> runs</span><span><b>' + ms(DUO.tot.st) + '</b> stations</span><span><b>' + ms(DUO.tot.rox) + '</b> Roxzone</span>';
+  $('tvath').innerHTML = '<div><b>You</b><span>avg ' + Math.round(avg(HRA, 0, DT)) + ' · max ' + Math.round(mx(HRA)) + ' bpm</span></div>' +
+    '<div class="b"><b>' + MATE + '</b><span>avg ' + Math.round(avg(HRB, 0, DT)) + ' · max ' + Math.round(mx(HRB)) + ' bpm</span></div>';
+
+  /* work distribution */
+  const bar = (a, b) => { const p = Math.round(a / (a + b) * 100); return '<div class="wd-bar" aria-hidden="true"><i class="a" style="flex:' + a + ' 1 0">' + p + '%</i><i class="bb" style="flex:' + b + ' 1 0">' + (100 - p) + '%</i></div>'; };
+  $('tvwd').innerHTML = rows.map(r => {
+    const S = STN[r.i], p = Math.round(r.wa / (r.wa + r.wb) * 100), P = DPLAN[r.i];
+    const extra = r.i === 7 ? ' · ' + P.own + ' + ' + (100 - P.own) + ' = 100 reps' : '';
+    return '<div class="wd" role="group" aria-label="' + esc(S.n) + ': you ' + p + ' percent, ' + MATE + ' ' + (100 - p) + ' percent, ' + r.sw + ' switches"><div class="wd-h"><b>' + esc(S.sh || S.n) + '</b><span>' + r.sw + ' switches' + extra + '</span></div>' + bar(r.wa, r.wb) +
+      '<div class="wd-t tn"><span>You <b>' + ms(r.wa) + '</b></span><span>' + MATE + ' <b>' + ms(r.wb) + '</b></span></div></div>';
+  }).join('') +
+  '<div class="wd tot" role="group" aria-label="Total work: you ' + pA + ' percent, ' + MATE + ' ' + (100 - pA) + ' percent"><div class="wd-h"><b>You ' + pA + ' % · ' + MATE + ' ' + (100 - pA) + ' %</b><span>' + sum(rows.map(r => r.sw)) + ' switches</span></div>' + bar(TA, TB) +
+  '<div class="wd-t tn"><span>You <b>' + ms(TA) + '</b> work</span><span>' + MATE + ' <b>' + ms(TB) + '</b> work</span></div></div>';
+
+  /* HR overlay */
+  const W = 300, H = 120, lo = 110, hi = 195;
+  const X = x => (x / DT * W).toFixed(1), Y = v => (H - (v - lo) / (hi - lo) * H).toFixed(1);
+  let g = '<svg viewBox="0 0 ' + W + ' ' + (H + 16) + '" width="100%" role="img" aria-label="Heart rate of both athletes over the race. You average ' + Math.round(avg(HRA, 0, DT)) + ', ' + MATE + ' average ' + Math.round(avg(HRB, 0, DT)) + ' bpm.">';
+  DSEG.forEach(q => { g += '<rect x="' + X(q.s) + '" y="0" width="' + Math.max(.6, q.d / DT * W).toFixed(1) + '" height="' + H + '" class="b-' + q.k + '"/>'; });
+  sts.forEach(q => q.b.forEach(b => { if (b.who === 'A') g += '<rect x="' + X(q.s + b.s) + '" y="0" width="' + Math.max(.4, b.d / DT * W).toFixed(2) + '" height="' + H + '" class="dy"/>'; }));
+  [140, 160, 180].forEach(v => { g += '<line x1="0" x2="' + W + '" y1="' + Y(v) + '" y2="' + Y(v) + '" class="gl"/><text x="' + (W - 2) + '" y="' + (Y(v) - 3) + '" text-anchor="end">' + v + '</text>'; });
+  /* 15 s averages: readable at phone width, bouts still visible as shading */
+  const line = arr => { const p = []; for (let x = 0; x <= DT; x += 15){ const a = Math.max(0, x - 7), b = Math.min(DT + 1, x + 8); p.push(X(x) + ' ' + Y(avg(arr, a, b))); } return 'M' + p.join(' L'); };
+  g += '<path class="hrb" d="' + line(HRB) + '"/><path class="hra" d="' + line(HRA) + '"/>';
+  g += '<rect class="tvsel" id="tvsel" x="0" y="0.6" width="0" height="' + (H - 1.2) + '" rx="2"/>';
+  sts.forEach(q => { g += '<rect class="tvb" data-i="' + q.i + '" x="' + X(q.s) + '" y="0" width="' + Math.max(8, q.d / DT * W).toFixed(1) + '" height="' + H + '"/>'; });
+  g += '<text x="0" y="' + (H + 13) + '">0:00</text><text x="' + (W / 2) + '" y="' + (H + 13) + '" text-anchor="middle">' + hms(DT / 2) + '</text><text x="' + W + '" y="' + (H + 13) + '" text-anchor="end">' + hms(DT) + '</text></svg>';
+  $('tvhr').innerHTML = g;
+  $('tvstb').innerHTML = sts.map(q => '<button type="button" data-i="' + q.i + '" aria-pressed="false" aria-label="' + esc(STN[q.i].n) + '">' + (q.i + 1) + '</button>').join('');
+  let sel = -1;
+  function show(i, commit){
+    const r = rows[i], S = STN[i], sel_ = $('tvsel');
+    sel_.setAttribute('x', X(r.s.s)); sel_.setAttribute('width', Math.max(2, r.s.d / DT * W).toFixed(1));
+    $('tvinfo').innerHTML = '<b>' + (i + 1) + ' · ' + esc(S.n) + '</b> · ' + ms(r.s.d) + ' as a pair<br><span class="ya">You</span> avg <b>' + r.ha + '</b> bpm · <b>' + ms(r.wa) + '</b> work<br><span class="yb">' + MATE + '</span> avg <b>' + r.hb + '</b> bpm · <b>' + ms(r.wb) + '</b> work';
+    if (commit){ sel = i; $('tvstb').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.i === i))); }
+  }
+  const svg = $('tvhr').querySelector('svg');
+  svg.addEventListener('click', e => { const b = e.target.closest('.tvb'); if (b) show(+b.dataset.i, true); });
+  svg.addEventListener('pointerover', e => { const b = e.target.closest('.tvb'); if (b && e.pointerType === 'mouse') show(+b.dataset.i, false); });
+  svg.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && sel >= 0) show(sel, false); });
+  $('tvstb').addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if (b) show(+b.dataset.i, true); });
+  show(7, true);
+
+  /* transitions as a pair */
+  const rox = DSEG.filter(q => q.k === 'rox');
+  let tr = '<div class="trrow hd"><span>Station</span><span>In</span><span>Out</span><span>Changes</span></div>';
+  let ti = 0, to = 0, tc = 0;
+  sts.forEach(q => {
+    const k = DSEG.indexOf(q), inn = DSEG[k - 1], out = DSEG[k + 1] && DSEG[k + 1].k === 'rox' ? DSEG[k + 1] : null, ch = q.b.filter(b => b.h).length * HAND;
+    ti += inn.d; to += out ? out.d : 0; tc += ch;
+    tr += '<div class="trrow"><span class="n">' + esc(STN[q.i].sh || STN[q.i].n) + '</span><span>' + ms(inn.d) + '</span><span>' + (out ? ms(out.d) : '–') + '</span><span>' + ms(ch) + '</span></div>';
+  });
+  tr += '<div class="trrow tot"><span class="n">Total</span><span>' + ms(ti) + '</span><span>' + ms(to) + '</span><span>' + ms(tc) + '</span></div>';
+  $('tvtr').innerHTML = tr;
+})();
+
+/* ---------- copy ---------- */
+$('copy').addEventListener('click', () => {
+  const ta = $('msg'), done = txt => { $('copied').textContent = txt; };
+  const fallback = () => { ta.focus(); ta.select(); done('Selected. Press copy on your keyboard or long-press to copy.'); };
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(ta.value).then(() => done('Copied. Paste it into WhatsApp and swap in the link.')).catch(fallback);
+    } else fallback();
+  } catch(e){ fallback(); }
+});
+
+/* ---------- initial state: Run 3 of 8, exit-soon banner ---------- */
+const run3 = SIM.seg.find(s => s.k === 'run' && s.i === 2);
+t = run3.s + Math.round(run3.d * EXIT_AT) + 4;
+render(true);
+if (!RM) setTimeout(() => { if (!playing) setPlaying(true); }, 1600);
+})();
+</script>
