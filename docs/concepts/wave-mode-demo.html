@@ -134,15 +134,18 @@ p{margin:0}
 .scr.rox{background:var(--rox);color:var(--rox-ink);text-align:center;padding-inline:17px}
 .rox-pulse{position:absolute;inset:0;background:var(--rox-ink);opacity:0;animation:pulse 1.4s ease-in-out infinite;pointer-events:none}
 @keyframes pulse{50%{opacity:.22}}
-.scr.rox>*:not(.rox-pulse){position:relative}
+.scr.rox>*:not(.rox-pulse):not(.rox-b){position:relative}
 .scr.rox .w-top,.scr.rox .w-nm{color:var(--rox-ink)}
 .scr.rox .w-nm i{background:var(--rox-ink)}
 .scr.rox .w-nm em{color:var(--rox-ink);opacity:.7}
-.rox-b{flex:1;display:flex;flex-direction:column;justify-content:center;gap:8px}
+/* timer ink centred on the screen's vertical centre (--oy = optical nudge); HR hangs below, so the timer never moves */
+.rox-b{--oy:-2px;position:absolute;inset:0;pointer-events:none}
+.rox-t{position:absolute;left:0;right:0;top:50%;transform:translateY(calc(-50% + var(--oy)))}
+.rox-hr{position:absolute;left:0;right:0;top:calc(50% + 34px + var(--oy))}
 .rox-t{font-size:54px;font-weight:900;line-height:1;letter-spacing:-1px}
 .rox-hr b{font-size:24px;font-weight:900}
 .rox-hr span{font-size:11px;font-weight:900;margin-left:3px}
-.rox-next{font-size:13px;font-weight:900;line-height:1.2;padding:0 6px 2px}
+.rox-next{font-size:13px;font-weight:900;line-height:1.2;padding:0 6px 2px;margin-top:auto}
 /* finish */
 .scr.fin{background:radial-gradient(circle at 50% 120%,var(--volt-dim),var(--screen) 70%)}
 .burst{position:absolute;inset:0;pointer-events:none}
@@ -172,16 +175,33 @@ p{margin:0}
 .scr.rest.ready::after{content:"";position:absolute;inset:0;border-radius:45px;box-shadow:inset 0 0 0 4px var(--rest-ink);opacity:0;animation:rdy 1s ease-in-out infinite;pointer-events:none}
 @keyframes rdy{50%{opacity:.9}}
 .k-rest{background:var(--calm)}
-/* always-on (wrist down): top bar + row 1 + hero only; the Exit soon banner survives */
-.screen.aod .x,.screen.aod .w-foot:not(.ban),.screen.aod .ring,.screen.aod .burst{display:none}
-.screen.aod .w-body{justify-content:flex-start;gap:12px}
-.screen.aod .w-foot.ban{font-size:16px;line-height:1.15;padding:5px 9px}
+/* always-on (wrist down): top bar + segment timer centred on the screen (big) + HR small under it; the Exit soon banner survives */
+.screen.aod .x,.screen.aod .w-foot:not(.ban),.screen.aod .ring,.screen.aod .burst,.screen.aod .hero,.screen.aod .scr.pre .w-body>div:first-child{display:none}
+.screen.aod .w-foot.ban{font-size:16px;line-height:1.15;padding:5px 9px;margin-top:auto;margin-right:0}
 .screen.aod .scr:not(.rox):not(.rest){filter:brightness(.8)}
+.screen.aod .w-el,.screen.aod .scr.pre .hero,.screen.aod .fin-t{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;justify-content:center}
+.screen.aod .w-el{font-size:60px;letter-spacing:-1.2px}
+.screen.aod .scr.pre .hero{display:flex;align-items:center;padding:0;gap:0}
+.screen.aod .scr.pre .hero b{font-size:56px;line-height:1}
+.screen.aod .scr.pre .hero .u{display:none}
+.screen.aod .r3.x{display:flex;position:absolute;left:0;right:0;top:calc(50% + 38px);justify-content:center;padding:0}
+.screen.aod .r3>.c:not(.hr){display:none}
+.screen.aod .r3 .c.hr{text-align:center}
+.screen.aod .r3 .c.hr .l{display:none}
+.screen.aod .fin-h{position:absolute;left:0;right:0;bottom:calc(50% + 26px);text-align:center}
 .screen.aod .scr.rox{background:var(--screen);color:var(--rox);box-shadow:inset 0 0 0 6px var(--rox)}
 .screen.aod .scr.rox .rox-pulse{display:none}
 .screen.aod .scr.rox .w-top,.screen.aod .scr.rox .w-nm,.screen.aod .scr.rox .w-nm em{color:var(--rox)}
 .screen.aod .scr.rox .w-nm i{background:var(--rox)}
-.screen.aod .scr.rest{background:var(--screen);color:color-mix(in oklab,var(--zb) var(--zf),var(--za));justify-content:flex-start;gap:14px}
+.screen.aod .rox-b{--oy:0px}
+.screen.aod .rox-t{font-size:58px}
+.screen.aod .rox-hr.x{display:block;top:calc(50% + 38px)}
+.screen.aod .rox-hr b{font-size:22px}
+.screen.aod .scr.rest{background:var(--screen);color:color-mix(in oklab,var(--zb) var(--zf),var(--za));justify-content:flex-start}
+.screen.aod .rest-t{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%)}
+.screen.aod .rest-hr{position:absolute;left:0;right:0;top:calc(50% + 40px)}
+.screen.aod .rest-hr b{font-size:24px}
+.screen.aod .rest-hr span{font-size:11px}
 .screen.aod .scr.rest.ready::after{box-shadow:inset 0 0 0 4px currentColor}
 .aodbtn{font-size:13px;font-weight:700;padding:6px 12px;border-radius:999px;border:1px solid var(--line);color:var(--fg2);min-height:36px;display:inline-flex;align-items:center;gap:7px}
 .aodbtn::before{content:"";width:9px;height:9px;border-radius:50%;border:2px solid var(--fg3)}
@@ -1139,7 +1159,7 @@ function caption(st){
   if (st.k === 'run'){
     const n = st.seg.i + 1, nx = STN[st.seg.i].n;
     if (st.ph === 'exit') return {s:'Run ' + n + ' of 8 · tap', t:'Exit soon', b:'One tap on the wrist as you pass about 850 m, and the bottom line turns into a blue banner: “Exit soon · Next: ' + nx + '.” Laps per km differ by venue, so the watch reminds you by distance instead of counting laps. The banner stays on the always-on screen when your wrist is down.', c:SOON('exit-soon tap') + TODAY('run distance (step estimate)')};
-    return {s:'Run ' + n + ' of 8', t:'Run ' + n + ' of 8', b:'Run time in yellow, live pace as the big number, metres into this km and heart rate, eight km dots across the full width, and the station waiting for you on the bottom line: “Next: ' + nx + '.” Eyes down for half a second, back to work.' + ' Wrist down, the always-on screen keeps only the top bar, the elapsed time and the big number.', c:TODAY('pace, HR, splits') + TODAY('run detection prototype')};
+    return {s:'Run ' + n + ' of 8', t:'Run ' + n + ' of 8', b:'Run time in yellow, live pace as the big number, metres into this km and heart rate, eight km dots across the full width, and the station waiting for you on the bottom line: “Next: ' + nx + '.” Eyes down for half a second, back to work.' + ' Wrist down, the always-on screen keeps the top bar, your segment time big in the centre and your heart rate small under it.', c:TODAY('pace, HR, splits') + TODAY('run detection prototype')};
   }
   if (st.k === 'rox') return {s:'Transition ' + (st.seg.r + 1) + ' of 15', t:'Roxzone', b:'The screen goes pulsing pink the moment you\'re in transition, and that time is the big number, clocked on its own. Heart rate under it, one line for what comes next. Walk-time is race-time; now you can see it. Wrist down, the pink drops to a thin border on black.', c:TODAY('Crown to switch + undo') + SOON('auto-detect')};
   if (st.k === 'st' && st.b){
@@ -1153,7 +1173,7 @@ function caption(st){
   }
   if (st.k === 'st'){
     const S = STN[st.seg.i], C = ST_CAP[st.seg.i];
-    return {s:'Station ' + (st.seg.i + 1) + ' of 8 · ' + S.tg, t:S.n, b:C.b + ' Total race time stays top right. Missed the switch? For the first 5 s the bottom line says “Wrong station? Turn Crown.” Wrist down, the always-on screen keeps only the top bar, the elapsed time and the big number.', c:TODAY('HR, time, Crown') + C.c + SOON('station auto-detect')};
+    return {s:'Station ' + (st.seg.i + 1) + ' of 8 · ' + S.tg, t:S.n, b:C.b + ' Total race time stays top right. Missed the switch? For the first 5 s the bottom line says “Wrong station? Turn Crown.” Wrist down, the always-on screen keeps the top bar, your segment time big in the centre and your heart rate small under it.', c:TODAY('HR, time, Crown') + C.c + SOON('station auto-detect')};
   }
   return {s:'Finish · sample race' + (SIM.duo ? ' · Doubles' : ''), t:'Well done.', b:'Total time and the breakdown: runs ' + ms(SIM.tot.run) + ', stations ' + ms(SIM.tot.st) + ', Roxzone ' + ms(SIM.tot.rox) + '. ' + (SIM.duo ? 'Once both watches have synced, the Team view merges your race with ' + MATE + '\'s.' : 'The full overview is waiting on your phone.'), c:TODAY('splits + overview') + SOON('finish celebration') + (SIM.duo ? SOON('sync + merge after the race') : '')};
 }

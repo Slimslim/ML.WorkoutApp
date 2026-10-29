@@ -1,0 +1,279 @@
+<title>Watch Layouts</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&family=Nunito:wght@700;800;900&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0C0D0F; --bg2:#121418; --card:#191B1F; --tile:#24272C; --line:#2E3238;
+  --fg:#F3F4F6; --fg2:#A4A8B0; --fg3:#6D727B; --ink:#0C0D0F;
+  --volt:#B8FF3C; --volt-dim:#26330F;
+  --run:#4D8EFF; --station:#FF7A1A; --rox:#FF2E88; --rox-ink:#1C0611;
+  --hr:#FF5B4F; --rate:#3FD1BE; --elapsed:#FFD60A;
+  --case-hi:#6A6E76; --case:#3A3D43; --case-lo:#1D1F23; --band:#141518; --screen:#000000;
+  --focus:#8FB8FF; --shadow:#000000;
+  --f-disp:"Barlow Condensed","Roboto Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --f-round:ui-rounded,"SF Pro Rounded","Nunito",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%}
+.page{padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:20px 40px;overflow-x:hidden}
+.wrap{max-width:1560px;margin:0 auto;min-width:0;display:grid;gap:28px}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer}
+button:focus-visible,.strip:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:10px}
+h1,h2{font-family:var(--f-disp);font-weight:800;text-transform:uppercase;margin:0;line-height:1;letter-spacing:.2px}
+p{margin:0}
+
+/* header */
+.head{display:grid;gap:10px}
+.kick{font-family:var(--f-disp);font-weight:700;font-size:15px;letter-spacing:1.4px;text-transform:uppercase;color:var(--volt)}
+.head h1{font-size:clamp(36px,6vw,64px);font-style:italic}
+.lede{color:var(--fg2);max-width:760px;font-size:17px}
+.quotes{display:grid;gap:6px;margin:0;padding:0;list-style:none;max-width:860px}
+.quotes li{font-size:14px;color:var(--fg2);border-left:3px solid var(--line);padding:2px 0 2px 10px}
+.meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;color:var(--fg3)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-radius:999px;padding:3px 9px;white-space:nowrap;line-height:1.3;border:1px solid var(--line);color:var(--fg2)}
+.chip.mine{color:var(--volt);border-color:var(--volt);background:var(--volt-dim)}
+.picked{font-size:14px;color:var(--fg2)} .picked b{color:var(--fg)}
+
+/* direction rows */
+.dir{background:var(--bg2);border:1px solid var(--line);border-radius:24px;padding:16px;display:grid;gap:14px;min-width:0}
+.dir.sel{border-color:var(--volt);box-shadow:0 0 0 1px var(--volt) inset}
+.dh{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.dl{font-family:var(--f-disp);font-weight:800;font-size:30px;line-height:1;width:40px;height:40px;border-radius:12px;background:var(--tile);display:grid;place-items:center;flex:none}
+.dir.sel .dl{background:var(--volt);color:var(--ink)}
+.dh h2{font-size:26px}
+.dh .sp{flex:1}
+.pick{font-size:14px;font-weight:700;padding:8px 16px;border-radius:999px;border:1px solid var(--fg3);min-height:40px;display:inline-flex;align-items:center;gap:8px}
+.pick::before{content:"";width:10px;height:10px;border-radius:50%;border:2px solid var(--fg3)}
+.pick[aria-pressed="true"]{border-color:var(--volt);color:var(--volt);background:var(--volt-dim)}
+.pick[aria-pressed="true"]::before{background:var(--volt);border-color:var(--volt)}
+.strip{overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;padding:4px 2px 8px;scrollbar-color:var(--tile) transparent}
+.cols{display:flex;gap:14px;width:max-content}
+figure{margin:0;display:grid;gap:6px;justify-items:center}
+figcaption{font-size:13px;font-weight:600;color:var(--fg2);text-align:center}
+figcaption b{color:var(--fg);font-weight:700}
+.why{display:grid;gap:10px}
+.why>p{font-size:15px;color:var(--fg);max-width:900px}
+.pc{display:grid;gap:10px 24px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:760px){.pc{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.pc h3{font-family:var(--f-disp);font-weight:800;font-size:15px;letter-spacing:1px;text-transform:uppercase;margin:0 0 4px}
+.pc .pro h3{color:var(--volt)} .pc .con h3{color:var(--station)}
+.pc ul{margin:0;padding-left:18px;font-size:14px;color:var(--fg2);display:grid;gap:3px}
+
+/* watch body (same as the demo) */
+.watchwrap{width:244px;height:330px;position:relative;flex:none}
+.watch{position:absolute;left:0;top:0;width:244px;height:330px}
+.band{position:absolute;left:39px;width:150px;height:44px;background:linear-gradient(180deg,var(--band),var(--case-lo))}
+.band.t{top:0;border-radius:14px 14px 4px 4px}
+.band.b{bottom:0;border-radius:4px 4px 14px 14px;background:linear-gradient(0deg,var(--band),var(--case-lo))}
+.case{position:absolute;left:0;top:30px;width:228px;height:270px;border-radius:56px;background:linear-gradient(145deg,var(--case-hi),var(--case) 30%,var(--case-lo) 85%);box-shadow:0 18px 40px -12px var(--shadow),inset 0 1px 1px var(--case-hi)}
+.crown{position:absolute;left:224px;top:122px;width:14px;height:40px;border-radius:5px;background:repeating-linear-gradient(180deg,var(--case-hi) 0 2px,var(--case) 2px 4px);box-shadow:inset -2px 0 2px var(--case-lo)}
+.sidebtn{position:absolute;left:225px;top:188px;width:7px;height:52px;border-radius:3px;background:linear-gradient(90deg,var(--case),var(--case-lo))}
+.bezel{position:absolute;left:8px;top:8px;width:212px;height:254px;border-radius:49px;background:var(--screen);padding:4px}
+.screen{position:relative;width:204px;height:246px;border-radius:45px;overflow:hidden;background:var(--screen);color:var(--fg);font-family:var(--f-round);font-variant-numeric:tabular-nums}
+
+/* shared watch-screen atoms (all sizes in watch px = pt at 45 mm) */
+.scr{position:absolute;inset:0;border-radius:45px;--sc:var(--fg)}
+.scr.aod{filter:brightness(.8)}
+.scr.rox{background:var(--rox);color:var(--rox-ink)}
+.ab{position:absolute;left:0;right:0;text-align:center;white-space:nowrap}
+.tot{top:15px;font-size:12px;font-weight:800;letter-spacing:.5px;color:var(--fg2)}
+.rox .tot{color:var(--rox-ink);opacity:.8}
+.tmr{top:50%;transform:translateY(-50%);font-size:56px;font-weight:900;line-height:1;letter-spacing:-1.2px;color:var(--elapsed)}
+.rox .tmr{color:var(--rox-ink)}
+.ttl{bottom:15px;font-size:12px;font-weight:900;letter-spacing:1.2px;text-transform:uppercase;color:var(--sc)}
+.ttl em{font-style:normal;opacity:.6;margin-left:4px}
+.v{--mc:var(--fg);color:var(--mc)}
+.v b{font-weight:900;letter-spacing:-.3px}
+.v .u{font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;margin-left:3px}
+.v .d{font-size:11px;font-weight:800;margin-left:5px;color:var(--station)}
+.hrv{--mc:var(--hr)}
+.rox .v,.rox .hrv{--mc:var(--rox-ink)}
+.nx{font-size:13px;font-weight:900}
+
+/* A: centre stage */
+.A .met{top:calc(50% + 31px)} .A .met b{font-size:26px}
+.A .hr{top:calc(50% + 62px)} .A .hr b{font-size:17px}
+.A.aod .hr{top:calc(50% + 34px)} .A.aod .hr b{font-size:22px}
+.A.rox .nx{top:calc(50% + 64px)}
+
+/* B: title bottom, metric stack (today's rows) */
+.B{display:flex;flex-direction:column;padding:15px 16px 15px 19px}
+.B .tot,.B .ttl{position:static}
+.B .ttl{margin-top:auto;padding-top:4px}
+.B .body{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-between;padding:4px 0 6px}
+.B .el{font-size:26px;font-weight:800;line-height:1;letter-spacing:-.3px;color:var(--elapsed)}
+.B .hero{display:flex;align-items:flex-end;gap:6px;color:var(--mc);white-space:nowrap}
+.B .hero b{font-size:42px;font-weight:900;line-height:.84;letter-spacing:-.6px}
+.B .hero.wb b{font-size:50px;letter-spacing:-1px}
+.B .hero .u{display:flex;flex-direction:column;font-size:11px;font-weight:800;letter-spacing:.4px;line-height:1.15;text-transform:uppercase;margin:0}
+.B .hero .u .l{color:var(--fg2)}
+.B .r3{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;padding-right:6px;white-space:nowrap}
+.B .r3 b{font-size:22px;line-height:.9}
+.segs{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:3px;padding-right:6px}
+.segs i{height:5px;border-radius:2px;background:var(--tile);position:relative;overflow:hidden}
+.segs i b{position:absolute;left:0;top:0;bottom:0;background:var(--mc)}
+.B.rox .body{justify-content:center;align-items:center;gap:6px}
+.B.rox .tmr{position:static;transform:none;font-size:54px}
+.B.rox .nx{position:static;text-align:center;padding-top:4px}
+.C .v .d,.D .v .d{display:none}
+.B.aod .body{justify-content:flex-start;gap:12px}
+
+/* C: ring */
+.ringsvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.ringsvg path{fill:none;stroke-width:5;stroke-linecap:round}
+.ringsvg .rt{stroke:var(--tile)}
+.ringsvg .rf{stroke:var(--sc)}
+.rox .ringsvg .rt{stroke:var(--rox-ink);opacity:.18}
+.rox .ringsvg .rf{stroke:var(--rox-ink)}
+.C .tot{top:17px}
+.C .tmr{font-size:52px}
+.C .pair{top:calc(50% + 32px);display:flex;justify-content:center;align-items:baseline;gap:14px}
+.C .pair b{font-size:20px}
+.C .ttl{bottom:17px}
+.C.aod .ringsvg{opacity:.55}
+.C.aod .ringsvg path{stroke-width:3}
+
+/* D: big name */
+.D .name{top:15px;font-size:24px;font-weight:900;line-height:1;letter-spacing:.2px;text-transform:uppercase;color:var(--sc)}
+.D .name.long{font-size:22px;letter-spacing:-.2px}
+.D .tot{top:43px;font-size:11px}
+.D .tmr{font-size:54px}
+.D .row{top:calc(50% + 34px);display:flex;justify-content:center;align-items:baseline;gap:14px}
+.D .row b{font-size:22px}
+.D .ban{bottom:13px;left:22px;right:22px;font-size:12px;font-weight:900;white-space:normal;background:var(--run);color:var(--ink);border-radius:8px;padding:4px 8px;line-height:1.2}
+.D.aod .row{top:calc(50% + 36px)}
+</style>
+
+<div class="page">
+<main class="wrap">
+  <header class="head">
+    <div class="kick">Wave Mode · watch layout study</div>
+    <h1>Four ways to lay out the watch</h1>
+    <p class="lede">The athlete asked for the timer in the middle, the key number smaller below it and the movement title at the bottom. Here are four directions, each on the same five race moments plus the wrist-down run screen, at real watch size. Pick the one to build next.</p>
+    <ul class="quotes">
+      <li>“The run screen is also not very nice. I'd prefer the timer in the middle and the pace below and smaller. Or give me a few other alternatives.”</li>
+      <li>“I don't like the titles for the movements; the top-left is not really nice. Should we put the title at the bottom in the middle?”</li>
+    </ul>
+    <div class="meta"><span class="chip">Sample values</span><span>Static numbers, same colours as the demo: yellow segment time, red heart rate, blue run, orange station, pink Roxzone, volt progress, teal rates.</span></div>
+    <p class="picked" id="picked" aria-live="polite">No direction picked yet.</p>
+  </header>
+  <div id="dirs" class="wrap"></div>
+</main>
+</div>
+
+<script>
+(function(){
+const RING_D = 'M102 2.5H159.5A42.5 42.5 0 0 1 201.5 45V201A42.5 42.5 0 0 1 159.5 243.5H44.5A42.5 42.5 0 0 1 2.5 201V45A42.5 42.5 0 0 1 44.5 2.5Z';
+/* sample race moments */
+const ST = [
+  {k:'run', cap:'Run 3 of 8', col:'run', name:'Run', idx:'3/8', tot:'0:19:04', el:'1:00', hr:161,
+   met:{v:'4:31', u:'/km', c:'run'}, sec:{v:'223', u:'m', c:'volt'}, prog:.22, segs:{n:8, p:2.22/8}, lbl:'pace', foot:'Next: Sled Pull'},
+  {k:'ski', cap:'SkiErg', col:'station', name:'SkiErg', idx:'1/8', tot:'0:06:12', el:'2:14', hr:168,
+   met:{v:'1:47', u:'/500 m', c:'rate', d:'+4 s'}, sec:{v:'45', u:'spm', c:'rate'}, prog:.55, lbl:'est /500 m'},
+  {k:'wb', cap:'Wall Balls', col:'station', name:'Wall Balls', idx:'8/8', tot:'1:08:40', el:'2:31', hr:175,
+   met:{v:'43', u:'/100', c:'volt'}, sec:{v:'17.2', u:'/min', c:'rate'}, prog:.43, bar:.43, lbl:'reps', long:true},
+  {k:'sled', cap:'Sled Push', col:'station', name:'Sled Push', idx:'2/8', tot:'0:13:05', el:'1:22', hr:172,
+   met:{v:'3', u:'of 4', c:'volt'}, sec:{v:'58', u:'steps', c:'fg'}, prog:.625, segs:{n:4, p:.625}, lbl:'length', long:true},
+  {k:'rox', cap:'Roxzone', col:'rox', name:'Roxzone', idx:'1/15', tot:'0:04:27', el:'0:09', hr:163, prog:9/60, next:'SkiErg next'},
+  {k:'run', cap:'Wrist down · Run', col:'run', name:'Run', idx:'3/8', tot:'0:19:04', el:'1:00', hr:161,
+   met:{v:'4:31', u:'/km', c:'run'}, prog:.22, aod:true, lbl:'pace'}
+];
+const V = (m, cls) => '<span class="v' + (cls ? ' ' + cls : '') + '" style="--mc:var(--' + m.c + ')"><b>' + m.v + '</b><span class="u">' + m.u + '</span>' + (m.d ? '<span class="d">' + m.d + '</span>' : '') + '</span>';
+const HRV = s => '<span class="v hrv"><b>' + s.hr + '</b><span class="u">bpm</span></span>';
+const TOT = s => '<div class="ab tot">' + s.tot + '</div>';
+const TMR = s => '<div class="ab tmr">' + s.el + '</div>';
+const TTL = s => '<div class="ab ttl">' + s.name + '<em>' + s.idx + '</em></div>';
+const scr = (dir, s, inner) => '<div class="scr ' + dir + (s.k === 'rox' ? ' rox' : '') + (s.aod ? ' aod' : '') + '" style="--sc:var(--' + (s.k === 'rox' ? 'rox-ink' : s.col) + ')">' + inner + '</div>';
+const ring = s => '<svg class="ringsvg" viewBox="0 0 204 246" aria-hidden="true"><path class="rt" d="' + RING_D + '" pathLength="100"/><path class="rf" d="' + RING_D + '" pathLength="100" stroke-dasharray="' + (s.prog * 100).toFixed(1) + ' 100"/></svg>';
+
+const DIRS = [
+  {id:'A', name:'Centre stage', mine:true,
+   why:'One glance, one number: the segment clock owns the middle of the screen, the number you steer by sits just below it, and everything else whispers.',
+   pros:['Exactly what the athlete asked for: timer centred, pace (or split, reps, length) smaller underneath.','Same layout on every run and station, so the eye always lands in the same place.','Wrist down keeps the timer where it already was, so nothing jumps when you drop your arm.','Title at the bottom centre stays clear of the rounded corners.'],
+   cons:['Pace on the run drops from the biggest number to the second one.','The “Next: station” line loses its permanent home; it only shows in the Exit soon banner.','No room for progress bars or the Wall Balls “on pace for” line.'],
+   draw:s => {
+     if (s.k === 'rox') return scr('A', s, TOT(s) + TMR(s) + '<div class="ab hr" style="top:calc(50% + 34px)">' + HRV(s).replace('<b>', '<b style="font-size:22px">') + '</div><div class="ab nx" style="top:calc(50% + 64px)">' + s.next + '</div>' + TTL(s));
+     if (s.aod) return scr('A', s, TOT(s) + TMR(s) + '<div class="ab hr">' + HRV(s) + '</div>' + TTL(s));
+     return scr('A', s, TOT(s) + TMR(s) + '<div class="ab met">' + V(s.met) + '</div><div class="ab hr">' + HRV(s) + '</div>' + TTL(s));
+   }},
+  {id:'B', name:'Title bottom, metric stack',
+   why:'The smallest change: keep today’s Apple-Workout-style rows that the review tuned, and just move the movement title to the bottom centre.',
+   pros:['Keeps the one-big-number-per-state hierarchy: pace, split, reps, length.','Left-aligned rows are quick to scan in motion, like Apple Workout.','Progress bars and km dots stay.','Total race time stays visible, now centred at the top.'],
+   cons:['The timer is still not centred, which was the athlete’s main ask.','The bottom title takes the line used for “Next: station” and the Crown undo hint.','Most crowded of the four.'],
+   draw:s => {
+     const top = '<div class="ab tot">' + s.tot + '</div>';
+     if (s.k === 'rox') return scr('B', s, top + '<div class="body"><div class="ab tmr">' + s.el + '</div>' + HRV(s) + '</div><div class="ab nx">' + s.next + '</div>' + TTL(s));
+     const hero = '<div class="hero' + (s.k === 'wb' ? ' wb' : '') + '" style="--mc:var(--' + s.met.c + ')"><b>' + s.met.v + '</b><span class="u"><span>' + (s.met.d ? '<span style="color:var(--station)">' + s.met.d + '</span>' : s.met.u) + '</span><span class="l">' + (s.met.d ? s.lbl : s.lbl) + '</span></span></div>';
+     if (s.aod) return scr('B', s, top + '<div class="body"><div class="el">' + s.el + '</div>' + hero + '</div>' + TTL(s));
+     let prog = '';
+     if (s.segs) prog = '<div class="segs" style="--n:' + s.segs.n + ';--mc:var(--' + (s.k === 'run' ? 'run' : 'volt') + ')">' + Array.from({length:s.segs.n}, (_, k) => '<i><b style="width:' + (Math.max(0, Math.min(1, s.segs.p * s.segs.n - k)) * 100).toFixed(0) + '%"></b></i>').join('') + '</div>';
+     else if (s.bar) prog = '<div class="segs" style="--n:1;--mc:var(--volt)"><i><b style="width:' + (s.bar * 100) + '%"></b></i></div>';
+     else prog = '<div class="segs" style="--n:1;visibility:hidden"><i></i></div>';
+     return scr('B', s, top + '<div class="body"><div class="el">' + s.el + '</div>' + hero +
+       '<div class="r3">' + V(s.sec) + HRV(s) + '</div>' + prog + '</div>' + TTL(s));
+   }},
+  {id:'C', name:'Ring',
+   why:'Let the screen edge carry progress, so the centre can stay calm: you read how far along you are with peripheral vision, without reading a number.',
+   pros:['Progress readable at a glance, even mid-stride.','Timer centred, with pace and heart rate as two small values below.','Strong colour identity: blue ring on runs, orange on stations, ink on pink in Roxzone.'],
+   cons:['A ring around a rounded rectangle is hard to read precisely; the corners distort the share.','Station targets are estimates (erg metres, sled length), so a smooth ring can suggest more precision than we have.','Ring in the segment colour breaks the “volt means progress” rule.','Close to Apple’s Activity rings, which already mean something else on the watch.','The metric row inside the ring has no room for the “+4 s vs avg” split trend.'],
+   draw:s => {
+     if (s.k === 'rox') return scr('C', s, ring(s) + TOT(s) + TMR(s) + '<div class="ab pair">' + HRV(s) + '</div><div class="ab nx" style="top:calc(50% + 60px)">' + s.next + '</div>' + TTL(s));
+     if (s.aod) return scr('C', s, ring(s) + TOT(s) + TMR(s) + '<div class="ab pair">' + HRV(s) + '</div>' + TTL(s));
+     return scr('C', s, ring(s) + TOT(s) + TMR(s) + '<div class="ab pair">' + V(s.met) + HRV(s) + '</div>' + TTL(s));
+   }},
+  {id:'D', name:'Big name',
+   why:'You always know where you are before you read a single number: the movement name is the headline, in its colour, the timer is the hero.',
+   pros:['Station identity is unmistakable, which helps in the chaos of transitions and the “wrong station?” moment.','Timer centred and big.','Clean bottom edge; it lights up only for alerts like Exit soon.'],
+   cons:['The name costs about 45 px of height, so the metric and heart rate share one small row.','Long names (WALL BALLS, SLED PUSH) need a slightly smaller size to clear the corners.','Total race time gets squeezed under the name.','The shared metric row has no room for the “+4 s vs avg” split trend.','Position in the race (3/8) is gone from the main screen.'],
+   draw:s => {
+     const nm = '<div class="ab name' + (s.long ? ' long' : '') + '">' + s.name + '</div><div class="ab tot">' + s.tot + '</div>';
+     if (s.k === 'rox') return scr('D', s, nm + TMR(s) + '<div class="ab row">' + HRV(s) + '</div><div class="ab nx" style="top:calc(50% + 64px)">' + s.next + '</div>');
+     if (s.aod) return scr('D', s, nm + TMR(s) + '<div class="ab row">' + HRV(s) + '</div>');
+     return scr('D', s, nm + TMR(s) + '<div class="ab row">' + V(s.met) + HRV(s) + '</div>');
+   }}
+];
+
+const watch = inner => '<div class="watchwrap"><div class="watch"><div class="band t"></div><div class="band b"></div><div class="case"><div class="bezel"><div class="screen">' + inner + '</div></div></div><div class="crown"></div><div class="sidebtn"></div></div></div>';
+const esc = t => String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const label = s => {
+  const parts = [s.cap];
+  if (s.aod) parts.push('always-on'); else if (s.met) parts.push(s.met.v + ' ' + s.met.u);
+  return 'Sample watch screen, ' + parts.join(', ') + ', segment time ' + s.el + ', heart rate ' + s.hr;
+};
+const host = document.getElementById('dirs');
+host.innerHTML = DIRS.map(d => '<section class="dir" id="dir-' + d.id + '" aria-labelledby="h-' + d.id + '">' +
+  '<div class="dh"><span class="dl" aria-hidden="true">' + d.id + '</span><h2 id="h-' + d.id + '">' + esc(d.name) + '</h2>' +
+  (d.mine ? '<span class="chip mine">The athlete’s idea</span>' : '') + '<span class="sp"></span>' +
+  '<button type="button" class="pick" data-pick="' + d.id + '" aria-pressed="false">Pick ' + d.id + '</button></div>' +
+  '<div class="strip" tabindex="0" role="region" aria-label="' + esc(d.name) + ' screens, scroll sideways"><div class="cols">' +
+  ST.map(s => '<figure><div role="img" aria-label="' + esc(label(s)) + '">' + watch(d.draw(s)) + '</div><figcaption><b>' + esc(s.cap) + '</b> · Sample</figcaption></figure>').join('') +
+  '</div></div>' +
+  '<div class="why"><p>' + esc(d.why) + '</p><div class="pc"><div class="pro"><h3>Pros</h3><ul>' + d.pros.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></div>' +
+  '<div class="con"><h3>Cons</h3><ul>' + d.cons.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></div></div></div></section>').join('');
+
+const picked = document.getElementById('picked');
+function setPick(id){
+  DIRS.forEach(d => {
+    const on = d.id === id;
+    document.getElementById('dir-' + d.id).classList.toggle('sel', on);
+    host.querySelector('[data-pick="' + d.id + '"]').setAttribute('aria-pressed', String(on));
+    host.querySelector('[data-pick="' + d.id + '"]').textContent = on ? 'Picked ' + d.id : 'Pick ' + d.id;
+  });
+  const d = DIRS.find(x => x.id === id);
+  picked.innerHTML = d ? 'Your pick: <b>' + d.id + ' · ' + esc(d.name) + '</b>' : 'No direction picked yet.';
+}
+host.addEventListener('click', e => {
+  const b = e.target.closest('[data-pick]'); if (!b) return;
+  const id = b.getAttribute('aria-pressed') === 'true' ? '' : b.dataset.pick;
+  setPick(id);
+  try { localStorage.setItem('watchlayouts.pick', id); } catch(err){}
+});
+let saved = '';
+try { saved = localStorage.getItem('watchlayouts.pick') || ''; } catch(err){}
+if (saved) setPick(saved);
+})();
+</script>
