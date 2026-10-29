@@ -94,7 +94,9 @@ final class MotionRecorder {
     // MARK: - Start / stop
 
     /// Call only once the HKWorkoutSession is running (CMBatchedSensorManager requires it).
-    func start(sessionId: UUID, recordDebugCSV: Bool) {
+    /// `sessionId` groups lifts on the phone (one per workout); `csvId` names this block's
+    /// debug CSV (a new one after each "Change"); lift numbers continue from `liftIndexOffset`.
+    func start(sessionId: UUID, csvId: UUID, recordDebugCSV: Bool, liftIndexOffset: Int = 0) {
         guard !isRunning else { return }
         isRunning = true
         self.sessionId = sessionId
@@ -106,14 +108,14 @@ final class MotionRecorder {
         lastPublishedState = detector.state
         pending = []
         currentLift = nil
-        liftCount = 0
-        savedLiftCount = 0
+        liftCount = liftIndexOffset
+        savedLiftCount = liftIndexOffset
         motionSampleCount = 0
         accelSampleCount = 0
         fallbackBatch = []
         lastCSVBytes = 0
         lastCSVSamples = 0
-        csvWriter = recordDebugCSV ? DebugCSVWriter(sessionId: sessionId, bootDate: bootDate, liftType: liftType) : nil
+        csvWriter = recordDebugCSV ? DebugCSVWriter(sessionId: csvId, bootDate: bootDate, liftType: liftType) : nil
 
         if CMBatchedSensorManager.isDeviceMotionSupported {
             mode = .batched

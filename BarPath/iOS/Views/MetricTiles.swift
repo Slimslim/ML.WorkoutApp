@@ -63,11 +63,11 @@ struct MetricTiles: View {
             MetricTile(title: "Pull height",
                        value: Fmt.cm(m.maxHeight),
                        unit: "cm",
-                       detail: "top of the pull, above start")
+                       detail: "top of the pull, \(display.heightReference)")
             MetricTile(title: "Catch height",
                        value: m.catchHeight.map { Fmt.cm($0) } ?? "—",
                        unit: m.catchHeight == nil ? "" : "cm",
-                       detail: m.catchHeight == nil ? "no catch found" : "above start")
+                       detail: m.catchHeight == nil ? "no catch found" : display.heightReference)
             MetricTile(title: "Drop under bar",
                        value: m.dropUnderBar.map { Fmt.cm($0) } ?? "—",
                        unit: m.dropUnderBar == nil ? "" : "cm",
@@ -75,7 +75,7 @@ struct MetricTiles: View {
             MetricTile(title: "Lockout height",
                        value: Fmt.cm(m.finalHeight),
                        unit: "cm",
-                       detail: "finish, above start")
+                       detail: "finish, \(display.heightReference)")
             MetricTile(title: "Confidence",
                        value: Labels.confidence(display.confidence),
                        unit: "",

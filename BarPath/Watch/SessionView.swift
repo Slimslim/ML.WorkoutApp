@@ -135,31 +135,45 @@ struct SessionView: View {
     @ViewBuilder
     private func bottomControls(status: SessionModel.Status) -> some View {
         let canEnd = status == .walkToBar || status == .starting
-        if model.isRecordingCSV {
-            VStack(spacing: 3) {
-                HStack(spacing: 4) {
-                    Button {
-                        model.mark()
-                    } label: {
-                        Label("Mark", systemImage: "flag.fill")
-                            .font(.system(size: 15, weight: .bold, design: .rounded))
-                            .foregroundColor(.black)
-                            .frame(maxWidth: .infinity, minHeight: 40)
-                            .background(Capsule().fill(Color.yellow))
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(model.phase != .running)
-
-                    if canEnd {
-                        endButton
-                            .frame(width: 58)
-                    }
+        VStack(spacing: 3) {
+            if model.isRecordingCSV {
+                Button {
+                    model.mark()
+                } label: {
+                    Label("Mark", systemImage: "flag.fill")
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity, minHeight: 36)
+                        .background(Capsule().fill(Color.yellow))
                 }
+                .buttonStyle(.plain)
+                .disabled(model.phase != .running)
+            }
+            if canEnd {
+                HStack(spacing: 4) {
+                    changeButton
+                    endButton
+                }
+            }
+            if model.isRecordingCSV {
                 dataLine
             }
-        } else if canEnd {
-            endButton
         }
+    }
+
+    /// Back to setup (new lift type / load) without ending the workout.
+    private var changeButton: some View {
+        Button {
+            model.change()
+        } label: {
+            Text("Change")
+                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity, minHeight: 40)
+                .background(Capsule().fill(Color(white: 0.23)))
+        }
+        .buttonStyle(.plain)
+        .disabled(model.phase != .running)
     }
 
     private var endButton: some View {

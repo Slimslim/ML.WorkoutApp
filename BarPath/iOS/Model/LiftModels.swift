@@ -37,6 +37,9 @@ struct LiftDisplay: Sendable {
     let maxDrift: Double         // m/s, largest ZUPT correction
     let maxSpeed: Double         // m/s
     let pathDuration: Double     // s
+    /// Heights in `points`, `markers` and `metrics` are from the floor for lifts that start
+    /// on the floor (bar centre at plate radius), else above the start position.
+    let heightReference: String  // "from floor" | "above start"
 }
 
 struct LiftEntry: Identifiable, Sendable {
@@ -124,7 +127,7 @@ enum LiftProcessor {
         var failure: String? = nil
         do {
             let analysis = try LiftAnalyzer.analyze(recording)
-            display = makeDisplay(from: analysis)
+            display = makeDisplay(from: analysis, liftType: recording.liftType)
             if display == nil {
                 failure = "The analyzer returned an empty path."
             }
@@ -154,9 +157,32 @@ enum LiftProcessor {
         return .entry(entry)
     }
 
-    static func makeDisplay(from analysis: LiftAnalysis) -> LiftDisplay? {
-        let path = analysis.path
-        guard !path.isEmpty else { return nil }
+    /// Bar centre height when the plates rest on the floor (45 cm bumper plates).
+    static let barHeightOnFloor = 0.225
+
+    /// Lifts that start with the bar on the floor are shown as height from the floor.
+    static func floorOffset(for type: LiftType) -> Double {
+        switch type {
+        case .hangSnatch, .hangClean, .jerk, .other:
+            return 0.0
+        default:
+            return barHeightOnFloor
+        }
+    }
+
+    static func makeDisplay(from analysis: LiftAnalysis, liftType: LiftType) -> LiftDisplay? {
+        guard !analysis.path.isEmpty else { return nil }
+        let offset = floorOffset(for: liftType)
+        var path = analysis.path
+        for i in 0..<path.count {
+            path[i].vertical += offset
+        }
+        var metrics = analysis.metrics
+        metrics.maxHeight += offset
+        metrics.finalHeight += offset
+        if let c = metrics.catchHeight {
+            metrics.catchHeight = c + offset
+        }
 
         var maxSpeed = 0.0
         for p in path where p.speed > maxSpeed {
@@ -178,15 +204,16 @@ enum LiftProcessor {
         let duration = path[path.count - 1].t - path[0].t
 
         return LiftDisplay(points: downsample(path, maxPoints: maxChartPoints),
-                           markers: markers(path: path, metrics: analysis.metrics),
+                           markers: markers(path: path, metrics: metrics),
                            segmentBoundaryTimes: boundaries,
                            segments: analysis.segments,
-                           metrics: analysis.metrics,
+                           metrics: metrics,
                            confidence: analysis.confidence,
                            notes: analysis.notes,
                            maxDrift: maxDrift,
                            maxSpeed: maxSpeed,
-                           pathDuration: max(duration, 0))
+                           pathDuration: max(duration, 0),
+                           heightReference: offset > 0 ? "from floor" : "above start")
     }
 
     private static func chartPoint(_ p: PathSample, id: Int) -> ChartPoint {

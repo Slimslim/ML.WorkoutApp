@@ -6,6 +6,9 @@ import BarPathKit
 struct StartView: View {
     @EnvironmentObject var model: SessionModel
     @ObservedObject private var link = PhoneLink.shared
+    @State private var confirmFinish = false
+
+    private var isPaused: Bool { model.phase == .paused }
 
     var body: some View {
         NavigationStack {
@@ -55,7 +58,7 @@ struct StartView: View {
                 Button {
                     model.start()
                 } label: {
-                    Text("START")
+                    Text(isPaused ? "CONTINUE" : "START")
                         .font(.system(size: 22, weight: .heavy, design: .rounded))
                         .foregroundColor(.black)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -64,7 +67,18 @@ struct StartView: View {
                 .buttonStyle(.plain)
                 .frame(minHeight: 44)
 
-                if let error = model.errorMessage {
+                if isPaused {
+                    Button {
+                        confirmFinish = true
+                    } label: {
+                        Text("Finish workout · \(model.liftCount) lift\(model.liftCount == 1 ? "" : "s")")
+                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                            .foregroundColor(Color(red: 1.0, green: 0.41, blue: 0.38))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
+                    }
+                    .buttonStyle(.plain)
+                } else if let error = model.errorMessage {
                     Text(error)
                         .font(.caption2)
                         .foregroundColor(.orange)
@@ -79,6 +93,14 @@ struct StartView: View {
                 }
             }
             .padding(.horizontal, 2)
+        }
+        .sheet(isPresented: $confirmFinish) {
+            EndConfirmView(liftCount: model.liftCount) {
+                confirmFinish = false
+                model.end()
+            } onKeepGoing: {
+                confirmFinish = false
+            }
         }
     }
 }

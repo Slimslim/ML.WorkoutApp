@@ -35,7 +35,7 @@ struct RootView: View {
 
     var body: some View {
         Group {
-            if model.phase == .idle {
+            if model.phase == .idle || model.phase == .paused {
                 StartView()
             } else {
                 SessionView()

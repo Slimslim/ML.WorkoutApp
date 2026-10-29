@@ -88,7 +88,7 @@ struct BarPathChart: View {
             .chartXScale(domain: domain.x)
             .chartYScale(domain: domain.y)
             .chartXAxisLabel("Forward (cm) →  away from you")
-            .chartYAxisLabel("Height (cm)")
+            .chartYAxisLabel("Height \(display.heightReference) (cm)")
             .aspectRatio(viewAspect, contentMode: .fit)
             SpeedLegend(maxSpeed: speedTop)
         }
