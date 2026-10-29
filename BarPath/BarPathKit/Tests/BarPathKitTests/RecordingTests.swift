@@ -155,7 +155,9 @@ final class RecordingTests: XCTestCase {
         XCTAssertEqual(LiftType.cleanAndJerk.displayName, "Clean & Jerk")
         XCTAssertEqual(LiftType.powerSnatch.displayName, "Power Snatch")
         XCTAssertEqual(LiftType.cleanAndJerk.id, "cleanAndJerk")
-        XCTAssertEqual(LiftType.allCases.count, 9)
+        XCTAssertEqual(LiftType.deadlift.displayName, "Deadlift")
+        XCTAssertEqual(LiftType.allCases.count, 10)
+        XCTAssertEqual(LiftType.allCases.filter { $0.countsReps }, [.deadlift])
     }
 
     // MARK: SnippetBuilder
