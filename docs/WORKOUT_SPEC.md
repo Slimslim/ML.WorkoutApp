@@ -71,7 +71,10 @@ public struct WorkoutDefinition: Codable, Equatable, Identifiable {
     /// "functionalStrengthTraining", "highIntensityIntervalTraining", "running".
     public var healthKitActivity: String
     public var segments: [WorkoutSegment]
-    public init(id:name:shortName:format:team:timeCapSeconds:healthKitActivity:segments:)
+    public var intervalSeconds: Double?   // optional: "every N:00" sets
+    public var roundSize: Int?            // optional (v2): segments per round/set incl. rest
+    public init(id:name:shortName:format:team:timeCapSeconds:healthKitActivity:segments:
+                intervalSeconds: = nil, roundSize: = nil)
     public var runCount: Int
     public var stationCount: Int
 }
@@ -188,6 +191,16 @@ public struct SegmentResult: Codable, Equatable {
     public var distance: Double?          // same, meters (nil if the pedometer gave none)
     public var cadence: Double?           // steps per minute = steps / duration × 60
     public var paceSecondsPerKm: Double?  // runs only: duration / (distance / 1000), distance > 50 m
+    public var heartRateMin: Double?      // v2: lowest HR sample with start ≤ t < end
+}
+
+/// v2. bpm[k] covers [start + k·interval, start + (k+1)·interval); null = no reading.
+/// make(): mean of the samples in the bucket; else interpolate the nearest samples before/after
+/// the centre that are within maxGap (15 s), or carry the one that is; else null. 0.1 bpm.
+public struct HeartRateSeries: Codable, Equatable {
+    public var start: Double; public var interval: Double; public var bpm: [Double?]
+    public static func make(samples: [TimedValue], start: Double, end: Double,
+                            interval: Double = 5, maxGap: Double = 15) -> HeartRateSeries
 }
 
 public enum SplitStats {
@@ -199,7 +212,7 @@ public enum SplitStats {
 }
 
 public struct WorkoutResult: Codable, Equatable, Identifiable {
-    public var version: Int               // 1
+    public var version: Int               // 2 (WorkoutResult.currentVersion); 1 still decodes
     public var id: UUID
     public var definition: WorkoutDefinition
     public var startDate: Date
@@ -211,6 +224,7 @@ public struct WorkoutResult: Codable, Equatable, Identifiable {
     public var heartRateAvg: Double?
     public var heartRateMax: Double?
     public var recordingFileName: String? // "session-<id>.csv" when Data mode was on
+    public var heartRateSeries: HeartRateSeries? // v2: start → finish (or end), 5 s
     public init(...)                      // memberwise
     public func encoded() throws -> Data  // pretty JSON, dates via LiftRecording.makeEncoder()
     public static func decode(from data: Data) throws -> WorkoutResult

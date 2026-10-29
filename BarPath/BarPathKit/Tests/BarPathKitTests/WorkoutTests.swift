@@ -211,7 +211,7 @@ final class WorkoutTests: XCTestCase {
         let data = try result.encoded()
         let back = try WorkoutResult.decode(from: data)
         XCTAssertEqual(back, result)
-        XCTAssertEqual(back.version, 1)
+        XCTAssertEqual(back.version, WorkoutResult.currentVersion)
         XCTAssertEqual(back.runSeconds, 120, accuracy: 1e-9)
         XCTAssertEqual(back.stationSeconds, 80, accuracy: 1e-9)
         let obj = try jsonObject(data)
