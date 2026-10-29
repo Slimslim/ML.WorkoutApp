@@ -23,8 +23,8 @@ final class CrownAdvanceController: ObservableObject {
     /// page 2 (peak of the last gesture) or the "crown" log category.
     static let unitsPerTurn: Double = 5.6
 
-    /// Advance/undo threshold in crown units: 0.6 of a full turn (spec start value).
-    static let crownThreshold: Double = 0.6 * unitsPerTurn
+    /// Advance/undo threshold in crown units: 0.8 of a full turn (0.6 felt too sensitive, 2026-10-29).
+    static let crownThreshold: Double = 0.8 * unitsPerTurn
 
     /// Accumulated rotation resets after this long without movement (s).
     static let idleReset: Double = 0.8
