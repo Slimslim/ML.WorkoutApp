@@ -359,6 +359,7 @@ final class SessionModel: ObservableObject {
             playHaptic(.click, minimumGap: 0)
         }
         repCount = n
+        sendStatus()
     }
 
     private func setEnded(index: Int, reps: Int) {
@@ -366,6 +367,7 @@ final class SessionModel: ObservableObject {
         lastSetReps = reps
         repCount = 0
         playHaptic(.success, minimumGap: 0)
+        sendStatus()
     }
 
     private func liftSaved(_ index: Int) {
@@ -393,14 +395,22 @@ final class SessionModel: ObservableObject {
     }
 
     private func sendStatus() {
-        link.sendStatus([
+        var message: [String: Any] = [
             "type": "status",
             "sessionId": sessionId.uuidString,
             "phase": String(describing: phase),
             "state": detectorState.rawValue,
             "liftCount": liftCount,
             "liftType": liftType.rawValue
-        ])
+        ]
+        if isRepMode {
+            // Live set on the phone: reps so far in the set in progress (0 between sets).
+            message["repCount"] = repCount
+            if useLoad {
+                message["loadLb"] = loadLb
+            }
+        }
+        link.sendStatus(message)
     }
 
     // MARK: - Formatting

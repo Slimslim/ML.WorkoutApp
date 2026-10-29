@@ -2,12 +2,32 @@ import Foundation
 import Combine
 import WatchConnectivity
 import HealthKit
+import BarPathKit
 
 /// The single WCSessionDelegate of the iPhone app (one shared instance).
 ///
 /// WatchConnectivity calls the delegate on a background queue. Published state is only
 /// mutated on the main queue. Incoming files are moved synchronously inside
 /// `session(_:didReceive:)`, because the system deletes them when that call returns.
+/// Live rep count of the set in progress, from the watch's status messages.
+struct LiveSetStatus: Equatable {
+    let setNumber: Int
+    let repCount: Int
+    let liftName: String
+    let loadLb: Double?
+
+    /// Nil unless the watch is running a strength block with at least one rep in this set.
+    init?(message: [String: Any]) {
+        guard (message["phase"] as? String) == "running",
+              let reps = (message["repCount"] as? NSNumber)?.intValue, reps > 0 else { return nil }
+        repCount = reps
+        setNumber = ((message["liftCount"] as? NSNumber)?.intValue ?? 0) + 1
+        let raw = message["liftType"] as? String
+        liftName = raw.flatMap { LiftType(rawValue: $0)?.displayName } ?? "Set"
+        loadLb = (message["loadLb"] as? NSNumber)?.doubleValue
+    }
+}
+
 final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     static let shared = PhoneLink()
 
@@ -17,6 +37,8 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     @Published private(set) var isReachable = false
     @Published private(set) var lastFileReceivedAt: Date?
     @Published private(set) var lastStatusText: String?
+    /// Strength-mode set in progress on the watch (live rep count), nil between sets.
+    @Published private(set) var liveSet: LiveSetStatus?
     @Published private(set) var lastError: String?
     /// True while a "open the watch app" request (HKHealthStore.startWatchApp) is in flight.
     @Published private(set) var isLaunchingWatchApp = false
@@ -78,6 +100,9 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
             self.isPaired = paired
             self.isWatchAppInstalled = installed
             self.isReachable = reachable
+            if !reachable {
+                self.liveSet = nil
+            }
         }
     }
 
@@ -179,8 +204,10 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
             return "\(key): \(value)"
         }
         let text = parts.joined(separator: " · ")
+        let live = LiveSetStatus(message: message)
         DispatchQueue.main.async {
             self.lastStatusText = text.isEmpty ? nil : text
+            self.liveSet = live
         }
     }
 }
