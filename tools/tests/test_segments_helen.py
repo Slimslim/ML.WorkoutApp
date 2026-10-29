@@ -100,3 +100,9 @@ def test_pull_and_run_onsets(helen):
     for g in of_kind(segs, "run")[1:]:
         on = segments.work_onset(motion, g["start"], g["end"], "run")
         assert on is not None and 0.0 <= on - g["start"] <= 10.0
+
+
+def test_kb_swing_count_is_21_each_round(helen):
+    motion, segs, _ = helen
+    counts = [len(segments.kb_swing_count(motion, g["start"], g["end"])) for g in of_kind(segs, "kb")]
+    assert counts == [21, 21, 21]   # athlete: all KB sets unbroken, 21 reps

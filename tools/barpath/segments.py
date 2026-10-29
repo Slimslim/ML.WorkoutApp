@@ -42,6 +42,9 @@ HANG_GX_MIN = 0.5           # mean gravity.x of the window above this = arm over
 HANG_MIN_DURATION_S = 1.5   # a set of >= 1 pull-up lasts at least ~2 s on the bar
 HANG_ACTIVE_SD_MIN = 0.5    # SD of |userAccel| (g) over the bout: real sets 0.72-1.74, resting with the hands
                             # up on the rack (Helen R3, athlete-confirmed) 0.34. Arms up + still = not a set.
+KB_COUNT_LOWPASS_HZ = 2.0   # one-pole low-pass on gravity.x before counting
+KB_COUNT_HIGH = 0.4         # a swing = gravity.x rises above +0.4 after having been below -0.4
+KB_COUNT_LOW = -0.4         # (wrist flips every swing; hysteresis ignores small wobbles)
 HANG_MERGE_GAP_S = 1.0      # bouts closer than this are one set (a grip re-adjust). Real gaps between sets are
                             # >= 2.0 s (2.0-2.5 s between the short sets of round 3); do not raise above ~1.5
 
@@ -235,3 +238,26 @@ def crown_segments(events, kinds=HELEN_KINDS):
         out.append({"index": i, "start": marks[i]["t"], "end": marks[i + 1]["t"],
                     "kind": kinds[i % len(kinds)]})
     return out
+
+
+def kb_swing_count(motion, start: float, end: float) -> list:
+    """Times of KB swings in [start, end): each time the low-passed gravity.x crosses up through
+    KB_COUNT_HIGH after having been below KB_COUNT_LOW. Helen 2026-10-29: 21/21/21, exact."""
+    t = np.asarray(motion.t)
+    gx_all = np.asarray(motion.gravity)[:, 0]
+    alpha = float(np.exp(-2.0 * np.pi * KB_COUNT_LOWPASS_HZ / 100.0))   # 100 Hz recording
+    swings = []
+    state = None
+    acc = None
+    for i in range(len(t)):
+        if t[i] < start or t[i] >= end:
+            continue
+        v = gx_all[i]
+        acc = v if acc is None else alpha * acc + (1.0 - alpha) * v
+        if acc > KB_COUNT_HIGH and state != "up":
+            if state == "down":
+                swings.append(float(t[i]))
+            state = "up"
+        elif acc < KB_COUNT_LOW and state != "down":
+            state = "down"
+    return swings
