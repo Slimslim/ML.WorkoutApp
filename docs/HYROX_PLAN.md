@@ -146,3 +146,7 @@ totals.
   This is the Live tab's "last workout" state.
 - **Live screen per workout type:** what the watch shows during a segment should depend on the
   workout (runs vs stations vs rests vs AMRAP rounds).
+- **Overview feedback (2026-10-29, after Helen):** "Slowed most" is not useful: it compares
+  absolute seconds, so the run (longest part) always wins. Replace it with a relative measure
+  (% slower than that movement's round 1) or drop it. "Drift" is OK for now. The Every 3:00
+  view (set timing + rest management) is the most valued so far.
