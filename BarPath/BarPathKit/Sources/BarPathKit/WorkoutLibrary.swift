@@ -69,17 +69,20 @@ public enum WorkoutLibrary {
     public static let hyroxSolo: WorkoutDefinition = WorkoutDefinition(
         id: "hyrox.solo", name: "HYROX Solo", shortName: "Hyrox Solo",
         format: .forTime, team: .solo, timeCapSeconds: nil, healthKitActivity: "mixedCardio",
-        segments: runsAndStations(runMeters: 1000, stations: hyroxStations()))
+        segments: runsAndStations(runMeters: 1000, stations: hyroxStations()),
+        roundSize: 2)
 
     public static let hyroxDoubles: WorkoutDefinition = WorkoutDefinition(
         id: "hyrox.doubles", name: "HYROX Doubles", shortName: "Hyrox Dbl",
         format: .forTime, team: .doubles, timeCapSeconds: nil, healthKitActivity: "mixedCardio",
-        segments: runsAndStations(runMeters: 1000, stations: hyroxStations()))
+        segments: runsAndStations(runMeters: 1000, stations: hyroxStations()),
+        roundSize: 2)
 
     public static let halfHyrox: WorkoutDefinition = WorkoutDefinition(
         id: "hyrox.half", name: "Half HYROX", shortName: "Half Hyrox",
         format: .forTime, team: .solo, timeCapSeconds: nil, healthKitActivity: "mixedCardio",
-        segments: runsAndStations(runMeters: 500, stations: halfHyroxStations()))
+        segments: runsAndStations(runMeters: 500, stations: halfHyroxStations()),
+        roundSize: 2)
 
     public static let partnerWod1: WorkoutDefinition = WorkoutDefinition(
         id: "partner.wod1", name: "Partner WOD 1", shortName: "WOD 1",
@@ -95,7 +98,8 @@ public enum WorkoutLibrary {
             station(Movement.medBallBoxStepOvers, 40, .reps),
             runSegment(200),
             station(Movement.devilPress, 20, .reps)
-        ])
+        ],
+        roundSize: 2)
 
     public static let partnerWod2: WorkoutDefinition = WorkoutDefinition(
         id: "partner.wod2", name: "Partner WOD 2", shortName: "WOD 2",
@@ -126,7 +130,8 @@ public enum WorkoutLibrary {
             runSegment(400),
             station(Movement.kettlebellSwings, 21, .reps),
             station(Movement.pullUps, 12, .reps)
-        ], rounds: 3))
+        ], rounds: 3),
+        roundSize: 3)
 
     /// Class workout: every 3:00 × 6 sets of 15 cal row + 12 thrusters; rest until the next set.
     /// The rest ends by itself on the 3:00 clock (`intervalSeconds`), with a 3-2-1 countdown.
@@ -138,7 +143,8 @@ public enum WorkoutLibrary {
             station(Movement.thrusters, 12, .reps),
             restSegment()
         ], rounds: 6).dropLast()),
-        intervalSeconds: 180.0)
+        intervalSeconds: 180.0,
+        roundSize: 3)
 
     /// Class workout: "Nightmare Before Halloween", 20:00 AMRAP. 10 rounds listed; end the
     /// workout at 20:00 wherever you are.
@@ -150,7 +156,8 @@ public enum WorkoutLibrary {
             station(Movement.doubleUnders, 31, .reps),
             station(Movement.dumbbellSnatch, 10, .reps),
             station(Movement.doubleUnders, 31, .reps)
-        ], rounds: 10))
+        ], rounds: 10),
+        roundSize: 4)
 
     /// Exactly 9, in this order (fills the watch's 3×3 picker).
     public static let all: [WorkoutDefinition] = [

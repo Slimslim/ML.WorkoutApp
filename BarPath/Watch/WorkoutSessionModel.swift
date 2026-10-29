@@ -670,8 +670,11 @@ final class WorkoutSessionModel: ObservableObject {
             hrMax = max(hrMax ?? s.bpm, s.bpm)
         }
         let hrAvg: Double? = hrCount > 0 ? hrSum / Double(hrCount) : nil
+        // HR every 5 s from start to finish (or end); nil when no HR arrived at all.
+        let hrSeries: HeartRateSeries? = hr.isEmpty ? nil
+            : HeartRateSeries.make(samples: hr, start: startT, end: finishT ?? endT)
 
-        let result = WorkoutResult(version: 1,
+        let result = WorkoutResult(version: WorkoutResult.currentVersion,
                                    id: workoutId,
                                    definition: definition,
                                    startDate: Date(timeIntervalSince1970: startT),
@@ -682,7 +685,8 @@ final class WorkoutSessionModel: ObservableObject {
                                    events: progress.events,
                                    heartRateAvg: hrAvg,
                                    heartRateMax: hrMax,
-                                   recordingFileName: recordedCSV ? "session-\(workoutId.uuidString).csv" : nil)
+                                   recordingFileName: recordedCSV ? "session-\(workoutId.uuidString).csv" : nil,
+                                   heartRateSeries: hrSeries)
 
         let summary = "\(definition.shortName) · \(SessionModel.formatElapsed(total))"
         lastSummary = summary

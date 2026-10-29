@@ -143,11 +143,18 @@ public struct WorkoutDefinition: Codable, Equatable, Identifiable {
     /// "Every N:00" workouts: sets start on multiples of this from the workout start, so a
     /// rest segment without its own duration ends on the next boundary. Optional in JSON.
     public var intervalSeconds: Double?
+    /// Segments per round (or per set, rest included) when the segment list repeats, e.g.
+    /// Helen 3, AMRAP 20 4, Row + Thrusters 3, HYROX 2 (run + station). The last round may be
+    /// partial (Row + Thrusters has no rest after set 6). Optional in JSON (older files: nil,
+    /// and WorkoutSummary detects the pattern).
+    public var roundSize: Int?
 
     public init(id: String, name: String, shortName: String, format: WorkoutFormat,
                 team: TeamFormat, timeCapSeconds: Double?, healthKitActivity: String,
-                segments: [WorkoutSegment], intervalSeconds: Double? = nil) {
+                segments: [WorkoutSegment], intervalSeconds: Double? = nil,
+                roundSize: Int? = nil) {
         self.intervalSeconds = intervalSeconds
+        self.roundSize = roundSize
         self.id = id
         self.name = name
         self.shortName = shortName
