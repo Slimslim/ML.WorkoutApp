@@ -712,8 +712,13 @@ extension WorkoutSummary {
         var startText: String? = nil
         if starts.count >= 2, let a = starts.first, let b = starts.last {
             let verb: String = b.1 > a.1 ? "rose" : (b.1 < a.1 ? "fell" : "stayed")
-            startText = "Start HR " + verb + " " + SummaryFormat.bpm(a.1) + " → " + SummaryFormat.bpm(b.1)
-                + " over \(starts.count) sets."
+            // Built in steps: one long `+` chain of literals is slow for the type checker.
+            let from: String = SummaryFormat.bpm(a.1)
+            let to: String = SummaryFormat.bpm(b.1)
+            var text: String = "Start HR " + verb
+            text += " " + from + " → " + to
+            text += " over \(starts.count) sets."
+            startText = text
         }
         let drops: [Double] = sets.compactMap({ (s: IntervalSet) -> Double? in s.recoveryDrop })
         let rests: [Double] = sets.compactMap({ (s: IntervalSet) -> Double? in s.restSeconds })

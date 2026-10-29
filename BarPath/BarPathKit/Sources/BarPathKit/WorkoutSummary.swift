@@ -234,11 +234,14 @@ public struct WorkoutSummary: Equatable {
 
         var capText: String? = nil
         if let c = cap {
+            let capClock: String = SummaryFormat.clock(c)
             if finished && total <= c {
                 underCap = c - total
-                capText = SummaryFormat.clock(c - total) + " under the " + SummaryFormat.clock(c) + " cap"
+                let left: String = SummaryFormat.clock(c - total)
+                capText = left + " under the " + capClock + " cap"
             } else if finished {
-                capText = SummaryFormat.clock(total - c) + " over the " + SummaryFormat.clock(c) + " cap"
+                let over: String = SummaryFormat.clock(total - c)
+                capText = over + " over the " + capClock + " cap"
             }
         }
         var notFinishedText: String? = nil
@@ -284,7 +287,8 @@ public struct WorkoutSummary: Equatable {
             rounds = a.completedRounds
             extraReps = a.extraReps
             if let stop = a.stoppedIn {
-                var text: String = "Stopped in " + stop.name + ", " + SummaryFormat.clock(stop.secondsIn) + " in"
+                let secondsIn: String = SummaryFormat.clock(stop.secondsIn)
+                var text: String = "Stopped in " + stop.name + ", " + secondsIn + " in"
                 if let c = cap, total >= c - 1 {
                     text += ", at the " + SummaryFormat.clock(c) + " cap"
                 }

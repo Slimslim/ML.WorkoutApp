@@ -196,7 +196,8 @@ final class WorkoutSummaryTests: XCTestCase {
         XCTAssertEqual(r.fadeSecondsPerKm ?? -1, 68, accuracy: 1e-9)
         XCTAssertEqual(r.bestRun, 0)
         XCTAssertEqual(r.worstRun, 7)
-        XCTAssertEqual(r.outFastSecondsPerKm ?? -1, (318.0 + 322.0 + 330.0) / 3.0 - 262.0, accuracy: 1e-9)
+        let lastThreeMean: Double = (318.0 + 322.0 + 330.0) / 3.0
+        XCTAssertEqual(r.outFastSecondsPerKm ?? -1, lastThreeMean - 262.0, accuracy: 1e-9)
         XCTAssertTrue(r.wentOutFast)
         // Station deltas vs previous: SkiErg −4, Sled Push −13, BBJ +8, WB −18 → gain WB, loss BBJ.
         XCTAssertEqual(r.stations[0].deltaSeconds ?? 0, -4, accuracy: 1e-9)
@@ -368,9 +369,11 @@ final class WorkoutSummaryTests: XCTestCase {
         XCTAssertEqual(a.stoppedIn?.name, "Double Unders")
         XCTAssertEqual(a.stoppedIn?.secondsIn ?? -1, 36, accuracy: 1e-9)
         XCTAssertEqual(a.stoppedIn?.round, 4)
-        XCTAssertEqual(a.driftPercent ?? -1, (259.0 - 208.0) / 208.0 * 100, accuracy: 1e-9)
+        let expectedDrift: Double = (259.0 - 208.0) / 208.0 * 100
+        XCTAssertEqual(a.driftPercent ?? -1, expectedDrift, accuracy: 1e-9)
         XCTAssertEqual(a.driftText, "Round 4 took 25 % longer than round 1")
-        XCTAssertEqual(a.averageRoundSeconds ?? -1, (208.0 + 228.0 + 243.0 + 259.0) / 4.0, accuracy: 1e-9)
+        let expectedAverage: Double = (208.0 + 228.0 + 243.0 + 259.0) / 4.0
+        XCTAssertEqual(a.averageRoundSeconds ?? -1, expectedAverage, accuracy: 1e-9)
         let du = a.movements.first(where: { (m: WorkoutSummary.MovementStat) -> Bool in
             m.movement == Movement.doubleUnders
         })
