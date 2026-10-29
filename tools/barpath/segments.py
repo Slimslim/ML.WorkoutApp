@@ -40,8 +40,8 @@ HANG_WINDOW_S = 0.5
 HANG_STEP_S = 0.25
 HANG_GX_MIN = 0.5           # mean gravity.x of the window above this = arm overhead
 HANG_MIN_DURATION_S = 1.5   # a set of >= 1 pull-up lasts at least ~2 s on the bar
-HANG_MERGE_GAP_S = 4.0      # bouts closer than this are one set: the shortest real rest between
-                            # sets in the data is ~5 s (arms down), re-grips mid-set are < 3 s
+HANG_MERGE_GAP_S = 1.0      # bouts closer than this are one set (a grip re-adjust). Real gaps between sets are
+                            # >= 2.0 s (2.0-2.5 s between the short sets of round 3); do not raise above ~1.5
 
 
 def _sample_rate(motion) -> float:
@@ -209,3 +209,18 @@ def work_onset(motion, seg_start: float, seg_end: float, kind: str) -> Optional[
         hangs = bar_hangs(motion, seg_start, seg_end)
         return hangs[0][0] if hangs else None
     raise ValueError(f"unknown kind {kind!r}")
+
+
+# ---- Crown segments from the session CSV events ---------------------------------------------
+HELEN_KINDS = ("run", "kb", "pull")   # per-round station order of wod.helen
+
+
+def crown_segments(events, kinds=HELEN_KINDS):
+    """[{index, start, end, kind}] from '# event name=segment|finish' lines (load_session_csv
+    .events). The movement kind cycles through `kinds` (the workout definition's order)."""
+    marks = [e for e in events if e.get("name") in ("segment", "finish")]
+    out = []
+    for i in range(len(marks) - 1):
+        out.append({"index": i, "start": marks[i]["t"], "end": marks[i + 1]["t"],
+                    "kind": kinds[i % len(kinds)]})
+    return out

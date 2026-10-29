@@ -119,3 +119,16 @@ calls still (`r0` if none). The release index replaces "last sample of the run" 
 Velocity is forced to 0 on `[r0, release]`. Run detection and run durations still use the
 forward mask only. Call `analyze(rec, spec_literal=True)` to get the spec-literal behaviour
 for comparison.
+
+## Segment detector prototype (B2)
+
+`barpath/segments.py` detects running, KB swing onset and pull-up bar hangs from a full-session
+CSV (no ML, plain thresholds, written to port to Swift). `segments_report.py` prints it per Crown
+segment; `--plot out.png` writes a timeline (matplotlib needed, only written where you point it):
+
+```sh
+python tools/segments_report.py data/raw/2026-10-29-helen/session-*.csv [--plot out.png]
+python -m pytest tools/tests/test_segments_helen.py -q   # regression on the Helen recording
+```
+
+Calibrated on one athlete, one workout, left wrist.
