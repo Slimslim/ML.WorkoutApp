@@ -10,13 +10,11 @@ struct TimelineChartView: View {
     let onTouch: (Double) -> Void
     let onStep: (Int) -> Void
 
-    private let chartHeight: CGFloat = TimelineDrawing.totalHeight
-
     var body: some View {
         GeometryReader { (geo: GeometryProxy) in
             chart(width: geo.size.width)
         }
-        .frame(height: chartHeight)
+        .frame(height: TimelineDrawing.totalHeight)
     }
 
     private func chart(width: CGFloat) -> some View {

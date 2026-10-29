@@ -182,7 +182,7 @@ struct GridRoundRow: View {
             Text("R" + String(round.number))
                 .font(.system(size: 13, weight: .heavy))
                 .frame(width: 30)
-                .frame(maxHeight: .infinity)
+                .frame(minHeight: 52)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

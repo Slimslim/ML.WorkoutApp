@@ -20,6 +20,33 @@ final class WorkoutStore: ObservableObject {
         return results.first(where: { $0.id == id })
     }
 
+    /// The most recent result by end date (what the Live tab shows after a workout).
+    var newestResult: WorkoutResult? {
+        var newest: WorkoutResult? = nil
+        for r in results {
+            if let n = newest {
+                if r.endDate > n.endDate { newest = r }
+            } else {
+                newest = r
+            }
+        }
+        return newest
+    }
+
+    /// The most recent earlier attempt at the same workout (same definition id).
+    func previousAttempt(before result: WorkoutResult) -> WorkoutResult? {
+        var best: WorkoutResult? = nil
+        for r in results where r.definition.id == result.definition.id
+            && r.id != result.id && r.startDate < result.startDate {
+            if let b = best {
+                if r.startDate > b.startDate { best = r }
+            } else {
+                best = r
+            }
+        }
+        return best
+    }
+
     func loadIfNeeded() {
         guard !didLoad else { return }
         didLoad = true
