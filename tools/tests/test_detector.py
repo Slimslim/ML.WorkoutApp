@@ -100,7 +100,7 @@ def test_lift_start_and_returned_end():
 def test_no_anchor_timeout():
     det = OnlineLiftDetector()
     run(det, 0, 1.0)
-    ev = run(det, 1.0, 11.0, fn=lambda t: up(3.0) if t < 1.3 else (0.15 * np.sin(2 * np.pi * 2 * t), 0, 0))
+    ev = run(det, 1.0, 18.0, fn=lambda t: up(3.0) if t < 1.3 else (0.15 * np.sin(2 * np.pi * 2 * t), 0, 0))
     assert isinstance(ev[0][1], LiftStarted)
     end = ev[1][1]
     assert isinstance(end, LiftEnded) and end.reason == "timeout"

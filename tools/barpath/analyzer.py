@@ -25,6 +25,7 @@ from .recording import LiftRecording
 NOTE_GRAVITY_ONLY = "Orientation unavailable: vertical only"
 NOTE_PSEUDO_ANCHOR = "No still hold at the finish: end estimated at the calmest point before the drop"
 NOTE_LATERAL = "Large sideways drift: horizontal path unreliable"
+NOTE_END_OVER_START = "Forward/back estimated: assumes the bar finishes above where it started"
 NOTE_NO_ANCHOR = "No still recovery found: path uncorrected"
 NOTE_FORWARD_ESTIMATED = "Forward direction estimated"
 
@@ -56,8 +57,22 @@ class AnalyzerConfig:
     armsDownMin: float = 0.8      # forearm back 'down' (bar released) when hang > this
     pseudoAnchorWindow: float = 1.0  # search the calmest point in this window before arms-down
     pseudoAnchorSmooth: float = 0.1  # s, moving-average width for the calmness score
+    driftWeighting: str = "accel"    # "time" | "accel" | "accelRot" (Revision E: accel)
+    pseudoAnchorMode: str = "auto"   # "auto" | "zupt" | "endOnly" (auto: endOnly for cleans)
+    leverForearm: float = 0.109      # m, wrist→bar offset along the forearm toward the hand
+    leverNormal: float = -0.026      # m, along the watch-face normal (− = below the face)
+    endOverStart: bool = True        # horizontal prior: the bar finishes above the start
+    pseudoAnchorRule: str = "calm"   # "calm" | "preDrop"
+    dropOnsetAccel: float = 0.1     # g, vertical accel below -this = the drop has begun
+    preDropWindow: float = 0.3      # s, search window before the drop onset
     catchRiseVelocity: float = 0.15  # m/s, vz above this after the catch = stand-up has begun
     maxLateral: float = 0.15         # m, sideways excursion above this lowers confidence
+
+
+# The simulator's ground truth is the WRIST trajectory; tests that compare against it use
+# the Revision-D behaviour (no lever arm, no end-over-start prior, linear drift removal).
+WRIST_REFERENCE = AnalyzerConfig(driftWeighting="time", pseudoAnchorMode="zupt", leverForearm=0.0,
+                                 leverNormal=0.0, endOverStart=False)
 
 
 @dataclass
@@ -193,6 +208,30 @@ def _cumtrapz(y: np.ndarray, t: np.ndarray) -> np.ndarray:
     return out
 
 
+CLEAN_TYPES = ("clean", "powerClean", "hangClean")
+
+
+def _drift_weights(a, rot, t, mode: str) -> np.ndarray:
+    """Cumulative 0→1 weights for distributing a segment's velocity drift.
+
+    "time": linear in time (spec §5). "accel": proportional to the accumulated |a|
+    above 1 g-equivalent of motion… concretely ∫|a_world| dt, so the drift is attributed
+    to the violent phases (pull, turnover, catch impact) where the sensor error is made.
+    "accelRot": ∫|a|·|ω| dt."""
+    n = len(t)
+    if n < 2 or t[-1] <= t[0]:
+        return np.zeros(n)
+    if mode == "time":
+        return (t - t[0]) / (t[-1] - t[0])
+    an = np.linalg.norm(a, axis=1)
+    if mode == "accelRot":
+        w = an * np.linalg.norm(rot, axis=1)
+    else:
+        w = an
+    c = np.concatenate([[0.0], np.cumsum(0.5 * (w[1:] + w[:-1]) * np.diff(t))])
+    return c / c[-1] if c[-1] > 0 else (t - t[0]) / (t[-1] - t[0])
+
+
 def world_acceleration(rec: LiftRecording):
     """Returns (aW (N,3) m/s² with world z up, rotation quaternions or None, mode).
 
@@ -279,6 +318,7 @@ def analyze(rec: LiftRecording, config: AnalyzerConfig = AnalyzerConfig(), *, sp
     # 4b. arms-down: after the turnover the forearm points up; when it points down again the
     # bar has been dropped/lowered. Everything after that is not part of the lift.
     arms_down_idx = None
+    pseudo_end = None
     if not spec_literal:
         r0h, r1h = homing_run
         ghat = normalize(m.gravity)
@@ -298,10 +338,26 @@ def analyze(rec: LiftRecording, config: AnalyzerConfig = AnalyzerConfig(), *, sp
                 calm_s = np.convolve(calm, np.ones(w) / w, mode="same")
                 j0 = max(up_idx, int(np.searchsorted(t, t[arms_down_idx] - c.pseudoAnchorWindow)))
                 j1 = arms_down_idx
+                if c.pseudoAnchorRule == "preDrop":
+                    # The drop/lowering starts with the bar falling (vertical accel well below 0).
+                    # Search the calm point just BEFORE that onset, so a steady stand-up isn't
+                    # mistaken for the bar being at rest.
+                    a_up_s = np.convolve(aW[:, 2], np.ones(w) / w, mode="same")
+                    d = j1
+                    while d > j0 and a_up_s[d] < -c.dropOnsetAccel * G:
+                        d -= 1
+                    j1 = max(j0 + 1, d)
+                    j0 = max(up_idx, int(np.searchsorted(t, t[j1] - c.preDropWindow)))
                 if j1 > j0:
                     pa = j0 + int(np.argmin(calm_s[j0:j1]))
                     if pa > homing_idx + 1:
-                        anchors.append((pa, pa, pa))
+                        mode_pa = c.pseudoAnchorMode
+                        if mode_pa == "auto":
+                            mode_pa = "endOnly" if rec.lift_type in CLEAN_TYPES else "zupt"
+                        if mode_pa == "endOnly":
+                            pseudo_end = pa
+                        else:
+                            anchors.append((pa, pa, pa))
                         notes.append(NOTE_PSEUDO_ANCHOR)
 
     # 5. velocity: piecewise ZUPT between still runs
@@ -312,7 +368,7 @@ def analyze(rec: LiftRecording, config: AnalyzerConfig = AnalyzerConfig(), *, sp
         e = a0
         vraw = _cumtrapz(aW[s:e + 1], t[s:e + 1])
         drift = vraw[-1].copy()
-        frac = (t[s:e + 1] - t[s]) / (t[e] - t[s]) if t[e] > t[s] else np.zeros(e - s + 1)
+        frac = _drift_weights(aW[s:e + 1], m.rotation_rate[s:e + 1], t[s:e + 1], c.driftWeighting)
         v[s:e + 1] = vraw - drift[None, :] * frac[:, None]
         seg_bounds.append((s, e, float(np.linalg.norm(drift))))
         v[a0:ar + 1] = 0.0
@@ -324,8 +380,18 @@ def analyze(rec: LiftRecording, config: AnalyzerConfig = AnalyzerConfig(), *, sp
     p[homing_idx:last_corr + 1] = _cumtrapz(v[homing_idx:last_corr + 1], t[homing_idx:last_corr + 1])
 
     # 6. path end
-    no_anchor = not anchors
-    if no_anchor:
+    no_anchor = not anchors and pseudo_end is None
+    if pseudo_end is not None:
+        # End-only pseudo anchor: the path ends there, but the last segment is integrated
+        # WITHOUT forcing zero velocity (the wrist may still move while the bar rests, e.g.
+        # elbows coming up in the front rack).
+        s0 = anchors[-1][1] if anchors else homing_idx
+        end_idx = max(pseudo_end, s0 + 1)
+        sl = slice(s0, end_idx + 1)
+        v[sl] = _cumtrapz(aW[sl], t[sl])
+        p[sl] = p[s0] + _cumtrapz(v[sl], t[sl])
+        seg_bounds = [sb for sb in seg_bounds if sb[1] <= s0] + [(s0, end_idx, 0.0)]
+    elif no_anchor:
         j1 = int(np.searchsorted(t, t[homing_idx] + c.maxUncorrectedDuration, side="right")) - 1
         end_idx = max(min(j1, n - 1), homing_idx + 1)
         sl = slice(homing_idx, end_idx + 1)
@@ -375,12 +441,37 @@ def analyze(rec: LiftRecording, config: AnalyzerConfig = AnalyzerConfig(), *, sp
         lat_axis = np.cross(up, fwd_axis)
 
     tt = t[hs] - t[homing_idx]
-    fwd = p[hs] @ fwd_axis
-    lat = p[hs] @ lat_axis
-    vert = p[hs, 2]
-    vf = v[hs] @ fwd_axis
-    vv = v[hs, 2]
-    spd = np.linalg.norm(v[hs], axis=1)
+    pb = p[hs].copy()
+    vb = v[hs].copy()
+    # 7b. wrist → bar lever arm (Revision E): bar POSITION = watch + R(t)·r − R(homing)·r, r in the
+    # device frame: leverForearm toward the hand (the direction gravity points with the arm
+    # hanging at homing) and leverNormal along the watch-face normal.
+    if mode != "gravityOnly" and (c.leverForearm != 0.0 or c.leverNormal != 0.0):
+        r0h, r1h = homing_run
+        hand_sign = 1.0 if np.mean(normalize(m.gravity[r0h:r1h + 1])[:, 0]) >= 0 else -1.0
+        r_dev = np.array([hand_sign * c.leverForearm, 0.0, c.leverNormal])
+        o = quat_rotate(qq[hs], r_dev)
+        pb = pb + (o - o[0])
+        # Velocities stay the wrist's: adding d/dt(R·r) inflates peak velocity by 0.3–0.5 m/s
+        # vs video (rotation timing), while the wrist's peak matches video within ~0.1 m/s.
+    fwd = pb @ fwd_axis
+    lat = pb @ lat_axis
+    vert = pb[:, 2]
+    vf = vb @ fwd_axis
+    vv = vb[:, 2]
+    # 7c. end-over-start horizontal prior (Revision E): remove a linearly growing horizontal
+    # velocity error so the bar finishes above the start (validated against video: median
+    # horizontal RMS error ~7 cm vs ~12–17 cm without).
+    if c.endOverStart and mode != "gravityOnly" and len(tt) > 1 and tt[-1] > 0.5:
+        T = tt[-1]
+        kf = 2.0 * fwd[-1] / T ** 2
+        kl = 2.0 * lat[-1] / T ** 2
+        fwd = fwd - kf * tt ** 2 / 2.0
+        lat = lat - kl * tt ** 2 / 2.0
+        vf = vf - kf * tt
+        vb = vb - np.outer(kf * tt, fwd_axis) - np.outer(kl * tt, lat_axis)
+        notes.append(NOTE_END_OVER_START)
+    spd = np.linalg.norm(vb, axis=1)
     path = PathSeries(tt, fwd, lat, vert, vf, vv, spd)
 
     # 8. metrics (kinematic phases, Revision D): pull top = first vz <= 0 after peak velocity;

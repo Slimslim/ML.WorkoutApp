@@ -3,7 +3,7 @@ import json
 import numpy as np
 import pytest
 
-from barpath.analyzer import (NOTE_GRAVITY_ONLY, NOTE_NO_ANCHOR, AnalyzerConfig, NoHomingFound, TooShort,
+from barpath.analyzer import (WRIST_REFERENCE, NOTE_GRAVITY_ONLY, NOTE_NO_ANCHOR, AnalyzerConfig, NoHomingFound, TooShort,
                               analyze, principal_axis)
 from barpath.recording import LiftRecording, MotionSeries
 from barpath.simulate import simulate_lift
@@ -28,7 +28,7 @@ def check(metrics, truth, keys=TOL):
 @pytest.mark.parametrize("name,lift_type,seed,conj", make_fixtures.LIFTS)
 def test_analyzer_recovers_ground_truth(name, lift_type, seed, conj):
     sim = simulate_lift(lift_type, seed=seed, conjugate=conj)
-    a = analyze(sim.recording)
+    a = analyze(sim.recording, WRIST_REFERENCE)
     assert a.quaternionMode == ("conjugate" if conj else "direct")
     assert a.confidence == "high"
     assert a.notes == []
@@ -52,7 +52,7 @@ def test_fixture_files_match_ground_truth(fixtures_dir, name, lift_type, seed, c
     truth = simulate_lift(lift_type, seed=seed, conjugate=conj).truth
     for k in TOL:
         assert exp[k] == pytest.approx(truth[k], abs=1e-3)
-    a = analyze(LiftRecording.load(p))
+    a = analyze(LiftRecording.load(p), WRIST_REFERENCE)
     check(a.metrics, exp)
 
 
@@ -61,7 +61,7 @@ def test_vertical_metrics_robust_over_seeds(lift_type):
     vertical = {k: v for k, v in TOL.items() if k != "maxBackward"}
     for seed in range(10, 20):
         sim = simulate_lift(lift_type, seed=seed, fill_detector_fields=False)
-        check(analyze(sim.recording).metrics, sim.truth, vertical)
+        check(analyze(sim.recording, WRIST_REFERENCE).metrics, sim.truth, vertical)
 
 
 def test_noise_free_is_exact():
@@ -70,7 +70,7 @@ def test_noise_free_is_exact():
                    attitude_error_deg=0, yaw_drift_deg_per_min=0)
     for lt in ("snatch", "cleanAndJerk"):
         sim = simulate_lift(lt, seed=1, noise=z, fill_detector_fields=False)
-        m = analyze(sim.recording).metrics
+        m = analyze(sim.recording, WRIST_REFERENCE).metrics
         for k in TOL:
             assert getattr(m, k) == pytest.approx(sim.truth[k], abs=0.005), k
 
@@ -81,7 +81,7 @@ def test_gravity_only_fallback_with_garbage_quaternions():
     rng = np.random.default_rng(0)
     q = rng.normal(size=rec.motion.q.shape)
     rec.motion.q = q / np.linalg.norm(q, axis=1, keepdims=True)
-    a = analyze(rec)
+    a = analyze(rec, WRIST_REFERENCE)
     assert a.quaternionMode == "gravityOnly"
     assert NOTE_GRAVITY_ONLY in a.notes
     assert a.confidence in ("medium", "low")
@@ -97,7 +97,7 @@ def test_no_anchor_path_uncorrected():
     t = rec.motion.t
     i1 = int(np.searchsorted(t, sim.lift.t_catch_still - 0.1))  # cut before the catch settles
     rec.motion = rec.motion.slice(0, i1)
-    a = analyze(rec)
+    a = analyze(rec, WRIST_REFERENCE)
     assert NOTE_NO_ANCHOR in a.notes and a.confidence == "low"
     assert len(a.segments) == 1 and a.segments[0].driftCorrection == 0
     # Revision D: the catch is found from vz (no still pause needed), even without anchors
@@ -112,13 +112,13 @@ def test_errors():
     rec.motion = still
     rec.homing_time = None
     with pytest.raises(NoHomingFound):
-        analyze(rec)
+        analyze(rec, WRIST_REFERENCE)
     rec.homing_time = 1.0                   # fallback homing, but < 0.5 s of data after it
     with pytest.raises(TooShort):
-        analyze(rec)
+        analyze(rec, WRIST_REFERENCE)
     rec.motion = rec.motion.slice(0, 1)
     with pytest.raises(TooShort):
-        analyze(rec)
+        analyze(rec, WRIST_REFERENCE)
 
 
 def test_principal_axis():

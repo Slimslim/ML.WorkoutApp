@@ -41,3 +41,21 @@ def test_real_recording_sign_convention(path):
     up_i = np.interp(rec.accel.t, m.t, up)
     small = np.interp(rec.accel.t, m.t, np.linalg.norm(m.user_accel, axis=1)) < 0.5
     assert np.corrcoef(raw_mag[small], up_i[small])[0, 1] > 0.4
+
+
+FIXTURES = os.path.join(os.path.dirname(__file__), "..", "..", "BarPath", "BarPathKit", "Tests",
+                        "BarPathKitTests", "Fixtures")
+
+
+@pytest.mark.parametrize("name", ["real_snatch", "real_power_clean"])
+def test_real_lift_snapshot(name):
+    """The Swift parity fixtures' expected values must stay in sync with the Python analyzer."""
+    import json
+    rec = recording.load_recording(os.path.join(FIXTURES, name + ".json"))
+    exp = json.load(open(os.path.join(FIXTURES, name + ".python.json")))
+    a = analyzer.analyze(rec)
+    m = a.metrics
+    assert a.homingIndex == exp["homingIndex"] and a.endIndex == exp["endIndex"]
+    for key in ("peakVerticalVelocity", "maxHeight", "catchHeight", "finalHeight", "maxForward", "maxBackward"):
+        assert getattr(m, key) == pytest.approx(exp[key], abs=1e-9)
+    assert a.notes == exp["notes"]

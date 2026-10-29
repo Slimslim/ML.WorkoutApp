@@ -536,3 +536,32 @@ both Python and Swift:
   delayed ~15 ms); where the ZUPT drift is placed changes the catch position by 1–11 cm.
   Next candidates: lever-arm (wrist → bar) offset calibrated from known bar heights,
   validated accel/attitude lag, energy-weighted drift placement — all need video ground truth.
+
+## Revision E (validated against video bar paths, 2026-10-29 gym session)
+
+Ground truth: plate-centre tracking on side-view videos (`data/raw/2026-10-29-gym/video_paths/`,
+`tools/video_tracking/`), compared with `tools/compare_video.py`. Changes (Python + Swift):
+
+- **Wrist → bar lever arm.** Path POSITIONS are the bar's: `bar = watch + R(t)·r − R(homing)·r`,
+  `r = (s·leverForearm, 0, leverNormal)` in the device frame, `s = sign(ĝ.x)` at homing (toward the
+  hand), `leverForearm = 0.109 m`, `leverNormal = −0.026 m` (fitted on 14 lifts). Velocities stay
+  the wrist's (adding d/dt(R·r) overestimated peak velocity by 0.3–0.5 m/s vs video).
+- **Drift placement.** Each ZUPT segment's drift is distributed proportionally to ∫|a_world| dt
+  (`driftWeighting = accel`) instead of linearly in time: the error is made in the violent phases.
+- **Pseudo-anchor for cleans (`pseudoAnchorMode = auto`).** For clean / powerClean / hangClean the
+  pseudo-anchor only ENDS the path; the last segment is integrated without forcing v = 0, because
+  the wrist keeps moving (elbows up) while the bar rests in the front rack. Snatches and C&J keep
+  the zero-velocity pseudo-anchor.
+- **End-over-start horizontal prior (`endOverStart = true`).** Forward and lateral get a linearly
+  growing velocity correction so the bar finishes above the start; note "Forward/back estimated:
+  assumes the bar finishes above where it started".
+- Detector `noAnchorTimeout` 8 s → 15 s, so a clean & jerk's rack pause doesn't end the lift
+  before the jerk (the arms-down rule still ends normal lifts at the drop).
+- `AnalyzerConfig.wristReference` (Python: `WRIST_REFERENCE`) reproduces Revision D on the wrist,
+  for the simulator ground-truth tests. Real-lift parity fixtures (`real_snatch`,
+  `real_power_clean` + `.python.json`) pin Swift to the Python reference.
+
+Accuracy vs video (median of aligned lifts): snatch vertical RMS 3–6 cm (was 10–23), horizontal
+3–9 cm (was 24–30); power clean vertical 4–11 cm (was up to 81 cm short), horizontal 3–11 cm;
+peak vertical velocity within ~0.1 m/s. Remaining misses: lifts that really finish away from the
+start (e.g. jumping forward into the catch) and clean & jerks recorded with the old 8 s timeout.
