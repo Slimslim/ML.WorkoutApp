@@ -24,7 +24,10 @@ struct TimelineChartView: View {
             drawing.draw(&context, size)
         }
         .contentShape(Rectangle())
-        .gesture(scrub(width: width))
+        .gesture(SpatialTapGesture().onEnded { (value: SpatialTapGesture.Value) in
+            touch(x: value.location.x, width: width)
+        })
+        .simultaneousGesture(scrub(width: width))
         .accessibilityElement()
         .accessibilityLabel("Heart rate over time with segment bands")
         .accessibilityHint("Swipe up or down to step through segments")
@@ -37,10 +40,17 @@ struct TimelineChartView: View {
         }
     }
 
+    /// Scrubs only while the drag is mostly horizontal; vertical swipes are left to the
+    /// page's ScrollView (the gesture is simultaneous, so it never blocks scrolling).
+    /// Stateless on purpose: a drag the ScrollView takes over may never call onEnded.
     private func scrub(width: CGFloat) -> some Gesture {
-        return DragGesture(minimumDistance: 0)
+        return DragGesture(minimumDistance: 10)
             .onChanged { (value: DragGesture.Value) in
-                touch(x: value.location.x, width: width)
+                let dx: CGFloat = abs(value.translation.width)
+                let dy: CGFloat = abs(value.translation.height)
+                if dx > dy {
+                    touch(x: value.location.x, width: width)
+                }
             }
     }
 

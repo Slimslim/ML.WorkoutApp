@@ -95,8 +95,10 @@ struct AmrapClockView: View {
     private var movementLine: String {
         var parts: [String] = []
         for m in data.movements {
-            parts.append(m.name + " \u{00D7}" + String(m.count) + ": avg " + SummaryFormat.clock(m.averageSeconds)
-                         + ", best " + SummaryFormat.clock(m.bestSeconds))
+            let avg: String = SummaryFormat.clock(m.averageSeconds)
+            let best: String = SummaryFormat.clock(m.bestSeconds)
+            let head: String = m.name + " \u{00D7}" + String(m.count)
+            parts.append(head + ": avg " + avg + ", best " + best)
         }
         var text: String = parts.joined(separator: " \u{00B7} ")
         if let stop = data.stoppedIn {

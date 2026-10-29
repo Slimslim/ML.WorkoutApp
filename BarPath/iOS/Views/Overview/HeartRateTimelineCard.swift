@@ -15,7 +15,7 @@ struct HeartRateTimelineCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             OvSectionHeader(title: "Heart rate through the workout",
-                            caption: "Tap or drag across the chart. Bands are your segments.")
+                            caption: "Tap or drag sideways across the chart. Bands are your segments.")
             TimelineChartView(timeline: timeline, selection: selection, hoverTime: hoverTime,
                               onTouch: touch, onStep: step)
             TimelineLegend(timeline: timeline)

@@ -29,7 +29,7 @@ struct SplitsTableCard: View {
                 Text("Splits")
                     .font(.headline)
                 Spacer()
-                Text(expanded ? "Hide" : "Show all " + String(rows.count))
+                Text(toggleTitle)
                     .font(.subheadline)
                     .foregroundStyle(Theme.accent)
             }
@@ -37,6 +37,10 @@ struct SplitsTableCard: View {
         }
         .buttonStyle(.plain)
         .accessibilityHint(expanded ? "Hides the split table" : "Shows the split table")
+    }
+
+    private var toggleTitle: String {
+        return expanded ? "Hide" : "Show all " + String(rows.count)
     }
 
     private func toggle() {

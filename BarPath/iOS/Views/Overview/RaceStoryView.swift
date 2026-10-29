@@ -180,7 +180,7 @@ struct RunPaceSection: View {
 
     @ViewBuilder
     private var flag: some View {
-        if data.wentOutFast, let out = data.outFastSecondsPerKm {
+        if data.wentOutFast && data.outFastSecondsPerKm != nil {
             HStack(spacing: 0) {
                 Rectangle()
                     .fill(Theme.ovSlow)
@@ -229,7 +229,12 @@ struct RunButton: View {
         }
         .buttonStyle(.plain)
         .selectable(state, corner: 8)
-        .accessibilityLabel("Run " + String(run.number) + ", " + SummaryFormat.pace(run.paceSecondsPerKm) + " per kilometre")
+        .accessibilityLabel(spokenLabel)
+    }
+
+    private var spokenLabel: String {
+        let pace: String = SummaryFormat.pace(run.paceSecondsPerKm)
+        return "Run " + String(run.number) + ", " + pace + " per kilometre"
     }
 }
 

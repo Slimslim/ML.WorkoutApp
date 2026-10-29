@@ -130,8 +130,9 @@ struct RoundGridView: View {
         let pullUps: Bool = data.columns.contains(where: { (c: WorkoutSummary.GridColumn) -> Bool in
             c.movement == "pullUps"
         })
+        let pullUpNote: String = pullUps ? " Wrist HR on pull-ups often reads low: hands overhead, wrist flexed." : ""
         if !previous.isEmpty || pullUps {
-            Text(previous + (pullUps ? " Wrist HR on pull-ups often reads low: hands overhead, wrist flexed." : ""))
+            Text((previous + pullUpNote).trimmingCharacters(in: .whitespaces))
                 .font(.system(size: 12))
                 .foregroundStyle(Theme.ovFg2)
                 .fixedSize(horizontal: false, vertical: true)
