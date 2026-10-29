@@ -171,6 +171,9 @@ final class SessionModel: ObservableObject {
         case .running, .starting:
             stopRecording()
             phase = .ending
+            // Only keep real sessions in Health/Fitness: at least one lift, or 5+ minutes.
+            let duration = sessionStartDate.map { Date().timeIntervalSince($0) } ?? 0
+            workout.saveWorkoutOnEnd = liftCount > 0 || duration >= 300
             workout.end()
         case .idle, .ending:
             break
