@@ -128,6 +128,9 @@ final class WorkoutSessionModel: ObservableObject {
     /// Reps done in the segment cut by the time cap, entered on the done screen
     /// (WORKOUT_SPEC §5). Written into the WorkoutResult at End; nil = not entered.
     @Published private(set) var partialReps: Int?
+    /// Screen demo (`startDemo`): the real screen with mock HR / run distance (WorkoutDemo).
+    /// No HealthKit, motion, pedometer, CSV, result, phone transfer or summary.
+    @Published private(set) var isDemo = false
 
     private var workout: WorkoutManager
     private let recorder: WorkoutMotionRecorder
@@ -149,6 +152,9 @@ final class WorkoutSessionModel: ObservableObject {
     private var endTimeoutTask: Task<Void, Never>?
     /// Managers replaced because they got stuck (kept alive so they can still finish).
     private var retiredManagers: [WorkoutManager] = []
+    /// Screen demo: fake HR ticker and its state.
+    private var demoTask: Task<Void, Never>?
+    private var demoHeartRate = WorkoutDemo.HeartRate()
 
     init() {
         let defaults = UserDefaults.standard
@@ -236,7 +242,41 @@ final class WorkoutSessionModel: ObservableObject {
 
     func start() {
         guard phase == .idle else { return }
-        let definition = selectedDefinition
+        resetForStart(definition: selectedDefinition, demo: false)
+        let definition = progress.definition
+
+        if workout.hasSession {
+            // Left over from a previous run that never finished: don't let it block us.
+            replaceWorkoutManager()
+        }
+        workout.activityType = WorkoutSessionModel.activityType(for: definition.healthKitActivity)
+        workout.locationType = .indoor
+        workout.start()
+
+        startTimeoutTask?.cancel()
+        startTimeoutTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: UInt64(WorkoutSessionModel.healthKitStartTimeout * 1_000_000_000))
+            if Task.isCancelled { return }
+            guard let self = self, self.phase == .starting else { return }
+            workoutLog.error("HealthKit not running after timeout; starting without it")
+            self.errorMessage = WorkoutSessionModel.noHealthMessage
+            self.beginRunning()
+        }
+    }
+
+    /// Screen demo: the real workout screen with mock data (WorkoutDemo). Starts at once,
+    /// without HealthKit; clock-driven times (timed rests, interval, AMRAP cap) are shortened.
+    func startDemo() {
+        guard phase == .idle else { return }
+        resetForStart(definition: WorkoutDemo.demoDefinition(from: selectedDefinition), demo: true)
+        demoHeartRate = WorkoutDemo.HeartRate()
+        workoutLog.info("Screen demo: \(self.progress.definition.id, privacy: .public)")
+        beginRunning()
+    }
+
+    /// Clears the session state and enters `.starting` with `definition`.
+    private func resetForStart(definition: WorkoutDefinition, demo: Bool) {
+        isDemo = demo
         workoutId = UUID()
         progress = WorkoutProgress(definition: definition)
         heartRates = []
@@ -257,24 +297,6 @@ final class WorkoutSessionModel: ObservableObject {
         countdownTarget = nil
         countdownLastBeep = nil
         phase = .starting
-
-        if workout.hasSession {
-            // Left over from a previous run that never finished: don't let it block us.
-            replaceWorkoutManager()
-        }
-        workout.activityType = WorkoutSessionModel.activityType(for: definition.healthKitActivity)
-        workout.locationType = .indoor
-        workout.start()
-
-        startTimeoutTask?.cancel()
-        startTimeoutTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(nanoseconds: UInt64(WorkoutSessionModel.healthKitStartTimeout * 1_000_000_000))
-            if Task.isCancelled { return }
-            guard let self = self, self.phase == .starting else { return }
-            workoutLog.error("HealthKit not running after timeout; starting without it")
-            self.errorMessage = WorkoutSessionModel.noHealthMessage
-            self.beginRunning()
-        }
     }
 
     /// Next segment (finishes on the last one). Returns true if something changed.
@@ -383,6 +405,14 @@ final class WorkoutSessionModel: ObservableObject {
 
     /// Ends the workout: result + CSV first, then HealthKit. Works without HealthKit.
     func end() {
+        if isDemo {
+            // Nothing to save or send: straight back to the start screen.
+            if phase == .starting || phase == .running {
+                workoutLog.info("Screen demo ended")
+                goIdle()
+            }
+            return
+        }
         switch phase {
         case .starting, .running:
             startTimeoutTask?.cancel()
@@ -406,6 +436,12 @@ final class WorkoutSessionModel: ObservableObject {
         progress.start(at: t)
         phase = .running
 
+        if isDemo {
+            startClock()
+            startDemoTicker()
+            play(progress.currentSegment?.kind == .run ? .start : .directionUp)
+            return
+        }
         if dataMode {
             recorder.start(sessionId: workoutId, definitionId: progress.definition.id)
             isRecordingCSV = true
@@ -504,6 +540,16 @@ final class WorkoutSessionModel: ObservableObject {
     // MARK: - HealthKit callbacks
 
     private func workoutStateChanged(_ state: HKWorkoutSessionState) {
+        // A demo has no HealthKit session; a leftover manager must not end or save it.
+        // A late .running (e.g. a slow start from an earlier real workout) is still ended,
+        // as it would be when idle, so no zombie HealthKit workout runs behind the demo.
+        if isDemo {
+            workoutLog.info("HealthKit state \(state.rawValue) ignored during screen demo")
+            if state == .running {
+                workout.end()
+            }
+            return
+        }
         switch state {
         case .running:
             if phase == .idle || phase == .ending {
@@ -575,12 +621,36 @@ final class WorkoutSessionModel: ObservableObject {
         endTimeoutTask = nil
         clockTask?.cancel()
         clockTask = nil
+        demoTask?.cancel()
+        demoTask = nil
         phase = .idle
         heartRate = nil
         healthKitRunning = false
+        isDemo = false
+    }
+
+    // MARK: - Screen demo
+
+    /// Fake HR once a second while the demo runs.
+    private func startDemoTicker() {
+        demoTask?.cancel()
+        demoTask = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                guard let self = self else { return }
+                if self.phase != .running || !self.isDemo { return }
+                self.demoTick()
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+            }
+        }
+    }
+
+    private func demoTick() {
+        let kind: SegmentKind? = progress.isFinished ? SegmentKind.rest : progress.currentSegment?.kind
+        heartRate = demoHeartRate.step(now: Date().timeIntervalSince1970, kind: kind)
     }
 
     private func heartRateReceived(_ bpm: Double) {
+        if isDemo { return }
         heartRate = bpm
         guard phase == .running, !finalized else { return }
         let t = Date().timeIntervalSince1970
@@ -671,6 +741,10 @@ final class WorkoutSessionModel: ObservableObject {
         guard phase == .running, progress.isStarted, !progress.isFinished,
               let segment = progress.currentSegment, segment.kind == .run,
               let segmentStart = progress.segmentStarts.last else { return nil }
+        if isDemo {
+            let nowDemo: Double = now.timeIntervalSince1970
+            return WorkoutDemo.runLine(segment: segment, elapsed: progress.segmentElapsed(now: nowDemo), now: nowDemo)
+        }
         var line = RunLine(distance: nil, paceSecondsPerKm: nil, cadence: nil)
         if let latest = latestPedometer, let latestDistance = latest.distance,
            let atStart = cumulativeDistance(at: segmentStart) {
@@ -699,6 +773,8 @@ final class WorkoutSessionModel: ObservableObject {
     /// Stops sensors, closes the CSV, builds/writes/sends the result, then the CSV.
     /// Runs once per workout.
     private func finalize() {
+        // Belt and braces: a demo never writes, sends or summarizes anything.
+        guard !isDemo else { return }
         guard !finalized else { return }
         finalized = true
         stopPedometer()
@@ -779,6 +855,7 @@ final class WorkoutSessionModel: ObservableObject {
     }
 
     private func persistProgress() {
+        if isDemo { return }
         do {
             let data = try JSONEncoder().encode(progress)
             UserDefaults.standard.set(data, forKey: Keys.progress)

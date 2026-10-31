@@ -187,8 +187,9 @@ struct WorkoutSessionView: View {
     private var progressText: String {
         let p = model.progress
         let count = p.definition.segments.count
-        if p.isFinished { return "Finished · \(count)/\(count)" }
-        return "Segment \(p.currentIndex + 1)/\(count)"
+        let demo: String = model.isDemo ? "Demo · " : ""
+        if p.isFinished { return demo + "Finished · \(count)/\(count)" }
+        return demo + "Segment \(p.currentIndex + 1)/\(count)"
     }
 }
 
@@ -422,9 +423,13 @@ struct WorkoutMainPage: View {
         let p: WorkoutProgress = model.progress
         let definition: WorkoutDefinition = p.definition
         if definition.format == .amrap, let cap = definition.timeCapSeconds, cap > 0 {
+            // Screen demo: the cap is shortened (WorkoutDemo.timeScale), so are the slits.
+            let tick: Double = model.isDemo
+                ? WorkoutMainPage.amrapTickSeconds / WorkoutDemo.timeScale
+                : WorkoutMainPage.amrapTickSeconds
             return RaceBorderState.timeToCap(elapsed: p.totalElapsed(now: now.timeIntervalSince1970),
                                              cap: cap,
-                                             tick: WorkoutMainPage.amrapTickSeconds,
+                                             tick: tick,
                                              color: SegmentPalette.elapsed)
         }
         return RaceBorderState.segments(colors: SegmentPalette.segmentColors(for: definition),
@@ -451,12 +456,17 @@ struct WorkoutMainPage: View {
                 .multilineTextAlignment(.center)
                 .lineLimit(isLong ? 2 : 1)
                 .minimumScaleFactor(0.6)
-            Text(totalLine(now: now))
-                .font(.system(size: 12, weight: .semibold, design: .rounded).monospacedDigit())
-                .foregroundColor(.secondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.92)
-                .padding(.top, 2)
+            HStack(spacing: 4) {
+                Text(totalLine(now: now))
+                    .font(.system(size: 12, weight: .semibold, design: .rounded).monospacedDigit())
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.92)
+                if model.isDemo {
+                    DemoTag()
+                }
+            }
+            .padding(.top, 2)
 
             Spacer(minLength: 0)
 
@@ -625,6 +635,9 @@ struct WorkoutMainPage: View {
                 .font(.system(size: 16, weight: .heavy, design: .rounded).monospacedDigit())
                 .foregroundColor(SegmentPalette.heartRate.opacity(0.85))
                 .lineLimit(1)
+            if model.isDemo {
+                DemoTag()
+            }
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 10)
@@ -689,7 +702,7 @@ struct WorkoutMainPage: View {
             Spacer(minLength: 0)
             if !isLuminanceReduced {
                 undoCapsule
-                Text("Swipe left for End")
+                Text(model.isDemo ? "Demo · Swipe left for End" : "Swipe left for End")
                     .font(.system(size: 11, weight: .semibold, design: .rounded))
                     .foregroundColor(ink.opacity(0.7))
                     .lineLimit(1)
@@ -713,6 +726,21 @@ struct WorkoutMainPage: View {
                 .background(Capsule().fill(Color(white: 0.2)))
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Screen demo tag
+
+/// Tiny grey "DEMO" capsule shown during a screen demo, so it can't pass for a real workout.
+struct DemoTag: View {
+    var body: some View {
+        Text("DEMO")
+            .font(.system(size: 9, weight: .heavy, design: .rounded))
+            .foregroundColor(.black)
+            .padding(.horizontal, 5)
+            .padding(.vertical, 1)
+            .background(Capsule().fill(Color(white: 0.6)))
+            .fixedSize()
     }
 }
 
@@ -820,7 +848,7 @@ struct WorkoutControlsPage: View {
             Button {
                 onEnd()
             } label: {
-                Text("End")
+                Text(model.isDemo ? "End demo" : "End")
                     .font(.system(size: 17, weight: .bold, design: .rounded))
                     .foregroundColor(Color(red: 1.0, green: 0.41, blue: 0.38))
                     .frame(maxWidth: .infinity, minHeight: 42)

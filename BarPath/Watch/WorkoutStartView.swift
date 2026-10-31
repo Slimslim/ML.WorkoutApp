@@ -54,7 +54,24 @@ struct WorkoutStartView: View {
                     .background(Capsule().fill(Color.green))
             }
             .buttonStyle(.plain)
-            .frame(minHeight: 60)
+            // Was 60; 44 leaves room for the Screen demo button on 41 mm (START still fills
+            // the free height on bigger screens).
+            .frame(minHeight: 44)
+
+            // Try the workout screen with mock data: no HealthKit, nothing saved or sent.
+            Button {
+                model.startDemo()
+            } label: {
+                Text("Screen demo")
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, minHeight: 22)
+                    .background(Capsule().stroke(Color(white: 0.3), lineWidth: 1))
+                    // Plain style: without this only the text and the 1 pt stroke are tappable.
+                    .contentShape(Capsule())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Screen demo with mock data")
 
             if let summary = model.lastSummary {
                 Text("Last: " + summary + " · " + transferText)
