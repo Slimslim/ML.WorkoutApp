@@ -419,14 +419,25 @@ final class WorkoutSessionModel: ObservableObject {
         let second = Int(remaining.rounded(.up))
         if second >= 1 && second <= 3 && countdownLastBeep != second {
             countdownLastBeep = second
-            play(.click)
+            // Felt mid-effort (a .click was too light to notice during double unders).
+            play(.directionUp)
         }
     }
 
     private func finishByCap() {
         let t = Date().timeIntervalSince1970
         guard progress.finish(at: t, source: .auto) else { return }
-        play(.success)
+        // "Time!": a strong, unmistakable pattern (stop ×3, then success), since a single
+        // tap was missed mid-movement on 2026-10-30.
+        play(.stop)
+        Task { @MainActor in
+            for _ in 0..<2 {
+                try? await Task.sleep(nanoseconds: 650_000_000)
+                WKInterfaceDevice.current().play(.stop)
+            }
+            try? await Task.sleep(nanoseconds: 650_000_000)
+            WKInterfaceDevice.current().play(.success)
+        }
         recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
                              description: "name=finish index=\(progress.currentIndex) source=auto")
         lastChangeDate = Date()

@@ -242,9 +242,63 @@ struct WorkoutMainPage: View {
             doneScreen(now: now)
         } else if isLuminanceReduced {
             alwaysOnScreen(now: now)
+        } else if showSwitchFlash(now: now) {
+            switchFlash()
         } else {
             mainScreen(now: now)
         }
+    }
+
+    /// For a moment after every switch, the new segment fills the screen so it's obvious
+    /// where the watch is (added after the round-4 mix-up on 2026-10-30).
+    static let switchFlashSeconds: Double = 1.8
+
+    private func showSwitchFlash(now: Date) -> Bool {
+        guard let last = model.lastChangeDate else { return false }
+        return now.timeIntervalSince(last) < WorkoutMainPage.switchFlashSeconds
+    }
+
+    private func switchFlash() -> some View {
+        let p = model.progress
+        let isRun = p.currentSegment?.kind == .run
+        return VStack(spacing: 6) {
+            Spacer(minLength: 0)
+            Text("NOW")
+                .font(.system(size: 13, weight: .heavy, design: .rounded))
+                .foregroundColor(.secondary)
+            Text(p.currentSegment?.title ?? "")
+                .font(.system(size: 30, weight: .heavy, design: .rounded))
+                .foregroundColor(isRun ? .cyan : .orange)
+                .multilineTextAlignment(.center)
+                .lineLimit(3)
+                .minimumScaleFactor(0.5)
+            if let round = roundText() {
+                Text(round)
+                    .font(.system(size: 18, weight: .bold, design: .rounded).monospacedDigit())
+                    .foregroundColor(.white)
+            }
+            Spacer(minLength: 0)
+            Text("Turn Crown back to undo")
+                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .foregroundColor(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
+        .padding(.horizontal, 6)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// "Round 4 · 2/4" for workouts with a repeating round, else nil.
+    private func roundText() -> String? {
+        let p = model.progress
+        guard let size = p.definition.roundSize, size > 1, p.isStarted else { return nil }
+        let i = p.currentIndex
+        return "Round \(i / size + 1) · \(i % size + 1)/\(size)"
+    }
+
+    private var finishedByCap: Bool {
+        guard let last = model.progress.events.last(where: { (e: WorkoutEvent) -> Bool in e.kind == .finish }) else { return false }
+        return last.source == .auto
     }
 
     // MARK: Normal
@@ -301,7 +355,14 @@ struct WorkoutMainPage: View {
             Spacer(minLength: 0)
 
             if showUndoCapsule(now: now) {
-                undoCapsule
+                // Not a button: a palm on the screen right after a Crown turn undid a
+                // correct switch (2026-10-30). Undo is the Crown turned backward.
+                Text("Turn Crown back to undo")
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                    .frame(minHeight: 34)
             } else {
                 Text(nextText)
                     .font(.system(size: 13, weight: .semibold, design: .rounded))
@@ -352,7 +413,7 @@ struct WorkoutMainPage: View {
             fill.ignoresSafeArea()
             VStack(spacing: 4) {
                 Spacer(minLength: 0)
-                Text("DONE")
+                Text(finishedByCap ? "TIME" : "DONE")
                     .font(.system(size: 40, weight: .heavy, design: .rounded))
                     .foregroundColor(ink)
                     .lineLimit(1)
@@ -413,7 +474,12 @@ struct WorkoutMainPage: View {
         let p = model.progress
         let count = p.definition.segments.count
         let index = min(p.currentIndex + 1, count)
-        var parts: [String] = ["\(index)/\(count)",
+        var position = "\(index)/\(count)"
+        if let size = p.definition.roundSize, size > 1, p.isStarted {
+            // AMRAP / rounds: "R4 2/4" says more than "13/40".
+            position = "R\(p.currentIndex / size + 1) \(p.currentIndex % size + 1)/\(size)"
+        }
+        var parts: [String] = [position,
                                SessionModel.formatElapsed(p.totalElapsed(now: now.timeIntervalSince1970))]
         if let hr = model.heartRate {
             parts.append(String(format: "♥ %.0f", hr))
