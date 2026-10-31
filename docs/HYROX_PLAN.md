@@ -187,3 +187,27 @@ Plan:
    profile) when the athlete owns one; prefer its pace/distance over the wrist estimate.
 
 Data needed now: a few Data-mode runs on a known distance (a track is ideal).
+
+## 9. Target splits: ahead or behind (planned, 2026-10-31)
+
+Feedback from an experienced HYROX athlete (a friend of the athlete): racers mostly watch the
+clock against **target times**. They plan when each run should start ("on the run at 8:30,
+17:45, …") and want to know at a glance whether they are **ahead or behind**, so they can push
+or hold.
+
+Plan:
+1. **Race plan on the phone.** Per workout, a target finish time (e.g. 1:15:00) that the app
+   splits into per-segment targets (runs at a chosen pace, stations from defaults or past
+   results), with every segment editable. Saved with the definition and sent to the watch.
+2. **Watch: one delta, big and coloured.** On every segment switch (the Crown turn) show
+   "+0:12 behind" (red) or "−0:20 ahead" (green) against the plan's cumulative time, for a few
+   seconds in the NOW flash, then keep a small delta line on the D+ screen (e.g. under the race
+   time). Optionally a projected finish ("finish ≈ 1:14:30").
+3. **Border link (D+).** The progress border can show the plan as a thin marker: where you
+   *should* be now vs where you are.
+4. **From past results.** "Beat my last time" builds the targets from a saved result's splits.
+5. **Overview after the race.** Planned vs actual per segment, so the athlete sees where time
+   was lost.
+
+Open questions for the athlete: delta always visible or only at switches; seconds behind vs
+projected finish; one plan per workout or several.
