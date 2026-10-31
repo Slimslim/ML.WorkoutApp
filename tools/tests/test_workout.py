@@ -357,3 +357,13 @@ def test_csv_partial_reps_event(tmp_path):
                                     "# event t=207 name=partialReps reps=13\n")
     path.write_text(text)
     assert load_workout_csv(path).partial_reps == 13
+
+
+def test_segment_load_round_trip():
+    w = WorkoutLibrary.partnerWod1
+    dp = w.segments[-1]
+    assert dp.load is not None and dp.load.count == 2 and abs(dp.load.kilograms - 36.287) < 0.01
+    from barpath.workout import WorkoutDefinition
+    back = WorkoutDefinition.from_dict(w.to_dict())
+    assert back.segments[-1].load == dp.load
+    assert back.segments[0].load is None

@@ -164,7 +164,7 @@ struct WorkoutPreviewView: View {
                         Circle()
                             .fill(item.element.kind == .run ? Theme.workoutRun : (item.element.kind == .rest ? Color.gray : Theme.workoutStation))
                             .frame(width: 8, height: 8)
-                        Text(item.element.title)
+                        Text(item.element.title + (item.element.load.map { " · " + $0.text } ?? ""))
                     }
                 }
             }

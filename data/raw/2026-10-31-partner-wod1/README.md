@@ -1,8 +1,8 @@
 # Partner WOD 1 (Scaled), 2026-10-31 — doubles, first team recording
 
 Gym WOD, partner, 30:00 cap. Runs together, stations split. Scaled version actually done:
-800 m run · 80 wall balls (14/10) · 600 m run · 60 single DB walking lunge steps (35/25) ·
-400 m run · 40 burpees · 200 m run · 20 med ball step-overs 20" (14/10) · 100 m run · 10 devil press (35/25).
+800 m run · 80 wall balls (athlete: 14 lb) · 600 m run · 60 single DB walking lunge steps (athlete: 50 lb DB) ·
+400 m run · 40 burpees · 200 m run · 20 med ball step-overs 20" (14/10) · 100 m run · 10 devil press (athlete: 2 × 40 lb DBs).
 NOTE: the watch still had the RX definition (1000/100/800/80/…), so titles and run paces in the JSON use
 the wrong targets; the Crown boundaries are right (one Crown turn per team switch, no undos).
 Apple Watch Series 12, left wrist, Data mode (100 Hz). Total 23:09 (1389 s).

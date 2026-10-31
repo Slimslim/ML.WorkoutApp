@@ -9,9 +9,10 @@ public enum WorkoutLibrary {
                               target: SegmentTarget(meters, .meters))
     }
 
-    private static func station(_ movement: String, _ value: Double, _ unit: TargetUnit) -> WorkoutSegment {
+    private static func station(_ movement: String, _ value: Double, _ unit: TargetUnit,
+                                load: SegmentLoad? = nil) -> WorkoutSegment {
         return WorkoutSegment(kind: .station, movement: movement, name: Movement.displayName(movement),
-                              target: SegmentTarget(value, unit))
+                              target: SegmentTarget(value, unit), load: load)
     }
 
     private static func restSegment() -> WorkoutSegment {
@@ -90,15 +91,15 @@ public enum WorkoutLibrary {
         format: .forTime, team: .doubles, timeCapSeconds: 1800.0, healthKitActivity: "crossTraining",
         segments: [
             runSegment(800),
-            station(Movement.wallBalls, 80, .reps),
+            station(Movement.wallBalls, 80, .reps, load: SegmentLoad(14, .lb)),
             runSegment(600),
-            station(Movement.dumbbellWalkingLunges, 60, .reps),
+            station(Movement.dumbbellWalkingLunges, 60, .reps, load: SegmentLoad(50, .lb)),
             runSegment(400),
             station(Movement.burpees, 40, .reps),
             runSegment(200),
             station(Movement.medBallBoxStepOvers, 20, .reps),
             runSegment(100),
-            station(Movement.devilPress, 10, .reps)
+            station(Movement.devilPress, 10, .reps, load: SegmentLoad(40, .lb, count: 2))
         ],
         roundSize: 2)
 

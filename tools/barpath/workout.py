@@ -49,11 +49,31 @@ class SegmentTarget:
 
 
 @dataclass
+class SegmentLoad:
+    value: float
+    unit: str            # "lb" | "kg"
+    count: int = 1       # implements held (2 for a pair of dumbbells)
+
+    @property
+    def kilograms(self) -> float:
+        per = self.value if self.unit == "kg" else self.value * 0.45359237
+        return per * self.count
+
+    def to_dict(self) -> dict:
+        return {"value": self.value, "unit": self.unit, "count": self.count}
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "SegmentLoad":
+        return cls(float(d["value"]), d["unit"], int(d.get("count", 1)))
+
+
+@dataclass
 class WorkoutSegment:
     kind: str
     movement: str
     name: str
     target: Optional[SegmentTarget] = None
+    load: Optional[SegmentLoad] = None
 
     @property
     def title(self) -> str:
@@ -67,12 +87,16 @@ class WorkoutSegment:
         d = {"kind": self.kind, "movement": self.movement, "name": self.name}
         if self.target is not None:
             d["target"] = self.target.to_dict()
+        if self.load is not None:
+            d["load"] = self.load.to_dict()
         return d
 
     @classmethod
     def from_dict(cls, d: dict) -> "WorkoutSegment":
         t = d.get("target")
-        return cls(d["kind"], d["movement"], d["name"], SegmentTarget.from_dict(t) if t else None)
+        ld = d.get("load")
+        return cls(d["kind"], d["movement"], d["name"], SegmentTarget.from_dict(t) if t else None,
+                   SegmentLoad.from_dict(ld) if ld else None)
 
 
 class Movement:
@@ -168,9 +192,9 @@ def _run(meters: float) -> WorkoutSegment:
                           SegmentTarget(meters, "meters"))
 
 
-def _station(movement: str, value: float, unit: str) -> WorkoutSegment:
+def _station(movement: str, value: float, unit: str, load: "Optional[SegmentLoad]" = None) -> WorkoutSegment:
     return WorkoutSegment("station", movement, Movement.display_name(movement),
-                          SegmentTarget(value, unit))
+                          SegmentTarget(value, unit), load)
 
 
 def _rest() -> WorkoutSegment:
@@ -209,11 +233,11 @@ class WorkoutLibrary:
                                   "mixedCardio", _runs_and_stations(500, _half_hyrox_stations()), round_size=2)
     partnerWod1 = WorkoutDefinition(
         "partner.wod1", "Partner WOD 1 (Scaled)", "WOD 1", "forTime", "doubles", 1800.0, "crossTraining",
-        [_run(800), _station(Movement.wallBalls, 80, "reps"),
-         _run(600), _station(Movement.dumbbellWalkingLunges, 60, "reps"),
+        [_run(800), _station(Movement.wallBalls, 80, "reps", SegmentLoad(14, "lb")),
+         _run(600), _station(Movement.dumbbellWalkingLunges, 60, "reps", SegmentLoad(50, "lb")),
          _run(400), _station(Movement.burpees, 40, "reps"),
          _run(200), _station(Movement.medBallBoxStepOvers, 20, "reps"),
-         _run(100), _station(Movement.devilPress, 10, "reps")],
+         _run(100), _station(Movement.devilPress, 10, "reps", SegmentLoad(40, "lb", 2))],
         round_size=2)
     partnerWod2 = WorkoutDefinition(
         "partner.wod2", "Partner WOD 2", "WOD 2", "forTime", "doubles", None, "crossTraining",

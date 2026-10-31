@@ -45,17 +45,46 @@ public struct SegmentTarget: Codable, Equatable {
     }
 }
 
+/// The weight moved in a segment, e.g. 2 × 40 lb dumbbells. Used later for the work estimate.
+public struct SegmentLoad: Codable, Equatable {
+    public enum Unit: String, Codable { case lb, kg }
+    public var value: Double           // per implement
+    public var unit: Unit
+    public var count: Int              // implements held (2 for a pair of dumbbells)
+
+    public init(_ value: Double, _ unit: Unit, count: Int = 1) {
+        self.value = value
+        self.unit = unit
+        self.count = count
+    }
+
+    public var kilograms: Double {
+        let per = unit == .kg ? value : value * 0.45359237
+        return per * Double(count)
+    }
+
+    /// "2 × 40 lb", "14 lb".
+    public var text: String {
+        let v = SegmentTarget.number(value) + " " + unit.rawValue
+        return count > 1 ? "\(count) × " + v : v
+    }
+}
+
 public struct WorkoutSegment: Codable, Equatable {
     public var kind: SegmentKind
     public var movement: String        // movement id, e.g. "run", "wallBalls"
     public var name: String            // display name, e.g. "Wall Balls"
     public var target: SegmentTarget?
+    /// Optional in JSON: older definitions and results decode unchanged.
+    public var load: SegmentLoad?
 
-    public init(kind: SegmentKind, movement: String, name: String, target: SegmentTarget?) {
+    public init(kind: SegmentKind, movement: String, name: String, target: SegmentTarget?,
+                load: SegmentLoad? = nil) {
         self.kind = kind
         self.movement = movement
         self.name = name
         self.target = target
+        self.load = load
     }
 
     /// Short title for the watch: "Run 800 m", "Wall Balls 100", "SkiErg 1000 m".
