@@ -77,7 +77,19 @@ enum WorkoutFiles {
             at: workoutsURL,
             includingPropertiesForKeys: nil,
             options: [.skipsHiddenFiles])) ?? []
-        return urls.filter { $0.pathExtension.lowercased() == "json" }
+        return urls.filter { (u: URL) -> Bool in
+            let name = u.lastPathComponent.lowercased()
+            return u.pathExtension.lowercased() == "json" && !name.hasSuffix(".original.json")
+        }
+    }
+
+    /// Untouched copy of the result as received from the watch (kept before the first edit).
+    static func originalURL(id: UUID) -> URL {
+        return workoutsURL.appendingPathComponent(id.uuidString + ".original.json")
+    }
+
+    static func hasOriginal(id: UUID) -> Bool {
+        return FileManager.default.fileExists(atPath: originalURL(id: id).path)
     }
 
     /// The motion recording for a result, if it exists in Documents/Debug.

@@ -84,8 +84,60 @@ final class WorkoutStore: ObservableObject {
         }
     }
 
+    /// Writes a corrected result over Documents/Workouts/<id>.json. The first time, the file as
+    /// received is copied to <id>.original.json. Returns false (and sets nothing) on failure.
+    @discardableResult
+    func saveEdited(_ edited: WorkoutResult) -> Bool {
+        loadIfNeeded()
+        let fm = FileManager.default
+        let url = WorkoutFiles.fileURL(id: edited.id)
+        let originalURL = WorkoutFiles.originalURL(id: edited.id)
+        do {
+            WorkoutFiles.ensureDirectory()
+            if fm.fileExists(atPath: url.path) && !fm.fileExists(atPath: originalURL.path) {
+                try fm.copyItem(at: url, to: originalURL)
+            }
+            let data = try edited.encoded()
+            try data.write(to: url, options: [.atomic])
+            replaceInResults(edited)
+            return true
+        } catch {
+            let text = "\(url.lastPathComponent): \(error.localizedDescription)"
+            if !problems.contains(text) {
+                problems.append(text)
+            }
+            return false
+        }
+    }
+
+    /// Copies <id>.original.json back over <id>.json and reloads it. Returns the restored result.
+    @discardableResult
+    func restoreOriginal(id: UUID) -> WorkoutResult? {
+        loadIfNeeded()
+        let fm = FileManager.default
+        let url = WorkoutFiles.fileURL(id: id)
+        let originalURL = WorkoutFiles.originalURL(id: id)
+        guard fm.fileExists(atPath: originalURL.path) else { return nil }
+        do {
+            let data = try Data(contentsOf: originalURL)
+            let decoded = try WorkoutResult.decode(from: data)
+            try data.write(to: url, options: [.atomic])
+            replaceInResults(decoded)
+            return decoded
+        } catch {
+            return nil
+        }
+    }
+
+    private func replaceInResults(_ result: WorkoutResult) {
+        var updated: [WorkoutResult] = results.filter { $0.id != result.id }
+        updated.append(result)
+        results = WorkoutStore.sorted(updated)
+    }
+
     func delete(_ result: WorkoutResult) {
         try? FileManager.default.removeItem(at: WorkoutFiles.fileURL(id: result.id))
+        try? FileManager.default.removeItem(at: WorkoutFiles.originalURL(id: result.id))
         results.removeAll(where: { $0.id == result.id })
     }
 
