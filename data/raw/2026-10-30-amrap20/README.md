@@ -3,7 +3,7 @@
 20:00 AMRAP: 10 lateral burpees over DB, 31 double unders, 10 alt. DB snatches, 31 double unders.
 Apple Watch Series 12, left wrist, Data mode on (100 Hz). Video exists on the athlete's phone (not in repo).
 
-Score from the watch: 5 rounds + 51 reps (burpees, DUs and snatches of round 6), then partial DUs at the cap.
+Score: 5 rounds + 64 reps (round 6: 10 burpees, 31 DUs, 10 snatches, then 13 DUs before the cap; the 13 is from the athlete). The single time-cap haptic was not felt.
 
 ## Crown mix-up in round 4 (t = seconds from START)
 - 556.9 Crown → round 4 burpees (correct). 619.3 Crown → round 4 DUs (correct).
