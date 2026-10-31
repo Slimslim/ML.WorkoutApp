@@ -19,9 +19,11 @@ struct FixSplitsView: View {
         return draft.definition.format == .amrap
     }
 
+    /// Stepper range 0…maxPartialReps: the reps target of the segment the cap cut (the last
+    /// recorded segment, `partialRepsLimit`), else 200 like the watch picker.
     private var maxPartialReps: Int {
-        if let t = draft.definition.segments.last?.target, t.unit == .reps, t.value >= 1 {
-            return Int(t.value)
+        if let limit = draft.partialRepsLimit, limit >= 1 {
+            return limit
         }
         return 200
     }
@@ -66,6 +68,14 @@ struct FixSplitsView: View {
     private static func clock(_ seconds: Double) -> String {
         let total = Int(max(0, seconds).rounded())
         return String(format: "%d:%02d", total / 60, total % 60)
+    }
+
+    /// "+12 s (was 1:02)" / "−5 s (was 0:58)".
+    private static func changeText(now: Double, before: Double) -> String {
+        let diff: Double = now - before
+        let sign: String = diff >= 0 ? "+" : "\u{2212}"
+        let amount: Int = Int(abs(diff).rounded())
+        return sign + String(amount) + " s (was " + FixSplitsView.clock(before) + ")"
     }
 
     private func originalDuration(_ position: Int) -> Double? {
@@ -158,9 +168,7 @@ struct FixSplitsView: View {
                 Text("too long?").font(.caption).foregroundStyle(Color.orange)
             }
             if let before = originalDuration(i), abs(before - s.duration) >= 0.5 {
-                let diff = s.duration - before
-                Text(String(format: "%@%.0f s (was %@)", diff >= 0 ? "+" : "-", abs(diff),
-                            FixSplitsView.clock(before)))
+                Text(FixSplitsView.changeText(now: s.duration, before: before))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .monospacedDigit()

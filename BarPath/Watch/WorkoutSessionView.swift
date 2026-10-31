@@ -295,7 +295,7 @@ struct WorkoutMainPage: View {
                 .foregroundColor(.secondary)
             Text(p.currentSegment?.title ?? "")
                 .font(.system(size: 30, weight: .heavy, design: .rounded))
-                .foregroundColor(isRun ? .cyan : .orange)
+                .foregroundColor(isRun ? Color.cyan : Color.orange)
                 .multilineTextAlignment(.center)
                 .lineLimit(3)
                 .minimumScaleFactor(0.5)
