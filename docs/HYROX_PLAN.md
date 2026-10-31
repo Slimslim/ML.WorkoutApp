@@ -163,3 +163,27 @@ totals.
   - Location/map: needs Core Location + `HKWorkoutRouteBuilder` (outdoor workouts only; location
     permission, battery). Weather: `HKMetadataKeyWeatherTemperature` / `…Humidity`.
   - HR chart and calories already come from the live workout builder.
+
+## 8. Personal run calibration (planned, 2026-10-31)
+
+Problem: without GPS (HYROX halls) run distance and live pace come from the pedometer
+(steps × Apple's learned stride). Helen 2026-10-29 read 348 / 385 / 394 m for 400 m runs
+(−13 %, −4 %, −1.5 %). Compromised running after stations shortens the stride further.
+Foot pods (Stryd etc., ~1–2 %) are what HYROX coaches recommend.
+
+Plan:
+1. **Calibration run.** A "Calibrate running" workout: run a known distance (track 4 × 400 m,
+   or a measured loop; distance entered on the phone). The app compares the pedometer distance
+   with the true distance and stores a personal factor (e.g. ×1.06), per pace band if the data
+   supports it (easy / race pace). Repeat a few times; keep a rolling, outlier-robust average.
+2. **Apply it live.** Run distance, live pace, the "Exit soon" point (~850 m) and stride length
+   use the corrected distance. Show "calibrated" vs "estimated" in the overview.
+3. **Self-correct during a race.** Every finished HYROX run is a known 1 km: after each run, update
+   the factor for the next ones (and for the post-race report), with limits so one bad run can't
+   swing it.
+4. **Report accuracy.** In the overview, per run: measured vs known distance, so the athlete sees
+   how good the watch is for them.
+5. **Later: foot pod support.** Read a Bluetooth running sensor (standard Running Speed and Cadence
+   profile) when the athlete owns one; prefer its pace/distance over the wrist estimate.
+
+Data needed now: a few Data-mode runs on a known distance (a track is ideal).
