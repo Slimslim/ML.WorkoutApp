@@ -64,6 +64,25 @@ final class WorkoutStore: ObservableObject {
         }
         results = WorkoutStore.sorted(loaded)
         problems = failed
+        upgradeOldDefinitions()
+    }
+
+    /// One-time fix: Partner WOD 1 was recorded on 2026-10-31 with the RX definition
+    /// ("Partner WOD 1") although the athlete did the scaled version. Results still carrying that
+    /// old name switch to the current built-in definition (times, HR and steps stay; the file as
+    /// received is kept as <id>.original.json, so "Restore original" undoes it).
+    private func upgradeOldDefinitions() {
+        guard let current = WorkoutLibrary.definition(id: WorkoutLibrary.partnerWod1.id) else { return }
+        let toFix: [WorkoutResult] = results.filter { (r: WorkoutResult) -> Bool in
+            return r.definition.id == current.id && r.definition.name == "Partner WOD 1"
+                && r.canApplyDefinition(current)
+        }
+        for old in toFix {
+            var fixed: WorkoutResult = old
+            if fixed.applyDefinition(current) {
+                saveEdited(fixed)
+            }
+        }
     }
 
     /// Called by PhoneLink (on main) after a result file was moved into place.
