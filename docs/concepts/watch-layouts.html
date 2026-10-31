@@ -164,18 +164,74 @@ figcaption b{color:var(--fg);font-weight:700}
 .E3 .nm{top:14px;font-size:15px;letter-spacing:1px}
 .E3 .nm em{font-size:11px;letter-spacing:.4px}
 .E3 .tot{top:auto;bottom:15px}
+/* PB: big name + race progress border */
+.pbsvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.pbsvg path{fill:none;stroke-width:4;stroke-linecap:butt}
+.pbsvg .bt{stroke:var(--tile)}
+.pbsvg .bf{stroke:var(--run)}
+.pbsvg .bf.st{stroke:var(--station)}
+.pbsvg .bf.tm{stroke:var(--elapsed)}
+.pbsvg .bf.done{opacity:.55}
+.pbsvg .bf.cur{animation:pbPulse 1.8s ease-in-out infinite}
+@keyframes pbPulse{0%,100%{opacity:1}50%{opacity:.6}}
+@media (prefers-reduced-motion:reduce){.pbsvg .bf.cur{animation:none}}
+.rox .pbsvg .bt{stroke:var(--rox-ink);opacity:.2}
+.rox .pbsvg .bf{stroke:var(--rox-ink)}
+.rox .pbsvg .bf.done{opacity:.7}
+.rox .pbsvg .hold{stroke:var(--rox-ink);stroke-width:8;animation:pbPulse 1.2s ease-in-out infinite}
+.aod .pbsvg path{stroke-width:3}
+.aod .pbsvg .bt{opacity:.55}
+.aod .pbsvg .bf.done{opacity:.5}
+.aod .pbsvg .bf.cur{animation:none;opacity:.85}
+.aod .pbsvg .hold{animation:none}
+.pbsvg.dim .bt{opacity:.35}
+.pbsvg.dim .bf{opacity:.25;animation:none}
+.pbsvg .crn{stroke:var(--volt);stroke-width:6;stroke-linecap:round}
+.pbsvg .crt{stroke:var(--volt-dim);stroke-width:6}
+.PB .cue{bottom:20px;font-size:12px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:var(--volt)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{font-size:13px;font-weight:700;padding:6px 12px;border-radius:999px;color:var(--fg2);min-height:36px}
+.seg button[aria-pressed="true"]{background:var(--volt-dim);color:var(--volt)}
+.pbctl{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;font-size:13px;color:var(--fg3)}
+.pbsub{font-family:var(--f-disp);font-weight:800;font-size:20px;letter-spacing:.4px;text-transform:uppercase;margin:6px 0 0}
+.pbgrid{display:grid;gap:12px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:760px){.pbgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.pbcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:grid;gap:6px;min-width:0}
+.pbcard h4{margin:0;font-size:14px;font-weight:700;color:var(--fg)}
+.pbcard p,.pbcard li{font-size:14px;color:var(--fg2)}
+.pbcard ul{margin:0;padding-left:18px;display:grid;gap:3px}
+.pbcard b{color:var(--fg)}
+.bars{display:grid;gap:8px}
+.bar{display:grid;gap:4px}
+.bar .lb{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--fg2)}
+.bar .tr{display:flex;gap:2px;height:10px;position:relative}
+.bar .tr i{display:block;height:100%;border-radius:2px;background:var(--tile);position:relative;overflow:hidden;flex:none}
+.bar .tr i b{position:absolute;left:0;top:0;bottom:0;background:var(--run)}
+.bar .tr i.st b{background:var(--station)}
+.bar .tr i.done b{opacity:.55}
+.verdict{font-size:15px;color:var(--fg);border-left:3px solid var(--volt);padding:4px 0 4px 12px;max-width:900px;display:grid;gap:6px}
+.verdict b{color:var(--volt)}
 </style>
 
 <div class="page">
 <main class="wrap">
   <header class="head">
-    <div class="kick">Wave Mode · watch layout study · new</div>
-    <h1>Where does the movement name go?</h1>
+    <div class="kick">Wave Mode · watch layout study · newest</div>
+    <h1>Big name + race progress border</h1>
+    <p class="lede">Direction D, unchanged in the middle, plus a thin border that runs clockwise from the top centre around the screen edge and fills as the race goes on. Slits mark every segment; runs fill blue, stations orange, and the slice you are in glows.</p>
+    <ul class="quotes">
+      <li>“I like the Big name design (D). But it is missing data that shows where we are within the workout. Idea: a border around the watch screen that fills as we get closer to completing the workout, to 100%, with small slits/ticks marking the stations.”</li>
+    </ul>
+    <p class="picked" id="picked" aria-live="polite">Nothing picked yet. One pick across the whole page.</p>
+  </header>
+  <div id="pbhost" class="wrap"></div>
+  <header class="head">
+    <div class="kick">Earlier round · movement name</div>
+    <h2 class="h1">Where does the movement name go?</h2>
     <p class="lede">All four keep direction A, the athlete's pick so far: timer big and centred, the key number smaller below, heart rate small. Only the movement name and the total race time move. Same five moments, real watch size.</p>
     <ul class="quotes">
       <li>“We still have the name of the movement at the top left, and it's taking too much space. I don't like it. Should we put it above the timer? Could you recommend a few ideas?”</li>
     </ul>
-    <p class="picked" id="picked" aria-live="polite">Nothing picked yet. One pick across the whole page.</p>
   </header>
   <div id="titles" class="wrap"></div>
   <header class="head">
@@ -315,7 +371,122 @@ const rows = (list, sts) => list.map(d => '<section class="dir" id="dir-' + d.id
   '<div class="con"><h3>Cons</h3><ul>' + d.cons.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></div></div></div></section>').join('');
 thost.innerHTML = rows(TITLES, ST_E);
 host.innerHTML = rows(DIRS, ST);
-const ALL = TITLES.concat(DIRS);
+
+/* PB: D + race progress border (start top centre, clockwise) */
+const PB_D = 'M102 2H159A43 43 0 0 1 202 45V201A43 43 0 0 1 159 244H45A43 43 0 0 1 2 201V45A43 43 0 0 1 45 2Z';
+const CR_D = 'M102 11H159A34 34 0 0 1 193 45V201A34 34 0 0 1 159 235H45A34 34 0 0 1 11 201V45A34 34 0 0 1 45 11Z';
+const HY_NAMES = ['Run 1','SkiErg','Run 2','Sled Push','Run 3','Sled Pull','Run 4','Burpee Broad Jumps','Run 5','Row','Run 6','Farmers Carry','Run 7','Sandbag Lunges','Run 8','Wall Balls'];
+const WK = {
+  hyrox:{kinds:HY_NAMES.map((n, i) => i % 2 ? 'st' : 'run'),
+         exp:[300,270,300,210,300,300,300,300,300,285,300,120,300,300,300,360]},
+  helen:{kinds:['run','st','st','run','st','st','run','st','st'], exp:[100,55,58,108,60,74,112,64,76]},
+  amrap:{kinds:['tm','tm','tm','tm'], exp:[300,300,300,300], time:true}
+};
+let pbMode = 'equal';
+const slices = (w, mode) => {
+  const W = WK[w], wt = (mode === 'exp' && !W.time) ? W.exp : W.kinds.map(() => 1);
+  const sum = wt.reduce((a, b) => a + b, 0); let at = 0;
+  return wt.map((x, i) => { const L = x / sum * 100, o = {s:at, L, k:W.kinds[i]}; at += L; return o; });
+};
+const pbPct = (p, mode) => { const sl = slices(p.w, mode); return sl[p.cur].s + sl[p.cur].L * p.f; };
+const dash = (s, len, cls) => len <= 0.01 ? '' : '<path class="' + cls + '" d="' + PB_D + '" pathLength="100" stroke-dasharray="' + len.toFixed(2) + ' 200" stroke-dashoffset="' + (-s).toFixed(2) + '"/>';
+const border = (p, mode, extra) => {
+  const sl = slices(p.w, mode), g = sl.length > 10 ? .7 : 1.1;
+  let t = '', f = '';
+  sl.forEach((x, i) => {
+    const a = x.s + g / 2, L = x.L - g;
+    t += dash(a, L, 'bt');
+    if (i < p.cur) f += dash(a, L, 'bf done ' + x.k);
+    else if (i === p.cur && p.f > 0) f += dash(a, L * p.f, 'bf cur ' + x.k);
+  });
+  if (p.hold) f += dash(sl[p.cur].s - .6, 1.2, 'hold');
+  return '<svg class="pbsvg' + (extra && extra.dim ? ' dim' : '') + '" viewBox="0 0 204 246" aria-hidden="true">' + t + f + (extra && extra.crown || '') + '</svg>';
+};
+const crownArc = (frac, undo) => '<path class="crt" d="' + CR_D + '" pathLength="100"' + (undo ? ' transform="translate(204 0) scale(-1 1)"' : '') + '/>' +
+  '<path class="crn" d="' + CR_D + '" pathLength="100" stroke-dasharray="' + (frac * 100).toFixed(1) + ' 200"' + (undo ? ' transform="translate(204 0) scale(-1 1)"' : '') + '/>';
+
+const PB_ST = [
+  Object.assign({}, ST[0], {pb:{w:'hyrox', cur:4, f:.22}}),
+  Object.assign({}, ST[1], {pb:{w:'hyrox', cur:1, f:.55}}),
+  Object.assign({}, ST[2], {pb:{w:'hyrox', cur:15, f:.43}}),
+  Object.assign({}, ST[4], {pb:{w:'hyrox', cur:1, f:0, hold:true}}),
+  Object.assign({}, ST[5], {pb:{w:'hyrox', cur:4, f:.22}}),
+  {k:'kb', cap:'Helen · KB Swings, round 2', col:'station', name:'KB Swings', idx:'5/9', tot:'0:04:51', el:'0:31', hr:169,
+   met:{v:'13', u:'/21', c:'volt'}, long:true, pb:{w:'helen', cur:4, f:13/21}},
+  {k:'du', cap:'AMRAP 20 · 12:40 of 20:00', col:'station', name:'Double Unders', idx:'R3', tot:'R3 · 7:20 left', el:'0:22', hr:171,
+   met:{v:'18', u:'/31', c:'volt'}, long:true, pb:{w:'amrap', cur:2, f:.533}}
+];
+const PB_EDGE = [
+  Object.assign({}, ST[0], {cap:'Crown turn · advance', pb:{w:'hyrox', cur:4, f:.22}, crown:{f:.62}, cue:'Release → Sled Pull'}),
+  Object.assign({}, ST[0], {cap:'Crown turn · undo', pb:{w:'hyrox', cur:4, f:.22}, crown:{f:.35, undo:true}, cue:'Release ← Sled Push'}),
+  Object.assign({}, ST[4], {cap:'Wrist down · Roxzone', aod:true, pb:{w:'hyrox', cur:1, f:0, hold:true}})
+];
+const drawPB = (s, mode) => {
+  let base = DIRS[3].draw(s);
+  if (s.name.length > 11) base = base.replace('class="ab name long"', 'class="ab name long" style="font-size:19px"');
+  const ex = s.crown ? {dim:true, crown:crownArc(s.crown.f, s.crown.undo)} : null;
+  let inner = border(s.pb, mode, ex) + base.replace(/^<div class="scr ([^"]*)"([^>]*)>/, '').replace(/<\/div>$/, '');
+  if (s.cue) inner += '<div class="ab cue">' + esc(s.cue) + '</div>';
+  return base.match(/^<div class="scr [^"]*"[^>]*>/)[0].replace('class="scr D', 'class="scr D PB') + inner + '</div>';
+};
+const pbCap = (s, mode) => {
+  if (s.crown) return '<b>' + esc(s.cap) + '</b> · Sample';
+  const pct = Math.round(pbPct(s.pb, mode));
+  return '<b>' + esc(s.cap) + '</b> · ' + (s.pb.w === 'amrap' ? pct + ' % of 20:00' : pct + ' % done');
+};
+const pbLabel = (s, mode) => label(s) + (s.crown ? ', Crown being turned' : ', race progress border ' + Math.round(pbPct(s.pb, mode)) + ' percent');
+const fig = (s, mode) => '<figure><div role="img" aria-label="' + esc(pbLabel(s, mode)) + '">' + watch(drawPB(s, mode)) + '</div><figcaption>' + pbCap(s, mode) + '</figcaption></figure>';
+const bar = (w, mode, p) => {
+  const sl = slices(w, mode), pct = pbPct(p, mode);
+  return '<div class="bar"><div class="lb"><span>' + (mode === 'exp' ? 'Expected-time slices' : 'Equal slices') + '</span><span>Run 3 at 22 % → <b>' + Math.round(pct) + ' %</b></span></div><div class="tr">' +
+    sl.map((x, i) => '<i class="' + x.k + (i < p.cur ? ' done' : '') + '" style="width:calc(' + x.L.toFixed(2) + '% - 2px)"><b style="width:' + (i < p.cur ? 100 : i === p.cur ? p.f * 100 : 0) + '%"></b></i>').join('') + '</div></div>';
+};
+const PB_PROS = ['Gives D back what it lost: where you are in the race, without a single extra line of text.','Read with peripheral vision: “a quarter of the way round”, mid-stride, without focusing.','The slits let you count stations when you do look: 5 slices filled = you are on Run 3.','Run blue vs station orange matches the name colour in the middle, so the border and the headline agree.','Works for any workout: segments for HYROX and Helen, time to the cap for an AMRAP.'];
+const PB_CONS = ['A 4 px line is a mood, not a number: you can tell ¼ from ¾, not 56 % from 62 %.','The edge is already busy: Crown arc, Wall Balls rep ring, Roxzone pink. Rules below are needed.','Around a rounded rectangle, equal edge length is not equal angle: slices crossing a corner look shorter.','16 slits on a 45 mm screen are about 5 px each: visible standing still, a blur while running.','Close to Apple’s Activity rings and the Timer ring at first sight, until you notice the slits and the two colours.'];
+const PB_VERDICT = [
+  '<b>My take: yes, build it.</b> It is the right fix for D’s biggest con (no race position). It costs no space, it reads with peripheral vision, and the name in the middle stays the hero.',
+  '<b>Equal slices</b>, thin (4 px) border, done slices muted and the current slice pulsing. A dim, steady border wrist down. Ink on pink in the Roxzone, holding at the slit. The Crown arc draws inside the border, which dims while you turn. Wall Balls loses its own rep ring: the reps are the number under the timer and the last slice fills by reps.',
+  '<b>Do not rely on it for exact position.</b> If testers miss the count, add “3/8” to the small race-time line under the name (“0:19:04 · 3/8”), not a second ring. Test it on a real run before we cut anything else.'
+];
+const pbSection = () => {
+  const ex = s => ''; 
+  return '<section class="dir" id="dir-PB" aria-labelledby="h-PB">' +
+  '<div class="dh"><span class="dl sm" aria-hidden="true">D+</span><h2 id="h-PB">Big name + race progress border</h2><span class="chip mine">The athlete’s idea</span><span class="chip rec">Recommended</span><span class="sp"></span>' +
+  '<button type="button" class="pick" data-pick="PB" aria-pressed="false">Pick D+</button></div>' +
+  '<div class="pbctl"><span>Slice size:</span><div class="seg" role="group" aria-label="Slice size"><button type="button" data-mode="equal" aria-pressed="true">Equal per segment</button><button type="button" data-mode="exp" aria-pressed="false">Expected time</button></div><span id="pbnote">16 equal slices for HYROX, 9 for Helen, AMRAP = time.</span></div>' +
+  '<div class="strip" tabindex="0" role="region" aria-label="Big name with progress border, scroll sideways"><div class="cols" id="pbmain"></div></div>' +
+  '<div class="why"><p>Read clockwise from 12 o’clock. Each slice is one segment: blue runs, orange stations, the Roxzone is not a slice of its own. Done slices are muted, the slice you are in is bright and pulses, the empty track is grey. For an AMRAP the border is time to the 20:00 cap in yellow, one slit every 5 minutes, because there is no fixed list of segments to finish.</p>' +
+  '<div class="pc"><div class="pro"><h3>Pros</h3><ul>' + PB_PROS.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></div><div class="con"><h3>Cons</h3><ul>' + PB_CONS.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></div></div></div>' +
+  '<h3 class="pbsub">Slice size: equal or expected time?</h3>' +
+  '<div class="pbgrid"><div class="pbcard"><h4>Recommendation: equal per segment</h4><p>Every segment gets the same share (1/16 for HYROX). Inside the current slice, the fill follows the segment’s own progress: metres on the erg and runs, lengths on the sleds, reps on Wall Balls. Where we cannot measure (a station with no target), the fill follows your usual time and stops at 90 % until you switch.</p>' +
+  '<p><b>Why:</b> it is honest and stable. A slit always means “one segment done”, so you can count them, and the border never moves backwards or jumps when you are slower than planned.</p></div>' +
+  '<div class="pbcard"><h4>Expected time (not recommended)</h4><p>Runs get ~5:00 each, Farmers Carry 2:00, Wall Balls 6:00, so the border looks more like the real clock: Farmers is a sliver, Wall Balls a wide band.</p>' +
+  '<p><b>But it lies when you are slower:</b> your 8-minute Sled Pull sits in a 5-minute slice, so the fill reaches the slit and parks there, and the 50 % mark arrives late. Slices also change size between athletes and races, so the slits stop meaning anything you can count.</p></div></div>' +
+  '<div class="pbcard"><h4>Same moment, both ways (HYROX, Run 3 at 22 %)</h4><div class="bars" id="pbbars"></div></div>' +
+  '<h3 class="pbsub">Sharing the edge</h3>' +
+  '<div class="strip" tabindex="0" role="region" aria-label="Edge conflicts, scroll sideways"><div class="cols">' + PB_EDGE.map(s => fig(s, 'equal')).join('') + '</div></div>' +
+  '<div class="pbgrid">' +
+  '<div class="pbcard"><h4>Crown arc (advance or undo)</h4><p>While you turn the Crown, the race border dims to a quarter and the volt Crown arc draws <b>inside</b> it (6 px, inset 9 px): clockwise to advance, anticlockwise to undo, with the target named at the bottom. Release and the border comes back. I rejected “the current slice fills to its slit as the Crown feedback”: at 96 % of a slice there is no travel left to feel.</p></div>' +
+  '<div class="pbcard"><h4>Wall Balls rep ring</h4><p>The border wins the edge; the rep ring goes. The reps are already the number under the timer (43 /100), and the last slice itself fills by reps, so the border <b>is</b> the rep ring for that station. No temporary swap: an edge that changes meaning mid-race is worse than one fewer ring.</p></div>' +
+  '<div class="pbcard"><h4>Roxzone (full pink)</h4><p>The border turns ink on pink: done slices at 70 %, the track at 20 %. The Roxzone has no slice; the border holds at the slit between the run you finished and the station ahead, and that slit pulses as a small ink notch.</p></div>' +
+  '<div class="pbcard"><h4>Wrist down (always-on)</h4><p>3 px instead of 4, done slices at 50 %, current slice steady at 85 %, no pulse, updated once a minute. Still readable as “about a quarter”, still dark enough for always-on.</p></div></div>' +
+  '<h3 class="pbsub">Border vs a “5/16” number</h3>' +
+  '<div class="pbgrid"><div class="pbcard"><h4>Border</h4><ul><li>Zero space in the middle; D stays as it is.</li><li>Peripheral: rough position without reading.</li><li>Run/station colour gives rhythm (what comes next).</li><li>Imprecise; corners distort; competes with other edge uses.</li></ul></div>' +
+  '<div class="pbcard"><h4>Small text (“3/8” or “5/16”)</h4><ul><li>Exact, cheap, no conflicts.</li><li>Must be read: needs a focused glance at 11 px.</li><li>“5/16” means little mid-race; “Run 3/8” does.</li><li>Fits on the race-time line as a fallback.</li></ul></div></div>' +
+  '<div class="verdict">' + PB_VERDICT.map(x => '<p>' + x + '</p>').join('') + '</div>' +
+  '</section>';
+};
+const pbHost = document.getElementById('pbhost');
+pbHost.innerHTML = pbSection();
+const pbRender = () => {
+  document.getElementById('pbmain').innerHTML = PB_ST.map(s => fig(s, pbMode)).join('');
+  document.getElementById('pbbars').innerHTML = bar('hyrox', 'equal', PB_ST[0].pb) + bar('hyrox', 'exp', PB_ST[0].pb);
+  document.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === pbMode)));
+  document.getElementById('pbnote').textContent = pbMode === 'exp' ? 'Slices sized by typical time (runs ~5:00, Farmers 2:00, Wall Balls 6:00). AMRAP stays time.' : '16 equal slices for HYROX, 9 for Helen, AMRAP = time.';
+};
+pbRender();
+pbHost.addEventListener('click', e => { const b = e.target.closest('[data-mode]'); if (!b) return; pbMode = b.dataset.mode; pbRender(); });
+const ALL = [{id:'PB', name:'Big name + race progress border'}].concat(TITLES, DIRS);
 
 const picked = document.getElementById('picked');
 function setPick(id){
@@ -326,7 +497,7 @@ function setPick(id){
     b.textContent = on ? 'Picked ' + d.id : 'Pick ' + d.id;
   });
   const d = ALL.find(x => x.id === id);
-  picked.innerHTML = d ? 'Your pick: <b>' + d.id + ' · ' + esc(d.name) + '</b>' : 'Nothing picked yet. One pick across the whole page.';
+  picked.innerHTML = d ? 'Your pick: <b>' + (d.id === 'PB' ? 'D+' : d.id) + ' · ' + esc(d.name) + '</b>' : 'Nothing picked yet. One pick across the whole page.';
 }
 document.querySelector('main').addEventListener('click', e => {
   const b = e.target.closest('[data-pick]'); if (!b) return;

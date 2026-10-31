@@ -178,6 +178,24 @@ textarea:disabled{opacity:.6}
 .D .row{top:calc(50% + 34px);display:flex;justify-content:center;align-items:baseline;gap:14px}
 .D .row b{font-size:22px}
 .D.aod .row{top:calc(50% + 36px)}
+/* 5: big name + race progress border (start top centre, clockwise) */
+.pbsvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.pbsvg path{fill:none;stroke-width:4;stroke-linecap:butt}
+.pbsvg .bt{stroke:var(--tile)}
+.pbsvg .bf{stroke:var(--run)}
+.pbsvg .bf.st{stroke:var(--station)}
+.pbsvg .bf.done{opacity:.55}
+.pbsvg .bf.cur{animation:pbPulse 1.8s ease-in-out infinite}
+@keyframes pbPulse{0%,100%{opacity:1}50%{opacity:.6}}
+@media (prefers-reduced-motion:reduce){.pbsvg .bf.cur,.pbsvg .hold{animation:none}}
+.rox .pbsvg .bt{stroke:var(--rox-ink);opacity:.2}
+.rox .pbsvg .bf{stroke:var(--rox-ink)}
+.rox .pbsvg .bf.done{opacity:.7}
+.rox .pbsvg .hold{stroke:var(--rox-ink);stroke-width:8;animation:pbPulse 1.2s ease-in-out infinite}
+.aod .pbsvg path{stroke-width:3}
+.aod .pbsvg .bt{opacity:.55}
+.aod .pbsvg .bf.done{opacity:.5}
+.aod .pbsvg .bf.cur{animation:none;opacity:.85}
 </style>
 
 <div class="page">
@@ -185,7 +203,7 @@ textarea:disabled{opacity:.6}
   <header class="head">
     <div class="kick">BarPath · HYROX race mode · vote</div>
     <h1>Pick the watch screen</h1>
-    <p class="lede">I'm building a race mode for HYROX on the Apple Watch: one screen that shows my segment time, the number that matters right now and my heart rate, from the first run to the last wall ball. Four layouts made the final cut, so which layout would you want on race day?</p>
+    <p class="lede">I'm building a race mode for HYROX on the Apple Watch: one screen that shows my segment time, the number that matters right now and my heart rate, from the first run to the last wall ball. Five layouts made the final cut, so which layout would you want on race day?</p>
     <div class="meta"><span class="chip">Sample</span><span>Sample numbers. Tap a watch row to scroll sideways.</span></div>
     <p class="owner" id="owner" hidden>You're the owner: share this page from the Share menu so friends can vote.</p>
   </header>
@@ -276,6 +294,28 @@ const drawD = s => {
   return scr('D', s, nm + TMR(s) + '<div class="ab row">' + V(s.met) + HRV(s) + '</div>');
 };
 
+/* 5: big name + race progress border. 16 equal slices (run/station), filled = segments done + current fraction */
+const PB_D = 'M102 2H159A43 43 0 0 1 202 45V201A43 43 0 0 1 159 244H45A43 43 0 0 1 2 201V45A43 43 0 0 1 45 2Z';
+const PB_KINDS = Array.from({length:16}, (_, i) => i % 2 ? 'st' : 'run');
+const PB_AT = [{cur:4, f:.22}, {cur:1, f:.55}, {cur:15, f:.43}, {cur:1, f:0, hold:true}, {cur:4, f:.22}];
+const pbDash = (a, len, cls) => len <= 0.01 ? '' : '<path class="' + cls + '" d="' + PB_D + '" pathLength="100" stroke-dasharray="' + len.toFixed(2) + ' 200" stroke-dashoffset="' + (-a).toFixed(2) + '"/>';
+const pbBorder = p => {
+  const n = PB_KINDS.length, L = 100 / n, g = .7;
+  let t = '', f = '';
+  PB_KINDS.forEach((k, i) => {
+    const a = i * L + g / 2, len = L - g;
+    t += pbDash(a, len, 'bt');
+    if (i < p.cur) f += pbDash(a, len, 'bf done ' + k);
+    else if (i === p.cur && p.f > 0) f += pbDash(a, len * p.f, 'bf cur ' + k);
+  });
+  if (p.hold) f += pbDash(p.cur * L - .6, 1.2, 'hold');
+  return '<svg class="pbsvg" viewBox="0 0 204 246" aria-hidden="true">' + t + f + '</svg>';
+};
+const drawPB = s => {
+  const base = drawD(s), open = base.match(/^<div class="scr [^"]*"[^>]*>/)[0];
+  return open + pbBorder(PB_AT[ST_ALL.indexOf(s)] || {cur:0, f:0}) + base.slice(open.length);
+};
+
 const FIN = [
   {n:1, name:'Name above the timer',
    desc:'The segment timer sits big in the middle with the station name in small coloured letters just above it, the key number and heart rate below, and the total race time at the top.',
@@ -288,7 +328,10 @@ const FIN = [
    draw:drawB},
   {n:4, name:'Big name',
    desc:'The station name is a big coloured word at the top, the timer is big in the middle, and the key number and heart rate share one row below.',
-   draw:drawD}
+   draw:drawD},
+  {n:5, name:'Big name + progress border',
+   desc:'Layout 4 plus a thin border around the screen edge that fills clockwise as the race goes on, with a small gap between segments, blue for runs and orange for stations.',
+   draw:drawPB}
 ];
 
 const watch = inner => '<div class="watchwrap"><div class="watch"><div class="band t"></div><div class="band b"></div><div class="case"><div class="bezel"><div class="screen">' + inner + '</div></div></div><div class="crown"></div><div class="sidebtn"></div></div></div>';
@@ -313,7 +356,7 @@ document.getElementById('finalists').innerHTML = FIN.map(f =>
 /* ---------- voting ---------- */
 const $ = id => document.getElementById(id);
 const MAXC = 280;
-const clampChoice = v => { const n = Math.round(Number(v)); return n >= 1 && n <= 4 ? n : 0; };
+const clampChoice = v => { const n = Math.round(Number(v)); return n >= 1 && n <= 5 ? n : 0; };
 const clampComment = v => (typeof v === 'string' ? v : '').slice(0, MAXC).trim();
 const S = {db:null, user:null, myId:null, canVote:false, readOnly:false,
            saved:null, choice:0, touched:false, saving:false, votes:[], renderTok:0};
@@ -367,7 +410,7 @@ save.addEventListener('click', doSave);
 function errMsg(e){
   const code = e && e.code;
   if (code === 'invalid_argument' || code === 'not_granted' || code === 'capability_disabled' || code === 'capability_removed' || code === 'revoked' || code === 'transform_error')
-    return {ro:true, msg:"This link doesn't let you vote here. Reply to whoever sent you this with your number (1–4) and a comment instead."};
+    return {ro:true, msg:"This link doesn't let you vote here. Reply to whoever sent you this with your number (1–5) and a comment instead."};
   if (code === 'resource_exhausted') return {msg:'Too many saves in a short time. Wait a moment, then try again.'};
   if (code === 'quota_exceeded') return {msg:'The vote box is full right now. Reply to whoever sent you this with your number and comment instead.'};
   return {msg:"Couldn't save just now. Your vote is still here; try again in a moment."};
@@ -413,7 +456,7 @@ function parseVotes(docs){
 }
 function renderResults(){
   const votes = S.votes, total = votes.length;
-  const counts = [0, 0, 0, 0, 0];
+  const counts = [0, 0, 0, 0, 0, 0];
   votes.forEach(v => counts[v.choice]++);
   $('res-note').textContent = total ? total + (total === 1 ? ' vote so far.' : ' votes so far.') : 'No votes yet. Be the first.';
   FIN.forEach(f => {
@@ -461,7 +504,7 @@ function onVotes(snap){
 }
 
 /* ---------- capabilities (resolve after first paint) ---------- */
-const READ_ONLY = 'Sign in to claude.ai from this link to vote, or just reply to whoever sent you this with your number (1–4) and a comment.';
+const READ_ONLY = 'Sign in to claude.ai from this link to vote, or just reply to whoever sent you this with your number (1–5) and a comment.';
 function use(name){
   try {
     if (window.claude && typeof window.claude.use === 'function') return Promise.resolve(window.claude.use(name)).catch(() => null);
