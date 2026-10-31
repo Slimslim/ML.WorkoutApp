@@ -16,3 +16,9 @@ total 1946 vs 2100 m (−7 %). Calibration data for HYROX_PLAN §8.
 - Burpees (147 s): 4 bouts of 18–23 s; your work 80 s (54 %), rest 68 s.
 - DB lunges, med-ball step-overs, devil press: wrist holds a weight → low |a|; needs other features
   (step cadence, gravity orientation). Labels from the athlete pending (who did which reps).
+
+## Athlete labels (2026-10-31)
+Wall balls split 10/10 (4 sets each), burpees 5/5 (4 sets each), partner started both.
+Detector check: 4 work bouts in each station (matches); first bout starts after the partner's set.
+First rep-count try inside the bouts (vertical accel = −(userAccel·gravity), low-pass 3 Hz, peaks > 1 g ≥ 1.2 s apart):
+wall balls 11 / 10 / 11 / 12 (truth 10 each), burpees 6 / 5 / 5 / 5 (truth 5 each).
