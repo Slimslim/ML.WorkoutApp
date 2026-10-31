@@ -122,6 +122,35 @@ extension WorkoutResult {
         return (avg: avg, max: hi, min: lo)
     }
 
+    /// True when `definition` can replace this result's definition: same id, same number of
+    /// segments and the same run/station/rest pattern (only targets, names, loads may differ).
+    public func canApplyDefinition(_ definition: WorkoutDefinition) -> Bool {
+        let old = self.definition
+        guard definition.id == old.id, definition != old,
+              definition.segments.count == old.segments.count,
+              segments.count <= definition.segments.count else { return false }
+        for i in 0..<old.segments.count where old.segments[i].kind != definition.segments[i].kind {
+            return false
+        }
+        return true
+    }
+
+    /// Swaps in a newer version of the same workout (e.g. the scaled WOD 1 on 2026-10-31),
+    /// keeping every time, heart rate and step value. Segment titles and movements follow the new
+    /// definition; the overview then uses the new targets (run distances, reps). Sets editedAt.
+    @discardableResult
+    public mutating func applyDefinition(_ definition: WorkoutDefinition, now: Date = Date()) -> Bool {
+        guard canApplyDefinition(definition) else { return false }
+        self.definition = definition
+        for i in 0..<segments.count {
+            let d = definition.segments[i]
+            segments[i].movement = d.movement
+            segments[i].title = d.title
+        }
+        editedAt = now
+        return true
+    }
+
     private static func applyHeartRate(_ seg: inout SegmentResult, series: HeartRateSeries) {
         let st: (avg: Double?, max: Double?, min: Double?) = heartRateStats(series: series, from: seg.start,
                                                                              to: seg.end)

@@ -84,10 +84,15 @@ final class WorkoutSessionModel: ObservableObject {
     @Published private(set) var phoneDefinition: WorkoutDefinition?
 
     var selectedDefinition: WorkoutDefinition {
+        // A built-in workout always uses this build's version, so an update (e.g. WOD 1 scaled,
+        // 2026-10-31) isn't masked by an older copy the phone sent earlier.
+        if let builtIn = WorkoutLibrary.definition(id: definitionId) {
+            return builtIn
+        }
         if let phone = phoneDefinition, phone.id == definitionId {
             return phone
         }
-        return WorkoutLibrary.definition(id: definitionId) ?? WorkoutLibrary.partnerWod1
+        return WorkoutLibrary.partnerWod1
     }
 
     /// True when the selected workout came from the iPhone.
@@ -157,7 +162,8 @@ final class WorkoutSessionModel: ObservableObject {
             initialId = WorkoutLibrary.partnerWod1.id
         }
         var initialDefinition = WorkoutLibrary.definition(id: initialId) ?? WorkoutLibrary.partnerWod1
-        if let phone = storedPhoneDefinition, phone.id == initialId {
+        if let phone = storedPhoneDefinition, phone.id == initialId,
+           WorkoutLibrary.definition(id: initialId) == nil {
             initialDefinition = phone
         }
 

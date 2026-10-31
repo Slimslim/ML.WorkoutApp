@@ -61,6 +61,13 @@ struct FixSplitsView: View {
         return m > 0 && s.duration > 2 * m
     }
 
+    /// The built-in version of this workout, when it differs from the saved one and fits it.
+    private var newerVersion: WorkoutDefinition? {
+        guard let lib = WorkoutLibrary.definition(id: draft.definition.id),
+              draft.canApplyDefinition(lib) else { return nil }
+        return lib
+    }
+
     private var workoutStart: Double {
         return draft.startDate.timeIntervalSince1970
     }
@@ -88,6 +95,15 @@ struct FixSplitsView: View {
     var body: some View {
         NavigationStack {
             List {
+                if let newer = newerVersion {
+                    Section {
+                        Button("Use the current version: " + newer.name) {
+                            draft.applyDefinition(newer)
+                        }
+                    } footer: {
+                        Text("This workout was saved with an older version of its definition. Times, heart rate and steps stay; names, targets and loads follow the current version.")
+                    }
+                }
                 Section {
                     ForEach(draft.segments.indices, id: \.self) { (i: Int) in
                         segmentRow(i)

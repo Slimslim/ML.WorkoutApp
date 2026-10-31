@@ -239,4 +239,35 @@ final class WorkoutResultEditingTests: XCTestCase {
         XCTAssertFalse(s.headline.contextText.contains("+0"))
         XCTAssertFalse(s.dataNote.isEdited)                   // set on the watch: not an edit
     }
+
+    func testApplyNewerDefinitionKeepsTimes() {
+        let rx = WorkoutDefinition(
+            id: "t.wod", name: "T", shortName: "T", format: .forTime, team: .doubles, timeCapSeconds: nil,
+            healthKitActivity: "crossTraining",
+            segments: [WorkoutSegment(kind: .run, movement: Movement.run, name: "Run", target: SegmentTarget(1000, .meters)),
+                       WorkoutSegment(kind: .station, movement: Movement.wallBalls, name: "Wall Balls", target: SegmentTarget(100, .reps))])
+        var scaled = rx
+        scaled.name = "T (Scaled)"
+        scaled.segments[0].target = SegmentTarget(800, .meters)
+        scaled.segments[1].target = SegmentTarget(80, .reps)
+        let seg0 = SegmentResult(index: 0, kind: .run, movement: Movement.run, title: "Run 1000 m", start: 0, end: 300,
+                                 duration: 300, heartRateAvg: 150, heartRateMax: 160, steps: 800, distance: 700,
+                                 cadence: 160, paceSecondsPerKm: 428)
+        let seg1 = SegmentResult(index: 1, kind: .station, movement: Movement.wallBalls, title: "Wall Balls 100", start: 300,
+                                 end: 500, duration: 200, heartRateAvg: 155, heartRateMax: 165, steps: nil, distance: nil,
+                                 cadence: nil, paceSecondsPerKm: nil)
+        var r = WorkoutResult(definition: rx, startDate: Date(timeIntervalSince1970: 0), finishDate: Date(timeIntervalSince1970: 500),
+                              endDate: Date(timeIntervalSince1970: 510), totalSeconds: 500, segments: [seg0, seg1], events: [])
+        XCTAssertTrue(r.canApplyDefinition(scaled))
+        XCTAssertTrue(r.applyDefinition(scaled, now: Date(timeIntervalSince1970: 1000)))
+        XCTAssertEqual(r.definition.name, "T (Scaled)")
+        XCTAssertEqual(r.segments.map { (s: SegmentResult) -> String in s.title }, ["Run 800 m", "Wall Balls 80"])
+        XCTAssertEqual(r.segments[0].duration, 300)
+        XCTAssertEqual(r.segments[0].distance, 700)
+        XCTAssertNotNil(r.editedAt)
+        XCTAssertFalse(r.canApplyDefinition(scaled))   // already applied
+        var other = scaled
+        other.id = "other"
+        XCTAssertFalse(r.canApplyDefinition(other))
+    }
 }
