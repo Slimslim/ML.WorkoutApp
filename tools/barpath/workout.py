@@ -208,12 +208,12 @@ class WorkoutLibrary:
     halfHyrox = WorkoutDefinition("hyrox.half", "Half HYROX", "Half Hyrox", "forTime", "solo", None,
                                   "mixedCardio", _runs_and_stations(500, _half_hyrox_stations()), round_size=2)
     partnerWod1 = WorkoutDefinition(
-        "partner.wod1", "Partner WOD 1", "WOD 1", "forTime", "doubles", None, "crossTraining",
-        [_run(1000), _station(Movement.wallBalls, 100, "reps"),
-         _run(800), _station(Movement.dumbbellWalkingLunges, 80, "reps"),
-         _run(600), _station(Movement.burpees, 60, "reps"),
-         _run(400), _station(Movement.medBallBoxStepOvers, 40, "reps"),
-         _run(200), _station(Movement.devilPress, 20, "reps")],
+        "partner.wod1", "Partner WOD 1 (Scaled)", "WOD 1", "forTime", "doubles", 1800.0, "crossTraining",
+        [_run(800), _station(Movement.wallBalls, 80, "reps"),
+         _run(600), _station(Movement.dumbbellWalkingLunges, 60, "reps"),
+         _run(400), _station(Movement.burpees, 40, "reps"),
+         _run(200), _station(Movement.medBallBoxStepOvers, 20, "reps"),
+         _run(100), _station(Movement.devilPress, 10, "reps")],
         round_size=2)
     partnerWod2 = WorkoutDefinition(
         "partner.wod2", "Partner WOD 2", "WOD 2", "forTime", "doubles", None, "crossTraining",

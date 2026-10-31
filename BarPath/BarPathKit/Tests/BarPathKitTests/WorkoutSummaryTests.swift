@@ -446,8 +446,8 @@ final class WorkoutSummaryTests: XCTestCase {
 
         let w1 = buildResult(WorkoutLibrary.partnerWod1, durations: [300, 200, 240, 180, 180, 160, 120, 100, 60, 90])
         if case .runsAndStations(let r) = WorkoutSummary.make(result: w1, previous: nil, maxHeartRate: nil).story {
-            // 800 m run in 240 s → 300 s/km.
-            XCTAssertEqual(r.runs[1].paceSecondsPerKm ?? -1, 300, accuracy: 1e-9)
+            // 600 m run (scaled WOD 1) in 240 s → 400 s/km.
+            XCTAssertEqual(r.runs[1].paceSecondsPerKm ?? -1, 400, accuracy: 1e-9)
         } else {
             XCTFail("Partner WOD 1 should be runsAndStations")
         }

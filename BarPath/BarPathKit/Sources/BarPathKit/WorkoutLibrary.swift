@@ -85,19 +85,20 @@ public enum WorkoutLibrary {
         roundSize: 2)
 
     public static let partnerWod1: WorkoutDefinition = WorkoutDefinition(
-        id: "partner.wod1", name: "Partner WOD 1", shortName: "WOD 1",
-        format: .forTime, team: .doubles, timeCapSeconds: nil, healthKitActivity: "crossTraining",
+        // Scaled version done on 2026-10-31 (partner, 30:00 cap; runs together, stations split).
+        id: "partner.wod1", name: "Partner WOD 1 (Scaled)", shortName: "WOD 1",
+        format: .forTime, team: .doubles, timeCapSeconds: 1800.0, healthKitActivity: "crossTraining",
         segments: [
-            runSegment(1000),
-            station(Movement.wallBalls, 100, .reps),
             runSegment(800),
-            station(Movement.dumbbellWalkingLunges, 80, .reps),
+            station(Movement.wallBalls, 80, .reps),
             runSegment(600),
-            station(Movement.burpees, 60, .reps),
+            station(Movement.dumbbellWalkingLunges, 60, .reps),
             runSegment(400),
-            station(Movement.medBallBoxStepOvers, 40, .reps),
+            station(Movement.burpees, 40, .reps),
             runSegment(200),
-            station(Movement.devilPress, 20, .reps)
+            station(Movement.medBallBoxStepOvers, 20, .reps),
+            runSegment(100),
+            station(Movement.devilPress, 10, .reps)
         ],
         roundSize: 2)
 

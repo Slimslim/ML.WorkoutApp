@@ -61,8 +61,9 @@ final class WorkoutTests: XCTestCase {
         let w1 = WorkoutLibrary.partnerWod1
         XCTAssertEqual(w1.segments.count, 10)
         XCTAssertEqual(w1.segments.map { (s: WorkoutSegment) -> String in s.title },
-                       ["Run 1000 m", "Wall Balls 100", "Run 800 m", "DB Walking Lunges 80", "Run 600 m",
-                        "Burpees 60", "Run 400 m", "Med Ball Box Step-Overs 40", "Run 200 m", "Devil Press 20"])
+                       ["Run 800 m", "Wall Balls 80", "Run 600 m", "DB Walking Lunges 60", "Run 400 m",
+                        "Burpees 40", "Run 200 m", "Med Ball Box Step-Overs 20", "Run 100 m", "Devil Press 10"])
+        XCTAssertEqual(w1.timeCapSeconds, 1800)
         let w2 = WorkoutLibrary.partnerWod2
         XCTAssertEqual(w2.segments.count, 5)
         XCTAssertTrue(w2.segments.allSatisfy { (s: WorkoutSegment) -> Bool in s.kind == .station })
