@@ -120,6 +120,9 @@ final class WorkoutSessionModel: ObservableObject {
     @Published private(set) var csvBytes = 0
     @Published private(set) var marksCount = 0
     @Published private(set) var latestPedometer: PedometerSnapshot?
+    /// Reps done in the segment cut by the time cap, entered on the done screen
+    /// (WORKOUT_SPEC §5). Written into the WorkoutResult at End; nil = not entered.
+    @Published private(set) var partialReps: Int?
 
     private var workout: WorkoutManager
     private let recorder: WorkoutMotionRecorder
@@ -241,6 +244,7 @@ final class WorkoutSessionModel: ObservableObject {
         motionSamples = 0
         csvBytes = 0
         marksCount = 0
+        partialReps = nil
         finalized = false
         autoSuppressedStart = nil
         capSuppressed = false
@@ -306,6 +310,10 @@ final class WorkoutSessionModel: ObservableObject {
         if let cap = progress.capTime, cap <= t {
             capSuppressed = true
         }
+        if wasFinished {
+            // The reps belonged to the cap finish; the athlete re-enters them if it finishes again.
+            partialReps = nil
+        }
         let name = wasFinished ? "unfinish" : "undo"
         recorder.appendEvent(atUptime: uptime,
                              description: "name=\(name) index=\(progress.currentIndex) source=\(source.rawValue)")
@@ -313,6 +321,48 @@ final class WorkoutSessionModel: ObservableObject {
         persistProgress()
         workoutLog.info("undo (\(source.rawValue, privacy: .public)) -> \(self.progress.currentIndex)")
         return true
+    }
+
+    // MARK: - Partial reps (WORKOUT_SPEC §5)
+
+    /// Finished by the AMRAP time cap (the last finish event came from the clock).
+    var isFinishedByCap: Bool {
+        guard progress.isFinished, progress.capTime != nil,
+              let last = progress.events.last(where: { (e: WorkoutEvent) -> Bool in e.kind == .finish }) else {
+            return false
+        }
+        return last.source == .auto
+    }
+
+    /// The segment the cap cut (asked "Reps of <name>?"), nil when there is nothing to ask.
+    var partialRepsSegment: WorkoutSegment? {
+        guard isFinishedByCap, let segment = progress.currentSegment, segment.kind != .rest else { return nil }
+        return segment
+    }
+
+    /// The done screen shows the reps picker (it then owns the Digital Crown).
+    var asksPartialReps: Bool {
+        return phase == .running && partialRepsSegment != nil
+    }
+
+    /// Picker range 0…partialRepsMax: the segment's reps target, else 200.
+    var partialRepsMax: Int {
+        if let target = partialRepsSegment?.target, target.unit == .reps, target.value >= 1 {
+            return Int(target.value.rounded())
+        }
+        return 200
+    }
+
+    /// Stores the reps (clamped to 0…partialRepsMax) and logs `name=partialReps reps=<n>` in
+    /// the CSV. Can be called again until End; the last value wins.
+    func savePartialReps(_ reps: Int) {
+        guard phase == .running, partialRepsSegment != nil else { return }
+        let value: Int = min(max(0, reps), partialRepsMax)
+        partialReps = value
+        recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
+                             description: "name=partialReps reps=\(value)")
+        play(.click)
+        workoutLog.info("partial reps saved: \(value)")
     }
 
     /// Mark line in the CSV (Data mode only).
@@ -685,7 +735,7 @@ final class WorkoutSessionModel: ObservableObject {
         let hrSeries: HeartRateSeries? = hr.isEmpty ? nil
             : HeartRateSeries.make(samples: hr, start: startT, end: finishT ?? endT)
 
-        let result = WorkoutResult(version: WorkoutResult.currentVersion,
+        var result = WorkoutResult(version: WorkoutResult.currentVersion,
                                    id: workoutId,
                                    definition: definition,
                                    startDate: Date(timeIntervalSince1970: startT),
@@ -698,6 +748,10 @@ final class WorkoutSessionModel: ObservableObject {
                                    heartRateMax: hrMax,
                                    recordingFileName: recordedCSV ? "session-\(workoutId.uuidString).csv" : nil,
                                    heartRateSeries: hrSeries)
+        if progress.isFinished, let reps = partialReps {
+            // Entered on the watch: not an edit, so editedAt stays nil.
+            result.partialReps = min(max(0, reps), result.partialRepsLimit ?? reps)
+        }
 
         let summary = "\(definition.shortName) · \(SessionModel.formatElapsed(total))"
         lastSummary = summary

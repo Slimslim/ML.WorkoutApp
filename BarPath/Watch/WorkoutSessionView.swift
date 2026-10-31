@@ -56,6 +56,13 @@ final class CrownAdvanceController: ObservableObject {
     }
     var isBackward: Bool { accumulated < 0 }
 
+    /// Crown changes while another control owns the Crown (the partial-reps picker): follow
+    /// the value without counting it, so no advance/undo can fire and no jump is seen later.
+    func ignore(_ newValue: Double) {
+        lastValue = newValue
+        resetGesture()
+    }
+
     /// Call after any advance/undo that did not come from the Crown (press, buttons).
     func noteAction() {
         lockedUntil = Date().addingTimeInterval(CrownAdvanceController.lockout)
@@ -203,7 +210,8 @@ struct WorkoutMainPage: View {
             crownArc.allowsHitTesting(false)
         }
         .contentShape(Rectangle())
-        .focusable(true)
+        // While the partial-reps picker is up it owns the Crown: this page can't take focus.
+        .focusable(!repsPickerActive)
         .focused($crownFocused)
         .focusEffectDisabled()
         .digitalCrownRotation($crown.crownValue,
@@ -214,7 +222,11 @@ struct WorkoutMainPage: View {
                               isContinuous: true,
                               isHapticFeedbackEnabled: false)
         .onChange(of: crown.crownValue) { _, newValue in
-            crown.crownChanged(to: newValue, model: model)
+            if repsPickerActive {
+                crown.ignore(newValue)
+            } else {
+                crown.crownChanged(to: newValue, model: model)
+            }
         }
         .onLongPressGesture(minimumDuration: 1.0) {
             if model.advance(source: .press) {
@@ -222,18 +234,33 @@ struct WorkoutMainPage: View {
             }
         }
         .onAppear {
-            crownFocused = true
+            crownFocused = !repsPickerActive
         }
         .onChange(of: isActivePage) { _, active in
             // Off page 1 the Crown must not advance/undo unseen: drop focus there.
-            crownFocused = active
+            crownFocused = active && !repsPickerActive
         }
         .onChange(of: focusToken) { _, _ in
-            crownFocused = true
+            crownFocused = !repsPickerActive
         }
         .onChange(of: isLuminanceReduced) { _, reduced in
-            if !reduced && isActivePage { crownFocused = true }
+            if !reduced && isActivePage && !repsPickerActive { crownFocused = true }
         }
+        .onChange(of: repsPickerActive) { _, active in
+            // Picker up (cap reached): hand the Crown over. Gone (Undo): take it back.
+            if active {
+                crownFocused = false
+                crown.noteAction()
+            } else if isActivePage {
+                crownFocused = true
+            }
+        }
+    }
+
+    /// The done screen asks for the reps of the segment cut by the time cap (§5). While true,
+    /// the Crown never advances/undoes this page (Undo stays on the button).
+    private var repsPickerActive: Bool {
+        return model.progress.isFinished && model.asksPartialReps
     }
 
     @ViewBuilder
@@ -297,8 +324,7 @@ struct WorkoutMainPage: View {
     }
 
     private var finishedByCap: Bool {
-        guard let last = model.progress.events.last(where: { (e: WorkoutEvent) -> Bool in e.kind == .finish }) else { return false }
-        return last.source == .auto
+        return model.isFinishedByCap
     }
 
     // MARK: Normal
@@ -411,29 +437,63 @@ struct WorkoutMainPage: View {
         let total = model.progress.totalElapsed(now: now.timeIntervalSince1970)
         return ZStack {
             fill.ignoresSafeArea()
-            VStack(spacing: 4) {
-                Spacer(minLength: 0)
-                Text(finishedByCap ? "TIME" : "DONE")
-                    .font(.system(size: 40, weight: .heavy, design: .rounded))
-                    .foregroundColor(ink)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-                Text(SessionModel.formatElapsed(total))
-                    .font(.system(size: 34, weight: .heavy, design: .rounded).monospacedDigit())
-                    .foregroundColor(ink)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-                Spacer(minLength: 0)
-                if !isLuminanceReduced {
-                    undoCapsule
-                    Text("Swipe left for End")
-                        .font(.system(size: 11, weight: .semibold, design: .rounded))
-                        .foregroundColor(ink.opacity(0.7))
-                        .lineLimit(1)
-                }
+            // The picker stays in always-on too (dimmed), so a value being picked isn't reset.
+            if repsPickerActive {
+                capDoneContent(total: total, ink: ink)
+            } else {
+                finishedContent(total: total, ink: ink)
             }
-            .padding(.horizontal, 4)
         }
+    }
+
+    /// Finished by the cap: compact TIME line, the reps picker, Undo.
+    private func capDoneContent(total: Double, ink: Color) -> some View {
+        VStack(spacing: 3) {
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Text("TIME")
+                    .font(.system(size: 24, weight: .heavy, design: .rounded))
+                Text(SessionModel.formatElapsed(total))
+                    .font(.system(size: 24, weight: .heavy, design: .rounded).monospacedDigit())
+            }
+            .foregroundColor(ink)
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
+            Spacer(minLength: 0)
+            PartialRepsPicker(segmentName: model.partialRepsSegment?.name ?? "",
+                              maxReps: model.partialRepsMax,
+                              ink: ink,
+                              wantsFocus: isActivePage)
+            Spacer(minLength: 0)
+            if !isLuminanceReduced {
+                undoCapsule
+            }
+        }
+        .padding(.horizontal, 4)
+    }
+
+    private func finishedContent(total: Double, ink: Color) -> some View {
+        VStack(spacing: 4) {
+            Spacer(minLength: 0)
+            Text(finishedByCap ? "TIME" : "DONE")
+                .font(.system(size: 40, weight: .heavy, design: .rounded))
+                .foregroundColor(ink)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+            Text(SessionModel.formatElapsed(total))
+                .font(.system(size: 34, weight: .heavy, design: .rounded).monospacedDigit())
+                .foregroundColor(ink)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+            Spacer(minLength: 0)
+            if !isLuminanceReduced {
+                undoCapsule
+                Text("Swipe left for End")
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .foregroundColor(ink.opacity(0.7))
+                    .lineLimit(1)
+            }
+        }
+        .padding(.horizontal, 4)
     }
 
     // MARK: Pieces
@@ -510,6 +570,97 @@ struct WorkoutMainPage: View {
             parts.append(String(format: "%.0f", cadence))
         }
         return parts.joined(separator: "  ")
+    }
+}
+
+// MARK: - Partial reps picker (WORKOUT_SPEC §5)
+
+/// "Reps of Double Unders?" on the done screen after the time cap. The number is picked with
+/// the Digital Crown (this view takes Crown focus; the main page gives it up meanwhile), Save
+/// is a deliberate tap. Editable until End; the model keeps the last saved value.
+struct PartialRepsPicker: View {
+    @EnvironmentObject var model: WorkoutSessionModel
+    let segmentName: String
+    let maxReps: Int
+    let ink: Color
+    /// Page 1 visible: take Crown focus (dropped on page 2 so it can't change unseen).
+    let wantsFocus: Bool
+
+    @State private var value: Double = 0
+    @State private var loaded = false
+    @FocusState private var focused: Bool
+
+    private var reps: Int {
+        return min(max(0, Int(value.rounded())), upperBound)
+    }
+
+    private var upperBound: Int {
+        return max(1, maxReps)
+    }
+
+    private var statusText: String {
+        if let saved = model.partialReps {
+            return "Saved · \(saved)"
+        }
+        return "Turn the Crown, then Save"
+    }
+
+    var body: some View {
+        VStack(spacing: 2) {
+            Text("Reps of \(segmentName)?")
+                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .foregroundColor(ink)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+            HStack(spacing: 8) {
+                Text("\(reps)")
+                    .font(.system(size: 40, weight: .heavy, design: .rounded).monospacedDigit())
+                    .foregroundColor(ink)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                    .frame(minWidth: 70, minHeight: 46)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .stroke(ink.opacity(focused ? 0.9 : 0.35), lineWidth: 2)
+                    )
+                    .focusable(true)
+                    .focused($focused)
+                    .focusEffectDisabled()
+                    .digitalCrownRotation($value,
+                                          from: 0,
+                                          through: Double(upperBound),
+                                          by: 1,
+                                          sensitivity: .medium,
+                                          isContinuous: false,
+                                          isHapticFeedbackEnabled: true)
+                Button {
+                    model.savePartialReps(reps)
+                    focused = wantsFocus
+                } label: {
+                    Text("Save")
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                        .frame(minWidth: 62, minHeight: 40)
+                        .background(Capsule().fill(Color.black.opacity(0.85)))
+                }
+                .buttonStyle(.plain)
+            }
+            Text(statusText)
+                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .foregroundColor(ink.opacity(0.8))
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+        }
+        .onAppear {
+            if !loaded {
+                loaded = true
+                value = Double(model.partialReps ?? 0)
+            }
+            focused = wantsFocus
+        }
+        .onChange(of: wantsFocus) { _, want in
+            focused = want
+        }
     }
 }
 

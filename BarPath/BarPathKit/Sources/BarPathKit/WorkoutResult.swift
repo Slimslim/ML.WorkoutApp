@@ -240,7 +240,8 @@ public enum SplitStats {
 
 public struct WorkoutResult: Codable, Equatable, Identifiable {
     /// Version written by this build. 2 adds `heartRateSeries`, `heartRateMin` per segment and
-    /// `definition.roundSize` (all optional); version 1 files decode unchanged.
+    /// `definition.roundSize` (all optional); version 1 files decode unchanged. `partialReps`
+    /// and `editedAt` (§5) are optional too and need no version bump.
     public static let currentVersion: Int = 2
 
     public var version: Int
@@ -257,12 +258,18 @@ public struct WorkoutResult: Codable, Equatable, Identifiable {
     public var recordingFileName: String?
     /// HR every 5 s from the start to the finish (or end). Nil in version 1 files.
     public var heartRateSeries: HeartRateSeries?
+    /// Reps done in the segment that was cut by the cap / end (WORKOUT_SPEC §5). Optional in
+    /// JSON (absent in older files); set on the watch or with `setPartialReps(_:now:)`.
+    public var partialReps: Int?
+    /// When the athlete corrected the result (splits or partial reps) on the phone. Optional.
+    public var editedAt: Date?
 
     public init(version: Int = WorkoutResult.currentVersion, id: UUID = UUID(), definition: WorkoutDefinition,
                 startDate: Date, finishDate: Date?, endDate: Date, totalSeconds: Double,
                 segments: [SegmentResult], events: [WorkoutEvent],
                 heartRateAvg: Double? = nil, heartRateMax: Double? = nil,
-                recordingFileName: String? = nil, heartRateSeries: HeartRateSeries? = nil) {
+                recordingFileName: String? = nil, heartRateSeries: HeartRateSeries? = nil,
+                partialReps: Int? = nil, editedAt: Date? = nil) {
         self.version = version
         self.id = id
         self.definition = definition
@@ -276,6 +283,8 @@ public struct WorkoutResult: Codable, Equatable, Identifiable {
         self.heartRateMax = heartRateMax
         self.recordingFileName = recordingFileName
         self.heartRateSeries = heartRateSeries
+        self.partialReps = partialReps
+        self.editedAt = editedAt
     }
 
     /// Pretty JSON, ISO8601 dates (same helpers as LiftRecording).

@@ -357,6 +357,19 @@ WorkoutSummary: AMRAP headline extraReps adds `partialReps`; stoppedIn text ment
 ("+13 Double Unders"). DataNote adds "edited" when editedAt != nil.
 Python mirror: fields in to_dict/from_dict + move_segment_start + set_partial_reps, same rules.
 
+Implementation notes (2026-10-31, additive to the API above):
+- `moveSegmentStart`: indices are positions in `segments`; a pair shorter than 2 s gets the
+  midpoint; a non-finite `start` returns false. HR per segment = mean/max/min of the non-null
+  series buckets whose centre lies in [start, end) (bucket at the midpoint if none);
+  `public static func heartRateStats(series:from:to:) -> (avg: Double?, max: Double?, min: Double?)`.
+  Steps/distance: the pair's total × (duration / pair span). Without a series HR is kept.
+- `public var partialRepsLimit: Int?` = reps target of the last segment (nil → only ≥ 0 applies).
+- The watch writes `partialReps` directly (no `editedAt`): only phone corrections count as edits.
+- Summary: `Headline.partialReps`, `StopPoint.partialReps`, `DataNote.isEdited`; AMRAP context
+  "Stopped in Double Unders, 0:16 in, at the 20:00 cap · +13 Double Unders"; data note ends
+  with " · edited". `AmrapClock.extraReps` includes the partial reps too.
+- CSV loader (`load_workout_csv`) exposes the last `partialReps` event as `partial_reps`.
+
 ### Watch
 On the finish screen when the workout was finished by the time cap (AMRAP), ask:
 "Reps of <segment name>?" with the Digital Crown picking 0…target (default 0), a Save tap.

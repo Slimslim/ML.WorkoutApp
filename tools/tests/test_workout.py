@@ -248,3 +248,112 @@ def test_round_sizes_and_heart_rate_series(tmp_path):
     del d1["heartRateSeries"]
     v1 = WorkoutResult.from_dict(d1)
     assert v1.version == 1 and v1.heart_rate_series is None
+
+
+# ---- §5 result corrections and partial reps (same cases as WorkoutResultEditingTests.swift) ----
+
+AMRAP_FIXTURE = "workout-amrap-2026-10-30.json"
+EDIT_NOW = datetime(2026, 10, 31, 12, 0, 0, tzinfo=timezone.utc)
+
+
+def load_amrap(fixtures_dir):
+    return WorkoutResult.load(fixtures_dir / AMRAP_FIXTURE)
+
+
+def test_amrap_fixture_loads_without_new_fields(fixtures_dir):
+    r = load_amrap(fixtures_dir)
+    assert r.version == 2 and r.partial_reps is None and r.edited_at is None
+    assert len(r.segments) == 24 and r.heart_rate_series is not None
+    assert r.partial_reps_limit == 31          # last segment: Double Unders 31
+
+
+def test_move_segment_start_fixes_the_round4_mixup(fixtures_dir):
+    r = load_amrap(fixtures_dir)
+    s0 = r.segments[0].start
+    total_before = r.total_seconds
+    steps_before = sum(s.steps for s in r.segments[11:14])
+    dist_before = sum(s.distance for s in r.segments[11:14])
+    untouched = [s.to_dict() for s in r.segments[:11] + r.segments[14:]]
+    assert r.move_segment_start(12, s0 + 556.94, EDIT_NOW)
+    assert r.move_segment_start(13, s0 + 619.32, EDIT_NOW)
+    seg11, seg12, seg13 = r.segments[11], r.segments[12], r.segments[13]
+    # Real round 4 from the README: burpees 556.9-619.3, DUs 619.3-700.1.
+    assert seg11.duration == pytest.approx(556.94 - (seg11.start - s0), abs=1e-6)
+    assert seg11.duration == pytest.approx(60.16783, abs=1e-4)
+    assert seg12.duration == pytest.approx(62.38, abs=1e-4)
+    assert seg13.duration == pytest.approx(80.75398, abs=1e-4)
+    assert seg11.end == seg12.start and seg12.end == seg13.start
+    assert seg13.end - s0 == pytest.approx(700.07398, abs=1e-4)
+    # HR recomputed from the 5 s series.
+    assert seg11.heart_rate_avg == pytest.approx(169.16666666666666, abs=1e-9)
+    assert (seg11.heart_rate_max, seg11.heart_rate_min) == (173.0, 167.0)
+    assert seg12.heart_rate_avg == pytest.approx(163.15384615384616, abs=1e-9)
+    assert (seg12.heart_rate_max, seg12.heart_rate_min) == (168.0, 161.0)
+    assert seg13.heart_rate_avg == pytest.approx(160.8125, abs=1e-9)
+    assert (seg13.heart_rate_max, seg13.heart_rate_min) == (163.0, 157.0)
+    # Steps/distance conserved, shared by time; cadence recomputed; no pace for stations.
+    assert sum(s.steps for s in r.segments[11:14]) == pytest.approx(steps_before, abs=1e-9)
+    assert sum(s.distance for s in r.segments[11:14]) == pytest.approx(dist_before, abs=1e-9)
+    assert seg12.cadence == pytest.approx(seg12.steps / seg12.duration * 60, abs=1e-9)
+    assert seg12.pace_seconds_per_km is None
+    # Nothing else changes.
+    assert r.total_seconds == total_before
+    assert [s.to_dict() for s in r.segments[:11] + r.segments[14:]] == untouched
+    assert r.edited_at == EDIT_NOW
+
+
+def test_move_segment_start_clamps_and_rejects(fixtures_dir):
+    r = load_amrap(fixtures_dir)
+    a, b = r.segments[4], r.segments[5]
+    assert r.move_segment_start(5, a.start - 100, EDIT_NOW)
+    assert r.segments[5].start == pytest.approx(a.start + 1, abs=1e-9)
+    assert r.segments[4].duration == pytest.approx(1, abs=1e-9)
+    end5 = r.segments[5].end
+    assert r.move_segment_start(5, end5 + 100, EDIT_NOW)
+    assert r.segments[5].start == pytest.approx(end5 - 1, abs=1e-9)
+    assert r.segments[5].duration == pytest.approx(1, abs=1e-9)
+    before = [s.to_dict() for s in r.segments]
+    fresh = load_amrap(fixtures_dir)
+    for bad in (0, -1, 24, 99):
+        assert not fresh.move_segment_start(bad, fresh.segments[0].start + 10, EDIT_NOW)
+    assert fresh.edited_at is None
+    assert not r.move_segment_start(3, float("nan"), EDIT_NOW)
+    assert [s.to_dict() for s in r.segments] == before
+
+
+def test_set_partial_reps_and_roundtrip(fixtures_dir, tmp_path):
+    r = load_amrap(fixtures_dir)
+    r.set_partial_reps(99, EDIT_NOW)
+    assert r.partial_reps == 31
+    r.set_partial_reps(-4, EDIT_NOW)
+    assert r.partial_reps == 0
+    r.set_partial_reps(None, EDIT_NOW)
+    assert r.partial_reps is None and r.edited_at == EDIT_NOW
+    r.set_partial_reps(13, EDIT_NOW)
+    assert r.partial_reps == 13
+    path = tmp_path / "workout-edited.json"
+    r.save(path)
+    raw = json.loads(path.read_text())
+    assert raw["partialReps"] == 13 and raw["editedAt"] == "2026-10-31T12:00:00Z"
+    back = WorkoutResult.load(path)
+    assert back.partial_reps == 13 and back.edited_at == EDIT_NOW
+    # Swift writes fractional seconds; both forms load.
+    raw["editedAt"] = "2026-10-31T12:00:00.250Z"
+    assert WorkoutResult.from_dict(raw).edited_at.microsecond == 250000
+    # Without a reps target only the lower bound applies.
+    q = WorkoutResult(WorkoutLibrary.quickTest, EDIT_NOW, None, EDIT_NOW, 60.0,
+                      split_stats(golden_progress(), 1300, [], [])[:1], [])
+    assert q.partial_reps_limit is None
+    q.set_partial_reps(500, EDIT_NOW)
+    assert q.partial_reps == 500
+
+
+def test_csv_partial_reps_event(tmp_path):
+    path = tmp_path / "session-pr.csv"
+    write_csv(path)
+    text = path.read_text().replace("# mark t=50 n=1 label=mark\n",
+                                    "# mark t=50 n=1 label=mark\n"
+                                    "# event t=205 name=partialReps reps=9\n"
+                                    "# event t=207 name=partialReps reps=13\n")
+    path.write_text(text)
+    assert load_workout_csv(path).partial_reps == 13

@@ -7,7 +7,7 @@ import json
 import uuid as _uuid
 import math
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from .recording import format_iso8601, load_session_csv, parse_iso8601
@@ -586,6 +586,45 @@ class HeartRateSeries:
 
 
 RESULT_VERSION = 2  # 2 adds heartRateSeries, heartRateMin per segment, definition.roundSize (all optional)
+# partialReps / editedAt (§5) are optional too and need no version bump.
+
+
+def _swift_round(v: float) -> float:
+    """Half away from zero, like Swift's rounded()."""
+    return math.copysign(math.floor(abs(v) + 0.5), v)
+
+
+def heart_rate_stats(series: HeartRateSeries, start: float, end: float) -> tuple:
+    """(avg, max, min) of [start, end) from a HR series (WorkoutResult.heartRateStats): the
+    non-null buckets whose centre lies in the range; when no centre falls inside, the bucket
+    containing the midpoint; None where there is no value."""
+    vals = []
+    any_centre = False
+    if series.interval > 0:
+        for k, v in enumerate(series.bpm):
+            c = series.start + (k + 0.5) * series.interval
+            if c < start or c >= end:
+                continue
+            any_centre = True
+            if v is not None:
+                vals.append(v)
+    if not any_centre:
+        v = series.value_at((start + end) / 2)
+        return (v, v, v)
+    if not vals:
+        return (None, None, None)
+    total = 0.0
+    for v in vals:
+        total += v
+    return (total / len(vals), max(vals), min(vals))
+
+
+def _refresh_rates(seg: "SegmentResult") -> None:
+    seg.cadence = seg.steps / seg.duration * 60.0 if seg.steps is not None and seg.duration > 0 else None
+    if seg.kind == "run" and seg.distance is not None and seg.distance > 50 and seg.duration > 0:
+        seg.pace_seconds_per_km = seg.duration / (seg.distance / 1000.0)
+    else:
+        seg.pace_seconds_per_km = None
 
 
 @dataclass
@@ -603,6 +642,8 @@ class WorkoutResult:
     id: str = field(default_factory=lambda: str(_uuid.uuid4()).upper())
     version: int = RESULT_VERSION
     heart_rate_series: Optional[HeartRateSeries] = None
+    partial_reps: Optional[int] = None        # §5: reps done in the segment cut by the cap / end
+    edited_at: Optional[datetime] = None      # §5: when the athlete corrected the result
 
     @property
     def run_seconds(self) -> float:
@@ -628,6 +669,10 @@ class WorkoutResult:
             d["recordingFileName"] = self.recording_file_name
         if self.heart_rate_series is not None:
             d["heartRateSeries"] = self.heart_rate_series.to_dict()
+        if self.partial_reps is not None:
+            d["partialReps"] = self.partial_reps
+        if self.edited_at is not None:
+            d["editedAt"] = format_iso8601(self.edited_at)
         return d
 
     @classmethod
@@ -637,6 +682,7 @@ class WorkoutResult:
             raise ValueError(f"unsupported WorkoutResult version {version}")
         fin = d.get("finishDate")
         series = d.get("heartRateSeries")
+        edited = d.get("editedAt")
         return cls(
             definition=WorkoutDefinition.from_dict(d["definition"]),
             start_date=parse_iso8601(d["startDate"]),
@@ -649,7 +695,74 @@ class WorkoutResult:
             heart_rate_max=None if d.get("heartRateMax") is None else float(d["heartRateMax"]),
             recording_file_name=d.get("recordingFileName"),
             id=d["id"], version=version,
-            heart_rate_series=None if series is None else HeartRateSeries.from_dict(series))
+            heart_rate_series=None if series is None else HeartRateSeries.from_dict(series),
+            partial_reps=None if d.get("partialReps") is None else int(d["partialReps"]),
+            edited_at=parse_iso8601(edited) if edited else None)
+
+    # ---- corrections (WORKOUT_SPEC §5, WorkoutResultEditing.swift) ----
+
+    def move_segment_start(self, index: int, start: float, now: Optional[datetime] = None) -> bool:
+        """Moves the boundary between segment index-1 and index to start (s since 1970); same
+        rules as Swift moveSegmentStart(index:to:now:). Clamped to [prev.start + 1, cur.end - 1]
+        (midpoint when the pair is shorter than 2 s); steps/distance shared pro rata by time,
+        cadence/pace recomputed (pace runs only), HR avg/max/min from heart_rate_series when
+        present; edited_at = now. False if index is out of range or start is not finite."""
+        if index < 1 or index >= len(self.segments):
+            return False
+        if not math.isfinite(start):
+            return False
+        a = self.segments[index - 1]
+        b = self.segments[index]
+        lo = a.start + 1
+        hi = b.end - 1
+        t = (a.start + b.end) / 2 if hi < lo else min(max(start, lo), hi)
+        a.end = t
+        a.duration = t - a.start
+        b.start = t
+        b.duration = b.end - t
+        span = b.end - a.start
+        share_a = a.duration / span if span > 0 else 0.5
+        if a.steps is not None or b.steps is not None:
+            total = (a.steps or 0.0) + (b.steps or 0.0)
+            a.steps = total * share_a
+            b.steps = total - a.steps
+        if a.distance is not None or b.distance is not None:
+            total = (a.distance or 0.0) + (b.distance or 0.0)
+            a.distance = total * share_a
+            b.distance = total - a.distance
+        for seg in (a, b):
+            _refresh_rates(seg)
+            if self.heart_rate_series is not None:
+                seg.heart_rate_avg, seg.heart_rate_max, seg.heart_rate_min = heart_rate_stats(
+                    self.heart_rate_series, seg.start, seg.end)
+        self.edited_at = now if now is not None else datetime.now(timezone.utc)
+        return True
+
+    @property
+    def partial_reps_limit(self) -> Optional[int]:
+        """Reps target of the last recorded segment (upper bound for partial_reps), else None."""
+        if not self.segments:
+            return None
+        i = self.segments[-1].index
+        if i < 0 or i >= len(self.definition.segments):
+            return None
+        target = self.definition.segments[i].target
+        if target is None or target.unit != "reps":
+            return None
+        return max(0, int(_swift_round(target.value)))
+
+    def set_partial_reps(self, reps: Optional[int], now: Optional[datetime] = None) -> None:
+        """partial_reps = None or clamped to 0..partial_reps_limit (lower bound only without a
+        reps target); edited_at = now."""
+        if reps is None:
+            self.partial_reps = None
+        else:
+            v = max(0, int(reps))
+            limit = self.partial_reps_limit
+            if limit is not None:
+                v = min(v, limit)
+            self.partial_reps = v
+        self.edited_at = now if now is not None else datetime.now(timezone.utc)
 
     def save(self, path) -> None:
         with open(path, "w") as f:
@@ -675,6 +788,7 @@ class WorkoutCSV:
     marks: list
     end_time: float           # last motion sample or event time, on the CSV's clock
     progress: Optional[WorkoutProgress] = None   # replayed boundaries (None if definition unknown)
+    partial_reps: Optional[int] = None           # last '# event name=partialReps reps=<n>' (§5)
 
 
 def _none_if_neg(x):
@@ -706,6 +820,7 @@ def load_workout_csv(path) -> WorkoutCSV:
     """Loads a workout session CSV (header 'workout=<id>'); see load_session_csv."""
     s = load_session_csv(path)
     boundaries, hrs, ped = [], [], []
+    partial_reps = None
     for e in s.events:
         name = e.get("name")
         t = float(e.get("t", 0.0))
@@ -722,6 +837,10 @@ def load_workout_csv(path) -> WorkoutCSV:
             if isinstance(steps, float):
                 dist = e.get("distance")
                 ped.append(PedometerSample(t, steps, _none_if_neg(dist) if isinstance(dist, float) else None))
+        elif name == "partialReps":
+            reps = e.get("reps")
+            if isinstance(reps, float) and reps >= 0:
+                partial_reps = int(reps)
     times = [float(x) for x in s.motion.t[-1:]] + [float(e.get("t", 0.0)) for e in s.events]
     end_time = max(times) if times else 0.0
     definition = WorkoutLibrary.definition(s.workout) if s.workout else None
@@ -730,4 +849,4 @@ def load_workout_csv(path) -> WorkoutCSV:
         definition = cand if isinstance(cand, WorkoutDefinition) else None
     progress = replay_boundaries(definition, boundaries) if definition else None
     return WorkoutCSV(s.workout, s.session_id, s.start_date, definition, boundaries, hrs, ped,
-                      s.marks, end_time, progress)
+                      s.marks, end_time, progress, partial_reps)
