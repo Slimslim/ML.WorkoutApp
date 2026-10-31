@@ -22,3 +22,9 @@ Wall balls split 10/10 (4 sets each), burpees 5/5 (4 sets each), partner started
 Detector check: 4 work bouts in each station (matches); first bout starts after the partner's set.
 First rep-count try inside the bouts (vertical accel = −(userAccel·gravity), low-pass 3 Hz, peaks > 1 g ≥ 1.2 s apart):
 wall balls 11 / 10 / 11 / 12 (truth 10 each), burpees 6 / 5 / 5 / 5 (truth 5 each).
+Lunges: split not exact; athlete thinks they did 14 steps on the first set. Devil press: "I go, you go"
+(single reps alternating), athlete started.
+Motion: lunges show the athlete's work as long "wrist up" holds (gravity.x > 0.5: DB racked at the
+shoulder) at ~729–766 s and ~798–835 s (two bouts, ~37 s each) — a work signature that doesn't need
+wrist shaking. Devil press: 5 short bursts of acceleration/rotation ~10 s apart (1340, 1353, 1363, 1373,
+1383 s), each starting with the arm overhead — consistent with 5 alternating reps.
