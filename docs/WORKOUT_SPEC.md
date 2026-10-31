@@ -328,3 +328,44 @@ at 1110, 1170, 1200 (the last one finishes).
     - Split table rows: #, title, time, cumulative time, HR avg; for runs, pace and cadence.
     - Share buttons for the result JSON and, if present in `Documents/Debug/`, the CSV
       named in `recordingFileName`.
+
+## 5. Result corrections and partial reps (added 2026-10-31)
+
+Motivation: AMRAP 2026-10-30 had a Crown mix-up (splits wrong for 3 segments) and 13 double
+unders done before the cap that the result could not hold.
+
+### Kit (BarPathKit, WorkoutResult.swift / new WorkoutResultEditing.swift)
+```swift
+// New optional fields on WorkoutResult (decodeIfPresent; old files decode unchanged):
+public var partialReps: Int?        // reps done in the segment that was cut by the cap/end
+public var editedAt: Date?          // set when the athlete corrected splits on the phone
+
+extension WorkoutResult {
+    /// Moves the boundary between segment index-1 and index to `start` (s since 1970).
+    /// Valid only for 1 ≤ index < segments.count; clamps to [segments[index-1].start + 1,
+    /// segments[index].end − 1]. Updates start/end/duration of both segments, recomputes
+    /// their heart-rate avg/max/min from heartRateSeries when present, and splits
+    /// steps/distance between the two pro rata by time (cadence/pace recomputed; pace only for
+    /// runs). Sets editedAt = now. Returns false if index is out of range.
+    @discardableResult
+    public mutating func moveSegmentStart(index: Int, to start: Double, now: Date = Date()) -> Bool
+    /// Sets partialReps (nil or 0…target of the last segment's reps; clamped) and editedAt.
+    public mutating func setPartialReps(_ reps: Int?, now: Date = Date())
+}
+```
+WorkoutSummary: AMRAP headline extraReps adds `partialReps`; stoppedIn text mentions it
+("+13 Double Unders"). DataNote adds "edited" when editedAt != nil.
+Python mirror: fields in to_dict/from_dict + move_segment_start + set_partial_reps, same rules.
+
+### Watch
+On the finish screen when the workout was finished by the time cap (AMRAP), ask:
+"Reps of <segment name>?" with the Digital Crown picking 0…target (default 0), a Save tap.
+Stored in the model and written as `partialReps` in the WorkoutResult at End (and in the CSV as
+`# event name=partialReps reps=<n>`).
+
+### Phone
+Workouts detail: "Fix splits" button opens an editor: each segment row shows its start time
+(m:ss from start) with −5 / −1 / +1 / +5 s buttons (calls moveSegmentStart for that index);
+an AMRAP row "Reps after the cap" with a stepper (setPartialReps). Save writes the corrected
+result over Documents/Workouts/<id>.json after keeping the first original as
+Documents/Workouts/<id>.original.json (once), and reloads the store. Cancel discards.
