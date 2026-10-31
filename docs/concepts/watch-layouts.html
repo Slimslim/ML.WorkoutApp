@@ -186,7 +186,7 @@ figcaption b{color:var(--fg);font-weight:700}
 .aod .pbsvg .hold{animation:none}
 .pbsvg.dim .bt{opacity:.35}
 .pbsvg.dim .bf{opacity:.25;animation:none}
-.pbsvg .crn{stroke:var(--volt);stroke-width:6;stroke-linecap:round}
+.pbsvg .crn{stroke:var(--volt);stroke-width:5;stroke-linecap:round}
 .pbsvg .crt{stroke:var(--volt-dim);stroke-width:6}
 .PB .cue{bottom:20px;font-size:12px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:var(--volt)}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px;flex-wrap:wrap}
@@ -402,8 +402,8 @@ const border = (p, mode, extra) => {
   if (p.hold) f += dash(sl[p.cur].s - .6, 1.2, 'hold');
   return '<svg class="pbsvg' + (extra && extra.dim ? ' dim' : '') + '" viewBox="0 0 204 246" aria-hidden="true">' + t + f + (extra && extra.crown || '') + '</svg>';
 };
-const crownArc = (frac, undo) => '<path class="crt" d="' + CR_D + '" pathLength="100"' + (undo ? ' transform="translate(204 0) scale(-1 1)"' : '') + '/>' +
-  '<path class="crn" d="' + CR_D + '" pathLength="100" stroke-dasharray="' + (frac * 100).toFixed(1) + ' 200"' + (undo ? ' transform="translate(204 0) scale(-1 1)"' : '') + '/>';
+const crownArc = (frac, undo) =>
+  '<path class="crn" d="' + PB_D + '" pathLength="100" stroke-dasharray="' + (frac * 100).toFixed(1) + ' 200"' + (undo ? ' transform="translate(204 0) scale(-1 1)"' : '') + '/>';
 
 const PB_ST = [
   Object.assign({}, ST[0], {pb:{w:'hyrox', cur:4, f:.22}}),
@@ -424,7 +424,7 @@ const PB_EDGE = [
 const drawPB = (s, mode) => {
   let base = DIRS[3].draw(s);
   if (s.name.length > 11) base = base.replace('class="ab name long"', 'class="ab name long" style="font-size:19px"');
-  const ex = s.crown ? {dim:true, crown:crownArc(s.crown.f, s.crown.undo)} : null;
+  const ex = s.crown ? {crown:crownArc(s.crown.f, s.crown.undo)} : null;
   let inner = border(s.pb, mode, ex) + base.replace(/^<div class="scr ([^"]*)"([^>]*)>/, '').replace(/<\/div>$/, '');
   if (s.cue) inner += '<div class="ab cue">' + esc(s.cue) + '</div>';
   return base.match(/^<div class="scr [^"]*"[^>]*>/)[0].replace('class="scr D', 'class="scr D PB') + inner + '</div>';
@@ -466,7 +466,7 @@ const pbSection = () => {
   '<h3 class="pbsub">Sharing the edge</h3>' +
   '<div class="strip" tabindex="0" role="region" aria-label="Edge conflicts, scroll sideways"><div class="cols">' + PB_EDGE.map(s => fig(s, 'equal')).join('') + '</div></div>' +
   '<div class="pbgrid">' +
-  '<div class="pbcard"><h4>Crown arc (advance or undo)</h4><p>While you turn the Crown, the race border dims to a quarter and the volt Crown arc draws <b>inside</b> it (6 px, inset 9 px): clockwise to advance, anticlockwise to undo, with the target named at the bottom. Release and the border comes back. I rejected “the current slice fills to its slit as the Crown feedback”: at 96 % of a slice there is no travel left to feel.</p></div>' +
+  '<div class="pbcard"><h4>Crown arc (advance or undo)</h4><p>The athlete’s call: while you turn the Crown, the volt Crown arc simply draws <b>on top of</b> the race border, on the same line: clockwise to advance, anticlockwise to undo. It lasts about a second; release and the race border is back. No dimming, no inset.</p></div>' +
   '<div class="pbcard"><h4>Wall Balls rep ring</h4><p>The border wins the edge; the rep ring goes. The reps are already the number under the timer (43 /100), and the last slice itself fills by reps, so the border <b>is</b> the rep ring for that station. No temporary swap: an edge that changes meaning mid-race is worse than one fewer ring.</p></div>' +
   '<div class="pbcard"><h4>Roxzone (full pink)</h4><p>The border turns ink on pink: done slices at 70 %, the track at 20 %. The Roxzone has no slice; the border holds at the slit between the run you finished and the station ahead, and that slit pulses as a small ink notch.</p></div>' +
   '<div class="pbcard"><h4>Wrist down (always-on)</h4><p>3 px instead of 4, done slices at 50 %, current slice steady at 85 %, no pulse, updated once a minute. Still readable as “about a quarter”, still dark enough for always-on.</p></div></div>' +
