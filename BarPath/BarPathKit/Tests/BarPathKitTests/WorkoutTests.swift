@@ -11,7 +11,7 @@ final class WorkoutTests: XCTestCase {
         XCTAssertEqual(all.count, 9)
         XCTAssertEqual(all.map { (d: WorkoutDefinition) -> String in d.id },
                        [WorkoutLibrary.hyroxSolo.id, WorkoutLibrary.hyroxDoubles.id, WorkoutLibrary.halfHyrox.id,
-                        WorkoutLibrary.partnerWod1.id, WorkoutLibrary.partnerWod2.id, WorkoutLibrary.quickTest.id,
+                        WorkoutLibrary.partnerWod1.id, WorkoutLibrary.partnerWod2.id, WorkoutLibrary.amrap40.id,
                         WorkoutLibrary.helen.id, WorkoutLibrary.rowThrusters.id, WorkoutLibrary.amrap20.id])
         let ids = Set(all.map { (d: WorkoutDefinition) -> String in d.id })
         XCTAssertEqual(ids.count, 9)
@@ -32,6 +32,13 @@ final class WorkoutTests: XCTestCase {
         XCTAssertEqual(WorkoutLibrary.rowThrusters.segments[2].title, "Rest")
         XCTAssertEqual(WorkoutLibrary.rowThrusters.segments.last?.movement, Movement.thrusters)
         XCTAssertEqual(WorkoutLibrary.amrap20.segments.count, 40)
+        let a40 = WorkoutLibrary.amrap40
+        XCTAssertEqual(a40.segments.count, 60)
+        XCTAssertEqual(a40.roundSize, 5)
+        XCTAssertEqual(a40.timeCapSeconds, 2400.0)
+        XCTAssertEqual(a40.segments[0].title, "Row / Bike 12 cal")
+        XCTAssertEqual(a40.segments[4].kind, SegmentKind.rest)
+        XCTAssertEqual(a40.segments[4].target?.value, 60.0)
     }
 
     func testHyroxSoloStructure() {

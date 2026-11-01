@@ -123,6 +123,7 @@ public enum Movement {
     public static let lateralBurpeeOverDumbbell = "lateralBurpeeOverDumbbell"
     public static let doubleUnders = "doubleUnders"
     public static let dumbbellSnatch = "dumbbellSnatch"
+    public static let pushUps = "pushUps"
     public static let rest = "rest"
 
     private static let names: [String: String] = [
@@ -147,6 +148,7 @@ public enum Movement {
         "lateralBurpeeOverDumbbell": "Lateral Burpee Over DB",
         "doubleUnders": "Double Unders",
         "dumbbellSnatch": "Alt. DB Snatch",
+        "pushUps": "Push-ups",
         "rest": "Rest"
     ]
 

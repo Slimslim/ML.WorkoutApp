@@ -161,13 +161,41 @@ public enum WorkoutLibrary {
         ], rounds: 10),
         roundSize: 4)
 
-    /// Exactly 9, in this order (fills the watch's 3×3 picker).
+    /// Station with its own display name (class workouts that offer a choice, "Row / Bike").
+    private static func choice(_ movement: String, _ name: String, _ value: Double,
+                               _ unit: TargetUnit) -> WorkoutSegment {
+        return WorkoutSegment(kind: .station, movement: movement, name: name,
+                              target: SegmentTarget(value, unit))
+    }
+
+    /// Class workout (Sun 2026-11-02, PitFIRE): AMRAP 40 of 12/10 cal row/bike, 15 push-ups /
+    /// 6 strict pull-ups, 12 alt DB clean & jerks / snatches, 15 burpees to target / 3 wall walks,
+    /// 1:00 rest. Each slot is "this or that"; targets show the first option. The rest ends by
+    /// itself after 1:00 with the 3-2-1 countdown. 12 rounds listed; the cap ends it at 40:00.
+    public static let amrap40: WorkoutDefinition = WorkoutDefinition(
+        id: "wod.amrap40", name: "AMRAP 40 with 1:00 rest", shortName: "AMRAP 40",
+        format: .amrap, team: .solo, timeCapSeconds: 2400.0, healthKitActivity: "crossTraining",
+        segments: repeated([
+            choice(Movement.row, "Row / Bike", 12, .calories),
+            choice(Movement.pushUps, "Push-ups / Pull-ups", 15, .reps),
+            choice(Movement.dumbbellSnatch, "DB C&J / Snatch", 12, .reps),
+            choice(Movement.burpees, "Burpees / Wall Walks", 15, .reps),
+            WorkoutSegment(kind: .rest, movement: Movement.rest, name: Movement.displayName(Movement.rest),
+                           target: SegmentTarget(60, .seconds))
+        ], rounds: 12),
+        roundSize: 5)
+
+    /// Exactly 9, in this order (fills the watch's 3×3 picker). quickTest stays defined but is
+    /// off the grid since 2026-11-01 (Screen demo replaces it).
     public static let all: [WorkoutDefinition] = [
-        hyroxSolo, hyroxDoubles, halfHyrox, partnerWod1, partnerWod2, quickTest,
+        hyroxSolo, hyroxDoubles, halfHyrox, partnerWod1, partnerWod2, amrap40,
         helen, rowThrusters, amrap20
     ]
 
+    /// Every built-in definition, including ones off the watch grid (old results still resolve).
+    public static let known: [WorkoutDefinition] = all + [quickTest]
+
     public static func definition(id: String) -> WorkoutDefinition? {
-        return all.first(where: { (d: WorkoutDefinition) -> Bool in d.id == id })
+        return known.first(where: { (d: WorkoutDefinition) -> Bool in d.id == id })
     }
 }

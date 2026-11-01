@@ -121,6 +121,7 @@ class Movement:
     lateralBurpeeOverDumbbell = "lateralBurpeeOverDumbbell"
     doubleUnders = "doubleUnders"
     dumbbellSnatch = "dumbbellSnatch"
+    pushUps = "pushUps"
     rest = "rest"
 
     NAMES = {
@@ -132,7 +133,7 @@ class Movement:
         "dumbbellOverShoulder": "DB Over-Shoulder", "airSquats": "Air Squats",
         "kettlebellSwings": "KB Swings", "pullUps": "Pull-ups", "thrusters": "Thrusters",
         "lateralBurpeeOverDumbbell": "Lateral Burpee Over DB", "doubleUnders": "Double Unders",
-        "dumbbellSnatch": "Alt. DB Snatch", "rest": "Rest",
+        "dumbbellSnatch": "Alt. DB Snatch", "pushUps": "Push-ups", "rest": "Rest",
     }
 
     @staticmethod
@@ -263,12 +264,21 @@ class WorkoutLibrary:
         [_station(Movement.lateralBurpeeOverDumbbell, 10, "reps"), _station(Movement.doubleUnders, 31, "reps"),
          _station(Movement.dumbbellSnatch, 10, "reps"), _station(Movement.doubleUnders, 31, "reps")] * 10,
         round_size=4)
-    all = [hyroxSolo, hyroxDoubles, halfHyrox, partnerWod1, partnerWod2, quickTest,
+    amrap40 = WorkoutDefinition(
+        "wod.amrap40", "AMRAP 40 with 1:00 rest", "AMRAP 40", "amrap", "solo", 40 * 60, "crossTraining",
+        [WorkoutSegment("station", Movement.row, "Row / Bike", SegmentTarget(12, "calories")),
+         WorkoutSegment("station", Movement.pushUps, "Push-ups / Pull-ups", SegmentTarget(15, "reps")),
+         WorkoutSegment("station", Movement.dumbbellSnatch, "DB C&J / Snatch", SegmentTarget(12, "reps")),
+         WorkoutSegment("station", Movement.burpees, "Burpees / Wall Walks", SegmentTarget(15, "reps")),
+         WorkoutSegment("rest", Movement.rest, "Rest", SegmentTarget(60, "seconds"))] * 12,
+        round_size=5)
+    all = [hyroxSolo, hyroxDoubles, halfHyrox, partnerWod1, partnerWod2, amrap40,
            helen, rowThrusters, amrap20]
+    known = all + [quickTest]   # off the watch grid but still resolvable
 
     @staticmethod
     def definition(id: str) -> Optional[WorkoutDefinition]:
-        for d in WorkoutLibrary.all:
+        for d in WorkoutLibrary.known:
             if d.id == id:
                 return d
         return None
