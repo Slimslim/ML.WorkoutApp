@@ -100,6 +100,27 @@ struct WorkoutStartView: View {
         return pending > 0 ? "↑\(pending)" : "sent"
     }
 
+    /// "5 per round · 40:00" (AMRAP), "3 rounds of 3", "Crown at each change" (Free), "16 segments".
+    static func tileDetail(_ definition: WorkoutDefinition, count: Int) -> String {
+        if definition.id == WorkoutLibrary.free.id {
+            return "Crown at each change"
+        }
+        if let r = definition.roundSize, r >= 1, count > r {
+            var repeats: Bool = true
+            for i in r..<count where definition.segments[i].title != definition.segments[i % r].title {
+                repeats = false
+            }
+            if repeats {
+                if definition.format == .amrap, let cap = definition.timeCapSeconds {
+                    let total: Int = Int(cap.rounded())
+                    return "\(r) per round · " + String(format: "%d:%02d", total / 60, total % 60)
+                }
+                return "\((count + r - 1) / r) rounds of \(r)"
+            }
+        }
+        return "\(count) segment\(count == 1 ? "" : "s")"
+    }
+
     private var workoutTile: some View {
         let definition = model.selectedDefinition
         let count = definition.segments.count
@@ -113,7 +134,7 @@ struct WorkoutStartView: View {
                     .foregroundColor(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
-                Text("\(count) segment\(count == 1 ? "" : "s")" + (model.isSelectedFromPhone ? " · from iPhone" : ""))
+                Text(WorkoutStartView.tileDetail(definition, count: count) + (model.isSelectedFromPhone ? " · from iPhone" : ""))
                     .font(.system(size: 12, weight: .semibold, design: .rounded))
                     .foregroundColor(.secondary)
                     .lineLimit(1)

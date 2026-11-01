@@ -18,9 +18,48 @@ enum WorkoutGroups {
         WorkoutGroup(title: "Other", ids: [WorkoutLibrary.free.id])
     ]
 
+    /// Round length when every segment repeats the first round (by title and kind), else nil.
+    /// HYROX (different stations each round) is not repeating; a cut last round is fine.
+    static func repeatingRoundSize(_ definition: WorkoutDefinition) -> Int? {
+        guard let r = definition.roundSize, r >= 1, definition.segments.count > r else { return nil }
+        let segs: [WorkoutSegment] = definition.segments
+        for i in r..<segs.count {
+            let first: WorkoutSegment = segs[i % r]
+            if segs[i].title != first.title || segs[i].kind != first.kind { return nil }
+        }
+        return r
+    }
+
+    /// "Each round · as many rounds as possible in 40:00", "3 rounds of", "Every 3:00 · 6 sets of", "Segments".
+    static func roundHeader(_ definition: WorkoutDefinition) -> String {
+        if definition.id == WorkoutLibrary.free.id {
+            return "No plan: turn the Crown at each change (new movement, set or rest), End when done"
+        }
+        guard let r = repeatingRoundSize(definition) else { return "Segments" }
+        let rounds: Int = (definition.segments.count + r - 1) / r
+        if definition.format == .amrap, let cap = definition.timeCapSeconds {
+            return "Each round · as many rounds as you can in " + WorkoutFmt.clock(cap)
+        }
+        if let interval = definition.intervalSeconds {
+            return "Every " + WorkoutFmt.clock(interval) + " · \(rounds) sets of"
+        }
+        return "\(rounds) rounds of"
+    }
+
     static func summary(_ definition: WorkoutDefinition) -> String {
+        if definition.id == WorkoutLibrary.free.id {
+            return "No plan · Crown at each change"
+        }
         let count = definition.segments.count
         var text = "\(count) segment\(count == 1 ? "" : "s")"
+        if let r = repeatingRoundSize(definition) {
+            if definition.format == .amrap {
+                text = "\(r) per round"
+            } else {
+                let rounds: Int = (count + r - 1) / r
+                text = "\(rounds) rounds of \(r)"
+            }
+        }
         if definition.runCount > 0 {
             text += " · \(definition.runCount) run\(definition.runCount == 1 ? "" : "s")"
         }
@@ -154,8 +193,8 @@ struct WorkoutPreviewView: View {
                 Text(WorkoutGroups.summary(definition))
             }
 
-            Section("Segments") {
-                ForEach(Array(definition.segments.enumerated()), id: \.offset) { item in
+            Section {
+                ForEach(Array(shownSegments.enumerated()), id: \.offset) { item in
                     HStack(spacing: 10) {
                         Text("\(item.offset + 1)")
                             .font(.caption.monospacedDigit())
@@ -167,10 +206,23 @@ struct WorkoutPreviewView: View {
                         Text(item.element.title + (item.element.load.map { " · " + $0.text } ?? ""))
                     }
                 }
+            } header: {
+                Text(WorkoutGroups.roundHeader(definition))
             }
         }
         .navigationTitle(definition.name)
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    /// One round when the workout repeats the same round (AMRAP 40, Helen…), else every segment.
+    private var shownSegments: [WorkoutSegment] {
+        if definition.id == WorkoutLibrary.free.id {
+            return []
+        }
+        if let r = WorkoutGroups.repeatingRoundSize(definition) {
+            return Array(definition.segments.prefix(r))
+        }
+        return definition.segments
     }
 
     private var sentText: String {
