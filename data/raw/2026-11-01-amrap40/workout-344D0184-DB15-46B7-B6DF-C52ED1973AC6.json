@@ -1,0 +1,1844 @@
+{
+  "definition" : {
+    "format" : "amrap",
+    "healthKitActivity" : "crossTraining",
+    "id" : "wod.amrap40",
+    "name" : "AMRAP 40 with 1:00 rest",
+    "roundSize" : 5,
+    "segments" : [
+      {
+        "kind" : "station",
+        "movement" : "row",
+        "name" : "Row \/ Bike",
+        "target" : {
+          "unit" : "calories",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "pushUps",
+        "name" : "Push-ups \/ Pull-ups",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "DB C&J \/ Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "burpees",
+        "name" : "Burpees \/ Wall Walks",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "rest",
+        "movement" : "rest",
+        "name" : "Rest",
+        "target" : {
+          "unit" : "seconds",
+          "value" : 60
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "row",
+        "name" : "Row \/ Bike",
+        "target" : {
+          "unit" : "calories",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "pushUps",
+        "name" : "Push-ups \/ Pull-ups",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "DB C&J \/ Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "burpees",
+        "name" : "Burpees \/ Wall Walks",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "rest",
+        "movement" : "rest",
+        "name" : "Rest",
+        "target" : {
+          "unit" : "seconds",
+          "value" : 60
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "row",
+        "name" : "Row \/ Bike",
+        "target" : {
+          "unit" : "calories",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "pushUps",
+        "name" : "Push-ups \/ Pull-ups",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "DB C&J \/ Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "burpees",
+        "name" : "Burpees \/ Wall Walks",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "rest",
+        "movement" : "rest",
+        "name" : "Rest",
+        "target" : {
+          "unit" : "seconds",
+          "value" : 60
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "row",
+        "name" : "Row \/ Bike",
+        "target" : {
+          "unit" : "calories",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "pushUps",
+        "name" : "Push-ups \/ Pull-ups",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "DB C&J \/ Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "burpees",
+        "name" : "Burpees \/ Wall Walks",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "rest",
+        "movement" : "rest",
+        "name" : "Rest",
+        "target" : {
+          "unit" : "seconds",
+          "value" : 60
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "row",
+        "name" : "Row \/ Bike",
+        "target" : {
+          "unit" : "calories",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "pushUps",
+        "name" : "Push-ups \/ Pull-ups",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "DB C&J \/ Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "burpees",
+        "name" : "Burpees \/ Wall Walks",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "rest",
+        "movement" : "rest",
+        "name" : "Rest",
+        "target" : {
+          "unit" : "seconds",
+          "value" : 60
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "row",
+        "name" : "Row \/ Bike",
+        "target" : {
+          "unit" : "calories",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "pushUps",
+        "name" : "Push-ups \/ Pull-ups",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "DB C&J \/ Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "burpees",
+        "name" : "Burpees \/ Wall Walks",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "rest",
+        "movement" : "rest",
+        "name" : "Rest",
+        "target" : {
+          "unit" : "seconds",
+          "value" : 60
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "row",
+        "name" : "Row \/ Bike",
+        "target" : {
+          "unit" : "calories",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "pushUps",
+        "name" : "Push-ups \/ Pull-ups",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "DB C&J \/ Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "burpees",
+        "name" : "Burpees \/ Wall Walks",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "rest",
+        "movement" : "rest",
+        "name" : "Rest",
+        "target" : {
+          "unit" : "seconds",
+          "value" : 60
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "row",
+        "name" : "Row \/ Bike",
+        "target" : {
+          "unit" : "calories",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "pushUps",
+        "name" : "Push-ups \/ Pull-ups",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "DB C&J \/ Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "burpees",
+        "name" : "Burpees \/ Wall Walks",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "rest",
+        "movement" : "rest",
+        "name" : "Rest",
+        "target" : {
+          "unit" : "seconds",
+          "value" : 60
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "row",
+        "name" : "Row \/ Bike",
+        "target" : {
+          "unit" : "calories",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "pushUps",
+        "name" : "Push-ups \/ Pull-ups",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "DB C&J \/ Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "burpees",
+        "name" : "Burpees \/ Wall Walks",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "rest",
+        "movement" : "rest",
+        "name" : "Rest",
+        "target" : {
+          "unit" : "seconds",
+          "value" : 60
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "row",
+        "name" : "Row \/ Bike",
+        "target" : {
+          "unit" : "calories",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "pushUps",
+        "name" : "Push-ups \/ Pull-ups",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "DB C&J \/ Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "burpees",
+        "name" : "Burpees \/ Wall Walks",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "rest",
+        "movement" : "rest",
+        "name" : "Rest",
+        "target" : {
+          "unit" : "seconds",
+          "value" : 60
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "row",
+        "name" : "Row \/ Bike",
+        "target" : {
+          "unit" : "calories",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "pushUps",
+        "name" : "Push-ups \/ Pull-ups",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "DB C&J \/ Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "burpees",
+        "name" : "Burpees \/ Wall Walks",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "rest",
+        "movement" : "rest",
+        "name" : "Rest",
+        "target" : {
+          "unit" : "seconds",
+          "value" : 60
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "row",
+        "name" : "Row \/ Bike",
+        "target" : {
+          "unit" : "calories",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "pushUps",
+        "name" : "Push-ups \/ Pull-ups",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "DB C&J \/ Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 12
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "burpees",
+        "name" : "Burpees \/ Wall Walks",
+        "target" : {
+          "unit" : "reps",
+          "value" : 15
+        }
+      },
+      {
+        "kind" : "rest",
+        "movement" : "rest",
+        "name" : "Rest",
+        "target" : {
+          "unit" : "seconds",
+          "value" : 60
+        }
+      }
+    ],
+    "shortName" : "AMRAP 40",
+    "team" : "solo",
+    "timeCapSeconds" : 2400
+  },
+  "endDate" : "2026-11-01T18:02:40.291Z",
+  "events" : [
+    {
+      "kind" : "start",
+      "segmentIndex" : 0,
+      "t" : 1793553533.465282
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 1,
+      "source" : "crown",
+      "t" : 1793553583.9047198
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 2,
+      "source" : "crown",
+      "t" : 1793553640.261544
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 3,
+      "source" : "crown",
+      "t" : 1793553699.5384212
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 4,
+      "source" : "crown",
+      "t" : 1793553817.783802
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 5,
+      "source" : "auto",
+      "t" : 1793553877.789404
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 6,
+      "source" : "crown",
+      "t" : 1793553948.8368359
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 7,
+      "source" : "crown",
+      "t" : 1793553980.17232
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 8,
+      "source" : "crown",
+      "t" : 1793554034.672976
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 9,
+      "source" : "crown",
+      "t" : 1793554110.278801
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 10,
+      "source" : "auto",
+      "t" : 1793554170.471496
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 11,
+      "source" : "crown",
+      "t" : 1793554223.5315619
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 12,
+      "source" : "crown",
+      "t" : 1793554296.040417
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 13,
+      "source" : "crown",
+      "t" : 1793554363.8868098
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 14,
+      "source" : "crown",
+      "t" : 1793554498.001029
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 15,
+      "source" : "auto",
+      "t" : 1793554558.1193771
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 16,
+      "source" : "crown",
+      "t" : 1793554645.184561
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 17,
+      "source" : "crown",
+      "t" : 1793554678.6054559
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 18,
+      "source" : "crown",
+      "t" : 1793554726.701657
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 19,
+      "source" : "crown",
+      "t" : 1793554805.8554091
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 20,
+      "source" : "auto",
+      "t" : 1793554865.8974419
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 21,
+      "source" : "crown",
+      "t" : 1793554928.150621
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 22,
+      "source" : "crown",
+      "t" : 1793554999.766241
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 23,
+      "source" : "crown",
+      "t" : 1793555096.289556
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 24,
+      "source" : "crown",
+      "t" : 1793555240.354487
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 25,
+      "source" : "auto",
+      "t" : 1793555300.4627419
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 26,
+      "source" : "crown",
+      "t" : 1793555394.480804
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 27,
+      "source" : "crown",
+      "t" : 1793555433.211864
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 28,
+      "source" : "crown",
+      "t" : 1793555482.7347531
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 29,
+      "source" : "crown",
+      "t" : 1793555570.059939
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 30,
+      "source" : "auto",
+      "t" : 1793555630.247364
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 31,
+      "source" : "crown",
+      "t" : 1793555678.9272609
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 32,
+      "source" : "crown",
+      "t" : 1793555749.856349
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 33,
+      "source" : "crown",
+      "t" : 1793555821.2500901
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 34,
+      "source" : "crown",
+      "t" : 1793555927.780079
+    },
+    {
+      "kind" : "finish",
+      "segmentIndex" : 34,
+      "source" : "auto",
+      "t" : 1793555933.5397968
+    },
+    {
+      "kind" : "end",
+      "segmentIndex" : 34,
+      "t" : 1793556160.2912621
+    }
+  ],
+  "finishDate" : "2026-11-01T17:58:53.540Z",
+  "heartRateAvg" : 146.40869565217392,
+  "heartRateMax" : 166,
+  "heartRateSeries" : {
+    "bpm" : [
+      83,
+      76,
+      107.1,
+      136,
+      136,
+      121,
+      122,
+      123,
+      128,
+      130,
+      131,
+      137,
+      137,
+      134,
+      141,
+      142,
+      141,
+      144,
+      144,
+      144,
+      143,
+      143,
+      140,
+      143,
+      142,
+      139,
+      142,
+      142,
+      149,
+      150,
+      153,
+      154,
+      157,
+      158,
+      158,
+      156,
+      156,
+      153.5,
+      152.3,
+      151,
+      152,
+      153,
+      153,
+      153,
+      153,
+      154,
+      154,
+      153,
+      151,
+      149,
+      150,
+      150,
+      151,
+      151,
+      151,
+      151,
+      152,
+      152,
+      153,
+      154,
+      154,
+      153,
+      152,
+      152,
+      146,
+      144,
+      143,
+      143,
+      142,
+      135,
+      134,
+      132,
+      126,
+      131,
+      135,
+      137,
+      141,
+      142,
+      143,
+      146,
+      149,
+      152,
+      153,
+      153,
+      153,
+      150,
+      150,
+      150,
+      154,
+      158,
+      158,
+      156,
+      153,
+      147,
+      144,
+      144,
+      144.6,
+      145.3,
+      146,
+      148.4,
+      151,
+      153,
+      153,
+      153,
+      153,
+      152,
+      134,
+      136,
+      141,
+      143,
+      147,
+      149,
+      148,
+      148,
+      149,
+      146,
+      147,
+      149,
+      148,
+      150,
+      148,
+      144,
+      141,
+      140,
+      137,
+      136,
+      133,
+      120,
+      118,
+      120,
+      122,
+      125,
+      125,
+      128,
+      134,
+      135,
+      142,
+      143,
+      145,
+      147,
+      146,
+      147,
+      147,
+      143,
+      146,
+      149,
+      149,
+      149,
+      145,
+      146,
+      145,
+      142,
+      139,
+      140,
+      141,
+      139,
+      141,
+      141,
+      142,
+      139,
+      142,
+      150,
+      153,
+      155,
+      157,
+      159,
+      160,
+      161,
+      160,
+      156,
+      155,
+      155,
+      155,
+      153,
+      150,
+      150,
+      152,
+      152,
+      152,
+      152,
+      152,
+      153,
+      153,
+      153,
+      154,
+      153,
+      154,
+      154,
+      155,
+      155,
+      155,
+      154,
+      154,
+      155,
+      154,
+      155,
+      154,
+      150,
+      149,
+      149,
+      144,
+      145,
+      143,
+      141,
+      140,
+      133,
+      131,
+      128,
+      127,
+      129,
+      132,
+      134,
+      137,
+      141,
+      142,
+      142,
+      144,
+      144,
+      146,
+      146,
+      148,
+      149,
+      150,
+      149,
+      148,
+      148,
+      147,
+      146,
+      153,
+      159,
+      158,
+      157,
+      150,
+      148,
+      147,
+      146,
+      147,
+      150,
+      154,
+      155,
+      155,
+      154,
+      150,
+      150,
+      152,
+      152,
+      152,
+      149,
+      149,
+      150,
+      149,
+      147,
+      149,
+      150,
+      149,
+      147,
+      148,
+      148,
+      148,
+      148,
+      147,
+      145,
+      142,
+      138,
+      137,
+      132,
+      131,
+      132,
+      131,
+      123,
+      125,
+      125,
+      129,
+      134,
+      136,
+      138,
+      142,
+      144,
+      144,
+      145,
+      146,
+      145,
+      145,
+      144,
+      143,
+      144,
+      146,
+      147,
+      146,
+      142,
+      142,
+      143,
+      141,
+      141,
+      141,
+      140,
+      140,
+      139,
+      140,
+      140,
+      139,
+      138,
+      136,
+      136,
+      136,
+      136,
+      148,
+      148,
+      148,
+      148,
+      148,
+      148,
+      157,
+      157,
+      157,
+      156,
+      155,
+      155,
+      153,
+      150,
+      151,
+      151,
+      151,
+      148,
+      149,
+      149,
+      150,
+      150,
+      151,
+      152,
+      152,
+      151,
+      151,
+      152,
+      152,
+      152,
+      152,
+      152,
+      154,
+      154,
+      154,
+      152,
+      151,
+      153,
+      152,
+      151,
+      150,
+      146,
+      145,
+      145,
+      138,
+      133,
+      133,
+      136,
+      134.4,
+      132.7,
+      131,
+      130,
+      132,
+      132,
+      137,
+      138,
+      140,
+      141,
+      142,
+      144,
+      146,
+      147,
+      148,
+      149,
+      149,
+      151,
+      153,
+      152,
+      151,
+      150,
+      149,
+      148,
+      148,
+      149,
+      155,
+      154,
+      152,
+      151,
+      147,
+      147,
+      143,
+      147,
+      149,
+      153,
+      154,
+      155,
+      155,
+      153,
+      150,
+      146,
+      148,
+      150,
+      149,
+      149,
+      142,
+      145,
+      147,
+      146,
+      143,
+      146,
+      147,
+      143,
+      146,
+      146,
+      146,
+      147,
+      146,
+      144,
+      146,
+      145,
+      145,
+      146,
+      142,
+      137,
+      137,
+      129,
+      129,
+      134,
+      137,
+      141,
+      145,
+      147,
+      149,
+      153,
+      154,
+      154,
+      151,
+      150,
+      148,
+      151,
+      151,
+      151,
+      149,
+      149,
+      149,
+      149,
+      148,
+      147,
+      147,
+      147,
+      147,
+      147,
+      148,
+      149,
+      149,
+      153,
+      156,
+      156,
+      158,
+      159,
+      160,
+      162,
+      161,
+      160,
+      160,
+      158,
+      158,
+      155,
+      155,
+      156,
+      156,
+      156,
+      157,
+      157,
+      159,
+      160,
+      161,
+      162,
+      162,
+      163,
+      163,
+      164,
+      166,
+      166,
+      166,
+      162,
+      160,
+      156,
+      155,
+      154,
+      152,
+      148,
+      144,
+      140,
+      136,
+      135,
+      139,
+      139,
+      139,
+      139,
+      133,
+      126,
+      126,
+      123,
+      118,
+      122,
+      114,
+      116,
+      118,
+      118,
+      115,
+      114,
+      115,
+      115,
+      115,
+      118,
+      121,
+      120,
+      119,
+      119,
+      119,
+      116,
+      116,
+      113,
+      113,
+      113,
+      111,
+      112,
+      109,
+      109
+    ],
+    "interval" : 5,
+    "start" : 1793553533.465282
+  },
+  "id" : "344D0184-DB15-46B7-B6DF-C52ED1973AC6",
+  "recordingFileName" : "session-344D0184-DB15-46B7-B6DF-C52ED1973AC6.csv",
+  "segments" : [
+    {
+      "cadence" : 0,
+      "distance" : 0,
+      "duration" : 50.43943786621094,
+      "end" : 1793553583.9047198,
+      "heartRateAvg" : 115.75,
+      "heartRateMax" : 136,
+      "heartRateMin" : 76,
+      "index" : 0,
+      "kind" : "station",
+      "movement" : "row",
+      "start" : 1793553533.465282,
+      "steps" : 0,
+      "title" : "Row \/ Bike 12 cal"
+    },
+    {
+      "cadence" : 3.738798171413667,
+      "distance" : 1.603254519947487,
+      "duration" : 56.35682415962219,
+      "end" : 1793553640.261544,
+      "heartRateAvg" : 139.8181818181818,
+      "heartRateMax" : 144,
+      "heartRateMin" : 131,
+      "index" : 1,
+      "kind" : "station",
+      "movement" : "pushUps",
+      "start" : 1793553583.9047198,
+      "steps" : 3.5117798519112835,
+      "title" : "Push-ups \/ Pull-ups 15"
+    },
+    {
+      "cadence" : 73.40779797691762,
+      "distance" : 38.82609494428163,
+      "duration" : 59.2768771648407,
+      "end" : 1793553699.5384212,
+      "heartRateAvg" : 146.16666666666666,
+      "heartRateMax" : 157,
+      "heartRateMin" : 139,
+      "index" : 2,
+      "kind" : "station",
+      "movement" : "dumbbellSnatch",
+      "start" : 1793553640.261544,
+      "steps" : 72.52308372698646,
+      "title" : "DB C&J \/ Snatch 12"
+    },
+    {
+      "cadence" : 35.299078000710196,
+      "distance" : 39.93832801228324,
+      "duration" : 118.24538087844849,
+      "end" : 1793553817.783802,
+      "heartRateAvg" : 152.57142857142858,
+      "heartRateMax" : 158,
+      "heartRateMin" : 149,
+      "index" : 3,
+      "kind" : "station",
+      "movement" : "burpees",
+      "start" : 1793553699.5384212,
+      "steps" : 69.56588204753398,
+      "title" : "Burpees \/ Wall Walks 15"
+    },
+    {
+      "cadence" : 35.395949640797525,
+      "distance" : 19.097330156458455,
+      "duration" : 60.00560188293457,
+      "end" : 1793553877.789404,
+      "heartRateAvg" : 149,
+      "heartRateMax" : 154,
+      "heartRateMin" : 142,
+      "index" : 4,
+      "kind" : "rest",
+      "movement" : "rest",
+      "start" : 1793553817.783802,
+      "steps" : 35.39925437356828,
+      "title" : "Rest 1:00"
+    },
+    {
+      "cadence" : 8.445062454301175,
+      "distance" : 7.925910949707031,
+      "duration" : 71.04743194580078,
+      "end" : 1793553948.8368359,
+      "heartRateAvg" : 139.71428571428572,
+      "heartRateMax" : 153,
+      "heartRateMin" : 126,
+      "index" : 5,
+      "kind" : "station",
+      "movement" : "row",
+      "start" : 1793553877.789404,
+      "steps" : 10,
+      "title" : "Row \/ Bike 12 cal"
+    },
+    {
+      "cadence" : 24.447103387746264,
+      "distance" : 5.875563565805024,
+      "duration" : 31.33548402786255,
+      "end" : 1793553980.17232,
+      "heartRateAvg" : 151.66666666666666,
+      "heartRateMax" : 154,
+      "heartRateMin" : 150,
+      "index" : 6,
+      "kind" : "station",
+      "movement" : "pushUps",
+      "start" : 1793553948.8368359,
+      "steps" : 12.767696962237125,
+      "title" : "Push-ups \/ Pull-ups 15"
+    },
+    {
+      "cadence" : 13.621441420588043,
+      "distance" : 4.910230683030932,
+      "duration" : 54.50065612792969,
+      "end" : 1793554034.672976,
+      "heartRateAvg" : 150.75,
+      "heartRateMax" : 158,
+      "heartRateMin" : 144,
+      "index" : 7,
+      "kind" : "station",
+      "movement" : "dumbbellSnatch",
+      "start" : 1793553980.17232,
+      "steps" : 12.372958247170118,
+      "title" : "DB C&J \/ Snatch 12"
+    },
+    {
+      "cadence" : 19.422510341840898,
+      "distance" : 12.125186320552146,
+      "duration" : 75.60582494735718,
+      "end" : 1793554110.278801,
+      "heartRateAvg" : 147.33333333333334,
+      "heartRateMax" : 153,
+      "heartRateMin" : 134,
+      "index" : 8,
+      "kind" : "station",
+      "movement" : "burpees",
+      "start" : 1793554034.672976,
+      "steps" : 24.474248615724292,
+      "title" : "Burpees \/ Wall Walks 15"
+    },
+    {
+      "cadence" : 56.2045903174186,
+      "distance" : 29.113223118518164,
+      "duration" : 60.19269514083862,
+      "end" : 1793554170.471496,
+      "heartRateAvg" : 143.25,
+      "heartRateMax" : 150,
+      "heartRateMin" : 133,
+      "index" : 9,
+      "kind" : "rest",
+      "movement" : "rest",
+      "start" : 1793554110.278801,
+      "steps" : 56.385096174868465,
+      "title" : "Rest 1:00"
+    },
+    {
+      "cadence" : 0,
+      "distance" : 0,
+      "duration" : 53.06006574630737,
+      "end" : 1793554223.5315619,
+      "heartRateAvg" : 128.36363636363637,
+      "heartRateMax" : 143,
+      "heartRateMin" : 118,
+      "index" : 10,
+      "kind" : "station",
+      "movement" : "row",
+      "start" : 1793554170.471496,
+      "steps" : 0,
+      "title" : "Row \/ Bike 12 cal"
+    },
+    {
+      "cadence" : 5.813460709052764,
+      "distance" : 1.5013092542370146,
+      "duration" : 72.50885510444641,
+      "end" : 1793554296.040417,
+      "heartRateAvg" : 146.14285714285714,
+      "heartRateMax" : 149,
+      "heartRateMin" : 142,
+      "index" : 11,
+      "kind" : "station",
+      "movement" : "pushUps",
+      "start" : 1793554223.5315619,
+      "steps" : 7.025456336801653,
+      "title" : "Push-ups \/ Pull-ups 15"
+    },
+    {
+      "cadence" : 66.30378461556167,
+      "distance" : 40.73376838021676,
+      "duration" : 67.84639286994934,
+      "end" : 1793554363.8868098,
+      "heartRateAvg" : 145.57142857142858,
+      "heartRateMax" : 159,
+      "heartRateMin" : 139,
+      "index" : 12,
+      "kind" : "station",
+      "movement" : "dumbbellSnatch",
+      "start" : 1793554296.040417,
+      "steps" : 74.97454366319835,
+      "title" : "DB C&J \/ Snatch 12"
+    },
+    {
+      "cadence" : 25.578765256774748,
+      "distance" : 28.52614942501114,
+      "duration" : 134.11421918869019,
+      "end" : 1793554498.001029,
+      "heartRateAvg" : 154.14814814814815,
+      "heartRateMax" : 161,
+      "heartRateMin" : 150,
+      "index" : 13,
+      "kind" : "station",
+      "movement" : "burpees",
+      "start" : 1793554363.8868098,
+      "steps" : 57.1746021703857,
+      "title" : "Burpees \/ Wall Walks 15"
+    },
+    {
+      "cadence" : 51.72337509149566,
+      "distance" : 23.839463864166277,
+      "duration" : 60.118348121643066,
+      "end" : 1793554558.1193771,
+      "heartRateAvg" : 148.25,
+      "heartRateMax" : 155,
+      "heartRateMin" : 140,
+      "index" : 14,
+      "kind" : "rest",
+      "movement" : "rest",
+      "start" : 1793554498.001029,
+      "steps" : 51.8253978296143,
+      "title" : "Rest 1:00"
+    },
+    {
+      "cadence" : 2.9425868930541608,
+      "distance" : 1.3433037483953854,
+      "duration" : 87.06518387794495,
+      "end" : 1793554645.184561,
+      "heartRateAvg" : 138.41176470588235,
+      "heartRateMax" : 149,
+      "heartRateMin" : 127,
+      "index" : 15,
+      "kind" : "station",
+      "movement" : "row",
+      "start" : 1793554558.1193771,
+      "steps" : 4.269947815343187,
+      "title" : "Row \/ Bike 12 cal"
+    },
+    {
+      "cadence" : 62.793213159058475,
+      "distance" : 18.198713518733825,
+      "duration" : 33.42089486122131,
+      "end" : 1793554678.6054559,
+      "heartRateAvg" : 148.71428571428572,
+      "heartRateMax" : 153,
+      "heartRateMin" : 146,
+      "index" : 16,
+      "kind" : "station",
+      "movement" : "pushUps",
+      "start" : 1793554645.184561,
+      "steps" : 34.976756249785865,
+      "title" : "Push-ups \/ Pull-ups 15"
+    },
+    {
+      "cadence" : 26.189398312181943,
+      "distance" : 11.295910464053065,
+      "duration" : 48.09620118141174,
+      "end" : 1793554726.701657,
+      "heartRateAvg" : 151.6,
+      "heartRateMax" : 159,
+      "heartRateMin" : 146,
+      "index" : 17,
+      "kind" : "station",
+      "movement" : "dumbbellSnatch",
+      "start" : 1793554678.6054559,
+      "steps" : 20.9935095007138,
+      "title" : "DB C&J \/ Snatch 12"
+    },
+    {
+      "cadence" : 26.348557472251596,
+      "distance" : 16.614650127981008,
+      "duration" : 79.15375208854675,
+      "end" : 1793554805.8554091,
+      "heartRateAvg" : 150.86666666666667,
+      "heartRateMax" : 155,
+      "heartRateMin" : 147,
+      "index" : 18,
+      "kind" : "station",
+      "movement" : "burpees",
+      "start" : 1793554726.701657,
+      "steps" : 34.75978643415715,
+      "title" : "Burpees \/ Wall Walks 15"
+    },
+    {
+      "cadence" : 46.96709742013226,
+      "distance" : 23.57224330306053,
+      "duration" : 60.04203271865845,
+      "end" : 1793554865.8974419,
+      "heartRateAvg" : 144.08333333333334,
+      "heartRateMax" : 149,
+      "heartRateMin" : 132,
+      "index" : 19,
+      "kind" : "rest",
+      "movement" : "rest",
+      "start" : 1793554805.8554091,
+      "steps" : 47,
+      "title" : "Rest 1:00"
+    },
+    {
+      "cadence" : 0,
+      "distance" : 0,
+      "duration" : 62.25317907333374,
+      "end" : 1793554928.150621,
+      "heartRateAvg" : 133.3846153846154,
+      "heartRateMax" : 144,
+      "heartRateMin" : 122.99999999999999,
+      "index" : 20,
+      "kind" : "station",
+      "movement" : "row",
+      "start" : 1793554865.8974419,
+      "steps" : 0,
+      "title" : "Row \/ Bike 12 cal"
+    },
+    {
+      "cadence" : 7.5402544720349765,
+      "distance" : 3.941177397966385,
+      "duration" : 71.61562013626099,
+      "end" : 1793554999.766241,
+      "heartRateAvg" : 144.21428571428572,
+      "heartRateMax" : 147,
+      "heartRateMin" : 141,
+      "index" : 21,
+      "kind" : "station",
+      "movement" : "pushUps",
+      "start" : 1793554928.150621,
+      "steps" : 9,
+      "title" : "Push-ups \/ Pull-ups 15"
+    },
+    {
+      "cadence" : 40.77705313196912,
+      "distance" : 31.214432979518335,
+      "duration" : 96.52331495285034,
+      "end" : 1793555096.289556,
+      "heartRateAvg" : 140.1818181818182,
+      "heartRateMax" : 148,
+      "heartRateMin" : 136,
+      "index" : 22,
+      "kind" : "station",
+      "movement" : "dumbbellSnatch",
+      "start" : 1793554999.766241,
+      "steps" : 65.59893903843613,
+      "title" : "DB C&J \/ Snatch 12"
+    },
+    {
+      "cadence" : 23.906329151720954,
+      "distance" : 23.925197844809134,
+      "duration" : 144.06493091583252,
+      "end" : 1793555240.354487,
+      "heartRateAvg" : 152,
+      "heartRateMax" : 157,
+      "heartRateMin" : 148,
+      "index" : 23,
+      "kind" : "station",
+      "movement" : "burpees",
+      "start" : 1793555096.289556,
+      "steps" : 57.40106096156387,
+      "title" : "Burpees \/ Wall Walks 15"
+    },
+    {
+      "cadence" : 24.954975023947068,
+      "distance" : 14.089008212089539,
+      "duration" : 60.10825490951538,
+      "end" : 1793555300.4627419,
+      "heartRateAvg" : 145.75,
+      "heartRateMax" : 153,
+      "heartRateMin" : 133,
+      "index" : 24,
+      "kind" : "rest",
+      "movement" : "rest",
+      "start" : 1793555240.354487,
+      "steps" : 25,
+      "title" : "Rest 1:00"
+    },
+    {
+      "cadence" : 3.8290514812010077,
+      "distance" : 4.905176997184753,
+      "duration" : 94.01806211471558,
+      "end" : 1793555394.480804,
+      "heartRateAvg" : 140.76470588235293,
+      "heartRateMax" : 151,
+      "heartRateMin" : 130,
+      "index" : 25,
+      "kind" : "station",
+      "movement" : "row",
+      "start" : 1793555300.4627419,
+      "steps" : 6,
+      "title" : "Row \/ Bike 12 cal"
+    },
+    {
+      "cadence" : 33.374133912109286,
+      "distance" : 9.099356902577028,
+      "duration" : 38.73106002807617,
+      "end" : 1793555433.211864,
+      "heartRateAvg" : 150,
+      "heartRateMax" : 153,
+      "heartRateMin" : 148,
+      "index" : 26,
+      "kind" : "station",
+      "movement" : "pushUps",
+      "start" : 1793555394.480804,
+      "steps" : 21.543593065582627,
+      "title" : "Push-ups \/ Pull-ups 15"
+    },
+    {
+      "cadence" : 26.112028094363108,
+      "distance" : 7.12804147625701,
+      "duration" : 49.522889137268066,
+      "end" : 1793555482.7347531,
+      "heartRateAvg" : 149.8,
+      "heartRateMax" : 155,
+      "heartRateMin" : 143,
+      "index" : 27,
+      "kind" : "station",
+      "movement" : "dumbbellSnatch",
+      "start" : 1793555433.211864,
+      "steps" : 21.55238454110622,
+      "title" : "DB C&J \/ Snatch 12"
+    },
+    {
+      "cadence" : 22.607926064633197,
+      "distance" : 16.71699370624134,
+      "duration" : 87.32518577575684,
+      "end" : 1793555570.059939,
+      "heartRateAvg" : 148.52941176470588,
+      "heartRateMax" : 155,
+      "heartRateMin" : 142,
+      "index" : 28,
+      "kind" : "station",
+      "movement" : "burpees",
+      "start" : 1793555482.7347531,
+      "steps" : 32.90402239331115,
+      "title" : "Burpees \/ Wall Walks 15"
+    },
+    {
+      "cadence" : 46.85364083280483,
+      "distance" : 26.053033143281937,
+      "duration" : 60.18742513656616,
+      "end" : 1793555630.247364,
+      "heartRateAvg" : 145.16666666666666,
+      "heartRateMax" : 147,
+      "heartRateMin" : 142,
+      "index" : 29,
+      "kind" : "rest",
+      "movement" : "rest",
+      "start" : 1793555570.059939,
+      "steps" : 47,
+      "title" : "Rest 1:00"
+    },
+    {
+      "cadence" : 0,
+      "distance" : 0,
+      "duration" : 48.67989683151245,
+      "end" : 1793555678.9272609,
+      "heartRateAvg" : 138.5,
+      "heartRateMax" : 149,
+      "heartRateMin" : 129,
+      "index" : 30,
+      "kind" : "station",
+      "movement" : "row",
+      "start" : 1793555630.247364,
+      "steps" : 0,
+      "title" : "Row \/ Bike 12 cal"
+    },
+    {
+      "cadence" : 5.07549172791853,
+      "distance" : 2.3254042714834213,
+      "duration" : 70.92908811569214,
+      "end" : 1793555749.856349,
+      "heartRateAvg" : 150.5,
+      "heartRateMax" : 154,
+      "heartRateMin" : 148,
+      "index" : 31,
+      "kind" : "station",
+      "movement" : "pushUps",
+      "start" : 1793555678.9272609,
+      "steps" : 6,
+      "title" : "Push-ups \/ Pull-ups 15"
+    },
+    {
+      "cadence" : 54.41137382377739,
+      "distance" : 35.86310080633035,
+      "duration" : 71.39374113082886,
+      "end" : 1793555821.2500901,
+      "heartRateAvg" : 152.33333333333334,
+      "heartRateMax" : 162,
+      "heartRateMin" : 147,
+      "index" : 32,
+      "kind" : "station",
+      "movement" : "dumbbellSnatch",
+      "start" : 1793555749.856349,
+      "steps" : 64.743858955792,
+      "title" : "DB C&J \/ Snatch 12"
+    },
+    {
+      "cadence" : 10.282254558962189,
+      "distance" : 8.694502314473482,
+      "duration" : 106.52998876571655,
+      "end" : 1793555927.780079,
+      "heartRateAvg" : 159.47619047619048,
+      "heartRateMax" : 166,
+      "heartRateMin" : 155,
+      "index" : 33,
+      "kind" : "station",
+      "movement" : "burpees",
+      "start" : 1793555821.2500901,
+      "steps" : 18.256141044207993,
+      "title" : "Burpees \/ Wall Walks 15"
+    },
+    {
+      "cadence" : 0,
+      "distance" : 0,
+      "duration" : 5.75971794128418,
+      "end" : 1793555933.5397968,
+      "heartRateAvg" : 166,
+      "heartRateMax" : 166,
+      "heartRateMin" : 166,
+      "index" : 34,
+      "kind" : "rest",
+      "movement" : "rest",
+      "start" : 1793555927.780079,
+      "steps" : 0,
+      "title" : "Rest 1:00"
+    }
+  ],
+  "startDate" : "2026-11-01T17:18:53.465Z",
+  "totalSeconds" : 2400.0745148658752,
+  "version" : 2
+}
