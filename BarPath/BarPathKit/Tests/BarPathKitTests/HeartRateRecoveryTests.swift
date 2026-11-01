@@ -158,4 +158,105 @@ final class HeartRateRecoveryTests: XCTestCase {
         let back = try WorkoutResult.decode(from: try filled.encoded())
         XCTAssertEqual(back.heartRateSeries, filled.heartRateSeries)
     }
+
+    // MARK: Recovery tail on the overview timeline (same cases as test_workout.py test_recovery_tail_*)
+
+    /// Partner WOD 1 shape: 4 quick-test segments from the start to the finish (1389.3 s), the
+    /// real HR tail, End at `end` (relative); all shifted to t0.
+    private func tailResult(end: Double = HeartRateRecoveryTests.realEnd, finished: Bool = true) -> WorkoutResult {
+        let t0: Double = 1_800_000_000
+        let finish: Double = HeartRateRecoveryTests.realFinish
+        let q: Double = finish / 4
+        let kinds: [SegmentKind] = [.run, .station, .run, .station]
+        var segs: [SegmentResult] = []
+        for i in 0..<4 {
+            segs.append(SegmentResult(index: i, kind: kinds[i], movement: i % 2 == 0 ? "run" : "airSquats",
+                                      title: "S\(i)", start: t0 + Double(i) * q, end: t0 + Double(i + 1) * q,
+                                      duration: q))
+        }
+        let finishDate: Date? = finished ? Date(timeIntervalSince1970: t0 + finish) : nil
+        return WorkoutResult(definition: WorkoutLibrary.quickTest, startDate: Date(timeIntervalSince1970: t0),
+                             finishDate: finishDate, endDate: Date(timeIntervalSince1970: t0 + end),
+                             totalSeconds: finish, segments: segs, events: [],
+                             heartRateSeries: tailSeries(end: end, offset: t0))
+    }
+
+    func testRecoveryTailFromRealShape() throws {
+        let finish: Double = HeartRateRecoveryTests.realFinish
+        let s = WorkoutSummary.make(result: tailResult(), previous: nil, maxHeartRate: 185)
+        let tl: WorkoutSummary.Timeline = s.timeline
+        let tail: WorkoutSummary.RecoveryTail = try XCTUnwrap(tl.recovery)
+        XCTAssertEqual(tl.duration, finish, accuracy: 1e-6)
+        XCTAssertEqual(tail.start, finish, accuracy: 1e-6)
+        XCTAssertEqual(tail.end, HeartRateRecoveryTests.realEnd, accuracy: 1e-6)
+        XCTAssertEqual(tl.chartEnd, tail.end, accuracy: 1e-9)
+        XCTAssertEqual(tail.interval, 5)
+        XCTAssertEqual(tail.heartRate.count, 45)                     // ceil(221.2 / 5)
+        XCTAssertEqual(Array(tail.heartRate[0..<4]), [161.5, 160, 162, 160])
+        XCTAssertEqual(tail.heartRate[44] ?? -1, 113.5, accuracy: 1e-9)
+        XCTAssertEqual(tail.heartRateLow ?? -1, 101, accuracy: 1e-9)
+        XCTAssertEqual(tail.heartRateHigh ?? -1, 162, accuracy: 1e-9)
+        XCTAssertEqual(tail.heartRateAtFinish, 161.5, accuracy: 1e-9)
+        XCTAssertEqual(tail.marks.map({ (m: HeartRateRecovery.Mark) -> Int in m.minutes }), [1, 2, 3])
+        XCTAssertEqual(tail.time(of: tail.marks[0]), finish + 60, accuracy: 1e-6)
+        XCTAssertEqual(tail.time(ofSample: 0), finish + 2.5, accuracy: 1e-6)
+        XCTAssertEqual(tail.time(ofSample: 44), finish + 220.6, accuracy: 1e-6)  // last bucket cut at End
+        // The chip at +1:23: 136 bpm, −25.5 since the finish.
+        let m: WorkoutSummary.RecoveryMoment = try XCTUnwrap(tail.moment(at: finish + 83))
+        XCTAssertEqual(m.secondsAfterFinish, 83, accuracy: 1e-6)
+        XCTAssertEqual(m.heartRate ?? -1, 136, accuracy: 1e-9)
+        XCTAssertEqual(m.change ?? 0, -25.5, accuracy: 1e-9)
+        XCTAssertNil(tail.moment(at: finish - 1))
+        XCTAssertNil(tail.moment(at: HeartRateRecoveryTests.realEnd + 1))
+        XCTAssertNil(tail.heartRate(at: finish - 1))
+        XCTAssertEqual(tail.heartRate(at: HeartRateRecoveryTests.realEnd + 50) ?? -1, 113.5, accuracy: 1e-9)
+        XCTAssertTrue(tl.isRecovery(at: finish + 1))
+        XCTAssertFalse(tl.isRecovery(at: finish - 1))
+    }
+
+    func testRecoveryTailLeavesTheWorkoutNumbersAlone() throws {
+        // Same series, End 30 s after the finish (no recovery): everything but the tail is equal.
+        let with = WorkoutSummary.make(result: tailResult(), previous: nil, maxHeartRate: 185)
+        let without = WorkoutSummary.make(result: tailResult(end: HeartRateRecoveryTests.realFinish + 30),
+                                          previous: nil, maxHeartRate: 185)
+        XCTAssertNotNil(with.timeline.recovery)
+        XCTAssertNil(without.timeline.recovery)
+        XCTAssertEqual(without.timeline.chartEnd, without.timeline.duration)
+        XCTAssertFalse(without.timeline.isRecovery(at: without.timeline.duration + 10))
+        let a: WorkoutSummary.Timeline = with.timeline
+        let b: WorkoutSummary.Timeline = without.timeline
+        XCTAssertEqual(a.duration, b.duration)
+        XCTAssertEqual(a.bands, b.bands)
+        XCTAssertEqual(a.heartRate, b.heartRate)
+        XCTAssertEqual(a.gaps, b.gaps)
+        XCTAssertEqual(a.zones, b.zones)
+        XCTAssertEqual(a.zoneSeconds, b.zoneSeconds)
+        XCTAssertEqual(a.heartRateLow, b.heartRateLow)
+        XCTAssertEqual(a.heartRateHigh, b.heartRateHigh)
+        XCTAssertEqual(a.maxHeartRate, b.maxHeartRate)
+        XCTAssertEqual(with.headline, without.headline)
+        XCTAssertEqual(with.story, without.story)
+        XCTAssertEqual(with.rows, without.rows)
+        // The workout's lowest HR stays above the recovery's 101.
+        XCTAssertGreaterThan(a.heartRateLow ?? 0, 101)
+    }
+
+    func testRecoveryTailOnlyWithARecovery() throws {
+        let finish: Double = HeartRateRecoveryTests.realFinish
+        // Older files: the AMRAP fixture's series stops at the finish; Helen has no series.
+        let amrap = try WorkoutResult.decode(from: try fixtureData("workout-amrap-2026-10-30", "json"))
+        XCTAssertNil(WorkoutSummary.make(result: amrap, previous: nil, maxHeartRate: nil).timeline.recovery)
+        let helen = try WorkoutResult.decode(from: try fixtureData("workout-helen-2026-10-29", "json"))
+        XCTAssertNil(WorkoutSummary.make(result: helen, previous: nil, maxHeartRate: nil).timeline.recovery)
+        // End within a minute, or ended without finishing: no tail.
+        XCTAssertNil(WorkoutSummary.make(result: tailResult(end: finish + 59), previous: nil,
+                                         maxHeartRate: nil).timeline.recovery)
+        XCTAssertNil(WorkoutSummary.make(result: tailResult(finished: false), previous: nil,
+                                         maxHeartRate: nil).timeline.recovery)
+        // 90 s: one mark, 18 values.
+        let short = try XCTUnwrap(WorkoutSummary.make(result: tailResult(end: finish + 90), previous: nil,
+                                                      maxHeartRate: nil).timeline.recovery)
+        XCTAssertEqual(short.marks.map({ (m: HeartRateRecovery.Mark) -> Int in m.minutes }), [1])
+        XCTAssertEqual(short.heartRate.count, 18)
+    }
 }

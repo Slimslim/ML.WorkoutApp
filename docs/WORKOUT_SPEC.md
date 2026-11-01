@@ -424,6 +424,21 @@ the partial-reps picker. Screen demo: same, with the fake HR.
 Overview: a "Recovery" card under the heart-rate chart when `heartRateRecovery` exists:
 "HR 161 → 145 (1 min) → 123 (2 min) → 105 (3 min)", one tile per mark ("−16", first minute
 highlighted), and "A bigger drop in the first minute usually means better fitness. Compare it
-with your own past workouts". No card otherwise. On load, results that need a backfill and whose
+with your own past workouts". No card otherwise.
+
+Heart-rate chart (added 2026-11-01): with a recovery, `WorkoutSummary.Timeline.recovery`
+(`RecoveryTail`; Python `WorkoutResult.recovery_tail`) carries the HR after the finish on its own
+5 s grid from the finish (value k = series at finish + bucket centre, last bucket cut at End),
+placed at relative time `duration` → `duration + coveredSeconds`, with the recovery's
+`heartRateAtFinish` and marks. Nothing in it feeds the workout numbers (stats, zones, gaps,
+low / high, headline, story). The chart runs on past the finish: a thin "finish" divider, a pale
+band labelled "Recovery", the line and the +1 / +2 / +3 min dots (with bpm) in the recovery colour
+(`Theme.ovRecovery`, a calm cyan used for nothing else), its own "+1m" ticks and "End +3:41". The
+tail gets its real share of the width but at least 30 % and at most 45 % (each side linear), so
+the marks stay readable after a long workout. The zone strip stops at the finish (time in zones
+is a workout number); under the tail it is the pale recovery colour. Tapping or scrubbing in the
+tail clears the segment selection and the chip reads "Recovery +1:23 · 136 bpm · −25 since
+finish"; VoiceOver stepping still walks the segments. Legend: "Recovery". Older results (no
+recovery) look exactly as before. On load, results that need a backfill and whose
 session CSV is on the phone are extended once in the background and saved like an edit
 (`<id>.original.json` kept). Raw data in data/raw is not modified.

@@ -29,7 +29,7 @@ struct TimelineChartView: View {
         })
         .simultaneousGesture(scrub(width: width))
         .accessibilityElement()
-        .accessibilityLabel("Heart rate over time with segment bands")
+        .accessibilityLabel(Text(accessibilityText))
         .accessibilityHint("Swipe up or down to step through segments")
         .accessibilityAdjustableAction { (direction: AccessibilityAdjustmentDirection) in
             switch direction {
@@ -38,6 +38,11 @@ struct TimelineChartView: View {
             @unknown default: break
             }
         }
+    }
+
+    private var accessibilityText: String {
+        if timeline.recovery == nil { return "Heart rate over time with segment bands" }
+        return "Heart rate over time with segment bands, then the recovery after the finish"
     }
 
     /// Scrubs only while the drag is mostly horizontal; vertical swipes are left to the
@@ -54,12 +59,70 @@ struct TimelineChartView: View {
             }
     }
 
+    /// x → time with the chart's scale; in the recovery tail t is past `duration` (the card
+    /// shows the recovery chip there instead of selecting a segment).
     private func touch(x: CGFloat, width: CGFloat) {
         if width <= 0 || timeline.duration <= 0 { return }
-        let fraction: Double = Double(x / width)
-        var t: Double = fraction * timeline.duration
-        t = Swift.min(Swift.max(t, 0), timeline.duration - 0.01)
+        let scale: TimelineScale = TimelineScale(timeline: timeline, width: width)
+        var t: Double = scale.time(x)
+        t = Swift.min(Swift.max(t, 0), scale.end - 0.01)
         onTouch(t)
+    }
+}
+
+/// Time (relative seconds) ↔ x for the timeline chart.
+/// Without a recovery tail: linear from 0 to `duration` over the whole width (as before).
+/// With one: the workout is linear over [0, finishX] and the tail linear over [finishX, width].
+/// The tail gets its real share of the width, but at least `minTailShare` and at most
+/// `maxTailShare`, so 3 minutes after a 25-minute workout are still wide enough to read the
+/// +1 / +2 / +3 min marks, and a long cool-down never squeezes the workout. The finish divider
+/// and the tail's own "+1m" ticks make the change of scale visible.
+struct TimelineScale {
+    static let minTailShare: Double = 0.30
+    static let maxTailShare: Double = 0.45
+
+    let duration: Double
+    /// Right end of the axis: the tail's end, else `duration`.
+    let end: Double
+    let width: CGFloat
+    /// x of the finish (= width without a tail).
+    let finishX: CGFloat
+
+    init(timeline: WorkoutSummary.Timeline, width: CGFloat) {
+        self.duration = timeline.duration
+        self.width = width
+        if let r = timeline.recovery, timeline.duration > 0, r.end > timeline.duration {
+            self.end = r.end
+            let linear: Double = (r.end - timeline.duration) / r.end
+            let share: Double = Swift.min(Swift.max(linear, TimelineScale.minTailShare), TimelineScale.maxTailShare)
+            self.finishX = width * CGFloat(1.0 - share)
+        } else {
+            self.end = timeline.duration
+            self.finishX = width
+        }
+    }
+
+    var hasTail: Bool {
+        return end > duration
+    }
+
+    func x(_ t: Double) -> CGFloat {
+        if duration <= 0 { return 0 }
+        if !hasTail || t <= duration {
+            return CGFloat(t / duration) * finishX
+        }
+        let f: Double = (t - duration) / (end - duration)
+        return finishX + CGFloat(f) * (width - finishX)
+    }
+
+    func time(_ x: CGFloat) -> Double {
+        if duration <= 0 || finishX <= 0 { return 0 }
+        if !hasTail || x <= finishX {
+            return Double(x / finishX) * duration
+        }
+        let w: CGFloat = width - finishX
+        if w <= 0 { return duration }
+        return duration + Double((x - finishX) / w) * (end - duration)
     }
 }
 
@@ -84,7 +147,13 @@ struct TimelineDrawing {
         self.hoverTime = hoverTime
         var lo: Double = 60
         var hi: Double = 200
-        if let l = timeline.heartRateLow, let h = timeline.heartRateHigh {
+        var lowest: Double? = timeline.heartRateLow
+        var highest: Double? = timeline.heartRateHigh
+        if let r = timeline.recovery, let rl = r.heartRateLow, let rh = r.heartRateHigh {
+            lowest = Swift.min(lowest ?? rl, rl)
+            highest = Swift.max(highest ?? rh, rh)
+        }
+        if let l = lowest, let h = highest {
             lo = ((l - 8) / 10).rounded(.down) * 10
             hi = ((h + 4) / 10).rounded(.up) * 10
         }
@@ -96,8 +165,7 @@ struct TimelineDrawing {
     // MARK: Mapping
 
     private func xOf(_ t: Double, _ width: CGFloat) -> CGFloat {
-        if timeline.duration <= 0 { return 0 }
-        return CGFloat(t / timeline.duration) * width
+        return TimelineScale(timeline: timeline, width: width).x(t)
     }
 
     private func yOf(_ bpm: Double) -> CGFloat {
@@ -110,11 +178,16 @@ struct TimelineDrawing {
 
     func draw(_ context: inout GraphicsContext, _ size: CGSize) {
         drawBands(&context, size.width)
+        drawRecoveryBand(&context, size.width)
         drawHeartRateGrid(&context, size.width)
         drawGaps(&context, size.width)
+        drawRecoveryGaps(&context, size.width)
         drawHeartRate(&context, size.width)
+        drawRecoveryLine(&context, size.width)
         drawZoneStrip(&context, size.width)
         drawAxis(&context, size.width)
+        drawFinishDivider(&context, size.width)
+        drawRecoveryMarks(&context, size.width)
         drawSelection(&context, size.width)
         drawHover(&context, size.width)
     }
@@ -242,7 +315,15 @@ struct TimelineDrawing {
         }
     }
 
+    /// Zones stop at the finish (time in zones is a workout number); under the recovery tail
+    /// the strip is the pale recovery colour, so the row doesn't look like missing data.
     private func drawZoneStrip(_ context: inout GraphicsContext, _ width: CGFloat) {
+        if let tail = timeline.recovery {
+            let x0: CGFloat = xOf(tail.start, width)
+            let rect: CGRect = CGRect(x: x0, y: TimelineDrawing.zoneTopY, width: Swift.max(0, width - x0),
+                                      height: TimelineDrawing.zoneHeight)
+            context.fill(Path(rect), with: .color(Theme.ovRecoveryBand))
+        }
         for z in timeline.zones {
             let x0: CGFloat = xOf(z.start, width)
             let zw: CGFloat = Swift.max(0.5, xOf(z.end, width) - x0)
@@ -264,6 +345,7 @@ struct TimelineDrawing {
             step = 180
         }
         let tickTop: CGFloat = TimelineDrawing.zoneTopY + TimelineDrawing.zoneHeight
+        let scale: TimelineScale = TimelineScale(timeline: timeline, width: width)
         var t: Double = 0
         while t <= duration {
             let x: CGFloat = xOf(t, width)
@@ -281,8 +363,33 @@ struct TimelineDrawing {
                  size: 10, weight: .regular, color: Theme.ovFg2)
             t += step
         }
-        text(&context, "finish " + SummaryFormat.clock(duration), CGPoint(x: width, y: tickTop + 22),
+        guard let tail = timeline.recovery, scale.hasTail else {
+            text(&context, "finish " + SummaryFormat.clock(duration), CGPoint(x: width, y: tickTop + 22),
+                 UnitPoint.topTrailing, size: 10, weight: .regular, color: Theme.ovFg2)
+            return
+        }
+        // Recovery tail: its own minute ticks ("+1m", "+2m", …), at least 24 pt apart.
+        let tailWidth: CGFloat = width - scale.finishX
+        let perMinute: CGFloat = tail.duration > 0 ? tailWidth * 60 / CGFloat(tail.duration) : 0
+        if perMinute > 0 {
+            let every: Int = Swift.max(1, Int((24 / perMinute).rounded(.up)))
+            var minute: Int = every
+            while Double(minute) * 60 <= tail.duration {
+                let x: CGFloat = xOf(tail.start + Double(minute) * 60, width)
+                var tick: Path = Path()
+                tick.move(to: CGPoint(x: x, y: tickTop))
+                tick.addLine(to: CGPoint(x: x, y: tickTop + 4))
+                context.stroke(tick, with: .color(Theme.ovGrid), lineWidth: 1)
+                let anchor: UnitPoint = width - x < 10 ? UnitPoint.topTrailing : UnitPoint.top
+                text(&context, "+" + String(minute) + "m", CGPoint(x: x, y: tickTop + 6), anchor,
+                     size: 10, weight: .regular, color: Theme.ovRecovery)
+                minute += every
+            }
+        }
+        text(&context, "finish " + SummaryFormat.clock(duration), CGPoint(x: scale.finishX, y: tickTop + 22),
              UnitPoint.topTrailing, size: 10, weight: .regular, color: Theme.ovFg2)
+        text(&context, "End " + SummaryFormat.signed(tail.duration), CGPoint(x: width, y: tickTop + 22),
+             UnitPoint.topTrailing, size: 10, weight: .semibold, color: Theme.ovRecovery)
     }
 
     private func drawSelection(_ context: inout GraphicsContext, _ width: CGFloat) {
@@ -309,12 +416,124 @@ struct TimelineDrawing {
         line.addLine(to: CGPoint(x: x, y: TimelineDrawing.zoneTopY + TimelineDrawing.zoneHeight))
         let dashed: StrokeStyle = StrokeStyle(lineWidth: 1, dash: [2, 2])
         context.stroke(line, with: .color(Theme.ovFg), style: dashed)
-        if let bpm = timeline.heartRate(at: t) {
-            let y: CGFloat = yOf(bpm)
+        var bpm: Double? = nil
+        var dot: Color = Theme.ovHR
+        if let tail = timeline.recovery, timeline.isRecovery(at: t) {
+            bpm = tail.heartRate(at: t)
+            dot = Theme.ovRecovery
+        } else {
+            bpm = timeline.heartRate(at: t)
+        }
+        if let v = bpm {
+            let y: CGFloat = yOf(v)
             let outer: CGRect = CGRect(x: x - 5, y: y - 5, width: 10, height: 10)
             let inner: CGRect = CGRect(x: x - 3, y: y - 3, width: 6, height: 6)
             context.fill(Path(ellipseIn: outer), with: .color(Theme.cardBackground))
-            context.fill(Path(ellipseIn: inner), with: .color(Theme.ovHR))
+            context.fill(Path(ellipseIn: inner), with: .color(dot))
+        }
+    }
+
+    // MARK: Recovery tail (after the finish)
+
+    /// Pale band behind the tail with a recovery-coloured top edge and the "Recovery" label.
+    private func drawRecoveryBand(_ context: inout GraphicsContext, _ width: CGFloat) {
+        guard let tail = timeline.recovery else { return }
+        let x0: CGFloat = xOf(tail.start, width)
+        let bw: CGFloat = Swift.max(0, width - x0)
+        if bw <= 0 { return }
+        let top: CGFloat = TimelineDrawing.topY
+        let height: CGFloat = TimelineDrawing.bottomY - TimelineDrawing.topY
+        context.fill(Path(CGRect(x: x0, y: top, width: bw, height: height)), with: .color(Theme.ovRecoveryBand))
+        context.fill(Path(CGRect(x: x0, y: top, width: bw, height: 3)), with: .color(Theme.ovRecovery))
+        var label: String = ""
+        if bw >= 50 {
+            label = "Recovery"
+        } else if bw >= 26 {
+            label = "Rec."
+        }
+        if !label.isEmpty {
+            text(&context, label, CGPoint(x: x0 + bw / 2, y: 12), UnitPoint.center,
+                 size: 9, weight: .semibold, color: Theme.ovRecovery)
+        }
+    }
+
+    /// Hatches the tail's 5 s values with no reading, like the workout's gaps.
+    private func drawRecoveryGaps(_ context: inout GraphicsContext, _ width: CGFloat) {
+        guard let tail = timeline.recovery else { return }
+        let top: CGFloat = TimelineDrawing.topY + 3
+        let height: CGFloat = TimelineDrawing.bottomY - TimelineDrawing.topY - 3
+        let values: [Double?] = tail.heartRate
+        var gapStart: Double? = nil
+        for k in 0...values.count {
+            let s: Double = Swift.min(tail.start + Double(k) * tail.interval, tail.end)
+            let missing: Bool = k < values.count && values[k] == nil
+            if missing {
+                if gapStart == nil { gapStart = s }
+            } else if let g = gapStart {
+                let x0: CGFloat = xOf(g, width)
+                let gw: CGFloat = xOf(s, width) - x0
+                if gw > 0 {
+                    hatch(&context, CGRect(x: x0, y: top, width: gw, height: height))
+                }
+                gapStart = nil
+            }
+        }
+    }
+
+    /// The HR line after the finish in the recovery colour, joined to the workout's last
+    /// value so the curve runs on through the finish.
+    private func drawRecoveryLine(_ context: inout GraphicsContext, _ width: CGFloat) {
+        guard let tail = timeline.recovery else { return }
+        var path: Path = Path()
+        var penDown: Bool = false
+        let workout: [Double?] = timeline.heartRate
+        if !timeline.isEstimated, let lastIndex = workout.indices.last, let last = workout[lastIndex] {
+            path.move(to: CGPoint(x: xOf(timeline.time(ofSample: lastIndex), width), y: yOf(last)))
+            penDown = true
+        }
+        let values: [Double?] = tail.heartRate
+        for k in 0..<values.count {
+            if let v = values[k] {
+                let p: CGPoint = CGPoint(x: xOf(tail.time(ofSample: k), width), y: yOf(v))
+                if penDown {
+                    path.addLine(to: p)
+                } else {
+                    path.move(to: p)
+                    penDown = true
+                }
+            } else {
+                penDown = false
+            }
+        }
+        let style: StrokeStyle = StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round)
+        context.stroke(path, with: .color(Theme.ovRecovery), style: style)
+    }
+
+    /// Thin vertical line at the finish, from the band labels down through the zone strip.
+    private func drawFinishDivider(_ context: inout GraphicsContext, _ width: CGFloat) {
+        guard let tail = timeline.recovery else { return }
+        let x: CGFloat = xOf(tail.start, width)
+        var line: Path = Path()
+        line.move(to: CGPoint(x: x, y: TimelineDrawing.topY - 2))
+        line.addLine(to: CGPoint(x: x, y: TimelineDrawing.zoneTopY + TimelineDrawing.zoneHeight + 4))
+        context.stroke(line, with: .color(Theme.ovFg2), lineWidth: 1)
+    }
+
+    /// A dot on the line at +1 / +2 / +3 min with its bpm above it.
+    private func drawRecoveryMarks(_ context: inout GraphicsContext, _ width: CGFloat) {
+        guard let tail = timeline.recovery else { return }
+        for mark in tail.marks {
+            let x: CGFloat = xOf(tail.time(of: mark), width)
+            let y: CGFloat = yOf(mark.heartRate)
+            let outer: CGRect = CGRect(x: x - 4.5, y: y - 4.5, width: 9, height: 9)
+            let inner: CGRect = CGRect(x: x - 3, y: y - 3, width: 6, height: 6)
+            context.fill(Path(ellipseIn: outer), with: .color(Theme.cardBackground))
+            context.fill(Path(ellipseIn: inner), with: .color(Theme.ovRecovery))
+            let labelY: CGFloat = Swift.max(TimelineDrawing.topY + 14, y - 6)
+            var anchor: UnitPoint = UnitPoint.bottom
+            if width - x < 10 { anchor = UnitPoint.bottomTrailing }
+            text(&context, SummaryFormat.bpm(mark.heartRate), CGPoint(x: x, y: labelY), anchor,
+                 size: 9, weight: .bold, color: Theme.ovRecovery)
         }
     }
 }

@@ -488,3 +488,71 @@ def test_backfill_real_partner_wod1(tmp_path):
     back = WorkoutResult.load(path)
     assert back.heart_rate_series == r.heart_rate_series
     assert [round(m.heart_rate) for m in back.heart_rate_recovery.marks] == [145, 123, 105]
+
+
+# ---- recovery tail on the overview timeline (WorkoutSummaryTimeline.swift RecoveryTail; same cases
+# as HeartRateRecoveryTests.swift testRecoveryTail*) ----
+
+def real_tail_result(end=REAL_END, finished=True):
+    """Partner WOD 1 shape: 4 quick-test segments from 0 to the finish (1389.3 s), the real HR tail,
+    End at `end`; all shifted to 1_800_000_000."""
+    from barpath.workout import HeartRateSeries, SegmentResult
+    t0 = 1_800_000_000
+    q = REAL_FINISH / 4
+    kinds = ["run", "station", "run", "station"]
+    segs = [SegmentResult(i, kinds[i], kinds[i], f"S{i}", t0 + i * q, t0 + (i + 1) * q, q) for i in range(4)]
+    series = real_tail_series(end)
+    shifted = HeartRateSeries(series.start + t0, series.interval, series.bpm)
+    start = datetime.fromtimestamp(t0, tz=timezone.utc)
+    fin = datetime.fromtimestamp(t0 + REAL_FINISH, tz=timezone.utc) if finished else None
+    return WorkoutResult(WorkoutLibrary.quickTest, start, fin, datetime.fromtimestamp(t0 + end, tz=timezone.utc),
+                         REAL_FINISH, segs, [], heart_rate_series=shifted)
+
+
+def test_recovery_tail_from_real_shape():
+    r = real_tail_result()
+    assert r.summary_origin == 1_800_000_000 and r.summary_duration == pytest.approx(REAL_FINISH, abs=1e-6)
+    tail = r.recovery_tail
+    assert tail is not None
+    assert tail.start == pytest.approx(REAL_FINISH, abs=1e-6)
+    assert tail.end == pytest.approx(REAL_END, abs=1e-6)
+    assert tail.interval == 5.0 and len(tail.heart_rate) == 45          # ceil(221.2 / 5)
+    assert tail.heart_rate[:4] == [161.5, 160.0, 162.0, 160.0]
+    assert tail.heart_rate[-1] == 113.5
+    assert tail.heart_rate_low == 101.0 and tail.heart_rate_high == 162.0
+    assert tail.heart_rate_at_finish == 161.5
+    assert [m.minutes for m in tail.marks] == [1, 2, 3]
+    assert tail.time_of_mark(tail.marks[0]) == pytest.approx(REAL_FINISH + 60, abs=1e-6)
+    assert tail.time_of_sample(0) == pytest.approx(REAL_FINISH + 2.5, abs=1e-6)
+    assert tail.time_of_sample(44) == pytest.approx(REAL_FINISH + 220.6, abs=1e-6)  # last bucket cut at End
+    # The chip at +1:23: 136 bpm, -25.5 since the finish.
+    m = tail.moment(REAL_FINISH + 83)
+    assert m.seconds_after_finish == pytest.approx(83, abs=1e-6)
+    assert m.heart_rate == 136.0 and m.change == pytest.approx(-25.5, abs=1e-9)
+    assert tail.moment(REAL_FINISH - 1) is None and tail.moment(REAL_END + 1) is None
+    assert tail.heart_rate_at(REAL_FINISH - 1) is None
+    assert tail.heart_rate_at(REAL_END + 50) == 113.5                     # clamped to the last value
+
+
+def test_recovery_tail_only_with_a_recovery(fixtures_dir):
+    assert load_amrap(fixtures_dir).recovery_tail is None                 # series stops at the finish
+    assert real_tail_result(end=REAL_FINISH + 59).recovery_tail is None   # End within a minute
+    assert real_tail_result(finished=False).recovery_tail is None         # ended without finishing
+    short = real_tail_result(end=REAL_FINISH + 90).recovery_tail          # 90 s: one mark, 18 values
+    assert short is not None and [m.minutes for m in short.marks] == [1] and len(short.heart_rate) == 18
+
+
+@pytest.mark.skipif(not (REAL_DIR / f"session-{REAL_ID}.csv").exists(), reason="real 2026-10-31 data missing")
+def test_recovery_tail_real_partner_wod1_after_backfill():
+    from barpath.workout import session_csv_heart_rates
+    r = WorkoutResult.load(REAL_DIR / f"workout-{REAL_ID}.json")
+    assert r.recovery_tail is None                                        # as recorded: series ends at the finish
+    with open(REAL_DIR / f"session-{REAL_ID}.csv") as f:
+        assert r.backfill_heart_rate(session_csv_heart_rates(f))
+    tail = r.recovery_tail
+    assert tail.start == pytest.approx(r.summary_duration, abs=1e-9) == pytest.approx(1389.35, abs=0.01)
+    assert tail.duration == pytest.approx(221.19, abs=0.01) and len(tail.heart_rate) == 45
+    assert tail.heart_rate_at_finish == 161.0
+    assert [round(m.heart_rate) for m in tail.marks] == [145, 123, 105]
+    assert tail.heart_rate_low == 101.0 and tail.heart_rate_high == 162.0
+    assert tail.moment(tail.start + 83).change == -25.0

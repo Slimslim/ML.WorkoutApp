@@ -62,6 +62,127 @@ extension WorkoutSummary {
         public let count: Int
     }
 
+    /// The heart rate after the finish, drawn after the workout on the same chart
+    /// (WORKOUT_SPEC §6). Only when the result has a `HeartRateRecovery` (finished, and at least
+    /// 60 s recorded after the finish). Times are relative like the rest of the timeline: the
+    /// tail starts at the workout's `duration` (the finish) and second τ after the finish is at
+    /// `start + τ`. Nothing here feeds the workout numbers (stats, zones, gaps, low / high).
+    public struct RecoveryTail: Equatable {
+        /// Relative time of the finish = `Timeline.duration`.
+        public let start: Double
+        /// start + `coveredSeconds` of the recovery (End, or the end of the series if earlier).
+        public let end: Double
+        /// Grid step of `heartRate`, seconds (5).
+        public let interval: Double
+        /// One value per `interval` from the finish (value k covers [start + k·interval,
+        /// start + (k+1)·interval), the last one cut at `end`), nil = no reading.
+        /// Count = ceil((end − start) / interval).
+        public let heartRate: [Double?]
+        /// HR at the finish (`HeartRateRecovery.heartRateAtFinish`), the reference for "since finish".
+        public let heartRateAtFinish: Double
+        /// The +1 / +2 / +3 min marks that are covered and have a value (`HeartRateRecovery.marks`).
+        public let marks: [HeartRateRecovery.Mark]
+        /// Lowest and highest non-nil value of `heartRate`.
+        public let heartRateLow: Double?
+        public let heartRateHigh: Double?
+
+        public init(start: Double, end: Double, interval: Double, heartRate: [Double?],
+                    heartRateAtFinish: Double, marks: [HeartRateRecovery.Mark],
+                    heartRateLow: Double?, heartRateHigh: Double?) {
+            self.start = start
+            self.end = end
+            self.interval = interval
+            self.heartRate = heartRate
+            self.heartRateAtFinish = heartRateAtFinish
+            self.marks = marks
+            self.heartRateLow = heartRateLow
+            self.heartRateHigh = heartRateHigh
+        }
+
+        /// Seconds recorded after the finish.
+        public var duration: Double { return end - start }
+
+        /// Relative time of the centre of value k (the last value's centre is the middle of
+        /// its shortened stretch, like the workout grid).
+        public func time(ofSample k: Int) -> Double {
+            return start + WorkoutSummary.bucketCentre(k, interval: interval, duration: duration)
+        }
+
+        /// Relative time of a mark (start + mark.seconds).
+        public func time(of mark: HeartRateRecovery.Mark) -> Double {
+            return start + mark.seconds
+        }
+
+        /// True when t lies in the tail: start ≤ t ≤ end.
+        public func contains(_ t: Double) -> Bool {
+            return t.isFinite && t >= start && t <= end
+        }
+
+        /// Index of the value covering t, clamped to the grid; nil when t is before the finish
+        /// or the grid is empty.
+        public func sampleIndex(at t: Double) -> Int? {
+            if heartRate.isEmpty || interval <= 0 || !t.isFinite || t < start { return nil }
+            var k: Int = Int(((t - start) / interval).rounded(.down))
+            if k >= heartRate.count { k = heartRate.count - 1 }
+            if k < 0 { k = 0 }
+            return k
+        }
+
+        /// Heart rate at relative time t in the tail, nil before the finish or in a gap.
+        public func heartRate(at t: Double) -> Double? {
+            guard let k = sampleIndex(at: t) else { return nil }
+            let values: [Double?] = self.heartRate
+            return values[k]
+        }
+
+        /// What the chip shows at relative time t: seconds after the finish, HR there and its
+        /// change since the finish (negative = went down). Nil outside the tail.
+        public func moment(at t: Double) -> RecoveryMoment? {
+            if !contains(t) { return nil }
+            let hr: Double? = heartRate(at: t)
+            var change: Double? = nil
+            if let v = hr { change = v - heartRateAtFinish }
+            return RecoveryMoment(secondsAfterFinish: t - start, heartRate: hr, change: change)
+        }
+
+        /// The tail of a recovery, placed at `start` (the timeline's duration). Values are read
+        /// from `series` at finishTime + bucket centre (the same way the workout grid reads it).
+        /// Nil when the series has no value anywhere after the finish.
+        public static func make(recovery: HeartRateRecovery, series: HeartRateSeries,
+                                start: Double) -> RecoveryTail? {
+            let interval: Double = WorkoutSummary.timelineInterval
+            let covered: Double = recovery.coveredSeconds
+            if !(covered > 0) || !start.isFinite { return nil }
+            let n: Int = Int((covered / interval).rounded(.up))
+            var hr: [Double?] = []
+            hr.reserveCapacity(n)
+            var low: Double? = nil
+            var high: Double? = nil
+            for k in 0..<n {
+                let c: Double = WorkoutSummary.bucketCentre(k, interval: interval, duration: covered)
+                let v: Double? = series.value(at: recovery.finishTime + c)
+                if let x = v {
+                    low = Swift.min(low ?? x, x)
+                    high = Swift.max(high ?? x, x)
+                }
+                hr.append(v)
+            }
+            if high == nil { return nil }
+            return RecoveryTail(start: start, end: start + covered, interval: interval, heartRate: hr,
+                                heartRateAtFinish: recovery.heartRateAtFinish, marks: recovery.marks,
+                                heartRateLow: low, heartRateHigh: high)
+        }
+    }
+
+    /// One moment of the recovery tail (see `RecoveryTail.moment(at:)`).
+    public struct RecoveryMoment: Equatable {
+        public let secondsAfterFinish: Double
+        /// Nil when there is no reading there.
+        public let heartRate: Double?
+        /// heartRate − heartRateAtFinish (negative = went down), nil without a reading.
+        public let change: Double?
+    }
+
     public struct Timeline: Equatable {
         /// Workout length in seconds (start to finish, or to the end if not finished).
         public let duration: Double
@@ -89,6 +210,21 @@ extension WorkoutSummary {
         /// Lowest and highest non-nil value of `heartRate` (for the y axis).
         public let heartRateLow: Double?
         public let heartRateHigh: Double?
+        /// HR after the finish, drawn after `duration` (nil for older results, unfinished
+        /// workouts or when End came less than 60 s after the finish). Not part of any number above.
+        public let recovery: RecoveryTail?
+
+        /// Where the chart's x axis ends: the end of the recovery tail, else `duration`.
+        public var chartEnd: Double {
+            if let r = recovery { return Swift.max(duration, r.end) }
+            return duration
+        }
+
+        /// True when t lies in the recovery tail (after the finish). Always false without one.
+        public func isRecovery(at t: Double) -> Bool {
+            guard let r = recovery else { return false }
+            return t >= r.start && t.isFinite
+        }
 
         /// Centre time of grid value k (where to draw the point). The last value may cover a
         /// shorter stretch (up to `duration`); its centre is the middle of that stretch.
@@ -282,10 +418,17 @@ extension WorkoutSummary {
         if let g = gapStart { gaps.append(Gap(start: g, end: duration)) }
         if let rz = runZone { zones.append(ZoneRun(zone: rz, start: runStart, end: duration)) }
 
+        // Recovery after the finish (its own grid from the finish; no effect on the numbers above).
+        var tail: RecoveryTail? = nil
+        if duration > 0, let rec = ctx.result.heartRateRecovery, let series = ctx.result.heartRateSeries {
+            tail = RecoveryTail.make(recovery: rec, series: series, start: duration)
+        }
+
         let bounds: [Double] = WorkoutSummary.zoneFractions.map({ (f: Double) -> Double in f * maxHR })
         return Timeline(duration: duration, interval: interval, bands: bands, heartRate: hr,
                         isEstimated: estimated, hasHeartRate: high != nil, gaps: gaps, zones: zones,
                         zoneSeconds: zoneSeconds, maxHeartRate: maxHR, zonesEstimated: zonesEstimated,
-                        zoneLowerBounds: bounds, heartRateLow: low, heartRateHigh: high)
+                        zoneLowerBounds: bounds, heartRateLow: low, heartRateHigh: high,
+                        recovery: tail)
     }
 }

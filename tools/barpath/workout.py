@@ -823,6 +823,33 @@ class WorkoutResult:
         self.heart_rate_series = HeartRateSeries(s.start, s.interval, list(s.bpm) + tail)
         return True
 
+    # ---- overview timeline frame (WorkoutSummary.swift SummaryContext) ----
+
+    @property
+    def summary_origin(self) -> float:
+        """Seconds since 1970 where the overview timeline starts: the first segment's start (by
+        index), else start_date."""
+        if self.segments:
+            return min(self.segments, key=lambda s: s.index).start
+        return self.start_date.timestamp()
+
+    @property
+    def summary_duration(self) -> float:
+        """Overview timeline length: max(total_seconds, last segment end - origin), at least 0."""
+        d = self.total_seconds
+        if self.segments:
+            d = max(d, max(self.segments, key=lambda s: s.index).end - self.summary_origin)
+        return max(0.0, d)
+
+    @property
+    def recovery_tail(self) -> Optional["RecoveryTail"]:
+        """Timeline.recovery (WorkoutSummaryTimeline.swift): the HR after the finish placed after the
+        workout on the overview chart; None without heart_rate_recovery."""
+        rec = self.heart_rate_recovery
+        if rec is None or self.heart_rate_series is None or self.summary_duration <= 0:
+            return None
+        return RecoveryTail.make(rec, self.heart_rate_series, self.summary_duration)
+
     def save(self, path) -> None:
         with open(path, "w") as f:
             json.dump(self.to_dict(), f, indent=2, sort_keys=True)
@@ -932,6 +959,82 @@ class HeartRateRecovery:
         if not marks:
             return None
         return cls(finish, at_finish, covered, marks)
+
+
+TIMELINE_INTERVAL = 5.0
+
+
+def _bucket_centre(k: int, interval: float, duration: float) -> float:
+    """WorkoutSummary.bucketCentre: middle of [k*interval, min((k+1)*interval, duration)]."""
+    s = k * interval
+    e = max(s, min((k + 1) * interval, duration))
+    return (s + e) / 2
+
+
+@dataclass
+class RecoveryMoment:
+    seconds_after_finish: float
+    heart_rate: Optional[float]
+    change: Optional[float]       # heart_rate - heart_rate_at_finish (negative = went down)
+
+
+@dataclass
+class RecoveryTail:
+    """WorkoutSummary.RecoveryTail (WorkoutSummaryTimeline.swift): HR after the finish on the overview
+    chart. Relative times: the tail starts at the workout duration (the finish), second tau after the
+    finish is at start + tau. Its own 5 s grid from the finish: value k = series value at
+    finish_time + bucket centre k (last bucket cut at the end). Not used by any workout number."""
+    start: float
+    end: float
+    interval: float
+    heart_rate: list
+    heart_rate_at_finish: float
+    marks: list
+    heart_rate_low: Optional[float]
+    heart_rate_high: Optional[float]
+
+    @property
+    def duration(self) -> float:
+        return self.end - self.start
+
+    def time_of_sample(self, k: int) -> float:
+        return self.start + _bucket_centre(k, self.interval, self.duration)
+
+    def time_of_mark(self, mark: RecoveryMark) -> float:
+        return self.start + mark.seconds
+
+    def contains(self, t: float) -> bool:
+        return math.isfinite(t) and self.start <= t <= self.end
+
+    def sample_index(self, t: float) -> Optional[int]:
+        if not self.heart_rate or self.interval <= 0 or not math.isfinite(t) or t < self.start:
+            return None
+        k = int(math.floor((t - self.start) / self.interval))
+        return min(max(k, 0), len(self.heart_rate) - 1)
+
+    def heart_rate_at(self, t: float) -> Optional[float]:
+        k = self.sample_index(t)
+        return None if k is None else self.heart_rate[k]
+
+    def moment(self, t: float) -> Optional[RecoveryMoment]:
+        if not self.contains(t):
+            return None
+        hr = self.heart_rate_at(t)
+        return RecoveryMoment(t - self.start, hr, None if hr is None else hr - self.heart_rate_at_finish)
+
+    @classmethod
+    def make(cls, recovery: "HeartRateRecovery", series: HeartRateSeries, start: float) -> Optional["RecoveryTail"]:
+        interval = TIMELINE_INTERVAL
+        covered = recovery.covered_seconds
+        if not covered > 0 or not math.isfinite(start):
+            return None
+        n = int(math.ceil(covered / interval))
+        hr = [series.value_at(recovery.finish_time + _bucket_centre(k, interval, covered)) for k in range(n)]
+        vals = [v for v in hr if v is not None]
+        if not vals:
+            return None
+        return cls(start, start + covered, interval, hr, recovery.heart_rate_at_finish, list(recovery.marks),
+                   min(vals), max(vals))
 
 
 def session_csv_heart_rates(lines) -> list:

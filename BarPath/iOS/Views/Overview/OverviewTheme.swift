@@ -28,6 +28,12 @@ extension Theme {
     static let ovHR: Color = ovColor(0xD9251A, 0xFF5B4F)
     static let ovFast: Color = ovColor(0x0F9C8C, 0x3FD1BE)
     static let ovSlow: Color = ovColor(0xB03C78, 0xE77BB2)
+    /// Heart-rate recovery after the finish (the tail of the timeline chart: line, marks, chip
+    /// swatch, legend). A calm cyan, kept apart from run blue (ovRun), the station oranges,
+    /// HR red (ovHR) and the red zone ramp, and from the greener "faster" teal (ovFast).
+    static let ovRecovery: Color = ovColor(0x0889A8, 0x45C4E5)
+    /// Pale band behind the recovery tail (like ovRunBand / ovStationBand).
+    static let ovRecoveryBand: Color = ovColor(0xDFF2F7, 0x13313B)
     static let ovGrid: Color = ovColor(0xE4E4EA, 0x38383C)
     static let ovSel: Color = ovColor(0x111114, 0xF5F5F7)
     static let ovFg: Color = Color(uiColor: UIColor.label)
