@@ -13,5 +13,5 @@ same-day squat recordings will be added when shared.
   bike 71/87/94, pull-ups 31/33/39, snatches 55/48/50, wall walks 76/79/87.
 - Recovery (Kit rule, ±7.5 s means): 166 at the cap → 138 (1 min, −28) → 117 (2 min, −49) → 118 (3 min).
 
-Labels still needed: DB weight, any Crown mistakes. Segment `movement` ids in the JSON are the
+Dumbbell: 40 lb. Labels still needed: any Crown mistakes. Segment `movement` ids in the JSON are the
 first option of each slot (row, pushUps, dumbbellSnatch, burpees); use the labels above for even rounds.
