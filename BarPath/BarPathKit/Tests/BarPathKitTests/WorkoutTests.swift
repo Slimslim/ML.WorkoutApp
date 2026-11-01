@@ -12,7 +12,7 @@ final class WorkoutTests: XCTestCase {
         XCTAssertEqual(all.map { (d: WorkoutDefinition) -> String in d.id },
                        [WorkoutLibrary.hyroxSolo.id, WorkoutLibrary.hyroxDoubles.id, WorkoutLibrary.halfHyrox.id,
                         WorkoutLibrary.partnerWod1.id, WorkoutLibrary.partnerWod2.id, WorkoutLibrary.amrap40.id,
-                        WorkoutLibrary.helen.id, WorkoutLibrary.rowThrusters.id, WorkoutLibrary.amrap20.id])
+                        WorkoutLibrary.helen.id, WorkoutLibrary.rowThrusters.id, WorkoutLibrary.free.id])
         let ids = Set(all.map { (d: WorkoutDefinition) -> String in d.id })
         XCTAssertEqual(ids.count, 9)
         for d in all {
@@ -32,6 +32,10 @@ final class WorkoutTests: XCTestCase {
         XCTAssertEqual(WorkoutLibrary.rowThrusters.segments[2].title, "Rest")
         XCTAssertEqual(WorkoutLibrary.rowThrusters.segments.last?.movement, Movement.thrusters)
         XCTAssertEqual(WorkoutLibrary.amrap20.segments.count, 40)
+        XCTAssertEqual(WorkoutLibrary.free.segments.count, 60)
+        XCTAssertEqual(WorkoutLibrary.free.segments[0].title, "Part 1")
+        XCTAssertNil(WorkoutLibrary.free.timeCapSeconds)
+        XCTAssertEqual(WorkoutLibrary.definition(id: WorkoutLibrary.amrap20.id), WorkoutLibrary.amrap20)
         let a40 = WorkoutLibrary.amrap40
         XCTAssertEqual(a40.segments.count, 60)
         XCTAssertEqual(a40.roundSize, 5)

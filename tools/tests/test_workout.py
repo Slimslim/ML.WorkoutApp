@@ -37,7 +37,7 @@ def test_library():
     assert len(WorkoutLibrary.all) == 9
     assert [d.id for d in WorkoutLibrary.all] == [
         "hyrox.solo", "hyrox.doubles", "hyrox.half", "partner.wod1", "partner.wod2", "wod.amrap40",
-        "wod.helen", "wod.rowThrusters", "wod.nightmareAmrap"]
+        "wod.helen", "wod.rowThrusters", "free.workout"]
     assert len({d.id for d in WorkoutLibrary.all}) == 9
     assert len(WorkoutLibrary.helen.segments) == 9 and WorkoutLibrary.helen.run_count == 3
     assert WorkoutLibrary.helen.segments[1].title == "KB Swings 21"
@@ -45,6 +45,9 @@ def test_library():
     assert WorkoutLibrary.rowThrusters.segments[0].title == "Row 15 cal"
     assert WorkoutLibrary.rowThrusters.segments[2].title == "Rest"
     assert len(WorkoutLibrary.amrap20.segments) == 40
+    free = WorkoutLibrary.free
+    assert len(free.segments) == 60 and free.segments[0].title == "Part 1" and free.time_cap_seconds is None
+    assert WorkoutLibrary.definition("wod.nightmareAmrap") is WorkoutLibrary.amrap20
     a40 = WorkoutLibrary.amrap40
     assert len(a40.segments) == 60 and a40.round_size == 5 and a40.time_cap_seconds == 2400
     assert a40.segments[0].title == "Row / Bike 12 cal"

@@ -14,7 +14,8 @@ enum WorkoutGroups {
                                            WorkoutLibrary.halfHyrox.id]),
         WorkoutGroup(title: "Partner", ids: [WorkoutLibrary.partnerWod1.id, WorkoutLibrary.partnerWod2.id]),
         WorkoutGroup(title: "Class", ids: [WorkoutLibrary.helen.id, WorkoutLibrary.rowThrusters.id,
-                                           WorkoutLibrary.amrap20.id, WorkoutLibrary.amrap40.id])
+                                           WorkoutLibrary.amrap20.id, WorkoutLibrary.amrap40.id]),
+        WorkoutGroup(title: "Other", ids: [WorkoutLibrary.free.id])
     ]
 
     static func summary(_ definition: WorkoutDefinition) -> String {

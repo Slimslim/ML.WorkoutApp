@@ -185,15 +185,29 @@ public enum WorkoutLibrary {
         ], rounds: 12),
         roundSize: 5)
 
+    /// Free workout: for anything not built yet. 60 open "Part N" segments with no target and no
+    /// cap; turn the Crown at each change (new movement, new set, rest…), End when done. Name and
+    /// details are added later on the phone.
+    public static let free: WorkoutDefinition = {
+        var parts: [WorkoutSegment] = []
+        for i in 1...60 {
+            parts.append(WorkoutSegment(kind: .station, movement: Movement.part, name: "Part " + String(i),
+                                        target: nil))
+        }
+        return WorkoutDefinition(id: "free.workout", name: "Free Workout", shortName: "Free",
+                                 format: .forTime, team: .solo, timeCapSeconds: nil,
+                                 healthKitActivity: "crossTraining", segments: parts)
+    }()
+
     /// Exactly 9, in this order (fills the watch's 3×3 picker). quickTest stays defined but is
-    /// off the grid since 2026-11-01 (Screen demo replaces it).
+    /// off the grid since 2026-11-01 (Screen demo replaces it); amrap20 made room for Free.
     public static let all: [WorkoutDefinition] = [
         hyroxSolo, hyroxDoubles, halfHyrox, partnerWod1, partnerWod2, amrap40,
-        helen, rowThrusters, amrap20
+        helen, rowThrusters, free
     ]
 
     /// Every built-in definition, including ones off the watch grid (old results still resolve).
-    public static let known: [WorkoutDefinition] = all + [quickTest]
+    public static let known: [WorkoutDefinition] = all + [amrap20, quickTest]
 
     public static func definition(id: String) -> WorkoutDefinition? {
         return known.first(where: { (d: WorkoutDefinition) -> Bool in d.id == id })
