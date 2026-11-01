@@ -216,3 +216,12 @@ Plan:
 
 Open questions for the athlete: delta always visible or only at switches; seconds behind vs
 projected finish; one plan per workout or several.
+
+## 10. Bluetooth gym machines (idea, 2026-11-01)
+
+The owner can pair the rower and the air bike over Bluetooth. Most current machines broadcast the
+standard Fitness Machine Service (FTMS); the Concept2 PM5 has its own documented Bluetooth service.
+A watch or phone workout app can read them during a workout: stroke rate, RPM, watts, calories and
+distance per segment, as ground truth for the wrist-motion estimates. Until then: air-bike calories
+follow from RPM with a per-bike curve (resistance is air, so power rises steeply with RPM); a rower
+needs the monitor's numbers, because stroke rate alone does not give power.

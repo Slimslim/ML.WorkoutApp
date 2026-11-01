@@ -15,3 +15,11 @@ same-day squat recordings will be added when shared.
 
 Dumbbell: 40 lb. Labels still needed: any Crown mistakes. Segment `movement` ids in the JSON are the
 first option of each slot (row, pushUps, dumbbellSnatch, burpees); use the labels above for even rounds.
+
+Owner notes (2026-11-01, after the analysis):
+- DB clean & jerk: always alternating hands, starting with the right. Round 1: clean to front rack,
+  dip, press; switch hands at the shoulder ("throw to the other hand"), touch the floor, next rep.
+  From round 3 on (shoulder injury): clean & jerk, drop the DB to the floor, switch hands on the
+  floor, clean & jerk from the floor. So the "lockouts × 2" rule (alternating reps) is correct.
+- Row and bike were stopped exactly at the target (12 cal row, 10 cal bike).
+- Owner can connect the rower and the bike over Bluetooth to compare (stroke rate, RPM, calories).
