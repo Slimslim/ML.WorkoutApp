@@ -224,7 +224,7 @@ public struct WorkoutResult: Codable, Equatable, Identifiable {
     public var heartRateAvg: Double?
     public var heartRateMax: Double?
     public var recordingFileName: String? // "session-<id>.csv" when Data mode was on
-    public var heartRateSeries: HeartRateSeries? // v2: start → finish (or end), 5 s
+    public var heartRateSeries: HeartRateSeries? // v2, 5 s: start → End (since 2026-11-01; §6)
     public init(...)                      // memberwise
     public func encoded() throws -> Data  // pretty JSON, dates via LiftRecording.makeEncoder()
     public static func decode(from data: Data) throws -> WorkoutResult
@@ -382,3 +382,48 @@ Workouts detail: "Fix splits" button opens an editor: each segment row shows its
 an AMRAP row "Reps after the cap" with a stepper (setPartialReps). Save writes the corrected
 result over Documents/Workouts/<id>.json after keeping the first original as
 Documents/Workouts/<id>.original.json (once), and reloads the store. Cancel discards.
+
+## 6. Heart-rate recovery after the finish (added 2026-11-01)
+
+Motivation: after the last segment the athlete stays on the done screen until End (Partner WOD 1,
+2026-10-31: finish 23:09, End 3:41 later, HR 162 → ~107), but the series stopped at the finish.
+
+### Result format (no version bump, no new keys)
+- `heartRateSeries` now runs from the start to **End** (`endDate`), not to the finish. Files
+  written before 2026-11-01 stop at the finish; both decode unchanged.
+- The workout part is unchanged: the timeline, zones and segment stats use start → finish
+  (`totalSeconds`, segment times), so nothing after the finish leaks into them.
+- `heartRateAvg` / `heartRateMax` (watch) cover start → finish (or End if not finished); before
+  2026-11-01 they covered start → End.
+
+### Kit (`HeartRateRecovery.swift`; Python `HeartRateRecovery` in workout.py)
+- `HeartRateRecovery.make(series:finish:end:) -> HeartRateRecovery?`, `WorkoutResult.heartRateRecovery`.
+- HR at the finish = highest 5 s bucket overlapping the last 10 s before the finish (incl. the
+  bucket holding it). HR at +60 / +120 / +180 s = mean of the non-null buckets whose centre is
+  within ±7.5 s of the mark, only when the recording covers the mark. `drop1/2/3` = finish − mark
+  (HRR1/2/3, bpm). `coveredSeconds` = min(End, series end) − finish.
+- Nil when not finished, no series, < 60 s recorded after the finish, no HR at the finish, or no
+  mark has a value.
+- Backfill for older files: `needsHeartRateBackfill` (series ends ≥ 1 bucket before End),
+  `SessionCSV.heartRateSamples(_:)` (the CSV's `# event t=… name=hr bpm=…` lines; t is seconds
+  since the header `startDate`) and `backfillingHeartRate(samples:)` (keeps the existing buckets,
+  appends `HeartRateSeries.make` buckets on the same grid up to End; no `editedAt`).
+  Python: `needs_heart_rate_backfill`, `session_csv_heart_rates`, `backfill_heart_rate`.
+- 2026-10-31 with its CSV: 161 → 145 (1 min) → 123 (2 min) → 105 (3 min), drops 16 / 38 / 56.
+  (Raw samples read 162 / 143 / 123 / 107; the grid and the 15 s mean smooth single readings.)
+
+### Watch
+Done screen (after the finish, before End): "DONE 23:09" on one line, a dark panel with
+"RECOVERY 1:23" (counting up from the finish), HR now and its change since the finish ("−19"),
+Undo, and the End hint. Haptics: light (`.click`) at 1:00 and 2:00, `.success` at 3:00 plus
+"3 min recovery done · End when ready". Never ends by itself. The CSV logs
+`# event name=recovery seconds=<60|120|180> bpm=<n>`. Cap finish: one compact recovery line above
+the partial-reps picker. Screen demo: same, with the fake HR.
+
+### Phone
+Overview: a "Recovery" card under the heart-rate chart when `heartRateRecovery` exists:
+"HR 161 → 145 (1 min) → 123 (2 min) → 105 (3 min)", one tile per mark ("−16", first minute
+highlighted), and "A bigger drop in the first minute usually means better fitness. Compare it
+with your own past workouts". No card otherwise. On load, results that need a backfill and whose
+session CSV is on the phone are extended once in the background and saved like an edit
+(`<id>.original.json` kept). Raw data in data/raw is not modified.

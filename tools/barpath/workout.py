@@ -788,6 +788,41 @@ class WorkoutResult:
             self.partial_reps = v
         self.edited_at = now if now is not None else datetime.now(timezone.utc)
 
+    # ---- heart-rate recovery (WORKOUT_SPEC §6, HeartRateRecovery.swift) ----
+
+    @property
+    def heart_rate_recovery(self) -> Optional["HeartRateRecovery"]:
+        """None when not finished, no series, or < 60 s recorded after the finish."""
+        if self.finish_date is None or self.heart_rate_series is None:
+            return None
+        return HeartRateRecovery.make(self.heart_rate_series, self.finish_date.timestamp(),
+                                      self.end_date.timestamp())
+
+    @property
+    def needs_heart_rate_backfill(self) -> bool:
+        """The series stops at least one bucket before End (files written before 2026-11-01)."""
+        s = self.heart_rate_series
+        if s is None or s.interval <= 0:
+            return False
+        return s.start + len(s.bpm) * s.interval + s.interval <= self.end_date.timestamp()
+
+    def backfill_heart_rate(self, samples: list) -> bool:
+        """Extends the series to End from samples (s since 1970, e.g. session_csv_heart_rates):
+        existing buckets kept, new ones = HeartRateSeries.make on the same grid from the series
+        start to End. False (nothing changed) when not needed or every new bucket is None.
+        edited_at is not touched."""
+        if not self.needs_heart_rate_backfill:
+            return False
+        s = self.heart_rate_series
+        full = HeartRateSeries.make(samples, s.start, self.end_date.timestamp(), s.interval)
+        if len(full.bpm) <= len(s.bpm):
+            return False
+        tail = full.bpm[len(s.bpm):]
+        if all(v is None for v in tail):
+            return False
+        self.heart_rate_series = HeartRateSeries(s.start, s.interval, list(s.bpm) + tail)
+        return True
+
     def save(self, path) -> None:
         with open(path, "w") as f:
             json.dump(self.to_dict(), f, indent=2, sort_keys=True)
@@ -796,6 +831,147 @@ class WorkoutResult:
     def load(cls, path) -> "WorkoutResult":
         with open(path) as f:
             return cls.from_dict(json.load(f))
+
+
+# ---- heart-rate recovery after the finish (WORKOUT_SPEC §6, HeartRateRecovery.swift) ------------
+
+RECOVERY_MARK_SECONDS = (60.0, 120.0, 180.0)
+RECOVERY_MINIMUM_SECONDS = 60.0
+RECOVERY_FINISH_WINDOW = 10.0
+RECOVERY_MARK_HALF_WINDOW = 7.5
+
+
+@dataclass
+class RecoveryMark:
+    seconds: float         # after the finish: 60, 120, 180
+    heart_rate: float
+    drop: float            # hr at finish - heart_rate (positive = HR went down)
+
+    @property
+    def minutes(self) -> int:
+        return int(_swift_round(self.seconds / 60.0))
+
+
+@dataclass
+class HeartRateRecovery:
+    """Same rules as HeartRateRecovery.swift: HR at the finish = highest bucket overlapping the last
+    10 s before the finish (incl. the bucket holding it); HR at +60/+120/+180 s = mean of the
+    non-null buckets whose centre is within +-7.5 s of the mark, only when covered; None when
+    < 60 s were recorded after the finish, no HR at the finish, or no mark has a value."""
+    finish_time: float
+    heart_rate_at_finish: float
+    covered_seconds: float
+    marks: list
+
+    def mark(self, minutes: int) -> Optional[RecoveryMark]:
+        for m in self.marks:
+            if m.minutes == minutes:
+                return m
+        return None
+
+    @property
+    def drop1(self) -> Optional[float]:
+        m = self.mark(1)
+        return m.drop if m else None
+
+    @property
+    def drop2(self) -> Optional[float]:
+        m = self.mark(2)
+        return m.drop if m else None
+
+    @property
+    def drop3(self) -> Optional[float]:
+        m = self.mark(3)
+        return m.drop if m else None
+
+    @staticmethod
+    def finish_heart_rate(series: HeartRateSeries, finish: float) -> Optional[float]:
+        if series.interval <= 0:
+            return None
+        best = None
+        for k, v in enumerate(series.bpm):
+            lo = series.start + k * series.interval
+            hi = lo + series.interval
+            if lo > finish or hi <= finish - RECOVERY_FINISH_WINDOW or v is None:
+                continue
+            best = v if best is None else max(best, v)
+        return best
+
+    @staticmethod
+    def heart_rate_around(series: HeartRateSeries, t: float) -> Optional[float]:
+        if series.interval <= 0:
+            return None
+        lo, hi = t - RECOVERY_MARK_HALF_WINDOW, t + RECOVERY_MARK_HALF_WINDOW
+        total, count = 0.0, 0
+        for k, v in enumerate(series.bpm):
+            c = series.start + (k + 0.5) * series.interval
+            if c < lo or c >= hi or v is None:
+                continue
+            total += v
+            count += 1
+        return total / count if count else None
+
+    @classmethod
+    def make(cls, series: HeartRateSeries, finish: float, end: float) -> Optional["HeartRateRecovery"]:
+        if series.interval <= 0 or not series.bpm or not math.isfinite(finish) or not math.isfinite(end):
+            return None
+        series_end = series.start + len(series.bpm) * series.interval
+        covered = max(0.0, min(end, series_end) - finish)
+        if covered < RECOVERY_MINIMUM_SECONDS:
+            return None
+        at_finish = cls.finish_heart_rate(series, finish)
+        if at_finish is None:
+            return None
+        marks = []
+        for s in RECOVERY_MARK_SECONDS:
+            if s > covered:
+                continue
+            v = cls.heart_rate_around(series, finish + s)
+            if v is not None:
+                marks.append(RecoveryMark(s, v, at_finish - v))
+        if not marks:
+            return None
+        return cls(finish, at_finish, covered, marks)
+
+
+def session_csv_heart_rates(lines) -> list:
+    """SessionCSV.heartRateSamples: '# event t=<s> name=hr bpm=<n>' lines of a session CSV as
+    TimedValue in seconds since 1970 (t + header startDate). Only '#' lines are read; [] without a
+    header startDate. `lines` is any iterable of lines (e.g. an open file)."""
+    origin = None
+    rel = []
+    for raw in lines:
+        if not raw.startswith("#"):
+            continue
+        body = raw[1:].strip()
+        if body.startswith("barpath-session"):
+            for part in body.split(","):
+                item = part.strip()
+                if item.startswith("startDate="):
+                    try:
+                        origin = parse_iso8601(item[len("startDate="):]).timestamp()
+                    except ValueError:
+                        pass
+            continue
+        if not body.startswith("event "):
+            continue
+        t = bpm = None
+        is_hr = False
+        for tok in body.split(" "):
+            try:
+                if tok.startswith("t="):
+                    t = float(tok[2:])
+                elif tok == "name=hr":
+                    is_hr = True
+                elif tok.startswith("bpm="):
+                    bpm = float(tok[4:])
+            except ValueError:
+                pass
+        if is_hr and t is not None and bpm is not None and math.isfinite(t) and math.isfinite(bpm):
+            rel.append(TimedValue(t, bpm))
+    if origin is None:
+        return []
+    return [TimedValue(origin + s.t, s.value) for s in rel]
 
 
 # ---- session CSV ------------------------------------------------------------------------------

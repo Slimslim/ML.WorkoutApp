@@ -654,15 +654,15 @@ struct WorkoutMainPage: View {
             fill.ignoresSafeArea()
             // The picker stays in always-on too (dimmed), so a value being picked isn't reset.
             if repsPickerActive {
-                capDoneContent(total: total, ink: ink)
+                capDoneContent(total: total, ink: ink, now: now)
             } else {
-                finishedContent(total: total, ink: ink)
+                finishedContent(total: total, ink: ink, now: now)
             }
         }
     }
 
-    /// Finished by the cap: compact TIME line, the reps picker, Undo.
-    private func capDoneContent(total: Double, ink: Color) -> some View {
+    /// Finished by the cap: compact TIME line, one recovery line, the reps picker, Undo.
+    private func capDoneContent(total: Double, ink: Color, now: Date) -> some View {
         VStack(spacing: 3) {
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text("TIME")
@@ -673,6 +673,13 @@ struct WorkoutMainPage: View {
             .foregroundColor(ink)
             .lineLimit(1)
             .minimumScaleFactor(0.6)
+            if let elapsed = model.recoveryElapsed(now: now) {
+                Text(compactRecoveryText(elapsed: elapsed))
+                    .font(.system(size: 12, weight: .bold, design: .rounded).monospacedDigit())
+                    .foregroundColor(ink.opacity(0.8))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
             Spacer(minLength: 0)
             PartialRepsPicker(segmentName: model.partialRepsSegment?.name ?? "",
                               maxReps: model.partialRepsMax,
@@ -686,29 +693,108 @@ struct WorkoutMainPage: View {
         .padding(.horizontal, 4)
     }
 
-    private func finishedContent(total: Double, ink: Color) -> some View {
-        VStack(spacing: 4) {
+    /// DONE / TIME and the total on one line, the recovery block (time since the finish,
+    /// HR now and its drop since the finish), Undo and the End hint. Fits 41 mm: one 26 pt line,
+    /// a two-line block, the 34 pt capsule and up to two 11 pt lines.
+    private func finishedContent(total: Double, ink: Color, now: Date) -> some View {
+        let elapsed: Double = model.recoveryElapsed(now: now) ?? 0
+        let recoveryDone: Bool = elapsed >= WorkoutMainPage.recoveryTargetSeconds
+        return VStack(spacing: 4) {
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Text(finishedByCap ? "TIME" : "DONE")
+                    .font(.system(size: 26, weight: .heavy, design: .rounded))
+                Text(SessionModel.formatElapsed(total))
+                    .font(.system(size: 26, weight: .heavy, design: .rounded).monospacedDigit())
+            }
+            .foregroundColor(ink)
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
             Spacer(minLength: 0)
-            Text(finishedByCap ? "TIME" : "DONE")
-                .font(.system(size: 40, weight: .heavy, design: .rounded))
-                .foregroundColor(ink)
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-            Text(SessionModel.formatElapsed(total))
-                .font(.system(size: 34, weight: .heavy, design: .rounded).monospacedDigit())
-                .foregroundColor(ink)
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
+            recoveryBlock(elapsed: elapsed)
             Spacer(minLength: 0)
             if !isLuminanceReduced {
                 undoCapsule
-                Text(model.isDemo ? "Demo · Swipe left for End" : "Swipe left for End")
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
-                    .foregroundColor(ink.opacity(0.7))
-                    .lineLimit(1)
             }
+            Text(endHint(recoveryDone: recoveryDone))
+                .font(.system(size: 11, weight: recoveryDone ? .heavy : .semibold, design: .rounded))
+                .foregroundColor(ink.opacity(recoveryDone ? 0.9 : 0.7))
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
         }
         .padding(.horizontal, 4)
+    }
+
+    // MARK: Recovery (WORKOUT_SPEC §6)
+
+    /// "3 min recovery done" from here; the model plays the haptics (1:00, 2:00, 3:00).
+    static let recoveryTargetSeconds: Double = 180.0
+
+    private func endHint(recoveryDone: Bool) -> String {
+        let demo: String = model.isDemo ? "Demo · " : ""
+        if recoveryDone {
+            return demo + "3 min recovery done · End when ready"
+        }
+        return demo + "Swipe left for End"
+    }
+
+    /// Dark panel (like the Undo capsule) with the D+ colours: yellow recovery clock, red HR,
+    /// lime drop. In always-on the clock is a system timer text (stays right between refreshes).
+    private func recoveryBlock(elapsed: Double) -> some View {
+        VStack(spacing: 0) {
+            HStack(alignment: .firstTextBaseline, spacing: 5) {
+                Text("RECOVERY")
+                    .font(.system(size: 11, weight: .heavy, design: .rounded))
+                    .foregroundColor(Color(white: 0.75))
+                recoveryClock(elapsed: elapsed)
+                    .font(.system(size: 18, weight: .heavy, design: .rounded).monospacedDigit())
+                    .foregroundColor(SegmentPalette.elapsed)
+            }
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                HStack(alignment: .firstTextBaseline, spacing: 2) {
+                    Text(heartRateValue)
+                        .font(.system(size: 26, weight: .heavy, design: .rounded).monospacedDigit())
+                    Text("BPM")
+                        .font(.system(size: 10, weight: .heavy, design: .rounded))
+                }
+                .foregroundColor(SegmentPalette.heartRate)
+                if let drop = model.recoveryDrop {
+                    // Drop since the finish: "−19" when HR went down.
+                    Text(SummaryFormat.signedNumber(-drop))
+                        .font(.system(size: 22, weight: .heavy, design: .rounded).monospacedDigit())
+                        .foregroundColor(drop >= 0 ? SegmentPalette.crownForward : SegmentPalette.crownBackward)
+                }
+            }
+        }
+        .lineLimit(1)
+        .minimumScaleFactor(0.7)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .frame(maxWidth: .infinity)
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous)
+            .fill(Color.black.opacity(isLuminanceReduced ? 0.6 : 0.85)))
+        .opacity(isLuminanceReduced ? 0.85 : 1.0)
+    }
+
+    @ViewBuilder
+    private func recoveryClock(elapsed: Double) -> some View {
+        if isLuminanceReduced, let finish = model.progress.finishTime {
+            Text(Date(timeIntervalSince1970: finish), style: .timer)
+        } else {
+            Text(SessionModel.formatElapsed(elapsed))
+        }
+    }
+
+    /// One line for the cap done screen (the reps picker needs the room).
+    private func compactRecoveryText(elapsed: Double) -> String {
+        if elapsed >= WorkoutMainPage.recoveryTargetSeconds {
+            return "3 min recovery done · End when ready"
+        }
+        var text: String = "Recovery " + SessionModel.formatElapsed(elapsed) + " · " + heartRateValue + " bpm"
+        if let drop = model.recoveryDrop {
+            text += " " + SummaryFormat.signedNumber(-drop)
+        }
+        return text
     }
 
     // MARK: Pieces

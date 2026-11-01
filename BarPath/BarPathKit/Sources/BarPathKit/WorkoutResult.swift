@@ -256,7 +256,8 @@ public struct WorkoutResult: Codable, Equatable, Identifiable {
     public var heartRateAvg: Double?
     public var heartRateMax: Double?
     public var recordingFileName: String?
-    /// HR every 5 s from the start to the finish (or end). Nil in version 1 files.
+    /// HR every 5 s from the start to End (`endDate`; before 2026-11-01 only to the finish), so
+    /// the part after `finishDate` is the recovery (HeartRateRecovery). Nil in version 1 files.
     public var heartRateSeries: HeartRateSeries?
     /// Reps done in the segment that was cut by the cap / end (WORKOUT_SPEC §5). Optional in
     /// JSON (absent in older files); set on the watch or with `setPartialReps(_:now:)`.

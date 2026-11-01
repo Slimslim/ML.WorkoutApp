@@ -11,7 +11,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from barpath.workout import WorkoutResult, load_workout_csv, split_stats  # noqa: E402
+from barpath.workout import (HeartRateRecovery, HeartRateSeries, WorkoutResult,  # noqa: E402
+                             load_workout_csv, split_stats)
 
 
 def fmt_time(seconds) -> str:
@@ -47,11 +48,23 @@ def format_table(title: str, segments: list, total: float, hr_avg=None, hr_max=N
     return "\n".join(lines)
 
 
+def format_recovery(rec) -> str:
+    """'Recovery HR 161 -> 145 (1 min, -16) -> 123 (2 min, -38) -> 105 (3 min, -56)', '' when None."""
+    if rec is None:
+        return ""
+    parts = [f"Recovery HR {rec.heart_rate_at_finish:.0f}"]
+    for m in rec.marks:
+        parts.append(f"{m.heart_rate:.0f} ({m.minutes} min, -{m.drop:.0f})")
+    return " -> ".join(parts)
+
+
 def report(path) -> str:
     path = Path(path)
     if path.suffix.lower() == ".json":
         r = WorkoutResult.load(path)
-        return format_table(r.definition.name, r.segments, r.total_seconds, r.heart_rate_avg, r.heart_rate_max)
+        out = format_table(r.definition.name, r.segments, r.total_seconds, r.heart_rate_avg, r.heart_rate_max)
+        rec = format_recovery(r.heart_rate_recovery)
+        return out + ("\n" + rec if rec else "")
     w = load_workout_csv(path)
     if w.definition is None or w.progress is None:
         raise SystemExit(f"unknown or missing workout id in header: {w.workout_id!r}")
@@ -59,9 +72,18 @@ def report(path) -> str:
         raise SystemExit("no segment events found in CSV")
     segs = split_stats(w.progress, w.end_time, w.heart_rates, w.pedometer)
     total = w.progress.total_elapsed(w.end_time)
-    hrs = [h.value for h in w.heart_rates]
-    return format_table(w.definition.name, segs, total,
-                        sum(hrs) / len(hrs) if hrs else None, max(hrs) if hrs else None)
+    start = w.progress.segment_starts[0]
+    finish = w.progress.finish_time
+    # Workout part only: HR after the finish is recovery (WORKOUT_SPEC §6).
+    hrs = [h.value for h in w.heart_rates if finish is None or h.t <= finish]
+    out = format_table(w.definition.name, segs, total,
+                       sum(hrs) / len(hrs) if hrs else None, max(hrs) if hrs else None)
+    if finish is not None and w.heart_rates:
+        series = HeartRateSeries.make(w.heart_rates, start, w.end_time)
+        rec = format_recovery(HeartRateRecovery.make(series, finish, w.end_time))
+        if rec:
+            out += "\n" + rec
+    return out
 
 
 def main(argv=None) -> int:

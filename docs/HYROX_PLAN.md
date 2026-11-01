@@ -164,6 +164,11 @@ totals.
     permission, battery). Weather: `HKMetadataKeyWeatherTemperature` / `…Humidity`.
   - HR chart and calories already come from the live workout builder.
 
+- **Recovery after the finish (athlete 2026-11-01: "we did not catch the 3 min after the workout
+  with the HR going down?"):** the HR series runs to End; watch done screen shows the recovery
+  clock, HR and drop with haptics at 1/2/3 min; phone Recovery card (HRR1/2/3), with older results
+  backfilled from their session CSV. *(Built 2026-11-01, WORKOUT_SPEC §6.)*
+
 ## 8. Personal run calibration (planned, 2026-10-31)
 
 Problem: without GPS (HYROX halls) run distance and live pace come from the pedometer

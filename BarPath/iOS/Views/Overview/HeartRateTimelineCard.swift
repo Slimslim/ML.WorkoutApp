@@ -305,3 +305,50 @@ struct TimelineChip: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
+
+// MARK: - Recovery after the finish (WORKOUT_SPEC §6)
+
+/// "Recovery": heart rate at the finish and 1 / 2 / 3 minutes later (the watch records until
+/// End), the drops as tiles (the first minute highlighted) and one plain sentence on what it
+/// means. Shown only when the result has a recovery (`WorkoutResult.heartRateRecovery`).
+struct RecoveryCard: View {
+    let recovery: HeartRateRecovery
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            OvSectionHeader(title: "Recovery",
+                            caption: "Heart rate after the finish, until you pressed End.")
+            pathText
+                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                .monospacedDigit()
+                .fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: 8) {
+                ForEach(recovery.marks) { (mark: HeartRateRecovery.Mark) in
+                    OvStatTile(key: "In \(mark.minutes) min",
+                               value: SummaryFormat.signedNumber(-mark.drop),
+                               detail: "to " + SummaryFormat.bpm(mark.heartRate) + " bpm",
+                               valueColor: mark.minutes == 1 ? Theme.ovFast : Theme.ovFg)
+                }
+            }
+            Text("A bigger drop in the first minute usually means better fitness. Compare it with your own past workouts, not with other people.")
+                .font(.system(size: 11.5))
+                .foregroundStyle(Theme.ovFg3)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .card()
+    }
+
+    /// "HR 161 → 145 (1 min) → 123 (2 min) → 105 (3 min)".
+    private var pathText: Text {
+        let label: Text = Text("HR ").foregroundColor(Theme.ovFg2)
+        let peak: Text = Text(SummaryFormat.bpm(recovery.heartRateAtFinish)).foregroundColor(Theme.ovHR)
+        var text: Text = label + peak
+        for mark in recovery.marks {
+            let arrow: Text = Text(" \u{2192} ").foregroundColor(Theme.ovFg3)
+            let value: Text = Text(SummaryFormat.bpm(mark.heartRate)).foregroundColor(Theme.ovFg)
+            let when: Text = Text(" (\(mark.minutes) min)").foregroundColor(Theme.ovFg2)
+            text = text + arrow + value + when
+        }
+        return text
+    }
+}
