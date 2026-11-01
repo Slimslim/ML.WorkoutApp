@@ -297,7 +297,11 @@ at 1110, 1170, 1200 (the last one finishes).
   - Bottom: "Next: Wall Balls 100", **or** for 10 s after any advance or undo an
     "↶ Undo" capsule button.
   - Finished: a full-screen green fill with "DONE", the total time, and the Undo capsule.
-  - Always-on (`isLuminanceReduced`): the title and the segment time only.
+  - Always-on (`isLuminanceReduced`, wrist down): the same main layout, dimmed (80 %), no
+    NOW flash, no undo hint, no Crown arc. Every clock (segment time, rest countdown, total /
+    AMRAP time left, recovery) is a system timer text (`Text(timerInterval:)`) that keeps
+    ticking every second; pace, HR and the border update at the reduced always-on rate
+    (athlete feedback 2026-11-01: glance at it without raising the arm).
 - **Page 2 (swipe):** End (with a confirmation: "End workout?" with [End] and [Keep going],
   Keep going is the default), Undo, Mark (Data mode only), a 12 pt data strip (samples,
   CSV MB, transfers pending).

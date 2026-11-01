@@ -208,9 +208,11 @@ struct WorkoutMainPage: View {
             content(now: context.date)
         }
         .overlay {
-            // Crown-turn arc: on the race border's line, drawn on top of it.
-            CrownArcView(fraction: crown.fraction, isBackward: crown.isBackward)
-                .ignoresSafeArea()
+            // Crown-turn arc: on the race border's line, drawn on top of it. Hidden wrist down.
+            if !isLuminanceReduced {
+                CrownArcView(fraction: crown.fraction, isBackward: crown.isBackward)
+                    .ignoresSafeArea()
+            }
         }
         .contentShape(Rectangle())
         // While the partial-reps picker is up it owns the Crown: this page can't take focus.
@@ -275,12 +277,13 @@ struct WorkoutMainPage: View {
                 // Race progress border (layout D+). Full screen, behind the text.
                 RaceBorderView(state: borderState(now: now), isAlwaysOn: isLuminanceReduced)
                     .ignoresSafeArea()
-                if isLuminanceReduced {
-                    alwaysOnScreen(now: now)
-                } else if showSwitchFlash(now: now) {
+                // Wrist down: the SAME main layout, dimmed, with system-rendered clocks
+                // (athlete feedback 2026-11-01: glance without raising the arm). No NOW flash.
+                if !isLuminanceReduced && showSwitchFlash(now: now) {
                     switchFlash()
                 } else {
                     mainScreen(now: now)
+                        .opacity(isLuminanceReduced ? WorkoutMainPage.alwaysOnOpacity : 1.0)
                 }
             }
         }
@@ -299,6 +302,8 @@ struct WorkoutMainPage: View {
     static let stationMaxFraction: Double = 0.9
     /// AMRAP border: time toward the cap, one slit every 5 minutes.
     static let amrapTickSeconds: Double = 300.0
+    /// Wrist down the main layout is drawn at this opacity (same layout, dimmer).
+    static let alwaysOnOpacity: Double = 0.8
     /// The layout is drawn for 45 mm (≈ 198 pt wide); smaller screens scale down a little.
     static let designWidth: CGFloat = 198.0
 
@@ -457,7 +462,7 @@ struct WorkoutMainPage: View {
                 .lineLimit(isLong ? 2 : 1)
                 .minimumScaleFactor(0.6)
             HStack(spacing: 4) {
-                Text(totalLine(now: now))
+                totalText(now: now)
                     .font(.system(size: 12, weight: .semibold, design: .rounded).monospacedDigit())
                     .foregroundColor(.secondary)
                     .lineLimit(1)
@@ -484,17 +489,53 @@ struct WorkoutMainPage: View {
 
     /// Segment time, or the countdown to the next set during a timed rest.
     private func timerText(now: Date, scale: CGFloat) -> some View {
+        return timerValue(now: now)
+            .font(.system(size: 54 * scale, weight: .heavy, design: .rounded).monospacedDigit())
+            .foregroundColor(SegmentPalette.elapsed)
+            .lineLimit(1)
+            .minimumScaleFactor(0.5)
+    }
+
+    /// Wrist down the clock is a system timer text: watchOS keeps it ticking every second in
+    /// always-on, while this view's own refresh (`now`) may come only once a minute.
+    private func timerValue(now: Date) -> Text {
+        let p: WorkoutProgress = model.progress
+        if isLuminanceReduced, let start = p.segmentStarts.last {
+            if let clock = model.nextClockEvent(), !clock.isFinish {
+                return WorkoutMainPage.liveCountDown(from: start, to: clock.time)
+            }
+            return WorkoutMainPage.liveCountUp(from: start)
+        }
         let nowT: Double = now.timeIntervalSince1970
-        var seconds: Double = model.progress.segmentElapsed(now: nowT)
+        var seconds: Double = p.segmentElapsed(now: nowT)
         if let clock = model.nextClockEvent(), !clock.isFinish {
             // Timed rest: count down to the next set (3-2-1 haptics on the watch model).
             seconds = max(0, clock.time - nowT).rounded(.up)
         }
         return Text(SessionModel.formatElapsed(seconds))
-            .font(.system(size: 54 * scale, weight: .heavy, design: .rounded).monospacedDigit())
-            .foregroundColor(SegmentPalette.elapsed)
-            .lineLimit(1)
-            .minimumScaleFactor(0.5)
+    }
+
+    // MARK: Live clocks (always-on)
+
+    /// Upper bound of a live count-up clock's range (it stops there).
+    static let liveCountUpLimit: TimeInterval = 24 * 3600
+
+    /// Count-up clock ("12:34", "1:02:03") rendered by the system, live in always-on.
+    static func liveCountUp(from start: Double) -> Text {
+        let from: Date = Date(timeIntervalSince1970: start)
+        // Bounded (not `Date.distantFuture`): the timer text may size itself for the longest
+        // value in its range; 24 h keeps that to "23:59:59".
+        let range: ClosedRange<Date> = from...from.addingTimeInterval(WorkoutMainPage.liveCountUpLimit)
+        return Text(timerInterval: range, countsDown: false)
+    }
+
+    /// Countdown to `end` rendered by the system, live in always-on; stops at 0:00.
+    /// `start` is only the range's lower bound (clamped so the range is never inverted).
+    static func liveCountDown(from start: Double, to end: Double) -> Text {
+        let to: Date = Date(timeIntervalSince1970: end)
+        let from: Date = Date(timeIntervalSince1970: min(start, end))
+        let range: ClosedRange<Date> = from...to
+        return Text(timerInterval: range, countsDown: true)
     }
 
     /// One row under the timer: the key metric, then HR.
@@ -546,6 +587,23 @@ struct WorkoutMainPage: View {
         return "–:––"
     }
 
+    /// `totalLine` as a Text; wrist down the clock in it is a system timer (live in always-on).
+    private func totalText(now: Date) -> Text {
+        let p: WorkoutProgress = model.progress
+        guard isLuminanceReduced, let start = p.startTime else {
+            return Text(totalLine(now: now))
+        }
+        if let cap = p.capTime {
+            var prefix: String = ""
+            if let size = p.definition.roundSize, size > 1 {
+                prefix = "R\(p.currentIndex / size + 1) · "
+            }
+            let clock: Text = WorkoutMainPage.liveCountDown(from: start, to: cap)
+            return Text(verbatim: prefix) + clock + Text(verbatim: " left")
+        }
+        return WorkoutMainPage.liveCountUp(from: start)
+    }
+
     /// Small line under the name: total race time; AMRAP: round and time left to the cap.
     private func totalLine(now: Date) -> String {
         let p: WorkoutProgress = model.progress
@@ -561,9 +619,11 @@ struct WorkoutMainPage: View {
     }
 
     /// Undo hint for 5 s after a switch, else "Exit soon" near the end of a run, else Next.
+    /// Wrist down there is no undo hint: `now` may be up to a minute old there, and the Crown
+    /// is not in use with the arm down.
     @ViewBuilder
     private func bottomLine(now: Date) -> some View {
-        if showUndoHint(now: now) {
+        if !isLuminanceReduced && showUndoHint(now: now) {
             // Not a button: a palm on the screen right after a Crown turn undid a correct
             // switch (2026-10-30). Undo is the Crown turned backward.
             bottomText("Turn Crown back to undo")
@@ -591,57 +651,26 @@ struct WorkoutMainPage: View {
             .frame(maxWidth: .infinity, minHeight: 30)
     }
 
+    /// Wrist down: same banner, outlined instead of a solid blue fill (always-on stays dark).
     private var exitSoonBanner: some View {
         let next: String = model.progress.nextSegment?.title ?? "Finish"
+        let dim: Bool = isLuminanceReduced
         return Text("Exit soon · Next: " + next)
             .font(.system(size: 12, weight: .heavy, design: .rounded))
-            .foregroundColor(SegmentPalette.ink)
+            .foregroundColor(dim ? SegmentPalette.run : SegmentPalette.ink)
             .multilineTextAlignment(.center)
             .lineLimit(2)
             .minimumScaleFactor(0.92)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
             .frame(maxWidth: .infinity, minHeight: 30)
-            .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(SegmentPalette.run))
+            .background(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(dim ? Color.clear : SegmentPalette.run))
+            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(dim ? SegmentPalette.run : Color.clear, lineWidth: 1.5))
             // 22 pt from the screen edge as in the design: a full-width box crosses the border
             // in the rounded bottom corners.
             .padding(.horizontal, 12)
-    }
-
-    // MARK: Always-on
-
-    /// Wrist down: name (smaller), timer, HR; the border is drawn thin and dim by `content`.
-    private func alwaysOnScreen(now: Date) -> some View {
-        let p: WorkoutProgress = model.progress
-        let name: String = (p.currentSegment?.name ?? "").uppercased()
-        return VStack(spacing: 4) {
-            Spacer(minLength: 0)
-            Text(name)
-                .font(.system(size: 18, weight: .heavy, design: .rounded))
-                .foregroundColor(currentColor.opacity(0.8))
-                .multilineTextAlignment(.center)
-                .lineLimit(2)
-                .minimumScaleFactor(0.65)
-            if let start = p.segmentStarts.last {
-                // System-updated timer text: stays correct between always-on refreshes.
-                Text(Date(timeIntervalSince1970: start), style: .timer)
-                    .font(.system(size: 50, weight: .heavy, design: .rounded).monospacedDigit())
-                    .foregroundColor(SegmentPalette.elapsed.opacity(0.85))
-                    .multilineTextAlignment(.center)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-            }
-            Text(heartRateValue + " BPM")
-                .font(.system(size: 16, weight: .heavy, design: .rounded).monospacedDigit())
-                .foregroundColor(SegmentPalette.heartRate.opacity(0.85))
-                .lineLimit(1)
-            if model.isDemo {
-                DemoTag()
-            }
-            Spacer(minLength: 0)
-        }
-        .padding(.horizontal, 10)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     // MARK: Done
@@ -674,7 +703,7 @@ struct WorkoutMainPage: View {
             .lineLimit(1)
             .minimumScaleFactor(0.6)
             if let elapsed = model.recoveryElapsed(now: now) {
-                Text(compactRecoveryText(elapsed: elapsed))
+                compactRecoveryLine(elapsed: elapsed)
                     .font(.system(size: 12, weight: .bold, design: .rounded).monospacedDigit())
                     .foregroundColor(ink.opacity(0.8))
                     .lineLimit(1)
@@ -776,13 +805,24 @@ struct WorkoutMainPage: View {
         .opacity(isLuminanceReduced ? 0.85 : 1.0)
     }
 
-    @ViewBuilder
-    private func recoveryClock(elapsed: Double) -> some View {
+    /// Wrist down a system timer text (live in always-on); else from `elapsed`.
+    private func recoveryClock(elapsed: Double) -> Text {
         if isLuminanceReduced, let finish = model.progress.finishTime {
-            Text(Date(timeIntervalSince1970: finish), style: .timer)
-        } else {
-            Text(SessionModel.formatElapsed(elapsed))
+            return WorkoutMainPage.liveCountUp(from: finish)
         }
+        return Text(SessionModel.formatElapsed(elapsed))
+    }
+
+    /// `compactRecoveryText` as a Text; wrist down the clock in it is a system timer.
+    private func compactRecoveryLine(elapsed: Double) -> Text {
+        guard isLuminanceReduced, elapsed < WorkoutMainPage.recoveryTargetSeconds else {
+            return Text(compactRecoveryText(elapsed: elapsed))
+        }
+        var tail: String = " · " + heartRateValue + " bpm"
+        if let drop = model.recoveryDrop {
+            tail += " " + SummaryFormat.signedNumber(-drop)
+        }
+        return Text(verbatim: "Recovery ") + recoveryClock(elapsed: elapsed) + Text(verbatim: tail)
     }
 
     /// One line for the cap done screen (the reps picker needs the room).
