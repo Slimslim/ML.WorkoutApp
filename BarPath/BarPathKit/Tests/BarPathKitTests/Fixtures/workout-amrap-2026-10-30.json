@@ -1,0 +1,1205 @@
+{
+  "definition" : {
+    "format" : "amrap",
+    "healthKitActivity" : "crossTraining",
+    "id" : "wod.nightmareAmrap",
+    "name" : "Nightmare AMRAP 20",
+    "roundSize" : 4,
+    "segments" : [
+      {
+        "kind" : "station",
+        "movement" : "lateralBurpeeOverDumbbell",
+        "name" : "Lateral Burpee Over DB",
+        "target" : {
+          "unit" : "reps",
+          "value" : 10
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "doubleUnders",
+        "name" : "Double Unders",
+        "target" : {
+          "unit" : "reps",
+          "value" : 31
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "Alt. DB Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 10
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "doubleUnders",
+        "name" : "Double Unders",
+        "target" : {
+          "unit" : "reps",
+          "value" : 31
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "lateralBurpeeOverDumbbell",
+        "name" : "Lateral Burpee Over DB",
+        "target" : {
+          "unit" : "reps",
+          "value" : 10
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "doubleUnders",
+        "name" : "Double Unders",
+        "target" : {
+          "unit" : "reps",
+          "value" : 31
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "Alt. DB Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 10
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "doubleUnders",
+        "name" : "Double Unders",
+        "target" : {
+          "unit" : "reps",
+          "value" : 31
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "lateralBurpeeOverDumbbell",
+        "name" : "Lateral Burpee Over DB",
+        "target" : {
+          "unit" : "reps",
+          "value" : 10
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "doubleUnders",
+        "name" : "Double Unders",
+        "target" : {
+          "unit" : "reps",
+          "value" : 31
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "Alt. DB Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 10
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "doubleUnders",
+        "name" : "Double Unders",
+        "target" : {
+          "unit" : "reps",
+          "value" : 31
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "lateralBurpeeOverDumbbell",
+        "name" : "Lateral Burpee Over DB",
+        "target" : {
+          "unit" : "reps",
+          "value" : 10
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "doubleUnders",
+        "name" : "Double Unders",
+        "target" : {
+          "unit" : "reps",
+          "value" : 31
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "Alt. DB Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 10
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "doubleUnders",
+        "name" : "Double Unders",
+        "target" : {
+          "unit" : "reps",
+          "value" : 31
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "lateralBurpeeOverDumbbell",
+        "name" : "Lateral Burpee Over DB",
+        "target" : {
+          "unit" : "reps",
+          "value" : 10
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "doubleUnders",
+        "name" : "Double Unders",
+        "target" : {
+          "unit" : "reps",
+          "value" : 31
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "Alt. DB Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 10
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "doubleUnders",
+        "name" : "Double Unders",
+        "target" : {
+          "unit" : "reps",
+          "value" : 31
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "lateralBurpeeOverDumbbell",
+        "name" : "Lateral Burpee Over DB",
+        "target" : {
+          "unit" : "reps",
+          "value" : 10
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "doubleUnders",
+        "name" : "Double Unders",
+        "target" : {
+          "unit" : "reps",
+          "value" : 31
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "Alt. DB Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 10
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "doubleUnders",
+        "name" : "Double Unders",
+        "target" : {
+          "unit" : "reps",
+          "value" : 31
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "lateralBurpeeOverDumbbell",
+        "name" : "Lateral Burpee Over DB",
+        "target" : {
+          "unit" : "reps",
+          "value" : 10
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "doubleUnders",
+        "name" : "Double Unders",
+        "target" : {
+          "unit" : "reps",
+          "value" : 31
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "Alt. DB Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 10
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "doubleUnders",
+        "name" : "Double Unders",
+        "target" : {
+          "unit" : "reps",
+          "value" : 31
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "lateralBurpeeOverDumbbell",
+        "name" : "Lateral Burpee Over DB",
+        "target" : {
+          "unit" : "reps",
+          "value" : 10
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "doubleUnders",
+        "name" : "Double Unders",
+        "target" : {
+          "unit" : "reps",
+          "value" : 31
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "Alt. DB Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 10
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "doubleUnders",
+        "name" : "Double Unders",
+        "target" : {
+          "unit" : "reps",
+          "value" : 31
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "lateralBurpeeOverDumbbell",
+        "name" : "Lateral Burpee Over DB",
+        "target" : {
+          "unit" : "reps",
+          "value" : 10
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "doubleUnders",
+        "name" : "Double Unders",
+        "target" : {
+          "unit" : "reps",
+          "value" : 31
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "Alt. DB Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 10
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "doubleUnders",
+        "name" : "Double Unders",
+        "target" : {
+          "unit" : "reps",
+          "value" : 31
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "lateralBurpeeOverDumbbell",
+        "name" : "Lateral Burpee Over DB",
+        "target" : {
+          "unit" : "reps",
+          "value" : 10
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "doubleUnders",
+        "name" : "Double Unders",
+        "target" : {
+          "unit" : "reps",
+          "value" : 31
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "dumbbellSnatch",
+        "name" : "Alt. DB Snatch",
+        "target" : {
+          "unit" : "reps",
+          "value" : 10
+        }
+      },
+      {
+        "kind" : "station",
+        "movement" : "doubleUnders",
+        "name" : "Double Unders",
+        "target" : {
+          "unit" : "reps",
+          "value" : 31
+        }
+      }
+    ],
+    "shortName" : "AMRAP 20",
+    "team" : "solo",
+    "timeCapSeconds" : 1200
+  },
+  "endDate" : "2026-10-31T00:11:42.263Z",
+  "events" : [
+    {
+      "kind" : "start",
+      "segmentIndex" : 0,
+      "t" : 1793404287.429621
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 1,
+      "source" : "crown",
+      "t" : 1793404330.869234
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 2,
+      "source" : "crown",
+      "t" : 1793404364.589634
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 3,
+      "source" : "crown",
+      "t" : 1793404393.850398
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 4,
+      "source" : "crown",
+      "t" : 1793404444.1238651
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 5,
+      "source" : "crown",
+      "t" : 1793404501.860785
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 6,
+      "source" : "crown",
+      "t" : 1793404553.432929
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 7,
+      "source" : "crown",
+      "t" : 1793404587.147327
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 8,
+      "source" : "crown",
+      "t" : 1793404633.418944
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 9,
+      "source" : "crown",
+      "t" : 1793404697.182332
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 10,
+      "source" : "crown",
+      "t" : 1793404730.946762
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 11,
+      "source" : "crown",
+      "t" : 1793404784.201787
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 12,
+      "source" : "crown",
+      "t" : 1793404844.393118
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 13,
+      "source" : "crown",
+      "t" : 1793404906.7758741
+    },
+    {
+      "kind" : "undo",
+      "segmentIndex" : 12,
+      "source" : "button",
+      "t" : 1793404907.024496
+    },
+    {
+      "kind" : "undo",
+      "segmentIndex" : 11,
+      "source" : "crown",
+      "t" : 1793404910.8402228
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 12,
+      "source" : "crown",
+      "t" : 1793404913.156038
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 13,
+      "source" : "crown",
+      "t" : 1793404915.438684
+    },
+    {
+      "kind" : "undo",
+      "segmentIndex" : 12,
+      "source" : "button",
+      "t" : 1793404920.554576
+    },
+    {
+      "kind" : "undo",
+      "segmentIndex" : 11,
+      "source" : "crown",
+      "t" : 1793404922.884089
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 12,
+      "source" : "crown",
+      "t" : 1793404926.201458
+    },
+    {
+      "kind" : "undo",
+      "segmentIndex" : 11,
+      "source" : "button",
+      "t" : 1793404928.149627
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 12,
+      "source" : "crown",
+      "t" : 1793404982.0904021
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 13,
+      "source" : "crown",
+      "t" : 1793404984.339511
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 14,
+      "source" : "crown",
+      "t" : 1793404987.503605
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 15,
+      "source" : "crown",
+      "t" : 1793405042.95638
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 16,
+      "source" : "crown",
+      "t" : 1793405083.254012
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 17,
+      "source" : "crown",
+      "t" : 1793405156.802833
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 18,
+      "source" : "crown",
+      "t" : 1793405191.424564
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 19,
+      "source" : "crown",
+      "t" : 1793405261.539279
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 20,
+      "source" : "crown",
+      "t" : 1793405311.8553162
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 21,
+      "source" : "crown",
+      "t" : 1793405384.757681
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 22,
+      "source" : "crown",
+      "t" : 1793405433.8216062
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 23,
+      "source" : "crown",
+      "t" : 1793405471.6155949
+    },
+    {
+      "kind" : "finish",
+      "segmentIndex" : 23,
+      "source" : "auto",
+      "t" : 1793405487.562345
+    },
+    {
+      "kind" : "end",
+      "segmentIndex" : 23,
+      "t" : 1793405502.263435
+    }
+  ],
+  "finishDate" : "2026-10-31T00:11:27.562Z",
+  "heartRateAvg" : 164.46581196581195,
+  "heartRateMax" : 176,
+  "heartRateSeries" : {
+    "bpm" : [
+      124,
+      115,
+      117,
+      131,
+      135,
+      135,
+      135,
+      null,
+      null,
+      null,
+      null,
+      166,
+      166,
+      166,
+      166,
+      167,
+      169,
+      168,
+      167,
+      167,
+      167,
+      167,
+      172,
+      172,
+      171,
+      175,
+      172,
+      172,
+      170,
+      169,
+      169,
+      169,
+      168,
+      167,
+      165,
+      162,
+      163,
+      163,
+      163,
+      162,
+      163,
+      163,
+      162,
+      162,
+      162,
+      164,
+      164,
+      164,
+      167,
+      168,
+      167,
+      166,
+      166,
+      164,
+      162,
+      163,
+      163,
+      163,
+      164,
+      167,
+      166,
+      174,
+      174,
+      171,
+      169,
+      167,
+      168,
+      168,
+      170,
+      172,
+      172,
+      171,
+      170,
+      169,
+      166,
+      166,
+      165,
+      165,
+      164,
+      166,
+      166,
+      166,
+      165,
+      164,
+      164,
+      163,
+      163,
+      165,
+      168,
+      169,
+      168,
+      169,
+      170,
+      169,
+      166,
+      166,
+      166,
+      167,
+      167,
+      169,
+      171,
+      173,
+      170,
+      169,
+      168,
+      167,
+      169,
+      169,
+      168,
+      168,
+      169,
+      168,
+      168,
+      165,
+      164,
+      162,
+      163,
+      161,
+      161,
+      161,
+      161,
+      162,
+      162,
+      163,
+      163,
+      163,
+      162,
+      162,
+      163,
+      163,
+      163,
+      162,
+      163,
+      160,
+      159,
+      159,
+      158,
+      157,
+      158,
+      158,
+      158,
+      159,
+      159,
+      158,
+      158,
+      157,
+      158,
+      158,
+      160,
+      166,
+      165,
+      164,
+      165,
+      166,
+      165,
+      164,
+      164,
+      164,
+      166,
+      168,
+      169,
+      170,
+      168,
+      166,
+      163,
+      163,
+      161,
+      161,
+      161,
+      162,
+      162,
+      161,
+      161,
+      161,
+      162,
+      161,
+      162,
+      163,
+      164,
+      165,
+      166,
+      168,
+      168,
+      169,
+      168,
+      168,
+      166,
+      165,
+      164,
+      164,
+      168,
+      167,
+      167,
+      165,
+      164,
+      162,
+      168,
+      168,
+      167,
+      164,
+      162,
+      164,
+      167,
+      170,
+      168,
+      169,
+      168,
+      167,
+      160,
+      160,
+      159,
+      161,
+      160,
+      160,
+      161,
+      161,
+      162,
+      162,
+      162,
+      163,
+      162,
+      163,
+      162,
+      161,
+      159,
+      165,
+      168,
+      169,
+      169,
+      168,
+      168,
+      167,
+      166,
+      166,
+      166,
+      167,
+      166,
+      169,
+      175,
+      176,
+      176
+    ],
+    "interval" : 5,
+    "start" : 1793404287.429621
+  },
+  "id" : "BC234DDC-3AF0-405F-9917-D46C33E6CE70",
+  "recordingFileName" : "session-BC234DDC-3AF0-405F-9917-D46C33E6CE70.csv",
+  "segments" : [
+    {
+      "cadence" : 43.10505515111559,
+      "distance" : 7.792685217041706,
+      "duration" : 43.43961310386658,
+      "end" : 1793404330.869234,
+      "heartRateAvg" : 124.4,
+      "heartRateMax" : 135,
+      "heartRateMin" : 115,
+      "index" : 0,
+      "kind" : "station",
+      "movement" : "lateralBurpeeOverDumbbell",
+      "start" : 1793404287.429621,
+      "steps" : 31.20778197642154,
+      "title" : "Lateral Burpee Over DB 10"
+    },
+    {
+      "cadence" : 32.124753605579585,
+      "distance" : 19.81789474055254,
+      "duration" : 33.72039985656738,
+      "end" : 1793404364.589634,
+      "heartRateAvg" : 166.5,
+      "heartRateMax" : 167,
+      "heartRateMin" : 166,
+      "index" : 1,
+      "kind" : "station",
+      "movement" : "doubleUnders",
+      "start" : 1793404330.869234,
+      "steps" : 18.05432561456414,
+      "title" : "Double Unders 31"
+    },
+    {
+      "cadence" : 38.50550734286848,
+      "distance" : 7.966083388211214,
+      "duration" : 29.260764122009277,
+      "end" : 1793404393.850398,
+      "heartRateAvg" : 167.6,
+      "heartRateMax" : 169,
+      "heartRateMin" : 167,
+      "index" : 2,
+      "kind" : "station",
+      "movement" : "dumbbellSnatch",
+      "start" : 1793404364.589634,
+      "steps" : 18.778342795966182,
+      "title" : "Alt. DB Snatch 10"
+    },
+    {
+      "cadence" : 41.24061841038888,
+      "distance" : 32.16055047763385,
+      "duration" : 50.27346706390381,
+      "end" : 1793404444.1238651,
+      "heartRateAvg" : 170.9,
+      "heartRateMax" : 175,
+      "heartRateMin" : 167,
+      "index" : 3,
+      "kind" : "station",
+      "movement" : "doubleUnders",
+      "start" : 1793404393.850398,
+      "steps" : 34.55514785582851,
+      "title" : "Double Unders 31"
+    },
+    {
+      "cadence" : 18.410346045766946,
+      "distance" : 5.505605453980095,
+      "duration" : 57.73691987991333,
+      "end" : 1793404501.860785,
+      "heartRateAvg" : 164.16666666666666,
+      "heartRateMax" : 169,
+      "heartRateMin" : 162,
+      "index" : 4,
+      "kind" : "station",
+      "movement" : "lateralBurpeeOverDumbbell",
+      "start" : 1793404444.1238651,
+      "steps" : 17.715944576765423,
+      "title" : "Lateral Burpee Over DB 10"
+    },
+    {
+      "cadence" : 49.55383096467272,
+      "distance" : 37.039528000913236,
+      "duration" : 51.57214403152466,
+      "end" : 1793404553.432929,
+      "heartRateAvg" : 165,
+      "heartRateMax" : 168,
+      "heartRateMin" : 162,
+      "index" : 5,
+      "kind" : "station",
+      "movement" : "doubleUnders",
+      "start" : 1793404501.860785,
+      "steps" : 42.59328846373214,
+      "title" : "Double Unders 31"
+    },
+    {
+      "cadence" : 7.674408067133545,
+      "distance" : 1.4690786677761594,
+      "duration" : 33.71439790725708,
+      "end" : 1793404587.147327,
+      "heartRateAvg" : 163.71428571428572,
+      "heartRateMax" : 167,
+      "heartRateMin" : 162,
+      "index" : 6,
+      "kind" : "station",
+      "movement" : "dumbbellSnatch",
+      "start" : 1793404553.432929,
+      "steps" : 4.312300787966734,
+      "title" : "Alt. DB Snatch 10"
+    },
+    {
+      "cadence" : 27.80447577193021,
+      "distance" : 25.02407586000298,
+      "duration" : 46.27161693572998,
+      "end" : 1793404633.418944,
+      "heartRateAvg" : 169.66666666666666,
+      "heartRateMax" : 174,
+      "heartRateMin" : 166,
+      "index" : 7,
+      "kind" : "station",
+      "movement" : "doubleUnders",
+      "start" : 1793404587.147327,
+      "steps" : 21.442634200292332,
+      "title" : "Double Unders 31"
+    },
+    {
+      "cadence" : 16.36116556156064,
+      "distance" : 4.283598640879035,
+      "duration" : 63.76338815689087,
+      "end" : 1793404697.182332,
+      "heartRateAvg" : 167.53846153846155,
+      "heartRateMax" : 172,
+      "heartRateMin" : 164,
+      "index" : 8,
+      "kind" : "station",
+      "movement" : "lateralBurpeeOverDumbbell",
+      "start" : 1793404633.418944,
+      "steps" : 17.387389173349106,
+      "title" : "Lateral Burpee Over DB 10"
+    },
+    {
+      "cadence" : 28.7447697519305,
+      "distance" : 18.829372980938388,
+      "duration" : 33.76443004608154,
+      "end" : 1793404730.946762,
+      "heartRateAvg" : 164.57142857142858,
+      "heartRateMax" : 168,
+      "heartRateMin" : 163,
+      "index" : 9,
+      "kind" : "station",
+      "movement" : "doubleUnders",
+      "start" : 1793404697.182332,
+      "steps" : 16.175846124662968,
+      "title" : "Double Unders 31"
+    },
+    {
+      "cadence" : 18.90187653707293,
+      "distance" : 6.753810853622639,
+      "duration" : 53.255024909973145,
+      "end" : 1793404784.201787,
+      "heartRateAvg" : 167.8181818181818,
+      "heartRateMax" : 170,
+      "heartRateMin" : 166,
+      "index" : 10,
+      "kind" : "station",
+      "movement" : "dumbbellSnatch",
+      "start" : 1793404730.946762,
+      "steps" : 16.77699843045093,
+      "title" : "Alt. DB Snatch 10"
+    },
+    {
+      "cadence" : 23.952868621841212,
+      "distance" : 49.5691741630435,
+      "duration" : 197.88861513137817,
+      "end" : 1793404982.0904021,
+      "heartRateAvg" : 164.02564102564102,
+      "heartRateMax" : 173,
+      "heartRateMin" : 157,
+      "index" : 11,
+      "kind" : "station",
+      "movement" : "doubleUnders",
+      "start" : 1793404784.201787,
+      "steps" : 79,
+      "title" : "Double Unders 31"
+    },
+    {
+      "cadence" : 0,
+      "distance" : 0,
+      "duration" : 2.2491087913513184,
+      "end" : 1793404984.339511,
+      "index" : 12,
+      "kind" : "station",
+      "movement" : "lateralBurpeeOverDumbbell",
+      "start" : 1793404982.0904021,
+      "steps" : 0,
+      "title" : "Lateral Burpee Over DB 10"
+    },
+    {
+      "cadence" : 0,
+      "distance" : 0,
+      "duration" : 3.1640939712524414,
+      "end" : 1793404987.503605,
+      "heartRateAvg" : 158,
+      "heartRateMax" : 158,
+      "heartRateMin" : 158,
+      "index" : 13,
+      "kind" : "station",
+      "movement" : "doubleUnders",
+      "start" : 1793404984.339511,
+      "steps" : 0,
+      "title" : "Double Unders 31"
+    },
+    {
+      "cadence" : 11.902019330535559,
+      "distance" : 5.143364787101746,
+      "duration" : 55.45277500152588,
+      "end" : 1793405042.95638,
+      "heartRateAvg" : 159.63636363636363,
+      "heartRateMax" : 166,
+      "heartRateMin" : 157,
+      "index" : 14,
+      "kind" : "station",
+      "movement" : "dumbbellSnatch",
+      "start" : 1793404987.503605,
+      "steps" : 11,
+      "title" : "Alt. DB Snatch 10"
+    },
+    {
+      "cadence" : 2.977842453685505,
+      "distance" : 1.9236122369766235,
+      "duration" : 40.29763221740723,
+      "end" : 1793405083.254012,
+      "heartRateAvg" : 164.75,
+      "heartRateMax" : 166,
+      "heartRateMin" : 164,
+      "index" : 15,
+      "kind" : "station",
+      "movement" : "doubleUnders",
+      "start" : 1793405042.95638,
+      "steps" : 2,
+      "title" : "Double Unders 31"
+    },
+    {
+      "cadence" : 27.249871298600837,
+      "distance" : 13.361194456888796,
+      "duration" : 73.54882097244263,
+      "end" : 1793405156.802833,
+      "heartRateAvg" : 163.8,
+      "heartRateMax" : 170,
+      "heartRateMin" : 161,
+      "index" : 16,
+      "kind" : "station",
+      "movement" : "lateralBurpeeOverDumbbell",
+      "start" : 1793405083.254012,
+      "steps" : 33.403265094381595,
+      "title" : "Lateral Burpee Over DB 10"
+    },
+    {
+      "cadence" : 63.42271294118243,
+      "distance" : 37.71149433873737,
+      "duration" : 34.62173080444336,
+      "end" : 1793405191.424564,
+      "heartRateAvg" : 163.28571428571428,
+      "heartRateMax" : 166,
+      "heartRateMin" : 161,
+      "index" : 17,
+      "kind" : "station",
+      "movement" : "doubleUnders",
+      "start" : 1793405156.802833,
+      "steps" : 36.596734905618405,
+      "title" : "Double Unders 31"
+    },
+    {
+      "cadence" : 41.77717777701188,
+      "distance" : 20.400784438628193,
+      "duration" : 70.11471509933472,
+      "end" : 1793405261.539279,
+      "heartRateAvg" : 166.5,
+      "heartRateMax" : 169,
+      "heartRateMin" : 164,
+      "index" : 18,
+      "kind" : "station",
+      "movement" : "dumbbellSnatch",
+      "start" : 1793405191.424564,
+      "steps" : 48.81991529149076,
+      "title" : "Alt. DB Snatch 10"
+    },
+    {
+      "cadence" : 16.9092227891486,
+      "distance" : 5.615469703298572,
+      "duration" : 50.31603717803955,
+      "end" : 1793405311.8553162,
+      "heartRateAvg" : 166,
+      "heartRateMax" : 170,
+      "heartRateMin" : 162,
+      "index" : 19,
+      "kind" : "station",
+      "movement" : "doubleUnders",
+      "start" : 1793405261.539279,
+      "steps" : 14.180084708509241,
+      "title" : "Double Unders 31"
+    },
+    {
+      "cadence" : 29.682345531389416,
+      "distance" : 14.372761512527575,
+      "duration" : 72.90236473083496,
+      "end" : 1793405384.757681,
+      "heartRateAvg" : 162.33333333333334,
+      "heartRateMax" : 169,
+      "heartRateMin" : 159,
+      "index" : 20,
+      "kind" : "station",
+      "movement" : "lateralBurpeeOverDumbbell",
+      "start" : 1793405311.8553162,
+      "steps" : 36.06521966660034,
+      "title" : "Lateral Burpee Over DB 10"
+    },
+    {
+      "cadence" : 25.601025869563028,
+      "distance" : 19.935131525268446,
+      "duration" : 49.06392526626587,
+      "end" : 1793405433.8216062,
+      "heartRateAvg" : 164.22222222222223,
+      "heartRateMax" : 169,
+      "heartRateMin" : 159,
+      "index" : 21,
+      "kind" : "station",
+      "movement" : "doubleUnders",
+      "start" : 1793405384.757681,
+      "steps" : 20.934780333399658,
+      "title" : "Double Unders 31"
+    },
+    {
+      "cadence" : 23.8133108159743,
+      "distance" : 6.546632647514343,
+      "duration" : 37.7939887046814,
+      "end" : 1793405471.6155949,
+      "heartRateAvg" : 166.75,
+      "heartRateMax" : 168,
+      "heartRateMin" : 166,
+      "index" : 22,
+      "kind" : "station",
+      "movement" : "dumbbellSnatch",
+      "start" : 1793405433.8216062,
+      "steps" : 15,
+      "title" : "Alt. DB Snatch 10"
+    },
+    {
+      "cadence" : 71.0491089657717,
+      "distance" : 18.38993232761726,
+      "duration" : 15.946750164031982,
+      "end" : 1793405487.562345,
+      "heartRateAvg" : 173.33333333333334,
+      "heartRateMax" : 176,
+      "heartRateMin" : 169,
+      "index" : 23,
+      "kind" : "station",
+      "movement" : "doubleUnders",
+      "start" : 1793405471.6155949,
+      "steps" : 18.883373167570767,
+      "title" : "Double Unders 31"
+    }
+  ],
+  "startDate" : "2026-10-30T23:51:27.430Z",
+  "totalSeconds" : 1200.1327240467072,
+  "version" : 2
+}

@@ -84,10 +84,15 @@ final class WorkoutSessionModel: ObservableObject {
     @Published private(set) var phoneDefinition: WorkoutDefinition?
 
     var selectedDefinition: WorkoutDefinition {
+        // A built-in workout always uses this build's version, so an update (e.g. WOD 1 scaled,
+        // 2026-10-31) isn't masked by an older copy the phone sent earlier.
+        if let builtIn = WorkoutLibrary.definition(id: definitionId) {
+            return builtIn
+        }
         if let phone = phoneDefinition, phone.id == definitionId {
             return phone
         }
-        return WorkoutLibrary.definition(id: definitionId) ?? WorkoutLibrary.partnerWod1
+        return WorkoutLibrary.partnerWod1
     }
 
     /// True when the selected workout came from the iPhone.
@@ -120,6 +125,12 @@ final class WorkoutSessionModel: ObservableObject {
     @Published private(set) var csvBytes = 0
     @Published private(set) var marksCount = 0
     @Published private(set) var latestPedometer: PedometerSnapshot?
+    /// Reps done in the segment cut by the time cap, entered on the done screen
+    /// (WORKOUT_SPEC §5). Written into the WorkoutResult at End; nil = not entered.
+    @Published private(set) var partialReps: Int?
+    /// Screen demo (`startDemo`): the real screen with mock HR / run distance (WorkoutDemo).
+    /// No HealthKit, motion, pedometer, CSV, result, phone transfer or summary.
+    @Published private(set) var isDemo = false
 
     private var workout: WorkoutManager
     private let recorder: WorkoutMotionRecorder
@@ -141,6 +152,23 @@ final class WorkoutSessionModel: ObservableObject {
     private var endTimeoutTask: Task<Void, Never>?
     /// Managers replaced because they got stuck (kept alive so they can still finish).
     private var retiredManagers: [WorkoutManager] = []
+    /// Screen demo: fake HR ticker and its state.
+    private var demoTask: Task<Void, Never>?
+    private var demoHeartRate = WorkoutDemo.HeartRate()
+
+    // MARK: Recovery after the finish (WORKOUT_SPEC §6)
+
+    /// HR at the finish (HeartRateRecovery rule on the samples so far), shown as the base of
+    /// "−19" on the done screen. Nil until a sample near the finish exists, or not finished.
+    @Published private(set) var recoveryFinishHeartRate: Double?
+    /// Finish time the recovery state below belongs to (an undo + new finish restarts it).
+    private var recoveryFinishKey: Double?
+    /// Recovery marks (1:00, 2:00, 3:00) already announced with a haptic.
+    private var recoveryMarksPlayed = 0
+    /// recoveryFinishHeartRate no longer changes (enough time has passed for its buckets).
+    private var recoveryFinishHeartRateFinal = false
+    /// After this long the finish HR is fixed (its 5 s buckets and their neighbours are in).
+    static let recoveryFinishSettleSeconds: Double = 20.0
 
     init() {
         let defaults = UserDefaults.standard
@@ -154,7 +182,8 @@ final class WorkoutSessionModel: ObservableObject {
             initialId = WorkoutLibrary.partnerWod1.id
         }
         var initialDefinition = WorkoutLibrary.definition(id: initialId) ?? WorkoutLibrary.partnerWod1
-        if let phone = storedPhoneDefinition, phone.id == initialId {
+        if let phone = storedPhoneDefinition, phone.id == initialId,
+           WorkoutLibrary.definition(id: initialId) == nil {
             initialDefinition = phone
         }
 
@@ -227,26 +256,8 @@ final class WorkoutSessionModel: ObservableObject {
 
     func start() {
         guard phase == .idle else { return }
-        let definition = selectedDefinition
-        workoutId = UUID()
-        progress = WorkoutProgress(definition: definition)
-        heartRates = []
-        pedometerSamples = []
-        latestPedometer = nil
-        heartRate = nil
-        lastChangeDate = nil
-        errorMessage = nil
-        healthKitRunning = false
-        isRecordingCSV = false
-        motionSamples = 0
-        csvBytes = 0
-        marksCount = 0
-        finalized = false
-        autoSuppressedStart = nil
-        capSuppressed = false
-        countdownTarget = nil
-        countdownLastBeep = nil
-        phase = .starting
+        resetForStart(definition: selectedDefinition, demo: false)
+        let definition = progress.definition
 
         if workout.hasSession {
             // Left over from a previous run that never finished: don't let it block us.
@@ -265,6 +276,42 @@ final class WorkoutSessionModel: ObservableObject {
             self.errorMessage = WorkoutSessionModel.noHealthMessage
             self.beginRunning()
         }
+    }
+
+    /// Screen demo: the real workout screen with mock data (WorkoutDemo). Starts at once,
+    /// without HealthKit; clock-driven times (timed rests, interval, AMRAP cap) are shortened.
+    func startDemo() {
+        guard phase == .idle else { return }
+        resetForStart(definition: WorkoutDemo.demoDefinition(from: selectedDefinition), demo: true)
+        demoHeartRate = WorkoutDemo.HeartRate()
+        workoutLog.info("Screen demo: \(self.progress.definition.id, privacy: .public)")
+        beginRunning()
+    }
+
+    /// Clears the session state and enters `.starting` with `definition`.
+    private func resetForStart(definition: WorkoutDefinition, demo: Bool) {
+        isDemo = demo
+        workoutId = UUID()
+        progress = WorkoutProgress(definition: definition)
+        heartRates = []
+        pedometerSamples = []
+        latestPedometer = nil
+        heartRate = nil
+        lastChangeDate = nil
+        errorMessage = nil
+        healthKitRunning = false
+        isRecordingCSV = false
+        motionSamples = 0
+        csvBytes = 0
+        marksCount = 0
+        partialReps = nil
+        finalized = false
+        autoSuppressedStart = nil
+        capSuppressed = false
+        countdownTarget = nil
+        countdownLastBeep = nil
+        resetRecovery()
+        phase = .starting
     }
 
     /// Next segment (finishes on the last one). Returns true if something changed.
@@ -306,6 +353,10 @@ final class WorkoutSessionModel: ObservableObject {
         if let cap = progress.capTime, cap <= t {
             capSuppressed = true
         }
+        if wasFinished {
+            // The reps belonged to the cap finish; the athlete re-enters them if it finishes again.
+            partialReps = nil
+        }
         let name = wasFinished ? "unfinish" : "undo"
         recorder.appendEvent(atUptime: uptime,
                              description: "name=\(name) index=\(progress.currentIndex) source=\(source.rawValue)")
@@ -313,6 +364,48 @@ final class WorkoutSessionModel: ObservableObject {
         persistProgress()
         workoutLog.info("undo (\(source.rawValue, privacy: .public)) -> \(self.progress.currentIndex)")
         return true
+    }
+
+    // MARK: - Partial reps (WORKOUT_SPEC §5)
+
+    /// Finished by the AMRAP time cap (the last finish event came from the clock).
+    var isFinishedByCap: Bool {
+        guard progress.isFinished, progress.capTime != nil,
+              let last = progress.events.last(where: { (e: WorkoutEvent) -> Bool in e.kind == .finish }) else {
+            return false
+        }
+        return last.source == .auto
+    }
+
+    /// The segment the cap cut (asked "Reps of <name>?"), nil when there is nothing to ask.
+    var partialRepsSegment: WorkoutSegment? {
+        guard isFinishedByCap, let segment = progress.currentSegment, segment.kind != .rest else { return nil }
+        return segment
+    }
+
+    /// The done screen shows the reps picker (it then owns the Digital Crown).
+    var asksPartialReps: Bool {
+        return phase == .running && partialRepsSegment != nil
+    }
+
+    /// Picker range 0…partialRepsMax: the segment's reps target, else 200.
+    var partialRepsMax: Int {
+        if let target = partialRepsSegment?.target, target.unit == .reps, target.value >= 1 {
+            return Int(target.value.rounded())
+        }
+        return 200
+    }
+
+    /// Stores the reps (clamped to 0…partialRepsMax) and logs `name=partialReps reps=<n>` in
+    /// the CSV. Can be called again until End; the last value wins.
+    func savePartialReps(_ reps: Int) {
+        guard phase == .running, partialRepsSegment != nil else { return }
+        let value: Int = min(max(0, reps), partialRepsMax)
+        partialReps = value
+        recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
+                             description: "name=partialReps reps=\(value)")
+        play(.click)
+        workoutLog.info("partial reps saved: \(value)")
     }
 
     /// Mark line in the CSV (Data mode only).
@@ -327,6 +420,14 @@ final class WorkoutSessionModel: ObservableObject {
 
     /// Ends the workout: result + CSV first, then HealthKit. Works without HealthKit.
     func end() {
+        if isDemo {
+            // Nothing to save or send: straight back to the start screen.
+            if phase == .starting || phase == .running {
+                workoutLog.info("Screen demo ended")
+                goIdle()
+            }
+            return
+        }
         switch phase {
         case .starting, .running:
             startTimeoutTask?.cancel()
@@ -350,6 +451,12 @@ final class WorkoutSessionModel: ObservableObject {
         progress.start(at: t)
         phase = .running
 
+        if isDemo {
+            startClock()
+            startDemoTicker()
+            play(progress.currentSegment?.kind == .run ? .start : .directionUp)
+            return
+        }
         if dataMode {
             recorder.start(sessionId: workoutId, definitionId: progress.definition.id)
             isRecordingCSV = true
@@ -397,6 +504,7 @@ final class WorkoutSessionModel: ObservableObject {
     }
 
     private func clockTick() {
+        updateRecovery(now: Date().timeIntervalSince1970)
         guard let event = nextClockEvent() else {
             countdownTarget = nil
             return
@@ -419,14 +527,25 @@ final class WorkoutSessionModel: ObservableObject {
         let second = Int(remaining.rounded(.up))
         if second >= 1 && second <= 3 && countdownLastBeep != second {
             countdownLastBeep = second
-            play(.click)
+            // Felt mid-effort (a .click was too light to notice during double unders).
+            play(.directionUp)
         }
     }
 
     private func finishByCap() {
         let t = Date().timeIntervalSince1970
         guard progress.finish(at: t, source: .auto) else { return }
-        play(.success)
+        // "Time!": a strong, unmistakable pattern (stop ×3, then success), since a single
+        // tap was missed mid-movement on 2026-10-30.
+        play(.stop)
+        Task { @MainActor in
+            for _ in 0..<2 {
+                try? await Task.sleep(nanoseconds: 650_000_000)
+                WKInterfaceDevice.current().play(.stop)
+            }
+            try? await Task.sleep(nanoseconds: 650_000_000)
+            WKInterfaceDevice.current().play(.success)
+        }
         recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
                              description: "name=finish index=\(progress.currentIndex) source=auto")
         lastChangeDate = Date()
@@ -437,6 +556,16 @@ final class WorkoutSessionModel: ObservableObject {
     // MARK: - HealthKit callbacks
 
     private func workoutStateChanged(_ state: HKWorkoutSessionState) {
+        // A demo has no HealthKit session; a leftover manager must not end or save it.
+        // A late .running (e.g. a slow start from an earlier real workout) is still ended,
+        // as it would be when idle, so no zombie HealthKit workout runs behind the demo.
+        if isDemo {
+            workoutLog.info("HealthKit state \(state.rawValue) ignored during screen demo")
+            if state == .running {
+                workout.end()
+            }
+            return
+        }
         switch state {
         case .running:
             if phase == .idle || phase == .ending {
@@ -508,18 +637,125 @@ final class WorkoutSessionModel: ObservableObject {
         endTimeoutTask = nil
         clockTask?.cancel()
         clockTask = nil
+        demoTask?.cancel()
+        demoTask = nil
         phase = .idle
         heartRate = nil
         healthKitRunning = false
+        isDemo = false
+    }
+
+    // MARK: - Screen demo
+
+    /// Fake HR once a second while the demo runs.
+    private func startDemoTicker() {
+        demoTask?.cancel()
+        demoTask = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                guard let self = self else { return }
+                if self.phase != .running || !self.isDemo { return }
+                self.demoTick()
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+            }
+        }
+    }
+
+    private func demoTick() {
+        let kind: SegmentKind? = progress.isFinished ? SegmentKind.rest : progress.currentSegment?.kind
+        let t: Double = Date().timeIntervalSince1970
+        let bpm: Double = demoHeartRate.step(now: t, kind: kind)
+        heartRate = bpm
+        // Kept like real samples so the done screen's recovery drop works in the demo too
+        // (a demo never builds or sends a result).
+        heartRates.append(HeartRateSample(t: t, bpm: bpm))
     }
 
     private func heartRateReceived(_ bpm: Double) {
+        if isDemo { return }
         heartRate = bpm
         guard phase == .running, !finalized else { return }
         let t = Date().timeIntervalSince1970
         heartRates.append(HeartRateSample(t: t, bpm: bpm))
         recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
                              description: String(format: "name=hr bpm=%.0f", bpm))
+    }
+
+    // MARK: - Recovery (WORKOUT_SPEC §6)
+
+    /// Seconds since the finish while the done screen is up (before End), else nil.
+    func recoveryElapsed(now: Date) -> Double? {
+        guard phase == .running, let finish = progress.finishTime else { return nil }
+        return max(0, now.timeIntervalSince1970 - finish)
+    }
+
+    /// HR now minus HR at the finish is shown as "−19"; this is finish − current (positive = down).
+    var recoveryDrop: Double? {
+        guard let base = recoveryFinishHeartRate, let current = heartRate else { return nil }
+        return base - current
+    }
+
+    private func resetRecovery() {
+        recoveryFinishKey = nil
+        recoveryMarksPlayed = 0
+        recoveryFinishHeartRateFinal = false
+        if recoveryFinishHeartRate != nil {
+            recoveryFinishHeartRate = nil
+        }
+    }
+
+    /// Called from the clock (5×/s) while running: finish HR, and a light haptic at 1:00 and
+    /// 2:00, success at 3:00 after the finish. Never ends the workout.
+    private func updateRecovery(now: Double) {
+        guard let finish = progress.finishTime else {
+            if recoveryFinishKey != nil { resetRecovery() }
+            return
+        }
+        if recoveryFinishKey != finish {
+            // New finish (or a finish again after Undo): start over.
+            resetRecovery()
+            recoveryFinishKey = finish
+        }
+        let elapsed: Double = now - finish
+        if !recoveryFinishHeartRateFinal {
+            let value: Double? = finishHeartRate(finish: finish, now: now)
+            if value != recoveryFinishHeartRate {
+                recoveryFinishHeartRate = value
+            }
+            if elapsed >= WorkoutSessionModel.recoveryFinishSettleSeconds {
+                recoveryFinishHeartRateFinal = true
+            }
+        }
+        var crossed: Int = 0
+        for mark in HeartRateRecovery.markSeconds where elapsed >= mark {
+            crossed += 1
+        }
+        if crossed > recoveryMarksPlayed {
+            // Only the latest mark plays (e.g. after a long suspension, not three in a row).
+            recoveryMarksPlayed = crossed
+            let isLast: Bool = crossed >= HeartRateRecovery.markSeconds.count
+            play(isLast ? .success : .click)
+            let seconds: Int = Int(HeartRateRecovery.markSeconds[crossed - 1])
+            let bpm: Double = heartRate ?? -1
+            recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
+                                 description: String(format: "name=recovery seconds=%d bpm=%.0f", seconds, bpm))
+            workoutLog.info("recovery \(seconds) s, HR \(bpm)")
+        }
+    }
+
+    /// HR at the finish by the kit's rule (HeartRateRecovery.finishHeartRate) on the samples
+    /// near the finish, on the same 5 s grid as the result (from the workout start).
+    private func finishHeartRate(finish: Double, now: Double) -> Double? {
+        guard let startT = progress.startTime else { return nil }
+        let windowStart: Double = finish - HeartRateRecovery.finishWindow - 30.0
+        var near: [TimedValue] = []
+        for s in heartRates where s.t >= windowStart && s.t <= now {
+            near.append(TimedValue(t: s.t, value: s.bpm))
+        }
+        if near.isEmpty { return nil }
+        let end: Double = min(now, finish + WorkoutSessionModel.recoveryFinishSettleSeconds)
+        if !(end > startT) { return nil }
+        let series: HeartRateSeries = HeartRateSeries.make(samples: near, start: startT, end: end)
+        return HeartRateRecovery.finishHeartRate(series: series, finish: finish)
     }
 
     // MARK: - Pedometer
@@ -604,6 +840,10 @@ final class WorkoutSessionModel: ObservableObject {
         guard phase == .running, progress.isStarted, !progress.isFinished,
               let segment = progress.currentSegment, segment.kind == .run,
               let segmentStart = progress.segmentStarts.last else { return nil }
+        if isDemo {
+            let nowDemo: Double = now.timeIntervalSince1970
+            return WorkoutDemo.runLine(segment: segment, elapsed: progress.segmentElapsed(now: nowDemo), now: nowDemo)
+        }
         var line = RunLine(distance: nil, paceSecondsPerKm: nil, cadence: nil)
         if let latest = latestPedometer, let latestDistance = latest.distance,
            let atStart = cumulativeDistance(at: segmentStart) {
@@ -632,6 +872,8 @@ final class WorkoutSessionModel: ObservableObject {
     /// Stops sensors, closes the CSV, builds/writes/sends the result, then the CSV.
     /// Runs once per workout.
     private func finalize() {
+        // Belt and braces: a demo never writes, sends or summarizes anything.
+        guard !isDemo else { return }
         guard !finalized else { return }
         finalized = true
         stopPedometer()
@@ -661,20 +903,24 @@ final class WorkoutSessionModel: ObservableObject {
         }
         let segments = SplitStats.compute(progress: progress, now: endT, heartRates: hr, pedometer: steps)
 
+        // Average / max of the workout part only (start → finish, or end): HR after the finish
+        // is recovery (WORKOUT_SPEC §6) and would pull the average down.
+        let workoutEndT: Double = finishT ?? endT
         var hrSum = 0.0
         var hrCount = 0
         var hrMax: Double?
-        for s in heartRates where s.t >= startT && s.t <= endT {
+        for s in heartRates where s.t >= startT && s.t <= workoutEndT {
             hrSum += s.bpm
             hrCount += 1
             hrMax = max(hrMax ?? s.bpm, s.bpm)
         }
         let hrAvg: Double? = hrCount > 0 ? hrSum / Double(hrCount) : nil
-        // HR every 5 s from start to finish (or end); nil when no HR arrived at all.
+        // HR every 5 s from the start to End (not the finish): the part after the finish is the
+        // recovery the phone shows (HeartRateRecovery). Nil when no HR arrived at all.
         let hrSeries: HeartRateSeries? = hr.isEmpty ? nil
-            : HeartRateSeries.make(samples: hr, start: startT, end: finishT ?? endT)
+            : HeartRateSeries.make(samples: hr, start: startT, end: endT)
 
-        let result = WorkoutResult(version: WorkoutResult.currentVersion,
+        var result = WorkoutResult(version: WorkoutResult.currentVersion,
                                    id: workoutId,
                                    definition: definition,
                                    startDate: Date(timeIntervalSince1970: startT),
@@ -687,6 +933,10 @@ final class WorkoutSessionModel: ObservableObject {
                                    heartRateMax: hrMax,
                                    recordingFileName: recordedCSV ? "session-\(workoutId.uuidString).csv" : nil,
                                    heartRateSeries: hrSeries)
+        if progress.isFinished, let reps = partialReps {
+            // Entered on the watch: not an edit, so editedAt stays nil.
+            result.partialReps = min(max(0, reps), result.partialRepsLimit ?? reps)
+        }
 
         let summary = "\(definition.shortName) · \(SessionModel.formatElapsed(total))"
         lastSummary = summary
@@ -708,6 +958,7 @@ final class WorkoutSessionModel: ObservableObject {
     }
 
     private func persistProgress() {
+        if isDemo { return }
         do {
             let data = try JSONEncoder().encode(progress)
             UserDefaults.standard.set(data, forKey: Keys.progress)

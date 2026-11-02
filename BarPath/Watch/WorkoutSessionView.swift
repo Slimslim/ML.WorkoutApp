@@ -56,6 +56,13 @@ final class CrownAdvanceController: ObservableObject {
     }
     var isBackward: Bool { accumulated < 0 }
 
+    /// Crown changes while another control owns the Crown (the partial-reps picker): follow
+    /// the value without counting it, so no advance/undo can fire and no jump is seen later.
+    func ignore(_ newValue: Double) {
+        lastValue = newValue
+        resetGesture()
+    }
+
     /// Call after any advance/undo that did not come from the Crown (press, buttons).
     func noteAction() {
         lockedUntil = Date().addingTimeInterval(CrownAdvanceController.lockout)
@@ -180,8 +187,9 @@ struct WorkoutSessionView: View {
     private var progressText: String {
         let p = model.progress
         let count = p.definition.segments.count
-        if p.isFinished { return "Finished · \(count)/\(count)" }
-        return "Segment \(p.currentIndex + 1)/\(count)"
+        let demo: String = model.isDemo ? "Demo · " : ""
+        if p.isFinished { return demo + "Finished · \(count)/\(count)" }
+        return demo + "Segment \(p.currentIndex + 1)/\(count)"
     }
 }
 
@@ -200,10 +208,15 @@ struct WorkoutMainPage: View {
             content(now: context.date)
         }
         .overlay {
-            crownArc.allowsHitTesting(false)
+            // Crown-turn arc: on the race border's line, drawn on top of it. Hidden wrist down.
+            if !isLuminanceReduced {
+                CrownArcView(fraction: crown.fraction, isBackward: crown.isBackward)
+                    .ignoresSafeArea()
+            }
         }
         .contentShape(Rectangle())
-        .focusable(true)
+        // While the partial-reps picker is up it owns the Crown: this page can't take focus.
+        .focusable(!repsPickerActive)
         .focused($crownFocused)
         .focusEffectDisabled()
         .digitalCrownRotation($crown.crownValue,
@@ -214,7 +227,11 @@ struct WorkoutMainPage: View {
                               isContinuous: true,
                               isHapticFeedbackEnabled: false)
         .onChange(of: crown.crownValue) { _, newValue in
-            crown.crownChanged(to: newValue, model: model)
+            if repsPickerActive {
+                crown.ignore(newValue)
+            } else {
+                crown.crownChanged(to: newValue, model: model)
+            }
         }
         .onLongPressGesture(minimumDuration: 1.0) {
             if model.advance(source: .press) {
@@ -222,124 +239,438 @@ struct WorkoutMainPage: View {
             }
         }
         .onAppear {
-            crownFocused = true
+            crownFocused = !repsPickerActive
         }
         .onChange(of: isActivePage) { _, active in
             // Off page 1 the Crown must not advance/undo unseen: drop focus there.
-            crownFocused = active
+            crownFocused = active && !repsPickerActive
         }
         .onChange(of: focusToken) { _, _ in
-            crownFocused = true
+            crownFocused = !repsPickerActive
         }
         .onChange(of: isLuminanceReduced) { _, reduced in
-            if !reduced && isActivePage { crownFocused = true }
+            if !reduced && isActivePage && !repsPickerActive { crownFocused = true }
         }
+        .onChange(of: repsPickerActive) { _, active in
+            // Picker up (cap reached): hand the Crown over. Gone (Undo): take it back.
+            if active {
+                crownFocused = false
+                crown.noteAction()
+            } else if isActivePage {
+                crownFocused = true
+            }
+        }
+    }
+
+    /// The done screen asks for the reps of the segment cut by the time cap (§5). While true,
+    /// the Crown never advances/undoes this page (Undo stays on the button).
+    private var repsPickerActive: Bool {
+        return model.progress.isFinished && model.asksPartialReps
     }
 
     @ViewBuilder
     private func content(now: Date) -> some View {
         if model.progress.isFinished {
             doneScreen(now: now)
-        } else if isLuminanceReduced {
-            alwaysOnScreen(now: now)
         } else {
-            mainScreen(now: now)
+            ZStack {
+                // Race progress border (layout D+). Full screen, behind the text.
+                RaceBorderView(state: borderState(now: now), isAlwaysOn: isLuminanceReduced)
+                    .ignoresSafeArea()
+                // Wrist down: the SAME main layout, dimmed, with system-rendered clocks
+                // (athlete feedback 2026-11-01: glance without raising the arm). No NOW flash.
+                if !isLuminanceReduced && showSwitchFlash(now: now) {
+                    switchFlash()
+                } else {
+                    mainScreen(now: now)
+                        .opacity(isLuminanceReduced ? WorkoutMainPage.alwaysOnOpacity : 1.0)
+                }
+            }
         }
+    }
+
+    /// For a moment after every switch, the new segment fills the screen so it's obvious
+    /// where the watch is (added after the round-4 mix-up on 2026-10-30).
+    static let switchFlashSeconds: Double = 1.8
+    /// "Turn Crown back to undo" replaces the bottom line for this long after a switch.
+    static let undoHintSeconds: Double = 5.0
+    /// Share of a run's target distance from which the bottom turns into "Exit soon".
+    static let exitSoonFraction: Double = 0.85
+    /// Stations without a measurable target fill the current slice against this nominal
+    /// time and stop at `stationMaxFraction` until the athlete switches.
+    static let stationNominalSeconds: Double = 180.0
+    static let stationMaxFraction: Double = 0.9
+    /// AMRAP border: time toward the cap, one slit every 5 minutes.
+    static let amrapTickSeconds: Double = 300.0
+    /// Wrist down the main layout is drawn at this opacity (same layout, dimmer).
+    static let alwaysOnOpacity: Double = 0.8
+    /// The layout is drawn for 45 mm (≈ 198 pt wide); smaller screens scale down a little.
+    static let designWidth: CGFloat = 198.0
+
+    static func layoutScale(width: CGFloat) -> CGFloat {
+        guard width > 0 else { return 1.0 }
+        return min(1.0, max(0.8, width / WorkoutMainPage.designWidth))
+    }
+
+    private func showSwitchFlash(now: Date) -> Bool {
+        guard let last = model.lastChangeDate else { return false }
+        return now.timeIntervalSince(last) < WorkoutMainPage.switchFlashSeconds
+    }
+
+    private func showUndoHint(now: Date) -> Bool {
+        guard let last = model.lastChangeDate else { return false }
+        return now.timeIntervalSince(last) < WorkoutMainPage.undoHintSeconds
+    }
+
+    private func switchFlash() -> some View {
+        let p: WorkoutProgress = model.progress
+        let name: String = (p.currentSegment?.name ?? "").uppercased()
+        let isLong: Bool = name.count > 11
+        return VStack(spacing: 6) {
+            Spacer(minLength: 0)
+            Text("NOW")
+                .font(.system(size: 13, weight: .heavy, design: .rounded))
+                .foregroundColor(.secondary)
+            Text(name)
+                .font(.system(size: isLong ? 26 : 32, weight: .heavy, design: .rounded))
+                .foregroundColor(currentColor)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.5)
+            Text(positionText())
+                .font(.system(size: 18, weight: .bold, design: .rounded).monospacedDigit())
+                .foregroundColor(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            Spacer(minLength: 0)
+            Text("Turn Crown back to undo")
+                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .foregroundColor(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.92)
+        }
+        .padding(.horizontal, 10)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// "Round 4 · 2/4" for workouts with a repeating round, else "3/5".
+    private func positionText() -> String {
+        if let round = roundText() {
+            return round
+        }
+        let p: WorkoutProgress = model.progress
+        let count: Int = p.definition.segments.count
+        return "\(min(p.currentIndex + 1, count))/\(count)"
+    }
+
+    /// "Round 4 · 2/4" for workouts with a repeating round, else nil.
+    private func roundText() -> String? {
+        let p = model.progress
+        guard let size = p.definition.roundSize, size > 1, p.isStarted else { return nil }
+        let i = p.currentIndex
+        return "Round \(i / size + 1) · \(i % size + 1)/\(size)"
+    }
+
+    private var finishedByCap: Bool {
+        return model.isFinishedByCap
+    }
+
+    // MARK: Segment colour and progress
+
+    /// The current segment's colour (name, border slice, NOW flash): see `SegmentPalette`.
+    private var currentColor: Color {
+        return SegmentPalette.color(forSegmentAt: model.progress.currentIndex, in: model.progress.definition)
+    }
+
+    /// Run with a metre target: pedometer distance into the segment / target (0…1). Nil when
+    /// not on such a run or no distance yet.
+    private func runFraction(now: Date) -> Double? {
+        guard let segment = model.progress.currentSegment, segment.kind == .run,
+              let target = segment.target, target.unit == .meters, target.value > 0,
+              let run = model.runLine(now: now), let distance = run.distance else { return nil }
+        return min(1.0, max(0.0, distance / target.value))
+    }
+
+    /// How far into the current segment (0…1), for its border slice.
+    private func currentSegmentFraction(now: Date) -> Double {
+        let p: WorkoutProgress = model.progress
+        guard let segment = p.currentSegment else { return 0 }
+        let nowT: Double = now.timeIntervalSince1970
+        let elapsed: Double = p.segmentElapsed(now: nowT)
+        let nominal: Double = min(WorkoutMainPage.stationMaxFraction,
+                                  elapsed / WorkoutMainPage.stationNominalSeconds)
+        switch segment.kind {
+        case .run:
+            return runFraction(now: now) ?? 0
+        case .rest:
+            // Rest on the clock: time toward the next set.
+            if let clock = model.nextClockEvent(), !clock.isFinish, let start = p.segmentStarts.last {
+                let span: Double = clock.time - start
+                if span > 0 {
+                    return min(1.0, max(0.0, (nowT - start) / span))
+                }
+            }
+            // Clock suppressed (after an undo) or the cap comes first: use the rest's own time.
+            if let target = segment.target, target.unit == .seconds, target.value > 0 {
+                return min(1.0, elapsed / target.value)
+            }
+            return nominal
+        case .station, .transition:
+            if let target = segment.target, target.unit == .seconds, target.value > 0 {
+                return min(1.0, elapsed / target.value)
+            }
+            // No counter yet (reps, metres on an erg): nominal time, parked at 90 %.
+            return nominal
+        }
+    }
+
+    private func borderState(now: Date) -> RaceBorderState {
+        let p: WorkoutProgress = model.progress
+        let definition: WorkoutDefinition = p.definition
+        if definition.format == .amrap, let cap = definition.timeCapSeconds, cap > 0 {
+            // Screen demo: the cap is shortened (WorkoutDemo.timeScale), so are the slits.
+            let tick: Double = model.isDemo
+                ? WorkoutMainPage.amrapTickSeconds / WorkoutDemo.timeScale
+                : WorkoutMainPage.amrapTickSeconds
+            return RaceBorderState.timeToCap(elapsed: p.totalElapsed(now: now.timeIntervalSince1970),
+                                             cap: cap,
+                                             tick: tick,
+                                             color: SegmentPalette.elapsed)
+        }
+        return RaceBorderState.segments(colors: SegmentPalette.segmentColors(for: definition),
+                                        currentIndex: p.currentIndex,
+                                        currentFraction: currentSegmentFraction(now: now))
     }
 
     // MARK: Normal
 
     private func mainScreen(now: Date) -> some View {
-        let p = model.progress
-        let nowT = now.timeIntervalSince1970
-        return VStack(spacing: 2) {
-            Text(topLine(now: now))
-                .font(.system(size: 14, weight: .semibold, design: .rounded).monospacedDigit())
-                .foregroundColor(.secondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
+        GeometryReader { (geo: GeometryProxy) in
+            mainStack(now: now, scale: WorkoutMainPage.layoutScale(width: geo.size.width))
+        }
+    }
 
-            Spacer(minLength: 0)
-
-            Text(p.currentSegment?.title ?? "")
-                .font(.system(size: 22, weight: .heavy, design: .rounded))
-                .foregroundColor(.white)
+    private func mainStack(now: Date, scale: CGFloat) -> some View {
+        let p: WorkoutProgress = model.progress
+        let name: String = (p.currentSegment?.name ?? "").uppercased()
+        let isLong: Bool = name.count > 11
+        return VStack(spacing: 0) {
+            Text(name)
+                .font(.system(size: (isLong ? 19 : 24) * scale, weight: .heavy, design: .rounded))
+                .foregroundColor(currentColor)
                 .multilineTextAlignment(.center)
-                .lineLimit(2)
+                .lineLimit(isLong ? 2 : 1)
                 .minimumScaleFactor(0.6)
-
-            if let clock = model.nextClockEvent(), !clock.isFinish {
-                // Timed rest: count down to the next set (3-2-1 haptics on the watch model).
-                Text(SessionModel.formatElapsed(max(0, clock.time - nowT).rounded(.up)))
-                    .font(.system(size: 48, weight: .heavy, design: .rounded).monospacedDigit())
-                    .foregroundColor(.yellow)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-            } else {
-                Text(SessionModel.formatElapsed(p.segmentElapsed(now: nowT)))
-                    .font(.system(size: 48, weight: .heavy, design: .rounded).monospacedDigit())
-                    .foregroundColor(.white)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-                if let clock = model.nextClockEvent(), clock.isFinish {
-                    Text("Time cap in " + SessionModel.formatElapsed(max(0, clock.time - nowT).rounded(.up)))
-                        .font(.system(size: 14, weight: .semibold, design: .rounded).monospacedDigit())
-                        .foregroundColor(.yellow)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.6)
-                }
-            }
-
-            if let run = model.runLine(now: now) {
-                Text(runText(run))
-                    .font(.system(size: 15, weight: .semibold, design: .rounded).monospacedDigit())
-                    .foregroundColor(.cyan)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-            }
-
-            Spacer(minLength: 0)
-
-            if showUndoCapsule(now: now) {
-                undoCapsule
-            } else {
-                Text(nextText)
-                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+            HStack(spacing: 4) {
+                totalText(now: now)
+                    .font(.system(size: 12, weight: .semibold, design: .rounded).monospacedDigit())
                     .foregroundColor(.secondary)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-                    .frame(minHeight: 34)
+                    .minimumScaleFactor(0.92)
+                if model.isDemo {
+                    DemoTag()
+                }
             }
+            .padding(.top, 2)
+
+            Spacer(minLength: 0)
+
+            timerText(now: now, scale: scale)
+            metricRow(now: now, scale: scale)
+
+            Spacer(minLength: 0)
+
+            bottomLine(now: now)
         }
-        .padding(.horizontal, 4)
+        .padding(.horizontal, 10)
+        .padding(.bottom, 2)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    // MARK: Always-on
+    /// Segment time, or the countdown to the next set during a timed rest.
+    private func timerText(now: Date, scale: CGFloat) -> some View {
+        return timerValue(now: now)
+            .font(.system(size: 54 * scale, weight: .heavy, design: .rounded).monospacedDigit())
+            .foregroundColor(SegmentPalette.elapsed)
+            .lineLimit(1)
+            .minimumScaleFactor(0.5)
+    }
 
-    private func alwaysOnScreen(now: Date) -> some View {
-        let p = model.progress
-        return VStack(spacing: 4) {
-            Spacer(minLength: 0)
-            Text(p.currentSegment?.title ?? "")
-                .font(.system(size: 22, weight: .heavy, design: .rounded))
-                .foregroundColor(.white)
-                .multilineTextAlignment(.center)
-                .lineLimit(2)
-                .minimumScaleFactor(0.6)
-            if let start = p.segmentStarts.last {
-                // System-updated timer text: stays correct between always-on refreshes.
-                Text(Date(timeIntervalSince1970: start), style: .timer)
-                    .font(.system(size: 48, weight: .heavy, design: .rounded).monospacedDigit())
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
+    /// Wrist down the clock is a system timer text: watchOS keeps it ticking every second in
+    /// always-on, while this view's own refresh (`now`) may come only once a minute.
+    private func timerValue(now: Date) -> Text {
+        let p: WorkoutProgress = model.progress
+        if isLuminanceReduced, let start = p.segmentStarts.last {
+            if let clock = model.nextClockEvent(), !clock.isFinish {
+                return WorkoutMainPage.liveCountDown(from: start, to: clock.time)
             }
-            Spacer(minLength: 0)
+            return WorkoutMainPage.liveCountUp(from: start)
         }
-        .padding(.horizontal, 4)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        let nowT: Double = now.timeIntervalSince1970
+        var seconds: Double = p.segmentElapsed(now: nowT)
+        if let clock = model.nextClockEvent(), !clock.isFinish {
+            // Timed rest: count down to the next set (3-2-1 haptics on the watch model).
+            seconds = max(0, clock.time - nowT).rounded(.up)
+        }
+        return Text(SessionModel.formatElapsed(seconds))
+    }
+
+    // MARK: Live clocks (always-on)
+
+    /// Upper bound of a live count-up clock's range (it stops there).
+    static let liveCountUpLimit: TimeInterval = 24 * 3600
+
+    /// Count-up clock ("12:34", "1:02:03") rendered by the system, live in always-on.
+    static func liveCountUp(from start: Double) -> Text {
+        let from: Date = Date(timeIntervalSince1970: start)
+        // Bounded (not `Date.distantFuture`): the timer text may size itself for the longest
+        // value in its range; 24 h keeps that to "23:59:59".
+        let range: ClosedRange<Date> = from...from.addingTimeInterval(WorkoutMainPage.liveCountUpLimit)
+        return Text(timerInterval: range, countsDown: false)
+    }
+
+    /// Countdown to `end` rendered by the system, live in always-on; stops at 0:00.
+    /// `start` is only the range's lower bound (clamped so the range is never inverted).
+    static func liveCountDown(from start: Double, to end: Double) -> Text {
+        let to: Date = Date(timeIntervalSince1970: end)
+        let from: Date = Date(timeIntervalSince1970: min(start, end))
+        let range: ClosedRange<Date> = from...to
+        return Text(timerInterval: range, countsDown: true)
+    }
+
+    /// One row under the timer: the key metric, then HR.
+    private func metricRow(now: Date, scale: CGFloat) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 14) {
+            keyMetric(now: now, scale: scale)
+            valueWithUnit(heartRateValue, unit: "bpm", color: SegmentPalette.heartRate, scale: scale)
+        }
+        .lineLimit(1)
+        // "12:40 /KM" + "152 BPM" is wider than the 156 pt content width on 41 mm.
+        .minimumScaleFactor(0.7)
+    }
+
+    @ViewBuilder
+    private func keyMetric(now: Date, scale: CGFloat) -> some View {
+        if let segment = model.progress.currentSegment {
+            if segment.kind == .run {
+                valueWithUnit(paceValue(now: now), unit: "/km", color: SegmentPalette.run, scale: scale)
+            } else if segment.kind == .station, let target = segment.target {
+                // Until rep counting exists: the target ("100 reps", "1000 m") in white.
+                Text(target.text)
+                    .font(.system(size: 20 * scale, weight: .heavy, design: .rounded).monospacedDigit())
+                    .foregroundColor(.white)
+            }
+        }
+    }
+
+    private func valueWithUnit(_ value: String, unit: String, color: Color, scale: CGFloat) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 3) {
+            Text(value)
+                .font(.system(size: 22 * scale, weight: .heavy, design: .rounded).monospacedDigit())
+            Text(unit.uppercased())
+                .font(.system(size: 11, weight: .heavy, design: .rounded))
+        }
+        .foregroundColor(color)
+    }
+
+    private var heartRateValue: String {
+        if let hr = model.heartRate {
+            return String(format: "%.0f", hr)
+        }
+        return "–"
+    }
+
+    private func paceValue(now: Date) -> String {
+        if let run = model.runLine(now: now), let pace = run.paceSecondsPerKm {
+            return WorkoutSessionModel.formatPace(pace)
+        }
+        return "–:––"
+    }
+
+    /// `totalLine` as a Text; wrist down the clock in it is a system timer (live in always-on).
+    private func totalText(now: Date) -> Text {
+        let p: WorkoutProgress = model.progress
+        guard isLuminanceReduced, let start = p.startTime else {
+            return Text(totalLine(now: now))
+        }
+        if let cap = p.capTime {
+            var prefix: String = ""
+            if let size = p.definition.roundSize, size > 1 {
+                prefix = "R\(p.currentIndex / size + 1) · "
+            }
+            let clock: Text = WorkoutMainPage.liveCountDown(from: start, to: cap)
+            return Text(verbatim: prefix) + clock + Text(verbatim: " left")
+        }
+        return WorkoutMainPage.liveCountUp(from: start)
+    }
+
+    /// Small line under the name: total race time; AMRAP: round and time left to the cap.
+    private func totalLine(now: Date) -> String {
+        let p: WorkoutProgress = model.progress
+        let nowT: Double = now.timeIntervalSince1970
+        if let cap = p.capTime {
+            let left: String = SessionModel.formatElapsed(max(0, cap - nowT).rounded(.up)) + " left"
+            if let size = p.definition.roundSize, size > 1 {
+                return "R\(p.currentIndex / size + 1) · " + left
+            }
+            return left
+        }
+        return SessionModel.formatElapsed(p.totalElapsed(now: nowT))
+    }
+
+    /// Undo hint for 5 s after a switch, else "Exit soon" near the end of a run, else Next.
+    /// Wrist down there is no undo hint: `now` may be up to a minute old there, and the Crown
+    /// is not in use with the arm down.
+    @ViewBuilder
+    private func bottomLine(now: Date) -> some View {
+        if !isLuminanceReduced && showUndoHint(now: now) {
+            // Not a button: a palm on the screen right after a Crown turn undid a correct
+            // switch (2026-10-30). Undo is the Crown turned backward.
+            bottomText("Turn Crown back to undo")
+        } else if let fraction = runFraction(now: now), fraction >= WorkoutMainPage.exitSoonFraction {
+            exitSoonBanner
+        } else {
+            bottomText(nextText)
+        }
+    }
+
+    private var nextText: String {
+        if let next = model.progress.nextSegment {
+            return "Next: " + next.title
+        }
+        return "Last segment"
+    }
+
+    private func bottomText(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 12, weight: .semibold, design: .rounded))
+            .foregroundColor(.secondary)
+            .multilineTextAlignment(.center)
+            .lineLimit(2)
+            .minimumScaleFactor(0.92)
+            .frame(maxWidth: .infinity, minHeight: 30)
+    }
+
+    /// Wrist down: same banner, outlined instead of a solid blue fill (always-on stays dark).
+    private var exitSoonBanner: some View {
+        let next: String = model.progress.nextSegment?.title ?? "Finish"
+        let dim: Bool = isLuminanceReduced
+        return Text("Exit soon · Next: " + next)
+            .font(.system(size: 12, weight: .heavy, design: .rounded))
+            .foregroundColor(dim ? SegmentPalette.run : SegmentPalette.ink)
+            .multilineTextAlignment(.center)
+            .lineLimit(2)
+            .minimumScaleFactor(0.92)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .frame(maxWidth: .infinity, minHeight: 30)
+            .background(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(dim ? Color.clear : SegmentPalette.run))
+            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(dim ? SegmentPalette.run : Color.clear, lineWidth: 1.5))
+            // 22 pt from the screen edge as in the design: a full-width box crosses the border
+            // in the rounded bottom corners.
+            .padding(.horizontal, 12)
     }
 
     // MARK: Done
@@ -350,29 +681,160 @@ struct WorkoutMainPage: View {
         let total = model.progress.totalElapsed(now: now.timeIntervalSince1970)
         return ZStack {
             fill.ignoresSafeArea()
-            VStack(spacing: 4) {
-                Spacer(minLength: 0)
-                Text("DONE")
-                    .font(.system(size: 40, weight: .heavy, design: .rounded))
-                    .foregroundColor(ink)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
+            // The picker stays in always-on too (dimmed), so a value being picked isn't reset.
+            if repsPickerActive {
+                capDoneContent(total: total, ink: ink, now: now)
+            } else {
+                finishedContent(total: total, ink: ink, now: now)
+            }
+        }
+    }
+
+    /// Finished by the cap: compact TIME line, one recovery line, the reps picker, Undo.
+    private func capDoneContent(total: Double, ink: Color, now: Date) -> some View {
+        VStack(spacing: 3) {
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Text("TIME")
+                    .font(.system(size: 24, weight: .heavy, design: .rounded))
                 Text(SessionModel.formatElapsed(total))
-                    .font(.system(size: 34, weight: .heavy, design: .rounded).monospacedDigit())
-                    .foregroundColor(ink)
+                    .font(.system(size: 24, weight: .heavy, design: .rounded).monospacedDigit())
+            }
+            .foregroundColor(ink)
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
+            if let elapsed = model.recoveryElapsed(now: now) {
+                compactRecoveryLine(elapsed: elapsed)
+                    .font(.system(size: 12, weight: .bold, design: .rounded).monospacedDigit())
+                    .foregroundColor(ink.opacity(0.8))
                     .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-                Spacer(minLength: 0)
-                if !isLuminanceReduced {
-                    undoCapsule
-                    Text("Swipe left for End")
-                        .font(.system(size: 11, weight: .semibold, design: .rounded))
-                        .foregroundColor(ink.opacity(0.7))
-                        .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+            Spacer(minLength: 0)
+            PartialRepsPicker(segmentName: model.partialRepsSegment?.name ?? "",
+                              maxReps: model.partialRepsMax,
+                              ink: ink,
+                              wantsFocus: isActivePage)
+            Spacer(minLength: 0)
+            if !isLuminanceReduced {
+                undoCapsule
+            }
+        }
+        .padding(.horizontal, 4)
+    }
+
+    /// DONE / TIME and the total on one line, the recovery block (time since the finish,
+    /// HR now and its drop since the finish), Undo and the End hint. Fits 41 mm: one 26 pt line,
+    /// a two-line block, the 34 pt capsule and up to two 11 pt lines.
+    private func finishedContent(total: Double, ink: Color, now: Date) -> some View {
+        let elapsed: Double = model.recoveryElapsed(now: now) ?? 0
+        let recoveryDone: Bool = elapsed >= WorkoutMainPage.recoveryTargetSeconds
+        return VStack(spacing: 4) {
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Text(finishedByCap ? "TIME" : "DONE")
+                    .font(.system(size: 26, weight: .heavy, design: .rounded))
+                Text(SessionModel.formatElapsed(total))
+                    .font(.system(size: 26, weight: .heavy, design: .rounded).monospacedDigit())
+            }
+            .foregroundColor(ink)
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
+            Spacer(minLength: 0)
+            recoveryBlock(elapsed: elapsed)
+            Spacer(minLength: 0)
+            if !isLuminanceReduced {
+                undoCapsule
+            }
+            Text(endHint(recoveryDone: recoveryDone))
+                .font(.system(size: 11, weight: recoveryDone ? .heavy : .semibold, design: .rounded))
+                .foregroundColor(ink.opacity(recoveryDone ? 0.9 : 0.7))
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+        }
+        .padding(.horizontal, 4)
+    }
+
+    // MARK: Recovery (WORKOUT_SPEC §6)
+
+    /// "3 min recovery done" from here; the model plays the haptics (1:00, 2:00, 3:00).
+    static let recoveryTargetSeconds: Double = 180.0
+
+    private func endHint(recoveryDone: Bool) -> String {
+        let demo: String = model.isDemo ? "Demo · " : ""
+        if recoveryDone {
+            return demo + "3 min recovery done · End when ready"
+        }
+        return demo + "Swipe left for End"
+    }
+
+    /// Dark panel (like the Undo capsule) with the D+ colours: yellow recovery clock, red HR,
+    /// lime drop. In always-on the clock is a system timer text (stays right between refreshes).
+    private func recoveryBlock(elapsed: Double) -> some View {
+        VStack(spacing: 0) {
+            HStack(alignment: .firstTextBaseline, spacing: 5) {
+                Text("RECOVERY")
+                    .font(.system(size: 11, weight: .heavy, design: .rounded))
+                    .foregroundColor(Color(white: 0.75))
+                recoveryClock(elapsed: elapsed)
+                    .font(.system(size: 18, weight: .heavy, design: .rounded).monospacedDigit())
+                    .foregroundColor(SegmentPalette.elapsed)
+            }
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                HStack(alignment: .firstTextBaseline, spacing: 2) {
+                    Text(heartRateValue)
+                        .font(.system(size: 26, weight: .heavy, design: .rounded).monospacedDigit())
+                    Text("BPM")
+                        .font(.system(size: 10, weight: .heavy, design: .rounded))
+                }
+                .foregroundColor(SegmentPalette.heartRate)
+                if let drop = model.recoveryDrop {
+                    // Drop since the finish: "−19" when HR went down.
+                    Text(SummaryFormat.signedNumber(-drop))
+                        .font(.system(size: 22, weight: .heavy, design: .rounded).monospacedDigit())
+                        .foregroundColor(drop >= 0 ? SegmentPalette.crownForward : SegmentPalette.crownBackward)
                 }
             }
-            .padding(.horizontal, 4)
         }
+        .lineLimit(1)
+        .minimumScaleFactor(0.7)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .frame(maxWidth: .infinity)
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous)
+            .fill(Color.black.opacity(isLuminanceReduced ? 0.6 : 0.85)))
+        .opacity(isLuminanceReduced ? 0.85 : 1.0)
+    }
+
+    /// Wrist down a system timer text (live in always-on); else from `elapsed`.
+    private func recoveryClock(elapsed: Double) -> Text {
+        if isLuminanceReduced, let finish = model.progress.finishTime {
+            return WorkoutMainPage.liveCountUp(from: finish)
+        }
+        return Text(SessionModel.formatElapsed(elapsed))
+    }
+
+    /// `compactRecoveryText` as a Text; wrist down the clock in it is a system timer.
+    private func compactRecoveryLine(elapsed: Double) -> Text {
+        guard isLuminanceReduced, elapsed < WorkoutMainPage.recoveryTargetSeconds else {
+            return Text(compactRecoveryText(elapsed: elapsed))
+        }
+        var tail: String = " · " + heartRateValue + " bpm"
+        if let drop = model.recoveryDrop {
+            tail += " " + SummaryFormat.signedNumber(-drop)
+        }
+        return Text(verbatim: "Recovery ") + recoveryClock(elapsed: elapsed) + Text(verbatim: tail)
+    }
+
+    /// One line for the cap done screen (the reps picker needs the room).
+    private func compactRecoveryText(elapsed: Double) -> String {
+        if elapsed >= WorkoutMainPage.recoveryTargetSeconds {
+            return "3 min recovery done · End when ready"
+        }
+        var text: String = "Recovery " + SessionModel.formatElapsed(elapsed) + " · " + heartRateValue + " bpm"
+        if let drop = model.recoveryDrop {
+            text += " " + SummaryFormat.signedNumber(-drop)
+        }
+        return text
     }
 
     // MARK: Pieces
@@ -391,59 +853,111 @@ struct WorkoutMainPage: View {
         }
         .buttonStyle(.plain)
     }
+}
 
-    /// Progress arc around the screen edge while turning (green forward, orange back).
-    private var crownArc: some View {
-        let fraction = crown.fraction
-        let color: Color = crown.isBackward ? .orange : .green
-        return RoundedRectangle(cornerRadius: 36, style: .continuous)
-            .trim(from: 0, to: CGFloat(fraction))
-            .stroke(color, style: StrokeStyle(lineWidth: 6, lineCap: .round))
-            .opacity(fraction > 0 ? 1 : 0)
-            .padding(2)
-            .ignoresSafeArea()
+// MARK: - Screen demo tag
+
+/// Tiny grey "DEMO" capsule shown during a screen demo, so it can't pass for a real workout.
+struct DemoTag: View {
+    var body: some View {
+        Text("DEMO")
+            .font(.system(size: 9, weight: .heavy, design: .rounded))
+            .foregroundColor(.black)
+            .padding(.horizontal, 5)
+            .padding(.vertical, 1)
+            .background(Capsule().fill(Color(white: 0.6)))
+            .fixedSize()
+    }
+}
+
+// MARK: - Partial reps picker (WORKOUT_SPEC §5)
+
+/// "Reps of Double Unders?" on the done screen after the time cap. The number is picked with
+/// the Digital Crown (this view takes Crown focus; the main page gives it up meanwhile), Save
+/// is a deliberate tap. Editable until End; the model keeps the last saved value.
+struct PartialRepsPicker: View {
+    @EnvironmentObject var model: WorkoutSessionModel
+    let segmentName: String
+    let maxReps: Int
+    let ink: Color
+    /// Page 1 visible: take Crown focus (dropped on page 2 so it can't change unseen).
+    let wantsFocus: Bool
+
+    @State private var value: Double = 0
+    @State private var loaded = false
+    @FocusState private var focused: Bool
+
+    private var reps: Int {
+        return min(max(0, Int(value.rounded())), upperBound)
     }
 
-    private func showUndoCapsule(now: Date) -> Bool {
-        guard let last = model.lastChangeDate else { return false }
-        return now.timeIntervalSince(last) < WorkoutSessionModel.undoCapsuleSeconds
+    private var upperBound: Int {
+        return max(1, maxReps)
     }
 
-    private func topLine(now: Date) -> String {
-        let p = model.progress
-        let count = p.definition.segments.count
-        let index = min(p.currentIndex + 1, count)
-        var parts: [String] = ["\(index)/\(count)",
-                               SessionModel.formatElapsed(p.totalElapsed(now: now.timeIntervalSince1970))]
-        if let hr = model.heartRate {
-            parts.append(String(format: "♥ %.0f", hr))
-        } else if !model.healthKitRunning {
-            parts.append("♥ –")
+    private var statusText: String {
+        if let saved = model.partialReps {
+            return "Saved · \(saved)"
         }
-        return parts.joined(separator: " · ")
+        return "Turn the Crown, then Save"
     }
 
-    private var nextText: String {
-        if let next = model.progress.nextSegment {
-            return "Next: " + next.title
+    var body: some View {
+        VStack(spacing: 2) {
+            Text("Reps of \(segmentName)?")
+                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .foregroundColor(ink)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+            HStack(spacing: 8) {
+                Text("\(reps)")
+                    .font(.system(size: 40, weight: .heavy, design: .rounded).monospacedDigit())
+                    .foregroundColor(ink)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                    .frame(minWidth: 70, minHeight: 46)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .stroke(ink.opacity(focused ? 0.9 : 0.35), lineWidth: 2)
+                    )
+                    .focusable(true)
+                    .focused($focused)
+                    .focusEffectDisabled()
+                    .digitalCrownRotation($value,
+                                          from: 0,
+                                          through: Double(upperBound),
+                                          by: 1,
+                                          sensitivity: .medium,
+                                          isContinuous: false,
+                                          isHapticFeedbackEnabled: true)
+                Button {
+                    model.savePartialReps(reps)
+                    focused = wantsFocus
+                } label: {
+                    Text("Save")
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                        .frame(minWidth: 62, minHeight: 40)
+                        .background(Capsule().fill(Color.black.opacity(0.85)))
+                }
+                .buttonStyle(.plain)
+            }
+            Text(statusText)
+                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .foregroundColor(ink.opacity(0.8))
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
         }
-        return "Last segment"
-    }
-
-    private func runText(_ run: WorkoutSessionModel.RunLine) -> String {
-        var parts: [String] = []
-        if let d = run.distance {
-            parts.append(String(format: "%.0f m", d))
-        } else {
-            parts.append("– m")
+        .onAppear {
+            if !loaded {
+                loaded = true
+                value = Double(model.partialReps ?? 0)
+            }
+            focused = wantsFocus
         }
-        if let pace = run.paceSecondsPerKm {
-            parts.append(WorkoutSessionModel.formatPace(pace) + "/km")
+        .onChange(of: wantsFocus) { _, want in
+            focused = want
         }
-        if let cadence = run.cadence {
-            parts.append(String(format: "%.0f", cadence))
-        }
-        return parts.joined(separator: "  ")
     }
 }
 
@@ -460,7 +974,7 @@ struct WorkoutControlsPage: View {
             Button {
                 onEnd()
             } label: {
-                Text("End")
+                Text(model.isDemo ? "End demo" : "End")
                     .font(.system(size: 17, weight: .bold, design: .rounded))
                     .foregroundColor(Color(red: 1.0, green: 0.41, blue: 0.38))
                     .frame(maxWidth: .infinity, minHeight: 42)

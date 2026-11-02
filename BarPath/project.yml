@@ -16,7 +16,7 @@ settings:
     # >>> re-run `xcodegen`. Find it in Xcode > Settings > Accounts, or at
     # >>> developer.apple.com > Membership. Leaving it empty works too: pick the team
     # >>> in Xcode under Signing & Capabilities for both targets (lost on regeneration).
-    DEVELOPMENT_TEAM: ""
+    DEVELOPMENT_TEAM: "HA7CMXL4M3"
     CODE_SIGN_STYLE: Automatic
     SWIFT_VERSION: "5.0"
     MARKETING_VERSION: "1.0"
@@ -25,6 +25,9 @@ settings:
 packages:
   BarPathKit:
     path: BarPathKit
+  Supabase:
+    url: https://github.com/supabase/supabase-swift
+    from: "2.24.0"
 
 targets:
   BarPath:
@@ -36,6 +39,7 @@ targets:
     settings:
       base:
         PRODUCT_NAME: BarPath
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         PRODUCT_BUNDLE_IDENTIFIER: com.slimslim.barpath
         INFOPLIST_FILE: iOS/Info.plist
         GENERATE_INFOPLIST_FILE: "NO"
@@ -46,6 +50,8 @@ targets:
     dependencies:
       - package: BarPathKit
         product: BarPathKit
+      - package: Supabase
+        product: Supabase
       # An iOS app depending on a watchOS `application` target: XcodeGen embeds the
       # watch app into the "Embed Watch Content" build phase ($(CONTENTS_FOLDER_PATH)/Watch),
       # which is how Xcode's single-target watch apps (Xcode 14+) are shipped.
@@ -62,6 +68,7 @@ targets:
     settings:
       base:
         PRODUCT_NAME: BarPathWatch
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         PRODUCT_BUNDLE_IDENTIFIER: com.slimslim.barpath.watchkitapp
         INFOPLIST_FILE: Watch/Info.plist
         GENERATE_INFOPLIST_FILE: "NO"

@@ -64,6 +64,68 @@ final class WorkoutStore: ObservableObject {
         }
         results = WorkoutStore.sorted(loaded)
         problems = failed
+        upgradeOldDefinitions()
+        backfillRecoveryFromCSVs()
+    }
+
+    /// Results written before the watch kept the HR series running to End (before 2026-11-01)
+    /// stop the series at the finish, so they show no Recovery card. When their session CSV is on
+    /// the phone (Documents/Debug), its `# event … name=hr` lines (recorded until End) fill the
+    /// tail: once, off the main thread (the CSV is ~20 MB), then saved like an edit (the file as
+    /// received stays as <id>.original.json; editedAt is not set). "Restore original" brings the
+    /// short series back; the next launch fills it again (it is recorded data, not a guess).
+    private func backfillRecoveryFromCSVs() {
+        var jobs: [(result: WorkoutResult, csv: URL)] = []
+        for r in results where r.needsHeartRateBackfill {
+            if let url = WorkoutFiles.csvURL(for: r) {
+                jobs.append((result: r, csv: url))
+            }
+        }
+        if jobs.isEmpty { return }
+        let pending: [(result: WorkoutResult, csv: URL)] = jobs
+        Task.detached(priority: .utility) { [weak self] in
+            var filled: [WorkoutResult] = []
+            for job in pending {
+                guard let text = try? String(contentsOf: job.csv, encoding: .utf8) else { continue }
+                let samples: [TimedValue] = SessionCSV.heartRateSamples(text)
+                if let updated = job.result.backfillingHeartRate(samples: samples) {
+                    filled.append(updated)
+                }
+            }
+            if filled.isEmpty { return }
+            let done: [WorkoutResult] = filled
+            guard let store = self else { return }
+            await store.applyBackfilled(done)
+        }
+    }
+
+    private func applyBackfilled(_ updated: [WorkoutResult]) {
+        for r in updated {
+            // Only the series is taken over, onto the current version: anything changed meanwhile
+            // (fixed splits, the definition upgrade) stays. Skipped if it no longer needs it.
+            guard let current = result(id: r.id), current.needsHeartRateBackfill else { continue }
+            var merged: WorkoutResult = current
+            merged.heartRateSeries = r.heartRateSeries
+            saveEdited(merged)
+        }
+    }
+
+    /// One-time fix: Partner WOD 1 was recorded on 2026-10-31 with the RX definition
+    /// ("Partner WOD 1") although the athlete did the scaled version. Results still carrying that
+    /// old name switch to the current built-in definition (times, HR and steps stay; the file as
+    /// received is kept as <id>.original.json, so "Restore original" undoes it).
+    private func upgradeOldDefinitions() {
+        guard let current = WorkoutLibrary.definition(id: WorkoutLibrary.partnerWod1.id) else { return }
+        let toFix: [WorkoutResult] = results.filter { (r: WorkoutResult) -> Bool in
+            return r.definition.id == current.id && r.definition.name == "Partner WOD 1"
+                && r.canApplyDefinition(current)
+        }
+        for old in toFix {
+            var fixed: WorkoutResult = old
+            if fixed.applyDefinition(current) {
+                saveEdited(fixed)
+            }
+        }
     }
 
     /// Called by PhoneLink (on main) after a result file was moved into place.
@@ -84,8 +146,60 @@ final class WorkoutStore: ObservableObject {
         }
     }
 
+    /// Writes a corrected result over Documents/Workouts/<id>.json. The first time, the file as
+    /// received is copied to <id>.original.json. Returns false (and sets nothing) on failure.
+    @discardableResult
+    func saveEdited(_ edited: WorkoutResult) -> Bool {
+        loadIfNeeded()
+        let fm = FileManager.default
+        let url = WorkoutFiles.fileURL(id: edited.id)
+        let originalURL = WorkoutFiles.originalURL(id: edited.id)
+        do {
+            WorkoutFiles.ensureDirectory()
+            if fm.fileExists(atPath: url.path) && !fm.fileExists(atPath: originalURL.path) {
+                try fm.copyItem(at: url, to: originalURL)
+            }
+            let data = try edited.encoded()
+            try data.write(to: url, options: [.atomic])
+            replaceInResults(edited)
+            return true
+        } catch {
+            let text = "\(url.lastPathComponent): \(error.localizedDescription)"
+            if !problems.contains(text) {
+                problems.append(text)
+            }
+            return false
+        }
+    }
+
+    /// Copies <id>.original.json back over <id>.json and reloads it. Returns the restored result.
+    @discardableResult
+    func restoreOriginal(id: UUID) -> WorkoutResult? {
+        loadIfNeeded()
+        let fm = FileManager.default
+        let url = WorkoutFiles.fileURL(id: id)
+        let originalURL = WorkoutFiles.originalURL(id: id)
+        guard fm.fileExists(atPath: originalURL.path) else { return nil }
+        do {
+            let data = try Data(contentsOf: originalURL)
+            let decoded = try WorkoutResult.decode(from: data)
+            try data.write(to: url, options: [.atomic])
+            replaceInResults(decoded)
+            return decoded
+        } catch {
+            return nil
+        }
+    }
+
+    private func replaceInResults(_ result: WorkoutResult) {
+        var updated: [WorkoutResult] = results.filter { $0.id != result.id }
+        updated.append(result)
+        results = WorkoutStore.sorted(updated)
+    }
+
     func delete(_ result: WorkoutResult) {
         try? FileManager.default.removeItem(at: WorkoutFiles.fileURL(id: result.id))
+        try? FileManager.default.removeItem(at: WorkoutFiles.originalURL(id: result.id))
         results.removeAll(where: { $0.id == result.id })
     }
 

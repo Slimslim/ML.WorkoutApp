@@ -2,7 +2,8 @@ import SwiftUI
 import BarPathKit
 
 /// "Heart rate through the workout": segment bands, HR line (broken at gaps), zone strip,
-/// time axis, tap / drag scrubbing, a detail chip and the honesty notes.
+/// time axis, tap / drag scrubbing, a detail chip and the honesty notes. When the result has a
+/// recovery (WORKOUT_SPEC §6) the chart runs on past the finish in the recovery colour.
 struct HeartRateTimelineCard: View {
     let summary: WorkoutSummary
     @Binding var selection: ClosedRange<Int>?
@@ -46,9 +47,14 @@ struct HeartRateTimelineCard: View {
 
     // MARK: Actions
 
-    /// Finger at time t: select the segment under it and remember the moment.
+    /// Finger at time t: select the segment under it and remember the moment. In the recovery
+    /// tail there is no segment: the selection is cleared and the chip shows the recovery moment.
     private func touch(_ t: Double) {
         hoverTime = t
+        if timeline.isRecovery(at: t) {
+            if selection != nil { selection = nil }
+            return
+        }
         guard let index = timeline.segment(at: t) else { return }
         let range: ClosedRange<Int> = index...index
         if let current = selection, current == range { return }
@@ -103,6 +109,9 @@ struct TimelineLegend: View {
             OvLegendItem(color: Theme.ovStation, text: "Station")
             if hasRest {
                 OvLegendItem(color: Theme.ovRestBand, text: "Rest", outlined: true)
+            }
+            if timeline.recovery != nil {
+                OvLegendItem(color: Theme.ovRecovery, text: "Recovery")
             }
             zoneKey
         }
@@ -185,6 +194,17 @@ struct OverviewChip {
         return "at " + at + ": no HR reading"
     }
 
+    /// Recovery tail chip: title "Recovery +1:23", detail "140 bpm · −21 since finish"
+    /// ("no HR reading" in a gap).
+    static func recoveryTitle(_ moment: WorkoutSummary.RecoveryMoment) -> String {
+        return "Recovery " + SummaryFormat.signed(moment.secondsAfterFinish)
+    }
+
+    static func recoveryDetail(_ moment: WorkoutSummary.RecoveryMoment) -> String {
+        guard let hr = moment.heartRate, let change = moment.change else { return "no HR reading" }
+        return SummaryFormat.bpm(hr) + " bpm \u{00B7} " + SummaryFormat.signedNumber(change) + " since finish"
+    }
+
     /// "Round 2", "Set 3" for a whole round / set; else the split numbers.
     static func rangeTitle(summary: WorkoutSummary, selection: ClosedRange<Int>) -> String {
         let lo: Int = selection.lowerBound
@@ -219,6 +239,8 @@ struct TimelineChip: View {
         VStack(alignment: .leading, spacing: 4) {
             if let sel = selection, let chip = OverviewChip.make(summary: summary, selection: sel, hover: hoverTime) {
                 selectedContent(chip)
+            } else if let moment = recoveryMoment {
+                recoveryContent(moment)
             } else {
                 idleContent
             }
@@ -231,6 +253,43 @@ struct TimelineChip: View {
                 .fill(Theme.tileBackground)
         )
         .accessibilityElement(children: .contain)
+    }
+
+    /// The finger is in the recovery tail (only without a segment selection).
+    private var recoveryMoment: WorkoutSummary.RecoveryMoment? {
+        guard let t = hoverTime, let tail = summary.timeline.recovery,
+              summary.timeline.isRecovery(at: t) else { return nil }
+        return tail.moment(at: Swift.min(t, tail.end))
+    }
+
+    private func recoveryContent(_ moment: WorkoutSummary.RecoveryMoment) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 7) {
+                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                    .fill(Theme.ovRecovery)
+                    .frame(width: 10, height: 10)
+                Text(OverviewChip.recoveryTitle(moment))
+                    .font(.subheadline.weight(.bold))
+                    .monospacedDigit()
+                    .lineLimit(1)
+                Spacer(minLength: 4)
+                Button(action: onClear) {
+                    Text("Clear")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(Theme.accent)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                }
+                .buttonStyle(.plain)
+            }
+            Text(OverviewChip.recoveryDetail(moment))
+                .font(.footnote)
+                .monospacedDigit()
+                .foregroundStyle(Theme.ovFg2)
+            Text("After the finish, until you pressed End.")
+                .font(.footnote)
+                .foregroundStyle(Theme.ovFg3)
+        }
     }
 
     private var idleContent: some View {
@@ -303,5 +362,52 @@ struct TimelineChip: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+// MARK: - Recovery after the finish (WORKOUT_SPEC §6)
+
+/// "Recovery": heart rate at the finish and 1 / 2 / 3 minutes later (the watch records until
+/// End), the drops as tiles (the first minute highlighted) and one plain sentence on what it
+/// means. Shown only when the result has a recovery (`WorkoutResult.heartRateRecovery`).
+struct RecoveryCard: View {
+    let recovery: HeartRateRecovery
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            OvSectionHeader(title: "Recovery",
+                            caption: "Heart rate after the finish, until you pressed End.")
+            pathText
+                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                .monospacedDigit()
+                .fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: 8) {
+                ForEach(recovery.marks) { (mark: HeartRateRecovery.Mark) in
+                    OvStatTile(key: "In \(mark.minutes) min",
+                               value: SummaryFormat.signedNumber(-mark.drop),
+                               detail: "to " + SummaryFormat.bpm(mark.heartRate) + " bpm",
+                               valueColor: mark.minutes == 1 ? Theme.ovFast : Theme.ovFg)
+                }
+            }
+            Text("A bigger drop in the first minute usually means better fitness. Compare it with your own past workouts, not with other people.")
+                .font(.system(size: 11.5))
+                .foregroundStyle(Theme.ovFg3)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .card()
+    }
+
+    /// "HR 161 → 145 (1 min) → 123 (2 min) → 105 (3 min)".
+    private var pathText: Text {
+        let label: Text = Text("HR ").foregroundColor(Theme.ovFg2)
+        let peak: Text = Text(SummaryFormat.bpm(recovery.heartRateAtFinish)).foregroundColor(Theme.ovHR)
+        var text: Text = label + peak
+        for mark in recovery.marks {
+            let arrow: Text = Text(" \u{2192} ").foregroundColor(Theme.ovFg3)
+            let value: Text = Text(SummaryFormat.bpm(mark.heartRate)).foregroundColor(Theme.ovFg)
+            let when: Text = Text(" (\(mark.minutes) min)").foregroundColor(Theme.ovFg2)
+            text = text + arrow + value + when
+        }
+        return text
     }
 }

@@ -65,9 +65,12 @@ public struct WorkoutSummary: Equatable {
         public let capSeconds: Double?
         /// For time: cap − total when finished under the cap (nil otherwise).
         public let underCapSeconds: Double?
-        /// AMRAP: completed rounds and reps of the completed segments of the unfinished round.
+        /// AMRAP: completed rounds and reps of the completed segments of the unfinished round
+        /// (plus the result's `partialReps`).
         public let rounds: Int?
         public let extraReps: Int?
+        /// Reps done in the segment cut by the cap / end (WorkoutResult.partialReps), nil if unknown.
+        public let partialReps: Int?
         /// AMRAP / unfinished: name of the segment the workout stopped in ("Double Unders")
         /// and seconds into it.
         public let stoppedIn: String?
@@ -123,7 +126,8 @@ public struct WorkoutSummary: Equatable {
     // MARK: - Data note
 
     /// How much to trust the splits. `text` is ready to show as one grey line, e.g.
-    /// "9 of 9 switches by Crown · no undos · HR per split only · steps OK".
+    /// "9 of 9 switches by Crown · no undos · HR per split only · steps OK" (+ " · edited"
+    /// after a correction on the phone).
     public struct DataNote: Equatable {
         /// Segment switches (advance and finish events), by source.
         public let switchCount: Int
@@ -145,6 +149,8 @@ public struct WorkoutSummary: Equatable {
         public let stepsMissing: Bool
         /// Some run has no measured distance (pace then uses the target distance).
         public let runDistanceMissing: Bool
+        /// The athlete corrected the result on the phone (WorkoutResult.editedAt is set).
+        public let isEdited: Bool
         public let text: String
     }
 
@@ -292,6 +298,9 @@ public struct WorkoutSummary: Equatable {
                 if let c = cap, total >= c - 1 {
                     text += ", at the " + SummaryFormat.clock(c) + " cap"
                 }
+                if let pr = stop.partialReps, pr > 0 {
+                    text += " · +\(pr) " + stop.name
+                }
                 context = text
             } else if let c = cap {
                 context = plural(a.completedRounds, "round") + " in " + SummaryFormat.clock(c)
@@ -329,7 +338,7 @@ public struct WorkoutSummary: Equatable {
         return Headline(title: def.name, format: def.format, scoreText: score, scoreUnit: unit,
                         contextText: context, totalSeconds: total, isFinished: finished,
                         capSeconds: cap, underCapSeconds: underCap, rounds: rounds, extraReps: extraReps,
-                        stoppedIn: stoppedIn, stoppedAfterSeconds: stoppedAfter,
+                        partialReps: ctx.result.partialReps, stoppedIn: stoppedIn, stoppedAfterSeconds: stoppedAfter,
                         setsCompleted: setsDone, setsPlanned: setsPlanned, averageWorkSeconds: avgWork,
                         heartRateAvg: hrAvg, heartRateMax: hrMax, zone45Seconds: z45,
                         previousTotalSeconds: prevTotal, previousDate: prevDate,
@@ -449,12 +458,16 @@ public struct WorkoutSummary: Equatable {
         } else {
             parts.append("steps OK")
         }
+        let edited: Bool = ctx.result.editedAt != nil
+        if edited {
+            parts.append("edited")
+        }
 
         return DataNote(switchCount: switches, crownCount: crown, pressCount: press, buttonCount: button,
                         autoCount: auto, undoCount: undos, heartRateGapSeconds: gapSeconds,
                         longestGapSegmentTitle: gapTitle, heartRateEstimated: timeline.isEstimated,
                         heartRateMissing: hrMissing, stepsMissing: stepsMissing,
-                        runDistanceMissing: runDistanceMissing,
+                        runDistanceMissing: runDistanceMissing, isEdited: edited,
                         text: parts.joined(separator: " · "))
     }
 

@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>BarPath</string>
+	<string>Rx Lab</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -20,19 +20,21 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Rx Lab reads your heart rate during a lifting session.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Rx Lab saves your lifting sessions as strength-training workouts.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Rx Lab records wrist motion during your lifts to reconstruct the bar path.</string>
 	<key>WKApplication</key>
 	<true/>
-	<key>WKCompanionAppBundleIdentifier</key>
-	<string>com.slimslim.barpath</string>
 	<key>WKBackgroundModes</key>
 	<array>
 		<string>workout-processing</string>
 	</array>
-	<key>NSMotionUsageDescription</key>
-	<string>BarPath records wrist motion during your lifts to reconstruct the bar path.</string>
-	<key>NSHealthShareUsageDescription</key>
-	<string>BarPath reads your heart rate during a lifting session.</string>
-	<key>NSHealthUpdateUsageDescription</key>
-	<string>BarPath saves your lifting sessions as strength-training workouts.</string>
+	<key>WKCompanionAppBundleIdentifier</key>
+	<string>com.slimslim.barpath</string>
 </dict>
 </plist>

@@ -10,6 +10,8 @@ struct WorkoutOverviewView: View {
     let summary: WorkoutSummary
     let kicker: String
     let isNew: Bool
+    /// HR after the finish (nil for older results or when End came right away: no card).
+    let recovery: HeartRateRecovery?
 
     @State private var selection: ClosedRange<Int>? = nil
     @State private var hoverTime: Double? = nil
@@ -21,12 +23,16 @@ struct WorkoutOverviewView: View {
         self.summary = WorkoutSummary.make(result: result, previous: previous, maxHeartRate: maxHR)
         self.kicker = kicker ?? OverviewFormat.dayAndTime(result.startDate).uppercased()
         self.isNew = isNew
+        self.recovery = result.heartRateRecovery
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             HeroCard(summary: summary, kicker: kicker, isNew: isNew)
             HeartRateTimelineCard(summary: summary, selection: $selection, hoverTime: $hoverTime)
+            if let recovery = recovery {
+                RecoveryCard(recovery: recovery)
+            }
             StoryCard(summary: summary, selection: selection, onSelect: select)
             SplitsTableCard(rows: summary.rows, selection: selection, onSelect: select)
             dataNote

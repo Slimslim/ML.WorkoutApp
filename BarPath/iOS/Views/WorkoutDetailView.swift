@@ -5,6 +5,7 @@ import BarPathKit
 struct WorkoutDetailView: View {
     let resultId: UUID
     @EnvironmentObject private var store: WorkoutStore
+    @State private var fixingSplits = false
 
     var body: some View {
         Group {
@@ -24,10 +25,22 @@ struct WorkoutDetailView: View {
                 WorkoutOverviewView(result: result, previous: store.previousAttempt(before: result))
                     .id(result.id)
                 WorkoutShareCard(result: result)
+                Button {
+                    fixingSplits = true
+                } label: {
+                    Label("Fix splits", systemImage: "slider.horizontal.3")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .card()
             }
             .padding(16)
         }
         .background(Theme.pageBackground)
+        .sheet(isPresented: $fixingSplits) {
+            FixSplitsView(original: result)
+                .environmentObject(store)
+        }
         .onAppear {
             WorkoutViewed.markIfNewest(result, in: store.results)
         }

@@ -262,6 +262,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
                 notifyReceived()
                 Task { @MainActor in
                     WorkoutStore.shared.ingest(at: destination)
+                    CloudAccount.shared.syncSoon()
                 }
             } else if isMarks || isSessionCSV {
                 // Synchronous move: the system deletes `source` when this method returns.
@@ -271,6 +272,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
                 notifyReceived()
                 Task { @MainActor in
                     LiftStore.shared.reloadDebugFiles()
+                    CloudAccount.shared.syncSoon()
                 }
             } else {
                 let destination = try LiftFiles.storeIncomingLift(from: source,
@@ -278,6 +280,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
                 notifyReceived()
                 Task { @MainActor in
                     LiftStore.shared.ingestLift(at: destination)
+                    CloudAccount.shared.syncSoon()
                 }
             }
         } catch {

@@ -7,7 +7,7 @@ import json
 import uuid as _uuid
 import math
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from .recording import format_iso8601, load_session_csv, parse_iso8601
@@ -49,11 +49,31 @@ class SegmentTarget:
 
 
 @dataclass
+class SegmentLoad:
+    value: float
+    unit: str            # "lb" | "kg"
+    count: int = 1       # implements held (2 for a pair of dumbbells)
+
+    @property
+    def kilograms(self) -> float:
+        per = self.value if self.unit == "kg" else self.value * 0.45359237
+        return per * self.count
+
+    def to_dict(self) -> dict:
+        return {"value": self.value, "unit": self.unit, "count": self.count}
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "SegmentLoad":
+        return cls(float(d["value"]), d["unit"], int(d.get("count", 1)))
+
+
+@dataclass
 class WorkoutSegment:
     kind: str
     movement: str
     name: str
     target: Optional[SegmentTarget] = None
+    load: Optional[SegmentLoad] = None
 
     @property
     def title(self) -> str:
@@ -67,12 +87,16 @@ class WorkoutSegment:
         d = {"kind": self.kind, "movement": self.movement, "name": self.name}
         if self.target is not None:
             d["target"] = self.target.to_dict()
+        if self.load is not None:
+            d["load"] = self.load.to_dict()
         return d
 
     @classmethod
     def from_dict(cls, d: dict) -> "WorkoutSegment":
         t = d.get("target")
-        return cls(d["kind"], d["movement"], d["name"], SegmentTarget.from_dict(t) if t else None)
+        ld = d.get("load")
+        return cls(d["kind"], d["movement"], d["name"], SegmentTarget.from_dict(t) if t else None,
+                   SegmentLoad.from_dict(ld) if ld else None)
 
 
 class Movement:
@@ -97,6 +121,8 @@ class Movement:
     lateralBurpeeOverDumbbell = "lateralBurpeeOverDumbbell"
     doubleUnders = "doubleUnders"
     dumbbellSnatch = "dumbbellSnatch"
+    pushUps = "pushUps"
+    part = "part"
     rest = "rest"
 
     NAMES = {
@@ -108,7 +134,7 @@ class Movement:
         "dumbbellOverShoulder": "DB Over-Shoulder", "airSquats": "Air Squats",
         "kettlebellSwings": "KB Swings", "pullUps": "Pull-ups", "thrusters": "Thrusters",
         "lateralBurpeeOverDumbbell": "Lateral Burpee Over DB", "doubleUnders": "Double Unders",
-        "dumbbellSnatch": "Alt. DB Snatch", "rest": "Rest",
+        "dumbbellSnatch": "Alt. DB Snatch", "pushUps": "Push-ups", "part": "Part", "rest": "Rest",
     }
 
     @staticmethod
@@ -168,9 +194,9 @@ def _run(meters: float) -> WorkoutSegment:
                           SegmentTarget(meters, "meters"))
 
 
-def _station(movement: str, value: float, unit: str) -> WorkoutSegment:
+def _station(movement: str, value: float, unit: str, load: "Optional[SegmentLoad]" = None) -> WorkoutSegment:
     return WorkoutSegment("station", movement, Movement.display_name(movement),
-                          SegmentTarget(value, unit))
+                          SegmentTarget(value, unit), load)
 
 
 def _rest() -> WorkoutSegment:
@@ -208,12 +234,12 @@ class WorkoutLibrary:
     halfHyrox = WorkoutDefinition("hyrox.half", "Half HYROX", "Half Hyrox", "forTime", "solo", None,
                                   "mixedCardio", _runs_and_stations(500, _half_hyrox_stations()), round_size=2)
     partnerWod1 = WorkoutDefinition(
-        "partner.wod1", "Partner WOD 1", "WOD 1", "forTime", "doubles", None, "crossTraining",
-        [_run(1000), _station(Movement.wallBalls, 100, "reps"),
-         _run(800), _station(Movement.dumbbellWalkingLunges, 80, "reps"),
-         _run(600), _station(Movement.burpees, 60, "reps"),
-         _run(400), _station(Movement.medBallBoxStepOvers, 40, "reps"),
-         _run(200), _station(Movement.devilPress, 20, "reps")],
+        "partner.wod1", "Partner WOD 1 (Scaled)", "WOD 1", "forTime", "doubles", 1800.0, "crossTraining",
+        [_run(800), _station(Movement.wallBalls, 80, "reps", SegmentLoad(14, "lb")),
+         _run(600), _station(Movement.dumbbellWalkingLunges, 60, "reps", SegmentLoad(50, "lb")),
+         _run(400), _station(Movement.burpees, 40, "reps"),
+         _run(200), _station(Movement.medBallBoxStepOvers, 20, "reps"),
+         _run(100), _station(Movement.devilPress, 10, "reps", SegmentLoad(40, "lb", 2))],
         round_size=2)
     partnerWod2 = WorkoutDefinition(
         "partner.wod2", "Partner WOD 2", "WOD 2", "forTime", "doubles", None, "crossTraining",
@@ -239,12 +265,24 @@ class WorkoutLibrary:
         [_station(Movement.lateralBurpeeOverDumbbell, 10, "reps"), _station(Movement.doubleUnders, 31, "reps"),
          _station(Movement.dumbbellSnatch, 10, "reps"), _station(Movement.doubleUnders, 31, "reps")] * 10,
         round_size=4)
-    all = [hyroxSolo, hyroxDoubles, halfHyrox, partnerWod1, partnerWod2, quickTest,
-           helen, rowThrusters, amrap20]
+    amrap40 = WorkoutDefinition(
+        "wod.amrap40", "AMRAP 40 with 1:00 rest", "AMRAP 40", "amrap", "solo", 40 * 60, "crossTraining",
+        [WorkoutSegment("station", Movement.row, "Row / Bike", SegmentTarget(12, "calories")),
+         WorkoutSegment("station", Movement.pushUps, "Push-ups / Pull-ups", SegmentTarget(15, "reps")),
+         WorkoutSegment("station", Movement.dumbbellSnatch, "DB C&J / Snatch", SegmentTarget(12, "reps")),
+         WorkoutSegment("station", Movement.burpees, "Burpees / Wall Walks", SegmentTarget(15, "reps")),
+         WorkoutSegment("rest", Movement.rest, "Rest", SegmentTarget(60, "seconds"))] * 12,
+        round_size=5)
+    free = WorkoutDefinition(
+        "free.workout", "Free Workout", "Free", "forTime", "solo", None, "crossTraining",
+        [WorkoutSegment("station", Movement.part, "Part %d" % i, None) for i in range(1, 61)])
+    all = [hyroxSolo, hyroxDoubles, halfHyrox, partnerWod1, partnerWod2, amrap40,
+           helen, rowThrusters, free]
+    known = all + [amrap20, quickTest]   # off the watch grid but still resolvable
 
     @staticmethod
     def definition(id: str) -> Optional[WorkoutDefinition]:
-        for d in WorkoutLibrary.all:
+        for d in WorkoutLibrary.known:
             if d.id == id:
                 return d
         return None
@@ -586,6 +624,45 @@ class HeartRateSeries:
 
 
 RESULT_VERSION = 2  # 2 adds heartRateSeries, heartRateMin per segment, definition.roundSize (all optional)
+# partialReps / editedAt (§5) are optional too and need no version bump.
+
+
+def _swift_round(v: float) -> float:
+    """Half away from zero, like Swift's rounded()."""
+    return math.copysign(math.floor(abs(v) + 0.5), v)
+
+
+def heart_rate_stats(series: HeartRateSeries, start: float, end: float) -> tuple:
+    """(avg, max, min) of [start, end) from a HR series (WorkoutResult.heartRateStats): the
+    non-null buckets whose centre lies in the range; when no centre falls inside, the bucket
+    containing the midpoint; None where there is no value."""
+    vals = []
+    any_centre = False
+    if series.interval > 0:
+        for k, v in enumerate(series.bpm):
+            c = series.start + (k + 0.5) * series.interval
+            if c < start or c >= end:
+                continue
+            any_centre = True
+            if v is not None:
+                vals.append(v)
+    if not any_centre:
+        v = series.value_at((start + end) / 2)
+        return (v, v, v)
+    if not vals:
+        return (None, None, None)
+    total = 0.0
+    for v in vals:
+        total += v
+    return (total / len(vals), max(vals), min(vals))
+
+
+def _refresh_rates(seg: "SegmentResult") -> None:
+    seg.cadence = seg.steps / seg.duration * 60.0 if seg.steps is not None and seg.duration > 0 else None
+    if seg.kind == "run" and seg.distance is not None and seg.distance > 50 and seg.duration > 0:
+        seg.pace_seconds_per_km = seg.duration / (seg.distance / 1000.0)
+    else:
+        seg.pace_seconds_per_km = None
 
 
 @dataclass
@@ -603,6 +680,8 @@ class WorkoutResult:
     id: str = field(default_factory=lambda: str(_uuid.uuid4()).upper())
     version: int = RESULT_VERSION
     heart_rate_series: Optional[HeartRateSeries] = None
+    partial_reps: Optional[int] = None        # §5: reps done in the segment cut by the cap / end
+    edited_at: Optional[datetime] = None      # §5: when the athlete corrected the result
 
     @property
     def run_seconds(self) -> float:
@@ -628,6 +707,10 @@ class WorkoutResult:
             d["recordingFileName"] = self.recording_file_name
         if self.heart_rate_series is not None:
             d["heartRateSeries"] = self.heart_rate_series.to_dict()
+        if self.partial_reps is not None:
+            d["partialReps"] = self.partial_reps
+        if self.edited_at is not None:
+            d["editedAt"] = format_iso8601(self.edited_at)
         return d
 
     @classmethod
@@ -637,6 +720,7 @@ class WorkoutResult:
             raise ValueError(f"unsupported WorkoutResult version {version}")
         fin = d.get("finishDate")
         series = d.get("heartRateSeries")
+        edited = d.get("editedAt")
         return cls(
             definition=WorkoutDefinition.from_dict(d["definition"]),
             start_date=parse_iso8601(d["startDate"]),
@@ -649,7 +733,136 @@ class WorkoutResult:
             heart_rate_max=None if d.get("heartRateMax") is None else float(d["heartRateMax"]),
             recording_file_name=d.get("recordingFileName"),
             id=d["id"], version=version,
-            heart_rate_series=None if series is None else HeartRateSeries.from_dict(series))
+            heart_rate_series=None if series is None else HeartRateSeries.from_dict(series),
+            partial_reps=None if d.get("partialReps") is None else int(d["partialReps"]),
+            edited_at=parse_iso8601(edited) if edited else None)
+
+    # ---- corrections (WORKOUT_SPEC §5, WorkoutResultEditing.swift) ----
+
+    def move_segment_start(self, index: int, start: float, now: Optional[datetime] = None) -> bool:
+        """Moves the boundary between segment index-1 and index to start (s since 1970); same
+        rules as Swift moveSegmentStart(index:to:now:). Clamped to [prev.start + 1, cur.end - 1]
+        (midpoint when the pair is shorter than 2 s); steps/distance shared pro rata by time,
+        cadence/pace recomputed (pace runs only), HR avg/max/min from heart_rate_series when
+        present; edited_at = now. False if index is out of range or start is not finite."""
+        if index < 1 or index >= len(self.segments):
+            return False
+        if not math.isfinite(start):
+            return False
+        a = self.segments[index - 1]
+        b = self.segments[index]
+        lo = a.start + 1
+        hi = b.end - 1
+        t = (a.start + b.end) / 2 if hi < lo else min(max(start, lo), hi)
+        a.end = t
+        a.duration = t - a.start
+        b.start = t
+        b.duration = b.end - t
+        span = b.end - a.start
+        share_a = a.duration / span if span > 0 else 0.5
+        if a.steps is not None or b.steps is not None:
+            total = (a.steps or 0.0) + (b.steps or 0.0)
+            a.steps = total * share_a
+            b.steps = total - a.steps
+        if a.distance is not None or b.distance is not None:
+            total = (a.distance or 0.0) + (b.distance or 0.0)
+            a.distance = total * share_a
+            b.distance = total - a.distance
+        for seg in (a, b):
+            _refresh_rates(seg)
+            if self.heart_rate_series is not None:
+                seg.heart_rate_avg, seg.heart_rate_max, seg.heart_rate_min = heart_rate_stats(
+                    self.heart_rate_series, seg.start, seg.end)
+        self.edited_at = now if now is not None else datetime.now(timezone.utc)
+        return True
+
+    @property
+    def partial_reps_limit(self) -> Optional[int]:
+        """Reps target of the last recorded segment (upper bound for partial_reps), else None."""
+        if not self.segments:
+            return None
+        i = self.segments[-1].index
+        if i < 0 or i >= len(self.definition.segments):
+            return None
+        target = self.definition.segments[i].target
+        if target is None or target.unit != "reps":
+            return None
+        return max(0, int(_swift_round(target.value)))
+
+    def set_partial_reps(self, reps: Optional[int], now: Optional[datetime] = None) -> None:
+        """partial_reps = None or clamped to 0..partial_reps_limit (lower bound only without a
+        reps target); edited_at = now."""
+        if reps is None:
+            self.partial_reps = None
+        else:
+            v = max(0, int(reps))
+            limit = self.partial_reps_limit
+            if limit is not None:
+                v = min(v, limit)
+            self.partial_reps = v
+        self.edited_at = now if now is not None else datetime.now(timezone.utc)
+
+    # ---- heart-rate recovery (WORKOUT_SPEC §6, HeartRateRecovery.swift) ----
+
+    @property
+    def heart_rate_recovery(self) -> Optional["HeartRateRecovery"]:
+        """None when not finished, no series, or < 60 s recorded after the finish."""
+        if self.finish_date is None or self.heart_rate_series is None:
+            return None
+        return HeartRateRecovery.make(self.heart_rate_series, self.finish_date.timestamp(),
+                                      self.end_date.timestamp())
+
+    @property
+    def needs_heart_rate_backfill(self) -> bool:
+        """The series stops at least one bucket before End (files written before 2026-11-01)."""
+        s = self.heart_rate_series
+        if s is None or s.interval <= 0:
+            return False
+        return s.start + len(s.bpm) * s.interval + s.interval <= self.end_date.timestamp()
+
+    def backfill_heart_rate(self, samples: list) -> bool:
+        """Extends the series to End from samples (s since 1970, e.g. session_csv_heart_rates):
+        existing buckets kept, new ones = HeartRateSeries.make on the same grid from the series
+        start to End. False (nothing changed) when not needed or every new bucket is None.
+        edited_at is not touched."""
+        if not self.needs_heart_rate_backfill:
+            return False
+        s = self.heart_rate_series
+        full = HeartRateSeries.make(samples, s.start, self.end_date.timestamp(), s.interval)
+        if len(full.bpm) <= len(s.bpm):
+            return False
+        tail = full.bpm[len(s.bpm):]
+        if all(v is None for v in tail):
+            return False
+        self.heart_rate_series = HeartRateSeries(s.start, s.interval, list(s.bpm) + tail)
+        return True
+
+    # ---- overview timeline frame (WorkoutSummary.swift SummaryContext) ----
+
+    @property
+    def summary_origin(self) -> float:
+        """Seconds since 1970 where the overview timeline starts: the first segment's start (by
+        index), else start_date."""
+        if self.segments:
+            return min(self.segments, key=lambda s: s.index).start
+        return self.start_date.timestamp()
+
+    @property
+    def summary_duration(self) -> float:
+        """Overview timeline length: max(total_seconds, last segment end - origin), at least 0."""
+        d = self.total_seconds
+        if self.segments:
+            d = max(d, max(self.segments, key=lambda s: s.index).end - self.summary_origin)
+        return max(0.0, d)
+
+    @property
+    def recovery_tail(self) -> Optional["RecoveryTail"]:
+        """Timeline.recovery (WorkoutSummaryTimeline.swift): the HR after the finish placed after the
+        workout on the overview chart; None without heart_rate_recovery."""
+        rec = self.heart_rate_recovery
+        if rec is None or self.heart_rate_series is None or self.summary_duration <= 0:
+            return None
+        return RecoveryTail.make(rec, self.heart_rate_series, self.summary_duration)
 
     def save(self, path) -> None:
         with open(path, "w") as f:
@@ -659,6 +872,223 @@ class WorkoutResult:
     def load(cls, path) -> "WorkoutResult":
         with open(path) as f:
             return cls.from_dict(json.load(f))
+
+
+# ---- heart-rate recovery after the finish (WORKOUT_SPEC §6, HeartRateRecovery.swift) ------------
+
+RECOVERY_MARK_SECONDS = (60.0, 120.0, 180.0)
+RECOVERY_MINIMUM_SECONDS = 60.0
+RECOVERY_FINISH_WINDOW = 10.0
+RECOVERY_MARK_HALF_WINDOW = 7.5
+
+
+@dataclass
+class RecoveryMark:
+    seconds: float         # after the finish: 60, 120, 180
+    heart_rate: float
+    drop: float            # hr at finish - heart_rate (positive = HR went down)
+
+    @property
+    def minutes(self) -> int:
+        return int(_swift_round(self.seconds / 60.0))
+
+
+@dataclass
+class HeartRateRecovery:
+    """Same rules as HeartRateRecovery.swift: HR at the finish = highest bucket overlapping the last
+    10 s before the finish (incl. the bucket holding it); HR at +60/+120/+180 s = mean of the
+    non-null buckets whose centre is within +-7.5 s of the mark, only when covered; None when
+    < 60 s were recorded after the finish, no HR at the finish, or no mark has a value."""
+    finish_time: float
+    heart_rate_at_finish: float
+    covered_seconds: float
+    marks: list
+
+    def mark(self, minutes: int) -> Optional[RecoveryMark]:
+        for m in self.marks:
+            if m.minutes == minutes:
+                return m
+        return None
+
+    @property
+    def drop1(self) -> Optional[float]:
+        m = self.mark(1)
+        return m.drop if m else None
+
+    @property
+    def drop2(self) -> Optional[float]:
+        m = self.mark(2)
+        return m.drop if m else None
+
+    @property
+    def drop3(self) -> Optional[float]:
+        m = self.mark(3)
+        return m.drop if m else None
+
+    @staticmethod
+    def finish_heart_rate(series: HeartRateSeries, finish: float) -> Optional[float]:
+        if series.interval <= 0:
+            return None
+        best = None
+        for k, v in enumerate(series.bpm):
+            lo = series.start + k * series.interval
+            hi = lo + series.interval
+            if lo > finish or hi <= finish - RECOVERY_FINISH_WINDOW or v is None:
+                continue
+            best = v if best is None else max(best, v)
+        return best
+
+    @staticmethod
+    def heart_rate_around(series: HeartRateSeries, t: float) -> Optional[float]:
+        if series.interval <= 0:
+            return None
+        lo, hi = t - RECOVERY_MARK_HALF_WINDOW, t + RECOVERY_MARK_HALF_WINDOW
+        total, count = 0.0, 0
+        for k, v in enumerate(series.bpm):
+            c = series.start + (k + 0.5) * series.interval
+            if c < lo or c >= hi or v is None:
+                continue
+            total += v
+            count += 1
+        return total / count if count else None
+
+    @classmethod
+    def make(cls, series: HeartRateSeries, finish: float, end: float) -> Optional["HeartRateRecovery"]:
+        if series.interval <= 0 or not series.bpm or not math.isfinite(finish) or not math.isfinite(end):
+            return None
+        series_end = series.start + len(series.bpm) * series.interval
+        covered = max(0.0, min(end, series_end) - finish)
+        if covered < RECOVERY_MINIMUM_SECONDS:
+            return None
+        at_finish = cls.finish_heart_rate(series, finish)
+        if at_finish is None:
+            return None
+        marks = []
+        for s in RECOVERY_MARK_SECONDS:
+            if s > covered:
+                continue
+            v = cls.heart_rate_around(series, finish + s)
+            if v is not None:
+                marks.append(RecoveryMark(s, v, at_finish - v))
+        if not marks:
+            return None
+        return cls(finish, at_finish, covered, marks)
+
+
+TIMELINE_INTERVAL = 5.0
+
+
+def _bucket_centre(k: int, interval: float, duration: float) -> float:
+    """WorkoutSummary.bucketCentre: middle of [k*interval, min((k+1)*interval, duration)]."""
+    s = k * interval
+    e = max(s, min((k + 1) * interval, duration))
+    return (s + e) / 2
+
+
+@dataclass
+class RecoveryMoment:
+    seconds_after_finish: float
+    heart_rate: Optional[float]
+    change: Optional[float]       # heart_rate - heart_rate_at_finish (negative = went down)
+
+
+@dataclass
+class RecoveryTail:
+    """WorkoutSummary.RecoveryTail (WorkoutSummaryTimeline.swift): HR after the finish on the overview
+    chart. Relative times: the tail starts at the workout duration (the finish), second tau after the
+    finish is at start + tau. Its own 5 s grid from the finish: value k = series value at
+    finish_time + bucket centre k (last bucket cut at the end). Not used by any workout number."""
+    start: float
+    end: float
+    interval: float
+    heart_rate: list
+    heart_rate_at_finish: float
+    marks: list
+    heart_rate_low: Optional[float]
+    heart_rate_high: Optional[float]
+
+    @property
+    def duration(self) -> float:
+        return self.end - self.start
+
+    def time_of_sample(self, k: int) -> float:
+        return self.start + _bucket_centre(k, self.interval, self.duration)
+
+    def time_of_mark(self, mark: RecoveryMark) -> float:
+        return self.start + mark.seconds
+
+    def contains(self, t: float) -> bool:
+        return math.isfinite(t) and self.start <= t <= self.end
+
+    def sample_index(self, t: float) -> Optional[int]:
+        if not self.heart_rate or self.interval <= 0 or not math.isfinite(t) or t < self.start:
+            return None
+        k = int(math.floor((t - self.start) / self.interval))
+        return min(max(k, 0), len(self.heart_rate) - 1)
+
+    def heart_rate_at(self, t: float) -> Optional[float]:
+        k = self.sample_index(t)
+        return None if k is None else self.heart_rate[k]
+
+    def moment(self, t: float) -> Optional[RecoveryMoment]:
+        if not self.contains(t):
+            return None
+        hr = self.heart_rate_at(t)
+        return RecoveryMoment(t - self.start, hr, None if hr is None else hr - self.heart_rate_at_finish)
+
+    @classmethod
+    def make(cls, recovery: "HeartRateRecovery", series: HeartRateSeries, start: float) -> Optional["RecoveryTail"]:
+        interval = TIMELINE_INTERVAL
+        covered = recovery.covered_seconds
+        if not covered > 0 or not math.isfinite(start):
+            return None
+        n = int(math.ceil(covered / interval))
+        hr = [series.value_at(recovery.finish_time + _bucket_centre(k, interval, covered)) for k in range(n)]
+        vals = [v for v in hr if v is not None]
+        if not vals:
+            return None
+        return cls(start, start + covered, interval, hr, recovery.heart_rate_at_finish, list(recovery.marks),
+                   min(vals), max(vals))
+
+
+def session_csv_heart_rates(lines) -> list:
+    """SessionCSV.heartRateSamples: '# event t=<s> name=hr bpm=<n>' lines of a session CSV as
+    TimedValue in seconds since 1970 (t + header startDate). Only '#' lines are read; [] without a
+    header startDate. `lines` is any iterable of lines (e.g. an open file)."""
+    origin = None
+    rel = []
+    for raw in lines:
+        if not raw.startswith("#"):
+            continue
+        body = raw[1:].strip()
+        if body.startswith("barpath-session"):
+            for part in body.split(","):
+                item = part.strip()
+                if item.startswith("startDate="):
+                    try:
+                        origin = parse_iso8601(item[len("startDate="):]).timestamp()
+                    except ValueError:
+                        pass
+            continue
+        if not body.startswith("event "):
+            continue
+        t = bpm = None
+        is_hr = False
+        for tok in body.split(" "):
+            try:
+                if tok.startswith("t="):
+                    t = float(tok[2:])
+                elif tok == "name=hr":
+                    is_hr = True
+                elif tok.startswith("bpm="):
+                    bpm = float(tok[4:])
+            except ValueError:
+                pass
+        if is_hr and t is not None and bpm is not None and math.isfinite(t) and math.isfinite(bpm):
+            rel.append(TimedValue(t, bpm))
+    if origin is None:
+        return []
+    return [TimedValue(origin + s.t, s.value) for s in rel]
 
 
 # ---- session CSV ------------------------------------------------------------------------------
@@ -675,6 +1105,7 @@ class WorkoutCSV:
     marks: list
     end_time: float           # last motion sample or event time, on the CSV's clock
     progress: Optional[WorkoutProgress] = None   # replayed boundaries (None if definition unknown)
+    partial_reps: Optional[int] = None           # last '# event name=partialReps reps=<n>' (§5)
 
 
 def _none_if_neg(x):
@@ -706,6 +1137,7 @@ def load_workout_csv(path) -> WorkoutCSV:
     """Loads a workout session CSV (header 'workout=<id>'); see load_session_csv."""
     s = load_session_csv(path)
     boundaries, hrs, ped = [], [], []
+    partial_reps = None
     for e in s.events:
         name = e.get("name")
         t = float(e.get("t", 0.0))
@@ -722,6 +1154,10 @@ def load_workout_csv(path) -> WorkoutCSV:
             if isinstance(steps, float):
                 dist = e.get("distance")
                 ped.append(PedometerSample(t, steps, _none_if_neg(dist) if isinstance(dist, float) else None))
+        elif name == "partialReps":
+            reps = e.get("reps")
+            if isinstance(reps, float) and reps >= 0:
+                partial_reps = int(reps)
     times = [float(x) for x in s.motion.t[-1:]] + [float(e.get("t", 0.0)) for e in s.events]
     end_time = max(times) if times else 0.0
     definition = WorkoutLibrary.definition(s.workout) if s.workout else None
@@ -730,4 +1166,4 @@ def load_workout_csv(path) -> WorkoutCSV:
         definition = cand if isinstance(cand, WorkoutDefinition) else None
     progress = replay_boundaries(definition, boundaries) if definition else None
     return WorkoutCSV(s.workout, s.session_id, s.start_date, definition, boundaries, hrs, ped,
-                      s.marks, end_time, progress)
+                      s.marks, end_time, progress, partial_reps)

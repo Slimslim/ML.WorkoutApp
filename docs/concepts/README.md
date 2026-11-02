@@ -5,6 +5,7 @@
   Sample data only. Published privately as an artifact for the athlete.
 - `workout-overview-mockup.html`: the approved post-workout overview mockup (built in the app).
 - `watch-layouts.html`: four watch layout directions (A centre stage, B title bottom, C ring, D big name) to pick from.
+- `watch-vote.html`: voting page for friends (4 finalists; votes stored in the artifact database).
 - `WATCH_SCREEN_REVIEW.md`: independent UX review + athlete overrides applied to the demo's watch screens.
 - `WAVE_MODE_COPY.md`: copy deck (names, microcopy, badges, share message, disclaimer).
 

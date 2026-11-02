@@ -54,7 +54,24 @@ struct WorkoutStartView: View {
                     .background(Capsule().fill(Color.green))
             }
             .buttonStyle(.plain)
-            .frame(minHeight: 60)
+            // Was 60; 44 leaves room for the Screen demo button on 41 mm (START still fills
+            // the free height on bigger screens).
+            .frame(minHeight: 44)
+
+            // Try the workout screen with mock data: no HealthKit, nothing saved or sent.
+            Button {
+                model.startDemo()
+            } label: {
+                Text("Screen demo")
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, minHeight: 22)
+                    .background(Capsule().stroke(Color(white: 0.3), lineWidth: 1))
+                    // Plain style: without this only the text and the 1 pt stroke are tappable.
+                    .contentShape(Capsule())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Screen demo with mock data")
 
             if let summary = model.lastSummary {
                 Text("Last: " + summary + " · " + transferText)
@@ -83,6 +100,27 @@ struct WorkoutStartView: View {
         return pending > 0 ? "↑\(pending)" : "sent"
     }
 
+    /// "5 per round · 40:00" (AMRAP), "3 rounds of 3", "Crown at each change" (Free), "16 segments".
+    static func tileDetail(_ definition: WorkoutDefinition, count: Int) -> String {
+        if definition.id == WorkoutLibrary.free.id {
+            return "Crown at each change"
+        }
+        if let r = definition.roundSize, r >= 1, count > r {
+            var repeats: Bool = true
+            for i in r..<count where definition.segments[i].title != definition.segments[i % r].title {
+                repeats = false
+            }
+            if repeats {
+                if definition.format == .amrap, let cap = definition.timeCapSeconds {
+                    let total: Int = Int(cap.rounded())
+                    return "\(r) per round · " + String(format: "%d:%02d", total / 60, total % 60)
+                }
+                return "\((count + r - 1) / r) rounds of \(r)"
+            }
+        }
+        return "\(count) segment\(count == 1 ? "" : "s")"
+    }
+
     private var workoutTile: some View {
         let definition = model.selectedDefinition
         let count = definition.segments.count
@@ -96,7 +134,7 @@ struct WorkoutStartView: View {
                     .foregroundColor(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
-                Text("\(count) segment\(count == 1 ? "" : "s")" + (model.isSelectedFromPhone ? " · from iPhone" : ""))
+                Text(WorkoutStartView.tileDetail(definition, count: count) + (model.isSelectedFromPhone ? " · from iPhone" : ""))
                     .font(.system(size: 12, weight: .semibold, design: .rounded))
                     .foregroundColor(.secondary)
                     .lineLimit(1)

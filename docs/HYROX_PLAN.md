@@ -163,3 +163,65 @@ totals.
   - Location/map: needs Core Location + `HKWorkoutRouteBuilder` (outdoor workouts only; location
     permission, battery). Weather: `HKMetadataKeyWeatherTemperature` / `…Humidity`.
   - HR chart and calories already come from the live workout builder.
+
+- **Recovery after the finish (athlete 2026-11-01: "we did not catch the 3 min after the workout
+  with the HR going down?"):** the HR series runs to End; watch done screen shows the recovery
+  clock, HR and drop with haptics at 1/2/3 min; phone Recovery card (HRR1/2/3), with older results
+  backfilled from their session CSV. *(Built 2026-11-01, WORKOUT_SPEC §6.)*
+
+## 8. Personal run calibration (planned, 2026-10-31)
+
+Problem: without GPS (HYROX halls) run distance and live pace come from the pedometer
+(steps × Apple's learned stride). Helen 2026-10-29 read 348 / 385 / 394 m for 400 m runs
+(−13 %, −4 %, −1.5 %). Compromised running after stations shortens the stride further.
+Foot pods (Stryd etc., ~1–2 %) are what HYROX coaches recommend.
+
+Plan:
+1. **Calibration run.** A "Calibrate running" workout: run a known distance (track 4 × 400 m,
+   or a measured loop; distance entered on the phone). The app compares the pedometer distance
+   with the true distance and stores a personal factor (e.g. ×1.06), per pace band if the data
+   supports it (easy / race pace). Repeat a few times; keep a rolling, outlier-robust average.
+2. **Apply it live.** Run distance, live pace, the "Exit soon" point (~850 m) and stride length
+   use the corrected distance. Show "calibrated" vs "estimated" in the overview.
+3. **Self-correct during a race.** Every finished HYROX run is a known 1 km: after each run, update
+   the factor for the next ones (and for the post-race report), with limits so one bad run can't
+   swing it.
+4. **Report accuracy.** In the overview, per run: measured vs known distance, so the athlete sees
+   how good the watch is for them.
+5. **Later: foot pod support.** Read a Bluetooth running sensor (standard Running Speed and Cadence
+   profile) when the athlete owns one; prefer its pace/distance over the wrist estimate.
+
+Data needed now: a few Data-mode runs on a known distance (a track is ideal).
+
+## 9. Target splits: ahead or behind (planned, 2026-10-31)
+
+Feedback from an experienced HYROX athlete (a friend of the athlete): racers mostly watch the
+clock against **target times**. They plan when each run should start ("on the run at 8:30,
+17:45, …") and want to know at a glance whether they are **ahead or behind**, so they can push
+or hold.
+
+Plan:
+1. **Race plan on the phone.** Per workout, a target finish time (e.g. 1:15:00) that the app
+   splits into per-segment targets (runs at a chosen pace, stations from defaults or past
+   results), with every segment editable. Saved with the definition and sent to the watch.
+2. **Watch: one delta, big and coloured.** On every segment switch (the Crown turn) show
+   "+0:12 behind" (red) or "−0:20 ahead" (green) against the plan's cumulative time, for a few
+   seconds in the NOW flash, then keep a small delta line on the D+ screen (e.g. under the race
+   time). Optionally a projected finish ("finish ≈ 1:14:30").
+3. **Border link (D+).** The progress border can show the plan as a thin marker: where you
+   *should* be now vs where you are.
+4. **From past results.** "Beat my last time" builds the targets from a saved result's splits.
+5. **Overview after the race.** Planned vs actual per segment, so the athlete sees where time
+   was lost.
+
+Open questions for the athlete: delta always visible or only at switches; seconds behind vs
+projected finish; one plan per workout or several.
+
+## 10. Bluetooth gym machines (idea, 2026-11-01)
+
+The owner can pair the rower and the air bike over Bluetooth. Most current machines broadcast the
+standard Fitness Machine Service (FTMS); the Concept2 PM5 has its own documented Bluetooth service.
+A watch or phone workout app can read them during a workout: stroke rate, RPM, watts, calories and
+distance per segment, as ground truth for the wrist-motion estimates. Until then: air-bike calories
+follow from RPM with a per-bike curve (resistance is air, so power rises steeply with RPM); a rower
+needs the monitor's numbers, because stroke rate alone does not give power.

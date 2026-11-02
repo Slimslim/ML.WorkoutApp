@@ -6,6 +6,7 @@ import BarPathKit
 struct DebugView: View {
     @EnvironmentObject private var store: LiftStore
     @EnvironmentObject private var link: PhoneLink
+    @EnvironmentObject private var cloud: CloudAccount
     @State private var fileToDelete: DebugFile?
 
     private var confirmBinding: Binding<Bool> {
@@ -20,6 +21,9 @@ struct DebugView: View {
     var body: some View {
         NavigationStack {
             List {
+                if cloud.isSignedIn {
+                    AccountSection()
+                }
                 recordingsSection
                 liftFilesSection
                 connectionSection

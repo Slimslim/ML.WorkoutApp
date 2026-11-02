@@ -291,6 +291,8 @@ extension WorkoutSummary {
         public let secondsIn: Double
         /// 0-based round index.
         public let round: Int
+        /// Reps done in that segment before the stop (WorkoutResult.partialReps), nil if unknown.
+        public let partialReps: Int?
     }
 
     public struct AmrapClock: Equatable {
@@ -298,7 +300,8 @@ extension WorkoutSummary {
         public let capSeconds: Double
         public let rounds: [AmrapRound]
         public let completedRounds: Int
-        /// Reps of the completed segments in the unfinished round (rep targets only).
+        /// Reps of the completed segments in the unfinished round (rep targets only), plus the
+        /// result's `partialReps` of the segment cut by the cap.
         public let extraReps: Int
         public let stoppedIn: StopPoint?
         /// Mean duration of the complete rounds.
@@ -792,8 +795,12 @@ extension WorkoutSummary {
         }
         var stop: StopPoint? = nil
         if let seg = ctx.segments.last, ctx.isPartial(seg) {
+            let partialReps: Int? = ctx.result.partialReps
             stop = StopPoint(segmentIndex: seg.index, name: ctx.name(seg), title: seg.title,
-                             secondsIn: seg.duration, round: seg.index / rs)
+                             secondsIn: seg.duration, round: seg.index / rs, partialReps: partialReps)
+            if let pr = partialReps, pr > 0 {
+                extra += pr
+            }
         }
 
         var driftSeconds: Double? = nil

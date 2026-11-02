@@ -1,0 +1,645 @@
+<title>Rx Lab App Structure</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one reading column (~760px) of numbered decisions, with phone/watch wireframes in wrapping rows. */
+:root{
+  --bg:#F3F4F1; --surface:#FFFFFF; --ink:#16191D; --muted:#5B636D; --line:#D9DDD6;
+  --run:#2E6BF0; --station:#E8711A; --volt:#5E8F00; --hr:#E0443A; --rec:#0889A8;
+  --phone:#101317; --phone-ink:#F2F4F1; --phone-muted:#8F98A3; --phone-card:#1C2127; --phone-volt:#B8FF3C;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111417; --surface:#1A1E23; --ink:#ECEFEA; --muted:#9AA3AD; --line:#2C3239;
+  --run:#6C9BFF; --station:#FF9447; --volt:#B8FF3C; --hr:#FF6B61; --rec:#45C4E5; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111417; --surface:#1A1E23; --ink:#ECEFEA; --muted:#9AA3AD; --line:#2C3239;
+  --run:#6C9BFF; --station:#FF9447; --volt:#B8FF3C; --hr:#FF6B61; --rec:#45C4E5; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15.5px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px}
+main{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:44px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.05}
+h1{font-size:clamp(40px,8vw,64px);font-weight:800;letter-spacing:.01em}
+h2{font-size:30px;font-weight:700;display:flex;gap:12px;align-items:baseline}
+h2 .n{font-family:var(--mono);font-size:14px;color:var(--muted);font-weight:500}
+h3{font-size:21px;font-weight:700}
+p{margin:0}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{font-size:18px;max-width:62ch}
+section{display:flex;flex-direction:column;gap:16px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:10px}
+.verdict{border-left:4px solid var(--volt)}
+.tag{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted);align-self:flex-start}
+ul,ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+.tw{overflow-x:auto}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.tree{font-family:var(--mono);font-size:13px;line-height:1.7;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;overflow-x:auto;white-space:pre;margin:0}
+.tree b{color:var(--run);font-weight:500}
+.tree i{color:var(--muted);font-style:normal}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.two > *{min-width:0}
+.mocks{display:flex;flex-wrap:wrap;gap:22px;justify-content:center}
+figure{margin:0;display:flex;flex-direction:column;gap:8px;align-items:center}
+figcaption{font-size:13px;color:var(--muted);text-align:center;max-width:250px}
+/* phone wireframe: deliberately dark like the app */
+.phone{width:250px;max-width:100%;background:var(--phone);color:var(--phone-ink);border-radius:30px;padding:16px 12px 10px;display:flex;flex-direction:column;gap:9px;font-size:12px;line-height:1.35;border:3px solid #2A3038}
+.ph-top{display:flex;justify-content:space-between;align-items:center;font-family:var(--display);font-size:22px;font-weight:700}
+.av{width:24px;height:24px;border-radius:50%;background:#2E353D;font:600 10px var(--body);display:grid;place-items:center;color:var(--phone-muted)}
+.c{background:var(--phone-card);border-radius:12px;padding:9px 10px;display:flex;flex-direction:column;gap:4px}
+.lbl{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--phone-muted)}
+.big{font-family:var(--display);font-size:20px;font-weight:700;line-height:1}
+.btn{background:var(--phone-volt);color:#0C0D0F;border-radius:8px;text-align:center;font-weight:700;padding:6px;font-size:11.5px}
+.btn.g{background:#2E353D;color:var(--phone-ink)}
+.row{display:flex;justify-content:space-between;gap:6px;align-items:center}
+.dim{color:var(--phone-muted)}
+.chip{font-size:10px;padding:1px 6px;border-radius:99px;background:#2E353D}
+.flag{color:#FFB340}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid #2A3038;padding-top:7px;margin-top:auto;font-size:9.5px;text-align:center;color:var(--phone-muted)}
+.tabs .on{color:var(--phone-volt)}
+.tabs .plus{color:#0C0D0F;background:var(--phone-volt);border-radius:50%;width:24px;height:24px;margin:0 auto;font:700 16px/24px var(--body)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
+.watch{width:170px;height:206px;background:#000;border-radius:38px;border:3px solid #2A3038;color:#fff;padding:16px 12px;display:flex;flex-direction:column;gap:6px;font-size:11px}
+.wl{background:#1C2127;border-radius:10px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center}
+.wl.hi{background:var(--phone-volt);color:#0C0D0F;font-weight:700}
+.q{display:flex;flex-direction:column;gap:6px}
+.q li::marker{font-family:var(--mono);color:var(--muted)}
+
+/* v2 additions */
+.tabs.t3{grid-template-columns:repeat(3,1fr)}
+.addb{font:700 11px var(--body);background:var(--phone-volt);color:#0C0D0F;border-radius:99px;padding:2px 9px}
+.blk{border-left:3px solid #2E353D}
+.blk.lift{border-left-color:#B8FF3C}.blk.met{border-left-color:#FF9447}.blk.core{border-left-color:#B48CFF}.blk.off{opacity:.6}
+.mini{display:flex;gap:6px}
+.mini .btn{flex:1;padding:4px}
+.ahead{color:#4CD964}.behind{color:#FF6B61}
+.wbig{font-family:var(--display);font-size:30px;font-weight:800;line-height:1}
+.wseg{font-family:var(--display);font-size:20px;font-weight:700;color:#6C9BFF;line-height:1}
+.stage{font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.s0{background:var(--hr);color:#fff}.s1{background:var(--run);color:#fff}.s2{background:var(--station);color:#111}.s3{background:var(--line);color:var(--ink)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.flow span{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:5px 10px;font-size:14px}
+.flow i{color:var(--muted);font-style:normal}
+.walk{display:flex;flex-direction:column;gap:6px}
+.walk h3{font-size:19px}
+.walk ol{gap:3px}
+.ids{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.note{color:var(--muted);font-size:13.5px}
+.chg li strong{font-weight:600}
+</style>
+
+<main>
+<header style="display:flex;flex-direction:column;gap:14px">
+  <span class="kicker">Proposal · draft 3 · 1 Nov 2026 · after two review rounds and a check of the real code</span>
+  <h1>Rx Lab app structure</h1>
+  <p class="lede">How the iPhone and Watch apps should be organised for all your training: HYROX, CrossFit benchmarks and class WODs, Mayhem programming days, strength and Olympic lifting. This version answers two rounds of reviews and puts only race-critical work before Anaheim.</p>
+  <p class="note">Every decision, with its reason, is in <strong>decisions.md</strong> in the same folder. All numbers in the mock screens are illustrative, except the Mayhem "previous result" and "recent maxes", which come from your own screenshots.</p>
+</header>
+
+<section>
+  <h2><span class="n">1</span>What changed</h2>
+  <h3>Since draft 2 (review round 2)</h3>
+  <ul class="chg">
+    <li><strong>Race flows use today's screens.</strong> Before Anaheim the target is set in the current Workouts tab and started from the watch's Workouts page; the new tabs come later.</li>
+    <li><strong>Race plan is safer:</strong> shape from your best <em>full</em> sim (or a standard HYROX template), a "Delta off" switch, and the phone report shows target vs actual. New dates: test build Sun 15 Nov with a full trial sim, freeze Sun 22 Nov, then a half sim on the frozen build.</li>
+    <li><strong>Crash recovery spelled out:</strong> Apple's workout recovery continues the same workout; result saved at the finish and at End with a revision number; a hidden "Simulate crash" button to rehearse.</li>
+    <li><strong>Every barbell lift gets measured</strong> (squats, presses, later bench), in three steps: you mark each set's start and end now (Double Tap on the watch, "Set done" on the phone as backup); those marks become training data; then automatic set and rep detection, first as suggestions you confirm. See §7.</li>
+    <li><strong>Strength blocks in a row run as one lifting block</strong>, but each lift keeps its own result. Suggested loads use maxes from the last 12 months, with the source shown.</li>
+    <li><strong>No assumed division or sex:</strong> division and load column are a profile question with no preset.</li>
+    <li><strong>Sync states are now ones the phone can actually know</strong> (the watch publishes its outbox list).</li>
+    <li>Plainer words, a Permissions page, distance run segments, IDs listed once in the build order.</li>
+  </ul>
+  <h3>Since draft 1</h3>
+  <ul class="chg">
+    <li><strong>Before Anaheim is tiny:</strong> ahead/behind your target, no lost result after a crash, optional roxzone laps. No new tab bar before the race.</li>
+    <li><strong>Three tabs:</strong> Today · Library · Log, with a big <em>+ Add</em> button on every tab. Insights becomes a tab once there is enough data.</li>
+    <li><strong>A day is a Session made of Blocks</strong>; lifting blocks run from the phone (your decision), metcons on the watch; one Apple workout per active block.</li>
+    <li><strong>Scaling lives on the result</strong>; Add gets "Log a result", several screenshots at once and the Share Sheet.</li>
+    <li><strong>Code check:</strong> the watch already queues and re-sends results, workouts already save to Apple Health, End already asks "End workout?". Missing: reading back saved progress after a crash.</li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="n">2</span>Principles</h2>
+  <ol class="q">
+    <li><strong>The watch is the source of truth.</strong> It measures, saves and keeps the result until the phone has it. A phone in a locker never costs you a workout.</li>
+    <li><strong>Never lose a result.</strong> Not to a crash, a flat battery or a wrong tap. Every fix (splits, scaling, date) can be undone, and the raw recording is never changed.</li>
+    <li><strong>Hands off mid-workout.</strong> Crown turn = next, side button back = undo. No tapping with chalky hands.</li>
+    <li><strong>Always check before saving.</strong> Anything the app read from a photo or text goes through one confirm screen. It never guesses silently.</li>
+    <li><strong>Only claim what the data supports.</strong> Insights say "based on 3 results" and grey out what they can't know yet.</li>
+    <li><strong>Small, testable steps.</strong> Code is written by AI agents without a compiler and tested by you, so each build changes one thing you can check in a real workout.</li>
+  </ol>
+</section>
+
+<section>
+  <h2><span class="n">3</span>Bar path: inside the app (unchanged)</h2>
+  <div class="box verdict">
+    <span class="tag">Decision</span>
+    <h3>Bar path stays inside Rx Lab, as the analysis of every lift. Not a tab, not a separate app.</h3>
+    <p>You see it when you open a lift: path, bar speed, pull and catch heights. Each lift type has one Lift page (Library › Lifts) with best lifts, your recent maxes (3RM, 5RM, 10RM) and later speed by load. A Mayhem day with squats and a metcon stays one entry, with heart rate across both. "BarPath analysis, by Rx Lab" stays the feature name.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">4</span>Phone navigation: three tabs and an Add button</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Tab</th><th>Job</th><th>Replaces today's</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Today</strong></td><td>Today's session as block cards (each with Log / Start on watch), the newest result with PR badge, a sync chip when something is waiting on the watch.</td><td>Live</td></tr>
+      <tr><td><strong>Library</strong></td><td>Things you can start: Benchmarks · HYROX · Programs (imported days, e.g. Mayhem) · Mine · Lifts.</td><td>Choose workout</td></tr>
+      <tr><td><strong>Log</strong></td><td>Everything you did, one row per day/session, with search and filters.</td><td>Workouts list + History</td></tr>
+      <tr><td class="dim" style="color:var(--muted)">Insights <em>(later)</em></td><td>Appears as tab 4 when the "10 workouts" phase ships. Until then, insights live on the report and as one card on Today.</td><td>new</td></tr>
+    </tbody></table></div>
+  <div class="two">
+    <div class="box"><h3>Why three</h3><ul>
+      <li>An empty Insights tab on day one looks broken and invites made-up numbers.</li>
+      <li>A centre "+" tab is not standard iPhone design; a top-bar button is, and it is one tap from every tab.</li>
+      <li>Fewer screens to build and test before TestFlight.</li></ul></div>
+    <div class="box"><h3>Always reachable</h3><ul>
+      <li><strong>+ Add</strong> top right on every tab.</li>
+      <li><strong>Avatar</strong> top left on every tab → Settings.</li>
+      <li>Debug moves to Settings › Advanced (with "Send diagnostics").</li></ul></div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">5</span>Phone page tree</h2>
+  <p>→ opens a page · ⇡ opens a sheet (a card that slides up) · ⌚ goes to the watch</p>
+<pre class="tree"><b>Every tab:</b> avatar → Settings · [+ Add] ⇡ Add sheet
+
+<b>Today</b>
+├─ Banner <i>(only when needed: watch missing · 2 results waiting · nothing set up)</i>
+├─ Today's session <i>(scheduled, imported or last sent)</i>
+│   ├─ Block card × n <i>(warm-up · strength · metcon · core · cool-down …)</i>
+│   │    ├─ strength: prescription · suggested loads · last time · recent maxes
+│   │    ├─ [Log] ⇡ Log a result     <i>(manual: loads per set, time, reps)</i>
+│   │    ├─ strength: [Start lifting] ⌚ → <b>Lifting block</b> <i>(includes the strength blocks that follow)</i>
+│   │    └─ timed blocks: [Send to watch] ⌚ <i>(start on the watch)</i>
+│   └─ [Send day to watch] ⌚ <i>(sends all timed blocks; also sent automatically on the scheduled day)</i>
+├─ Newest result <i>(score, delta vs last time, PR badge)</i> → Report
+└─ One insight card <i>(only when backed by data)</i>
+
+<b>Library</b>
+├─ Search · filters <i>(type, time, equipment, done / not done)</i>
+├─ Benchmarks: Girls · Heroes · Open → Workout preview
+├─ HYROX: Solo · Doubles · Half · sims <i>(division sets loads)</i> → Workout preview
+├─ Programs: Mayhem days, box days <i>(imported)</i> → Session preview
+├─ Mine <i>(created, favourites; filter "from gym")</i> → Workout preview
+└─ Lifts: Back squat · Snatch … → Lift page
+     └─ recent maxes (1/3/5/10RM) · best lifts · history → Lift report
+
+Workout / Session preview <i>(shared page)</i>
+├─ blocks and segments · M/F loads · cap · instructions
+├─ your track: Rx / Scaled / Foundations · your past results + best
+├─ Race plan <i>(HYROX)</i>: goal time → target per split · [Delta off]
+└─ [Send to watch] ⌚ · [Schedule] · [Favourite] · [Edit]
+
+<b>Lifting block</b> <i>(full screen, phone controls the watch)</i>
+├─ status: "Watch recording ● · ♥ 128" or "Watch away · still recording"
+├─ current lift: name · prescription · last time · recent maxes
+├─ set list: suggested load per set (from %1RM) · [Set done] · edit load / reps / make-miss
+├─ tap a set → its motion data (bar path for Olympic lifts)
+├─ [Next lift: Front squat] · [Add lift]
+└─ [End lifting] → one Apple workout saved → Session page
+
+<b>Log</b>
+├─ search <i>(name, movement)</i> · filters: All · Races · WODs · Lifts · Programs
+├─ "Arriving from watch…" placeholder row <i>(while syncing)</i>
+└─ Session row → Session page
+     └─ block → Report <i>(WOD / race)</i> or Lift report <i>(bar path)</i>
+          ├─ score, HR + recovery, story, splits, Rx note
+          ├─ [Fix splits] ⇡ <i>(move boundaries, trim end, restore original)</i>
+          ├─ [Edit result] ⇡ <i>(scaling, loads, date, notes, RPE, me/partner, delete)</i>
+          └─ [Share] · [Do again] → preview with last score as target
+
+<b>Settings</b>
+├─ Profile <i>(units, birth year / max HR, body weight, load column for M/F workouts, HYROX division: you choose, no preset)</i>
+├─ Permissions <i>(Health, Motion, Notifications: on/off, what each is for, how to turn on)</i>
+├─ Lifts & maxes <i>(rep maxes, plates and bar)</i>
+├─ Watch & sync <i>(status, results still on the watch, last sync, Sync now)</i>
+├─ Running <i>(calibrate pace)</i>
+├─ Data <i>(on this iPhone + your iCloud, export, delete)</i>
+└─ Advanced <i>(today's Debug · Send diagnostics: preview first, no heart rate or raw motion unless ticked)</i></pre>
+</section>
+
+<section>
+  <h2><span class="n">6</span>Watch page tree and sync states</h2>
+<pre class="tree"><b>Watch home</b> <i>(one labelled list; status line on top: "Phone ●" or "Phone offline · ↑2")</i>
+├─ TODAY: session name → its timed blocks, in order
+│    ├─ Metcon · For time · cap 17 [START]
+│    └─ V-ups 100 · cap 7 [START]    <i>(lifting blocks start from the phone; warm-up, cool-down, notes are not started)</i>
+├─ Free workout [START]   <i>(timer + HR + Crown laps; name it later on the phone)</i>
+├─ Lift session → lift → load (plate steps) → START   <i>(stand-alone, no phone)</i>
+├─ Workouts → Recent · Favourites · Built-ins · HYROX → START
+├─ Calibrate run
+└─ Settings <i>(metric, haptics)</i> · Advanced <i>(Data mode = keep raw motion for analysis, on by default · Screen demo = practice screen with fake data · Simulate crash)</i>
+
+<b>In session</b>: segment · clock · metric + HR · <b>±delta vs target</b> <i>(if not switched off)</i> · progress border
+├─ Crown = next · side button = undo · swipe → End <i>(asks "End workout?")</i>
+├─ Always-On: segment, clock, ±delta
+└─ Done: score · recovery clock · "Saved ✓ · ↑ sending" · [Next: V-ups 100] <i>(next timed block of today's session)</i>
+
+<b>Phone-controlled lifting</b> <i>(starts by itself when you tap Start lifting on the phone)</i>
+├─ lift name · "Set 3 of 5" · ♥ HR · red ● recording
+├─ set start / set end: <b>Double Tap</b> (pinch) on the watch · [Set done] on the phone as backup · hidden fallback: Crown turn
+├─ Olympic lifts found by motion are grouped under the current set
+├─ metcon START is blocked until lifting ends <i>(one Apple workout at a time)</i>
+└─ phone away: "Phone away · recording" + [Next set] [Next lift] [End lifting] on the watch
+
+<b>After a crash</b> (relaunch): "Hyrox Doubles · 41:12 · run 5" → [Resume] · [Save as incomplete]</pre>
+  <div class="tw"><table>
+    <thead><tr><th>State</th><th>Watch shows</th><th>Phone shows</th><th>Exists?</th></tr></thead>
+    <tbody>
+      <tr><td>Recording</td><td>Session screen</td><td>Today: "In progress on watch" (when connected)</td><td>watch yes</td></tr>
+      <tr><td>Ended</td><td>"Saved ✓"; Apple Health has the workout now</td><td>—</td><td>yes</td></tr>
+      <tr><td>Waiting (phone away)</td><td>"Phone offline · ↑1"</td><td>From the watch's last published outbox list: "1 result still on the watch" in Watch &amp; sync and a Log row "Waiting on watch"</td><td>watch yes · phone new</td></tr>
+      <tr><td>Delivered</td><td>count clears</td><td>Report in Log</td><td>yes</td></tr>
+      <tr><td>Stuck &gt; 24 h (by the list's age)</td><td>"Not synced · Retry"</td><td>Today banner: Sync now (asks the watch to send again) · if the watch can't be reached: "Open Rx Lab on your watch" · Send diagnostics</td><td>new</td></tr>
+      <tr><td>Incomplete (crash, battery)</td><td>Resume / Save as incomplete</td><td>Report flagged "Incomplete" + Complete manually</td><td>new, before Anaheim</td></tr>
+      <tr><td>Lifting, phone nearby</td><td>Lift name, set count, HR, ●</td><td>Lifting block screen, live</td><td>new</td></tr>
+      <tr><td>Lifting, phone away</td><td>"Phone away · recording"; Next set / Next lift / End on the watch</td><td>When back: reconnects, the watch sends its current state, phone shows the sets done meanwhile</td><td>new</td></tr>
+      <tr><td>Phone → watch</td><td>Today item updates</td><td>"Sending…" → "On watch ✓" or "Arrives when the watch connects"</td><td>confirmation new</td></tr>
+    </tbody></table></div>
+  <p class="note">How sync works today, in plain words: the watch keeps each finished result as a file in an "outbox" and hands it to Apple's watch-to-phone delivery service, which waits until the phone is around. The file is deleted only after the phone has it, and anything left over is sent again next time the watch app opens. New: the watch also tells the phone which files it still holds, so the phone can show "still on the watch". Every new file type (e.g. a lifting block) must be added to the re-send list, with a test.</p>
+  <div class="box">
+    <h3>How phone-controlled lifting works</h3>
+    <ul>
+      <li>Before opening the watch app, the phone sends the plan for the block (lifts, sets, suggested loads, units, plate steps). The watch app then starts the strength workout by itself. The <strong>watch owns the workout</strong>: it records heart rate and motion and saves to Apple Health.</li>
+      <li>Apple's <strong>live link between watch and phone workouts</strong> (built into iPhone iOS 17 and watchOS 10, which Rx Lab already requires) gives the phone a live copy and a channel for short commands: <em>Set done, Next lift, change load, End</em>. We define these commands once, in shared code with tests.</li>
+      <li>The <strong>watch keeps the log</strong> of what happened and gives each set its ID. Each time the phone (re)connects, the watch sends its full current state, so nothing depends on every message arriving.</li>
+      <li>The phone must be nearby. If it drops out, the watch keeps recording; you can use Next set / Next lift / End on the watch. Reopening the phone app re-attaches to the running workout.</li>
+      <li>End lifting saves the whole lifting block as one Traditional Strength Training workout. Metcon blocks are separate workouts started on the watch.</li>
+      <li>Sets are marked by you (decided rule, see §7): Double Tap on the watch at unrack and at rerack, "Set done" on the phone as backup. Today's motion detector only knows Olympic pulls from the floor; squats and presses get their own detection once enough marked sets are recorded.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">7</span>Measuring every barbell lift</h2>
+  <p>You want all barbell lifts measured, not only snatch and clean &amp; jerk: back and front squat, overhead squat, strict press and push press, bench later. For each set: reps, bar speed per rep and the bar path. The hard part is knowing <strong>when a set starts and stops</strong>. Plan: you mark it by hand now, the marks teach the app, then the app suggests and you confirm.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Step</th><th>What happens</th><th>When</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1. You mark the set</strong></td><td><strong>Decided rule:</strong> at unrack, <strong>Double Tap</strong> on the watch (pinch thumb and index finger; Series 12 has it) = set start; at rerack, Double Tap again = set end, with a distinct haptic for each. "Set done" on the phone is the backup. Hidden fallback on the watch: a Crown <em>turn</em> (a Crown <em>press</em> isn't possible: watchOS keeps it for going home). Reps and load are typed or confirmed on the phone and can be corrected afterwards (move the start/end, change reps).</td><td><span class="stage s2">Before TestFlight</span></td></tr>
+      <tr><td><strong>2. Collect labelled data</strong></td><td>Data mode (raw motion saved, on by default) is always on for lifting blocks. Each set = start/end marks + reps + load + lift type, which is exactly what a detection model needs to learn from. Target: about 20–30 marked sets per lift type (back squat, front squat, overhead squat, strict press, push press). The Lift page shows "Sets collected: 12 of ~25". Your own motion and heart-rate data may go into the repository (you allowed it); testers' data never does.</td><td><span class="stage s2">starts Before TestFlight</span>, runs for weeks</td></tr>
+      <tr><td><strong>3. Shadow mode</strong></td><td>Automatic set detection (unrack → steady up-down rhythm → rerack and stillness) and rep counting per lift type. It only <em>suggests</em>: "Set? 5 reps" on the phone; you confirm or fix. Manual marks always stay available and win. Rep speed and path are shown per rep once reps are found.</td><td><span class="stage s1">Before App Store</span>, per lift once it has enough data</td></tr>
+      <tr><td><strong>4. Automatic</strong></td><td>Sets and reps recorded without confirming, for lifts where shadow mode was right almost every time. Bench press added.</td><td><span class="stage s3">Later</span></td></tr>
+    </tbody></table></div>
+  <div class="two">
+    <div class="box"><h3>Why this can work</h3><ul>
+      <li>In back and front squats and presses your hands hold the bar, so the watch wrist moves with the bar: wrist motion is a good stand-in for bar motion.</li>
+      <li>On bench the watch arm also moves with the bar.</li>
+      <li>Squats and presses have a clear rhythm (down-up), easier to count than Olympic lifts.</li></ul></div>
+    <div class="box"><h3>Limits, said honestly</h3><ul>
+      <li>Until step 3 ships for a lift, reps come from what you type, not from motion.</li>
+      <li>Overhead squat: the wrist is still, the body moves under it; detection may need more data.</li>
+      <li>Bar speed from a wrist is an estimate; it is shown as one, compared only with your own sets.</li></ul></div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">8</span>The data model in plain words</h2>
+  <div class="two">
+    <div class="box"><h3>Workout (definition)</h3><p>The plan: blocks, movements, reps, loads in two columns when the source has them (e.g. 185/125 lb; you pick your column once in Profile), cap, instructions, the original text or photo. Editing makes a new version; old results keep pointing at the version they did. "My version of Murph" links to Murph but is never compared as Rx.</p></div>
+    <div class="box"><h3>Block</h3><p>One part of a day, with its own type and score: <em>Warm-up</em> (no score) · <em>Strength</em> (load per set, e.g. 5×3 at 65–75%) · <em>Metcon</em> (time, or rounds + reps at the cap) · <em>Skill/Gymnastics</em> (e.g. 100 V-ups, cap 7) · <em>Accessory</em> ("2 rounds for quality", done / not done) · <em>Cool-down</em> · <em>Reference</em> (a note or link, e.g. the scaling guide).</p></div>
+    <div class="box"><h3>Session</h3><p>One training day or visit: date, time zone, gym. It holds the results of its blocks. One Session = one row in the Log, even though Apple Health gets <strong>one workout per active block</strong> (e.g. lifting block, metcon, V-ups test). Planned days carry a session ID and block IDs to the watch, and the watch sends them back with each result, so grouping is exact. Only unplanned workouts are grouped by date (you can split them). Old files become Sessions too: an old lift session = one lifting block, an old workout result = one metcon block.</p></div>
+    <div class="box"><h3>Lifting block</h3><p>Run from the phone. Strength blocks that follow each other (back squat, then front squat) run as <strong>one lifting block</strong>: one recording, one Apple strength workout, but <strong>each lift keeps its own result</strong>. Start lifting on the first card includes the next ones. Sets are marked by you (Double Tap on the watch, Set done on the phone as backup); each set gets an ID from the watch and its own slice of motion data, which also becomes training data (§7).</p></div>
+    <div class="box"><h3>Scores for lifts</h3><p>"Heaviest weight you can for each set" scores the <strong>best set</strong> (e.g. 3 reps at 245 lb), and that set updates your rep maxes. Total volume (load × reps, added up: Mayhem's "3675 lb" = 5 sets × 3 × 245 lb) is shown as a second number, never as the score.</p></div>
+    <div class="box"><h3>Result</h3><p>What you did in one block: score (and its type), <strong>Rx / Scaled / Foundations / custom</strong>, which "this or that" option you chose, actual loads, team score, notes, RPE (how hard, 1–10), source (watch, typed in, official), "incomplete" flag.</p></div>
+    <div class="box"><h3>Recording</h3><p>The raw watch data of one active block (segment times or lift/set markers, heart rate, steps, bar motion). Never changed after the workout.</p></div>
+    <div class="box"><h3>Edits</h3><p>Fixes are kept separate from the raw recording: moved splits, trimmed end, scaling, date, and loads/make-miss typed on the phone (linked to the watch's set ID). A result sent again by the watch can't erase them. Each result file has a revision number; the phone keeps the newest. "Restore original" removes the fixes. PRs and trends are recalculated after every edit.</p></div>
+    <div class="box"><h3>Partner splits</h3><p>A partner or doubles result keeps the team score. Each split can be tagged <em>me / partner / together</em>. Heart-rate and effort insights only use "me" and "together". Time while your partner works counts as rest.</p></div>
+    <div class="box"><h3>Maxes and units</h3><p>Rep maxes per lift (1RM, 3RM, 5RM, 10RM, with dates). "70% 1RM" becomes a suggested load, rounded to your plates. Base: your latest <em>tested</em> 1RM; otherwise the best estimate from a rep max in the last 12 months, shown with its source ("from 3RM 215 lb, Feb 26 · est. 1RM ~230"). Older results are shown greyed ("over a year ago") and not used. Stored in kg, metres and seconds plus the unit you typed, so 95 lb never shows as 43.09 kg.</p></div>
+  </div>
+  <p class="note">PRs compare like with like: same workout, same scaling level, same score type. Scaled PRs count too. A capped result reads "82 reps at cap (7:00)" everywhere, never "CAP+82".</p>
+</section>
+
+<section>
+  <h2><span class="n">9</span>Add, import and log a result</h2>
+  <div class="box">
+    <h3>The Add sheet</h3>
+    <ul>
+      <li><strong>Photo / screenshots</strong>: one or several images (a whiteboard, 6 Mayhem cards). Text is read on the iPhone itself, so weak gym Wi-Fi doesn't matter.</li>
+      <li><strong>Paste text</strong>: from WhatsApp, Instagram, a programming app.</li>
+      <li><strong>Build</strong>: the same confirm screen, starting empty. Formats: For time (+cap) · AMRAP · EMOM / Every N:00 · Rounds with rest · Intervals / Tabata · Strength sets (% or load) · Distance run · HYROX.</li>
+      <li><strong>Log a result</strong>: no watch. Pick or describe the workout, enter score, scaling, notes.</li>
+      <li><strong>Start on watch</strong>: Free workout or Lift session.</li>
+      <li>From other apps: <strong>Share › Rx Lab</strong> (iOS Share Sheet) opens the same confirm screen.</li>
+    </ul>
+  </div>
+  <div class="flow"><span>Photo · Paste · Share</span><i>→</i><span>Split into blocks</span><i>→</i><span>Match movements</span><i>→</i><span>Pick track</span><i>→</i><span><strong>Confirm screen</strong></span><i>→</i><span>Save · Schedule · Send to watch</span></div>
+  <div class="box">
+    <h3>The confirm screen</h3>
+    <ul>
+      <li>Your original image or text sits on top; you can always look back at it.</li>
+      <li>The day is shown as <strong>blocks</strong>, each with its type and score type (you can change both, merge or split blocks).</li>
+      <li>Each line shows what it was matched to: "T2B → Toes-to-bar". Unsure lines get a ⚑ flag <em>and</em> the word "check"; unknown movements stay as free text and still show on the watch.</li>
+      <li>Tracks: if the source has Rx / Scaled / Foundations, you pick one. Two-column loads ("185/125") use the column you chose in Profile; until you choose, the screen asks.</li>
+      <li>"%1RM" lines show the suggested loads from your maxes, with the source. A "target score" in the instructions is kept and can later be your ahead/behind target.</li>
+      <li>One tap at the end: <strong>Save</strong>, or <strong>Save and send to watch</strong>.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">10</span>Insights, in phases</h2>
+  <div class="tw"><table>
+    <thead><tr><th>After</th><th>You get</th><th>Confidence shown</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1 workout</strong></td><td>The report (exists today): score, heart-rate zones, work vs rest, recovery at 1 and 3 min, pacing inside the workout (first vs last round, runs vs average). Labelled "Baseline set".</td><td>None needed</td></tr>
+      <tr><td><strong>3+ results of the same thing</strong><br><span class="note">(same workout, scaling, score type)</span></td><td>Delta vs last attempt of the same thing; PRs (scaled too); load trend per lift; HYROX run pace after each station vs fresh pace; Rx notes that cite their evidence ("vs your sim on 12 Sep", illustrative). The Insights tab appears with this phase.</td><td>Delta from 3 like-for-like results, trend from 5; "based on 3 results"; run pace from the step counter labelled "estimate" until calibrated</td></tr>
+      <tr><td><strong>~50 workouts</strong></td><td>btwb-style levels per category (power lifts, Olympic lifts, speed, endurance, metcon light/heavy/long…), built from what the watch measured and from published standards, not from other users. Imbalance notes only when both sides have recent data.</td><td>Marked "estimate", method shown, empty categories greyed out, not averaged</td></tr>
+    </tbody></table></div>
+  <p class="note">Left out on purpose: calories, streaks, badge counts, "pounds moved", a bare daily HRV number. Deload and injury weeks can be marked and are left out of trends, so a taper never reads as a decline.</p>
+</section>
+
+<section>
+  <h2><span class="n">11</span>First run and empty states</h2>
+  <div class="two">
+    <div class="box"><h3>First run (3 screens, skippable)</h3><ol>
+      <li>What Rx Lab does, in one sentence. Watch check: "Rx Lab is on your watch ✓" or how to install it.</li>
+      <li>Units (pre-set from your phone's region: kg/km for Switzerland). Which load column you use for two-column workouts and your HYROX division: you choose, nothing pre-selected, "skip" allowed.</li>
+      <li>Birth year or max HR, body weight. Health permission is asked only when you first start a workout, with one line on why. Settings › Permissions shows later what is on or off.</li></ol>
+      <p class="note">People updating from today's build see "Your past workouts and lifts are all here now" once; old files are moved into the one Log.</p></div>
+    <div class="box"><h3>Empty states (one action each)</h3><ul>
+      <li><strong>Today:</strong> "Nothing planned. [+ Add today's workout] or start a Free workout on your watch."</li>
+      <li><strong>Log:</strong> "Your first workout shows up here a minute after you press End."</li>
+      <li><strong>Library › Mine:</strong> "Import your box's whiteboard or a Mayhem day."</li>
+      <li><strong>Lift page:</strong> "Add a recent max so we can suggest loads."</li>
+      <li><strong>Watch, no phone set up:</strong> Free workout and Lift session work; results wait on the watch.</li></ul></div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">12</span>Key scenarios, step by step</h2>
+  <p class="note">IDs refer to scenarios.md. The coloured label says when it works.</p>
+
+  <div class="box walk"><h3>A Mayhem day, start to finish <span class="ids">S-20 · S-33 · S-35 · S-36 · S-63 · new</span> <span class="stage s2">Before TestFlight</span></h3><ol>
+    <li>Evening before: in the Mayhem app, screenshot the 6 cards. In Rx Lab: + Add › Photo / screenshots › select all 6.</li>
+    <li>Confirm screen shows one session with 7 blocks: Warm-up · Back squat 3-3-3-3-3 @ 65–75% · Front squat 3-3-3-3-3 @ 68–70% · "It's just a flesh wound!" for time, cap 17 · Core 2 rounds for quality · 100 V-ups, cap 7 · Cool-down. The scaling guide becomes a Reference block.</li>
+    <li>The metcon shows the row ladder 40-30-20-30-40 cal with 7 power cleans after each, in the load column you chose in Profile. You tap Schedule › Tomorrow.</li>
+    <li>Next morning, the timed blocks are sent to the watch automatically (or tap <strong>Send day to watch</strong> on Today). Today shows the block cards. Back squat: recent maxes 3RM 215 lb (11 Feb 2026) and 10RM 135 lb; last time 5 sets of 3 at 245 lb, Rx'd, 6 Dec 2024, shown greyed "over a year ago" <span class="note">(your real numbers from the screenshot)</span>. Suggested loads 150–170 lb "from 3RM 215 · est. 1RM ~230" <span class="note">(estimate)</span>.</li>
+    <li>Warm-up: read it on the phone, nothing to start.</li>
+    <li>Squats: on the phone, Back squat card › <strong>Start lifting</strong> (it includes the front squat block that follows). The watch starts recording by itself: "Back squat · Set 1 of 5 · ♥ · ●".</li>
+    <li>Each set: <strong>Double Tap</strong> on the watch at unrack and again at rerack (or tap <strong>Set done</strong> on the phone). Confirm reps and load on the phone. Motion for that set is stored with it and counts toward the ~25 marked sets the squat detector needs.</li>
+    <li>Phone: <strong>Next lift: Front squat</strong>; same again. Then <strong>End lifting</strong>: one Apple strength workout is saved; back squat and front squat each get their own result (best set + volume).</li>
+    <li>Metcon: Watch › Today › Metcon › START. Crown at each change; at 17:00 the cap asks for the reps done; End = second Apple workout. The done screen offers <strong>Next: V-ups 100</strong>.</li>
+    <li>Core: on the phone tap [Log] › "done", optional note. V-ups: START from the done screen; Crown at the end, or the cap ("82 reps at cap (7:00)", illustrative).</li>
+    <li>Log shows one row "Mayhem · Sat" with <strong>5 scored blocks</strong> (back squat, front squat, metcon, core, V-ups); Apple Fitness shows 3 workouts (lifting, metcon, V-ups). Warm-up and cool-down are not in any score.</li></ol></div>
+
+  <div class="box walk"><h3>Setting the Anaheim target <span class="ids">S-77 · S-13</span> <span class="stage s0">Before Anaheim</span></h3><ol>
+    <li>On today's app: Workouts tab › Choose › your race workout › preview › <strong>Race plan</strong>.</li>
+    <li>Type a goal finish time. The split shape comes from your best <em>full</em> sim with the same segments (the trial sim in the week of 15 Nov, roxzone included if on). Without one, a standard HYROX split template is used.</li>
+    <li>Check the target per run, station (and roxzone). [Send to watch]. The targets travel inside the workout. "Delta off" turns the watch back into a plain clock.</li></ol></div>
+
+  <div class="box walk"><h3>Race day in the hall <span class="ids">S-78 · S-79 · S-80 · S-40 · S-52</span> <span class="stage s0">Before Anaheim</span></h3><ol>
+    <li>Phone goes into bag check. Watch: Workouts page › your race workout › START at the start line.</li>
+    <li>Crown at each mat: run → (roxzone) → station → (roxzone). Each turn gives a haptic; side button undoes a wrong turn.</li>
+    <li>One glance per lap: big clock, current segment and "0:18 ahead" or "0:07 behind", in words and colour, plus total.</li>
+    <li>Finish: Crown on the last segment. The result is saved right away, then recovery runs; End saves the final version. "Phone offline · ↑1" is normal.</li>
+    <li>Back at the bag: open the phone; the result arrives with target vs actual per split. Apple Health already has the workout.</li></ol></div>
+
+  <div class="box walk"><h3>Watch app crashes or battery dies mid-race <span class="ids">S-55 · S-47</span> <span class="stage s0">Before Anaheim</span></h3><ol>
+    <li>At each Crown turn the watch has written its progress (with the workout's ID) to a file.</li>
+    <li>watchOS restarts the app and hands back the running Apple workout (Apple's workout recovery). Screen: "Hyrox · 41:12 · run 5 · [Resume] [Save as incomplete]" <span class="note">(illustrative)</span>.</li>
+    <li>Resume: the same Apple workout continues, the clock runs from the real start time, splits kept; heart rate during the gap is filled from Apple Health. Save: the phone shows the report marked "Incomplete" with "Complete manually".</li>
+    <li>If the battery died, there is nothing to resume: next time the watch is charged and opened, Save as incomplete keeps everything up to the last Crown turn.</li>
+    <li>Rehearsed before the race with Advanced › "Simulate crash".</li></ol></div>
+
+  <div class="box walk"><h3>Phone in the locker <span class="ids">S-56 · S-57 · S-06</span> <span class="stage s3">works today on the watch</span> <span class="stage s2">phone view Before TestFlight</span></h3><ol>
+    <li>Train; End. The watch shows "Saved ✓" and "Phone offline · ↑1". Apple Health already has the workout.</li>
+    <li>Later the phone comes near; delivery happens without you doing anything. Before that, the Log shows "Waiting on watch" (from the watch's last outbox list).</li>
+    <li>Still nothing after 24 h: Today banner → Sync now (asks the watch to send again; if unreachable: "Open Rx Lab on your watch"), or Send diagnostics.</li></ol></div>
+
+  <div class="box walk"><h3>Phone drops out during squats <span class="ids">S-56 · S-49 · new</span> <span class="stage s2">Before TestFlight</span></h3><ol>
+    <li>The phone stays out of range on the bench, or its battery dies.</li>
+    <li>The watch keeps recording and shows "Phone away · recording". Use <strong>Next set</strong> on the watch after each set (or catch up later on the phone).</li>
+    <li>Phone back in range (or app reopened): it re-attaches, the watch sends its full state, the phone lists the sets done meanwhile. If you ended on the watch, the block arrives like any other result.</li></ol></div>
+
+  <div class="box walk"><h3>Whiteboard photo 5 minutes before class <span class="ids">S-10 · S-19 · S-24</span> <span class="stage s2">Before TestFlight</span></h3><ol>
+    <li>+ Add › Photo. Text is read on the phone, no Wi-Fi needed.</li>
+    <li>Confirm screen: pick the track (Rx / Scaled / Foundations). "T2B" → Toes-to-bar; "devil press burpee over DB" ⚑ check → keep as free text.</li>
+    <li>Save and send to watch. Watch Today shows it on top with START.</li></ol></div>
+
+  <div class="box walk"><h3>Coach posts the WOD in WhatsApp <span class="ids">S-11 · S-20</span> <span class="stage s2">Before TestFlight</span></h3><ol>
+    <li>Long-press the message › Share › Rx Lab.</li>
+    <li>The confirm screen opens with strength + metcon + finisher split into blocks. Save.</li></ol></div>
+
+  <div class="box walk"><h3>Didn't wear the watch <span class="ids">S-63 · S-26</span> <span class="stage s2">Before TestFlight</span></h3><ol>
+    <li>+ Add › Log a result › search "Helen" (or type the workout).</li>
+    <li>Score 12:47 <span class="note">(illustrative)</span>, Scaled, notes, RPE 8. Saved as source "typed in", no heart rate shown.</li></ol></div>
+
+  <div class="box walk"><h3>Saturday partner WOD <span class="ids">S-28 · S-29</span> <span class="stage s2">tagging Before TestFlight</span> <span class="stage s1">watch toggle Before App Store</span></h3><ol>
+    <li>Start the partner workout. Hint on the preview: "Turn the Crown at each change of who works; tag the splits later."</li>
+    <li>Report shows the team time. Tap splits to tag me / partner / together; partner time becomes rest in your heart-rate story.</li></ol></div>
+
+  <div class="box walk"><h3>Coach says ring rows count as scaled <span class="ids">S-65 · S-62</span> <span class="stage s2">Before TestFlight</span></h3><ol>
+    <li>Log › the result › Edit result › Scaling: Scaled, substitution "ring rows for pull-ups".</li>
+    <li>PRs recalculate: it leaves your Rx list and may be a Scaled PR. Restore original undoes it.</li></ol></div>
+
+  <div class="box walk"><h3>Swiss tester's first launch <span class="ids">S-01 · S-02 · S-04 · S-92 · S-97</span> <span class="stage s2">Before TestFlight</span></h3><ol>
+    <li>Install from TestFlight. First run pre-selects kg, km, 24-hour clock from the phone's region; load column and division are asked, not preset.</li>
+    <li>The phone sends units to the watch; the load stepper moves in 2.5 kg steps. Declined a permission? Settings › Permissions shows it and how to turn it on.</li>
+    <li>Something odd? Settings › Advanced › Send diagnostics: a preview first, no heart rate or raw motion unless ticked.</li></ol></div>
+</section>
+
+<section>
+  <h2><span class="n">13</span>Wireframes</h2>
+  <div class="mocks">
+    <figure>
+      <div class="phone">
+        <div class="ph-top"><span class="av">SG</span>Today <span class="addb">+ Add</span></div>
+        <div class="c"><span class="lbl">Sat · Mayhem day · 7 blocks</span><div class="btn g">Send day to watch</div></div>
+        <div class="c blk off"><div class="row"><span>Warm-up</span><span class="dim">read only</span></div></div>
+        <div class="c blk lift"><span class="lbl">Strength</span><span class="big">Back squat 5×3</span><span class="dim">65–75% · suggested 150–170 lb</span><span class="dim">from 3RM 215 (Feb 26) · est. 1RM ~230</span>
+          <span class="dim" style="opacity:.55">Last: 5×3 @ 245 lb · Rx'd · over a year ago</span><span class="dim">+ Front squat 5×3 follows</span>
+          <div class="mini"><div class="btn g">Log</div><div class="btn">Start lifting</div></div></div>
+        <div class="c blk met"><span class="lbl">Metcon · for time · cap 17</span><span class="big">Flesh wound</span><div class="mini"><div class="btn g">Log</div><div class="btn g">On watch ✓</div></div></div>
+        <div class="c blk core"><div class="row"><span>Core · 2 rounds quality</span><span class="chip">Log</span></div></div>
+        <div class="tabs t3"><span class="on">Today</span><span>Library</span><span>Log</span></div>
+      </div>
+      <figcaption>Today as block cards. Last result and maxes are yours (screenshot); suggested loads are illustrative.</figcaption>
+    </figure>
+    <figure>
+      <div class="phone">
+        <div class="ph-top" style="font-size:18px">Lifting <span class="chip" style="color:#FF6B61">● Watch · ♥ 128</span></div>
+        <div class="c blk lift"><span class="lbl">Lift 1 of 2 · 65–75% 1RM</span><span class="big">Back squat 3-3-3-3-3</span>
+          <span class="dim">Maxes: 3RM 215 (11 Feb 26) · 10RM 135 · est. 1RM ~230</span><span class="dim" style="opacity:.55">Last: 5×3 @ 245 lb · Rx'd · over a year ago</span></div>
+        <div class="c">
+          <div class="row"><span>Set 1 · 3 reps</span><span>150 lb ✓</span></div>
+          <div class="row"><span>Set 2 · 3 reps</span><span>160 lb ✓</span></div>
+          <div class="row"><span style="color:var(--phone-volt)">Set 3 · now</span><span>165 lb ✎</span></div>
+          <div class="row dim"><span>Set 4</span><span>170 lb</span></div>
+          <div class="row dim"><span>Set 5</span><span>170 lb</span></div>
+          <div class="btn g">Set done (backup)</div><span class="dim">Double Tap on watch = start / end · 8 of ~25 sets collected</span></div>
+        <div class="c"><div class="row"><span class="dim">Next</span><span>Front squat 5×3 · 68–70%</span></div></div>
+        <div class="mini"><div class="btn g">Next lift ›</div><div class="btn g">End lifting</div></div>
+      </div>
+      <figcaption>Lifting block on the phone: sets marked by Double Tap on the watch, Set done as backup. Prescription, last result and maxes are yours; the 1RM is an estimate; set loads are illustrative.</figcaption>
+    </figure>
+    <figure>
+      <div class="phone">
+        <div class="ph-top"><span class="av">SG</span>Log <span class="addb">+ Add</span></div>
+        <div class="c" style="padding:6px 10px"><span class="dim">Search name or movement</span></div>
+        <div class="row"><span class="chip" style="background:var(--phone-volt);color:#0C0D0F">All</span><span class="chip">Races</span><span class="chip">WODs</span><span class="chip">Lifts</span></div>
+        <div class="c"><span class="lbl">Today</span><div class="row"><span class="dim">⌚ 1 result waiting on watch</span></div></div>
+        <div class="c"><span class="lbl">Sat · Mayhem · 5 scored</span>
+          <div class="row"><span><span class="dot" style="background:#B8FF3C"></span>Back squat</span><b>170 ×3</b></div>
+          <div class="row"><span><span class="dot" style="background:#B8FF3C"></span>Front squat</span><b>185 ×3</b></div>
+          <div class="row"><span><span class="dot" style="background:#FF7A1A"></span>Flesh wound</span><b>14:52</b></div>
+          <div class="row"><span><span class="dot" style="background:#B48CFF"></span>V-ups 100</span><b>82 at cap 7:00</b></div></div>
+        <div class="c"><span class="lbl">Thu · Box</span><div class="row"><span><span class="dot" style="background:#4D8EFF"></span>Helen · Scaled</span><b>12:47</b></div></div>
+        <div class="c"><span class="lbl">Wed · HYROX sim</span><div class="row"><span><span class="dot" style="background:#4D8EFF"></span>Half HYROX <span class="flag">⚑ incomplete</span></span><b>41:12</b></div></div>
+        <div class="tabs t3"><span>Today</span><span>Library</span><span class="on">Log</span></div>
+      </div>
+      <figcaption>Log: one row per session, blocks inside. Numbers illustrative.</figcaption>
+    </figure>
+    <figure>
+      <div class="phone">
+        <div class="ph-top" style="font-size:18px">Check day <span class="dim" style="font:500 11px var(--body)">Save</span></div>
+        <div class="c"><span class="lbl">From 6 screenshots</span><span class="dim">Back Squat 3-3-3-3-3 · 65–75% 1RM … For time: 40/32 Row Calories · 7 Power Cleans, 185/125 lbs …</span></div>
+        <div class="c"><div class="row"><span class="lbl">Block 2 · Strength</span><span class="chip">load per set</span></div><span>Back squat 5 × 3 @ 65–75%</span><span class="dim">→ 150–170 lb from 3RM 215 (Feb 26)</span></div>
+        <div class="c"><div class="row"><span class="lbl">Block 4 · Metcon</span><span class="chip">For time · cap 17:00</span></div>
+          <div class="row"><span>Row cal 40-30-20-30-40</span><span class="chip">your column</span></div>
+          <div class="row"><span>+ 7 power cleans after each</span><span class="chip">Rx</span></div>
+          <div class="row"><span class="flag">⚑ check: load column not set yet</span></div></div>
+        <div class="c"><div class="row"><span class="lbl">Block 5 · Core</span><span class="chip">no score</span></div></div>
+        <div class="btn">Save and send to watch</div>
+      </div>
+      <figcaption>Confirm screen: the whole day as typed blocks, with what was read and what to check.</figcaption>
+    </figure>
+    <figure>
+      <div class="phone">
+        <div class="ph-top" style="font-size:18px">Half HYROX <span class="dim" style="font:500 11px var(--body)">Edit</span></div>
+        <div class="c"><div class="row"><span class="big">58:40</span><span class="chip ahead">1:12 ahead of target</span></div><span class="dim">PR · your division · Wed</span></div>
+        <div class="c"><span class="lbl">Heart rate</span><svg viewBox="0 0 200 40" width="100%" height="40" aria-label="Heart rate rises in the first five minutes, stays high, drops in recovery"><polyline fill="none" stroke="#FF6B61" stroke-width="2" points="0,34 20,16 40,12 60,10 80,13 100,9 120,11 140,8 160,10 175,26 200,32"/></svg><span class="dim">Recovered 41 bpm in 1 min</span></div>
+        <div class="c"><span class="lbl">Splits vs target</span>
+          <div class="row"><span>Run 1</span><span class="ahead">0:09 ahead</span></div>
+          <div class="row"><span>Roxzone</span><span class="behind">0:04 behind</span></div>
+          <div class="row"><span>SkiErg</span><span class="ahead">0:15 ahead</span></div></div>
+        <div class="c"><span class="dim">Rx note: runs 3–4 were 6 s/km slower than run 1 (vs your sim on 12 Sep).</span></div>
+        <div class="mini"><div class="btn g">Fix splits</div><div class="btn g">Edit result</div></div>
+      </div>
+      <figcaption>Workout report with targets, signed deltas in words and colour. Numbers illustrative.</figcaption>
+    </figure>
+    <figure>
+      <div class="watch">
+        <span class="lbl" style="color:#8F98A3">Phone offline · ↑1</span>
+        <div class="wl hi"><span>Today · Mayhem</span><span>›</span></div>
+        <div class="wl"><span>Free workout</span><span class="dim">▶</span></div>
+        <div class="wl"><span>Lift session</span><span class="dim">›</span></div>
+        <div class="wl"><span>Workouts</span><span class="dim">›</span></div>
+      </div>
+      <figcaption>Watch home: one labelled list, sync status on top.</figcaption>
+    </figure>
+    <figure>
+      <div class="watch">
+        <div class="row"><span class="lbl" style="color:#8F98A3">Lifting · phone</span><span style="color:#FF6B61">●</span></div>
+        <div class="wseg" style="color:#B8FF3C">BACK SQUAT</div>
+        <div class="wbig">Set 3/5</div>
+        <span class="dim">♥ 128 · 165 lb</span>
+        <span class="dim">Double Tap = end set</span>
+      </div>
+      <figcaption>Watch while the phone controls lifting. If the phone drops out: "Phone away · recording" with Next set / Next lift / End. Illustrative.</figcaption>
+    </figure>
+    <figure>
+      <div class="watch" style="border-color:#2E6BF0">
+        <div class="row"><span class="wseg">RUN 5</span><span class="dim">♥ 171</span></div>
+        <div class="wbig">41:12</div>
+        <div class="row"><span class="ahead" style="font:700 18px var(--display)">0:18 ahead</span></div>
+        <span class="dim">total 0:52 ahead · next Wall balls</span>
+        <span class="dim">~5:02 /km (est.)</span>
+      </div>
+      <figcaption>Race screen: delta in words and colour, total delta below. Illustrative.</figcaption>
+    </figure>
+    <figure>
+      <div class="watch">
+        <span class="lbl" style="color:#8F98A3">Workout interrupted</span>
+        <span style="font-weight:700">Hyrox · 41:12</span>
+        <span class="dim">Saved up to Run 5</span>
+        <div class="wl hi"><span>Resume</span><span>▶</span></div>
+        <div class="wl"><span>Save as incomplete</span><span class="dim">✓</span></div>
+      </div>
+      <figcaption>After a crash or restart. Illustrative.</figcaption>
+    </figure>
+    <figure>
+      <div class="watch">
+        <span class="lbl" style="color:#8F98A3">Done</span>
+        <div class="wbig">14:52</div>
+        <span class="dim">Recovery 1:40 · ♥ −28</span>
+        <span>Saved ✓ · ↑ sending</span>
+        <div class="wl"><span>Next: V-ups 100</span><span class="dim">›</span></div>
+      </div>
+      <figcaption>Done screen with sync state and the next timed block of the day (Before TestFlight). Illustrative.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">14</span>Build order</h2>
+  <p class="note">Each scenario ID appears once, in the stage where it first fully works. Rule for the AI agents: new logic goes into the shared, tested code package (BarPathKit) and is checked with its tests on a Mac or in CI; the app screens stay thin.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Stage</th><th>What</th><th>Scenarios</th></tr></thead>
+    <tbody>
+      <tr><td><span class="stage s3">Works today</span></td><td>Crown next / undo, timed rests, AMRAP cap + partial reps, EMOM, chipper progress, done screen with recovery, Olympic lift detection + bar path, standalone watch with queued sync, Apple Health save at End, Fix splits, share JSON/CSV. Keep, don't rebuild.</td><td class="ids">S-30 S-31 S-32 S-38 S-40 S-43 S-49 S-52 S-62 S-68 S-85 S-86</td></tr>
+      <tr><td><span class="stage s0">Before Anaheim</span><br><span class="note">test build Sun 15 Nov · freeze Sun 22 Nov</span></td><td><ol>
+        <li><strong>Race target + ahead/behind.</strong> Targets travel inside the workout. On today's Workouts tab › Choose › preview › Race plan: one goal-time field; shape from your best full sim with the same segments, else a standard HYROX template. Watch shows ahead/behind per split and in total, in words and colour; "Delta off" switch. Phone report lists target vs actual per split.</li>
+        <li><strong>Never lose a race.</strong> Progress + workout ID written to a file at each Crown turn. On relaunch, Apple's workout recovery continues the same Apple workout → Resume (heart-rate gap filled from Health); otherwise Save as incomplete. Result saved at the finish and at End with a revision number; the phone keeps the newest; End cancels the queued finish copy. Hidden "Simulate crash". Fallback: if Resume isn't solid by 15 Nov, ship Save as incomplete only.</li>
+        <li><strong>Roxzone laps</strong> in the HYROX workouts (if Q2 = yes); check your race's distances and loads.</li>
+        <li><strong>Test plan:</strong> 15 Nov build → full trial sim that week, roxzone on; it becomes the target shape → fixes → freeze 22 Nov → week of 23 Nov: half sim or race-pace segments on the frozen build, including one simulated crash. Then only bug fixes.</li></ol>
+        <p class="note">Not before the race: new tabs, import, data model, lifting from the phone, calibration.</p></td>
+        <td class="ids">S-46 S-47 S-55 S-77 S-78 S-79 S-80</td></tr>
+      <tr><td><span class="stage s2">Before TestFlight</span><br><span class="note">Dec–Feb, in this order</span></td><td><ol>
+        <li><strong>Trial run of Apple's live watch↔phone workout link:</strong> start, next, end, close the phone app, reattach. Go / no-go for phone-controlled lifting.</li>
+        <li><strong>Data model v2 + moving old files over:</strong> Session › Block › Result; session and block IDs sent to the watch and back; scaling on the result; score types; fixes kept separate from the raw recording; partner tags; stored in kg/m/s plus the unit you typed; rep maxes with the 12-month rule; lifting-block files added to the re-send list with a test; old files keep importing.</li>
+        <li><strong>Log:</strong> one row per session, search, Edit result, delete/merge, trim end, "Still going?" prompt.</li>
+        <li><strong>Lifting from the phone:</strong> Start lifting (sends the plan, then opens the watch), Next lift, End lifting; simple watch screen; phone-away fallback; metcon blocked while lifting runs. <strong>Set marks</strong> (§7 step 1): Double Tap on the watch for set start and end (Crown turn as hidden fallback), Set done on the phone as backup, correct sets afterwards; Data mode always on for lifting blocks; "sets collected" counter per lift (step 2).</li>
+        <li><strong>Import:</strong> screenshots/photo (several), paste, Build, Log a result, Share Sheet → confirm screen with blocks, tracks, load column, %1RM.</li>
+        <li><strong>New tabs and setup:</strong> Today · Library · Log + Add; Today block cards; Send day to watch; first run, empty states, Settings (Profile, Permissions, Lifts &amp; maxes, Watch &amp; sync with the watch's outbox list, Advanced + Send diagnostics); watch home with Today's timed blocks, Free workout, Next block on the done screen, units + plate steps; "On watch ✓".</li>
+        <li><strong>HYROX and running:</strong> division selector, per-split target editing, distance run segment (pace from steps, manual end), Calibrate run. Check calories show on the Fitness card (add heart rate and energy to what the app asks to save, if needed).</li></ol></td>
+        <td class="ids">S-01 S-02 S-03 S-04 S-05 S-06 S-07 S-09 S-10 S-11 S-12 S-13 S-19 S-20 S-21 S-24 S-26 S-28 S-29 S-33 S-34 S-35 S-36 S-39 S-41 S-42 S-44 S-51 S-54 S-56 S-57 S-59 S-63 S-64 S-65 S-67 S-69 S-82 S-91 S-92 S-97</td></tr>
+      <tr><td><span class="stage s1">Before App Store</span></td><td><ol>
+        <li><strong>Shadow mode</strong> for squats and presses (§7 step 3): automatic set detection and rep counting suggest, you confirm; speed and path per rep.</li>
+        <li>Insights tab (3 like-for-like results for a delta, 5 for a trend); PRs compared like with like (same workout, scaling, score type); benchmark linking by name; compare view; programmed "target score" as the metcon's ahead/behind target.</li>
+        <li>Watch: partner toggle; pause; switch workout; double tap; EMOM alternating / failed minute.</li>
+        <li>Health: segments inside each workout. Export all, iCloud backup/restore, delete all.</li>
+        <li>Share card with "hide heart rate / body", inbound share links, glossary, accessibility pass, schedule calendar, favourites, lift speed by load.</li></ol></td>
+        <td class="ids">S-08 S-15 S-17 S-18 S-22 S-25 S-27 S-37 S-45 S-48 S-50 S-60 S-61 S-66 S-70 S-71 S-75 S-76 S-84 S-88 S-94 S-95 S-96 S-98 S-99 S-100</td></tr>
+      <tr><td><span class="stage s3">Later</span></td><td>Fitness level ("50 workouts" phase), recommendations, readiness, retest reminders, Apple Health import, Strava, coach view, partner result sharing, non-English parsing, complications / Smart Stack, auto run detection, fully automatic sets and reps (§7 step 4) and bench press, official-results import, deload marking.</td>
+        <td class="ids">S-14 S-16 S-23 S-53 S-58 S-72 S-73 S-74 S-81 S-83 S-87 S-89 S-90 S-93</td></tr>
+    </tbody></table></div>
+</section>
+
+<section>
+  <h2><span class="n">15</span>Questions for you</h2>
+  <ol class="q">
+    <li><strong>Anaheim: Solo or Doubles, Open or Pro, and which category?</strong> Default: none assumed; until you answer, the race plan uses the HYROX workout you pick on the watch, and Profile asks for your load column.</li>
+    <li><strong>Roxzone laps on race day</strong> (4 Crown turns per lap instead of 2)? Default: on in the trial sim (week of 15 Nov); keep it for the race only if you didn't miss turns.</li>
+    <li><strong>Race target:</strong> a goal finish time shaped by your best full sim, or "beat my best sim" as-is? Default: goal time.</li>
+    <li><strong>Test build Sun 15 Nov + full trial sim that week, freeze Sun 22 Nov, half sim on the frozen build</strong> — fits your training? Default: yes.</li>
+    <li><strong>Lifts and a WOD on the same day = one Log entry?</strong> Default: yes; planned days are grouped exactly, unplanned ones by date, and you can split them.</li>
+    <li><strong>Where do most workouts come from</strong> — Mayhem screenshots, whiteboard photo, or pasted text? Default: screenshots/photo first, paste second, Share Sheet third.</li>
+  </ol>
+</section>
+
+<section>
+  <h2><span class="n">16</span>Notes to fold into the next revision</h2>
+  <div class="box">
+    <span class="tag">Note · added 1 Nov 2026</span>
+    <h3>Transition time vs work time in every segment</h3>
+    <p>The owner wants transitions measured. A prototype (repo: <code>docs/TRANSITIONS.md</code>, <code>tools/barpath/transitions.py</code>) splits each segment into <strong>transition</strong> (from the Crown turn to the first real rep, stroke or running step) and <strong>work</strong>, from the motion recording, with no extra Crown turns. On AMRAP 40 (1 Nov) it found the start of work in 28 of 28 stations: 7:38 of 33:54 (23 %) went to transitions.</p>
+    <ul>
+      <li><strong>Data model:</strong> each split gets optional <em>transition seconds</em> + <em>confidence</em>, computed after the workout from the recording (needs DATA on). Never edits the raw times.</li>
+      <li><strong>Workout report:</strong> lighter leading part on each split bar (solid bar when confidence is low); one line under the score: "Time in transitions 7:38 (23 %)".</li>
+      <li><strong>HYROX:</strong> the transition before each station and run ≈ Roxzone time; ties in with the optional Roxzone laps.</li>
+      <li><strong>Insights (later):</strong> transitions per movement over time ("you lose 30–40 s setting up wall walks").</li>
+      <li><strong>Build stage:</strong> after 2–3 more workouts with DATA on and a short phone video of a few stations to validate; not before Anaheim.</li>
+    </ul>
+  </div>
+</section>
+</main>
