@@ -20,6 +20,7 @@ final class CloudAccount: ObservableObject {
     @Published private(set) var lastError: String?
 
     let client: SupabaseClient?
+    private var isQueueing = false
     private var syncAgain = false
 
     var isSignedIn: Bool { return userId != nil }
@@ -80,8 +81,10 @@ final class CloudAccount: ObservableObject {
 
     func signOut() async {
         guard let client else { return }
+        await BackgroundUploads.shared.cancelAll()
         try? await client.auth.signOut()
         apply(nil)
+        isSyncing = false
     }
 
     /// Removes every uploaded file, the `uploads` rows and the account itself.
@@ -89,6 +92,7 @@ final class CloudAccount: ObservableObject {
     func deleteAccount() async {
         guard let client, let userId else { return }
         lastError = nil
+        await BackgroundUploads.shared.cancelAll()
         do {
             let rows: [UploadPath] = try await client.from("uploads")
                 .select("path")
@@ -104,8 +108,10 @@ final class CloudAccount: ObservableObject {
             }
             try await client.rpc("delete_user").execute()
             UploadManifest.clear(userId: userId)
+            PendingRows.clear(userId: userId)
             try? await client.auth.signOut()
             apply(nil)
+            isSyncing = false
         } catch {
             lastError = "Could not delete the account: \(error.localizedDescription)"
         }
@@ -113,70 +119,136 @@ final class CloudAccount: ObservableObject {
 
     // MARK: - Upload
 
-    /// Uploads new and changed files. Safe to call often: calls during a run are merged.
+    /// Queues new and changed files for upload. Safe to call often: calls during a run are merged.
     func syncSoon() {
         guard client != nil, isSignedIn else { return }
-        if isSyncing {
+        if isQueueing {
             syncAgain = true
             return
         }
         Task { await sync() }
     }
 
+    /// Hands every file not yet uploaded to `BackgroundUploads`, which keeps going while the app
+    /// is suspended; `uploadFinished` records each one. Also retries rows that could not be written.
     private func sync() async {
         guard let client, let userId else { return }
-        isSyncing = true
-        defer { isSyncing = false }
+        isQueueing = true
+        defer { isQueueing = false }
         repeat {
             syncAgain = false
-            var manifest = UploadManifest.load(userId: userId)
+            await writePendingRows(userId: userId)
+            let manifest = UploadManifest.load(userId: userId)
             let files = LocalFiles.all().filter { manifest[$0.path] != $0.version }
             pendingCount = files.count
-            var failures = 0
-            for file in files {
-                do {
-                    try await upload(file, userId: userId, client: client)
-                    manifest[file.path] = file.version
-                    UploadManifest.save(manifest, userId: userId)
-                } catch {
-                    failures += 1
-                    lastError = "Upload failed for \(file.path): \(error.localizedDescription)"
-                }
-                pendingCount -= 1
+            guard !files.isEmpty else {
+                isSyncing = false
+                if lastError == nil { lastSync = Date() }
+                continue
             }
-            if failures == 0 {
-                lastError = nil
-                lastSync = Date()
+            let token: String
+            do {
+                token = try await client.auth.session.accessToken
+            } catch {
+                lastError = "Upload paused: \(error.localizedDescription)"
+                return
+            }
+            let busy = Set(await BackgroundUploads.shared.inFlight()
+                .filter { $0.userId == userId }
+                .map { $0.path })
+            lastError = nil
+            isSyncing = true
+            for file in files where !busy.contains(file.path) {
+                let job = UploadJob(userId: userId,
+                                    path: file.path,
+                                    version: file.version,
+                                    objectPath: userId.uuidString.lowercased() + "/" + file.path,
+                                    kind: file.kind,
+                                    bytes: Int(file.size),
+                                    modified: file.modified)
+                BackgroundUploads.shared.enqueue(job, file: file.url,
+                                                 contentType: file.contentType, accessToken: token)
             }
         } while syncAgain
     }
 
-    private func upload(_ file: LocalFile, userId: UUID, client: SupabaseClient) async throws {
-        let data = try Data(contentsOf: file.url)
-        let objectPath = userId.uuidString.lowercased() + "/" + file.path
-        _ = try await client.storage.from(CloudConfig.bucket).upload(
-            objectPath,
-            data: data,
-            options: FileOptions(contentType: file.contentType, upsert: true))
-        let row = UploadRow(user_id: userId,
-                            path: objectPath,
-                            kind: file.kind,
-                            bytes: data.count,
-                            file_modified_at: file.modified)
-        try await client.from("uploads")
-            .upsert(row, onConflict: "user_id,path")
-            .execute()
+    /// Called for each file iOS finished sending (also after a background relaunch).
+    func uploadFinished(_ job: UploadJob, failure: String?) async {
+        if let failure {
+            lastError = "Upload failed for \(job.path): \(failure)"
+        } else {
+            var manifest = UploadManifest.load(userId: job.userId)
+            manifest[job.path] = job.version
+            UploadManifest.save(manifest, userId: job.userId)
+            var rows = PendingRows.load(userId: job.userId)
+            rows[job.objectPath] = UploadRow(user_id: job.userId,
+                                             path: job.objectPath,
+                                             kind: job.kind,
+                                             bytes: job.bytes,
+                                             file_modified_at: job.modified)
+            PendingRows.save(rows, userId: job.userId)
+            if job.userId == userId { pendingCount = max(0, pendingCount - 1) }
+            await writePendingRows(userId: job.userId)
+        }
+        if await BackgroundUploads.shared.inFlight().isEmpty {
+            isSyncing = false
+            if lastError == nil { lastSync = Date() }
+        }
+    }
+
+    /// Writes the `uploads` rows of files already in Storage. A row that fails (e.g. no network
+    /// in the background) stays queued for the next sync; the file itself is not sent again.
+    private func writePendingRows(userId: UUID) async {
+        guard let client else { return }
+        var rows = PendingRows.load(userId: userId)
+        guard !rows.isEmpty else { return }
+        do {
+            try await client.from("uploads")
+                .upsert(Array(rows.values), onConflict: "user_id,path")
+                .execute()
+            rows.removeAll()
+        } catch {
+            lastError = "Could not record uploads: \(error.localizedDescription)"
+        }
+        PendingRows.save(rows, userId: userId)
     }
 }
 
 // MARK: - Rows
 
-private struct UploadRow: Encodable {
+private struct UploadRow: Codable {
     let user_id: UUID
     let path: String
     let kind: String
     let bytes: Int
     let file_modified_at: Date
+}
+
+/// Rows of uploaded files not yet written to the `uploads` table, by object path.
+private enum PendingRows {
+    private static func url(userId: UUID) -> URL {
+        let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        try? FileManager.default.createDirectory(at: support, withIntermediateDirectories: true)
+        return support.appendingPathComponent("cloud-\(userId.uuidString.lowercased())-rows.json")
+    }
+
+    static func load(userId: UUID) -> [String: UploadRow] {
+        guard let data = try? Data(contentsOf: url(userId: userId)),
+              let rows = try? JSONDecoder().decode([String: UploadRow].self, from: data) else { return [:] }
+        return rows
+    }
+
+    static func save(_ rows: [String: UploadRow], userId: UUID) {
+        if rows.isEmpty {
+            clear(userId: userId)
+        } else if let data = try? JSONEncoder().encode(rows) {
+            try? data.write(to: url(userId: userId), options: .atomic)
+        }
+    }
+
+    static func clear(userId: UUID) {
+        try? FileManager.default.removeItem(at: url(userId: userId))
+    }
 }
 
 private struct UploadPath: Decodable {

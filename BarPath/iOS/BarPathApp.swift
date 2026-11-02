@@ -14,7 +14,21 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         WorkoutStore.shared.loadIfNeeded()
         PhoneLink.shared.activate()
         CloudAccount.shared.start()
+        // Reconnect to uploads iOS kept running while the app was not.
+        _ = BackgroundUploads.shared.session
         return true
+    }
+
+    /// iOS relaunched the app in the background because uploads finished.
+    func application(_ application: UIApplication,
+                     handleEventsForBackgroundURLSession identifier: String,
+                     completionHandler: @escaping () -> Void) {
+        guard identifier == BackgroundUploads.identifier else {
+            completionHandler()
+            return
+        }
+        BackgroundUploads.shared.eventsCompletion = completionHandler
+        _ = BackgroundUploads.shared.session
     }
 
     /// The watch app requests HealthKit authorization; the user approves it on the phone.
