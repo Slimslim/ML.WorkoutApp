@@ -185,6 +185,21 @@ public enum WorkoutLibrary {
         ], rounds: 12),
         roundSize: 5)
 
+    /// Class workout (Mon 2026-11-02, PitFIRE): "Freedom" (Rx), for time, 20:00 cap.
+    /// 40-30-20-30-40 cal row with 7 power cleans after every row, 85 kg (Intermediate 70 kg).
+    /// Women's calories are 32-24-16-24-32; targets show the men's numbers.
+    public static let freedom: WorkoutDefinition = {
+        var segments: [WorkoutSegment] = []
+        for cals in [40.0, 30.0, 20.0, 30.0, 40.0] {
+            segments.append(station(Movement.row, cals, .calories))
+            segments.append(station(Movement.powerCleans, 7, .reps, load: SegmentLoad(85, .kg)))
+        }
+        return WorkoutDefinition(id: "wod.freedom", name: "Freedom", shortName: "Freedom",
+                                 format: .forTime, team: .solo, timeCapSeconds: 1200.0,
+                                 healthKitActivity: "crossTraining", segments: segments,
+                                 roundSize: 2)
+    }()
+
     /// Free workout: for anything not built yet. 60 open "Part N" segments with no target and no
     /// cap; turn the Crown at each change (new movement, new set, rest…), End when done. Name and
     /// details are added later on the phone.
@@ -200,14 +215,15 @@ public enum WorkoutLibrary {
     }()
 
     /// Exactly 9, in this order (fills the watch's 3×3 picker). quickTest stays defined but is
-    /// off the grid since 2026-11-01 (Screen demo replaces it); amrap20 made room for Free.
+    /// off the grid since 2026-11-01 (Screen demo replaces it); amrap20 made room for Free;
+    /// Helen made room for Freedom on 2026-11-02.
     public static let all: [WorkoutDefinition] = [
         hyroxSolo, hyroxDoubles, halfHyrox, partnerWod1, partnerWod2, amrap40,
-        helen, rowThrusters, free
+        freedom, rowThrusters, free
     ]
 
     /// Every built-in definition, including ones off the watch grid (old results still resolve).
-    public static let known: [WorkoutDefinition] = all + [amrap20, quickTest]
+    public static let known: [WorkoutDefinition] = all + [amrap20, quickTest, helen]
 
     public static func definition(id: String) -> WorkoutDefinition? {
         return known.first(where: { (d: WorkoutDefinition) -> Bool in d.id == id })
