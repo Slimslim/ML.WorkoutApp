@@ -61,3 +61,5 @@ tested (for example: "not run on a device yet").
 - Swift package tests: `cd BarPath/BarPathKit && swift test`.
 - Specs and history of decisions: `docs/RECORDER_SPEC.md` (lifting), `docs/WORKOUT_SPEC.md`
   and `docs/HYROX_PLAN.md` (workouts).
+- **Watch design is approved and stays:** `docs/watch-design/` has the screenshots. Don't
+  change the look or layout of watch screens without the owner's OK.
