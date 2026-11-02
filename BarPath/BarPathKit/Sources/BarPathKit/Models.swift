@@ -3,7 +3,7 @@ import Foundation
 // MARK: - Enums
 
 public enum LiftType: String, Codable, CaseIterable, Identifiable, Sendable {
-    case snatch, cleanAndJerk, powerSnatch, hangSnatch, powerClean, hangClean, clean, jerk, other
+    case snatch, cleanAndJerk, powerSnatch, hangSnatch, powerClean, hangClean, clean, jerk, deadlift, other
 
     public var id: String { return rawValue }
 
@@ -17,8 +17,15 @@ public enum LiftType: String, Codable, CaseIterable, Identifiable, Sendable {
         case .hangClean: return "Hang Clean"
         case .clean: return "Clean"
         case .jerk: return "Jerk"
+        case .deadlift: return "Deadlift"
         case .other: return "Other"
         }
+    }
+
+    /// Strength mode: the watch counts reps and sends one recording per set (RepCounter)
+    /// instead of one bar-path snippet per lift.
+    public var countsReps: Bool {
+        return self == .deadlift
     }
 }
 
@@ -238,5 +245,43 @@ public struct AccelSeries: Codable, Equatable, Sendable {
         try c.encode(x, forKey: .x)
         try c.encode(y, forKey: .y)
         try c.encode(z, forKey: .z)
+    }
+}
+
+// MARK: - Phone → watch lift selection
+
+/// Next lift chosen on the phone's Lifts tab. Travels as a plain dictionary under
+/// `contextKey` in the WatchConnectivity application context / a message.
+public struct LiftSelection: Equatable, Sendable {
+    public static let contextKey = "liftSelection"
+
+    public var liftType: LiftType
+    public var loadLb: Double?      // nil = don't log load
+    public var sentAt: Double       // seconds since 1970; the watch applies each one once
+
+    public init(liftType: LiftType, loadLb: Double?, sentAt: Double) {
+        self.liftType = liftType
+        self.loadLb = loadLb
+        self.sentAt = sentAt
+    }
+
+    public var dictionary: [String: Any] {
+        var d: [String: Any] = ["liftType": liftType.rawValue, "sentAt": sentAt]
+        if let lb = loadLb {
+            d["loadLb"] = lb
+        }
+        return d
+    }
+
+    public init?(dictionary d: [String: Any]) {
+        guard let raw = d["liftType"] as? String, let type = LiftType(rawValue: raw) else { return nil }
+        liftType = type
+        loadLb = (d["loadLb"] as? NSNumber)?.doubleValue
+        sentAt = (d["sentAt"] as? NSNumber)?.doubleValue ?? 0
+    }
+
+    public var summary: String {
+        guard let lb = loadLb else { return liftType.displayName }
+        return liftType.displayName + String(format: " · %.0f lb", lb)
     }
 }

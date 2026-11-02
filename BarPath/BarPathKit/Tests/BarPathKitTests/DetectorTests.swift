@@ -26,7 +26,7 @@ final class DetectorTests: XCTestCase {
         XCTAssertEqual(c.dropDistance, 0.5)
         XCTAssertEqual(c.returnHeight, 0.15)
         XCTAssertEqual(c.returnStill, 0.5)
-        XCTAssertEqual(c.noAnchorTimeout, 8.0)
+        XCTAssertEqual(c.noAnchorTimeout, 15.0)
         XCTAssertEqual(c.maxLiftDuration, 15.0)
         XCTAssertEqual(c.cooldown, 1.5)
     }
@@ -124,7 +124,7 @@ final class DetectorTests: XCTestCase {
         var b = SignalBuilder()
         b.hold(1.0)
         b.phase(0.1, aUp: 10)                                  // v = 1 m/s => lift starts
-        b.phase(9.0, aUp: 0, lateral: 0.3 * standardGravity)   // never still again
+        b.phase(16.0, aUp: 0, lateral: 0.3 * standardGravity)  // never still again
         let det = OnlineLiftDetector()
         let events = replay(b.samples, detector: det)
         XCTAssertEqual(events.count, 3, "\(events)")
@@ -132,7 +132,7 @@ final class DetectorTests: XCTestCase {
         guard case .liftEnded(let h, let end, let reason) = events[2].event else { return XCTFail() }
         XCTAssertEqual(reason, .timeout)
         XCTAssertEqual(h, 0.995, accuracy: 1e-6)
-        XCTAssertEqual(end - h, 8.0, accuracy: 0.011)
+        XCTAssertEqual(end - h, 15.0, accuracy: 0.011)
         XCTAssertEqual(det.state, .cooldown)
     }
 

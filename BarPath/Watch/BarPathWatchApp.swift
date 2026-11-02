@@ -49,7 +49,11 @@ struct RootView: View {
 
     var body: some View {
         Group {
-            if model.phase != .idle {
+            if model.phase == .paused {
+                // Lifting workout still running after "Change": setup only (no Workouts page,
+                // a second HealthKit workout can't start while this one runs).
+                StartView()
+            } else if model.phase != .idle {
                 SessionView()
             } else if workoutModel.phase != .idle {
                 WorkoutSessionView()
@@ -66,8 +70,16 @@ struct RootView: View {
         .onReceive(PhoneLink.shared.$phoneWorkout) { (definition: WorkoutDefinition?) in
             guard let definition = definition else { return }
             workoutModel.selectFromPhone(definition)
-            if model.phase == .idle && workoutModel.phase == .idle {
+            if model.phase == .idle && workoutModel.phase == .idle && !PhoneLink.shared.lastPhoneChoiceWasLift {
                 rootPage = 1
+                WKInterfaceDevice.current().play(.click)
+            }
+        }
+        .onReceive(PhoneLink.shared.$phoneLift) { (selection: LiftSelection?) in
+            guard let selection = selection else { return }
+            model.selectFromPhone(selection)
+            if (model.phase == .idle || model.phase == .paused) && workoutModel.phase == .idle {
+                rootPage = 0
                 WKInterfaceDevice.current().play(.click)
             }
         }

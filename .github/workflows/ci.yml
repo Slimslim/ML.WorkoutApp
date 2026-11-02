@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: Python tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install numpy pytest
+      - run: python -m pytest tools/tests -q
+
+  swift:
+    name: BarPathKit tests + app builds
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Xcode version
+        run: xcodebuild -version
+      - name: BarPathKit tests (macOS)
+        working-directory: BarPath/BarPathKit
+        run: swift test
+      - name: Generate Xcode project
+        working-directory: BarPath
+        run: |
+          brew install xcodegen
+          xcodegen
+      - name: Build iPhone app (with the watch app embedded)
+        working-directory: BarPath
+        run: |
+          xcodebuild build -project BarPath.xcodeproj -scheme BarPath \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO > build-ios.log 2>&1 || {
+            echo "::group::Compiler errors"; grep -E "error:" build-ios.log | sort -u | head -100; echo "::endgroup::"
+            tail -n 40 build-ios.log
+            exit 1
+          }
+          tail -n 5 build-ios.log
+      - name: Build watch app
+        working-directory: BarPath
+        run: |
+          xcodebuild build -project BarPath.xcodeproj -scheme BarPathWatch \
+            -destination 'generic/platform=watchOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO > build-watch.log 2>&1 || {
+            echo "::group::Compiler errors"; grep -E "error:" build-watch.log | sort -u | head -100; echo "::endgroup::"
+            tail -n 40 build-watch.log
+            exit 1
+          }
+          tail -n 5 build-watch.log

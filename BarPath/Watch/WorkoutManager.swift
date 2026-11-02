@@ -27,6 +27,9 @@ final class WorkoutManager: NSObject, ObservableObject {
     var onError: (@MainActor (String) -> Void)?
     /// Called once the workout has been ended and saved (or when there was nothing to end).
     var onFinished: (@MainActor () -> Void)?
+    /// Set before `end()`: false discards the workout instead of saving it to Health/Fitness
+    /// (used for tiny sessions with no lifts, so Fitness doesn't fill up with 1-minute workouts).
+    var saveWorkoutOnEnd = true
 
     override init() {
         super.init()
@@ -129,9 +132,18 @@ final class WorkoutManager: NSObject, ObservableObject {
             cleanup()
             return
         }
+        let save = saveWorkoutOnEnd   // read on the main actor, before the background callback
         builder.endCollection(withEnd: endDate) { _, error in
             if let error = error {
                 Log.workout.error("endCollection failed: \(error.localizedDescription, privacy: .public)")
+            }
+            if !save {
+                builder.discardWorkout()
+                Log.workout.info("Workout discarded (too short / no lifts)")
+                Task { @MainActor in
+                    self.cleanup()
+                }
+                return
             }
             builder.finishWorkout { _, error in
                 if let error = error {
@@ -153,6 +165,7 @@ final class WorkoutManager: NSObject, ObservableObject {
         builder = nil
         startDate = nil
         isFinishing = false
+        saveWorkoutOnEnd = true
         onFinished?()
     }
 

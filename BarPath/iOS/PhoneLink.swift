@@ -4,6 +4,25 @@ import WatchConnectivity
 import HealthKit
 import BarPathKit
 
+/// Live rep count of the set in progress, from the watch's status messages.
+struct LiveSetStatus: Equatable {
+    let setNumber: Int
+    let repCount: Int
+    let liftName: String
+    let loadLb: Double?
+
+    /// Nil unless the watch is running a strength block with at least one rep in this set.
+    init?(message: [String: Any]) {
+        guard (message["phase"] as? String) == "running",
+              let reps = (message["repCount"] as? NSNumber)?.intValue, reps > 0 else { return nil }
+        repCount = reps
+        setNumber = ((message["liftCount"] as? NSNumber)?.intValue ?? 0) + 1
+        let raw = message["liftType"] as? String
+        liftName = raw.flatMap { LiftType(rawValue: $0)?.displayName } ?? "Set"
+        loadLb = (message["loadLb"] as? NSNumber)?.doubleValue
+    }
+}
+
 /// The single WCSessionDelegate of the iPhone app (one shared instance).
 ///
 /// WatchConnectivity calls the delegate on a background queue. Published state is only
@@ -18,6 +37,11 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     @Published private(set) var isReachable = false
     @Published private(set) var lastFileReceivedAt: Date?
     @Published private(set) var lastStatusText: String?
+    /// Strength-mode set in progress on the watch (live rep count), nil between sets.
+    @Published private(set) var liveSet: LiveSetStatus?
+    /// Main-queue only: bumps on every status so a stale expiry doesn't clear a newer one.
+    private var liveSetGeneration = 0
+    private static let liveSetTimeout: TimeInterval = 15
     @Published private(set) var lastError: String?
     /// True while a "open the watch app" request (HKHealthStore.startWatchApp) is in flight.
     @Published private(set) var isLaunchingWatchApp = false
@@ -26,6 +50,9 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     @Published private(set) var sentWorkoutId: String?
     @Published private(set) var sentWorkoutAt: Date?
     @Published private(set) var sendWorkoutError: String?
+    /// Last lift + load sent from the Lifts tab.
+    @Published private(set) var sentLift: LiftSelection?
+    @Published private(set) var sendLiftError: String?
 
     private let healthStore = HKHealthStore()
 
@@ -92,11 +119,15 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
             return
         }
         let now = Date()
-        let payload: [String: Any] = [
+        var payload: [String: Any] = [
             "type": "selectWorkout",
             "workoutDefinition": data,
             "sentAt": now.timeIntervalSince1970
         ]
+        // The application context holds one dictionary: keep the last lift choice in it too.
+        if let lift = session.applicationContext[LiftSelection.contextKey] {
+            payload[LiftSelection.contextKey] = lift
+        }
         do {
             try session.updateApplicationContext(payload)
         } catch {
@@ -113,6 +144,41 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         sentWorkoutAt = now
         sendWorkoutError = nil
         launchWatchApp(activityType: .crossTraining)
+    }
+
+    /// Sends the next lift (type + load) to the watch's Lifting page, then opens the watch app.
+    /// Same delivery as `sendWorkout`: application context (merged with the last workout
+    /// choice) plus a message when reachable; the watch applies it once per `sentAt`.
+    func sendLift(_ selection: LiftSelection) {
+        guard WCSession.isSupported() else {
+            sendLiftError = "This iPhone can't talk to a watch."
+            return
+        }
+        let session = WCSession.default
+        guard session.activationState == .activated, session.isPaired else {
+            sendLiftError = "Watch not connected yet. Try again in a moment."
+            return
+        }
+        guard session.isWatchAppInstalled else {
+            sendLiftError = "BarPath isn't installed on the watch."
+            return
+        }
+        var context = session.applicationContext
+        context[LiftSelection.contextKey] = selection.dictionary
+        do {
+            try session.updateApplicationContext(context)
+        } catch {
+            sendLiftError = "Could not send to the watch: \(error.localizedDescription)"
+            return
+        }
+        if session.isReachable {
+            session.sendMessage([LiftSelection.contextKey: selection.dictionary], replyHandler: nil) { error in
+                NSLog("BarPath: lift selection message failed (context still queued): %@", error.localizedDescription)
+            }
+        }
+        sentLift = selection
+        sendLiftError = nil
+        launchWatchApp(activityType: .traditionalStrengthTraining)
     }
 
     var activationDescription: String {
@@ -137,6 +203,9 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
             self.isPaired = paired
             self.isWatchAppInstalled = installed
             self.isReachable = reachable
+            if !reachable {
+                self.liveSet = nil
+            }
         }
     }
 
@@ -252,8 +321,21 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
             return "\(key): \(value)"
         }
         let text = parts.joined(separator: " · ")
+        let live = LiveSetStatus(message: message)
         DispatchQueue.main.async {
             self.lastStatusText = text.isEmpty ? nil : text
+            self.liveSet = live
+            // The watch sends a status on every counted rep and at the end of the set; if
+            // that last message is lost, don't leave "Set in progress" up forever.
+            self.liveSetGeneration += 1
+            let generation = self.liveSetGeneration
+            if live != nil {
+                DispatchQueue.main.asyncAfter(deadline: .now() + PhoneLink.liveSetTimeout) {
+                    if self.liveSetGeneration == generation {
+                        self.liveSet = nil
+                    }
+                }
+            }
         }
     }
 }

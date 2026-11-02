@@ -65,7 +65,7 @@ final class AnalyzerTests: XCTestCase {
 
     func testSimplePullDirectConvention() throws {
         let rec = simplePull(attitude: hangingArm).recording()
-        let a = try LiftAnalyzer.analyze(rec)
+        let a = try LiftAnalyzer.analyze(rec, config: .wristReference)
         XCTAssertEqual(a.recordingId, rec.id)
         // Release index (Revision A): the backward EMA flags the set as still only up to
         // sample 156 (it lags symmetrically to the forward EMA), and the overhead-hold anchor
@@ -95,8 +95,8 @@ final class AnalyzerTests: XCTestCase {
     }
 
     func testConjugateConventionAutoDetected() throws {
-        let direct = try LiftAnalyzer.analyze(simplePull(attitude: hangingArm).recording())
-        let conj = try LiftAnalyzer.analyze(simplePull(attitude: hangingArm.conjugate).recording())
+        let direct = try LiftAnalyzer.analyze(simplePull(attitude: hangingArm).recording(), config: .wristReference)
+        let conj = try LiftAnalyzer.analyze(simplePull(attitude: hangingArm.conjugate).recording(), config: .wristReference)
         XCTAssertEqual(conj.homingIndex, direct.homingIndex)
         XCTAssertEqual(conj.endIndex, direct.endIndex)
         XCTAssertEqual(conj.metrics.peakVerticalVelocity, direct.metrics.peakVerticalVelocity, accuracy: 1e-9)
@@ -108,7 +108,7 @@ final class AnalyzerTests: XCTestCase {
 
     func testGravityOnlyFallback() throws {
         // Identity attitude with gravity along device -x: neither convention puts gravity down.
-        let a = try LiftAnalyzer.analyze(simplePull(attitude: Quat.identity).recording())
+        let a = try LiftAnalyzer.analyze(simplePull(attitude: Quat.identity).recording(), config: .wristReference)
         XCTAssertTrue(a.notes.contains("Orientation unavailable: vertical only"))
         XCTAssertEqual(a.metrics.peakVerticalVelocity, 2.975, accuracy: 1e-6)
         XCTAssertEqual(a.metrics.maxHeight, 0.9, accuracy: 1e-6)
@@ -130,7 +130,7 @@ final class AnalyzerTests: XCTestCase {
         b.hold(1.0)                  // overhead hold (anchor)
         b.phase(0.6, aUp: -standardGravity)
         b.hold(0.5)
-        let a = try LiftAnalyzer.analyze(b.recording())
+        let a = try LiftAnalyzer.analyze(b.recording(), config: .wristReference)
         XCTAssertEqual(a.homingIndex, 156)
         XCTAssertEqual(a.endIndex, 876)
         XCTAssertEqual(a.segments.count, 2)
@@ -156,7 +156,7 @@ final class AnalyzerTests: XCTestCase {
         b.phase(0.3, aUp: 10)
         b.phase(0.3, aUp: -10)
         b.phase(4.0, aUp: 0, lateral: 0.3 * standardGravity)   // never still again
-        let a = try LiftAnalyzer.analyze(b.recording())
+        let a = try LiftAnalyzer.analyze(b.recording(), config: .wristReference)
         XCTAssertEqual(a.confidence, .low)
         XCTAssertTrue(a.notes.contains("No still recovery found: path uncorrected"))
         XCTAssertEqual(a.metrics.duration, 3.0, accuracy: 1e-6)
@@ -170,7 +170,7 @@ final class AnalyzerTests: XCTestCase {
     func testHomingFallsBackToRecordingEstimate() throws {
         var b = SignalBuilder(attitude: hangingArm)
         b.hold(2.0)
-        let a = try LiftAnalyzer.analyze(b.recording(homingTime: 0.5))
+        let a = try LiftAnalyzer.analyze(b.recording(homingTime: 0.5), config: .wristReference)
         XCTAssertEqual(a.homingIndex, 100)
         XCTAssertEqual(a.confidence, .low)
         XCTAssertEqual(a.notes, ["Homing taken from the watch estimate", "No still recovery found: path uncorrected"])
@@ -179,7 +179,7 @@ final class AnalyzerTests: XCTestCase {
     func testNoHomingFound() {
         var b = SignalBuilder(attitude: hangingArm)
         b.hold(2.0)
-        XCTAssertThrowsError(try LiftAnalyzer.analyze(b.recording())) { error in
+        XCTAssertThrowsError(try LiftAnalyzer.analyze(b.recording(), config: .wristReference)) { error in
             XCTAssertEqual(error as? AnalysisError, AnalysisError.noHomingFound)
         }
     }
@@ -187,11 +187,11 @@ final class AnalyzerTests: XCTestCase {
     func testTooShort() {
         var b = SignalBuilder(attitude: hangingArm)
         b.hold(0.2)
-        XCTAssertThrowsError(try LiftAnalyzer.analyze(b.recording(homingTime: 0.1))) { error in
+        XCTAssertThrowsError(try LiftAnalyzer.analyze(b.recording(homingTime: 0.1), config: .wristReference)) { error in
             XCTAssertEqual(error as? AnalysisError, AnalysisError.tooShort)
         }
         let empty = SignalBuilder().recording()
-        XCTAssertThrowsError(try LiftAnalyzer.analyze(empty)) { error in
+        XCTAssertThrowsError(try LiftAnalyzer.analyze(empty, config: .wristReference)) { error in
             XCTAssertEqual(error as? AnalysisError, AnalysisError.tooShort)
         }
     }

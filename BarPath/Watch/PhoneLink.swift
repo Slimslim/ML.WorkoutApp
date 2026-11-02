@@ -41,6 +41,8 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     @Published private(set) var isReachable = false
     /// Workout picked on the iPhone ("selectWorkout" application context / message).
     @Published private(set) var phoneWorkout: WorkoutDefinition?
+    /// Lift + load picked on the iPhone's Lifts tab (`liftSelection` in context / message).
+    @Published private(set) var phoneLift: LiftSelection?
 
     private struct QueuedFile {
         let url: URL
@@ -55,6 +57,14 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     /// `sentAt` of the last applied phone workout, persisted so an old application context
     /// re-delivered at launch doesn't override a later choice made on the watch.
     private static let phoneWorkoutSentAtKey = "phoneWorkoutSentAt.v1"
+    private static let phoneLiftSentAtKey = "phoneLiftSentAt.v1"
+
+    /// Whether the last phone choice was a lift (Lifting page) rather than a workout.
+    var lastPhoneChoiceWasLift: Bool {
+        let defaults = UserDefaults.standard
+        return defaults.double(forKey: PhoneLink.phoneLiftSentAtKey)
+            > defaults.double(forKey: PhoneLink.phoneWorkoutSentAtKey)
+    }
 
     private override init() {
         super.init()
@@ -122,6 +132,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     private func didActivate(_ session: WCSession) {
         activated = true
         handleWorkoutSelection(session.receivedApplicationContext)
+        handleLiftSelection(session.receivedApplicationContext)
         isReachable = session.isReachable
         let queued = queuedUntilActivated
         queuedUntilActivated = []
@@ -266,13 +277,28 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
         DispatchQueue.main.async {
             self.handleWorkoutSelection(message)
+            self.handleLiftSelection(message)
         }
     }
 
     func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
         DispatchQueue.main.async {
             self.handleWorkoutSelection(applicationContext)
+            self.handleLiftSelection(applicationContext)
         }
+    }
+
+    // MARK: - Lift selection from the phone (main queue)
+
+    private func handleLiftSelection(_ payload: [String: Any]) {
+        guard let d = payload[LiftSelection.contextKey] as? [String: Any],
+              let selection = LiftSelection(dictionary: d) else { return }
+        let defaults = UserDefaults.standard
+        let lastSentAt = defaults.double(forKey: PhoneLink.phoneLiftSentAtKey)
+        if selection.sentAt > 0 && selection.sentAt <= lastSentAt { return }
+        defaults.set(selection.sentAt, forKey: PhoneLink.phoneLiftSentAtKey)
+        Log.link.info("Lift from phone: \(selection.liftType.rawValue, privacy: .public)")
+        phoneLift = selection
     }
 
     // MARK: - Workout selection from the phone (main queue)

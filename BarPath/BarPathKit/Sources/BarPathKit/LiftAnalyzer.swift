@@ -19,6 +19,11 @@ public struct AnalyzerConfig: Equatable, Sendable {
     public var pseudoAnchorSmooth: Double      // s, moving-average width of the calmness score
     public var catchRiseVelocity: Double       // m/s, vVertical above this after the catch = stand-up
     public var maxLateral: Double              // m, sideways excursion above this lowers confidence
+    public var driftWeighting: DriftWeighting  // how a segment's velocity drift is distributed
+    public var pseudoAnchorMode: PseudoAnchorMode
+    public var leverForearm: Double            // m, wrist→bar offset along the forearm toward the hand
+    public var leverNormal: Double             // m, along the watch-face normal (− = below the face)
+    public var endOverStart: Bool              // horizontal prior: the bar finishes above the start
 
     public init(emaTau: Double = 0.08,
                 stillRot: Double = 0.5,
@@ -34,7 +39,12 @@ public struct AnalyzerConfig: Equatable, Sendable {
                 pseudoAnchorWindow: Double = 1.0,
                 pseudoAnchorSmooth: Double = 0.1,
                 catchRiseVelocity: Double = 0.15,
-                maxLateral: Double = 0.15) {
+                maxLateral: Double = 0.15,
+                driftWeighting: DriftWeighting = .accel,
+                pseudoAnchorMode: PseudoAnchorMode = .auto,
+                leverForearm: Double = 0.109,
+                leverNormal: Double = -0.026,
+                endOverStart: Bool = true) {
         self.emaTau = emaTau
         self.stillRot = stillRot
         self.stillAcc = stillAcc
@@ -50,9 +60,34 @@ public struct AnalyzerConfig: Equatable, Sendable {
         self.pseudoAnchorSmooth = pseudoAnchorSmooth
         self.catchRiseVelocity = catchRiseVelocity
         self.maxLateral = maxLateral
+        self.driftWeighting = driftWeighting
+        self.pseudoAnchorMode = pseudoAnchorMode
+        self.leverForearm = leverForearm
+        self.leverNormal = leverNormal
+        self.endOverStart = endOverStart
     }
 
     public static let `default`: AnalyzerConfig = AnalyzerConfig()
+
+    /// Revision-D behaviour on the WRIST (no lever arm, no end-over-start, linear drift):
+    /// what the simulator's ground truth describes. Used by the fixture tests.
+    public static let wristReference: AnalyzerConfig = AnalyzerConfig(driftWeighting: .time,
+                                                                      pseudoAnchorMode: .zupt,
+                                                                      leverForearm: 0.0,
+                                                                      leverNormal: 0.0,
+                                                                      endOverStart: false)
+}
+
+/// Revision E: where a segment's velocity drift is attributed. `.accel` = proportional to
+/// the accumulated |world acceleration| (the violent phases, where the sensor error is made).
+public enum DriftWeighting: String, Equatable, Sendable {
+    case time, accel, accelRot
+}
+
+/// Revision E: how a pseudo-anchor (no still finish) is used. `.auto` = `.endOnly` for cleans
+/// (the wrist keeps moving in the front rack while the bar rests), `.zupt` otherwise.
+public enum PseudoAnchorMode: String, Equatable, Sendable {
+    case auto, zupt, endOnly
 }
 
 public struct PathSample: Equatable, Sendable {
@@ -166,6 +201,7 @@ public enum LiftAnalyzer {
     public static let noteGravityOnly: String = "Orientation unavailable: vertical only"
     public static let noteNoAnchor: String = "No still recovery found: path uncorrected"
     public static let noteLateral: String = "Large sideways drift: horizontal path unreliable"
+    public static let noteEndOverStart: String = "Forward/back estimated: assumes the bar finishes above where it started"
     public static let notePseudoAnchor: String = "No still hold at the finish: end estimated at the calmest point before the drop"
     public static let noteForwardEstimated: String = "Forward direction estimated"
     public static let noteHomingFromWatch: String = "Homing taken from the watch estimate"
@@ -328,6 +364,7 @@ public enum LiftAnalyzer {
         // 4b. Arms-down: after the turnover the forearm points up; when it points down again the
         // bar has been dropped or lowered. Nothing after that is part of the lift.
         var armsDownIndex: Int? = nil
+        var pseudoEnd: Int? = nil
         var hangMean: Double = 0.0
         for k in homingRun.start...homingRun.end {
             hangMean += grav[k].normalized.x
@@ -389,7 +426,17 @@ public enum LiftAnalyzer {
                         }
                     }
                     if best > h0 + 1 {
-                        anchors.append(Anchor(start: best, release: best, end: best))
+                        var modePA = config.pseudoAnchorMode
+                        if modePA == .auto {
+                            let isClean = recording.liftType == .clean || recording.liftType == .powerClean
+                                || recording.liftType == .hangClean
+                            modePA = isClean ? .endOnly : .zupt
+                        }
+                        if modePA == .endOnly {
+                            pseudoEnd = best
+                        } else {
+                            anchors.append(Anchor(start: best, release: best, end: best))
+                        }
                         notes.append(notePseudoAnchor)
                     }
                 }
@@ -411,10 +458,9 @@ public enum LiftAnalyzer {
                 }
             }
             let drift = vRaw[e - s]
-            let span = t[e] - t[s]
+            let weights = driftWeights(aW: aW, rotNorm: rotNorm, t: t, from: s, to: e, mode: config.driftWeighting)
             for i in s...e {
-                let frac: Double = span > 0 ? (t[i] - t[s]) / span : 0.0
-                v[i] = vRaw[i - s] - drift * frac
+                v[i] = vRaw[i - s] - drift * weights[i - s]
             }
             segBounds.append((s: s, e: e, drift: drift.norm))
             for i in a.start...a.release {
@@ -433,9 +479,25 @@ public enum LiftAnalyzer {
         }
 
         // 6. Path end.
-        let noAnchor = anchors.isEmpty
+        let noAnchor = anchors.isEmpty && pseudoEnd == nil
         var endIndex: Int
-        if noAnchor {
+        if let pe = pseudoEnd {
+            // End-only pseudo anchor: the path ends there, but the last segment is integrated
+            // WITHOUT forcing zero velocity (the wrist may still move while the bar rests).
+            let s0: Int = anchors.isEmpty ? h0 : anchors[anchors.count - 1].release
+            endIndex = max(pe, s0 + 1)
+            v[s0] = Vec3.zero
+            for i in (s0 + 1)...endIndex {
+                let dt = t[i] - t[i - 1]
+                v[i] = v[i - 1] + ((aW[i] + aW[i - 1]) * 0.5) * dt
+            }
+            for i in (s0 + 1)...endIndex {
+                let dt = t[i] - t[i - 1]
+                p[i] = p[i - 1] + ((v[i] + v[i - 1]) * 0.5) * dt
+            }
+            segBounds = segBounds.filter { $0.e <= s0 }
+            segBounds.append((s: s0, e: endIndex, drift: 0.0))
+        } else if noAnchor {
             let tLimit = t[h0] + config.maxUncorrectedDuration
             var e = h0
             while e + 1 < n && t[e + 1] <= tLimit {
@@ -504,17 +566,70 @@ public enum LiftAnalyzer {
             lateralAxis = Vec3(0.0, 0.0, 1.0).cross(forwardAxis)
         }
 
+        // 7b. Wrist → bar lever arm (Revision E): bar POSITION = watch + R(t)·r − R(homing)·r, with r in
+        // the device frame: leverForearm toward the hand (where gravity points with the arm
+        // hanging at homing) and leverNormal along the watch-face normal.
+        let count = endIndex - h0 + 1
+        var tt: [Double] = []
+        tt.reserveCapacity(count)
+        var pb: [Vec3] = []
+        pb.reserveCapacity(count)
+        var vb: [Vec3] = []
+        vb.reserveCapacity(count)
+        for i in h0...endIndex {
+            tt.append(t[i] - t[h0])
+            pb.append(p[i])
+            vb.append(v[i])
+        }
+        if mode != .gravityOnly && (config.leverForearm != 0.0 || config.leverNormal != 0.0) {
+            var gx: Double = 0.0
+            for k in homingRun.start...homingRun.end {
+                gx += grav[k].normalized.x
+            }
+            let handSign: Double = gx >= 0 ? 1.0 : -1.0
+            let rDev = Vec3(handSign * config.leverForearm, 0.0, config.leverNormal)
+            var o: [Vec3] = []
+            o.reserveCapacity(count)
+            for i in h0...endIndex {
+                o.append(rot[i].rotate(rDev))
+            }
+            let o0 = o[0]
+            for j in 0..<count {
+                pb[j] = pb[j] + (o[j] - o0)
+            }
+            // Velocities stay the wrist's: adding d/dt(R·r) inflates peak velocity by 0.3–0.5 m/s
+            // vs video, while the wrist's peak matches video within ~0.1 m/s.
+        }
+        var fwd: [Double] = pb.map { $0.dot(forwardAxis) }
+        var lat: [Double] = pb.map { $0.dot(lateralAxis) }
+        var vf: [Double] = vb.map { $0.dot(forwardAxis) }
+        // 7c. End-over-start horizontal prior (Revision E): remove a linearly growing horizontal
+        // velocity error so the bar finishes above the start.
+        if config.endOverStart && mode != .gravityOnly && count > 1 && tt[count - 1] > 0.5 {
+            let T = tt[count - 1]
+            let kf = 2.0 * fwd[count - 1] / (T * T)
+            let kl = 2.0 * lat[count - 1] / (T * T)
+            for j in 0..<count {
+                let tj = tt[j]
+                fwd[j] = fwd[j] - kf * tj * tj / 2.0
+                lat[j] = lat[j] - kl * tj * tj / 2.0
+                vf[j] = vf[j] - kf * tj
+                vb[j] = vb[j] - forwardAxis * (kf * tj) - lateralAxis * (kl * tj)
+            }
+            notes.append(noteEndOverStart)
+        }
+
         // Path samples.
         var path: [PathSample] = []
-        path.reserveCapacity(endIndex - h0 + 1)
-        for i in h0...endIndex {
-            path.append(PathSample(t: t[i] - t[h0],
-                                   forward: p[i].dot(forwardAxis),
-                                   lateral: p[i].dot(lateralAxis),
-                                   vertical: p[i].z,
-                                   vForward: v[i].dot(forwardAxis),
-                                   vVertical: v[i].z,
-                                   speed: v[i].norm))
+        path.reserveCapacity(count)
+        for j in 0..<count {
+            path.append(PathSample(t: tt[j],
+                                   forward: fwd[j],
+                                   lateral: lat[j],
+                                   vertical: pb[j].z,
+                                   vForward: vf[j],
+                                   vVertical: vb[j].z,
+                                   speed: vb[j].norm))
         }
 
         // 8. Metrics.
@@ -671,6 +786,39 @@ public enum LiftAnalyzer {
     }
 
     /// Unit quaternion (zero quaternion if the norm is below 1e-12, like geometry.normalize).
+    /// Cumulative 0→1 weights for distributing a segment's drift over samples from...to.
+    static func driftWeights(aW: [Vec3], rotNorm: [Double], t: [Double], from s: Int, to e: Int,
+                             mode: DriftWeighting) -> [Double] {
+        let m = e - s + 1
+        var out = [Double](repeating: 0.0, count: m)
+        if m < 2 || t[e] <= t[s] { return out }
+        if mode == .time {
+            for i in 0..<m {
+                out[i] = (t[s + i] - t[s]) / (t[e] - t[s])
+            }
+            return out
+        }
+        var w = [Double](repeating: 0.0, count: m)
+        for i in 0..<m {
+            let an = aW[s + i].norm
+            w[i] = mode == .accelRot ? an * rotNorm[s + i] : an
+        }
+        for i in 1..<m {
+            out[i] = out[i - 1] + 0.5 * (w[i] + w[i - 1]) * (t[s + i] - t[s + i - 1])
+        }
+        let total = out[m - 1]
+        if total > 0 {
+            for i in 0..<m {
+                out[i] = out[i] / total
+            }
+        } else {
+            for i in 0..<m {
+                out[i] = (t[s + i] - t[s]) / (t[e] - t[s])
+            }
+        }
+        return out
+    }
+
     static func normalizedQuat(_ q: Quat) -> Quat {
         let nrm = (q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z).squareRoot()
         if nrm < 1e-12 { return Quat(w: 0.0, x: 0.0, y: 0.0, z: 0.0) }

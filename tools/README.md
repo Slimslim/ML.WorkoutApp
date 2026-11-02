@@ -14,6 +14,8 @@ tools/
   tests/           pytest
   make_fixtures.py writes BarPath/BarPathKit/Tests/BarPathKitTests/Fixtures/*
   plot_lift.py     plot a recording or replay the detector over a session CSV
+  compare_video.py compare watch paths with video-tracked bar paths
+  video_tracking/  measure the bar path from a side-view video (see its README)
   out/             plots (gitignored)
 ```
 

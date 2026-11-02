@@ -11,6 +11,7 @@ final class SessionModel: ObservableObject {
         case idle        // start screen
         case starting    // waiting for the workout session to run
         case running     // recording
+        case paused      // workout still running, back on the setup screen ("Change")
         case ending      // saving the workout
     }
 
@@ -22,6 +23,9 @@ final class SessionModel: ObservableObject {
         case saving
         case saved(Int)
         case ending
+        // Strength mode (deadlift)
+        case waitingForSet
+        case reps(Int)
     }
 
     // MARK: Settings (persisted)
@@ -69,6 +73,9 @@ final class SessionModel: ObservableObject {
     @Published private(set) var csvBytes = 0
     @Published private(set) var marksCount = 0
     @Published private(set) var isRecordingCSV = false
+    /// Strength mode: live reps in the set in progress, and the last finished set's reps.
+    @Published private(set) var repCount = 0
+    @Published private(set) var lastSetReps: Int?
 
     static let kgPerLb = 0.45359237
 
@@ -79,7 +86,10 @@ final class SessionModel: ObservableObject {
     private let recorder: MotionRecorder
     private let link: PhoneLink
     private var sessionId = UUID()
+    /// Names the current block's debug CSV (a new one after each Change).
+    private var csvId = UUID()
     private var lastHapticDate: Date?
+    private var pendingPhoneLift: LiftSelection?
 
     private enum Keys {
         static let liftType = "liftType"
@@ -142,14 +152,25 @@ final class SessionModel: ObservableObject {
         recorder.onBatchProcessed = { [weak self] in
             self?.refreshCounters()
         }
+        recorder.onRepCount = { [weak self] n in
+            self?.repCountChanged(n)
+        }
+        recorder.onSetEnded = { [weak self] index, reps in
+            self?.setEnded(index: index, reps: reps)
+        }
     }
 
     // MARK: - Actions
 
     func start() {
+        if phase == .paused {
+            resume()
+            return
+        }
         guard phase == .idle else { return }
         errorMessage = nil
         lastSummary = nil
+        pendingPhoneLift = nil
         sessionId = UUID()
         liftCount = 0
         savedLiftCount = 0
@@ -162,15 +183,76 @@ final class SessionModel: ObservableObject {
         csvBytes = 0
         marksCount = 0
         isRecordingCSV = false
+        repCount = 0
+        lastSetReps = nil
         phase = .starting
         workout.start()
     }
 
+    /// Lift + load sent from the phone's Lifts tab. Applied on the setup screen (idle or after
+    /// Change); while a block is recording it waits for the next Change.
+    func selectFromPhone(_ selection: LiftSelection) {
+        guard phase == .idle || phase == .paused else {
+            pendingPhoneLift = selection
+            return
+        }
+        apply(selection)
+    }
+
+    private func apply(_ selection: LiftSelection) {
+        liftType = selection.liftType
+        if let lb = selection.loadLb {
+            loadLb = lb
+            useLoad = true
+        } else {
+            useLoad = false
+        }
+        pendingPhoneLift = nil
+    }
+
+    /// "Change": stop recording this block (lift type / load) and go back to setup while the
+    /// HealthKit workout keeps running, so one gym session stays one workout in Fitness.
+    func change() {
+        guard phase == .running else { return }
+        stopRecording()
+        detectorState = .idle
+        phase = .paused
+        if let selection = pendingPhoneLift {
+            apply(selection)
+        }
+        sendStatus()
+    }
+
+    /// Continue the same workout with the (possibly changed) setup.
+    private func resume() {
+        errorMessage = nil
+        csvId = UUID()
+        recorder.liftType = liftType
+        recorder.loadKg = currentLoad
+        recorder.start(sessionId: sessionId, csvId: csvId, recordDebugCSV: debugRecording,
+                       liftIndexOffset: liftCount)
+        recorderMode = recorder.mode
+        isRecordingCSV = recorder.isRecordingCSV
+        detectorState = .idle
+        marksCount = 0
+        repCount = 0
+        phase = .running
+        sendStatus()
+    }
+
     func end() {
         switch phase {
+        case .paused:
+            phase = .ending
+            let duration = sessionStartDate.map { Date().timeIntervalSince($0) } ?? 0
+            workout.saveWorkoutOnEnd = liftCount > 0 || duration >= 300
+            workout.end()
         case .running, .starting:
             stopRecording()
             phase = .ending
+            // Only keep real sessions in Health/Fitness: at least one lift, or 5+ minutes.
+            let duration = sessionStartDate.map { Date().timeIntervalSince($0) } ?? 0
+            workout.saveWorkoutOnEnd = liftCount > 0 || duration >= 300
             workout.end()
         case .idle, .ending:
             break
@@ -189,12 +271,20 @@ final class SessionModel: ObservableObject {
 
     // MARK: - Status
 
+    /// The running block counts reps (deadlift) instead of tracking single lifts.
+    var isRepMode: Bool { liftType.countsReps }
+
     func status(at date: Date) -> Status {
         switch phase {
-        case .idle: return .walkToBar
+        case .idle, .paused: return .walkToBar
         case .starting: return .starting
         case .ending: return .ending
         case .running: break
+        }
+        if isRepMode {
+            if repCount > 0 { return .reps(repCount) }
+            if let until = savedBannerUntil, date < until, let index = lastSavedIndex { return .saved(index) }
+            return .waitingForSet
         }
         if detectorState == .lifting { return .lifting }
         if let until = savedBannerUntil, date < until, let index = lastSavedIndex { return .saved(index) }
@@ -212,7 +302,8 @@ final class SessionModel: ObservableObject {
                 sessionStartDate = workout.startDate ?? Date()
                 recorder.liftType = liftType
                 recorder.loadKg = currentLoad
-                recorder.start(sessionId: sessionId, recordDebugCSV: debugRecording)
+                csvId = UUID()
+                recorder.start(sessionId: sessionId, csvId: csvId, recordDebugCSV: debugRecording)
                 recorderMode = recorder.mode
                 isRecordingCSV = recorder.isRecordingCSV
                 phase = .running
@@ -222,6 +313,8 @@ final class SessionModel: ObservableObject {
             // Ended by the system (or by us): make sure the data is flushed and sent.
             if phase == .running || phase == .starting {
                 stopRecording()
+                phase = .ending
+            } else if phase == .paused {
                 phase = .ending
             }
         default:
@@ -244,7 +337,7 @@ final class SessionModel: ObservableObject {
             stopRecording()
         }
         if sessionStartDate != nil {
-            var summary = "\(liftCount) lift\(liftCount == 1 ? "" : "s") sent"
+            var summary = "\(liftCount) recording\(liftCount == 1 ? "" : "s") sent"
             if isRecordingCSV {
                 summary += " + session CSV (\(SessionModel.formatBytes(csvBytes)))"
             }
@@ -254,6 +347,10 @@ final class SessionModel: ObservableObject {
         sessionStartDate = nil
         heartRate = nil
         detectorState = .idle
+        // A lift sent from the phone during the session is the setup for the next one.
+        if let selection = pendingPhoneLift {
+            apply(selection)
+        }
         sendStatus()
     }
 
@@ -264,7 +361,7 @@ final class SessionModel: ObservableObject {
         refreshCounters()
         liftCount = recorder.liftCount
         if let csvURL = csvURL {
-            link.sendFile(csvURL, metadata: PhoneLink.sessionCSVMetadata(sessionId: sessionId.uuidString))
+            link.sendFile(csvURL, metadata: PhoneLink.sessionCSVMetadata(sessionId: csvId.uuidString))
         }
     }
 
@@ -285,6 +382,22 @@ final class SessionModel: ObservableObject {
         case .liftStarted, .disarmed:
             break
         }
+    }
+
+    private func repCountChanged(_ n: Int) {
+        if n > repCount {
+            playHaptic(.click, minimumGap: 0)
+        }
+        repCount = n
+        sendStatus()
+    }
+
+    private func setEnded(index: Int, reps: Int) {
+        liftCount = recorder.liftCount
+        lastSetReps = reps
+        repCount = 0
+        playHaptic(.success, minimumGap: 0)
+        sendStatus()
     }
 
     private func liftSaved(_ index: Int) {
@@ -312,14 +425,22 @@ final class SessionModel: ObservableObject {
     }
 
     private func sendStatus() {
-        link.sendStatus([
+        var message: [String: Any] = [
             "type": "status",
             "sessionId": sessionId.uuidString,
             "phase": String(describing: phase),
             "state": detectorState.rawValue,
             "liftCount": liftCount,
             "liftType": liftType.rawValue
-        ])
+        ]
+        if isRepMode {
+            // Live set on the phone: reps so far in the set in progress (0 between sets).
+            message["repCount"] = repCount
+            if useLoad {
+                message["loadLb"] = loadLb
+            }
+        }
+        link.sendStatus(message)
     }
 
     // MARK: - Formatting

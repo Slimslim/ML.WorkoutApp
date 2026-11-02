@@ -101,6 +101,10 @@ struct RootView: View {
                 .tabItem {
                     Label("Live", systemImage: "waveform.path.ecg")
                 }
+            LiftChooserView()
+                .tabItem {
+                    Label("Lifts", systemImage: "figure.strengthtraining.traditional")
+                }
             WorkoutListView()
                 .tabItem {
                     Label("Workouts", systemImage: "figure.run")

@@ -32,7 +32,7 @@ public struct DetectorConfig: Equatable, Sendable {
                 dropDistance: Double = 0.5,
                 returnHeight: Double = 0.15,
                 returnStill: Double = 0.5,
-                noAnchorTimeout: Double = 8.0,
+                noAnchorTimeout: Double = 15.0,
                 maxLiftDuration: Double = 15.0,
                 cooldown: Double = 1.5,
                 armsUpMax: Double = 0.3,

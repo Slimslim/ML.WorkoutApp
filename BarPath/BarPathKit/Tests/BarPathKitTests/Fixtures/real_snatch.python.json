@@ -1,0 +1,16 @@
+{
+ "source": "session C288475F, lift 2; Python reference output (Revision E defaults), not ground truth",
+ "homingIndex": 379,
+ "endIndex": 1142,
+ "peakVerticalVelocity": 2.4026783508531135,
+ "maxHeight": 1.3783165168475149,
+ "catchHeight": 1.0406448321366994,
+ "finalHeight": 1.8050377843854069,
+ "maxForward": 0.1347940447205373,
+ "maxBackward": -0.10237524556872478,
+ "notes": [
+  "No still hold at the finish: end estimated at the calmest point before the drop",
+  "Forward/back estimated: assumes the bar finishes above where it started"
+ ],
+ "tolerance": 0.002
+}

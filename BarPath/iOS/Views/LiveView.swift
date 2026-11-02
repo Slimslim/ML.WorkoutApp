@@ -53,7 +53,8 @@ struct LiveView: View {
 
     @ViewBuilder
     private var content: some View {
-        if let workout = workoutToShow {
+        // A deadlift set in progress always wins: show the live rep count.
+        if link.liveSet == nil, let workout = workoutToShow {
             workoutContent(workout)
         } else {
             liftContent
@@ -109,6 +110,10 @@ struct LiveView: View {
                         LastWorkoutRow(result: lastWorkout)
                     }
                     sessionHeader(session)
+                    if let live = link.liveSet {
+                        LiveSetCard(status: live)
+                            .transition(.opacity)
+                    }
                     if store.analyzingCount > 0 && !store.isLoading {
                         analyzingBanner
                     }
@@ -128,6 +133,7 @@ struct LiveView: View {
                 }
                 .padding(16)
                 .animation(.easeInOut(duration: 0.35), value: newest.id)
+                .animation(.easeInOut(duration: 0.25), value: link.liveSet)
             }
             .background(Theme.pageBackground)
         } else if store.isLoading {
@@ -141,6 +147,10 @@ struct LiveView: View {
 
     private var waitingView: some View {
         VStack(spacing: 16) {
+            if let live = link.liveSet {
+                LiveSetCard(status: live)
+                    .padding(.horizontal, 16)
+            }
             ContentUnavailableView {
                 Label("Waiting for lifts", systemImage: "figure.strengthtraining.traditional")
             } description: {
@@ -154,6 +164,8 @@ struct LiveView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.pageBackground)
     }
+
+    // MARK: - Analyzing
 
     private var analyzingBanner: some View {
         HStack(spacing: 10) {
@@ -256,5 +268,51 @@ struct HeroLiftCard: View {
             .buttonStyle(.plain)
         }
         .card()
+    }
+}
+
+/// Set in progress on the watch: big live rep count (arrives ~2–3 s after each rep).
+/// The full rep table replaces it a few seconds after the set ends.
+struct LiveSetCard: View {
+    let status: LiveSetStatus
+
+    private var title: String {
+        var parts = ["Set \(status.setNumber)", status.liftName]
+        if let lb = status.loadLb {
+            parts.append(String(format: "%.0f lb", lb))
+        }
+        return parts.joined(separator: " · ")
+    }
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(Color.green)
+                        .frame(width: 8, height: 8)
+                    Text("SET IN PROGRESS")
+                        .font(.caption.weight(.bold))
+                        .tracking(1.0)
+                        .foregroundStyle(Color.green)
+                }
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
+            }
+            Spacer()
+            VStack(alignment: .trailing, spacing: 0) {
+                Text("\(status.repCount)")
+                    .font(.system(size: 64, weight: .heavy, design: .rounded))
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+                    .animation(.snappy, value: status.repCount)
+                Text(status.repCount == 1 ? "rep" : "reps")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .card()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title), \(status.repCount) reps")
     }
 }

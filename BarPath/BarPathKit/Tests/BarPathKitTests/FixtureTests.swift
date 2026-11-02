@@ -15,7 +15,7 @@ final class FixtureTests: XCTestCase {
         let tolVelocity = number(tol["velocity"]) ?? 0.08
         let tolHorizontal = number(tol["horizontal"]) ?? 0.04
 
-        let analysis = try LiftAnalyzer.analyze(rec)
+        let analysis = try LiftAnalyzer.analyze(rec, config: .wristReference)
         let m = analysis.metrics
         let ctx = "\(name): metrics=\(m) notes=\(analysis.notes) confidence=\(analysis.confidence)"
 
@@ -54,8 +54,8 @@ final class FixtureTests: XCTestCase {
     func testSimSnatchConjugateQuaternions() throws {
         try checkLiftFixture("sim_snatch_conjugate")
         // Same lift in the other quaternion convention must analyze identically (auto-detection).
-        let a = try LiftAnalyzer.analyze(try LiftRecording.decode(from: try fixtureData("sim_snatch", "json")))
-        let b = try LiftAnalyzer.analyze(try LiftRecording.decode(from: try fixtureData("sim_snatch_conjugate", "json")))
+        let a = try LiftAnalyzer.analyze(try LiftRecording.decode(from: try fixtureData("sim_snatch", "json")), config: .wristReference)
+        let b = try LiftAnalyzer.analyze(try LiftRecording.decode(from: try fixtureData("sim_snatch_conjugate", "json")), config: .wristReference)
         XCTAssertFalse(b.notes.contains(LiftAnalyzer.noteGravityOnly))
         // Separately simulated (different noise), so compare loosely.
         XCTAssertEqual(a.metrics.maxHeight, b.metrics.maxHeight, accuracy: 0.04)
@@ -94,5 +94,52 @@ final class FixtureTests: XCTestCase {
                 XCTAssertEqual(lifts[i].end, e, accuracy: tolTime, "lift \(i + 1) end; detected: \(summary)")
             }
         }
+    }
+}
+
+/// Real gym lifts (2026-10-29) analyzed with the default (Revision E) config must match the
+/// Python reference's output (tools/barpath/analyzer.py) stored next to them. This checks the
+/// Swift port, not accuracy (accuracy vs video is in data/raw/2026-10-29-gym/README.md).
+final class RealLiftParityTests: XCTestCase {
+
+    private func checkParity(_ name: String, file: StaticString = #filePath, line: UInt = #line) throws {
+        let rec = try LiftRecording.decode(from: try fixtureData(name, "json"))
+        let expected = try jsonObject(try fixtureData(name + ".python", "json"))
+        let tol = number(expected["tolerance"]) ?? 0.002
+        let a = try LiftAnalyzer.analyze(rec)
+        let m = a.metrics
+        let ctx = "\(name): metrics=\(m) notes=\(a.notes)"
+        if let v = number(expected["homingIndex"]) {
+            XCTAssertEqual(Double(a.homingIndex), v, accuracy: 0.5, "homingIndex " + ctx, file: file, line: line)
+        }
+        if let v = number(expected["endIndex"]) {
+            XCTAssertEqual(Double(a.endIndex), v, accuracy: 0.5, "endIndex " + ctx, file: file, line: line)
+        }
+        let keys: [(String, Double?)] = [
+            ("peakVerticalVelocity", m.peakVerticalVelocity),
+            ("maxHeight", m.maxHeight),
+            ("catchHeight", m.catchHeight),
+            ("finalHeight", m.finalHeight),
+            ("maxForward", m.maxForward),
+            ("maxBackward", m.maxBackward)
+        ]
+        for (key, value) in keys {
+            guard let v = number(expected[key]) else { continue }
+            XCTAssertNotNil(value, key + " " + ctx, file: file, line: line)
+            if let got = value {
+                XCTAssertEqual(got, v, accuracy: tol, key + " " + ctx, file: file, line: line)
+            }
+        }
+        if let notes = expected["notes"] as? [String] {
+            XCTAssertEqual(a.notes, notes, "notes " + ctx, file: file, line: line)
+        }
+    }
+
+    func testRealSnatchMatchesPython() throws {
+        try checkParity("real_snatch")
+    }
+
+    func testRealPowerCleanMatchesPython() throws {
+        try checkParity("real_power_clean")
     }
 }

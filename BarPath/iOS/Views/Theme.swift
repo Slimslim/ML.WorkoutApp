@@ -50,6 +50,10 @@ enum Fmt {
         return String(format: "%.2f", value)
     }
 
+    static func percent(_ fraction: Double) -> String {
+        return String(format: "%.0f%%", fraction * 100)
+    }
+
     static func seconds(_ value: Double) -> String {
         return String(format: "%.2f s", value)
     }

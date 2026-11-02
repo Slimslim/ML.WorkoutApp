@@ -43,7 +43,7 @@ class DetectorConfig:
     dropDistance: float = 0.5
     returnHeight: float = 0.15
     returnStill: float = 0.5
-    noAnchorTimeout: float = 8.0
+    noAnchorTimeout: float = 15.0
     armsUpMax: float = 0.3      # forearm counts as 'up' (turned over) when hang < this
     armsDownMin: float = 0.8    # ... and back 'down' (bar released) when hang > this
     maxLiftDuration: float = 15.0
