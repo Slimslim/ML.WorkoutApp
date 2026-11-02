@@ -5,8 +5,8 @@ import Foundation
 /// row-level security policies in `supabase/migrations/`, not by keeping this key secret.
 /// While `url` is empty the app runs as before: no sign-in screen, no uploads.
 enum CloudConfig {
-    static let url = ""
-    static let anonKey = ""
+    static let url = "https://wgxhbifmjepjbqfqefmd.supabase.co"
+    static let anonKey = "sb_publishable_dUVsP06QZtgM1wIqG87REw_T3Jl6ync"
 
     /// Private Storage bucket; each user's files live under `<user id>/`.
     static let bucket = "uploads"

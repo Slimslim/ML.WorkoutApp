@@ -18,6 +18,9 @@ create index uploads_kind_idx on public.uploads (kind, uploaded_at);
 
 alter table public.uploads enable row level security;
 
+-- Explicit, so it works when "Automatically expose new tables" is off.
+grant select, insert, update on public.uploads to authenticated;
+
 create policy "Users read their own uploads" on public.uploads
   for select to authenticated using ((select auth.uid()) = user_id);
 create policy "Users add their own uploads" on public.uploads
