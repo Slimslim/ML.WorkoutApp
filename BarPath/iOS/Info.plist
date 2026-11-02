@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>BarPath</string>
+	<string>Rx Lab</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -24,17 +24,17 @@
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
-	<key>UIFileSharingEnabled</key>
-	<true/>
 	<key>NSHealthShareUsageDescription</key>
-	<string>BarPath reads your heart rate during lifting sessions recorded on your Apple Watch.</string>
+	<string>Rx Lab reads your heart rate during lifting sessions recorded on your Apple Watch.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>BarPath saves your lifting sessions from Apple Watch as strength training workouts.</string>
+	<string>Rx Lab saves your lifting sessions from Apple Watch as strength training workouts.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 	</dict>
+	<key>UIFileSharingEnabled</key>
+	<true/>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UIRequiredDeviceCapabilities</key>

@@ -13,6 +13,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         LiftStore.shared.loadIfNeeded()
         WorkoutStore.shared.loadIfNeeded()
         PhoneLink.shared.activate()
+        CloudAccount.shared.start()
         return true
     }
 
@@ -28,14 +29,16 @@ struct BarPathApp: App {
     @StateObject private var store = LiftStore.shared
     @StateObject private var workoutStore = WorkoutStore.shared
     @StateObject private var link = PhoneLink.shared
+    @StateObject private var cloud = CloudAccount.shared
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
         WindowGroup {
-            RootView()
+            GateView()
                 .environmentObject(store)
                 .environmentObject(workoutStore)
                 .environmentObject(link)
+                .environmentObject(cloud)
                 .tint(Theme.accent)
                 .onAppear {
                     store.loadIfNeeded()
@@ -44,6 +47,7 @@ struct BarPathApp: App {
                 .onChange(of: scenePhase) { _, phase in
                     if phase == .active {
                         openWatchAppSoon()
+                        cloud.syncSoon()
                     }
                 }
         }
@@ -57,6 +61,21 @@ struct BarPathApp: App {
             if !watch.isReachable {
                 watch.launchWatchApp()
             }
+        }
+    }
+}
+
+/// Sign-in screen for testers when the cloud is configured; the app itself otherwise.
+struct GateView: View {
+    @EnvironmentObject private var cloud: CloudAccount
+
+    var body: some View {
+        if !CloudConfig.isConfigured || cloud.isSignedIn {
+            RootView()
+        } else if cloud.isRestoring {
+            ProgressView()
+        } else {
+            SignInView()
         }
     }
 }

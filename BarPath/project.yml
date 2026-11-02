@@ -25,6 +25,9 @@ settings:
 packages:
   BarPathKit:
     path: BarPathKit
+  Supabase:
+    url: https://github.com/supabase/supabase-swift
+    from: "2.24.0"
 
 targets:
   BarPath:
@@ -46,6 +49,8 @@ targets:
     dependencies:
       - package: BarPathKit
         product: BarPathKit
+      - package: Supabase
+        product: Supabase
       # An iOS app depending on a watchOS `application` target: XcodeGen embeds the
       # watch app into the "Embed Watch Content" build phase ($(CONTENTS_FOLDER_PATH)/Watch),
       # which is how Xcode's single-target watch apps (Xcode 14+) are shipped.
