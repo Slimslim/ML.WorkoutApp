@@ -35,7 +35,8 @@ payload and `liftSelection`). Add new keys; don't reuse or remove existing ones.
 
 ## How a feature gets done
 
-1. **Brief** — what it is for, how it is used in the gym, what "done" means. Owner agrees.
+1. **Brief** — what it is for, how it is used in the gym, what "done" means, written as
+   user stories in `docs/USER_STORIES.md` (your area's section). Owner agrees.
 2. **Design** (anything the athlete sees) — mockups, judged against: no scrolling on the
    watch, one signal per state, glanceable mid-set, readable from ~2 m on the phone,
    as few taps as possible. Owner approves before code.
