@@ -39,6 +39,7 @@ targets:
     settings:
       base:
         PRODUCT_NAME: BarPath
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         PRODUCT_BUNDLE_IDENTIFIER: com.slimslim.barpath
         INFOPLIST_FILE: iOS/Info.plist
         GENERATE_INFOPLIST_FILE: "NO"
@@ -67,6 +68,7 @@ targets:
     settings:
       base:
         PRODUCT_NAME: BarPathWatch
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         PRODUCT_BUNDLE_IDENTIFIER: com.slimslim.barpath.watchkitapp
         INFOPLIST_FILE: Watch/Info.plist
         GENERATE_INFOPLIST_FILE: "NO"
