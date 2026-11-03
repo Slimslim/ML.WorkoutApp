@@ -487,7 +487,8 @@ struct WorkoutMainPage: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    /// Segment time, or the countdown to the next set during a timed rest.
+    /// Segment time, or the countdown to the next set during a timed rest (and during every
+    /// segment of an interval workout, whose sets start on the clock).
     private func timerText(now: Date, scale: CGFloat) -> some View {
         return timerValue(now: now)
             .font(.system(size: 54 * scale, weight: .heavy, design: .rounded).monospacedDigit())
@@ -509,7 +510,8 @@ struct WorkoutMainPage: View {
         let nowT: Double = now.timeIntervalSince1970
         var seconds: Double = p.segmentElapsed(now: nowT)
         if let clock = model.nextClockEvent(), !clock.isFinish {
-            // Timed rest: count down to the next set (3-2-1 haptics on the watch model).
+            // Timed rest, or any segment of an interval workout: count down to the next set
+            // (3-2-1 haptics on the watch model).
             seconds = max(0, clock.time - nowT).rounded(.up)
         }
         return Text(SessionModel.formatElapsed(seconds))

@@ -412,7 +412,7 @@ class WorkoutProgress:
         if seg.kind == "rest" and seg.target is not None and seg.target.unit == "seconds" and seg.target.value > 0:
             return seg_start + seg.target.value
         interval = self.definition.interval_seconds
-        if interval is not None and interval > 0 and (seg.kind == "rest" or self.definition.round_size):
+        if interval is not None and interval > 0 and (seg.kind == "rest" or (self.definition.round_size or 0) > 0):
             nxt = math.floor((seg_start - start) / interval) + 1.0
             return start + nxt * interval
         return None
@@ -423,7 +423,8 @@ class WorkoutProgress:
         i = self.current_index
         seg = self.current_segment
         r = self.definition.round_size
-        if seg is None or seg.kind == "rest" or not self.definition.interval_seconds or not r:
+        interval = self.definition.interval_seconds
+        if seg is None or seg.kind == "rest" or interval is None or interval <= 0 or r is None or r <= 0:
             return i + 1
         return (i // r + 1) * r
 

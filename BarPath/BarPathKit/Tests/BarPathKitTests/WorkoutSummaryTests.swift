@@ -341,6 +341,32 @@ final class WorkoutSummaryTests: XCTestCase {
         XCTAssertEqual(s.rows[3].displayTitle, "Row 15 cal · S2")
     }
 
+    func testRowThrustersSetCutByTheClockIsNotComplete() {
+        // Set 1: still rowing at 3:00, the clock jumps to set 2 (thrusters and rest 0 s).
+        var durations: [Double] = [180, 0, 0]
+        for i in 1..<6 {
+            durations.append(55)
+            durations.append(45)
+            if i < 5 { durations.append(80) }
+        }
+        XCTAssertEqual(durations.count, 17)
+        let result = buildResult(WorkoutLibrary.rowThrusters, durations: durations, source: .auto)
+        let s = WorkoutSummary.make(result: result, previous: nil, maxHeartRate: nil)
+        guard case .intervalSlots(let slots) = s.story else {
+            return XCTFail("expected intervalSlots, got \(s.story)")
+        }
+        XCTAssertEqual(slots.sets.count, 6)
+        XCTAssertFalse(slots.sets[0].isComplete)
+        XCTAssertTrue(slots.sets[1].isComplete)
+        XCTAssertEqual(slots.setsCompleted, 5)
+        XCTAssertEqual(slots.sets[0].restSeconds ?? -1, 0, accuracy: 1e-9)
+        let thrusters = slots.partAverages.first(where: { (m: WorkoutSummary.MovementStat) -> Bool in
+            m.movement == Movement.thrusters
+        })
+        XCTAssertEqual(thrusters?.count, 5)                 // the skipped 0 s part is left out
+        XCTAssertEqual(thrusters?.bestSeconds ?? -1, 45, accuracy: 1e-9)
+    }
+
     // MARK: AMRAP 20
 
     func testAmrapPartialRound() {

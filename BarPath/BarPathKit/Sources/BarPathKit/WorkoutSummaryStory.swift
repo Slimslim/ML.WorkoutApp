@@ -689,8 +689,9 @@ extension WorkoutSummary {
             var drop: Double? = nil
             if let p = peakHR, let e = restEnd { drop = p - e }
             let expected: Int = plannedWork[k] ?? work.count
+            // A part of 0 s was skipped: the interval clock jumped to the next set (2026-11-03).
             let complete: Bool = work.count >= expected && !work.contains(where: { (s: SegmentResult) -> Bool in
-                ctx.isPartial(s)
+                ctx.isPartial(s) || s.duration <= 0
             })
             let slotStart: Double = interval.map({ (iv: Double) -> Double in Double(k) * iv }) ?? firstStart
             sets.append(IntervalSet(index: k, firstSegmentIndex: segs[0].index,
@@ -728,7 +729,7 @@ extension WorkoutSummary {
 
         var items: [(String, String, Double)] = []
         for s in sets {
-            for p in s.parts where !p.isPartial {
+            for p in s.parts where !p.isPartial && p.duration > 0 {
                 items.append(("\(p.column)|" + p.movement, p.name, p.duration))
             }
         }
