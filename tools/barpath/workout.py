@@ -891,7 +891,7 @@ class WorkoutResult:
     @property
     def cap_segment_index(self) -> Optional[int]:
         """Definition index of the segment running at the cap: the recorded segment with
-        start <= cap < end, else the last one ending at or before the cap; None when not capped."""
+        start <= cap < end, else the last one started at or before the cap; None when not capped."""
         t = self.cap_reached_at
         if t is None or not self.segments:
             return None
@@ -946,7 +946,7 @@ class WorkoutResult:
             return "in " + name
         limit = self.reps_at_cap_limit
         if limit is not None:
-            return f"{self.reps_at_cap}/{limit} {name}"
+            return f"{min(self.reps_at_cap, limit)}/{limit} {name}"
         return f"{self.reps_at_cap} {name}"
 
     # ---- heart-rate recovery (WORKOUT_SPEC §6, HeartRateRecovery.swift) ----

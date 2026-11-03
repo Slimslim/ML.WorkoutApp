@@ -695,6 +695,9 @@ def test_result_cap_fields_and_text(tmp_path):
     assert r.reps_at_cap == 0
     r.set_reps_at_cap(7, EDIT_NOW)
     assert r.cap_position_text == "7/12 Pull-ups (R3)"
+    r.reps_at_cap = 15                                     # stale after a split edit: shown clamped
+    assert r.cap_position_text == "12/12 Pull-ups (R3)"
+    r.reps_at_cap = 7
     assert r.partial_reps is None                          # AMRAP field untouched
     path = tmp_path / "helen-capped.json"
     r.save(path)

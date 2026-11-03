@@ -77,7 +77,8 @@ extension WorkoutResult {
         }
         guard let reps = repsAtCap else { return "in " + name }
         if let limit = repsAtCapLimit {
-            return "\(reps)/\(limit) " + name
+            // Clamped for display: a split edit can move the cap into a segment with a lower target.
+            return "\(Swift.min(reps, limit))/\(limit) " + name
         }
         return "\(reps) " + name
     }

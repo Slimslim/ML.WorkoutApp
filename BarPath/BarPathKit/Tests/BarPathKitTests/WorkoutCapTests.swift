@@ -83,6 +83,9 @@ final class WorkoutCapTests: XCTestCase {
         XCTAssertEqual(r.repsAtCap, 0)
         r.setRepsAtCap(7, now: WorkoutCapTests.editNow)
         XCTAssertEqual(r.capPositionText, "7/12 Pull-ups (R3)")
+        r.repsAtCap = 15                                       // stale after a split edit: shown clamped
+        XCTAssertEqual(r.capPositionText, "12/12 Pull-ups (R3)")
+        r.repsAtCap = 7
         XCTAssertNil(r.partialReps)                            // AMRAP field untouched
 
         let data = try r.encoded()

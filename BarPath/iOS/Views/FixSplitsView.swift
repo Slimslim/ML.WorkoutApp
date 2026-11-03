@@ -54,6 +54,15 @@ struct FixSplitsView: View {
             })
     }
 
+    /// For time past the cap, and the segment at the cap counts reps (not a run, a rest, or a
+    /// metre / time target), like the watch picker (`repsAtCapSegment`).
+    private var asksRepsAtCap: Bool {
+        guard draft.isCapped, let segment = draft.capSegment else { return false }
+        if segment.kind == .rest || segment.kind == .run { return false }
+        if let target = segment.target, target.unit == .meters || target.unit == .seconds { return false }
+        return true
+    }
+
     /// "Reps at the cap · Pull-ups" (the segment at the cap follows the split boundaries).
     private var repsAtCapTitle: String {
         if let segment = draft.capSegment {
@@ -147,7 +156,7 @@ struct FixSplitsView: View {
                         }
                     }
                 }
-                if draft.isCapped {
+                if asksRepsAtCap {
                     Section(repsAtCapTitle) {
                         Stepper(value: repsAtCapBinding, in: 0...maxRepsAtCap) {
                             Text("\(draft.repsAtCap ?? 0) reps")
