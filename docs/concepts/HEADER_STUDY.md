@@ -88,3 +88,38 @@ decisions, now binding for the header ("D", mocked in `header-study.html`, round
 
 Open (round 2 questions): The Chief tagged AMRAP or Cycles; whether planned lift days show the
 load range from the stored max. "Each RFT": pending an example from the owner.
+
+## Writing conventions (living list, started round 3, 2026-11-03)
+
+How the header writes a workout, the way the athlete writes it on a whiteboard or in a log.
+Owner: "we will have to create conventions on how we write things… we can keep training the
+system as we see workouts." This is a living list: add a rule (or an open question) every time
+a new workout doesn't fit.
+
+### Rules (decided)
+1. **Shared rep scheme on top, once.** When every movement follows the same scheme, the scheme
+   is its own line above the movements and the movements carry no reps:
+   `21-15-9` / `Deadlift @225 lb` / `Handstand Push-up`. Same for `3-3-3-3-3`, ladders
+   (`3-3, 6-6, 9-9 …`), `22 each`.
+2. **Mixed schemes:** the shared part goes on top with its unit, movements with their own fixed
+   reps keep them. Freedom: `40-30-20-30-40 Cal` / `Row` / `7 Power Cleans @155 lb`.
+3. **One movement per line:** quantity, unit, movement, `@load`.
+   `12 Cal Row` · `15 Push-ups` · `12 DB C&J @40 lb` · `50 ft Front-Rack Carry` ·
+   `1:00 Suitcase Hold @pick`. Number first; the unit (`Cal`, `m`, `ft`, `s`, `1:00`) sits
+   between the number and the movement; the load goes last after `@`.
+4. **Loads inline, never in a right-aligned column** (picked for round 3, applied to every card).
+5. Movement names in Title Case, plural when the quantity is more than 1 (`7 Power Cleans`).
+
+### Open questions
+- **Abbreviations list:** which are standard and always used: DB, KB, C&J, T2B, HSPU, DU, TTB,
+  GHD, OHS, RDL, MU, C2B… and which are always written out (e.g. "Handstand Push-up" vs "HSPU")?
+- **lb vs lbs:** proposal `lb` (singular, as SI-style unit), never `lbs`.
+- **M/F pairs** (`135/95 lb`) are always resolved to the athlete's load (`@135 lb`); where is the
+  division set (once in Settings, or per workout)?
+- **Distance and height units:** `m` for row/run/ski, `ft` for carries and sled, `in` for box
+  height (`Box Jump @24 in`?) or `24" Box Jump`?
+- **Holds and timed work:** `1:00 Suitcase Hold @pick`, `:30 Plank`, `0:30` vs `30 s`?
+- **Load picked by the athlete:** `@pick` before the workout, replaced by the real load after?
+- **Per side / alternating:** `1/side Turkish Get-up`, `12 Alt DB Snatches` or `6/6`?
+- **Calories:** `12 Cal Row` vs `Row 12 cal` (decided: `12 Cal Row`); M/F calories (`15/12 Cal`).
+- **Ranges and progressions:** `@125 → 175 lb` for building sets, `@165–190 lb` from %1RM.

@@ -91,9 +91,10 @@ p { margin: 0; max-width: 68ch; }
 .fmt { font: 400 13.5px/1.4 var(--f-ui); color: var(--ink2); }
 .fmt .sep { color: var(--ink3); padding: 0 4px; }
 .mv { display: flex; flex-direction: column; gap: 5px; padding-top: 2px; }
-.mv div { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; font: 400 13.5px/1.3 var(--f-ui); font-variant-numeric: tabular-nums; }
-.mv .r { color: var(--ink2); min-width: 0; }
-.mv .l { color: var(--ink2); text-align: right; white-space: nowrap; }
+.mv div { font: 400 14px/1.35 var(--f-ui); font-variant-numeric: tabular-nums; }
+.mv .scheme { font-weight: 500; letter-spacing: .2px; margin-bottom: 1px; }
+.mv .at { color: var(--ink2); white-space: nowrap; }
+.mv .grp { font: 500 10.5px/1 var(--f-mono); letter-spacing: .6px; text-transform: uppercase; color: var(--ink3); padding-top: 5px; }
 .mv .more { color: var(--ink3); }
 .last { font: 400 12px var(--f-ui); color: var(--ink3); }
 .score { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; border-top: 1px solid var(--line); padding-top: 10px; margin-top: 3px; }
@@ -117,7 +118,7 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
 <div class="wrap">
   <header class="top">
     <div>
-      <span class="eyebrow">Rx Lab · iPhone · design study round 2, not app code</span>
+      <span class="eyebrow">Rx Lab · iPhone · design study round 3, not app code</span>
       <h1>Workout Header Study</h1>
       <p class="muted">One header, "D", built from your round-1 decisions and applied to the same 12 workouts. It holds only what you log: date, source, block, workout type, name, format, one line per movement with your load, and the score once you are done. No notes, strategy or stimulus. Round 1 (A, B, C) is in the repo history.</p>
     </div>
@@ -135,7 +136,7 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
         <li><b>Date · source</b> on the left; <b>block tag</b> (Metcon, Strength, Accessory) and <b>type tag</b> on the right.</li>
         <li><b>Name</b>, 2 lines max. No name: built from the movements, in lighter text.</li>
         <li><b>Format line</b>: scheme · cap · rest. Structure only.</li>
-        <li><b>Movements</b>, one line each, stacked with even spacing and no dividers: reps · movement · your load.</li>
+        <li><b>Rep scheme</b> once on top when it is shared (21-15-9), then <b>movements</b>, one line each, no dividers: <code style="font:400 12px var(--f-mono)">12 DB C&amp;J @40 lb</code>.</li>
         <li><b>Score</b> after the workout, under one thin rule: score · Rx/Scaled · one comparison.</li>
       </ol>
     </div>
@@ -173,7 +174,9 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
         <div><b>Source</b><span>One short label: <code>Mayhem</code>, <code>Class</code>, <code>Benchmark</code>, <code>Open</code>, <code>Your library</code>.</span></div>
         <div><b>Two tags</b><span>Block first (neutral fill), type second (outlined, the one accent). Always both, always in that order.</span></div>
         <div><b>Name</b><span>2 lines max, then "…". Quoted names keep their quotes. Lift titles split: <code>Front Squat : 3-3-3-3-3</code> → name <code>Front Squat</code>, format <code>5 × 3</code>. No name → movements joined with "+", lighter text.</span></div>
-        <div><b>Movements</b><span>One per line: reps on the left, name, your load on the right. M/F resolved to your division (<code>135/95 lb</code> → <code>135 lb</code>), %1RM to real weight, kg to lb. More than 5 movements: first 4 + <code>+18 more</code>.</span></div>
+        <div><b>Rep scheme on top</b><span>A scheme shared by all movements is written once, above them: <code>21-15-9</code>, <code>3-3-3-3-3</code>, <code>40-30-20-30-40 Cal</code>. Movements below it carry no reps; a movement with its own fixed reps keeps them (<code>7 Power Cleans @155 lb</code>).</span></div>
+        <div><b>Writing</b><span>One movement per line, written the way you write it: quantity, unit, movement, <code>@load</code>. <code>12 Cal Row</code>, <code>15 Push-ups</code>, <code>12 DB C&amp;J @40 lb</code>, <code>1:00 Suitcase Hold @pick</code>, <code>50 ft Front-Rack Carry</code>. Loads are always inline after "@", never in a column.</span></div>
+        <div><b>Your load</b><span>M/F resolved to your division (<code>135/95 lb</code> → <code>@135 lb</code>), %1RM to real weight, kg to lb. More than 5 movements: first 4 + <code>+18 more</code>. The full list of conventions lives in HEADER_STUDY.md and grows as we see more workouts.</span></div>
         <div><b>Score</b><span>Time, rounds + reps, reps, heaviest set (volume second), or "Done". Then Rx/Scaled, then one comparison: last time or the cap.</span></div>
       </div>
     </div>
@@ -200,37 +203,40 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
   });
   function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 
+  // moves: [text, load] written as the athlete writes it: quantity, unit, movement, @load.
+  // scheme: shared rep scheme shown once on top. {g: "..."} = small group label.
   var W = [
-    { label: "Diane", note: "Named benchmark, M/F load, last result", src: "Benchmark app", date: "Today", source: "Benchmark", block: "Metcon", type: "RFT",
-      name: "Diane", fmt: ["21-15-9"], moves: [["21-15-9", "Deadlift", "225 lb"], ["21-15-9", "Handstand push-up", ""]], last: "Last time 8:54 Rx · 2023",
+    { label: "Diane", note: "Named benchmark, shared 21-15-9", src: "Benchmark app", date: "Today", source: "Benchmark", block: "Metcon", type: "RFT",
+      name: "Diane", fmt: [], scheme: "21-15-9", moves: [["Deadlift", "225 lb"], ["Handstand Push-up"]], last: "Last time 8:54 Rx · 2023",
       done: { date: "Today", n: "8:31", rx: "Rx", good: "−0:23", vs: "vs last time (8:54, 2023)", ex: true } },
-    { label: "The Chief", note: "Cycles with rest", src: "Benchmark app", date: "Wed Nov 4", source: "Benchmark", block: "Metcon", type: "AMRAP",
-      name: "The Chief", fmt: ["5 cycles × 3:00", "rest 1:00"], moves: [["3", "Power clean", "135 lb"], ["6", "Push-up", ""], ["9", "Air squat", ""]] },
-    { label: "13.4", note: "Open code as name, rep ladder", src: "Open archive", date: "Thu Nov 5", source: "Open", block: "Metcon", type: "AMREP",
-      name: "13.4", fmt: ["7:00", "+3 reps each round"], moves: [["3, 6, 9…", "Clean & jerk", "135 lb"], ["3, 6, 9…", "Toes-to-bar", ""]] },
-    { label: "“GAME OVER”", note: "Quoted name, cap", src: "Mayhem", date: "Fri Nov 6", source: "Mayhem", block: "Metcon", type: "RFT",
-      name: "“GAME OVER”", fmt: ["21-15-9", "cap 8:00"], moves: [["21-15-9", "Deadlift", "225 lb"], ["21-15-9", "Toes-to-bar", ""]] },
+    { label: "The Chief", note: "Cycles with rest, fixed reps per movement", src: "Benchmark app", date: "Wed Nov 4", source: "Benchmark", block: "Metcon", type: "AMRAP",
+      name: "The Chief", fmt: ["5 cycles × 3:00", "rest 1:00"], moves: [["3 Power Cleans", "135 lb"], ["6 Push-ups"], ["9 Air Squats"]] },
+    { label: "13.4", note: "Open code as name, rep ladder on top", src: "Open archive", date: "Thu Nov 5", source: "Open", block: "Metcon", type: "AMREP",
+      name: "13.4", fmt: ["7:00"], scheme: "3-3, 6-6, 9-9, 12-12 …", moves: [["Clean & Jerk", "135 lb"], ["Toes-to-Bar"]] },
+    { label: "“GAME OVER”", note: "Quoted name, shared 21-15-9, cap", src: "Mayhem", date: "Fri Nov 6", source: "Mayhem", block: "Metcon", type: "RFT",
+      name: "“GAME OVER”", fmt: ["cap 8:00"], scheme: "21-15-9", moves: [["Deadlift", "225 lb"], ["Toes-to-Bar"]] },
     { label: "Unladen swallow", note: "Very long name, 22 movements, team of 2", src: "Mayhem", date: "Sat Nov 7", source: "Mayhem", block: "Metcon", type: "Chipper", ill: "Movement names illustrative",
-      name: "“What is the air-speed velocity of an unladen swallow?”", fmt: ["22 × 22", "team of 2", "cap 60:00"],
-      moves: [["22", "Thruster", "95 lb"], ["22", "KB swing", "53 lb"], ["22", "Box jump", "24 in"], ["22", "Wall ball", "20 lb"]], more: 18 },
+      name: "“What is the air-speed velocity of an unladen swallow?”", fmt: ["team of 2", "cap 60:00"], scheme: "22 each",
+      moves: [["Thrusters", "95 lb"], ["KB Swings", "53 lb"], ["Box Jumps", "24 in"], ["Wall Balls", "20 lb"]], more: 18 },
     { label: "No name", note: "Fallback name, E3MOM", src: "Mayhem", date: "Today", source: "Mayhem", block: "Accessory", type: "EMOM",
-      name: "Double Unders + AbMat Sit-ups", gen: true, fmt: ["Every 3:00 × 3"], moves: [["50", "Double under", ""], ["25", "AbMat sit-up", ""]] },
-    { label: "Front Squat 3-3-3-3-3", note: "Lift: heaviest set first, %1RM → real loads", src: "Mayhem", date: "Today", source: "Mayhem", block: "Strength", type: "Sets × reps",
-      name: "Front Squat", fmt: ["5 × 3", "heaviest"], moves: [["5 × 3", "Front squat", "165–190 lb"]], last: "Last time 205 lb best set · 2,655 lb total",
+      name: "Double Unders + AbMat Sit-ups", gen: true, fmt: ["Every 3:00 × 3"], moves: [["50 Double Unders"], ["25 AbMat Sit-ups"]] },
+    { label: "Front Squat 3-3-3-3-3", note: "Lift: scheme on top, %1RM → real loads", src: "Mayhem", date: "Today", source: "Mayhem", block: "Strength", type: "Sets × reps",
+      name: "Front Squat", fmt: ["heaviest set"], scheme: "3-3-3-3-3", moves: [["Front Squat", "165–190 lb"]], last: "Last time 205 lb best set · 2,655 lb total",
       done: { date: "Today", n: "215 lb", u: "best set × 3", rx: "Rx", good: "+10 lb", vs: "vs last time (205) · 2,805 lb total", ex: true,
-        moves: [["5 × 3", "Front squat", "165 → 215 lb"]] } },
+        moves: [["Front Squat", "165, 185, 200, 210, 215 lb"]] } },
     { label: "Power Snatch EMOM", note: "Interval + lift, load picked by you", src: "Mayhem", date: "Mon Nov 9", source: "Mayhem", block: "Strength", type: "EMOM",
-      name: "Power Snatch", fmt: ["Every 1:00 × 15"], moves: [["5", "Power snatch", "your load"]], last: "Your maxes: 1RM 135 lb · 3RM 105 lb" },
-    { label: "Core Work", note: "Block purpose as name, not timed", src: "Mayhem", date: "Mon Nov 9", source: "Mayhem", block: "Accessory", type: "For quality",
-      name: "Core Work", fmt: ["3 rounds"], moves: [["1 / side", "Turkish get-up", "your load"], ["1:00", "Suitcase hold", ""], ["50 ft", "Front-rack carry", ""]] },
-    { label: "Freedom (yours)", note: "Real result, kg in source, scaled load", src: "Your data · Nov 2", date: "Mon Nov 2", source: "Your library", block: "Metcon", type: "RFT",
-      name: "Freedom", fmt: ["5 rounds", "cap 20:00"], moves: [["40-30-20-30-40", "Row", "cal"], ["7", "Power clean", "187 lb"]],
-      done: { date: "Mon Nov 2", n: "19:37", rx: "Scaled", vs: "0:23 under the cap", moves: [["40-30-20-30-40", "Row", "cal"], ["7", "Power clean", "155 lb"]] } },
+      name: "Power Snatch", fmt: ["Every 1:00 × 15"], moves: [["5 Power Snatches", "pick"]], last: "Your maxes: 1RM 135 lb · 3RM 105 lb" },
+    { label: "Core Work", note: "Units between number and movement", src: "Mayhem", date: "Mon Nov 9", source: "Mayhem", block: "Accessory", type: "For quality",
+      name: "Core Work", fmt: ["3 rounds"], moves: [["1/side Turkish Get-up", "pick"], ["1:00 Suitcase Hold", "pick"], ["50 ft Front-Rack Carry"]] },
+    { label: "Freedom (yours)", note: "Mixed: shared Cal scheme + fixed 7 reps", src: "Your data · Nov 2", date: "Mon Nov 2", source: "Your library", block: "Metcon", type: "RFT",
+      name: "Freedom", fmt: ["5 rounds", "cap 20:00"], scheme: "40-30-20-30-40 Cal", moves: [["Row"], ["7 Power Cleans", "187 lb"]],
+      done: { date: "Mon Nov 2", n: "19:37", rx: "Scaled", vs: "0:23 under the cap", moves: [["Row"], ["7 Power Cleans", "155 lb"]] } },
     { label: "Power C&J EMOM (yours)", note: "Done only: load per set", src: "Your data · Nov 2", date: "Mon Nov 2", source: "Your library", block: "Strength", type: "EMOM", doneOnly: true,
-      name: "Power Clean & Jerk", fmt: ["Every 1:00 × 8"], moves: [["2", "Power clean & jerk", "125 → 175 lb"]],
+      name: "Power Clean & Jerk", fmt: ["Every 1:00 × 8"], moves: [["2 Power Clean & Jerks", "125 → 175 lb"]],
       done: { date: "Mon Nov 2", n: "175 lb", u: "top set · 16/16 reps", rx: "8/8 min", vs: "125, 135, 145, 145, 155, 155, 165, 175 lb" } },
     { label: "AMRAP 40 (yours)", note: "Done only: alternating A/B rounds", src: "Your data · Nov 1", date: "Sun Nov 1", source: "Class", block: "Metcon", type: "AMRAP", doneOnly: true,
-      name: "AMRAP 40", fmt: ["40:00", "A/B rounds", "rest 1:00"], moves: [["12", "Row  /  Bike", "cal"], ["15 / 6", "Push-up  /  Strict pull-up", ""], ["12", "DB C&J  /  DB snatch", "40 lb"], ["15 / 3", "Burpee  /  Wall walk", ""]],
+      name: "AMRAP 40", fmt: ["40:00", "rest 1:00 between rounds"],
+      moves: [{ g: "A rounds" }, ["12 Cal Row"], ["15 Push-ups"], ["12 DB C&J", "40 lb"], ["15 Burpees"], { g: "B rounds" }, ["12 Cal Bike"], ["6 Strict Pull-ups"], ["12 DB Snatches", "40 lb"], ["3 Wall Walks"]],
       done: { date: "Sun Nov 1", n: "7", u: "rounds + 0", rx: "Rx", vs: "First time logged" } }
   ];
 
@@ -239,9 +245,11 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
     var h = '<div class="hc"><div class="r1"><div class="meta"><span>' + esc(d ? d.date : w.date) + '</span><span class="dot"></span><span>' + esc(w.source) + '</span></div>' +
       '<div class="tags"><span class="tag block">' + esc(w.block) + '</span><span class="tag type">' + esc(w.type) + '</span></div></div>';
     h += '<div class="name' + (w.gen ? " gen" : "") + '">' + esc(w.name) + '</div>';
-    h += '<div class="fmt">' + w.fmt.map(esc).join('<span class="sep">·</span>') + '</div>';
-    h += '<div class="mv">' + mv.map(function (m) { return '<div><span class="r">' + esc(m[0]) + '</span><span>' + esc(m[1]) + '</span><span class="l">' + esc(m[2]) + '</span></div>'; }).join("") +
-      (w.more ? '<div><span class="r"></span><span class="more">+' + w.more + ' more</span><span></span></div>' : '') + '</div>';
+    if (w.fmt.length) h += '<div class="fmt">' + w.fmt.map(esc).join('<span class="sep">·</span>') + '</div>';
+    h += '<div class="mv">' + (w.scheme ? '<div class="scheme">' + esc(w.scheme) + '</div>' : '') + mv.map(function (m) {
+        if (m.g) return '<div class="grp">' + esc(m.g) + '</div>';
+        return '<div>' + esc(m[0]) + (m[1] ? ' <span class="at">@' + esc(m[1]) + '</span>' : '') + '</div>';
+      }).join("") + (w.more ? '<div class="more">+' + w.more + ' more</div>' : '') + '</div>';
     if (d) {
       h += '<div class="score"><span class="n">' + esc(d.n) + '</span>' + (d.u ? '<span class="u">' + esc(d.u) + '</span>' : '') + '<span class="rx">' + esc(d.rx) + '</span>' +
         '<span class="vs">' + (d.good ? '<b>' + esc(d.good) + '</b> ' : '') + esc(d.vs) + (d.ex ? ' <span class="ex">· example score</span>' : '') + '</span></div>';
