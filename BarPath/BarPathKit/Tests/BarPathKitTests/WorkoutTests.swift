@@ -12,7 +12,7 @@ final class WorkoutTests: XCTestCase {
         XCTAssertEqual(all.map { (d: WorkoutDefinition) -> String in d.id },
                        [WorkoutLibrary.hyroxSolo.id, WorkoutLibrary.hyroxDoubles.id, WorkoutLibrary.halfHyrox.id,
                         WorkoutLibrary.partnerWod1.id, WorkoutLibrary.partnerWod2.id, WorkoutLibrary.amrap40.id,
-                        WorkoutLibrary.helen.id, WorkoutLibrary.rowThrusters.id, WorkoutLibrary.free.id])
+                        WorkoutLibrary.freedom.id, WorkoutLibrary.powerCleanJerkEmom.id, WorkoutLibrary.free.id])
         let ids = Set(all.map { (d: WorkoutDefinition) -> String in d.id })
         XCTAssertEqual(ids.count, 9)
         for d in all {
@@ -32,6 +32,22 @@ final class WorkoutTests: XCTestCase {
         XCTAssertEqual(WorkoutLibrary.rowThrusters.segments[2].title, "Rest")
         XCTAssertEqual(WorkoutLibrary.rowThrusters.segments.last?.movement, Movement.thrusters)
         XCTAssertEqual(WorkoutLibrary.amrap20.segments.count, 40)
+        let freedom = WorkoutLibrary.freedom
+        XCTAssertEqual(freedom.segments.count, 10)
+        XCTAssertEqual(freedom.segments[0].title, "Row 40 cal")
+        XCTAssertEqual(freedom.segments[1].movement, Movement.powerCleans)
+        XCTAssertEqual(freedom.segments[1].load, SegmentLoad(85, .kg))
+        XCTAssertEqual(freedom.segments[8].title, "Row 40 cal")
+        XCTAssertEqual(freedom.timeCapSeconds, 1200.0)
+        XCTAssertEqual(WorkoutLibrary.definition(id: WorkoutLibrary.helen.id), WorkoutLibrary.helen)
+        XCTAssertEqual(WorkoutLibrary.definition(id: WorkoutLibrary.rowThrusters.id), WorkoutLibrary.rowThrusters)
+        let pcj = WorkoutLibrary.powerCleanJerkEmom
+        XCTAssertEqual(pcj.segments.count, 15)
+        XCTAssertEqual(pcj.segments[0].title, "Power C&J 2")
+        XCTAssertEqual(pcj.segments[1].kind, SegmentKind.rest)
+        XCTAssertEqual(pcj.segments.last?.movement, Movement.powerCleanAndJerk)
+        XCTAssertEqual(pcj.intervalSeconds, 60.0)
+        XCTAssertEqual(pcj.timeCapSeconds, 480.0)
         XCTAssertEqual(WorkoutLibrary.free.segments.count, 60)
         XCTAssertEqual(WorkoutLibrary.free.segments[0].title, "Part 1")
         XCTAssertNil(WorkoutLibrary.free.timeCapSeconds)

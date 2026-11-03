@@ -37,7 +37,7 @@ def test_library():
     assert len(WorkoutLibrary.all) == 9
     assert [d.id for d in WorkoutLibrary.all] == [
         "hyrox.solo", "hyrox.doubles", "hyrox.half", "partner.wod1", "partner.wod2", "wod.amrap40",
-        "wod.helen", "wod.rowThrusters", "free.workout"]
+        "wod.freedom", "wod.pcjEmom", "free.workout"]
     assert len({d.id for d in WorkoutLibrary.all}) == 9
     assert len(WorkoutLibrary.helen.segments) == 9 and WorkoutLibrary.helen.run_count == 3
     assert WorkoutLibrary.helen.segments[1].title == "KB Swings 21"

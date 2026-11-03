@@ -124,6 +124,8 @@ public enum Movement {
     public static let doubleUnders = "doubleUnders"
     public static let dumbbellSnatch = "dumbbellSnatch"
     public static let pushUps = "pushUps"
+    public static let powerCleans = "powerCleans"
+    public static let powerCleanAndJerk = "powerCleanAndJerk"
     public static let part = "part"
     public static let rest = "rest"
 
@@ -150,6 +152,8 @@ public enum Movement {
         "doubleUnders": "Double Unders",
         "dumbbellSnatch": "Alt. DB Snatch",
         "pushUps": "Push-ups",
+        "powerCleans": "Power Cleans",
+        "powerCleanAndJerk": "Power C&J",
         "part": "Part",
         "rest": "Rest"
     ]
