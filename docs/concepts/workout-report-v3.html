@@ -38,6 +38,11 @@
   --warnBg: #FFF2DC;
   --warnInk: #8A5300;
   --onBar: #FFFFFF;
+  --stSoft: #F4935A;
+  --stSoft2: #F8BC94;
+  --runSoft: #7EA2F4;
+  --fastBand: #DDF3F0;
+  --slowBand: #F6E2EC;
   --f-display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", sans-serif;
   --f-num: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, sans-serif;
   --f-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
@@ -52,6 +57,7 @@
     --rest: #8E8E93; --restBand: #2A2A2D;
     --hr: #FF5B4F; --fast: #3FD1BE; --slow: #E77BB2; --rec: #45C4E5; --recBand: #13313B;
     --warnBg: #3A2A10; --warnInk: #FFC46B; --onBar: #FFFFFF;
+    --stSoft: #A8501F; --stSoft2: #6E3B1F; --runSoft: #3A5FB0; --fastBand: #12332F; --slowBand: #3A1C2C;
     color-scheme: dark;
   }
 }
@@ -64,6 +70,7 @@
   --rest: #8E8E93; --restBand: #2A2A2D;
   --hr: #FF5B4F; --fast: #3FD1BE; --slow: #E77BB2; --rec: #45C4E5; --recBand: #13313B;
   --warnBg: #3A2A10; --warnInk: #FFC46B; --onBar: #FFFFFF;
+  --stSoft: #A8501F; --stSoft2: #6E3B1F; --runSoft: #3A5FB0; --fastBand: #12332F; --slowBand: #3A1C2C;
   color-scheme: dark;
 }
 
@@ -76,7 +83,7 @@ body {
 }
 .wrap { max-width: 1640px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
 h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; letter-spacing: .2px; }
-h1 { font-size: clamp(40px, 6vw, 64px); font-weight: 800; line-height: .95; text-transform: uppercase; }
+h1 { font-size: clamp(36px, 5vw, 54px); font-weight: 700; line-height: .95; text-transform: uppercase; }
 h2 { font-size: 28px; font-weight: 700; text-transform: uppercase; }
 h3 { font-size: 20px; font-weight: 700; }
 p { margin: 0; line-height: 1.5; max-width: 68ch; }
@@ -111,7 +118,7 @@ p { margin: 0; line-height: 1.5; max-width: 68ch; }
 .notes b { color: var(--ink); font-weight: 650; }
 
 .phone { background: var(--frame); border-radius: 46px; padding: 9px; width: 100%; }
-.screen { background: var(--screen); border-radius: 38px; overflow: hidden; position: relative; padding: 0 12px 26px; color: var(--ink); display: flex; flex-direction: column; gap: 10px; }
+.screen { background: var(--screen); border-radius: 38px; overflow: hidden; position: relative; padding: 0 12px 26px; color: var(--ink); display: flex; flex-direction: column; gap: 12px; }
 .status { display: flex; justify-content: space-between; align-items: center; height: 46px; padding: 0 16px 0 22px; font: 600 15px var(--f-ui); }
 .status i { font-style: normal; font-size: 12px; letter-spacing: 1px; }
 .nav { display: flex; justify-content: space-between; align-items: center; margin-top: -6px; font: 400 16px var(--f-ui); color: var(--run); }
@@ -119,23 +126,23 @@ p { margin: 0; line-height: 1.5; max-width: 68ch; }
 .fold span { position: absolute; right: 10px; top: -11px; background: var(--accent); color: #fff; font: 700 10px/1 var(--f-ui); letter-spacing: .6px; text-transform: uppercase; padding: 5px 7px; border-radius: 999px; }
 
 /* app components */
-.card { background: var(--card); border-radius: 20px; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-.card h4 { margin: 0; font: 700 17px var(--f-ui); display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.card { background: var(--card); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.card h4 { margin: 0; font: 600 15px var(--f-ui); display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .card h4 small { font: 500 12px var(--f-ui); color: var(--ink3); }
-.kicker { font: 700 11px/1.2 var(--f-ui); letter-spacing: 1px; color: var(--accent); text-transform: uppercase; }
-.wname { font: 800 22px/1.15 var(--f-num); }
+.kicker { font: 600 10.5px/1.2 var(--f-ui); letter-spacing: 1px; color: var(--accent); text-transform: uppercase; }
+.wname { font: 600 18px/1.2 var(--f-ui); }
 .scoreline { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.score { font: 900 54px/0.95 var(--f-num); font-variant-numeric: tabular-nums; letter-spacing: -1px; }
-.score small { font-size: 22px; font-weight: 800; letter-spacing: 0; color: var(--ink2); }
-.pill { font: 800 15px/1 var(--f-num); padding: 7px 10px; border-radius: 999px; color: #fff; }
-.pill.slow { background: var(--slow); }
-.ctx { font: 600 14px/1.4 var(--f-ui); color: var(--ink2); }
+.score { font: 700 36px/1 var(--f-num); font-variant-numeric: tabular-nums; letter-spacing: -.3px; }
+.score small { font-size: 15px; font-weight: 500; font-family: var(--f-ui); letter-spacing: 0; color: var(--ink2); }
+.pill { font: 600 13px/1 var(--f-num); padding: 6px 9px; border-radius: 999px; }
+.pill.slow { background: var(--slowBand); color: var(--slow); }
+.ctx { font: 400 13.5px/1.45 var(--f-ui); color: var(--ink2); }
 .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.tile { background: var(--fill); border-radius: 12px; padding: 8px 9px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.tile span { font: 700 9.5px/1.1 var(--f-ui); letter-spacing: .6px; text-transform: uppercase; color: var(--ink2); }
-.tile b { font: 800 21px/1.05 var(--f-num); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.tile b small { font-size: 12px; font-weight: 700; color: var(--ink2); }
-.tile em { font: 600 10.5px/1.2 var(--f-ui); font-style: normal; color: var(--ink3); }
+.tile { background: transparent; border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.tile span { font: 600 9.5px/1.1 var(--f-ui); letter-spacing: .6px; text-transform: uppercase; color: var(--ink2); }
+.tile b { font: 600 17px/1.1 var(--f-num); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tile b small { font-size: 11px; font-weight: 500; color: var(--ink2); }
+.tile em { font: 400 10.5px/1.2 var(--f-ui); font-style: normal; color: var(--ink3); }
 .trust { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip { font: 600 11.5px/1 var(--f-ui); padding: 6px 8px; border-radius: 999px; background: var(--fill); color: var(--ink2); white-space: nowrap; }
 .chip b { color: var(--ink); font-weight: 750; }
@@ -148,31 +155,31 @@ p { margin: 0; line-height: 1.5; max-width: 68ch; }
 .ins { display: flex; flex-direction: column; gap: 0; }
 .ins > div { display: flex; flex-direction: column; gap: 4px; padding: 10px 0; border-top: 1px solid var(--line); }
 .ins > div:first-of-type { border-top: 0; padding-top: 2px; }
-.ins .tag { font: 700 10px/1 var(--f-ui); letter-spacing: .8px; text-transform: uppercase; color: var(--ink3); }
-.ins .say { font: 700 15.5px/1.3 var(--f-ui); }
-.ins .ev { font: 500 12.5px/1.4 var(--f-ui); color: var(--ink2); font-variant-numeric: tabular-nums; }
+.ins .tag { font: 600 10px/1 var(--f-ui); letter-spacing: .8px; text-transform: uppercase; color: var(--ink3); }
+.ins .say { font: 600 14.5px/1.35 var(--f-ui); }
+.ins .ev { font: 400 12.5px/1.4 var(--f-ui); color: var(--ink2); font-variant-numeric: tabular-nums; }
 
 /* bars */
-.hdr { display: grid; font: 700 9.5px/1 var(--f-ui); letter-spacing: .6px; text-transform: uppercase; color: var(--ink3); align-items: end; }
+.hdr { display: grid; font: 600 9.5px/1 var(--f-ui); letter-spacing: .6px; text-transform: uppercase; color: var(--ink3); align-items: end; }
 .rows { display: flex; flex-direction: column; }
-.row { display: grid; align-items: center; column-gap: 8px; padding: 7px 0; border-top: 1px solid var(--line); }
+.row { display: grid; align-items: center; column-gap: 8px; padding: 9px 0; border-top: 1px solid var(--line); }
 .row:first-child { border-top: 0; }
-.row .sub { grid-column: 2 / -1; font: 500 11.5px/1.35 var(--f-ui); color: var(--ink2); font-variant-numeric: tabular-nums; margin-top: 3px; }
-.idx { font: 800 14px var(--f-num); color: var(--ink3); }
-.big { font: 800 21px/1 var(--f-num); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.big small { font-size: 11px; font-weight: 700; color: var(--ink2); }
+.row .sub { grid-column: 2 / -1; font: 400 11.5px/1.35 var(--f-ui); color: var(--ink2); font-variant-numeric: tabular-nums; margin-top: 3px; }
+.idx { font: 600 12.5px var(--f-num); color: var(--ink3); }
+.big { font: 600 16px/1 var(--f-num); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.big small { font-size: 10.5px; font-weight: 500; color: var(--ink2); }
 .right { text-align: right; }
-.slot { position: relative; height: 24px; border-radius: 6px; background: var(--restBand); overflow: hidden; display: flex; }
+.slot { position: relative; height: 14px; border-radius: 4px; background: var(--restBand); overflow: hidden; display: flex; }
 .part { height: 100%; position: relative; }
-.p-st { background: var(--st); }
-.p-st2 { background: var(--stMid); }
-.p-run { background: var(--run); }
+.p-st { background: var(--stSoft); }
+.p-st2 { background: var(--stSoft2); }
+.p-run { background: var(--runSoft); }
 .p-trS { background: repeating-linear-gradient(135deg, var(--stL) 0 4px, var(--stBand) 4px 7px); }
 .p-trR { background: repeating-linear-gradient(135deg, var(--runL) 0 4px, var(--runBand) 4px 7px); }
 .p-rox { background: repeating-linear-gradient(135deg, var(--restBand) 0 4px, var(--card) 4px 7px); box-shadow: inset 0 0 0 1px var(--line); }
-.tick { position: absolute; top: 4px; bottom: 4px; width: 2px; border-radius: 1px; background: var(--onBar); opacity: .9; }
-.plabel { position: absolute; left: 4px; top: 50%; transform: translateY(-50%); font: 700 10px/1 var(--f-ui); color: var(--onBar); white-space: nowrap; }
-.track { position: relative; height: 24px; }
+.tick { position: absolute; top: 3px; bottom: 3px; width: 1.5px; border-radius: 1px; background: var(--card); opacity: .9; }
+.plabel { position: absolute; left: 4px; top: 50%; transform: translateY(-50%); font: 500 9px/1 var(--f-ui); color: var(--ink); white-space: nowrap; }
+.track { position: relative; height: 14px; }
 .track .slot { position: absolute; top: 0; left: 0; }
 .open { background: var(--fill); border-radius: 12px; padding: 9px 10px; margin-top: 7px; grid-column: 1 / -1; display: flex; flex-direction: column; gap: 5px; font: 500 12px/1.4 var(--f-ui); color: var(--ink2); }
 .open b { color: var(--ink); }
@@ -182,34 +189,35 @@ p { margin: 0; line-height: 1.5; max-width: 68ch; }
 .keyline { display: flex; flex-wrap: wrap; gap: 10px; font: 600 11px var(--f-ui); color: var(--ink2); }
 .keyline span { display: inline-flex; align-items: center; gap: 5px; }
 .keyline i { display: inline-block; width: 14px; height: 10px; border-radius: 3px; }
-.budget { display: flex; height: 30px; border-radius: 8px; overflow: hidden; }
-.budget > div { display: flex; align-items: center; padding: 0 7px; font: 800 12.5px var(--f-num); color: var(--onBar); white-space: nowrap; overflow: hidden; }
+.budget { display: flex; height: 18px; border-radius: 5px; overflow: hidden; }
+.budget > div { display: flex; align-items: center; padding: 0 6px; font: 500 10.5px var(--f-num); color: var(--ink); white-space: nowrap; overflow: hidden; }
 .budget .tr { color: var(--ink); }
 .minis { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; }
 .minis > div { display: flex; flex-direction: column; gap: 3px; align-items: stretch; }
-.vslot { height: 46px; border-radius: 5px; background: var(--restBand); overflow: hidden; display: flex; flex-direction: column; }
-.minis span { font: 800 10.5px var(--f-num); text-align: center; color: var(--ink2); }
-.clock { position: relative; height: 26px; border-radius: 7px; background: var(--restBand); overflow: hidden; }
-.clock > div { position: absolute; top: 0; bottom: 0; display: flex; align-items: center; justify-content: center; font: 800 11px var(--f-num); color: var(--onBar); }
+.vslot { height: 30px; border-radius: 4px; background: var(--restBand); overflow: hidden; display: flex; flex-direction: column; }
+.minis span { font: 500 10px var(--f-num); text-align: center; color: var(--ink2); }
+.clock { position: relative; height: 18px; border-radius: 5px; background: var(--restBand); overflow: hidden; }
+.clock > div { position: absolute; top: 0; bottom: 0; display: flex; align-items: center; justify-content: center; font: 500 9.5px var(--f-num); color: var(--ink); }
 .axis { display: flex; justify-content: space-between; font: 600 10px var(--f-ui); color: var(--ink3); font-variant-numeric: tabular-nums; }
 .grid7 { display: grid; grid-template-columns: 30px repeat(7, 1fr); gap: 3px; font-variant-numeric: tabular-nums; }
-.grid7 > div { font: 700 11px/1 var(--f-num); text-align: center; padding: 7px 0; border-radius: 5px; }
+.grid7 > div { font: 500 11px/1 var(--f-num); text-align: center; padding: 7px 0; border-radius: 5px; }
 .grid7 .h { font: 700 9.5px var(--f-ui); color: var(--ink3); padding: 2px 0; }
 .mt { display: grid; grid-template-columns: 1fr 64px 46px 46px; gap: 4px 6px; font: 500 12.5px/1.3 var(--f-ui); font-variant-numeric: tabular-nums; align-items: baseline; }
 .mt .h { font: 700 9.5px var(--f-ui); letter-spacing: .5px; text-transform: uppercase; color: var(--ink3); }
-.mt .g { grid-column: 1 / -1; font: 800 12px var(--f-ui); color: var(--ink); padding-top: 6px; border-top: 1px solid var(--line); margin-top: 2px; }
-.mt .n { text-align: right; font-weight: 700; }
+.mt .g { grid-column: 1 / -1; font: 600 11.5px var(--f-ui); color: var(--ink); padding-top: 6px; border-top: 1px solid var(--line); margin-top: 2px; }
+.mt .n { text-align: right; font-weight: 500; }
 .mt .s { color: var(--ink3); font-size: 11px; }
 .rec { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-.rec div { background: var(--recBand); border-radius: 10px; padding: 7px 8px; display: flex; flex-direction: column; gap: 2px; }
+.rec div { background: transparent; border: 1px solid var(--line); border-radius: 10px; padding: 7px 8px; display: flex; flex-direction: column; gap: 2px; }
 .rec span { font: 700 9.5px var(--f-ui); letter-spacing: .5px; text-transform: uppercase; color: var(--ink2); }
-.rec b { font: 800 19px/1 var(--f-num); font-variant-numeric: tabular-nums; }
-.rec em { font: 700 11px var(--f-num); font-style: normal; color: var(--rec); }
+.rec b { font: 600 15px/1 var(--f-num); font-variant-numeric: tabular-nums; }
+.rec em { font: 500 11px var(--f-num); font-style: normal; color: var(--rec); }
 .datanote { font: 500 11.5px/1.45 var(--f-ui); color: var(--ink3); text-align: center; padding: 0 6px; }
 svg { display: block; width: 100%; height: auto; overflow: visible; }
 svg text { font-family: var(--f-ui); font-size: 9.5px; fill: var(--ink3); }
 svg .lbl { fill: var(--ink2); font-weight: 600; }
-svg .lblb { fill: var(--ink); font-weight: 800; font-family: var(--f-num); font-size: 11px; }
+svg .lblb { fill: var(--ink); font-weight: 600; font-family: var(--f-num); font-size: 10.5px; }
+.rx { font: 600 9.5px/1 var(--f-ui); letter-spacing: .6px; text-transform: uppercase; color: var(--accent); border: 1px solid var(--stL); border-radius: 999px; padding: 4px 7px; }
 details > summary { cursor: pointer; list-style: none; font: 600 14px var(--f-ui); color: var(--run); }
 details > summary::-webkit-details-marker { display: none; }
 details > summary:focus-visible { outline: 2px solid var(--accent); border-radius: 6px; }
@@ -263,13 +271,13 @@ details > summary:focus-visible { outline: 2px solid var(--accent); border-radiu
         <div><span class="cf e">✎ entered</span><span>From you or the plan (loads, calories, reps the watch can't count yet, like push-ups).</span></div>
         <div><span class="cf x">~ estimate</span><span>Measured but not calibrated (wrist speed as a bar-speed proxy, stroke rate). Compare with yourself only.</span></div>
       </div>
-      <span class="eyebrow" style="margin-top:6px">Colours</span>
+      <span class="eyebrow" style="margin-top:6px">Colours (toned down, palette not final)</span>
       <div class="legend">
-        <div><span class="sw" style="background:var(--st)"></span><span>Barbell, dumbbell, bodyweight work</span></div>
-        <div><span class="sw" style="background:var(--run)"></span><span>Run, row, bike, ski (cyclic work)</span></div>
+        <div><span class="sw" style="background:var(--stSoft)"></span><span>Barbell, dumbbell, bodyweight work</span></div>
+        <div><span class="sw" style="background:var(--runSoft)"></span><span>Run, row, bike, ski (cyclic work)</span></div>
         <div><span class="sw" style="background:repeating-linear-gradient(135deg,var(--stL) 0 4px,var(--stBand) 4px 7px)"></span><span>Hatched, same hue: time before the first rep (walk over, set up, start after the beep)</span></div>
         <div><span class="sw" style="background:var(--restBand)"></span><span>Rest</span></div>
-        <div><span class="sw" style="background:var(--fast)"></span><span style="display:flex;gap:6px;align-items:center">Better than your own average <span class="sw" style="background:var(--slow);width:28px;display:inline-block"></span> worse (always with a number too)</span></div>
+        <div><span class="sw" style="background:var(--fastBand);box-shadow:inset 0 0 0 1px var(--fast)"></span><span style="display:flex;gap:6px;align-items:center">Better than your own average <span class="sw" style="background:var(--slowBand);box-shadow:inset 0 0 0 1px var(--slow);width:28px;display:inline-block"></span> worse (always with a number too)</span></div>
       </div>
     </div>
   </section>
@@ -299,7 +307,7 @@ details > summary:focus-visible { outline: 2px solid var(--accent); border-radiu
           </div>
         </div>
         <div class="card">
-          <h4>What stood out</h4>
+          <h4>What stood out <span class="rx">Rx insight</span></h4>
           <div class="ins">
             <div><span class="tag">Speed vs load</span><span class="say">Your clean slowed as the bar got heavier. Your jerk did not.</span><span class="ev">Clean 1.95 → 1.62 m/s from 125 → 175 lb · jerk drive about 1.3 m/s on every set <span class="cf x">~</span></span></div>
             <div><span class="tag">Pacing</span><span class="say">The last three minutes got tight.</span><span class="ev">First pull 8 → 15 → 24 s after the beep · rest left 30 → 23 → 12 s</span></div>
@@ -362,7 +370,7 @@ details > summary:focus-visible { outline: 2px solid var(--accent); border-radiu
           </div>
         </div>
         <div class="card">
-          <h4>What stood out</h4>
+          <h4>What stood out <span class="rx">Rx insight</span></h4>
           <div class="ins">
             <div><span class="tag">Transitions</span><span class="say">Getting from the rower to the bar cost you the most time.</span><span class="ev">Row → bar 30, 31, 24, 24, 12 s · bar → row 14, 17, 11, 13 s · 2:57 in total (15 %)</span></div>
             <div><span class="tag">Speed</span><span class="say">Your clean speed held for all 35 reps.</span><span class="ev">1.89–1.99 m/s per round <span class="cf x">~</span> · same as EMOM minutes 5–6 at 155 lb (1.97, 1.80)</span></div>
@@ -387,7 +395,7 @@ details > summary:focus-visible { outline: 2px solid var(--accent); border-radiu
         <div class="card">
           <h4>Every clean <small>m/s · shown open here</small></h4>
           <div class="grid7" id="fr-grid"></div>
-          <div class="foot">Darker = faster than your average for the day (1.94). Round 4, rep 2 came after the only long break (24 s).</div>
+          <div class="foot">Teal = faster than your average for the day (1.94). Round 4, rep 2 came after the only long break (24 s).</div>
         </div>
         <div class="datanote">35 cleans found by motion · calories and load entered · strokes, transitions and speed are estimates (rows ±3–5 s)</div>
       </div></div>
@@ -425,7 +433,7 @@ details > summary:focus-visible { outline: 2px solid var(--accent); border-radiu
           </div>
         </div>
         <div class="card">
-          <h4>What stood out</h4>
+          <h4>What stood out <span class="rx">Rx insight</span></h4>
           <div class="ins">
             <div><span class="tag">A vs B</span><span class="say">B rounds were faster every time.</span><span class="ev">A 4:44 · 5:28 · 6:14 · 4:58 &nbsp;|&nbsp; B 3:52 · 4:08 · 4:30</span></div>
             <div><span class="tag">Transitions</span><span class="say">Almost a quarter of your work time went to getting set up.</span><span class="ev">7:38 of 33:54 · wall walks 35 s before the first rep on average · DB C&amp;J 23 s</span></div>
@@ -484,7 +492,7 @@ details > summary:focus-visible { outline: 2px solid var(--accent); border-radiu
           </div>
         </div>
         <div class="card">
-          <h4>What stood out</h4>
+          <h4>What stood out <span class="rx">Rx insight</span></h4>
           <div class="ins">
             <div><span class="tag">Where the 3:42 went</span><span class="say">Roxzone and Wall Balls cost the most.</span><span class="ev">Roxzone +1:10 · Wall Balls +1:05 · other stations +0:47 · runs +0:40</span></div>
             <div><span class="tag">Pacing</span><span class="say">You were on plan through leg 2, then lost time on every leg.</span><span class="ev">−0:08 after leg 1, +0:01 after leg 2, +1:40 after leg 6, +3:42 at the finish</span></div>
@@ -529,7 +537,7 @@ details > summary:focus-visible { outline: 2px solid var(--accent); border-radiu
         <li><b>The first screen answers "how did it go".</b> Score, a tiny picture of the workout and three insights all sit above the dashed line.</li>
         <li><b>Hatched = before the first rep</b>, in the colour of what comes next. Start delay in an EMOM, a walk to the bar, Roxzone: one visual rule.</li>
         <li><b>Every number says where it came from</b>: ● motion, ✎ entered, ~ estimate. Bar speed is always labelled as a wrist estimate.</li>
-        <li><b>Insights are plain sentences with their evidence</b> right under them, picked from comparisons with your own numbers only.</li>
+        <li><b>“What stood out” carries a small Rx insight label</b> so it can become a paid feature later. <b>Insights are plain sentences with their evidence</b> right under them, picked from comparisons with your own numbers only.</li>
       </ul>
     </div>
     <div class="panel">
@@ -581,12 +589,12 @@ details > summary:focus-visible { outline: 2px solid var(--accent); border-radiu
       s += '<text x="' + (x0 - 4) + '" y="' + (Y(g) + 3).toFixed(1) + '" text-anchor="end">' + g + '</text>';
     });
     var pts = o.series.map(function (v, i) { return X(i * 5 + 2.5).toFixed(1) + "," + Y(Math.max(o.yMin, Math.min(o.yMax, v))).toFixed(1); }).join(" ");
-    s += '<polyline points="' + pts + '" style="fill:none;stroke:var(--hr);stroke-width:1.8;stroke-linejoin:round"/>';
+    s += '<polyline points="' + pts + '" style="fill:none;stroke:var(--hr);stroke-width:1.2;stroke-linejoin:round"/>';
     s += '<line x1="' + X(o.finish).toFixed(1) + '" x2="' + X(o.finish).toFixed(1) + '" y1="' + (y0 - 4) + '" y2="' + (y1 + 2) + '" style="stroke:var(--ink);stroke-width:1.2"/>';
     s += '<text class="lbl" x="' + (X(o.finish) - 3).toFixed(1) + '" y="' + (y0 - 1) + '" text-anchor="end">finish</text>';
     o.rec.forEach(function (r) {
       var cx = X(o.finish + r.dt), cy = Y(r.hr);
-      s += '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="3.2" style="fill:var(--rec);stroke:var(--card);stroke-width:1.2"/>';
+      s += '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="2.6" style="fill:var(--rec);stroke:var(--card);stroke-width:1"/>';
     });
     s += '<line x1="' + x0 + '" x2="' + x1 + '" y1="' + (y1 + 8) + '" y2="' + (y1 + 8) + '" style="stroke:var(--line)"/>';
     o.ticks.forEach(function (t) {
@@ -642,14 +650,14 @@ details > summary:focus-visible { outline: 2px solid var(--accent); border-radiu
       s += '<text x="' + X(lb).toFixed(1) + '" y="' + (y1 + 14) + '" text-anchor="middle">' + lb + '</text>';
     });
     s += '<text x="' + ((x0 + x1) / 2) + '" y="' + (y1 + 28) + '" text-anchor="middle" class="lbl">load, lb</text>';
-    s += '<line x1="' + X(125).toFixed(1) + '" y1="' + Y(1.98).toFixed(1) + '" x2="' + X(175).toFixed(1) + '" y2="' + Y(1.69).toFixed(1) + '" style="stroke:var(--st);stroke-width:1.5;stroke-dasharray:4 3"/>';
+    s += '<line x1="' + X(125).toFixed(1) + '" y1="' + Y(1.98).toFixed(1) + '" x2="' + X(175).toFixed(1) + '" y2="' + Y(1.69).toFixed(1) + '" style="stroke:var(--st);stroke-width:1;stroke-dasharray:3 3"/>';
     var seen = {};
     emom.forEach(function (m) {
       m.v.forEach(function (v, k) {
         var key = m.lb; seen[key] = (seen[key] || 0) + 1;
         var dx = (seen[key] - 2.5) * 2.6;
-        s += '<circle cx="' + (X(m.lb) + dx).toFixed(1) + '" cy="' + Y(v).toFixed(1) + '" r="3.6" style="fill:var(--st)"/>';
-        s += '<circle cx="' + (X(m.lb) + dx).toFixed(1) + '" cy="' + Y(m.jd[k]).toFixed(1) + '" r="3.2" style="fill:var(--card);stroke:var(--run);stroke-width:1.6"/>';
+        s += '<circle cx="' + (X(m.lb) + dx).toFixed(1) + '" cy="' + Y(v).toFixed(1) + '" r="2.6" style="fill:var(--st);opacity:.85"/>';
+        s += '<circle cx="' + (X(m.lb) + dx).toFixed(1) + '" cy="' + Y(m.jd[k]).toFixed(1) + '" r="2.4" style="fill:var(--card);stroke:var(--run);stroke-width:1.1"/>';
       });
     });
     s += '<text class="lblb" x="' + (x1 + 4) + '" y="' + (Y(1.66) + 4).toFixed(1) + '" style="fill:var(--st)">clean</text>';
@@ -687,7 +695,7 @@ details > summary:focus-visible { outline: 2px solid var(--accent); border-radiu
       '<div class="part p-st" style="width:' + pct(r.clean, r.tot) + '">' + ticks + '</div></div>';
     var html = '<div class="row" style="grid-template-columns:24px 1fr 44px">' +
       '<span class="idx">R' + (i + 1) + '</span>' + '<div class="track">' + bar + '</div>' +
-      '<span class="big right" style="font-size:18px">' + fmt(r.tot) + '</span>' +
+      '<span class="big right" style="font-size:15px">' + fmt(r.tot) + '</span>' +
       '<span class="sub">' + r.strokes + ' strokes <span class="cf x">~</span> · to bar ' + Math.round(r.trOut) + ' s · 7/7 <span class="cf m">●</span> · 1 rep / ' + r.gap.toFixed(1).replace(".0", "") + ' s · ' + r.v.toFixed(2) + ' m/s</span>';
     if (i === 3) {
       html += '<div class="open"><span><b>Round 4 · 4:12</b> · row 2:15 · to bar 0:24 · cleans 1:22</span><span>Rep 2 came 24 s after rep 1, the only long break of the day. Other gaps 10–12 s. Speed 1.82–1.99 m/s.</span></div>';
@@ -703,8 +711,8 @@ details > summary:focus-visible { outline: 2px solid var(--accent); border-radiu
       g += '<div class="h" style="text-align:left;padding-top:7px">R' + (i + 1) + '</div>';
       r.vs.forEach(function (v) {
         var d = v - mean;
-        var bg = d >= 0.04 ? "var(--fast)" : d <= -0.06 ? "var(--slow)" : "var(--fill)";
-        var fg = (d >= 0.04 || d <= -0.06) ? "var(--onBar)" : "var(--ink)";
+        var bg = d >= 0.04 ? "var(--fastBand)" : d <= -0.06 ? "var(--slowBand)" : "transparent";
+        var fg = d >= 0.04 ? "var(--fast)" : d <= -0.06 ? "var(--slow)" : "var(--ink2)";
         g += '<div style="background:' + bg + ';color:' + fg + '">' + v.toFixed(2) + '</div>';
       });
     });
@@ -754,7 +762,7 @@ details > summary:focus-visible { outline: 2px solid var(--accent); border-radiu
     var html = '<div class="row" style="grid-template-columns:30px 1fr 44px">' +
       '<span class="idx">R' + (i + 1) + ' <span style="font-size:11px;color:var(--ink2)">' + r.o + '</span></span>' +
       '<div class="track"><div class="slot" style="width:' + pct(r.tot, amMax) + ';background:transparent">' + parts + '</div></div>' +
-      '<span class="big right" style="font-size:18px;color:' + (i === 4 ? "var(--slow)" : "var(--ink)") + '">' + fmt(r.tot) + '</span>' +
+      '<span class="big right" style="font-size:15px;color:' + (i === 4 ? "var(--slow)" : "var(--ink)") + '">' + fmt(r.tot) + '</span>' +
       '<span class="sub">' + names.map(function (n, k) { return n + " " + fmt(r.d[k]); }).join(" · ") + ' · before reps ' + fmt(trs) + '</span>';
     if (i === 4) {
       html += '<div class="open"><span><b>Round 5 · 6:14</b> · slowest round</span><span>DB C&amp;J 1:37 = 0:44 before the first rep + 0:53 of reps. The reps themselves took as long as in other rounds (0:47–0:54).</span></div>';
@@ -816,7 +824,7 @@ details > summary:focus-visible { outline: 2px solid var(--accent); border-radiu
       '<div class="part p-run" style="width:' + pct(hy.run[i], tot) + '"></div>' +
       '<div class="part p-rox" style="width:' + pct(hy.rox[i], tot) + '"></div>' +
       '<div class="part p-st" style="width:' + pct(hy.sta[i], tot) + '"><span class="plabel">' + name + '</span></div></div></div>' +
-      '<span class="big right" style="font-size:17px;color:' + col + '">' + signed(d) + '</span>' +
+      '<span class="big right" style="font-size:14px;color:' + col + '">' + signed(d) + '</span>' +
       '<span class="sub">Run ' + fmt(hy.run[i]) + ' · Rox ' + fmt(hy.rox[i]) + ' · ' + name + ' ' + fmt(hy.sta[i]) + ' (plan ' + fmt(hy.staT[i]) + ')</span></div>';
   }).join("");
   (function () {
@@ -834,12 +842,12 @@ details > summary:focus-visible { outline: 2px solid var(--accent); border-radiu
     var area = "M" + X(0) + "," + Y(0);
     pts.forEach(function (p, i) { area += " L" + X(i).toFixed(1) + "," + Y(p.d).toFixed(1); });
     area += " L" + X(n) + "," + Y(0) + " Z";
-    s += '<path d="' + area + '" style="fill:var(--slow);opacity:.14"/>';
-    s += '<polyline points="' + pts.map(function (p, i) { return X(i).toFixed(1) + "," + Y(p.d).toFixed(1); }).join(" ") + '" style="fill:none;stroke:var(--slow);stroke-width:2;stroke-linejoin:round"/>';
+    s += '<path d="' + area + '" style="fill:var(--slow);opacity:.07"/>';
+    s += '<polyline points="' + pts.map(function (p, i) { return X(i).toFixed(1) + "," + Y(p.d).toFixed(1); }).join(" ") + '" style="fill:none;stroke:var(--slow);stroke-width:1.3;stroke-linejoin:round"/>';
     pts.forEach(function (p, i) {
       if (!i) return;
       var c = p.k === "run" ? "var(--run)" : p.k === "rox" ? "var(--rest)" : "var(--st)";
-      s += '<circle cx="' + X(i).toFixed(1) + '" cy="' + Y(p.d).toFixed(1) + '" r="2.6" style="fill:' + c + '"/>';
+      s += '<circle cx="' + X(i).toFixed(1) + '" cy="' + Y(p.d).toFixed(1) + '" r="2" style="fill:' + c + '"/>';
     });
     s += '<text class="lblb" x="' + (X(n) - 2).toFixed(1) + '" y="' + (Y(pts[n].d) - 7).toFixed(1) + '" text-anchor="end" style="fill:var(--slow)">+3:42</text>';
     s += '<text class="lbl" x="' + (X(21) - 4).toFixed(1) + '" y="' + (Y(pts[21].d) - 8).toFixed(1) + '" text-anchor="end">Wall Balls +1:05</text>';
