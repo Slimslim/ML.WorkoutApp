@@ -205,6 +205,28 @@ cap?" (Crown, 0…target, skippable); the phone shows the full time as the score
 16:00 cap · at the cap: 7/12 Pull-ups (R3)". Finishing under the cap and AMRAP caps behave as
 before.
 
+### Workout library (docs/WORKOUT_LIBRARY.md)
+
+**W8. Add a workout without an app update (Now)**
+As the owner, I want to add today's class workout to the app by pasting one SQL statement in the
+Supabase dashboard, so I can run it on the watch the same day without building or reinstalling.
+*Done when:* after running the SQL from `tools/library/make_row.py` and pulling down in Choose,
+the workout is listed within 5 s, Send to watch puts it on the watch, and the result on the phone
+carries its name and segments like a built-in workout.
+
+**W9. Today's workout at the top of Choose (Now)**
+As an athlete, I want the workout programmed for today at the top of Choose, so picking it is one
+tap after opening Choose.
+*Done when:* a row with `scheduled_on` = today (phone calendar) is in a "Today" section above
+everything else; other library workouts are grouped by program, newest first, each with its date;
+the built-in groups follow.
+
+**W10. Works offline from the last list (Now)**
+As an athlete in a gym with no signal, I want Choose to still show the library workouts I saw
+last time, so I can send one to the watch without a connection.
+*Done when:* in airplane mode (or signed out) after one successful refresh, Choose shows the same
+library workouts and Send to watch works; a failed refresh shows a short note and keeps the list.
+
 ## Navigation and layout
 
 *Owned by the Navigation UI/UX chat. Add stories here with the `N` prefix.*
