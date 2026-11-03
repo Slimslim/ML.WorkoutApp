@@ -96,6 +96,20 @@ p { margin: 0; max-width: 68ch; }
 .mv .at { color: var(--ink2); white-space: nowrap; }
 .mv .grp { font: 500 10.5px/1 var(--f-mono); letter-spacing: .6px; text-transform: uppercase; color: var(--ink3); padding-top: 5px; }
 .mv .more { color: var(--ink3); }
+.mv .spd { color: var(--ink3); font-size: 12px; float: right; }
+.cap { font: 400 13px var(--f-ui); color: var(--ink2); }
+.score .rx.sc { background: var(--warnBg); color: var(--warnInk); }
+.orig summary { cursor: pointer; list-style: none; font: 500 12.5px var(--f-ui); color: var(--accent); }
+.orig summary::-webkit-details-marker { display: none; }
+.orig summary:focus-visible { outline: 2px solid var(--accent); border-radius: 4px; }
+.orig div { margin-top: 6px; font: 400 12.5px/1.45 var(--f-ui); color: var(--ink2); background: var(--sunk); border-radius: 8px; padding: 8px 10px; }
+.after { display: flex; flex-direction: column; gap: 10px; }
+.ask { background: var(--card); border: 1px dashed var(--line); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+.ask b { font-weight: 600; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; align-self: flex-start; }
+.seg span { padding: 5px 14px; color: var(--ink2); font-size: 12.5px; }
+.seg span.on { background: var(--ink); color: var(--page); }
+.edit { color: var(--ink); } .edit s { color: var(--ink3); } .edit span { color: var(--accent); font-size: 12px; margin-left: 6px; }
 .last { font: 400 12px var(--f-ui); color: var(--ink3); }
 .score { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; border-top: 1px solid var(--line); padding-top: 10px; margin-top: 3px; }
 .score .n { font: 500 26px/1 var(--f-ui); font-variant-numeric: tabular-nums; letter-spacing: -.3px; }
@@ -118,14 +132,20 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
 <div class="wrap">
   <header class="top">
     <div>
-      <span class="eyebrow">Rx Lab · iPhone · design study round 3, not app code</span>
+      <span class="eyebrow">Rx Lab · iPhone · design study round 4, not app code</span>
       <h1>Workout Header Study</h1>
       <p class="muted">One header, "D", built from your round-1 decisions and applied to the same 12 workouts. It holds only what you log: date, source, block, workout type, name, format, one line per movement with your load, and the score once you are done. No notes, strategy or stimulus. Round 1 (A, B, C) is in the repo history.</p>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <div class="toggle" role="group" aria-label="Athlete profile">
+      <button type="button" data-div="m" aria-pressed="true">Profile: man</button>
+      <button type="button" data-div="f" aria-pressed="false">woman</button>
     </div>
     <div class="toggle" role="group" aria-label="Theme">
       <button type="button" data-theme-btn="sys" aria-pressed="true">System</button>
       <button type="button" data-theme-btn="light" aria-pressed="false">Light</button>
       <button type="button" data-theme-btn="dark" aria-pressed="false">Dark</button>
+    </div>
     </div>
   </header>
 
@@ -134,25 +154,27 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
       <span class="eyebrow">Header D, top to bottom</span>
       <ol class="anat">
         <li><b>Date · source</b> on the left; <b>block tag</b> (Metcon, Strength, Accessory) and <b>type tag</b> on the right.</li>
-        <li><b>Name</b>, 2 lines max. No name: built from the movements, in lighter text.</li>
-        <li><b>Format line</b>: scheme · cap · rest. Structure only.</li>
+        <li><b>Name</b>, 2 lines max. Open workouts get the "Open" prefix; no name: the format is the name ("Every 3:00 × 3").</li>
+        <li><b>Format line</b>: rounds, intervals, rest. Structure only.</li>
         <li><b>Rep scheme</b> once on top when it is shared (21-15-9), then <b>movements</b>, one line each, no dividers: <code style="font:400 12px var(--f-mono)">12 DB C&amp;J @40 lb</code>.</li>
-        <li><b>Score</b> after the workout, under one thin rule: score · Rx/Scaled · one comparison.</li>
+        <li><b>Cap</b> at the bottom, under the movements.</li>
+        <li><b>Score</b> after the workout, under one thin rule: score · Rx/Scaled · one comparison. Logged lifts: one line per set with load and bar speed.</li>
+        <li><b>See details</b> opens the original card with the Rx M/F weights.</li>
       </ol>
     </div>
     <div class="panel">
       <span class="eyebrow">Workout type vocabulary (fixed)</span>
       <div class="vocab">
         <span class="tag type">Chipper</span><span class="ex">Long list, each movement once. <i>Unladen swallow</i></span>
-        <span class="tag type">EMOM</span><span class="ex">Every minute, also E2MOM, E3MOM. <i>Power snatch, power C&amp;J, DU + sit-ups</i></span>
+        <span class="tag type">EMOM</span><span class="ex">Every minute, also E2MOM, E3MOM. <i>Power snatch, power C&amp;J, Every 3:00 × 3</i></span>
         <span class="tag type">AMRAP</span><span class="ex">As many rounds as possible. <i>AMRAP 40, The Chief</i></span>
-        <span class="tag type">AMREP</span><span class="ex">As many reps as possible, usually a ladder. <i>13.4</i></span>
+        <span class="tag type">AMREP</span><span class="ex">As many reps as possible, usually a ladder. <i>Open 13.4</i></span>
         <span class="tag type">Death by</span><span class="ex">Add a rep every minute until you can't.</span>
         <span class="tag type">Ladder</span><span class="ex">Reps go up or down a fixed step, for time.</span>
         <span class="tag type">RFT</span><span class="ex">Rounds for time, rep schemes like 21-15-9. <i>Diane, "GAME OVER", Freedom</i></span>
         <span class="tag type">Complex</span><span class="ex">Several lifts in one set without dropping the bar.</span>
         <span class="sub">Other variations</span>
-        <span class="tag type">Sets × reps</span><span class="ex">Lift days. <i>Front squat 5 × 3</i></span>
+        <span class="tag type">Sets × reps</span><span class="ex">Lift days. <i>Front squat 5×3</i></span>
         <span class="tag type">For quality</span><span class="ex">Not timed. <i>Core work</i></span>
         <span class="tag type">Cycles</span><span class="ex">Repeated blocks with rest; shown here inside the format line of The Chief (tag AMRAP).</span>
       </div>
@@ -173,10 +195,11 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
         <div><b>Date</b><span><code>Today</code>, <code>Yesterday</code>, <code>Mon Nov 2</code>, older years <code>Mar 2023</code>.</span></div>
         <div><b>Source</b><span>One short label: <code>Mayhem</code>, <code>Class</code>, <code>Benchmark</code>, <code>Open</code>, <code>Your library</code>.</span></div>
         <div><b>Two tags</b><span>Block first (neutral fill), type second (outlined, the one accent). Always both, always in that order.</span></div>
-        <div><b>Name</b><span>2 lines max, then "…". Quoted names keep their quotes. Lift titles split: <code>Front Squat : 3-3-3-3-3</code> → name <code>Front Squat</code>, format <code>5 × 3</code>. No name → movements joined with "+", lighter text.</span></div>
+        <div><b>Name</b><span>2 lines max, then "…". Quoted names keep their quotes. CrossFit Open: <code>Open 13.4</code>. Lift titles split: <code>Front Squat : 3-3-3-3-3</code> → name <code>Front Squat</code>. No name → the format is the name: <code>Every 3:00 × 3</code>.</span></div>
         <div><b>Rep scheme on top</b><span>A scheme shared by all movements is written once, above them: <code>21-15-9</code>, <code>3-3-3-3-3</code>, <code>40-30-20-30-40 Cal</code>. Movements below it carry no reps; a movement with its own fixed reps keeps them (<code>7 Power Cleans @155 lb</code>).</span></div>
         <div><b>Writing</b><span>One movement per line, written the way you write it: quantity, unit, movement, <code>@load</code>. <code>12 Cal Row</code>, <code>15 Push-ups</code>, <code>12 DB C&amp;J @40 lb</code>, <code>1:00 Suitcase Hold @pick</code>, <code>50 ft Front-Rack Carry</code>. Loads are always inline after "@", never in a column.</span></div>
-        <div><b>Your load</b><span>M/F resolved to your division (<code>135/95 lb</code> → <code>@135 lb</code>), %1RM to real weight, kg to lb. More than 5 movements: first 4 + <code>+18 more</code>. The full list of conventions lives in HEADER_STUDY.md and grows as we see more workouts.</span></div>
+        <div><b>Your load, Rx/Scaled</b><span>Loads come from your profile (man/woman, no manual pick; try the toggle above): <code>225/155 lb</code> → <code>@225 lb</code> or <code>@155 lb</code>. "See details" shows the original Rx M/F card. After logging the app asks "Rx or scaled?" and lets you edit loads and reps; the score then says <code>Scaled</code>. Abbreviate: HSPU, T2B, C&amp;J, DB, KB, DU; <code>ALT</code> for alternating, <code>Double DB</code> for two dumbbells; heights in inches, runs in m; <code>lb</code>, never lbs.</span></div>
+        <div><b>Cap and logged sets</b><span>Cap goes at the bottom: <code>Cap 8:00</code>. Planned lifts stay simple (<code>5×3 Front Squat @165–190 lb</code>); logged lifts get one line per set or minute with load and average bar speed: <code>3 Front Squats @200 lb · 0.60 m/s</code>.</span></div>
         <div><b>Score</b><span>Time, rounds + reps, reps, heaviest set (volume second), or "Done". Then Rx/Scaled, then one comparison: last time or the cap.</span></div>
       </div>
     </div>
@@ -204,67 +227,97 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
   function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 
   // moves: [text, load] written as the athlete writes it: quantity, unit, movement, @load.
-  // scheme: shared rep scheme shown once on top. {g: "..."} = small group label.
+  // moves: [text, load, speed]. load = "225 lb" or {m: "225 lb", f: "155 lb"} (resolved by profile).
+  // scheme = shared rep scheme on top; cap shown at the bottom; orig = the source card (See details).
   var W = [
-    { label: "Diane", note: "Named benchmark, shared 21-15-9", src: "Benchmark app", date: "Today", source: "Benchmark", block: "Metcon", type: "RFT",
-      name: "Diane", fmt: [], scheme: "21-15-9", moves: [["Deadlift", "225 lb"], ["Handstand Push-up"]], last: "Last time 8:54 Rx · 2023",
+    { label: "Diane", note: "Benchmark, shared 21-15-9, done Rx", src: "Benchmark app", date: "Today", source: "Benchmark", block: "Metcon", type: "RFT",
+      name: "Diane", scheme: "21-15-9", moves: [["Deadlift", { m: "225 lb", f: "155 lb" }], ["HSPU"]], last: "Last time 8:54 Rx · 2023",
+      orig: "21-15-9 for time: Deadlift 225/155 lb, Handstand push-ups",
       done: { date: "Today", n: "8:31", rx: "Rx", good: "−0:23", vs: "vs last time (8:54, 2023)", ex: true } },
-    { label: "The Chief", note: "Cycles with rest, fixed reps per movement", src: "Benchmark app", date: "Wed Nov 4", source: "Benchmark", block: "Metcon", type: "AMRAP",
-      name: "The Chief", fmt: ["5 cycles × 3:00", "rest 1:00"], moves: [["3 Power Cleans", "135 lb"], ["6 Push-ups"], ["9 Air Squats"]] },
-    { label: "13.4", note: "Open code as name, rep ladder on top", src: "Open archive", date: "Thu Nov 5", source: "Open", block: "Metcon", type: "AMREP",
-      name: "13.4", fmt: ["7:00"], scheme: "3-3, 6-6, 9-9, 12-12 …", moves: [["Clean & Jerk", "135 lb"], ["Toes-to-Bar"]] },
-    { label: "“GAME OVER”", note: "Quoted name, shared 21-15-9, cap", src: "Mayhem", date: "Fri Nov 6", source: "Mayhem", block: "Metcon", type: "RFT",
-      name: "“GAME OVER”", fmt: ["cap 8:00"], scheme: "21-15-9", moves: [["Deadlift", "225 lb"], ["Toes-to-Bar"]] },
+    { label: "The Chief", note: "Cycles with rest, fixed reps", src: "Benchmark app", date: "Wed Nov 4", source: "Benchmark", block: "Metcon", type: "AMRAP",
+      name: "The Chief", fmt: ["5 cycles × 3:00", "rest 1:00"], moves: [["3 Power Cleans", { m: "135 lb", f: "95 lb" }], ["6 Push-ups"], ["9 Air Squats"]],
+      orig: "5 cycles of AMRAP 3:00, rest 1:00: 3 power cleans 135/95 lb, 6 push-ups, 9 air squats" },
+    { label: "Open 13.4", note: "Open prefix, rep ladder on top", src: "Open archive", date: "Thu Nov 5", source: "Open", block: "Metcon", type: "AMREP",
+      name: "Open 13.4", fmt: ["7:00"], scheme: "3-6-9-12…", moves: [["C&J", { m: "135 lb", f: "95 lb" }], ["T2B"]],
+      orig: "AMRAP 7: 3 C&J 135/95 lb, 3 T2B, 6 and 6, 9 and 9 … +3 each round" },
+    { label: "“GAME OVER”", note: "Quoted name, cap at the bottom", src: "Mayhem", date: "Fri Nov 6", source: "Mayhem", block: "Metcon", type: "RFT",
+      name: "“GAME OVER”", scheme: "21-15-9", moves: [["Deadlift", { m: "225 lb", f: "155 lb" }], ["T2B"]], cap: "8:00",
+      orig: "For time 21-15-9: deadlift 225/155 lb, toes-to-bar. Cap 8 min" },
     { label: "Unladen swallow", note: "Very long name, 22 movements, team of 2", src: "Mayhem", date: "Sat Nov 7", source: "Mayhem", block: "Metcon", type: "Chipper", ill: "Movement names illustrative",
-      name: "“What is the air-speed velocity of an unladen swallow?”", fmt: ["team of 2", "cap 60:00"], scheme: "22 each",
-      moves: [["Thrusters", "95 lb"], ["KB Swings", "53 lb"], ["Box Jumps", "24 in"], ["Wall Balls", "20 lb"]], more: 18 },
-    { label: "No name", note: "Fallback name, E3MOM", src: "Mayhem", date: "Today", source: "Mayhem", block: "Accessory", type: "EMOM",
-      name: "Double Unders + AbMat Sit-ups", gen: true, fmt: ["Every 3:00 × 3"], moves: [["50 Double Unders"], ["25 AbMat Sit-ups"]] },
-    { label: "Front Squat 3-3-3-3-3", note: "Lift: scheme on top, %1RM → real loads", src: "Mayhem", date: "Today", source: "Mayhem", block: "Strength", type: "Sets × reps",
-      name: "Front Squat", fmt: ["heaviest set"], scheme: "3-3-3-3-3", moves: [["Front Squat", "165–190 lb"]], last: "Last time 205 lb best set · 2,655 lb total",
-      done: { date: "Today", n: "215 lb", u: "best set × 3", rx: "Rx", good: "+10 lb", vs: "vs last time (205) · 2,805 lb total", ex: true,
-        moves: [["Front Squat", "165, 185, 200, 210, 215 lb"]] } },
-    { label: "Power Snatch EMOM", note: "Interval + lift, load picked by you", src: "Mayhem", date: "Mon Nov 9", source: "Mayhem", block: "Strength", type: "EMOM",
-      name: "Power Snatch", fmt: ["Every 1:00 × 15"], moves: [["5 Power Snatches", "pick"]], last: "Your maxes: 1RM 135 lb · 3RM 105 lb" },
+      name: "“What is the air-speed velocity of an unladen swallow?”", fmt: ["Team of 2"], scheme: "22 each",
+      moves: [["Thrusters", { m: "95 lb", f: "65 lb" }], ["KB Swings", { m: "53 lb", f: "35 lb" }], ["Box Jumps", { m: "24 in", f: "20 in" }], ["Wall Balls", { m: "20 lb", f: "14 lb" }]], more: 18, cap: "60:00" },
+    { label: "No name", note: "Format used as the name", src: "Mayhem", date: "Today", source: "Mayhem", block: "Accessory", type: "EMOM",
+      name: "Every 3:00 × 3", moves: [["50 DU"], ["25 AbMat Sit-ups"]] },
+    { label: "Front Squat 5×3", note: "Lift: simple plan, logged one line per set + bar speed", src: "Mayhem", date: "Today", source: "Mayhem", block: "Strength", type: "Sets × reps", ill: "Logged loads and speeds are examples",
+      name: "Front Squat", moves: [["5×3 Front Squat", "165–190 lb (65–75 %)"]], last: "Last time 205 lb best set · 2,655 lb total",
+      done: { date: "Today", n: "215 lb", u: "best set", rx: "Rx", good: "+10 lb", vs: "vs last time (205) · 2,805 lb total · bar speed is your wrist estimate", ex: true,
+        moves: [["3 Front Squats", "165 lb", "0.71 m/s"], ["3 Front Squats", "185 lb", "0.66 m/s"], ["3 Front Squats", "200 lb", "0.60 m/s"], ["3 Front Squats", "210 lb", "0.55 m/s"], ["3 Front Squats", "215 lb", "0.51 m/s"]] } },
+    { label: "Power Snatch EMOM", note: "Logged one line per minute + bar speed", src: "Mayhem", date: "Mon Nov 9", source: "Mayhem", block: "Strength", type: "EMOM", ill: "Logged loads and speeds are examples",
+      name: "Power Snatch", fmt: ["Every 1:00 × 15"], moves: [["5 Power Snatches", "your pick (1RM 135 lb)"]],
+      done: { date: "Mon Nov 9", n: "115 lb", u: "top set · 75/75 reps", rx: "15/15 min", vs: "Built 85 → 115 lb · clean peak speed per minute (wrist estimate)", ex: true,
+        moves: [["5 Power Snatches", "85 lb", "2.31 m/s"], ["5 Power Snatches", "85 lb", "2.29 m/s"], ["5 Power Snatches", "95 lb", "2.22 m/s"], ["5 Power Snatches", "95 lb", "2.20 m/s"], ["5 Power Snatches", "95 lb", "2.18 m/s"], ["5 Power Snatches", "105 lb", "2.10 m/s"], ["5 Power Snatches", "105 lb", "2.08 m/s"], ["5 Power Snatches", "105 lb", "2.05 m/s"], ["5 Power Snatches", "105 lb", "2.03 m/s"], ["5 Power Snatches", "110 lb", "1.98 m/s"], ["5 Power Snatches", "110 lb", "1.95 m/s"], ["5 Power Snatches", "110 lb", "1.93 m/s"], ["5 Power Snatches", "115 lb", "1.88 m/s"], ["5 Power Snatches", "115 lb", "1.86 m/s"], ["5 Power Snatches", "115 lb", "1.83 m/s"]] } },
     { label: "Core Work", note: "Units between number and movement", src: "Mayhem", date: "Mon Nov 9", source: "Mayhem", block: "Accessory", type: "For quality",
       name: "Core Work", fmt: ["3 rounds"], moves: [["1/side Turkish Get-up", "pick"], ["1:00 Suitcase Hold", "pick"], ["50 ft Front-Rack Carry"]] },
-    { label: "Freedom (yours)", note: "Mixed: shared Cal scheme + fixed 7 reps", src: "Your data · Nov 2", date: "Mon Nov 2", source: "Your library", block: "Metcon", type: "RFT",
-      name: "Freedom", fmt: ["5 rounds", "cap 20:00"], scheme: "40-30-20-30-40 Cal", moves: [["Row"], ["7 Power Cleans", "187 lb"]],
-      done: { date: "Mon Nov 2", n: "19:37", rx: "Scaled", vs: "0:23 under the cap", moves: [["Row"], ["7 Power Cleans", "155 lb"]] } },
-    { label: "Power C&J EMOM (yours)", note: "Done only: load per set", src: "Your data · Nov 2", date: "Mon Nov 2", source: "Your library", block: "Strength", type: "EMOM", doneOnly: true,
-      name: "Power Clean & Jerk", fmt: ["Every 1:00 × 8"], moves: [["2 Power Clean & Jerks", "125 → 175 lb"]],
-      done: { date: "Mon Nov 2", n: "175 lb", u: "top set · 16/16 reps", rx: "8/8 min", vs: "125, 135, 145, 145, 155, 155, 165, 175 lb" } },
+    { label: "Freedom (yours)", note: "Real result, done Scaled: Rx 187 lb, you 155 lb", src: "Your data · Nov 2", date: "Mon Nov 2", source: "Your library", block: "Metcon", type: "RFT",
+      name: "Freedom", fmt: ["5 rounds"], scheme: "40-30-20-30-40 Cal", moves: [["Row"], ["7 Power Cleans", "187 lb"]], cap: "20:00",
+      orig: "Row 40-30-20-30-40 cal, 7 power cleans 85 kg after each row. Cap 20 min",
+      done: { date: "Mon Nov 2", n: "19:37", rx: "Scaled", vs: "0:23 under the cap · Rx 187 lb, you did 155 lb", moves: [["Row"], ["7 Power Cleans", "155 lb"]], ask: true } },
+    { label: "Power C&J EMOM (yours)", note: "Real: one line per minute, load + speed", src: "Your data · Nov 2", date: "Mon Nov 2", source: "Your library", block: "Strength", type: "EMOM", doneOnly: true,
+      name: "Power Clean & Jerk", fmt: ["Every 1:00 × 8"], moves: [["2 Power C&J", "125 → 175 lb"]],
+      done: { date: "Mon Nov 2", n: "175 lb", u: "top set · 16/16 reps", rx: "8/8 min", vs: "Clean peak speed per minute, wrist estimate",
+        moves: [["2 Power C&J", "125 lb", "1.95 m/s"], ["2 Power C&J", "135 lb", "1.84 m/s"], ["2 Power C&J", "145 lb", "1.89 m/s"], ["2 Power C&J", "145 lb", "1.88 m/s"], ["2 Power C&J", "155 lb", "1.97 m/s"], ["2 Power C&J", "155 lb", "1.80 m/s"], ["2 Power C&J", "165 lb", "1.70 m/s"], ["2 Power C&J", "175 lb", "1.62 m/s"]] } },
     { label: "AMRAP 40 (yours)", note: "Done only: alternating A/B rounds", src: "Your data · Nov 1", date: "Sun Nov 1", source: "Class", block: "Metcon", type: "AMRAP", doneOnly: true,
       name: "AMRAP 40", fmt: ["40:00", "rest 1:00 between rounds"],
-      moves: [{ g: "A rounds" }, ["12 Cal Row"], ["15 Push-ups"], ["12 DB C&J", "40 lb"], ["15 Burpees"], { g: "B rounds" }, ["12 Cal Bike"], ["6 Strict Pull-ups"], ["12 DB Snatches", "40 lb"], ["3 Wall Walks"]],
+      moves: [{ g: "A rounds" }, ["12 Cal Row"], ["15 Push-ups"], ["12 ALT DB C&J", "40 lb"], ["15 Burpees"], { g: "B rounds" }, ["12 Cal Bike"], ["6 Strict Pull-ups"], ["12 ALT DB Snatches", "40 lb"], ["3 Wall Walks"]],
       done: { date: "Sun Nov 1", n: "7", u: "rounds + 0", rx: "Rx", vs: "First time logged" } }
   ];
+
+  var division = "m";
+  function load(l) { return typeof l === "string" ? l : l[division]; }
 
   function header(w, d) {
     var mv = (d && d.moves) || w.moves;
     var h = '<div class="hc"><div class="r1"><div class="meta"><span>' + esc(d ? d.date : w.date) + '</span><span class="dot"></span><span>' + esc(w.source) + '</span></div>' +
       '<div class="tags"><span class="tag block">' + esc(w.block) + '</span><span class="tag type">' + esc(w.type) + '</span></div></div>';
-    h += '<div class="name' + (w.gen ? " gen" : "") + '">' + esc(w.name) + '</div>';
-    if (w.fmt.length) h += '<div class="fmt">' + w.fmt.map(esc).join('<span class="sep">·</span>') + '</div>';
+    h += '<div class="name">' + esc(w.name) + '</div>';
+    if (w.fmt && w.fmt.length) h += '<div class="fmt">' + w.fmt.map(esc).join('<span class="sep">·</span>') + '</div>';
     h += '<div class="mv">' + (w.scheme ? '<div class="scheme">' + esc(w.scheme) + '</div>' : '') + mv.map(function (m) {
         if (m.g) return '<div class="grp">' + esc(m.g) + '</div>';
-        return '<div>' + esc(m[0]) + (m[1] ? ' <span class="at">@' + esc(m[1]) + '</span>' : '') + '</div>';
+        return '<div>' + esc(m[0]) + (m[1] ? ' <span class="at">@' + esc(load(m[1])) + '</span>' : '') + (m[2] ? '<span class="spd">' + esc(m[2]) + '</span>' : '') + '</div>';
       }).join("") + (w.more ? '<div class="more">+' + w.more + ' more</div>' : '') + '</div>';
+    if (w.cap) h += '<div class="cap">Cap ' + esc(w.cap) + '</div>';
     if (d) {
-      h += '<div class="score"><span class="n">' + esc(d.n) + '</span>' + (d.u ? '<span class="u">' + esc(d.u) + '</span>' : '') + '<span class="rx">' + esc(d.rx) + '</span>' +
-        '<span class="vs">' + (d.good ? '<b>' + esc(d.good) + '</b> ' : '') + esc(d.vs) + (d.ex ? ' <span class="ex">· example score</span>' : '') + '</span></div>';
+      h += '<div class="score"><span class="n">' + esc(d.n) + '</span>' + (d.u ? '<span class="u">' + esc(d.u) + '</span>' : '') + '<span class="rx' + (d.rx === "Scaled" ? " sc" : "") + '">' + esc(d.rx) + '</span>' +
+        '<span class="vs">' + (d.good ? '<b>' + esc(d.good) + '</b> ' : '') + esc(d.vs) + (d.ex ? ' <span class="ex">· example</span>' : '') + '</span></div>';
     } else if (w.last) {
       h += '<div class="last">' + esc(w.last) + '</div>';
     }
+    if (w.orig) h += '<details class="orig"><summary>See details</summary><div>Original card: ' + esc(w.orig) + '</div></details>';
     return h + '</div>';
   }
+  function askSheet() {
+    return '<div class="ask"><b>Rx or scaled?</b><div class="seg"><span>Rx</span><span class="on">Scaled</span></div>' +
+      '<div class="edit">7 Power Cleans <s>@187 lb</s> → <b>@155 lb</b> <span>edit</span></div><div class="edit">Row 40-30-20-30-40 Cal <span>as written</span></div></div>';
+  }
 
-  var html = "";
-  W.forEach(function (w) {
-    html += '<div class="grow"><div class="wlabel"><b>' + esc(w.label) + '</b><span>' + esc(w.note) + '</span><span class="src">' + esc(w.src) + '</span>' + (w.ill ? '<span class="ill">' + esc(w.ill) + '</span>' : '') + '</div>';
-    html += '<div>' + (w.doneOnly ? '<div class="empty">Logged after the fact</div>' : header(w, null)) + '</div>';
-    html += '<div>' + (w.done ? header(w, w.done) : '<div class="empty">Not done yet</div>') + '</div></div>';
+  function render() {
+    var rows = document.getElementById("rows");
+    rows.querySelectorAll(".grow").forEach(function (r) { r.remove(); });
+    var html = "";
+    W.forEach(function (w) {
+      html += '<div class="grow"><div class="wlabel"><b>' + esc(w.label) + '</b><span>' + esc(w.note) + '</span><span class="src">' + esc(w.src) + '</span>' + (w.ill ? '<span class="ill">' + esc(w.ill) + '</span>' : '') + '</div>';
+      html += '<div>' + (w.doneOnly ? '<div class="empty">Logged after the fact</div>' : header(w, null)) + '</div>';
+      html += '<div class="after">' + (w.done ? (w.done.ask ? askSheet() : '') + header(w, w.done) : '<div class="empty">Not done yet</div>') + '</div></div>';
+    });
+    rows.insertAdjacentHTML("beforeend", html);
+  }
+  document.querySelectorAll("[data-div]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      division = b.getAttribute("data-div");
+      document.querySelectorAll("[data-div]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      render();
+    });
   });
-  document.getElementById("rows").insertAdjacentHTML("beforeend", html);
+  render();
 })();
 </script>

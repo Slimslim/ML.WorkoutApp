@@ -109,17 +109,26 @@ a new workout doesn't fit.
    between the number and the movement; the load goes last after `@`.
 4. **Loads inline, never in a right-aligned column** (picked for round 3, applied to every card).
 5. Movement names in Title Case, plural when the quantity is more than 1 (`7 Power Cleans`).
+6. **Abbreviate** the common names: HSPU, T2B, C&J, DB, KB, DU (round 4).
+7. **Units:** heights in inches (`Box Jumps @24 in`), run distances in m (miles only when the
+   workout says so), `lb` never `lbs`.
+8. **Alternating** = `ALT` (`12 ALT DB Snatches @40 lb`); two dumbbells = `Double DB`.
+9. **Cap at the bottom** of the card, under the movements: `Cap 8:00`. Not in the format line.
+10. **CrossFit Open** workouts get the `Open` prefix: `Open 13.4` (scheme `3-6-9-12…`).
+11. **No name → the format is the name** (`Every 3:00 × 3`), no generated movement name.
+12. **Lift blocks:** planned stays simple (`5×3 Front Squat @165–190 lb`); logged = one line per
+    set or minute with load and average bar speed (`3 Front Squats @200 lb · 0.60 m/s`). Same for
+    lift EMOMs (one line per minute).
+13. **Rx/Scaled:** the header shows the athlete's own division load from the profile (no manual
+    pick). "See details" shows the original card with Rx M/F weights. After logging the app asks
+    "Rx or scaled?" and lets the athlete edit loads/reps; the score then says `Scaled`.
 
 ### Open questions
-- **Abbreviations list:** which are standard and always used: DB, KB, C&J, T2B, HSPU, DU, TTB,
-  GHD, OHS, RDL, MU, C2B… and which are always written out (e.g. "Handstand Push-up" vs "HSPU")?
-- **lb vs lbs:** proposal `lb` (singular, as SI-style unit), never `lbs`.
-- **M/F pairs** (`135/95 lb`) are always resolved to the athlete's load (`@135 lb`); where is the
-  division set (once in Settings, or per workout)?
-- **Distance and height units:** `m` for row/run/ski, `ft` for carries and sled, `in` for box
-  height (`Box Jump @24 in`?) or `24" Box Jump`?
+- **More abbreviations** (decided so far: HSPU, T2B, C&J, DB, KB, DU): GHD, OHS, RDL, MU, C2B…?
+- **Carries and sleds:** `ft` or `m`?
 - **Holds and timed work:** `1:00 Suitcase Hold @pick`, `:30 Plank`, `0:30` vs `30 s`?
 - **Load picked by the athlete:** `@pick` before the workout, replaced by the real load after?
-- **Per side / alternating:** `1/side Turkish Get-up`, `12 Alt DB Snatches` or `6/6`?
+- **Bar speed** on logged sets: average concentric speed (as velocity-based training apps show) or the peak? Today the wrist gives a peak estimate.
+- **Per side:** `1/side Turkish Get-up` or `6/6`? (alternating is decided: `ALT`)
 - **Calories:** `12 Cal Row` vs `Row 12 cal` (decided: `12 Cal Row`); M/F calories (`15/12 Cal`).
 - **Ranges and progressions:** `@125 → 175 lb` for building sets, `@165–190 lb` from %1RM.
