@@ -33,12 +33,16 @@ private let workoutLog = Logger(subsystem: "BarPathWatch", category: "workoutMod
 /// - End always works: it finalizes and sends the result first, then ends HealthKit; if
 ///   HealthKit doesn't report back within `endTimeout`, the manager is discarded.
 /// - A HealthKit session ended by the system is treated like End (saves what we have).
+/// - End after the finish with less than `recoverySeconds` recorded doesn't stop yet: the
+///   model waits in `.recovering` (HealthKit, HR, motion and pedometer keep going) and saves
+///   by itself at finish + `recoverySeconds` (W6, WORKOUT_SPEC §6). "Save now" ends at once.
 @MainActor
 final class WorkoutSessionModel: ObservableObject {
     enum Phase: Equatable {
         case idle        // start screen
         case starting    // waiting for the HealthKit session
         case running     // segments being timed (also while "DONE" is shown)
+        case recovering  // End pressed after the finish: still recording recovery, saves itself
         case ending      // result sent, waiting for HealthKit to save
     }
 
@@ -169,6 +173,9 @@ final class WorkoutSessionModel: ObservableObject {
     private var recoveryFinishHeartRateFinal = false
     /// After this long the finish HR is fixed (its 5 s buckets and their neighbours are in).
     static let recoveryFinishSettleSeconds: Double = 20.0
+    /// Recovery recorded after the finish before an End saves (W6): End earlier waits in
+    /// `.recovering` until finish + this, then saves. Also the done screen's "3 min done".
+    static let recoverySeconds: Double = 180.0
 
     init() {
         let defaults = UserDefaults.standard
@@ -444,26 +451,48 @@ final class WorkoutSessionModel: ObservableObject {
     }
 
     /// Ends the workout: result + CSV first, then HealthKit. Works without HealthKit.
+    /// After the finish with less than `recoverySeconds` recorded, waits in `.recovering`
+    /// first (W6); see `recoveryWaitBeforeEnd`.
     func end() {
         if isDemo {
-            // Nothing to save or send: straight back to the start screen.
-            if phase == .starting || phase == .running {
+            // Nothing to save or send: straight back to the start screen (no recovery wait,
+            // "End demo" means leave the demo).
+            if phase == .starting || phase == .running || phase == .recovering {
                 workoutLog.info("Screen demo ended")
                 goIdle()
             }
             return
         }
         switch phase {
-        case .starting, .running:
-            startTimeoutTask?.cancel()
-            startTimeoutTask = nil
-            finalize()
-            phase = .ending
-            armEndTimeout()
-            workout.end()     // calls onFinished right away if there is no HK session
+        case .running:
+            let now: Double = Date().timeIntervalSince1970
+            if let remaining = recoveryWaitBeforeEnd(now: now) {
+                beginRecoveryWait(remaining: remaining)
+            } else {
+                endNow()
+            }
+        case .starting, .recovering:
+            endNow()
         case .idle, .ending:
             break
         }
+    }
+
+    /// "Save now" on the recovery screen: ends at once with the recovery recorded so far.
+    func saveNow() {
+        guard phase == .recovering else { return }
+        workoutLog.info("recovery: save now")
+        endNow()
+    }
+
+    /// Finalizes (result + CSV) and ends HealthKit.
+    private func endNow() {
+        startTimeoutTask?.cancel()
+        startTimeoutTask = nil
+        finalize()
+        phase = .ending
+        armEndTimeout()
+        workout.end()     // calls onFinished right away if there is no HK session
     }
 
     // MARK: - Running
@@ -522,14 +551,24 @@ final class WorkoutSessionModel: ObservableObject {
             while !Task.isCancelled {
                 try? await Task.sleep(nanoseconds: 200_000_000)
                 guard let self = self else { return }
-                if self.phase != .running { return }
+                if self.phase != .running && self.phase != .recovering { return }
                 self.clockTick()
             }
         }
     }
 
     private func clockTick() {
-        updateRecovery(now: Date().timeIntervalSince1970)
+        let nowT: Double = Date().timeIntervalSince1970
+        // Plays the 1:00 / 2:00 haptics and `.success` at 3:00 (also while `.recovering`, so
+        // the automatic save below comes with the success haptic).
+        updateRecovery(now: nowT)
+        if phase == .recovering {
+            if let saveAt = recoverySaveTime, nowT >= saveAt {
+                workoutLog.info("recovery recorded; saving")
+                endNow()
+            }
+            return
+        }
         guard let event = nextClockEvent() else {
             countdownTarget = nil
             return
@@ -612,7 +651,7 @@ final class WorkoutSessionModel: ObservableObject {
             healthKitRunning = false
             // Only a session that actually ran counts as "ended by the system"; an .ended
             // from tearing down a session that failed to start must not end our workout.
-            if wasRunning && (phase == .running || phase == .starting) {
+            if wasRunning && (phase == .running || phase == .starting || phase == .recovering) {
                 // Ended by the system (not by us): save what we have.
                 workoutLog.error("HealthKit session ended by the system; saving")
                 startTimeoutTask?.cancel()
@@ -698,7 +737,7 @@ final class WorkoutSessionModel: ObservableObject {
     private func heartRateReceived(_ bpm: Double) {
         if isDemo { return }
         heartRate = bpm
-        guard phase == .running, !finalized else { return }
+        guard phase == .running || phase == .recovering, !finalized else { return }
         let t = Date().timeIntervalSince1970
         heartRates.append(HeartRateSample(t: t, bpm: bpm))
         recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
@@ -707,10 +746,40 @@ final class WorkoutSessionModel: ObservableObject {
 
     // MARK: - Recovery (WORKOUT_SPEC §6)
 
-    /// Seconds since the finish while the done screen is up (before End), else nil.
+    /// Seconds since the finish while the done screen or the recovery screen is up, else nil.
     func recoveryElapsed(now: Date) -> Double? {
-        guard phase == .running, let finish = progress.finishTime else { return nil }
+        guard phase == .running || phase == .recovering, let finish = progress.finishTime else { return nil }
         return max(0, now.timeIntervalSince1970 - finish)
+    }
+
+    /// When `.recovering` saves by itself: finish + `recoverySeconds` (nil when not finished).
+    var recoverySaveTime: Double? {
+        guard let finish = progress.finishTime else { return nil }
+        return finish + WorkoutSessionModel.recoverySeconds
+    }
+
+    /// Seconds of recovery still to record when End is pressed now, or nil to end at once:
+    /// not finished (abandoned workout), `recoverySeconds` already recorded, the cap's reps
+    /// picker still unanswered (End then ends as before, without reps), or no HealthKit
+    /// session (no HR to record, and no background time to save by itself wrist-down).
+    private func recoveryWaitBeforeEnd(now: Double) -> Double? {
+        guard phase == .running, progress.isFinished, let saveAt = recoverySaveTime else { return nil }
+        guard healthKitRunning else { return nil }
+        if asksPartialReps && partialReps == nil { return nil }
+        let remaining: Double = saveAt - now
+        return remaining > 0 ? remaining : nil
+    }
+
+    /// End pressed after the finish: keep HealthKit, HR, motion and pedometer running until
+    /// `recoverySaveTime` (the clock then calls `endNow`). Nothing is sent before that.
+    private func beginRecoveryWait(remaining: Double) {
+        startTimeoutTask?.cancel()
+        startTimeoutTask = nil
+        phase = .recovering
+        play(.click)
+        recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
+                             description: String(format: "name=endRequested recoveryLeft=%.0f", remaining))
+        workoutLog.info("End after the finish: recording recovery for \(remaining) s more")
     }
 
     /// HR now minus HR at the finish is shown as "−19"; this is finish − current (positive = down).
@@ -728,8 +797,9 @@ final class WorkoutSessionModel: ObservableObject {
         }
     }
 
-    /// Called from the clock (5×/s) while running: finish HR, and a light haptic at 1:00 and
-    /// 2:00, success at 3:00 after the finish. Never ends the workout.
+    /// Called from the clock (5×/s) while running or recovering: finish HR, and a light haptic
+    /// at 1:00 and 2:00, success at 3:00 after the finish. Never ends the workout itself (the
+    /// `.recovering` save is in `clockTick`).
     private func updateRecovery(now: Double) {
         guard let finish = progress.finishTime else {
             if recoveryFinishKey != nil { resetRecovery() }
@@ -823,7 +893,7 @@ final class WorkoutSessionModel: ObservableObject {
     }
 
     private func pedometerReceived(_ s: PedometerSnapshot) {
-        guard phase == .running, !finalized else { return }
+        guard phase == .running || phase == .recovering, !finalized else { return }
         if let last = pedometerSamples.last, s.t < last.t { return }
         pedometerSamples.append(s)
         latestPedometer = s

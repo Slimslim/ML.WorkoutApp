@@ -176,6 +176,16 @@ see the time I lose walking and setting up.
 *Done when:* on the AMRAP 40 and Freedom files, transitions match the motion analysis within
 5 s for 80 % of segments (docs/TRANSITIONS.md).
 
+### Recovery after the finish
+
+**W6. End when I'm done, still get 3 min of recovery (Now)**
+As an athlete, I want to press End right after I finish and still have my heart-rate recovery
+recorded to 3:00, then saved by itself, so I don't have to remember not to end the workout.
+*Done when:* End confirmed 30 s after the finish → the watch shows "Recovery · saving in 2:30",
+saves with a success tap at 3:00 after the finish without another touch, and the phone shows the
+1 / 2 / 3 min recovery for that workout (once); "Save now" saves at once; End before the finish
+still saves at once.
+
 ## Navigation and layout
 
 *Owned by the Navigation UI/UX chat. Add stories here with the `N` prefix.*
