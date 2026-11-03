@@ -66,3 +66,24 @@ should lead with the heaviest set (205 lb) and show volume second, and turn %1RM
    "5 × AMRAP 3:00 · rest 1:00", "E3MOM × 3 · ping-pong", "1×3 · heaviest", "3 × complex · RPE 5"
 4. Movement chips with *your* load (your division picked once), max 4 + "+18 more"
 5. After the workout: score · Rx/Scaled · vs last time / vs target
+
+## Decisions (owner, round 1 feedback, 2026-11-03)
+
+Round 1 (variants A editorial, B format-led, C card/chips) is in commit f15421a. The owner's
+decisions, now binding for the header ("D", mocked in `header-study.html`, round 2):
+
+1. **Movements: one line per movement, stacked** (like B's list), not a sentence. No divider
+   lines or borders between movement rows: plain stacked lines with even spacing
+   (reps · movement · your load).
+2. **Keep the block tag:** Metcon · Strength · Accessory.
+3. **Add a workout-type tag from a fixed vocabulary:** Chipper, EMOM (incl. E2MOM/E3MOM),
+   AMRAP, AMREP (as many reps as possible, e.g. 13.4 / "Cheat Code" ladders), Death by, Ladder,
+   RFT (rounds for time), "Each RFT" (owner's term, shown as written), Complex, plus other
+   variations: For quality, Cycles (e.g. The Chief), Sets × reps (lift days).
+4. **Name:** some workouts have one, some don't; keep the no-name fallback (movements joined
+   with "+", lighter text). 2 lines max.
+5. **No notes, instructions, stimulus or strategy anywhere in the header** (also no targets or
+   RPE). The app logs what was done; it is not a planning tool.
+
+Open (round 2 questions): The Chief tagged AMRAP or Cycles; exact meaning of "Each RFT";
+whether planned lift days show the load range from the stored max.

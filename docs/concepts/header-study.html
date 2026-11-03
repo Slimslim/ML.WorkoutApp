@@ -4,8 +4,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: one row per workout, the three header variants side by side at phone-card width
-   (rows scroll sideways on a phone). Rules and the recommendation follow. */
+/* Layout: round 2. One header (D) built from the owner's decisions; each workout is one row
+   with its Before and After state side by side at phone-card width. Vocabulary legend and rules follow. */
 :root {
   --page: #F3F4F6;
   --card: #FFFFFF;
@@ -15,27 +15,22 @@
   --ink3: #969CA6;
   --line: #E5E7EB;
   --accent: #D9692E;
-  --accentSoft: #FBEDE4;
   --good: #2E8466;
   --warnBg: #FFF3DE;
   --warnInk: #87540A;
-  --work: #C9CDD4;
-  --rest: #ECEEF1;
   --f-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
   --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --page: #0E0F11; --card: #1A1B1E; --sunk: #222327; --ink: #EDEEF0; --ink2: #A3A8B1; --ink3: #6C717A;
-    --line: #2D2F34; --accent: #F08A52; --accentSoft: #3A2519; --good: #5CC59E; --warnBg: #36290F; --warnInk: #F2C473;
-    --work: #4A4E56; --rest: #2A2C31;
+    --page: #0E0F11; --card: #1A1B1E; --sunk: #232428; --ink: #EDEEF0; --ink2: #A3A8B1; --ink3: #6C717A;
+    --line: #2D2F34; --accent: #F08A52; --good: #5CC59E; --warnBg: #36290F; --warnInk: #F2C473;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --page: #0E0F11; --card: #1A1B1E; --sunk: #222327; --ink: #EDEEF0; --ink2: #A3A8B1; --ink3: #6C717A;
-  --line: #2D2F34; --accent: #F08A52; --accentSoft: #3A2519; --good: #5CC59E; --warnBg: #36290F; --warnInk: #F2C473;
-  --work: #4A4E56; --rest: #2A2C31;
+  --page: #0E0F11; --card: #1A1B1E; --sunk: #232428; --ink: #EDEEF0; --ink2: #A3A8B1; --ink3: #6C717A;
+  --line: #2D2F34; --accent: #F08A52; --good: #5CC59E; --warnBg: #36290F; --warnInk: #F2C473;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -45,10 +40,10 @@ body {
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
-.wrap { max-width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 36px; }
+.wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 36px; }
 h1, h2 { margin: 0; font-weight: 500; letter-spacing: -.2px; text-wrap: balance; }
 h1 { font-size: clamp(28px, 4vw, 38px); }
-h2 { font-size: 20px; }
+h2 { font-size: 19px; }
 p { margin: 0; max-width: 68ch; }
 .muted { color: var(--ink2); }
 .eyebrow { font: 500 11px/1.2 var(--f-mono); letter-spacing: .8px; text-transform: uppercase; color: var(--ink3); }
@@ -59,164 +54,136 @@ p { margin: 0; max-width: 68ch; }
 .toggle button[aria-pressed="true"] { background: var(--ink); color: var(--page); }
 .toggle button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 
-.variants { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
-.vdesc { border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 6px; }
-.vdesc b { font-weight: 600; }
-.vdesc span { color: var(--ink2); font-size: 13.5px; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.anat { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 14px; }
+.anat b { font-weight: 600; }
+.vocab { display: grid; grid-template-columns: 96px 1fr; gap: 8px 12px; align-items: baseline; font-size: 13.5px; }
+.vocab .tag { justify-self: start; }
+.vocab .ex { color: var(--ink2); }
+.vocab .ex i { font-style: normal; color: var(--ink3); }
+.vocab .sub { grid-column: 1 / -1; font: 500 10.5px var(--f-mono); letter-spacing: .7px; text-transform: uppercase; color: var(--ink3); padding-top: 6px; }
 
-/* comparison grid */
-.grid { display: flex; flex-direction: column; gap: 0; }
-.ghead, .grow { display: grid; grid-template-columns: 168px repeat(3, 320px); gap: 16px; }
+/* rows */
 .gscroll { overflow-x: auto; padding-bottom: 8px; }
-.gscroll > .inner { min-width: max-content; display: flex; flex-direction: column; }
-.ghead { position: sticky; top: 0; padding: 10px 0; background: var(--page); z-index: 2; border-bottom: 1px solid var(--line); }
-.ghead div { font: 500 12.5px var(--f-ui); color: var(--ink2); }
-.ghead div b { color: var(--ink); font-weight: 600; }
+.inner { min-width: max-content; display: flex; flex-direction: column; }
+.ghead, .grow { display: grid; grid-template-columns: 180px 330px 330px; gap: 18px; }
+.ghead { padding: 10px 0; border-bottom: 1px solid var(--line); font: 500 12.5px var(--f-ui); color: var(--ink2); }
 .grow { padding: 18px 0; border-bottom: 1px solid var(--line); align-items: start; }
-.wlabel { display: flex; flex-direction: column; gap: 6px; position: sticky; left: 0; background: var(--page); z-index: 1; }
+.wlabel { display: flex; flex-direction: column; gap: 5px; position: sticky; left: 0; background: var(--page); z-index: 1; }
 .wlabel b { font-weight: 600; font-size: 14px; }
 .wlabel span { font-size: 12.5px; color: var(--ink2); line-height: 1.45; }
 .wlabel .src { font: 500 10.5px var(--f-mono); color: var(--ink3); }
 .wlabel .ill { align-self: flex-start; font: 500 10.5px var(--f-ui); background: var(--warnBg); color: var(--warnInk); padding: 2px 7px; border-radius: 6px; }
-.cell { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-.state { font: 500 10px var(--f-mono); letter-spacing: .7px; text-transform: uppercase; color: var(--ink3); }
-.only-A .grow, .only-B .grow, .only-C .grow, .only-A .ghead, .only-B .ghead, .only-C .ghead { grid-template-columns: 168px 320px; }
-.only-A .vB, .only-A .vC, .only-B .vA, .only-B .vC, .only-C .vA, .only-C .vB { display: none; }
+.empty { font: 400 12px var(--f-ui); color: var(--ink3); padding-top: 14px; }
 
-/* the header card (phone width, the top of a workout screen) */
-.hc { background: var(--card); border-radius: 16px; padding: 16px 16px 14px; display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--line); }
+/* header D */
+.hc { background: var(--card); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 9px; border: 1px solid var(--line); }
+.r1 { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
 .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font: 400 12px/1.3 var(--f-ui); color: var(--ink2); }
 .meta .dot::before { content: "·"; color: var(--ink3); }
-.tag { font: 500 10.5px/1 var(--f-ui); color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 3px 7px; letter-spacing: .2px; }
-.tag.plain { color: var(--ink2); border-color: var(--line); }
-.name { font: 500 21px/1.22 var(--f-ui); letter-spacing: -.2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-wrap: balance; }
+.tags { display: flex; gap: 5px; }
+.tag { font: 500 10.5px/1 var(--f-ui); border-radius: 999px; padding: 4px 8px; letter-spacing: .2px; white-space: nowrap; }
+.tag.block { background: var(--sunk); color: var(--ink2); }
+.tag.type { color: var(--accent); border: 1px solid var(--accent); padding: 3px 7px; }
+.name { font: 500 20px/1.22 var(--f-ui); letter-spacing: -.2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-wrap: balance; }
 .name.gen { color: var(--ink2); font-weight: 400; }
-.fmt { font: 400 14px/1.4 var(--f-ui); color: var(--ink); }
+.fmt { font: 400 13.5px/1.4 var(--f-ui); color: var(--ink2); }
 .fmt .sep { color: var(--ink3); padding: 0 4px; }
-.fmt .soft { color: var(--ink2); }
-.moves { font: 400 13px/1.55 var(--f-ui); color: var(--ink2); }
-.moves b { font-weight: 500; color: var(--ink); }
+.mv { display: flex; flex-direction: column; gap: 5px; padding-top: 2px; }
+.mv div { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; font: 400 13.5px/1.3 var(--f-ui); font-variant-numeric: tabular-nums; }
+.mv .r { color: var(--ink2); min-width: 0; }
+.mv .l { color: var(--ink2); text-align: right; white-space: nowrap; }
+.mv .more { color: var(--ink3); }
 .last { font: 400 12px var(--f-ui); color: var(--ink3); }
-.score { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; border-top: 1px solid var(--line); padding-top: 10px; margin-top: 2px; }
+.score { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; border-top: 1px solid var(--line); padding-top: 10px; margin-top: 3px; }
 .score .n { font: 500 26px/1 var(--f-ui); font-variant-numeric: tabular-nums; letter-spacing: -.3px; }
 .score .u { font: 400 13px var(--f-ui); color: var(--ink2); }
 .score .rx { font: 500 10.5px/1 var(--f-ui); padding: 3px 6px; border-radius: 5px; background: var(--sunk); color: var(--ink2); }
 .score .vs { font: 400 12.5px var(--f-ui); color: var(--ink2); width: 100%; }
-.score .vs.good b { color: var(--good); font-weight: 500; }
-.score .vs b { font-weight: 500; color: var(--ink); }
+.score .vs b { color: var(--good); font-weight: 500; }
+.score .vs .ex { color: var(--warnInk); }
 
-/* B: format-led */
-.vB .kick { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-.vB .kname { font: 500 13px/1.3 var(--f-ui); color: var(--ink); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.vB .kname.gen { color: var(--ink2); font-weight: 400; }
-.vB .kdate { font: 400 12px var(--f-ui); color: var(--ink3); white-space: nowrap; }
-.vB .hero { font: 400 24px/1.2 var(--f-ui); letter-spacing: -.3px; font-variant-numeric: tabular-nums; }
-.vB .heroSub { font: 400 13px var(--f-ui); color: var(--ink2); margin-top: -4px; }
-.mlist { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
-.mlist div { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); font: 400 13px var(--f-ui); }
-.mlist div span:first-child { color: var(--ink); }
-.mlist div span:last-child { color: var(--ink2); font-variant-numeric: tabular-nums; text-align: right; }
-.mlist .more { color: var(--ink3); border-bottom: 0; }
-.vB .bigscore { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.vB .bigscore .n { font: 400 34px/1 var(--f-ui); letter-spacing: -.6px; font-variant-numeric: tabular-nums; }
-
-/* C: card + chips */
-.vC .row1 { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
-.vC .row2 { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
-.vC .name { font-size: 17px; }
-.vC .sc { text-align: right; flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
-.vC .sc .n { font: 500 20px/1 var(--f-ui); font-variant-numeric: tabular-nums; }
-.vC .sc .s { font: 400 11px var(--f-ui); color: var(--ink2); white-space: nowrap; }
-.chips { display: flex; flex-wrap: wrap; gap: 5px; }
-.chip { font: 400 12px/1 var(--f-ui); padding: 6px 8px; border-radius: 7px; background: var(--sunk); color: var(--ink); white-space: nowrap; }
-.chip.f { background: transparent; border: 1px solid var(--line); color: var(--ink2); }
-.chip.f.key { color: var(--ink); }
-.chip i { font-style: normal; color: var(--ink2); }
-.chip.more { color: var(--ink3); background: transparent; }
-svg { display: block; width: 100%; height: auto; overflow: visible; }
-svg text { font: 400 9px var(--f-ui); fill: var(--ink3); }
-
-/* rules + recommendation */
-.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
-.panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-.rules { display: flex; flex-direction: column; gap: 0; }
-.rules > div { display: grid; grid-template-columns: 150px 1fr; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.rules { display: flex; flex-direction: column; }
+.rules > div { display: grid; grid-template-columns: 140px 1fr; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
 .rules > div:first-child { border-top: 0; padding-top: 0; }
 .rules b { font-weight: 600; font-size: 13.5px; }
 .rules span { font-size: 13.5px; color: var(--ink2); }
 .rules code { font: 400 12px var(--f-mono); background: var(--sunk); color: var(--ink); padding: 1px 5px; border-radius: 4px; white-space: nowrap; }
-.pick { font-size: 15px; line-height: 1.6; display: flex; flex-direction: column; gap: 10px; }
-.pick b { font-weight: 600; }
-ol.qs, ul.why { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 14.5px; }
-@media (max-width: 560px) { .rules > div { grid-template-columns: 1fr; gap: 2px; } }
+ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 14.5px; }
+@media (max-width: 560px) { .rules > div { grid-template-columns: 1fr; gap: 2px; } .vocab { grid-template-columns: 84px 1fr; } }
 </style>
 
 <div class="wrap">
   <header class="top">
     <div>
-      <span class="eyebrow">Rx Lab · iPhone · design study, not app code</span>
+      <span class="eyebrow">Rx Lab · iPhone · design study round 2, not app code</span>
       <h1>Workout Header Study</h1>
-      <p class="muted">The first block at the top of every workout, before and after you do it: date, name, movements, summary. Three ways to lay it out, each applied to the same 12 workouts (9 from programming apps, 3 of yours with real scores), so you can compare them row by row. Lighter type, neutral surfaces, one accent. Colours are placeholders.</p>
+      <p class="muted">One header, "D", built from your round-1 decisions and applied to the same 12 workouts. It holds only what you log: date, source, block, workout type, name, format, one line per movement with your load, and the score once you are done. No notes, strategy or stimulus. Round 1 (A, B, C) is in the repo history.</p>
     </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <div class="toggle" role="group" aria-label="Show variants">
-        <button type="button" data-show="all" aria-pressed="true">All three</button>
-        <button type="button" data-show="A" aria-pressed="false">A</button>
-        <button type="button" data-show="B" aria-pressed="false">B</button>
-        <button type="button" data-show="C" aria-pressed="false">C</button>
-      </div>
-      <div class="toggle" role="group" aria-label="Theme">
-        <button type="button" data-theme-btn="sys" aria-pressed="true">System</button>
-        <button type="button" data-theme-btn="light" aria-pressed="false">Light</button>
-        <button type="button" data-theme-btn="dark" aria-pressed="false">Dark</button>
-      </div>
+    <div class="toggle" role="group" aria-label="Theme">
+      <button type="button" data-theme-btn="sys" aria-pressed="true">System</button>
+      <button type="button" data-theme-btn="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme-btn="dark" aria-pressed="false">Dark</button>
     </div>
   </header>
 
-  <section class="variants" aria-label="The three variants">
-    <div class="vdesc"><span class="eyebrow">Variant A</span><b>Editorial: the name leads</b><span>Date and source on top, the name as the title, one format line, movements as a sentence with your loads. Score sits under a thin rule once you are done.</span></div>
-    <div class="vdesc"><span class="eyebrow">Variant B</span><b>Format-led: what you will do is the hero</b><span>The name shrinks to a label; "21-15-9 for time" becomes the big line. Movements as a small list with reps and load right-aligned. After the workout the score replaces the format as the hero.</span></div>
-    <div class="vdesc"><span class="eyebrow">Variant C</span><b>Card and chips: compact, scannable</b><span>Name with the score on the right, format and movements as chips, and a thin timeline that shows the shape (cap, rounds and rests, minutes, sets). Built for lists and the watch handoff.</span></div>
+  <section class="two">
+    <div class="panel">
+      <span class="eyebrow">Header D, top to bottom</span>
+      <ol class="anat">
+        <li><b>Date · source</b> on the left; <b>block tag</b> (Metcon, Strength, Accessory) and <b>type tag</b> on the right.</li>
+        <li><b>Name</b>, 2 lines max. No name: built from the movements, in lighter text.</li>
+        <li><b>Format line</b>: scheme · cap · rest. Structure only.</li>
+        <li><b>Movements</b>, one line each, stacked with even spacing and no dividers: reps · movement · your load.</li>
+        <li><b>Score</b> after the workout, under one thin rule: score · Rx/Scaled · one comparison.</li>
+      </ol>
+    </div>
+    <div class="panel">
+      <span class="eyebrow">Workout type vocabulary (fixed)</span>
+      <div class="vocab">
+        <span class="tag type">Chipper</span><span class="ex">Long list, each movement once. <i>Unladen swallow</i></span>
+        <span class="tag type">EMOM</span><span class="ex">Every minute, also E2MOM, E3MOM. <i>Power snatch, power C&amp;J, DU + sit-ups</i></span>
+        <span class="tag type">AMRAP</span><span class="ex">As many rounds as possible. <i>AMRAP 40, The Chief</i></span>
+        <span class="tag type">AMREP</span><span class="ex">As many reps as possible, usually a ladder. <i>13.4</i></span>
+        <span class="tag type">Death by</span><span class="ex">Add a rep every minute until you can't.</span>
+        <span class="tag type">Ladder</span><span class="ex">Reps go up or down a fixed step, for time.</span>
+        <span class="tag type">RFT</span><span class="ex">Rounds for time, rep schemes like 21-15-9. <i>Diane, "GAME OVER", Freedom</i></span>
+        <span class="tag type">Each RFT</span><span class="ex">Your term, shown as written: each round timed on its own.</span>
+        <span class="tag type">Complex</span><span class="ex">Several lifts in one set without dropping the bar.</span>
+        <span class="sub">Other variations</span>
+        <span class="tag type">Sets × reps</span><span class="ex">Lift days. <i>Front squat 5 × 3</i></span>
+        <span class="tag type">For quality</span><span class="ex">Not timed. <i>Core work</i></span>
+        <span class="tag type">Cycles</span><span class="ex">Repeated blocks with rest; shown here inside the format line of The Chief (tag AMRAP).</span>
+      </div>
+    </div>
   </section>
 
-  <section class="grid" aria-label="Comparison">
-    <div class="gscroll" id="gscroll"><div class="inner" id="rows">
-      <div class="ghead"><div>Workout · what it tests</div><div class="vA"><b>A</b> · Editorial</div><div class="vB"><b>B</b> · Format-led</div><div class="vC"><b>C</b> · Card and chips</div></div>
+  <section aria-label="Header D on 12 workouts">
+    <div class="gscroll"><div class="inner" id="rows">
+      <div class="ghead"><div>Workout</div><div>Before (planned)</div><div>After (done)</div></div>
     </div></div>
   </section>
 
   <section class="two">
     <div class="panel">
-      <span class="eyebrow">Rules every variant follows</span>
+      <span class="eyebrow">Rules</span>
       <div class="rules">
-        <div><b>Date</b><span><code>Today</code> <code>Yesterday</code>, then <code>Mon Nov 2</code> this year, <code>Mar 2023</code> for older results. Done workouts add the finish time only on the Live tab.</span></div>
-        <div><b>Source</b><span>One short label: the program (<code>Mayhem</code>), <code>Class</code>, <code>Benchmark</code>, <code>Open</code> or <code>Your library</code>. Never the coach's notes, strategy or dedication story; those stay behind "More".</span></div>
-        <div><b>Name, 2 lines max</b><span>Ends with "…" after two lines; the full name is one tap away. Quoted names keep their quotes. Lift titles split: <code>Front Squat : 3-3-3-3-3</code> → name <code>Front Squat</code>, format <code>5 × 3</code>.</span></div>
-        <div><b>No name</b><span>Generated from the movements (<code>Double Unders + AbMat Sit-ups</code>), shown in the lighter text colour so you can tell it apart from a real name.</span></div>
-        <div><b>Benchmark tag</b><span>Only for real benchmarks (Diane, The Chief) and Open workouts (<code>Open 13.4</code>), because those have a history to compare with.</span></div>
-        <div><b>Your load</b><span>M/F pairs resolve to your division, picked once: <code>135/95 lb</code> → <code>135 lb</code>. Heights and KB too (<code>24/20 in</code> → <code>24 in</code>). %1RM becomes real weight from your stored max: <code>65–75 %</code> → <code>165–190 lb</code>.</span></div>
-        <div><b>Units</b><span>Your unit everywhere (lb here). A source in kg is converted, original in brackets on tap: <code>85 kg</code> → <code>187 lb</code>.</span></div>
-        <div><b>Format line</b><span>Small grammar, always in this order: kind · scheme · cap/rest · target. <code>For time · 21-15-9 · cap 8:00</code>, <code>5 × AMRAP 3:00 · rest 1:00</code>, <code>Every 1:00 × 15</code>.</span></div>
-        <div><b>Score after</b><span>The type follows the format: time, rounds + reps, reps, heaviest set (volume second), minutes done, or just "Done". Then Rx/Scaled, then one comparison: last time, target or cap.</span></div>
+        <div><b>No notes</b><span>Nothing from the coach's text: no strategy, stimulus, scaling advice, targets, RPE or stories. The header is a log of what was done.</span></div>
+        <div><b>Date</b><span><code>Today</code>, <code>Yesterday</code>, <code>Mon Nov 2</code>, older years <code>Mar 2023</code>.</span></div>
+        <div><b>Source</b><span>One short label: <code>Mayhem</code>, <code>Class</code>, <code>Benchmark</code>, <code>Open</code>, <code>Your library</code>.</span></div>
+        <div><b>Two tags</b><span>Block first (neutral fill), type second (outlined, the one accent). Always both, always in that order.</span></div>
+        <div><b>Name</b><span>2 lines max, then "…". Quoted names keep their quotes. Lift titles split: <code>Front Squat : 3-3-3-3-3</code> → name <code>Front Squat</code>, format <code>5 × 3</code>. No name → movements joined with "+", lighter text.</span></div>
+        <div><b>Movements</b><span>One per line: reps on the left, name, your load on the right. M/F resolved to your division (<code>135/95 lb</code> → <code>135 lb</code>), %1RM to real weight, kg to lb. More than 5 movements: first 4 + <code>+18 more</code>.</span></div>
+        <div><b>Score</b><span>Time, rounds + reps, reps, heaviest set (volume second), or "Done". Then Rx/Scaled, then one comparison: last time or the cap.</span></div>
       </div>
     </div>
     <div class="panel">
-      <span class="eyebrow">Recommendation</span>
-      <div class="pick">
-        <p><b>Pick A (Editorial) as the standard header, and borrow two things from C:</b> the movement chips when a workout has 3 or more movements, and the thin timeline for interval formats (EMOM, cycles, AMRAP blocks) only.</p>
-        <ul class="why">
-          <li>A survives every hard case in the inventory: long quoted names, no name, lift days and benchmarks all read the same way, top to bottom.</li>
-          <li>The name is what you remember and search for ("Freedom", "Diane"); B hides it, which hurts in lists and history.</li>
-          <li>B shines for unnamed or lift workouts but breaks for chippers: "22 × 22 for time" says less than the name.</li>
-          <li>C is the best list row and watch preview, but as the header of a screen it gets busy with 4+ chips plus a timeline.</li>
-        </ul>
-      </div>
       <span class="eyebrow">Questions for you</span>
       <ol class="qs">
-        <li>Your division for loads: set it once in Settings (Men's), or switch per workout?</li>
-        <li>Lift days: lead with the heaviest set (205 lb) and show total volume small underneath. Is that how you think about them?</li>
-        <li>Long names: two lines then "…" with the full name on tap, or always show the full name on the workout screen?</li>
-        <li>Source label: show it on every workout, or only when it is not one you made yourself?</li>
+        <li>The Chief: tag it <b>AMRAP</b> (with "5 cycles" in the format line, as shown) or <b>Cycles</b>?</li>
+        <li>"Each RFT": did we get it right as "each round timed on its own"? If not, one example workout would settle it.</li>
+        <li>Planned lift days show the load range from your max (165–190 lb). Keep that, or show only the movement until you log the sets?</li>
       </ol>
     </div>
   </section>
@@ -233,169 +200,65 @@ ol.qs, ul.why { margin: 0; padding-left: 20px; display: flex; flex-direction: co
       document.querySelectorAll("[data-theme-btn]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
     });
   });
-  var rowsEl = document.getElementById("rows");
-  document.querySelectorAll("[data-show]").forEach(function (b) {
-    b.addEventListener("click", function () {
-      var k = b.getAttribute("data-show");
-      rowsEl.classList.remove("only-A", "only-B", "only-C");
-      if (k !== "all") rowsEl.classList.add("only-" + k);
-      document.querySelectorAll("[data-show]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
-    });
-  });
-
   function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 
-  // Each workout: header data + optional done state. tl = timeline shape for variant C.
   var W = [
-    { label: "Diane", tests: "Named benchmark, M/F loads, previous result", src: "Benchmark app", date: "Today", source: "Benchmark", tag: "Benchmark", block: "Metcon",
-      name: "Diane", fmt: ["For time", "21-15-9"], hero: "21-15-9 for time", heroSub: "No cap",
-      moves: [{ n: "Deadlift", l: "225 lb" }, { n: "Handstand push-up", l: "" }], resolved: "225/155 lb → 225 lb",
-      last: "Last time 8:54 Rx · 2023", tl: { t: "cap", cap: 720, mark: 534, markLabel: "last 8:54" },
-      done: { date: "Today", n: "8:31", u: "", rx: "Rx", vs: "−0:23 vs 2023 (8:54)", good: true, ill: true, tl: { t: "cap", cap: 720, fill: 511, mark: 534, markLabel: "last" } } },
-    { label: "The Chief", tests: "Cycles with rests, restart each cycle", src: "Benchmark app", date: "Wed Nov 4", source: "Benchmark", tag: "Benchmark", block: "Metcon",
-      name: "The Chief", fmt: ["5 × AMRAP 3:00", "rest 1:00"], hero: "5 × AMRAP 3:00", heroSub: "Rest 1:00 · restart each cycle · score total rounds",
-      moves: [{ n: "Power clean", r: "3", l: "135 lb" }, { n: "Push-up", r: "6" }, { n: "Air squat", r: "9" }], resolved: "135/95 lb → 135 lb",
-      tl: { t: "blocks", b: [[180, 1], [60, 0], [180, 1], [60, 0], [180, 1], [60, 0], [180, 1], [60, 0], [180, 1]] } },
-    { label: "13.4", tests: "Competition code as name, ladder", src: "Open archive", date: "Thu Nov 5", source: "Open", tag: "Open 13.4", block: "Metcon",
-      name: "13.4", fmt: ["AMRAP 7:00", "ladder +3"], hero: "AMRAP 7:00", heroSub: "Ladder 3-3, 6-6, 9-9 … score reps",
-      moves: [{ n: "Clean & jerk", l: "135 lb" }, { n: "Toes-to-bar" }], resolved: "135/95 lb → 135 lb",
-      tl: { t: "cap", cap: 420, label: "7:00" } },
-    { label: "\"GAME OVER\"", tests: "Quoted fun name, cap, two versions", src: "Mayhem", date: "Fri Nov 6", source: "Mayhem", block: "Metcon",
-      name: "“GAME OVER”", fmt: ["For time", "21-15-9", "cap 8:00"], hero: "21-15-9 for time", heroSub: "Cap 8:00 · score time or reps at the cap",
-      moves: [{ n: "Deadlift", l: "225 lb" }, { n: "Toes-to-bar" }], resolved: "225/155 lb → 225 lb", version: "Version 1 of 2",
-      tl: { t: "cap", cap: 480, label: "cap 8:00" } },
-    { label: "Unladen swallow", tests: "Very long quoted name, 22 movements, team, cap and target", src: "Mayhem", date: "Sat Nov 7", source: "Mayhem", block: "Partner", ill: "Movement names illustrative",
-      name: "“What is the air-speed velocity of an unladen swallow?”", fmt: ["For time", "22 × 22", "team of 2", "cap 60:00", "target sub 40"], hero: "22 × 22 for time", heroSub: "Team of 2 · cap 60:00 · target under 40:00",
-      moves: [{ n: "Thruster", r: "22", l: "95 lb" }, { n: "KB swing", r: "22", l: "53 lb" }, { n: "Box jump", r: "22", l: "24 in" }, { n: "Wall ball", r: "22", l: "20 lb" }], more: 18, resolved: "95/65 · 53/35 · 24/20 in → yours",
-      tl: { t: "cap", cap: 3600, mark: 2400, markLabel: "target 40:00" } },
-    { label: "No name", tests: "Fallback name, not timed, E3MOM ping-pong", src: "Mayhem", date: "Today", source: "Mayhem", block: "Accessory",
-      name: "Double Unders + AbMat Sit-ups", gen: true, fmt: ["Every 3:00 × 3", "ping-pong", "not timed"], hero: "Every 3:00 × 3", heroSub: "Ping-pong · not timed",
-      moves: [{ n: "Double under", r: "50" }, { n: "AbMat sit-up", r: "25" }],
-      tl: { t: "slots", n: 3, label: "3:00" } },
-    { label: "Front Squat 3-3-3-3-3", tests: "Lift: heaviest set first, %1RM → real loads", src: "Mayhem", date: "Today", source: "Mayhem", block: "Strength",
-      name: "Front Squat", fmt: ["5 × 3", "heaviest each set"], hero: "5 × 3, heaviest", heroSub: "Warm-up sets at 65–75 % = 165–190 lb",
-      moves: [{ n: "Front squat", r: "5 × 3", l: "165 → 205+ lb" }], resolved: "65–75 % of 1RM 255 lb (stored) → 165–190 lb",
-      last: "Last time 205 lb best set · 2,655 lb total · Rx", tl: { t: "sets", n: 5, loads: [150, 175, 190, 200, 205], lastLabel: "last" },
-      done: { date: "Today", n: "215 lb", u: "best set × 3", rx: "Rx", vs: "+10 lb vs last (205) · 2,805 lb total", good: true, ill: true, tl: { t: "sets", n: 5, loads: [165, 185, 200, 210, 215], done: true } } },
-    { label: "Power Snatch EMOM", tests: "Interval + lift, pick load, maxes", src: "Mayhem", date: "Mon Nov 9", source: "Mayhem", block: "Strength",
-      name: "Power Snatch", fmt: ["Every 1:00 × 15", "pick load"], hero: "Every 1:00 × 15", heroSub: "Pick load · 1RM 135 lb, 3RM 105 lb",
-      moves: [{ n: "Power snatch", r: "5 / min", l: "pick" }], last: "Your maxes: 1RM 135 lb · 3RM 105 lb",
-      tl: { t: "slots", n: 15, label: "1:00" } },
-    { label: "Core Work", tests: "Block purpose as name, for quality, pick load", src: "Mayhem", date: "Mon Nov 9", source: "Mayhem", block: "Accessory",
-      name: "Core Work", fmt: ["3 rounds for quality"], hero: "3 rounds for quality", heroSub: "Not timed · pick load",
-      moves: [{ n: "Turkish get-up", r: "per side", l: "pick" }, { n: "Suitcase hold", r: "1:00" }, { n: "Front-rack carry", r: "50 ft" }],
-      tl: { t: "slots", n: 3, label: "round" } },
-    { label: "Freedom (yours)", tests: "Your real result, kg in the source, scaled load", src: "Your data · Nov 2", date: "Mon Nov 2", source: "Your library", block: "Metcon",
-      name: "Freedom", fmt: ["For time", "5 rounds", "cap 20:00"], hero: "5 rounds for time", heroSub: "Cap 20:00 · row 40-30-20-30-40 cal",
-      moves: [{ n: "Row", r: "40-30-20-30-40", l: "cal" }, { n: "Power clean", r: "7", l: "187 lb" }], resolved: "85 kg → 187 lb (Rx)",
-      tl: { t: "cap", cap: 1200, label: "cap 20:00" },
-      done: { date: "Mon Nov 2", n: "19:37", u: "", rx: "Scaled", vs: "0:23 under the cap · cleans at 155 lb", moves: [{ n: "Row", r: "40-30-20-30-40", l: "cal" }, { n: "Power clean", r: "7", l: "155 lb" }], tl: { t: "cap", cap: 1200, fill: 1177 } } },
-    { label: "Power C&J EMOM (yours)", tests: "Done only: loads per set, rep count", src: "Your data · Nov 2", date: "Mon Nov 2", source: "Your library", block: "Strength", doneOnly: true,
-      name: "Power Clean & Jerk", fmt: ["Every 1:00 × 8", "2 reps"], hero: "Every 1:00 × 8", heroSub: "2 reps a minute",
-      moves: [{ n: "Power clean & jerk", r: "2 / min", l: "125 → 175 lb" }],
-      done: { date: "Mon Nov 2", n: "175 lb", u: "top set · 16/16 reps", rx: "8/8 min", vs: "Built 125 → 175 lb · every set in its minute", tl: { t: "slots", n: 8, label: "1:00", fillAll: true } } },
-    { label: "AMRAP 40 (yours)", tests: "Done only: alternating A/B options", src: "Your data · Nov 1", date: "Sun Nov 1", source: "Class", block: "Metcon", doneOnly: true,
-      name: "AMRAP 40", fmt: ["AMRAP 40:00", "A/B rounds", "rest 1:00"], hero: "AMRAP 40:00", heroSub: "Alternate A / B rounds · rest 1:00",
-      moves: [{ n: "Row", r: "12", l: "cal" }, { n: "Push-up", r: "15" }, { n: "DB C&J", r: "12", l: "40 lb" }, { n: "Burpee", r: "15" }], more: 4,
-      done: { date: "Sun Nov 1", n: "7", u: "rounds + 0", rx: "Rx", vs: "Avg round 4:51 · no earlier result", tl: { t: "rounds7" } } }
+    { label: "Diane", note: "Named benchmark, M/F load, last result", src: "Benchmark app", date: "Today", source: "Benchmark", block: "Metcon", type: "RFT",
+      name: "Diane", fmt: ["21-15-9"], moves: [["21-15-9", "Deadlift", "225 lb"], ["21-15-9", "Handstand push-up", ""]], last: "Last time 8:54 Rx · 2023",
+      done: { date: "Today", n: "8:31", rx: "Rx", good: "−0:23", vs: "vs last time (8:54, 2023)", ex: true } },
+    { label: "The Chief", note: "Cycles with rest", src: "Benchmark app", date: "Wed Nov 4", source: "Benchmark", block: "Metcon", type: "AMRAP",
+      name: "The Chief", fmt: ["5 cycles × 3:00", "rest 1:00"], moves: [["3", "Power clean", "135 lb"], ["6", "Push-up", ""], ["9", "Air squat", ""]] },
+    { label: "13.4", note: "Open code as name, rep ladder", src: "Open archive", date: "Thu Nov 5", source: "Open", block: "Metcon", type: "AMREP",
+      name: "13.4", fmt: ["7:00", "+3 reps each round"], moves: [["3, 6, 9…", "Clean & jerk", "135 lb"], ["3, 6, 9…", "Toes-to-bar", ""]] },
+    { label: "“GAME OVER”", note: "Quoted name, cap", src: "Mayhem", date: "Fri Nov 6", source: "Mayhem", block: "Metcon", type: "RFT",
+      name: "“GAME OVER”", fmt: ["21-15-9", "cap 8:00"], moves: [["21-15-9", "Deadlift", "225 lb"], ["21-15-9", "Toes-to-bar", ""]] },
+    { label: "Unladen swallow", note: "Very long name, 22 movements, team of 2", src: "Mayhem", date: "Sat Nov 7", source: "Mayhem", block: "Metcon", type: "Chipper", ill: "Movement names illustrative",
+      name: "“What is the air-speed velocity of an unladen swallow?”", fmt: ["22 × 22", "team of 2", "cap 60:00"],
+      moves: [["22", "Thruster", "95 lb"], ["22", "KB swing", "53 lb"], ["22", "Box jump", "24 in"], ["22", "Wall ball", "20 lb"]], more: 18 },
+    { label: "No name", note: "Fallback name, E3MOM", src: "Mayhem", date: "Today", source: "Mayhem", block: "Accessory", type: "EMOM",
+      name: "Double Unders + AbMat Sit-ups", gen: true, fmt: ["Every 3:00 × 3"], moves: [["50", "Double under", ""], ["25", "AbMat sit-up", ""]] },
+    { label: "Front Squat 3-3-3-3-3", note: "Lift: heaviest set first, %1RM → real loads", src: "Mayhem", date: "Today", source: "Mayhem", block: "Strength", type: "Sets × reps",
+      name: "Front Squat", fmt: ["5 × 3", "heaviest"], moves: [["5 × 3", "Front squat", "165–190 lb"]], last: "Last time 205 lb best set · 2,655 lb total",
+      done: { date: "Today", n: "215 lb", u: "best set × 3", rx: "Rx", good: "+10 lb", vs: "vs last time (205) · 2,805 lb total", ex: true,
+        moves: [["5 × 3", "Front squat", "165 → 215 lb"]] } },
+    { label: "Power Snatch EMOM", note: "Interval + lift, load picked by you", src: "Mayhem", date: "Mon Nov 9", source: "Mayhem", block: "Strength", type: "EMOM",
+      name: "Power Snatch", fmt: ["Every 1:00 × 15"], moves: [["5", "Power snatch", "your load"]], last: "Your maxes: 1RM 135 lb · 3RM 105 lb" },
+    { label: "Core Work", note: "Block purpose as name, not timed", src: "Mayhem", date: "Mon Nov 9", source: "Mayhem", block: "Accessory", type: "For quality",
+      name: "Core Work", fmt: ["3 rounds"], moves: [["1 / side", "Turkish get-up", "your load"], ["1:00", "Suitcase hold", ""], ["50 ft", "Front-rack carry", ""]] },
+    { label: "Freedom (yours)", note: "Real result, kg in source, scaled load", src: "Your data · Nov 2", date: "Mon Nov 2", source: "Your library", block: "Metcon", type: "RFT",
+      name: "Freedom", fmt: ["5 rounds", "cap 20:00"], moves: [["40-30-20-30-40", "Row", "cal"], ["7", "Power clean", "187 lb"]],
+      done: { date: "Mon Nov 2", n: "19:37", rx: "Scaled", vs: "0:23 under the cap", moves: [["40-30-20-30-40", "Row", "cal"], ["7", "Power clean", "155 lb"]] } },
+    { label: "Power C&J EMOM (yours)", note: "Done only: load per set", src: "Your data · Nov 2", date: "Mon Nov 2", source: "Your library", block: "Strength", type: "EMOM", doneOnly: true,
+      name: "Power Clean & Jerk", fmt: ["Every 1:00 × 8"], moves: [["2", "Power clean & jerk", "125 → 175 lb"]],
+      done: { date: "Mon Nov 2", n: "175 lb", u: "top set · 16/16 reps", rx: "8/8 min", vs: "125, 135, 145, 145, 155, 155, 165, 175 lb" } },
+    { label: "AMRAP 40 (yours)", note: "Done only: alternating A/B rounds", src: "Your data · Nov 1", date: "Sun Nov 1", source: "Class", block: "Metcon", type: "AMRAP", doneOnly: true,
+      name: "AMRAP 40", fmt: ["40:00", "A/B rounds", "rest 1:00"], moves: [["12", "Row  /  Bike", "cal"], ["15 / 6", "Push-up  /  Strict pull-up", ""], ["12", "DB C&J  /  DB snatch", "40 lb"], ["15 / 3", "Burpee  /  Wall walk", ""]],
+      done: { date: "Sun Nov 1", n: "7", u: "rounds + 0", rx: "Rx", vs: "First time logged" } }
   ];
 
-  function fmtTime(s) { var m = Math.floor(s / 60), r = Math.round(s % 60); return m + ":" + (r < 10 ? "0" : "") + r; }
-
-  function timeline(tl) {
-    if (!tl) return "";
-    var Wd = 300, s = '<svg viewBox="0 0 ' + Wd + ' 26" aria-hidden="true">';
-    if (tl.t === "cap") {
-      s += '<rect x="0" y="6" width="' + Wd + '" height="6" rx="3" style="fill:var(--rest)"/>';
-      if (tl.fill) s += '<rect x="0" y="6" width="' + (Wd * tl.fill / tl.cap).toFixed(1) + '" height="6" rx="3" style="fill:var(--work)"/>';
-      if (tl.mark) { var mx = Wd * tl.mark / tl.cap; s += '<line x1="' + mx + '" x2="' + mx + '" y1="2" y2="16" style="stroke:var(--accent);stroke-width:1.2"/>'; if (tl.markLabel) s += '<text x="' + mx + '" y="25" text-anchor="middle">' + esc(tl.markLabel) + '</text>'; }
-      s += '<text x="0" y="25">0:00</text><text x="' + Wd + '" y="25" text-anchor="end">' + (tl.label || fmtTime(tl.cap)) + '</text>';
-    } else if (tl.t === "blocks") {
-      var tot = 0; tl.b.forEach(function (x) { tot += x[0]; }); var x = 0;
-      tl.b.forEach(function (b) { var w = Wd * b[0] / tot; s += '<rect x="' + (x + 1).toFixed(1) + '" y="6" width="' + (w - 2).toFixed(1) + '" height="6" rx="2" style="fill:var(' + (b[1] ? "--work" : "--rest") + ')"/>'; x += w; });
-      s += '<text x="0" y="25">0:00</text><text x="' + Wd + '" y="25" text-anchor="end">' + fmtTime(tot) + '</text>';
-    } else if (tl.t === "slots") {
-      var w = Wd / tl.n;
-      for (var i = 0; i < tl.n; i++) s += '<rect x="' + (i * w + 1).toFixed(1) + '" y="6" width="' + (w - 2).toFixed(1) + '" height="6" rx="2" style="fill:var(' + (tl.fillAll ? "--work" : "--rest") + ')"/>';
-      s += '<text x="0" y="25">' + tl.n + ' × ' + tl.label + '</text>';
-    } else if (tl.t === "sets") {
-      var bw = Wd / tl.n, max = 220;
-      tl.loads.forEach(function (l, i) { var h = 18 * l / max; s += '<rect x="' + (i * bw + bw * 0.3).toFixed(1) + '" y="' + (18 - h).toFixed(1) + '" width="' + (bw * 0.4).toFixed(1) + '" height="' + h.toFixed(1) + '" rx="2" style="fill:var(' + (tl.done ? "--work" : "--rest") + ')"/>'; s += '<text x="' + (i * bw + bw / 2).toFixed(1) + '" y="26" text-anchor="middle">' + l + '</text>'; });
-    } else if (tl.t === "rounds7") {
-      var d = [284, 233, 328, 247, 375, 270, 298], x2 = 0;
-      d.forEach(function (r, i) { var w2 = Wd * r / 2400; s += '<rect x="' + x2.toFixed(1) + '" y="6" width="' + w2.toFixed(1) + '" height="6" rx="2" style="fill:var(--work);opacity:' + (i % 2 ? .6 : 1) + '"/>'; x2 += w2 + Wd * (i < 6 ? 60 : 6) / 2400; });
-      s += '<text x="0" y="25">0:00</text><text x="' + Wd + '" y="25" text-anchor="end">40:00</text>';
-    }
-    return s + '</svg>';
-  }
-
-  function metaLine(w, d) {
-    var parts = ['<span>' + esc(d ? d.date : w.date) + '</span>', '<span class="dot"></span><span>' + esc(w.source) + '</span>', '<span class="dot"></span><span>' + esc(w.block) + '</span>'];
-    if (w.tag) parts.push('<span class="tag">' + esc(w.tag) + '</span>');
-    if (w.version) parts.push('<span class="tag plain">' + esc(w.version) + '</span>');
-    return '<div class="meta">' + parts.join("") + '</div>';
-  }
-  function fmtLine(w) { return '<div class="fmt">' + w.fmt.map(function (f, i) { return '<span class="' + (i ? "soft" : "") + '">' + esc(f) + '</span>'; }).join('<span class="sep">·</span>') + '</div>'; }
-  function scoreBlock(d) {
-    return '<div class="score"><span class="n">' + esc(d.n) + '</span>' + (d.u ? '<span class="u">' + esc(d.u) + '</span>' : '') + '<span class="rx">' + esc(d.rx) + '</span>' +
-      '<span class="vs' + (d.good ? " good" : "") + '">' + (d.good ? '<b>' + esc(d.vs.split(" vs ")[0]) + '</b> vs ' + esc(d.vs.split(" vs ").slice(1).join(" vs ")) : esc(d.vs)) + (d.ill ? ' <span style="color:var(--warnInk)">· example score</span>' : '') + '</span></div>';
-  }
-
-  // Variant A: editorial
-  function A(w, d) {
+  function header(w, d) {
     var mv = (d && d.moves) || w.moves;
-    var moves = mv.map(function (m) { return '<b>' + esc(m.n) + '</b>' + (m.r ? ' ' + esc(m.r) : '') + (m.l ? ' · ' + esc(m.l) : ''); }).join(", ") + (w.more ? ', <span style="color:var(--ink3)">+' + w.more + ' more</span>' : '');
-    var h = '<div class="hc vA-card">' + metaLine(w, d) + '<div class="name' + (w.gen ? " gen" : "") + '">' + esc(w.name) + '</div>' + fmtLine(w) + '<div class="moves">' + moves + '</div>';
-    if (d) h += scoreBlock(d); else if (w.last) h += '<div class="last">' + esc(w.last) + '</div>';
-    return h + '</div>';
-  }
-  // Variant B: format-led
-  function B(w, d) {
-    var mv = (d && d.moves) || w.moves;
-    var h = '<div class="hc"><div class="kick"><span class="kname' + (w.gen ? " gen" : "") + '">' + esc(w.name) + (w.tag ? ' <span class="tag" style="margin-left:4px">' + esc(w.tag) + '</span>' : '') + '</span><span class="kdate">' + esc(d ? d.date : w.date) + '</span></div>';
+    var h = '<div class="hc"><div class="r1"><div class="meta"><span>' + esc(d ? d.date : w.date) + '</span><span class="dot"></span><span>' + esc(w.source) + '</span></div>' +
+      '<div class="tags"><span class="tag block">' + esc(w.block) + '</span><span class="tag type">' + esc(w.type) + '</span></div></div>';
+    h += '<div class="name' + (w.gen ? " gen" : "") + '">' + esc(w.name) + '</div>';
+    h += '<div class="fmt">' + w.fmt.map(esc).join('<span class="sep">·</span>') + '</div>';
+    h += '<div class="mv">' + mv.map(function (m) { return '<div><span class="r">' + esc(m[0]) + '</span><span>' + esc(m[1]) + '</span><span class="l">' + esc(m[2]) + '</span></div>'; }).join("") +
+      (w.more ? '<div><span class="r"></span><span class="more">+' + w.more + ' more</span><span></span></div>' : '') + '</div>';
     if (d) {
-      h += '<div class="bigscore"><span class="n">' + esc(d.n) + '</span>' + (d.u ? '<span class="u" style="color:var(--ink2);font-size:13px">' + esc(d.u) + '</span>' : '') + '<span class="rx" style="font:500 10.5px/1 var(--f-ui);padding:3px 6px;border-radius:5px;background:var(--sunk);color:var(--ink2)">' + esc(d.rx) + '</span></div>';
-      h += '<div class="heroSub">' + esc(w.hero) + ' · ' + esc(d.vs) + (d.ill ? ' <span style="color:var(--warnInk)">· example</span>' : '') + '</div>';
-    } else {
-      h += '<div class="hero">' + esc(w.hero) + '</div><div class="heroSub">' + esc(w.heroSub) + '</div>';
+      h += '<div class="score"><span class="n">' + esc(d.n) + '</span>' + (d.u ? '<span class="u">' + esc(d.u) + '</span>' : '') + '<span class="rx">' + esc(d.rx) + '</span>' +
+        '<span class="vs">' + (d.good ? '<b>' + esc(d.good) + '</b> ' : '') + esc(d.vs) + (d.ex ? ' <span class="ex">· example score</span>' : '') + '</span></div>';
+    } else if (w.last) {
+      h += '<div class="last">' + esc(w.last) + '</div>';
     }
-    h += '<div class="mlist">' + mv.map(function (m) { return '<div><span>' + (m.r ? esc(m.r) + ' ' : '') + esc(m.n) + '</span><span>' + esc(m.l || "") + '</span></div>'; }).join("") + (w.more ? '<div class="more"><span>+' + w.more + ' more</span><span></span></div>' : '') + '</div>';
-    h += '<div class="meta" style="margin-top:2px"><span>' + esc(w.source) + '</span><span class="dot"></span><span>' + esc(w.block) + '</span>' + (w.version ? '<span class="dot"></span><span>' + esc(w.version) + '</span>' : '') + '</div>';
-    if (!d && w.last) h += '<div class="last">' + esc(w.last) + '</div>';
-    return h + '</div>';
-  }
-  // Variant C: card + chips
-  function C(w, d) {
-    var mv = (d && d.moves) || w.moves;
-    var h = '<div class="hc"><div class="row1"><div class="meta"><span>' + esc(d ? d.date : w.date) + '</span><span class="dot"></span><span>' + esc(w.source) + '</span></div>' + (w.tag ? '<span class="tag">' + esc(w.tag) + '</span>' : (w.version ? '<span class="tag plain">' + esc(w.version) + '</span>' : '')) + '</div>';
-    h += '<div class="row2"><div class="name' + (w.gen ? " gen" : "") + '">' + esc(w.name) + '</div>';
-    if (d) h += '<div class="sc"><span class="n">' + esc(d.n) + '</span><span class="s">' + esc(d.rx) + (d.u ? ' · ' + esc(d.u) : '') + '</span></div>';
-    h += '</div>';
-    h += '<div class="chips">' + w.fmt.map(function (f, i) { return '<span class="chip f' + (i ? "" : " key") + '">' + esc(f) + '</span>'; }).join("") + '</div>';
-    h += '<div class="chips">' + mv.slice(0, 4).map(function (m) { return '<span class="chip">' + (m.r ? '<i>' + esc(m.r) + '</i> ' : '') + esc(m.n) + (m.l ? ' <i>' + esc(m.l) + '</i>' : '') + '</span>'; }).join("") + (w.more ? '<span class="chip more">+' + w.more + '</span>' : '') + '</div>';
-    h += timeline(d ? d.tl : w.tl);
-    if (d) h += '<div class="last"' + (d.good ? ' style="color:var(--good)"' : '') + '>' + esc(d.vs) + (d.ill ? ' · example score' : '') + '</div>';
-    else if (w.last) h += '<div class="last">' + esc(w.last) + '</div>';
     return h + '</div>';
   }
 
   var html = "";
   W.forEach(function (w) {
-    var states = w.doneOnly ? ["done"] : (w.done ? ["plan", "done"] : ["plan"]);
-    html += '<div class="grow"><div class="wlabel"><b>' + esc(w.label) + '</b><span>' + esc(w.tests) + '</span><span class="src">' + esc(w.src) + '</span>' +
-      (w.resolved ? '<span class="src">loads: ' + esc(w.resolved) + '</span>' : '') + (w.ill ? '<span class="ill">' + esc(w.ill) + '</span>' : '') + '</div>';
-    ["A", "B", "C"].forEach(function (v) {
-      var f = v === "A" ? A : v === "B" ? B : C;
-      html += '<div class="cell v' + v + '">';
-      states.forEach(function (st) {
-        if (states.length > 1) html += '<span class="state">' + (st === "plan" ? "Before" : "After") + '</span>';
-        else html += '<span class="state">' + (st === "plan" ? "Before" : "After") + '</span>';
-        html += f(w, st === "done" ? w.done : null);
-      });
-      html += '</div>';
-    });
-    html += '</div>';
+    html += '<div class="grow"><div class="wlabel"><b>' + esc(w.label) + '</b><span>' + esc(w.note) + '</span><span class="src">' + esc(w.src) + '</span>' + (w.ill ? '<span class="ill">' + esc(w.ill) + '</span>' : '') + '</div>';
+    html += '<div>' + (w.doneOnly ? '<div class="empty">Logged after the fact</div>' : header(w, null)) + '</div>';
+    html += '<div>' + (w.done ? header(w, w.done) : '<div class="empty">Not done yet</div>') + '</div></div>';
   });
-  rowsEl.insertAdjacentHTML("beforeend", html);
+  document.getElementById("rows").insertAdjacentHTML("beforeend", html);
 })();
 </script>
