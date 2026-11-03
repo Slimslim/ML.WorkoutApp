@@ -186,7 +186,12 @@ final class SessionModel: ObservableObject {
         repCount = 0
         lastSetReps = nil
         phase = .starting
-        workout.start()
+        // Workouts area (W6): a workout's background recovery recording holds a HealthKit
+        // session and only one can run; it is stopped first (at most ~1 s).
+        WorkoutSessionModel.endBackgroundRecovery { [weak self] in
+            guard let self = self, self.phase == .starting else { return }
+            self.workout.start()
+        }
     }
 
     /// Lift + load sent from the phone's Lifts tab. Applied on the setup screen (idle or after

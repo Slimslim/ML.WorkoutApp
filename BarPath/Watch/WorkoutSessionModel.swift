@@ -33,16 +33,17 @@ private let workoutLog = Logger(subsystem: "BarPathWatch", category: "workoutMod
 /// - End always works: it finalizes and sends the result first, then ends HealthKit; if
 ///   HealthKit doesn't report back within `endTimeout`, the manager is discarded.
 /// - A HealthKit session ended by the system is treated like End (saves what we have).
-/// - End after the finish with less than `recoverySeconds` recorded doesn't stop yet: the
-///   model waits in `.recovering` (HealthKit, HR, motion and pedometer keep going) and saves
-///   by itself at finish + `recoverySeconds` (W6, WORKOUT_SPEC §6). "Save now" ends at once.
+/// - End after the finish ends the workout as always (result sent, Health workout saved to the
+///   End press, back to the start screen). With less than `recoverySeconds` since the finish,
+///   a second, unsaved HealthKit session then records HR silently in the background until
+///   finish + `recoverySeconds` and the result is sent again with the longer HR series (W6,
+///   WORKOUT_SPEC §6). A new workout or lifting session stops it first.
 @MainActor
 final class WorkoutSessionModel: ObservableObject {
     enum Phase: Equatable {
         case idle        // start screen
         case starting    // waiting for the HealthKit session
         case running     // segments being timed (also while "DONE" is shown)
-        case recovering  // End pressed after the finish: still recording recovery, saves itself
         case ending      // result sent, waiting for HealthKit to save
     }
 
@@ -173,9 +174,55 @@ final class WorkoutSessionModel: ObservableObject {
     private var recoveryFinishHeartRateFinal = false
     /// After this long the finish HR is fixed (its 5 s buckets and their neighbours are in).
     static let recoveryFinishSettleSeconds: Double = 20.0
-    /// Recovery recorded after the finish before an End saves (W6): End earlier waits in
-    /// `.recovering` until finish + this, then saves. Also the done screen's "3 min done".
+    /// Recovery recorded after the finish (the done screen's "3 min done"); after an earlier
+    /// End the watch records HR in the background until finish + this (W6).
     static let recoverySeconds: Double = 180.0
+    /// Less than this left to finish + `recoverySeconds` at End: no background recording.
+    static let backgroundRecoveryMinimumSeconds: Double = 10.0
+    /// A new session waits at most this long for the background recording's HealthKit session
+    /// to end.
+    static let backgroundRecoveryStopWait: Double = 1.0
+
+    // MARK: Background recovery after End (W6, WORKOUT_SPEC §6)
+
+    typealias MainAction = @MainActor () -> Void
+
+    /// Everything a WorkoutResult is built from: the session at End, or the copy a background
+    /// recovery keeps (with the HR that arrives after End appended).
+    fileprivate struct ResultInput {
+        var id: UUID
+        var progress: WorkoutProgress
+        var heartRates: [TimedValue]
+        var pedometer: [PedometerSnapshot]
+        var partialReps: Int?
+        var recordedCSV: Bool
+        /// End press, seconds since 1970: splits, HR average and the CSV end here.
+        var endT: Double
+    }
+
+    fileprivate struct BackgroundRecovery {
+        var input: ResultInput
+        /// finish + recoverySeconds (seconds since 1970).
+        var until: Double
+    }
+
+    /// The input of the result sent at End (for a background recovery that follows).
+    private var lastResultInput: ResultInput?
+    /// Set at End when a background recovery should follow; started once HealthKit has saved.
+    private var pendingRecovery: BackgroundRecovery?
+    /// The background recovery being recorded, nil when none.
+    private var backgroundRecovery: BackgroundRecovery?
+    /// Its HealthKit session (activity "other", discarded at the end: Health keeps the workout
+    /// that ended at the End press). Kept until it reports finished.
+    private var recoveryManager: WorkoutManager?
+    private var recoveryTask: Task<Void, Never>?
+    /// Run once the recovery's HealthKit session has ended (or after `backgroundRecoveryStopWait`).
+    private var recoveryWaiters: [MainAction] = []
+    /// Finish time of the workout whose recovery is recording in the background (start screen
+    /// "Recovery recording · 1:42"), nil when none.
+    @Published private(set) var backgroundRecoveryFinish: Date?
+    /// The app's one workout model, for `endBackgroundRecovery(then:)` (lifting start).
+    private static weak var current: WorkoutSessionModel?
 
     init() {
         let defaults = UserDefaults.standard
@@ -210,6 +257,7 @@ final class WorkoutSessionModel: ObservableObject {
         recorder.onError = { [weak self] message in
             self?.errorMessage = message
         }
+        WorkoutSessionModel.current = self
     }
 
     // MARK: - HealthKit manager
@@ -264,15 +312,11 @@ final class WorkoutSessionModel: ObservableObject {
     func start() {
         guard phase == .idle else { return }
         resetForStart(definition: selectedDefinition, demo: false)
-        let definition = progress.definition
-
-        if workout.hasSession {
-            // Left over from a previous run that never finished: don't let it block us.
-            replaceWorkoutManager()
+        // A background recovery (W6) holds a HealthKit session and only one can run: it is
+        // stopped (its update sent) first; HealthKit starts once it has ended, at most ~1 s.
+        stopBackgroundRecovery(reason: "new workout") { [weak self] in
+            self?.startHealthKit()
         }
-        workout.activityType = WorkoutSessionModel.activityType(for: definition.healthKitActivity)
-        workout.locationType = .indoor
-        workout.start()
 
         startTimeoutTask?.cancel()
         startTimeoutTask = Task { @MainActor [weak self] in
@@ -283,6 +327,17 @@ final class WorkoutSessionModel: ObservableObject {
             self.errorMessage = WorkoutSessionModel.noHealthMessage
             self.beginRunning()
         }
+    }
+
+    private func startHealthKit() {
+        guard phase == .starting, !isDemo else { return }
+        if workout.hasSession {
+            // Left over from a previous run that never finished: don't let it block us.
+            replaceWorkoutManager()
+        }
+        workout.activityType = WorkoutSessionModel.activityType(for: progress.definition.healthKitActivity)
+        workout.locationType = .indoor
+        workout.start()
     }
 
     /// Screen demo: the real workout screen with mock data (WorkoutDemo). Starts at once,
@@ -317,6 +372,8 @@ final class WorkoutSessionModel: ObservableObject {
         capSuppressed = false
         countdownTarget = nil
         countdownLastBeep = nil
+        lastResultInput = nil
+        pendingRecovery = nil
         resetRecovery()
         phase = .starting
     }
@@ -451,38 +508,32 @@ final class WorkoutSessionModel: ObservableObject {
     }
 
     /// Ends the workout: result + CSV first, then HealthKit. Works without HealthKit.
-    /// After the finish with less than `recoverySeconds` recorded, waits in `.recovering`
-    /// first (W6); see `recoveryWaitBeforeEnd`.
+    /// After the finish with less than `recoverySeconds` recorded, a background recovery
+    /// follows once HealthKit has saved (W6, `backgroundRecoveryEnd`).
     func end() {
         if isDemo {
-            // Nothing to save or send: straight back to the start screen (no recovery wait,
-            // "End demo" means leave the demo).
-            if phase == .starting || phase == .running || phase == .recovering {
+            // Nothing to save or send: straight back to the start screen.
+            if phase == .starting || phase == .running {
                 workoutLog.info("Screen demo ended")
                 goIdle()
             }
             return
         }
         switch phase {
-        case .running:
-            let now: Double = Date().timeIntervalSince1970
-            if let remaining = recoveryWaitBeforeEnd(now: now) {
-                beginRecoveryWait(remaining: remaining)
-            } else {
-                endNow()
+        case .starting, .running:
+            let until: Double? = backgroundRecoveryEnd(now: Date().timeIntervalSince1970)
+            if until != nil {
+                // Logged before the CSV closes; the HR after End is not in the CSV.
+                recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
+                                     description: "name=backgroundRecovery")
             }
-        case .starting, .recovering:
             endNow()
+            if let until = until, let input = lastResultInput {
+                pendingRecovery = BackgroundRecovery(input: input, until: until)
+            }
         case .idle, .ending:
             break
         }
-    }
-
-    /// "Save now" on the recovery screen: ends at once with the recovery recorded so far.
-    func saveNow() {
-        guard phase == .recovering else { return }
-        workoutLog.info("recovery: save now")
-        endNow()
     }
 
     /// Finalizes (result + CSV) and ends HealthKit.
@@ -551,24 +602,14 @@ final class WorkoutSessionModel: ObservableObject {
             while !Task.isCancelled {
                 try? await Task.sleep(nanoseconds: 200_000_000)
                 guard let self = self else { return }
-                if self.phase != .running && self.phase != .recovering { return }
+                if self.phase != .running { return }
                 self.clockTick()
             }
         }
     }
 
     private func clockTick() {
-        let nowT: Double = Date().timeIntervalSince1970
-        // Plays the 1:00 / 2:00 haptics and `.success` at 3:00 (also while `.recovering`, so
-        // the automatic save below comes with the success haptic).
-        updateRecovery(now: nowT)
-        if phase == .recovering {
-            if let saveAt = recoverySaveTime, nowT >= saveAt {
-                workoutLog.info("recovery recorded; saving")
-                endNow()
-            }
-            return
-        }
+        updateRecovery(now: Date().timeIntervalSince1970)
         guard let event = nextClockEvent() else {
             countdownTarget = nil
             return
@@ -651,7 +692,7 @@ final class WorkoutSessionModel: ObservableObject {
             healthKitRunning = false
             // Only a session that actually ran counts as "ended by the system"; an .ended
             // from tearing down a session that failed to start must not end our workout.
-            if wasRunning && (phase == .running || phase == .starting || phase == .recovering) {
+            if wasRunning && (phase == .running || phase == .starting) {
                 // Ended by the system (not by us): save what we have.
                 workoutLog.error("HealthKit session ended by the system; saving")
                 startTimeoutTask?.cancel()
@@ -682,6 +723,10 @@ final class WorkoutSessionModel: ObservableObject {
         healthKitRunning = false
         guard phase == .ending else { return }
         goIdle()
+        if let recovery = pendingRecovery {
+            pendingRecovery = nil
+            startBackgroundRecovery(recovery)
+        }
     }
 
     private func armEndTimeout() {
@@ -691,6 +736,8 @@ final class WorkoutSessionModel: ObservableObject {
             if Task.isCancelled { return }
             guard let self = self, self.phase == .ending else { return }
             workoutLog.error("HealthKit did not finish in time; going idle anyway")
+            // HealthKit is stuck: no second session for the recovery (the result at End stands).
+            self.pendingRecovery = nil
             self.replaceWorkoutManager()
             self.goIdle()
         }
@@ -737,7 +784,7 @@ final class WorkoutSessionModel: ObservableObject {
     private func heartRateReceived(_ bpm: Double) {
         if isDemo { return }
         heartRate = bpm
-        guard phase == .running || phase == .recovering, !finalized else { return }
+        guard phase == .running, !finalized else { return }
         let t = Date().timeIntervalSince1970
         heartRates.append(HeartRateSample(t: t, bpm: bpm))
         recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
@@ -746,46 +793,10 @@ final class WorkoutSessionModel: ObservableObject {
 
     // MARK: - Recovery (WORKOUT_SPEC §6)
 
-    /// Seconds since the finish while the done screen or the recovery screen is up, else nil.
+    /// Seconds since the finish while the done screen is up (before End), else nil.
     func recoveryElapsed(now: Date) -> Double? {
-        guard phase == .running || phase == .recovering, let finish = progress.finishTime else { return nil }
+        guard phase == .running, let finish = progress.finishTime else { return nil }
         return max(0, now.timeIntervalSince1970 - finish)
-    }
-
-    /// When `.recovering` saves by itself: finish + `recoverySeconds` (nil when not finished).
-    var recoverySaveTime: Double? {
-        guard let finish = progress.finishTime else { return nil }
-        return finish + WorkoutSessionModel.recoverySeconds
-    }
-
-    /// Seconds of recovery still to record when End is pressed now, or nil to end at once:
-    /// not finished (abandoned workout), `recoverySeconds` already recorded, the cap's reps
-    /// picker still unanswered (End then ends as before, without reps), or no HealthKit
-    /// session (no HR to record, and no background time to save by itself wrist-down).
-    private func recoveryWaitBeforeEnd(now: Double) -> Double? {
-        guard phase == .running, progress.isFinished, let saveAt = recoverySaveTime else { return nil }
-        guard healthKitRunning else { return nil }
-        if asksPartialReps && partialReps == nil { return nil }
-        let remaining: Double = saveAt - now
-        return remaining > 0 ? remaining : nil
-    }
-
-    /// True when End now would first record recovery to finish + `recoverySeconds` (W6);
-    /// the End sheet says so.
-    var endWaitsForRecovery: Bool {
-        return recoveryWaitBeforeEnd(now: Date().timeIntervalSince1970) != nil
-    }
-
-    /// End pressed after the finish: keep HealthKit, HR, motion and pedometer running until
-    /// `recoverySaveTime` (the clock then calls `endNow`). Nothing is sent before that.
-    private func beginRecoveryWait(remaining: Double) {
-        startTimeoutTask?.cancel()
-        startTimeoutTask = nil
-        phase = .recovering
-        play(.click)
-        recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
-                             description: String(format: "name=endRequested recoveryLeft=%.0f", remaining))
-        workoutLog.info("End after the finish: recording recovery for \(remaining) s more")
     }
 
     /// HR now minus HR at the finish is shown as "−19"; this is finish − current (positive = down).
@@ -803,9 +814,8 @@ final class WorkoutSessionModel: ObservableObject {
         }
     }
 
-    /// Called from the clock (5×/s) while running or recovering: finish HR, and a light haptic
-    /// at 1:00 and 2:00, success at 3:00 after the finish. Never ends the workout itself (the
-    /// `.recovering` save is in `clockTick`).
+    /// Called from the clock (5×/s) while running: finish HR, and a light haptic at 1:00 and
+    /// 2:00, success at 3:00 after the finish. Never ends the workout.
     private func updateRecovery(now: Double) {
         guard let finish = progress.finishTime else {
             if recoveryFinishKey != nil { resetRecovery() }
@@ -859,6 +869,175 @@ final class WorkoutSessionModel: ObservableObject {
         return HeartRateRecovery.finishHeartRate(series: series, finish: finish)
     }
 
+    // MARK: - Background recovery after End (W6, WORKOUT_SPEC §6)
+
+    /// finish + `recoverySeconds` when End now should be followed by a background recovery,
+    /// else nil: not finished (abandoned), no HealthKit session (no HR to record), or less than
+    /// `backgroundRecoveryMinimumSeconds` left.
+    private func backgroundRecoveryEnd(now: Double) -> Double? {
+        guard phase == .running, progress.isFinished, healthKitRunning,
+              let finish = progress.finishTime else { return nil }
+        let until: Double = finish + WorkoutSessionModel.recoverySeconds
+        return until - now >= WorkoutSessionModel.backgroundRecoveryMinimumSeconds ? until : nil
+    }
+
+    /// Starts the unsaved HealthKit session that records HR until `recovery.until`. Runs after
+    /// the workout's own session has ended and saved (one session at a time).
+    private func startBackgroundRecovery(_ recovery: BackgroundRecovery) {
+        let now: Double = Date().timeIntervalSince1970
+        guard recovery.until - now >= WorkoutSessionModel.backgroundRecoveryMinimumSeconds else { return }
+        if let old = recoveryManager {
+            // Shouldn't happen (a recovery is stopped before anything else starts).
+            retireRecoveryManager(old)
+        }
+        let manager = WorkoutManager()
+        manager.activityType = .other
+        manager.locationType = .indoor
+        manager.saveWorkoutOnEnd = false
+        manager.onHeartRate = { [weak self] bpm in
+            self?.backgroundHeartRateReceived(bpm)
+        }
+        manager.onStateChange = { [weak self, weak manager] state in
+            guard let self = self, let manager = manager else { return }
+            self.backgroundStateChanged(state, manager: manager)
+        }
+        manager.onError = { message in
+            workoutLog.error("background recovery HealthKit error: \(message, privacy: .public)")
+        }
+        manager.onFinished = { [weak self, weak manager] in
+            guard let self = self, let manager = manager else { return }
+            self.backgroundManagerFinished(manager)
+        }
+        recoveryManager = manager
+        backgroundRecovery = recovery
+        backgroundRecoveryFinish = recovery.input.progress.finishTime.map { Date(timeIntervalSince1970: $0) }
+        manager.start()
+
+        let wait: Double = max(0, recovery.until - now)
+        recoveryTask?.cancel()
+        recoveryTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: UInt64(wait * 1_000_000_000))
+            if Task.isCancelled { return }
+            self?.stopBackgroundRecovery(reason: "recovery recorded")
+        }
+        workoutLog.info("background recovery: recording HR for \(wait) s")
+    }
+
+    private func backgroundHeartRateReceived(_ bpm: Double) {
+        guard var recovery = backgroundRecovery else { return }
+        let t: Double = Date().timeIntervalSince1970
+        if t > recovery.until {
+            stopBackgroundRecovery(reason: "recovery recorded")
+            return
+        }
+        recovery.input.heartRates.append(TimedValue(t: t, value: bpm))
+        backgroundRecovery = recovery
+    }
+
+    private func backgroundStateChanged(_ state: HKWorkoutSessionState, manager: WorkoutManager) {
+        switch state {
+        case .running:
+            if manager !== recoveryManager || backgroundRecovery == nil {
+                // Came up after the recovery was stopped: end it, nothing is saved.
+                workoutLog.error("background recovery session running after stop; ending it")
+                manager.saveWorkoutOnEnd = false
+                manager.end()
+            }
+        case .ended:
+            if manager === recoveryManager && backgroundRecovery != nil {
+                // Ended by the system (e.g. another workout app): send what was recorded.
+                stopBackgroundRecovery(reason: "HealthKit session ended")
+            }
+        default:
+            break
+        }
+    }
+
+    private func backgroundManagerFinished(_ manager: WorkoutManager) {
+        guard manager === recoveryManager else { return }
+        recoveryManager = nil
+        retireRecoveryManager(manager)
+        if backgroundRecovery != nil {
+            // The session never ran or ended early: send what was recorded.
+            stopBackgroundRecovery(reason: "HealthKit session over")
+        }
+        flushRecoveryWaiters()
+    }
+
+    /// Kept alive (with its callbacks) so a session that still comes up late is ended.
+    private func retireRecoveryManager(_ manager: WorkoutManager) {
+        retiredManagers.append(manager)
+        if retiredManagers.count > 3 {
+            retiredManagers.removeFirst()
+        }
+    }
+
+    /// Stops the background recovery, if any: sends the updated result with the HR recorded so
+    /// far, then ends its HealthKit session (discarded). `then` runs once that session has
+    /// ended, or after `backgroundRecoveryStopWait` at the latest; at once when there is none.
+    func stopBackgroundRecovery(reason: String, then: MainAction? = nil) {
+        recoveryTask?.cancel()
+        recoveryTask = nil
+        if let recovery = backgroundRecovery {
+            backgroundRecovery = nil
+            backgroundRecoveryFinish = nil
+            workoutLog.info("background recovery stopped: \(reason, privacy: .public)")
+            let stopT: Double = min(Date().timeIntervalSince1970, recovery.until)
+            sendRecoveryUpdate(recovery, stopT: stopT)
+        }
+        if let manager = recoveryManager {
+            manager.saveWorkoutOnEnd = false
+            // Without a session this calls onFinished at once (→ backgroundManagerFinished).
+            manager.end()
+        }
+        guard let then = then else { return }
+        if recoveryManager == nil {
+            then()
+            return
+        }
+        recoveryWaiters.append(then)
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: UInt64(WorkoutSessionModel.backgroundRecoveryStopWait * 1_000_000_000))
+            self?.flushRecoveryWaiters()
+        }
+    }
+
+    private func flushRecoveryWaiters() {
+        if recoveryWaiters.isEmpty { return }
+        let waiters: [MainAction] = recoveryWaiters
+        recoveryWaiters = []
+        for waiter in waiters {
+            waiter()
+        }
+    }
+
+    /// The same workout again (same id) with the HR series and `endDate` running to `stopT`.
+    /// Skipped when no HR arrived after End (the first result already has everything).
+    private func sendRecoveryUpdate(_ recovery: BackgroundRecovery, stopT: Double) {
+        let endT: Double = recovery.input.endT
+        guard recovery.input.heartRates.contains(where: { (s: TimedValue) -> Bool in s.t > endT }),
+              stopT > endT else {
+            workoutLog.info("background recovery: no HR after End, no update")
+            return
+        }
+        let result: WorkoutResult = WorkoutSessionModel.makeResult(recovery.input, recordingEndT: stopT)
+        // Its own file name: the result sent at End may still be waiting in the outbox under
+        // workout-<id>.json (deleted once delivered). The phone files it by the id inside.
+        _ = writeAndSend(result, fileName: "workout-\(UUID().uuidString).json")
+        workoutLog.info("background recovery: update sent, \(stopT - endT) s after End")
+    }
+
+    /// Lifting (SessionModel.start) calls this before starting its HealthKit session: stops a
+    /// workout's background recovery (W6) and runs `then` once its session has ended (≤ ~1 s),
+    /// or at once when there is none.
+    static func endBackgroundRecovery(then: @escaping @MainActor () -> Void) {
+        guard let model = current else {
+            then()
+            return
+        }
+        model.stopBackgroundRecovery(reason: "lifting session", then: then)
+    }
+
     // MARK: - Pedometer
 
     private func startPedometer(from date: Date) {
@@ -899,7 +1078,7 @@ final class WorkoutSessionModel: ObservableObject {
     }
 
     private func pedometerReceived(_ s: PedometerSnapshot) {
-        guard phase == .running || phase == .recovering, !finalized else { return }
+        guard phase == .running, !finalized else { return }
         if let last = pedometerSamples.last, s.t < last.t { return }
         pedometerSamples.append(s)
         latestPedometer = s
@@ -993,16 +1172,42 @@ final class WorkoutSessionModel: ObservableObject {
     }
 
     private func sendResult(endT: Double, recordedCSV: Bool) {
-        let definition = progress.definition
-        let startT = progress.startTime ?? endT
-        let finishT = progress.finishTime
+        let hr: [TimedValue] = heartRates.map { TimedValue(t: $0.t, value: $0.bpm) }
+        let input = ResultInput(id: workoutId, progress: progress, heartRates: hr,
+                                pedometer: pedometerSamples,
+                                partialReps: progress.isFinished ? partialReps : nil,
+                                recordedCSV: recordedCSV, endT: endT)
+        lastResultInput = input
+        let result: WorkoutResult = WorkoutSessionModel.makeResult(input, recordingEndT: endT)
+
+        let summary = "\(result.definition.shortName) · \(SessionModel.formatElapsed(result.totalSeconds))"
+        lastSummary = summary
+        UserDefaults.standard.set(summary, forKey: Keys.lastSummary)
+
+        if !writeAndSend(result, fileName: "workout-\(workoutId.uuidString).json") {
+            let failed = "\(summary) · not saved"
+            lastSummary = failed
+            UserDefaults.standard.set(failed, forKey: Keys.lastSummary)
+        }
+    }
+
+    /// The WorkoutResult for `input`. Splits, HR average / max and the end event belong to the
+    /// End press (`input.endT`); the HR series and `endDate` run to `recordingEndT` (the End
+    /// press, or later for the update after a background recovery, W6).
+    private static func makeResult(_ input: ResultInput, recordingEndT: Double) -> WorkoutResult {
+        let p: WorkoutProgress = input.progress
+        let definition = p.definition
+        let endT: Double = input.endT
+        let startT = p.startTime ?? endT
+        let finishT = p.finishTime
         let total = (finishT ?? endT) - startT
 
-        let hr: [TimedValue] = heartRates.map { TimedValue(t: $0.t, value: $0.bpm) }
-        let steps: [PedometerSample] = pedometerSamples.map {
+        let hr: [TimedValue] = input.heartRates
+        let workoutHR: [TimedValue] = hr.filter { (s: TimedValue) -> Bool in s.t <= endT }
+        let steps: [PedometerSample] = input.pedometer.map {
             PedometerSample(t: $0.t, steps: $0.steps, distance: $0.distance)
         }
-        let segments = SplitStats.compute(progress: progress, now: endT, heartRates: hr, pedometer: steps)
+        let segments = SplitStats.compute(progress: p, now: endT, heartRates: workoutHR, pedometer: steps)
 
         // Average / max of the workout part only (start → finish, or end): HR after the finish
         // is recovery (WORKOUT_SPEC §6) and would pull the average down.
@@ -1010,51 +1215,52 @@ final class WorkoutSessionModel: ObservableObject {
         var hrSum = 0.0
         var hrCount = 0
         var hrMax: Double?
-        for s in heartRates where s.t >= startT && s.t <= workoutEndT {
-            hrSum += s.bpm
+        for s in hr where s.t >= startT && s.t <= workoutEndT {
+            hrSum += s.value
             hrCount += 1
-            hrMax = max(hrMax ?? s.bpm, s.bpm)
+            hrMax = max(hrMax ?? s.value, s.value)
         }
         let hrAvg: Double? = hrCount > 0 ? hrSum / Double(hrCount) : nil
-        // HR every 5 s from the start to End (not the finish): the part after the finish is the
-        // recovery the phone shows (HeartRateRecovery). Nil when no HR arrived at all.
+        // HR every 5 s from the start to the end of the recording (not the finish): the part
+        // after the finish is the recovery the phone shows (HeartRateRecovery). Nil when no HR
+        // arrived at all.
+        let seriesEndT: Double = max(endT, recordingEndT)
         let hrSeries: HeartRateSeries? = hr.isEmpty ? nil
-            : HeartRateSeries.make(samples: hr, start: startT, end: endT)
+            : HeartRateSeries.make(samples: hr, start: startT, end: seriesEndT)
 
         var result = WorkoutResult(version: WorkoutResult.currentVersion,
-                                   id: workoutId,
+                                   id: input.id,
                                    definition: definition,
                                    startDate: Date(timeIntervalSince1970: startT),
                                    finishDate: finishT.map { Date(timeIntervalSince1970: $0) },
-                                   endDate: Date(timeIntervalSince1970: endT),
+                                   endDate: Date(timeIntervalSince1970: seriesEndT),
                                    totalSeconds: total,
                                    segments: segments,
-                                   events: progress.events,
+                                   events: p.events,
                                    heartRateAvg: hrAvg,
                                    heartRateMax: hrMax,
-                                   recordingFileName: recordedCSV ? "session-\(workoutId.uuidString).csv" : nil,
+                                   recordingFileName: input.recordedCSV ? "session-\(input.id.uuidString).csv" : nil,
                                    heartRateSeries: hrSeries)
-        if progress.isFinished, let reps = partialReps {
+        if p.isFinished, let reps = input.partialReps {
             // Entered on the watch: not an edit, so editedAt stays nil.
             result.partialReps = min(max(0, reps), result.partialRepsLimit ?? reps)
         }
+        return result
+    }
 
-        let summary = "\(definition.shortName) · \(SessionModel.formatElapsed(total))"
-        lastSummary = summary
-        UserDefaults.standard.set(summary, forKey: Keys.lastSummary)
-
-        let url = WatchFiles.outbox.appendingPathComponent("workout-\(workoutId.uuidString).json")
+    /// Writes `result` to the outbox as `fileName` and queues it for the phone.
+    private func writeAndSend(_ result: WorkoutResult, fileName: String) -> Bool {
+        let url = WatchFiles.outbox.appendingPathComponent(fileName)
         do {
             let data = try result.encoded()
             try data.write(to: url, options: .atomic)
-            link.sendFile(url, metadata: PhoneLink.workoutResultMetadata(id: workoutId.uuidString))
-            workoutLog.info("Workout result written: \(segments.count) segments, \(data.count) bytes")
+            link.sendFile(url, metadata: PhoneLink.workoutResultMetadata(id: result.id.uuidString))
+            workoutLog.info("Workout result written: \(result.segments.count) segments, \(data.count) bytes")
+            return true
         } catch {
             workoutLog.error("Could not write workout result: \(error.localizedDescription, privacy: .public)")
             errorMessage = "Result not saved: \(error.localizedDescription)"
-            let failed = "\(summary) · not saved"
-            lastSummary = failed
-            UserDefaults.standard.set(failed, forKey: Keys.lastSummary)
+            return false
         }
     }
 

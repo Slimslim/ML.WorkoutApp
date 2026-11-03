@@ -73,7 +73,16 @@ struct WorkoutStartView: View {
             .buttonStyle(.plain)
             .accessibilityLabel("Screen demo with mock data")
 
-            if let summary = model.lastSummary {
+            if let finish = model.backgroundRecoveryFinish {
+                // W6: HR still recorded after End until finish + 3:00 (time since the finish).
+                TimelineView(.periodic(from: Date(), by: 1.0)) { context in
+                    Text("Recovery recording · " + SessionModel.formatElapsed(max(0, context.date.timeIntervalSince(finish))))
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                }
+            } else if let summary = model.lastSummary {
                 Text("Last: " + summary + " · " + transferText)
                     .font(.caption2)
                     .foregroundColor(.secondary)

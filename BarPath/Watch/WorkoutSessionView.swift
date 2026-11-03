@@ -160,8 +160,6 @@ struct WorkoutSessionView: View {
             case .ending, .idle:
                 WorkoutStatusScreen(title: "Saving…", detail: model.lastSummary ?? "",
                                     buttonTitle: nil, action: nil)
-            case .recovering:
-                WorkoutRecoveryScreen()
             case .running:
                 TabView(selection: $page) {
                     WorkoutMainPage(crown: crown, isActivePage: page == 0, focusToken: focusToken)
@@ -190,11 +188,7 @@ struct WorkoutSessionView: View {
         let p = model.progress
         let count = p.definition.segments.count
         let demo: String = model.isDemo ? "Demo · " : ""
-        if p.isFinished {
-            // W6: End after the finish keeps recording recovery, then saves by itself.
-            if model.endWaitsForRecovery { return "Saves at 3:00 recovery" }
-            return demo + "Finished · \(count)/\(count)"
-        }
+        if p.isFinished { return demo + "Finished · \(count)/\(count)" }
         return demo + "Segment \(p.currentIndex + 1)/\(count)"
     }
 }
@@ -765,7 +759,8 @@ struct WorkoutMainPage: View {
     // MARK: Recovery (WORKOUT_SPEC §6)
 
     // "3 min recovery done" from WorkoutSessionModel.recoverySeconds; the model plays the
-    // haptics (1:00, 2:00, 3:00). End before that keeps recording (W6, WorkoutRecoveryScreen).
+    // haptics (1:00, 2:00, 3:00). End before that: the watch keeps recording HR in the
+    // background to finish + 3:00 and sends an updated result (W6).
 
     private func endHint(recoveryDone: Bool) -> String {
         let demo: String = model.isDemo ? "Demo · " : ""
@@ -1046,91 +1041,6 @@ struct WorkoutControlsPage: View {
         }
         parts.append(String(format: "cr %.1f/%.1f", crown.lastPeak, CrownAdvanceController.crownThreshold))
         return parts.joined(separator: " · ")
-    }
-}
-
-// MARK: - Recovery after End (W6, WORKOUT_SPEC §6)
-
-/// End was pressed after the finish with less than 3 min recorded: "Recovery · saving in 2:14",
-/// HR now and its drop since the finish, and a small "Save now". The model saves by itself at
-/// finish + `recoverySeconds` (success haptic). Wrist down: the same screen dimmed, the
-/// countdown a system timer text (live in always-on), no button.
-struct WorkoutRecoveryScreen: View {
-    @EnvironmentObject var model: WorkoutSessionModel
-    @Environment(\.isLuminanceReduced) private var isLuminanceReduced
-
-    var body: some View {
-        TimelineView(.periodic(from: Date(), by: 1.0)) { context in
-            content(now: context.date)
-        }
-    }
-
-    private func content(now: Date) -> some View {
-        VStack(spacing: 2) {
-            Text("RECOVERY · SAVING IN")
-                .font(.system(size: 12, weight: .heavy, design: .rounded))
-                .foregroundColor(Color(white: 0.75))
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-            countdown(now: now)
-                .font(.system(size: 50, weight: .heavy, design: .rounded).monospacedDigit())
-                .foregroundColor(SegmentPalette.elapsed)
-                .lineLimit(1)
-                .minimumScaleFactor(0.5)
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                HStack(alignment: .firstTextBaseline, spacing: 2) {
-                    Text(heartRateValue)
-                        .font(.system(size: 26, weight: .heavy, design: .rounded).monospacedDigit())
-                    Text("BPM")
-                        .font(.system(size: 10, weight: .heavy, design: .rounded))
-                }
-                .foregroundColor(SegmentPalette.heartRate)
-                if let drop = model.recoveryDrop {
-                    // Drop since the finish: "−19" when HR went down.
-                    Text(SummaryFormat.signedNumber(-drop))
-                        .font(.system(size: 22, weight: .heavy, design: .rounded).monospacedDigit())
-                        .foregroundColor(drop >= 0 ? SegmentPalette.crownForward : SegmentPalette.crownBackward)
-                }
-            }
-            .lineLimit(1)
-            .minimumScaleFactor(0.7)
-            Spacer(minLength: 0)
-            if !isLuminanceReduced {
-                Button {
-                    model.saveNow()
-                } label: {
-                    Text("Save now")
-                        .font(.system(size: 15, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity, minHeight: 34)
-                        .background(Capsule().fill(Color(white: 0.2)))
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(.horizontal, 6)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .opacity(isLuminanceReduced ? WorkoutMainPage.alwaysOnOpacity : 1.0)
-    }
-
-    /// Time left until the automatic save; wrist down a system countdown (live in always-on).
-    private func countdown(now: Date) -> Text {
-        guard let saveAt = model.recoverySaveTime else {
-            return Text(verbatim: "0:00")
-        }
-        if isLuminanceReduced {
-            let from: Double = model.progress.finishTime ?? saveAt
-            return WorkoutMainPage.liveCountDown(from: from, to: saveAt)
-        }
-        let left: Double = max(0, saveAt - now.timeIntervalSince1970).rounded(.up)
-        return Text(SessionModel.formatElapsed(left))
-    }
-
-    private var heartRateValue: String {
-        if let hr = model.heartRate {
-            return String(format: "%.0f", hr)
-        }
-        return "–"
     }
 }
 

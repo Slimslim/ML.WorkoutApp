@@ -428,18 +428,36 @@ Undo, and the End hint. Haptics: light (`.click`) at 1:00 and 2:00, `.success` a
 `# event name=recovery seconds=<60|120|180> bpm=<n>`. Cap finish: one compact recovery line above
 the partial-reps picker. Screen demo: same, with the fake HR.
 
-End during recovery (W6, added 2026-11-03): End (confirmed) after the finish with less than
-`WorkoutSessionModel.recoverySeconds` (180 s) since the finish doesn't stop yet. Phase
-`.recovering`: HealthKit, HR, motion CSV and pedometer keep running; the screen shows
-"RECOVERY · SAVING IN 2:14" (countdown to finish + 180 s), HR now and its drop, and a small
-"Save now". At finish + 180 s it saves by itself (the 3:00 `.success` haptic plays on the same
-tick); "Save now" saves at once. Wrist down: same screen dimmed, system countdown, no button.
-The CSV logs `# event name=endRequested recoveryLeft=<s>`. The result is built and sent once, at
-the real save (`endDate` = finish + ~180 s), so the series covers the 3:00 mark. End saves at once
-(as before) when: not finished (abandoned), 180 s already passed, the cap's reps picker is still
-unanswered, no HealthKit session (no HR, and no background time to save wrist-down), or screen
-demo ("End demo" leaves the demo). A HealthKit session ended by the system while recovering
-saves at once, like during the workout.
+End during recovery (W6, 2026-11-03, revised the same day: automatic, no waiting screen).
+End (confirmed) after the finish ends the workout exactly as before: result + CSV sent, the
+HealthKit workout ends and is saved at the End press (Apple Fitness shows the workout to End),
+back to the start screen. If HealthKit was running and at least 10 s are left until
+finish + `WorkoutSessionModel.recoverySeconds` (180 s), the watch then records HR silently in the
+background:
+- once the workout's HealthKit session has saved, a second HKWorkoutSession (activity "other",
+  `saveWorkoutOnEnd = false`, discarded at the end, so nothing extra lands in Health/Fitness)
+  keeps the HR sensor in workout mode and the app alive wrist-down; its live builder's HR is
+  appended to a copy of the workout's samples (a few seconds' gap at End is bridged by the 5 s
+  series' 15 s interpolation);
+- the start screen shows "Recovery recording · 1:42" (time since the finish) instead of "Last: …";
+- at finish + 180 s it stops, ends that session and sends the result again (same id, new outbox
+  file name `workout-<random>.json`): same splits, events, HR avg/max and partial reps (all end at
+  the End press), `heartRateSeries` and `endDate` running to the stop time. No update when no HR
+  arrived after End;
+- a new workout (START) or lifting session stops it first (update sent with what was recorded),
+  then starts its own HealthKit session once the recovery session has ended, at most ~1 s later
+  (`backgroundRecoveryStopWait`); the screen demo doesn't stop it. A recovery session ended by the
+  system also sends what it has.
+The motion CSV and pedometer stop at the End press (CSV event `name=backgroundRecovery` just
+before). Not started for an abandoned workout (End before the finish), without HealthKit, after
+180 s, or in the screen demo.
+
+Phone: the update arrives for an id it already has (`WorkoutFiles.storeIncomingResult` →
+`WorkoutResult.storedAfterWatchUpdate`): an older copy arriving late is dropped; an untouched
+result is replaced; a result changed on the phone (edit, definition upgrade, CSV backfill: an
+`<id>.original.json` exists) keeps everything and takes over only `heartRateSeries` and `endDate`
+(like the CSV backfill), and `<id>.original.json` becomes the update, so "Restore original" gives
+the full recovery. Until the update the Recovery card follows the 60 s rule below.
 
 ### Phone
 Overview: a "Recovery" card under the heart-rate chart when `heartRateRecovery` exists:

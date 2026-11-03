@@ -179,12 +179,17 @@ see the time I lose walking and setting up.
 ### Recovery after the finish
 
 **W6. End when I'm done, still get 3 min of recovery (Now)**
-As an athlete, I want to press End right after I finish and still have my heart-rate recovery
-recorded to 3:00, then saved by itself, so I don't have to remember not to end the workout.
-*Done when:* End confirmed 30 s after the finish → the watch shows "Recovery · saving in 2:30",
-saves with a success tap at 3:00 after the finish without another touch, and the phone shows the
-1 / 2 / 3 min recovery for that workout (once); "Save now" saves at once; End before the finish
-still saves at once.
+As an athlete, I want to press End when I'm done (a few seconds after the finish, walking
+around) and still have my heart-rate recovery recorded to 3:00 after the finish, without a
+waiting screen or another tap, so I can look at my results right away and the recovery fills
+in by itself.
+*Done when:* End confirmed 30 s after the finish → the watch is back on the start screen at once
+("Recovery recording · 0:31" counting there) and the phone shows the result at once (no recovery
+card yet, < 1 min); at 3:00 after the finish the phone's result updates by itself (same workout,
+not a second one) and shows the 1 / 2 / 3 min recovery; an edit made on the phone in between is
+kept. Starting a new workout or a lifting session before 3:00 stops the recording (the phone
+gets what was recorded) and the new session starts within ~1 s. Apple Fitness shows the
+workout ending at the End press.
 
 ## Navigation and layout
 
