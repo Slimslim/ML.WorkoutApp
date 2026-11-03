@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 import BarPathKit
 
 struct WorkoutGroup: Identifiable {
@@ -17,57 +18,6 @@ enum WorkoutGroups {
                                            WorkoutLibrary.amrap20.id, WorkoutLibrary.amrap40.id]),
         WorkoutGroup(title: "Other", ids: [WorkoutLibrary.free.id])
     ]
-
-    /// Round length when every segment repeats the first round (by title and kind), else nil.
-    /// HYROX (different stations each round) is not repeating; a cut last round is fine.
-    static func repeatingRoundSize(_ definition: WorkoutDefinition) -> Int? {
-        guard let r = definition.roundSize, r >= 1, definition.segments.count > r else { return nil }
-        let segs: [WorkoutSegment] = definition.segments
-        for i in r..<segs.count {
-            let first: WorkoutSegment = segs[i % r]
-            if segs[i].title != first.title || segs[i].kind != first.kind { return nil }
-        }
-        return r
-    }
-
-    /// "Each round · as many rounds as possible in 40:00", "3 rounds of", "Every 3:00 · 6 sets of", "Segments".
-    static func roundHeader(_ definition: WorkoutDefinition) -> String {
-        if definition.id == WorkoutLibrary.free.id {
-            return "No plan: turn the Crown at each change (new movement, set or rest), End when done"
-        }
-        guard let r = repeatingRoundSize(definition) else { return "Segments" }
-        let rounds: Int = (definition.segments.count + r - 1) / r
-        if definition.format == .amrap, let cap = definition.timeCapSeconds {
-            return "Each round · as many rounds as you can in " + WorkoutFmt.clock(cap)
-        }
-        if let interval = definition.intervalSeconds {
-            return "Every " + WorkoutFmt.clock(interval) + " · \(rounds) sets of"
-        }
-        return "\(rounds) rounds of"
-    }
-
-    static func summary(_ definition: WorkoutDefinition) -> String {
-        if definition.id == WorkoutLibrary.free.id {
-            return "No plan · Crown at each change"
-        }
-        let count = definition.segments.count
-        var text = "\(count) segment\(count == 1 ? "" : "s")"
-        if let r = repeatingRoundSize(definition) {
-            if definition.format == .amrap {
-                text = "\(r) per round"
-            } else {
-                let rounds: Int = (count + r - 1) / r
-                text = "\(rounds) rounds of \(r)"
-            }
-        }
-        if definition.runCount > 0 {
-            text += " · \(definition.runCount) run\(definition.runCount == 1 ? "" : "s")"
-        }
-        if let cap = definition.timeCapSeconds {
-            text += " · cap \(WorkoutFmt.clock(cap))"
-        }
-        return text
-    }
 }
 
 /// Top of the Workouts tab: the workout the watch will run next, with a button to change it.
@@ -123,6 +73,9 @@ struct NextWorkoutBar: View {
 struct WorkoutChooserView: View {
     @ObservedObject private var link = PhoneLink.shared
     @ObservedObject private var library = WorkoutLibraryStore.shared
+    @ObservedObject private var store = WorkoutStore.shared
+    /// Last score per definition id (newest result), rebuilt when the results change.
+    @State private var lastScores: [String: String] = [:]
 
     var body: some View {
         List {
@@ -145,7 +98,7 @@ struct WorkoutChooserView: View {
                     ForEach(section.ids, id: \.self) { id in
                         if let definition = WorkoutLibrary.definition(id: id) {
                             NavigationLink {
-                                WorkoutPreviewView(definition: definition)
+                                WorkoutPreviewView(definition: definition, meta: WorkoutCardMeta.text(nil))
                             } label: {
                                 row(definition)
                             }
@@ -161,13 +114,16 @@ struct WorkoutChooserView: View {
         .task {
             await library.refresh()
         }
+        .onReceive(store.$results) { (results: [WorkoutResult]) in
+            lastScores = WorkoutLastScore.byDefinitionId(results)
+        }
         .navigationTitle("Choose workout")
         .navigationBarTitleDisplayMode(.inline)
     }
 
     private func libraryLink(_ w: LibraryWorkout, detail: String?) -> some View {
         NavigationLink {
-            WorkoutPreviewView(definition: w.definition, note: w.caption)
+            WorkoutPreviewView(definition: w.definition, meta: WorkoutCardMeta.text(w))
         } label: {
             row(w.definition, detail: detail)
         }
@@ -210,46 +166,34 @@ struct WorkoutChooserView: View {
         return text
     }
 
+    /// Compact card row: name, "date · block · type", one line of movements, last score.
     private func row(_ definition: WorkoutDefinition, detail: String? = nil) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(definition.name)
-                    .font(.body.weight(.semibold))
-                Text(rowCaption(definition, detail: detail))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
-            if link.sentWorkoutId == definition.id {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(Theme.accent)
-            }
-        }
-    }
-
-    private func rowCaption(_ definition: WorkoutDefinition, detail: String?) -> String {
-        let summary: String = WorkoutGroups.summary(definition)
-        if let detail = detail, !detail.isEmpty {
-            return detail + " · " + summary
-        }
-        return summary
+        WorkoutCardView(card: WorkoutCard.make(definition: definition), meta: detail,
+                        style: WorkoutCardView.Style.compact,
+                        lastScore: lastScores[definition.id],
+                        isSent: link.sentWorkoutId == definition.id)
     }
 }
 
-/// The segments of one workout and a big "Send to watch" button.
+/// The workout card (the whole preview), a big "Send to watch" button with its status, and a
+/// collapsed list of every segment (for checking what the watch will step through).
 struct WorkoutPreviewView: View {
     let definition: WorkoutDefinition
-    /// Library workouts: "Mayhem · Mon, Nov 2".
-    var note: String? = nil
+    /// Top-left of the card: "Mon, Nov 2 · PitFIRE", "Built-in".
+    var meta: String? = nil
     @ObservedObject private var link = PhoneLink.shared
+    @State private var showSegments: Bool = false
 
     private var isSent: Bool {
         return link.sentWorkoutId == definition.id
     }
 
     var body: some View {
-        List {
-            Section {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                WorkoutCardView(card: WorkoutCard.make(definition: definition), meta: meta,
+                                style: WorkoutCardView.Style.full)
+
                 Button {
                     link.sendWorkout(definition)
                 } label: {
@@ -262,59 +206,63 @@ struct WorkoutPreviewView: View {
                     .padding(.vertical, 6)
                 }
                 .buttonStyle(.borderedProminent)
-                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
 
                 if let error = link.sendWorkoutError {
                     Text(error)
                         .font(.footnote)
                         .foregroundStyle(.orange)
+                        .fixedSize(horizontal: false, vertical: true)
                 } else if isSent {
                     Text(sentText)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-            } footer: {
-                Text(footerText)
-            }
 
-            Section {
-                ForEach(Array(shownSegments.enumerated()), id: \.offset) { item in
-                    HStack(spacing: 10) {
-                        Text("\(item.offset + 1)")
-                            .font(.caption.monospacedDigit())
+                if !allSegments.isEmpty {
+                    DisclosureGroup(isExpanded: $showSegments) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            ForEach(Array(allSegments.enumerated()), id: \.offset) { item in
+                                segmentRow(index: item.offset, segment: item.element)
+                            }
+                        }
+                        .padding(.top, 8)
+                    } label: {
+                        Text("All segments (\(allSegments.count))")
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
-                            .frame(width: 24, alignment: .trailing)
-                        Circle()
-                            .fill(item.element.kind == .run ? Theme.workoutRun : (item.element.kind == .rest ? Color.gray : Theme.workoutStation))
-                            .frame(width: 8, height: 8)
-                        Text(item.element.title + (item.element.load.map { " · " + $0.text } ?? ""))
                     }
+                    .padding(.horizontal, 4)
                 }
-            } header: {
-                Text(WorkoutGroups.roundHeader(definition))
             }
+            .padding(16)
         }
+        .background(Theme.pageBackground)
         .navigationTitle(definition.name)
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    /// One round when the workout repeats the same round (AMRAP 40, Helen…), else every segment.
-    private var shownSegments: [WorkoutSegment] {
+    /// Every segment the watch steps through (rests included); none for the Free Workout.
+    private var allSegments: [WorkoutSegment] {
         if definition.id == WorkoutLibrary.free.id {
             return []
-        }
-        if let r = WorkoutGroups.repeatingRoundSize(definition) {
-            return Array(definition.segments.prefix(r))
         }
         return definition.segments
     }
 
-    private var footerText: String {
-        let summary: String = WorkoutGroups.summary(definition)
-        if let note = note, !note.isEmpty {
-            return note + " · " + summary
+    private func segmentRow(index: Int, segment: WorkoutSegment) -> some View {
+        HStack(spacing: 10) {
+            Text("\(index + 1)")
+                .font(.caption.monospacedDigit())
+                .foregroundStyle(.secondary)
+                .frame(width: 24, alignment: .trailing)
+            Circle()
+                .fill(segment.kind == .run ? Theme.workoutRun : (segment.kind == .rest ? Color.gray : Theme.workoutStation))
+                .frame(width: 8, height: 8)
+            Text(segment.title + (segment.load.map { (l: SegmentLoad) -> String in " · " + l.text } ?? ""))
+                .font(.footnote)
+            Spacer(minLength: 0)
         }
-        return summary
     }
 
     private var sentText: String {
