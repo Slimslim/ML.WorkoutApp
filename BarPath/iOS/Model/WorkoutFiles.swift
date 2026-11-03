@@ -45,6 +45,10 @@ enum WorkoutFiles {
 
     /// Moves an incoming result JSON to `Workouts/<id>.json` and returns the new URL.
     /// Synchronous: the system deletes `source` when the WCSession delegate call returns.
+    /// The same id can arrive twice (W6: the watch sends the result at End, then an update whose
+    /// HR series runs to finish + 3:00); `WorkoutResult.storedAfterWatchUpdate` decides what is
+    /// kept, so an older copy never replaces a newer one and an edit made on the phone keeps
+    /// everything but the longer HR series.
     static func storeIncomingResult(from source: URL, metadataId: String?) throws -> URL {
         let fm = FileManager.default
         try fm.createDirectory(at: workoutsURL, withIntermediateDirectories: true)
@@ -61,12 +65,45 @@ enum WorkoutFiles {
         let destination = workoutsURL.appendingPathComponent(name)
 
         if fm.fileExists(atPath: destination.path) {
+            if let handled = mergeIncoming(from: source, into: destination) {
+                return handled
+            }
             try fm.removeItem(at: destination)
         }
         do {
             try fm.moveItem(at: source, to: destination)
         } catch {
             try fm.copyItem(at: source, to: destination)
+        }
+        return destination
+    }
+
+    /// A result arriving for an id already on the phone. Returns `destination` when it was
+    /// handled here (merged, or the incoming copy dropped as older), nil to replace the file as
+    /// before (either side unreadable, or the phone's copy untouched and the incoming one newer).
+    private static func mergeIncoming(from source: URL, into destination: URL) -> URL? {
+        guard let incomingData = try? Data(contentsOf: source),
+              let incoming = try? WorkoutResult.decode(from: incomingData),
+              let existingData = try? Data(contentsOf: destination),
+              let existing = try? WorkoutResult.decode(from: existingData),
+              existing.id == incoming.id else { return nil }
+        let changed: Bool = hasOriginal(id: existing.id)
+        guard let stored = WorkoutResult.storedAfterWatchUpdate(existing: existing, incoming: incoming,
+                                                                existingWasChanged: changed) else {
+            // Older than (or the same as) what the phone has, which it may have edited: keep it.
+            return destination
+        }
+        if !changed {
+            return nil
+        }
+        do {
+            let merged: Data = try stored.encoded()
+            try merged.write(to: destination, options: [.atomic])
+            // "Restore original" then brings back the watch's newest copy (with the full recovery).
+            try incomingData.write(to: originalURL(id: existing.id), options: [.atomic])
+        } catch {
+            NSLog("BarPath: could not merge workout update %@: %@", existing.id.uuidString,
+                  error.localizedDescription)
         }
         return destination
     }

@@ -162,6 +162,31 @@ extension WorkoutResult {
     }
 }
 
+extension WorkoutResult {
+    /// What the phone stores when a result arrives from the watch for an id it already has
+    /// (W6: after End the watch keeps recording HR to finish + 3:00 in the background, then
+    /// sends the same workout again with the longer `heartRateSeries` and a later `endDate`).
+    /// `existing` is the phone's copy; `existingWasChanged` is true when the phone wrote it
+    /// (an edit, the definition upgrade or the CSV backfill: `<id>.original.json` exists).
+    /// Returns the result to write as `<id>.json`, or nil to keep `existing` as it is:
+    /// - `incoming` ends before `existing` (an older copy arriving late): nil;
+    /// - `existing` untouched by the phone: `incoming`, as before;
+    /// - `existing` changed on the phone and `incoming` ends later: `existing` with only the
+    ///   HR series and `endDate` taken over (like the CSV backfill), so edits are kept;
+    /// - `existing` changed and `incoming` is not newer (a re-sent copy): nil.
+    public static func storedAfterWatchUpdate(existing: WorkoutResult, incoming: WorkoutResult,
+                                              existingWasChanged: Bool) -> WorkoutResult? {
+        if incoming.endDate < existing.endDate { return nil }
+        if !existingWasChanged { return incoming }
+        if !(incoming.endDate > existing.endDate) { return nil }
+        guard let series = incoming.heartRateSeries else { return nil }
+        var merged: WorkoutResult = existing
+        merged.heartRateSeries = series
+        merged.endDate = incoming.endDate
+        return merged
+    }
+}
+
 extension SessionCSV {
     /// Heart-rate samples from a workout session CSV: every `# event t=<s> name=hr bpm=<n>`
     /// line, with t (seconds since the CSV's `startDate` in the `# barpath-session` header)

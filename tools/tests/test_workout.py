@@ -7,7 +7,7 @@ import pytest
 
 from barpath.workout import (
     PedometerSample, SegmentTarget, TimedValue, WorkoutLibrary, WorkoutProgress, WorkoutResult,
-    WorkoutSegment, load_workout_csv, split_stats)
+    WorkoutSegment, WorkoutDefinition, Movement, load_workout_csv, split_stats)
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import workout_report  # noqa: E402
@@ -189,9 +189,9 @@ def test_csv_without_lift_type_header_is_tolerated(tmp_path):
 def test_interval_rest_ends_on_the_clock():
     p = WorkoutProgress(WorkoutLibrary.rowThrusters)
     p.start(1000)
-    assert p.auto_advance_time() is None          # rowing
+    assert p.auto_advance_time() == 1180          # rowing: the set ends on the clock too (2026-11-03)
     p.advance(1060, "crown")                       # thrusters
-    assert p.auto_advance_time() is None
+    assert p.auto_advance_time() == 1180
     p.advance(1100, "crown")                       # rest from 1:40
     assert p.auto_advance_time() == 1180          # next set at 3:00
     p.advance(1180, "auto")                        # set 2 row
@@ -563,3 +563,211 @@ def test_recovery_tail_real_partner_wod1_after_backfill():
     assert [round(m.heart_rate) for m in tail.marks] == [145, 123, 105]
     assert tail.heart_rate_low == 101.0 and tail.heart_rate_high == 162.0
     assert tail.moment(tail.start + 83).change == -25.0
+
+
+# ---- interval workouts: the clock moves on even if the Crown was not turned (2026-11-03) ----
+
+def _emom(sets=3, interval=60.0):
+    work = WorkoutSegment("station", "powerCleanAndJerk", "Power C&J", SegmentTarget(2, "reps"))
+    rest = WorkoutSegment("rest", Movement.rest, "Rest", None)
+    segs = ([work, rest] * sets)[:-1]
+    return WorkoutDefinition("t.emom", "EMOM", "EMOM", "emom", "solo", sets * interval, "crossTraining",
+                             segs, interval_seconds=interval, round_size=2)
+
+
+def test_emom_work_segment_ends_on_the_minute_without_crown():
+    p = WorkoutProgress(_emom())
+    p.start(1000.0)
+    assert p.auto_advance_time() == 1060.0          # work segment: next minute mark
+    assert p.auto_advance(1060.0)
+    assert p.current_index == 2                     # skipped the rest straight to set 2
+    sp = p.splits(1060.0)
+    assert sp[1].duration == 0.0 and sp[2].start == 1060.0
+    assert p.auto_advance_time() == 1120.0
+
+
+def test_emom_crown_after_reps_starts_rest_until_the_minute():
+    p = WorkoutProgress(_emom())
+    p.start(1000.0)
+    p.advance(1018.0, "crown")                      # set done after 18 s
+    assert p.current_segment.kind == "rest"
+    assert p.auto_advance_time() == 1060.0
+    p.auto_advance(1060.0)
+    assert p.current_index == 2 and p.segment_starts[-1] == 1060.0
+
+
+def test_emom_last_set_finishes_on_the_last_minute():
+    p = WorkoutProgress(_emom(sets=2))
+    p.start(1000.0)
+    p.auto_advance(1060.0)
+    assert p.current_index == 2
+    assert p.auto_advance_time() == 1120.0
+    p.auto_advance(1120.0)
+    assert p.is_finished and p.finish_time == 1120.0
+
+
+def test_interval_with_two_movements_jumps_to_next_set():
+    row = WorkoutSegment("station", Movement.row, "Row", SegmentTarget(15, "calories"))
+    thr = WorkoutSegment("station", Movement.thrusters, "Thrusters", SegmentTarget(12, "reps"))
+    rest = WorkoutSegment("rest", Movement.rest, "Rest", None)
+    d = WorkoutDefinition("t.e3", "E3", "E3", "emom", "solo", 540.0, "crossTraining",
+                          ([row, thr, rest] * 3)[:-1], interval_seconds=180.0, round_size=3)
+    p = WorkoutProgress(d)
+    p.start(0.0)
+    assert p.auto_advance_time() == 180.0           # still rowing at 3:00
+    p.auto_advance(180.0)
+    assert p.current_index == 3 and p.current_segment.movement == Movement.row
+
+
+def test_non_interval_work_segments_never_auto_advance():
+    p = WorkoutProgress(WorkoutLibrary.helen)
+    p.start(0.0)
+    assert p.auto_advance_time() is None
+    assert p.auto_advance_target_index() == 1
+
+
+# ---- for-time cap (WORKOUT_SPEC §5b, W7; same cases as WorkoutCapTests.swift) ----
+
+HELEN_T0 = 1_800_000_000.0
+
+
+def helen_progress(finish_offset):
+    """Helen (16:00 cap), 9 segments of 110 s each from t0, finishing at t0 + finish_offset
+    (the last segment ends there)."""
+    p = WorkoutProgress(WorkoutLibrary.helen)
+    p.start(HELEN_T0)
+    for i in range(1, 9):
+        assert p.advance(HELEN_T0 + 110 * i, "crown")
+    assert p.advance(HELEN_T0 + finish_offset, "crown")
+    return p
+
+
+def helen_result(finish_offset):
+    p = helen_progress(finish_offset)
+    start = datetime.fromtimestamp(HELEN_T0, timezone.utc)
+    fin = datetime.fromtimestamp(HELEN_T0 + finish_offset, timezone.utc)
+    return WorkoutResult(WorkoutLibrary.helen, start, fin, fin, float(finish_offset),
+                         split_stats(p, HELEN_T0 + finish_offset, [], []), list(p.events))
+
+
+def test_for_time_cap_time_only_for_time():
+    p = WorkoutProgress(WorkoutLibrary.helen)
+    assert p.for_time_cap_time is None                    # not started
+    p.start(HELEN_T0)
+    assert p.for_time_cap_time == HELEN_T0 + 960
+    assert p.cap_time is None                             # AMRAP cap only: Helen doesn't stop
+    a = WorkoutProgress(WorkoutLibrary.amrap20)
+    a.start(HELEN_T0)
+    assert a.for_time_cap_time is None and a.cap_time == HELEN_T0 + 1200
+    q = WorkoutProgress(WorkoutLibrary.quickTest)       # no cap
+    q.start(HELEN_T0)
+    assert q.for_time_cap_time is None and q.cap_segment_index(HELEN_T0 + 99999) is None
+
+
+def test_cap_segment_index_live_and_finished():
+    p = WorkoutProgress(WorkoutLibrary.helen)
+    p.start(HELEN_T0)
+    for i in range(1, 9):
+        p.advance(HELEN_T0 + 110 * i, "crown")
+    assert p.cap_segment_index(HELEN_T0 + 959) is None    # cap not reached yet
+    assert p.cap_segment_index(HELEN_T0 + 960) is None    # exactly at the cap: not past it
+    assert p.cap_segment_index(HELEN_T0 + 961) == 8       # Pull-ups R3 (started at 880 s)
+    assert p.segment_index_at(HELEN_T0 + 109.9) == 0 and p.segment_index_at(HELEN_T0 + 110) == 1
+    assert p.segment_index_at(HELEN_T0 - 1) is None
+    p.advance(HELEN_T0 + 1000, "crown")                   # finished after the cap: keeps going
+    assert p.is_finished and p.total_elapsed(0) == 1000
+    assert p.cap_segment_index(HELEN_T0) == 8              # `now` is ignored once finished
+    under = helen_progress(950)
+    assert under.cap_segment_index(HELEN_T0 + 2000) is None
+
+
+def test_result_cap_fields_and_text(tmp_path):
+    r = helen_result(1100)                                 # 18:20, cap 16:00
+    assert r.for_time_cap_seconds == 960 and r.is_capped
+    assert r.total_seconds == 1100                         # the time for the full workout
+    assert r.cap_reached_at == HELEN_T0 + 960
+    assert r.cap_segment_index == 8                        # segment 8 runs 880..1100
+    assert r.reps_at_cap_limit == 12                       # Pull-ups 12
+    assert r.cap_position_text == "in Pull-ups (R3)"
+    r.set_reps_at_cap(40, EDIT_NOW)
+    assert r.reps_at_cap == 12 and r.edited_at == EDIT_NOW
+    r.set_reps_at_cap(-3, EDIT_NOW)
+    assert r.reps_at_cap == 0
+    r.set_reps_at_cap(7, EDIT_NOW)
+    assert r.cap_position_text == "7/12 Pull-ups (R3)"
+    r.reps_at_cap = 15                                     # stale after a split edit: shown clamped
+    assert r.cap_position_text == "12/12 Pull-ups (R3)"
+    r.reps_at_cap = 7
+    assert r.partial_reps is None                          # AMRAP field untouched
+    path = tmp_path / "helen-capped.json"
+    r.save(path)
+    raw = json.loads(path.read_text())
+    assert raw["repsAtCap"] == 7 and "partialReps" not in raw
+    back = WorkoutResult.load(path)
+    assert back.reps_at_cap == 7 and back.is_capped and back.cap_segment_index == 8
+    # Older files: no repsAtCap key → None.
+    del raw["repsAtCap"]
+    assert WorkoutResult.from_dict(raw).reps_at_cap is None
+    r.set_reps_at_cap(None, EDIT_NOW)
+    assert r.reps_at_cap is None
+
+
+def test_result_cap_boundaries():
+    under = helen_result(950)
+    assert not under.is_capped and under.cap_reached_at is None
+    assert under.cap_segment_index is None and under.cap_position_text is None
+    exact = helen_result(960)                              # finished on the cap: not capped
+    assert not exact.is_capped
+    # Segments of 120 s: segment 8 (Pull-ups R3) starts exactly on the cap and owns it.
+    p = WorkoutProgress(WorkoutLibrary.helen)
+    p.start(HELEN_T0)
+    for i in range(1, 9):
+        p.advance(HELEN_T0 + 120 * i, "crown")
+    p.advance(HELEN_T0 + 1200, "crown")
+    start = datetime.fromtimestamp(HELEN_T0, timezone.utc)
+    fin = datetime.fromtimestamp(HELEN_T0 + 1200, timezone.utc)
+    r = WorkoutResult(WorkoutLibrary.helen, start, fin, fin, 1200.0,
+                      split_stats(p, HELEN_T0 + 1200, [], []), list(p.events))
+    assert r.cap_segment_index == 8                        # start 960 <= cap < end: the new segment
+    assert r.reps_at_cap_limit == 12
+    # Ended (not finished) after the cap: still capped, segment at the cap.
+    q = WorkoutProgress(WorkoutLibrary.helen)
+    q.start(HELEN_T0)
+    q.advance(HELEN_T0 + 900, "crown")                     # KB Swings R1 from 900 s
+    end = datetime.fromtimestamp(HELEN_T0 + 1000, timezone.utc)
+    e = WorkoutResult(WorkoutLibrary.helen, start, None, end, 1000.0,
+                      split_stats(q, HELEN_T0 + 1000, [], []), list(q.events))
+    assert e.is_capped and e.cap_segment_index == 1
+    assert e.cap_position_text == "in KB Swings (R1)"
+    # Run at the cap: no reps target.
+    e2 = WorkoutResult(WorkoutLibrary.helen, start, None, end, 1000.0,
+                       split_stats(helen_progress_partial(), HELEN_T0 + 1000, [], []), [])
+    assert e2.cap_segment_index == 0 and e2.reps_at_cap_limit is None
+    e2.set_reps_at_cap(250, EDIT_NOW)
+    assert e2.reps_at_cap == 250 and e2.cap_position_text == "250 Run (R1)"
+
+
+def helen_progress_partial():
+    p = WorkoutProgress(WorkoutLibrary.helen)
+    p.start(HELEN_T0)
+    return p
+
+
+def test_amrap_is_never_for_time_capped(fixtures_dir):
+    r = load_amrap(fixtures_dir)
+    assert r.for_time_cap_seconds is None and not r.is_capped and r.cap_position_text is None
+
+
+def test_csv_cap_events(tmp_path):
+    path = tmp_path / "session-cap.csv"
+    write_csv(path)
+    text = path.read_text().replace("# mark t=50 n=1 label=mark\n",
+                                    "# mark t=50 n=1 label=mark\n"
+                                    "# event t=150 name=capReached index=2\n"
+                                    "# event t=205 name=repsAtCap reps=4\n"
+                                    "# event t=207 name=repsAtCap reps=6\n")
+    path.write_text(text)
+    w = load_workout_csv(path)
+    assert w.reps_at_cap == 6 and w.partial_reps is None
+    assert w.cap_reached == {"t": 150.0, "index": 2}
+    assert w.progress is not None and w.progress.is_finished   # boundaries unaffected

@@ -71,7 +71,11 @@ public struct WorkoutDefinition: Codable, Equatable, Identifiable {
     /// "functionalStrengthTraining", "highIntensityIntervalTraining", "running".
     public var healthKitActivity: String
     public var segments: [WorkoutSegment]
-    public var intervalSeconds: Double?   // optional: "every N:00" sets
+    public var intervalSeconds: Double?   // optional: "every N:00" sets. Every segment of a set
+                                          // ends on the next interval boundary (2026-11-03, W1/W2):
+                                          // a Crown turn after the reps starts the rest; without
+                                          // it the clock jumps to the next set (rest recorded 0 s).
+                                          // WorkoutProgress.autoAdvanceTime / autoAdvance(at:).
     public var roundSize: Int?            // optional (v2): segments per round/set incl. rest
     public init(id:name:shortName:format:team:timeCapSeconds:healthKitActivity:segments:
                 intervalSeconds: = nil, roundSize: = nil)
@@ -387,6 +391,73 @@ an AMRAP row "Reps after the cap" with a stepper (setPartialReps). Save writes t
 result over Documents/Workouts/<id>.json after keeping the first original as
 Documents/Workouts/<id>.original.json (once), and reloads the store. Cancel discards.
 
+## 5b. For-time caps: keep going past the cap (added 2026-11-03, W7)
+
+Owner, 2026-11-03: "For time with a cap: if you are not done within the cap, I don't want the
+workout to stop. Let me know at the cap and let me continue, so I can see how fast I did the
+full workout. At the end ask how many reps I did on that movement before the time cap, so we
+know how far I was. If I want to stop I can stop — it's my decision."
+
+AMRAP caps are unchanged (the clock finishes the workout, `capTime`, `partialReps`, §5). This
+section is for `format == .forTime` with `timeCapSeconds > 0` (Freedom 20:00, Helen 16:00,
+Partner WOD 1 30:00).
+
+### Result format (no version bump, one new optional key)
+- `repsAtCap: Int?` — reps done in the segment running at the cap, entered after the finish.
+  Absent in older files and when not asked / skipped. `totalSeconds` stays start → finish (the
+  time for the full workout), past the cap or not.
+- No new `WorkoutEventKind` case: an older app would fail to decode the whole file on an
+  unknown event kind. Everything else is derived, so older files that went past a cap read as
+  capped too (with `repsAtCap` nil).
+
+### Kit (`WorkoutProgress.swift`, new `WorkoutResultCap.swift`; Python mirror in workout.py)
+```swift
+// WorkoutProgress
+public var forTimeCapTime: Double?                 // start + cap (for time only), nil otherwise
+public func segmentIndex(at t: Double) -> Int?     // last segment started at or before t
+public func capSegmentIndex(now: Double) -> Int?   // segment at the cap once (finish ?? now) > cap
+// WorkoutResult
+public var repsAtCap: Int?
+public var forTimeCapSeconds: Double?              // definition cap, for time only
+public var isCapped: Bool                          // forTimeCapSeconds != nil && totalSeconds > cap
+public var capReachedAt: Date?                     // startDate + cap when capped
+public var capSegmentIndex: Int?                   // recorded segment with start ≤ cap < end
+public var capSegment: WorkoutSegment?
+public var repsAtCapLimit: Int?                    // reps target of that segment, else nil
+public mutating func setRepsAtCap(_ reps: Int?, now: Date = Date())   // clamped, sets editedAt
+public var capPositionText: String?                // see below
+```
+Python: `for_time_cap_time`, `segment_index_at`, `cap_segment_index(now)`; on the result
+`reps_at_cap`, `for_time_cap_seconds`, `is_capped`, `cap_reached_at` (s since 1970),
+`cap_segment_index`, `cap_segment`, `reps_at_cap_limit`, `set_reps_at_cap`,
+`cap_position_text`. Finishing exactly on the cap is not capped (strictly greater).
+
+### Score format
+- The big score is always the time for the full workout: "19:37" under the cap, "18:20" past it.
+- Under the cap the context line is unchanged: "3 rounds for time · 0:23 under the 16:00 cap".
+- Past the cap: "3 rounds for time · 2:20 over the 16:00 cap · at the cap: 7/12 Pull-ups (R3)".
+- `capPositionText`: "7/12 Pull-ups (R3)" (reps / target), "7 Burpees" (no reps target),
+  "in Pull-ups (R3)" (reps not entered). The round suffix only for `roundSize > 1`.
+- Ended (not finished) past the cap: "… · Not finished · ended in KB Swings · at the cap: in
+  KB Swings (R1)".
+- `Headline.repsAtCap` carries the value (nil when not capped).
+
+### Watch
+- At the cap the workout keeps running: the "Time!" haptic (stop ×3, success — same as the
+  AMRAP cap), a 3 s full-screen banner "TIME CAP · 16:00 · KEEP GOING", and
+  `# event name=capReached index=<i>` in the CSV. Once per workout. The total line then reads
+  "18:42 · +2:42 over cap" (wrist down: live total + " · over cap"). No 3-2-1 before the cap.
+- Finished past the cap (last Crown turn): the done screen shows the reps picker, "Reps of
+  <segment> at the cap?", 0…the segment's reps target (else 200), Save; skippable (End without
+  Save). Asked only when the segment at the cap is not a run, a rest, or a metre/time target.
+  Saved as `repsAtCap` at End and `# event name=repsAtCap reps=<n>` in the CSV (the AMRAP
+  picker keeps writing `partialReps`). Undo of the finish clears it, as for AMRAP.
+- Screen demo: the cap is shortened like the other clock times (WorkoutDemo).
+
+### Phone
+- Overview hero: the context line above (WorkoutSummary), no view change.
+- Fix splits: "Reps at the cap · <segment>" stepper when the result is capped (setRepsAtCap).
+
 ## 6. Heart-rate recovery after the finish (added 2026-11-01)
 
 Motivation: after the last segment the athlete stays on the done screen until End (Partner WOD 1,
@@ -420,9 +491,40 @@ Motivation: after the last segment the athlete stays on the done screen until En
 Done screen (after the finish, before End): "DONE 23:09" on one line, a dark panel with
 "RECOVERY 1:23" (counting up from the finish), HR now and its change since the finish ("−19"),
 Undo, and the End hint. Haptics: light (`.click`) at 1:00 and 2:00, `.success` at 3:00 plus
-"3 min recovery done · End when ready". Never ends by itself. The CSV logs
+"3 min recovery done · End when ready". The done screen never ends by itself. The CSV logs
 `# event name=recovery seconds=<60|120|180> bpm=<n>`. Cap finish: one compact recovery line above
 the partial-reps picker. Screen demo: same, with the fake HR.
+
+End during recovery (W6, 2026-11-03, revised the same day: automatic, no waiting screen).
+End (confirmed) after the finish ends the workout exactly as before: result + CSV sent, the
+HealthKit workout ends and is saved at the End press (Apple Fitness shows the workout to End),
+back to the start screen. If HealthKit was running and at least 10 s are left until
+finish + `WorkoutSessionModel.recoverySeconds` (180 s), the watch then records HR silently in the
+background:
+- once the workout's HealthKit session has saved, a second HKWorkoutSession (activity "other",
+  `saveWorkoutOnEnd = false`, discarded at the end, so nothing extra lands in Health/Fitness)
+  keeps the HR sensor in workout mode and the app alive wrist-down; its live builder's HR is
+  appended to a copy of the workout's samples (a few seconds' gap at End is bridged by the 5 s
+  series' 15 s interpolation);
+- the start screen shows "Recovery recording · 1:42" (time since the finish) instead of "Last: …";
+- at finish + 180 s it stops, ends that session and sends the result again (same id, new outbox
+  file name `workout-<random>.json`): same splits, events, HR avg/max and partial reps (all end at
+  the End press), `heartRateSeries` and `endDate` running to the stop time. No update when no HR
+  arrived after End;
+- a new workout (START) or lifting session stops it first (update sent with what was recorded),
+  then starts its own HealthKit session once the recovery session has ended, at most ~1 s later
+  (`backgroundRecoveryStopWait`); the screen demo doesn't stop it. A recovery session ended by the
+  system also sends what it has.
+The motion CSV and pedometer stop at the End press (CSV event `name=backgroundRecovery` just
+before). Not started for an abandoned workout (End before the finish), without HealthKit, after
+180 s, or in the screen demo.
+
+Phone: the update arrives for an id it already has (`WorkoutFiles.storeIncomingResult` →
+`WorkoutResult.storedAfterWatchUpdate`): an older copy arriving late is dropped; an untouched
+result is replaced; a result changed on the phone (edit, definition upgrade, CSV backfill: an
+`<id>.original.json` exists) keeps everything and takes over only `heartRateSeries` and `endDate`
+(like the CSV backfill), and `<id>.original.json` becomes the update, so "Restore original" gives
+the full recovery. Until the update the Recovery card follows the 60 s rule below.
 
 ### Phone
 Overview: a "Recovery" card under the heart-rate chart when `heartRateRecovery` exists:

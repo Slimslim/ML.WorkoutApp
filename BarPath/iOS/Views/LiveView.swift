@@ -90,13 +90,15 @@ struct LiveView: View {
         .background(Theme.pageBackground)
     }
 
-    /// "JUST FINISHED · 14:05" for 3 hours, then "LAST WORKOUT · Oct 28, 14:05".
+    /// "JUST FINISHED · 14:05" for 3 hours, then "LAST WORKOUT · Oct 28, 14:05". The finish
+    /// time when there is one: `endDate` can run to finish + 3:00 (background recovery, W6).
     private func workoutKicker(_ workout: WorkoutResult) -> String {
-        let age: TimeInterval = Date().timeIntervalSince(workout.endDate)
+        let finished: Date = workout.finishDate ?? workout.endDate
+        let age: TimeInterval = Date().timeIntervalSince(finished)
         if age < 3 * 3600 {
-            return "JUST FINISHED \u{00B7} " + OverviewFormat.timeOfDay(workout.endDate)
+            return "JUST FINISHED \u{00B7} " + OverviewFormat.timeOfDay(finished)
         }
-        return "LAST WORKOUT \u{00B7} " + OverviewFormat.dayAndTime(workout.endDate)
+        return "LAST WORKOUT \u{00B7} " + OverviewFormat.dayAndTime(finished)
     }
 
     // MARK: - Lifting

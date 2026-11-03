@@ -1,7 +1,8 @@
 import SwiftUI
 import BarPathKit
 
-/// Sheet to correct split boundaries (and the partial reps after an AMRAP cap) of one workout.
+/// Sheet to correct split boundaries (and the partial reps after an AMRAP cap, or the reps at a
+/// for-time cap, WORKOUT_SPEC §5b) of one workout.
 /// Works on a local copy; Save writes it through WorkoutStore.saveEdited.
 struct FixSplitsView: View {
     let original: WorkoutResult
@@ -34,6 +35,40 @@ struct FixSplitsView: View {
             set: { (newValue: Int) in
                 draft.setPartialReps(newValue)
             })
+    }
+
+    /// For time past the cap: stepper range 0…the reps target of the segment running at the cap
+    /// (`repsAtCapLimit`), else 200 like the watch picker.
+    private var maxRepsAtCap: Int {
+        if let limit = draft.repsAtCapLimit, limit >= 1 {
+            return limit
+        }
+        return 200
+    }
+
+    private var repsAtCapBinding: Binding<Int> {
+        return Binding<Int>(
+            get: { return draft.repsAtCap ?? 0 },
+            set: { (newValue: Int) in
+                draft.setRepsAtCap(newValue)
+            })
+    }
+
+    /// For time past the cap, and the segment at the cap counts reps (not a run, a rest, or a
+    /// metre / time target), like the watch picker (`repsAtCapSegment`).
+    private var asksRepsAtCap: Bool {
+        guard draft.isCapped, let segment = draft.capSegment else { return false }
+        if segment.kind == .rest || segment.kind == .run { return false }
+        if let target = segment.target, target.unit == .meters || target.unit == .seconds { return false }
+        return true
+    }
+
+    /// "Reps at the cap · Pull-ups" (the segment at the cap follows the split boundaries).
+    private var repsAtCapTitle: String {
+        if let segment = draft.capSegment {
+            return "Reps at the cap · " + segment.name
+        }
+        return "Reps at the cap"
     }
 
     /// Median duration per movement id, over the draft's segments.
@@ -117,6 +152,14 @@ struct FixSplitsView: View {
                     Section("Reps after the cap") {
                         Stepper(value: partialBinding, in: 0...maxPartialReps) {
                             Text("\(draft.partialReps ?? 0) reps")
+                                .monospacedDigit()
+                        }
+                    }
+                }
+                if asksRepsAtCap {
+                    Section(repsAtCapTitle) {
+                        Stepper(value: repsAtCapBinding, in: 0...maxRepsAtCap) {
+                            Text("\(draft.repsAtCap ?? 0) reps")
                                 .monospacedDigit()
                         }
                     }

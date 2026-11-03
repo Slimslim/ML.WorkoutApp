@@ -142,6 +142,69 @@ time.
 
 *Owned by the Workouts chat. Add stories here with the `W` prefix.*
 
+### Interval workouts (EMOM, "every N:00")
+
+**W1. Each minute starts by itself (Now)**
+As an athlete doing an EMOM, I want the watch to start the next set on every minute mark with
+a 3-2-1 and a strong tap, whether or not I turned the Crown, so I never have to catch up.
+*Done when:* in an 8-minute EMOM done without touching the Crown, the watch shows set k from
+minute k−1:00 for every k (±1 s), the last set finishes at 8:00, and later minutes never shift.
+
+**W2. Turning the Crown means "set done" (Now)**
+As an athlete, I want a Crown turn after my reps to start my rest, with the time left in the
+minute shown, so my rest is recorded; skipping it must not break anything.
+*Done when:* Crown after the reps → rest until the minute mark; no Crown → the rest is recorded
+as 0 s and the next set still starts on the minute.
+
+**W3. See my EMOM minute by minute (Now)**
+As an athlete, I want the workout report to show each minute as a row: weight, reps found,
+how fast I started after the beep, work time and rest left, so I see where the minutes got
+tight.
+*Done when:* the 2026-11-02 power C&J EMOM shows 8 rows matching the motion analysis
+(16 reps, start delays 2.5–24 s, rest left 42 → 12 s).
+
+**W4. Weight per set (Later)**
+As an athlete, I want to enter the weight of each set (125 → 175 lb) once, on the phone, so
+bar speed can be compared with the load.
+*Done when:* weights entered in under 30 s for 8 sets and shown in the W3 rows.
+
+### Transitions
+
+**W5. Transition vs work time (Later)**
+As an athlete, I want each split shown as setup + work, with total time in transitions, so I
+see the time I lose walking and setting up.
+*Done when:* on the AMRAP 40 and Freedom files, transitions match the motion analysis within
+5 s for 80 % of segments (docs/TRANSITIONS.md).
+
+### Recovery after the finish
+
+**W6. End when I'm done, still get 3 min of recovery (Now)**
+As an athlete, I want to press End when I'm done (a few seconds after the finish, walking
+around) and still have my heart-rate recovery recorded to 3:00 after the finish, without a
+waiting screen or another tap, so I can look at my results right away and the recovery fills
+in by itself.
+*Done when:* End confirmed 30 s after the finish → the watch is back on the start screen at once
+("Recovery recording · 0:31" counting there) and the phone shows the result at once (no recovery
+card yet, < 1 min); at 3:00 after the finish the phone's result updates by itself (same workout,
+not a second one) and shows the 1 / 2 / 3 min recovery; an edit made on the phone in between is
+kept. Starting a new workout or a lifting session before 3:00 stops the recording (the phone
+gets what was recorded) and the new session starts within ~1 s. Apple Fitness shows the
+workout ending at the End press.
+
+### Time caps
+
+**W7. Keep going past a for-time cap (Now)**
+As an athlete doing a for-time workout with a cap, I want the watch to tell me when the cap
+passes but let me finish the whole workout, and then ask how many reps of the movement I was
+on I had done at the cap, so I know both my full time and how far I got within the cap. I can
+still press End whenever I decide to stop.
+*Done when:* Helen (16:00 cap) still running at 16:00 → the strong "Time!" haptic and a
+"TIME CAP · KEEP GOING" banner for ~3 s, the workout does not stop and the total keeps counting
+("+0:42 over cap"); after the last Crown turn the done screen asks "Reps of <movement> at the
+cap?" (Crown, 0…target, skippable); the phone shows the full time as the score and "… over the
+16:00 cap · at the cap: 7/12 Pull-ups (R3)". Finishing under the cap and AMRAP caps behave as
+before.
+
 ## Navigation and layout
 
 *Owned by the Navigation UI/UX chat. Add stories here with the `N` prefix.*

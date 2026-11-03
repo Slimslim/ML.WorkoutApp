@@ -241,7 +241,7 @@ public enum SplitStats {
 public struct WorkoutResult: Codable, Equatable, Identifiable {
     /// Version written by this build. 2 adds `heartRateSeries`, `heartRateMin` per segment and
     /// `definition.roundSize` (all optional); version 1 files decode unchanged. `partialReps`
-    /// and `editedAt` (§5) are optional too and need no version bump.
+    /// and `editedAt` (§5) and `repsAtCap` (§5b) are optional too and need no version bump.
     public static let currentVersion: Int = 2
 
     public var version: Int
@@ -264,13 +264,17 @@ public struct WorkoutResult: Codable, Equatable, Identifiable {
     public var partialReps: Int?
     /// When the athlete corrected the result (splits or partial reps) on the phone. Optional.
     public var editedAt: Date?
+    /// For time past the cap (WORKOUT_SPEC §5b): reps done in the segment running at the cap,
+    /// entered on the watch after the finish or with `setRepsAtCap(_:now:)`. Optional in JSON
+    /// (absent in older files and when not asked); see WorkoutResultCap.swift.
+    public var repsAtCap: Int?
 
     public init(version: Int = WorkoutResult.currentVersion, id: UUID = UUID(), definition: WorkoutDefinition,
                 startDate: Date, finishDate: Date?, endDate: Date, totalSeconds: Double,
                 segments: [SegmentResult], events: [WorkoutEvent],
                 heartRateAvg: Double? = nil, heartRateMax: Double? = nil,
                 recordingFileName: String? = nil, heartRateSeries: HeartRateSeries? = nil,
-                partialReps: Int? = nil, editedAt: Date? = nil) {
+                partialReps: Int? = nil, editedAt: Date? = nil, repsAtCap: Int? = nil) {
         self.version = version
         self.id = id
         self.definition = definition
@@ -286,6 +290,7 @@ public struct WorkoutResult: Codable, Equatable, Identifiable {
         self.heartRateSeries = heartRateSeries
         self.partialReps = partialReps
         self.editedAt = editedAt
+        self.repsAtCap = repsAtCap
     }
 
     /// Pretty JSON, ISO8601 dates (same helpers as LiftRecording).

@@ -1,0 +1,594 @@
+{
+  "definition" : {
+    "format" : "emom",
+    "healthKitActivity" : "functionalStrengthTraining",
+    "id" : "wod.pcjEmom",
+    "intervalSeconds" : 60,
+    "name" : "Every 1:00 × 8: Power C&J",
+    "roundSize" : 2,
+    "segments" : [
+      {
+        "kind" : "station",
+        "movement" : "powerCleanAndJerk",
+        "name" : "Power C&J",
+        "target" : {
+          "unit" : "reps",
+          "value" : 2
+        }
+      },
+      {
+        "kind" : "rest",
+        "movement" : "rest",
+        "name" : "Rest"
+      },
+      {
+        "kind" : "station",
+        "movement" : "powerCleanAndJerk",
+        "name" : "Power C&J",
+        "target" : {
+          "unit" : "reps",
+          "value" : 2
+        }
+      },
+      {
+        "kind" : "rest",
+        "movement" : "rest",
+        "name" : "Rest"
+      },
+      {
+        "kind" : "station",
+        "movement" : "powerCleanAndJerk",
+        "name" : "Power C&J",
+        "target" : {
+          "unit" : "reps",
+          "value" : 2
+        }
+      },
+      {
+        "kind" : "rest",
+        "movement" : "rest",
+        "name" : "Rest"
+      },
+      {
+        "kind" : "station",
+        "movement" : "powerCleanAndJerk",
+        "name" : "Power C&J",
+        "target" : {
+          "unit" : "reps",
+          "value" : 2
+        }
+      },
+      {
+        "kind" : "rest",
+        "movement" : "rest",
+        "name" : "Rest"
+      },
+      {
+        "kind" : "station",
+        "movement" : "powerCleanAndJerk",
+        "name" : "Power C&J",
+        "target" : {
+          "unit" : "reps",
+          "value" : 2
+        }
+      },
+      {
+        "kind" : "rest",
+        "movement" : "rest",
+        "name" : "Rest"
+      },
+      {
+        "kind" : "station",
+        "movement" : "powerCleanAndJerk",
+        "name" : "Power C&J",
+        "target" : {
+          "unit" : "reps",
+          "value" : 2
+        }
+      },
+      {
+        "kind" : "rest",
+        "movement" : "rest",
+        "name" : "Rest"
+      },
+      {
+        "kind" : "station",
+        "movement" : "powerCleanAndJerk",
+        "name" : "Power C&J",
+        "target" : {
+          "unit" : "reps",
+          "value" : 2
+        }
+      },
+      {
+        "kind" : "rest",
+        "movement" : "rest",
+        "name" : "Rest"
+      },
+      {
+        "kind" : "station",
+        "movement" : "powerCleanAndJerk",
+        "name" : "Power C&J",
+        "target" : {
+          "unit" : "reps",
+          "value" : 2
+        }
+      }
+    ],
+    "shortName" : "PC&J EMOM",
+    "team" : "solo",
+    "timeCapSeconds" : 480
+  },
+  "endDate" : "2026-11-03T01:05:17.478Z",
+  "events" : [
+    {
+      "kind" : "start",
+      "segmentIndex" : 0,
+      "t" : 1793667252.211606
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 1,
+      "source" : "crown",
+      "t" : 1793667403.81714
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 2,
+      "source" : "crown",
+      "t" : 1793667407.102284
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 3,
+      "source" : "crown",
+      "t" : 1793667411.516079
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 4,
+      "source" : "crown",
+      "t" : 1793667428.89136
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 5,
+      "source" : "crown",
+      "t" : 1793667431.340201
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 6,
+      "source" : "auto",
+      "t" : 1793667432.2280211
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 7,
+      "source" : "crown",
+      "t" : 1793667458.476537
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 8,
+      "source" : "auto",
+      "t" : 1793667492.416216
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 9,
+      "source" : "crown",
+      "t" : 1793667521.351231
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 10,
+      "source" : "auto",
+      "t" : 1793667552.411635
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 11,
+      "source" : "crown",
+      "t" : 1793667587.6342201
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 12,
+      "source" : "auto",
+      "t" : 1793667612.292773
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 13,
+      "source" : "crown",
+      "t" : 1793667675.828223
+    },
+    {
+      "kind" : "advance",
+      "segmentIndex" : 14,
+      "source" : "crown",
+      "t" : 1793667724.594888
+    },
+    {
+      "kind" : "finish",
+      "segmentIndex" : 14,
+      "source" : "crown",
+      "t" : 1793667774.7604809
+    },
+    {
+      "kind" : "end",
+      "segmentIndex" : 14,
+      "t" : 1793667917.477524
+    }
+  ],
+  "finishDate" : "2026-11-03T01:02:54.760Z",
+  "heartRateAvg" : 154.58252427184465,
+  "heartRateMax" : 170,
+  "heartRateSeries" : {
+    "bpm" : [
+      148,
+      148,
+      148,
+      149,
+      148,
+      155,
+      155,
+      144,
+      143,
+      146,
+      149,
+      151,
+      143,
+      141,
+      140,
+      145,
+      145,
+      146,
+      151,
+      151,
+      141,
+      141,
+      143,
+      148,
+      149,
+      145,
+      144,
+      145,
+      145,
+      148,
+      149,
+      157,
+      159,
+      159,
+      158,
+      150,
+      146,
+      147,
+      148,
+      149,
+      151,
+      151,
+      156,
+      155,
+      153,
+      146,
+      146,
+      152,
+      153,
+      153,
+      153,
+      152,
+      156,
+      156,
+      159,
+      162,
+      158,
+      153,
+      150,
+      151,
+      155,
+      147,
+      146,
+      146,
+      157,
+      160,
+      161,
+      164,
+      165,
+      162,
+      159,
+      159,
+      161,
+      162,
+      164,
+      165,
+      164,
+      162,
+      163,
+      163,
+      164,
+      167,
+      167,
+      164,
+      159,
+      159,
+      161,
+      161,
+      161,
+      162,
+      162,
+      163,
+      165,
+      166,
+      167,
+      170,
+      170,
+      169,
+      166,
+      161,
+      160,
+      153,
+      152,
+      152,
+      149,
+      148,
+      140,
+      140,
+      142,
+      136,
+      136,
+      127,
+      132,
+      132,
+      132,
+      133,
+      135,
+      136,
+      136,
+      132,
+      125,
+      125,
+      126,
+      127,
+      129,
+      126,
+      125,
+      125,
+      115,
+      114,
+      118,
+      119,
+      117,
+      117
+    ],
+    "interval" : 5,
+    "start" : 1793667252.211606
+  },
+  "id" : "86F31CE4-5811-4BBF-9CAC-BF31F27EFFAD",
+  "recordingFileName" : "session-86F31CE4-5811-4BBF-9CAC-BF31F27EFFAD.csv",
+  "segments" : [
+    {
+      "cadence" : 26.516182436760232,
+      "distance" : 26.515115305781364,
+      "duration" : 151.60553407669067,
+      "end" : 1793667403.81714,
+      "heartRateAvg" : 146.39285714285714,
+      "heartRateMax" : 155,
+      "heartRateMin" : 140,
+      "index" : 0,
+      "kind" : "station",
+      "movement" : "powerCleanAndJerk",
+      "start" : 1793667252.211606,
+      "steps" : 67,
+      "title" : "Power C&J 2"
+    },
+    {
+      "cadence" : 0,
+      "distance" : 0,
+      "duration" : 3.2851438522338867,
+      "end" : 1793667407.102284,
+      "heartRateAvg" : 149,
+      "heartRateMax" : 149,
+      "heartRateMin" : 149,
+      "index" : 1,
+      "kind" : "rest",
+      "movement" : "rest",
+      "start" : 1793667403.81714,
+      "steps" : 0,
+      "title" : "Rest"
+    },
+    {
+      "cadence" : 0,
+      "distance" : 0,
+      "duration" : 4.413794994354248,
+      "end" : 1793667411.516079,
+      "heartRateAvg" : 157,
+      "heartRateMax" : 157,
+      "heartRateMin" : 157,
+      "index" : 2,
+      "kind" : "station",
+      "movement" : "powerCleanAndJerk",
+      "start" : 1793667407.102284,
+      "steps" : 0,
+      "title" : "Power C&J 2"
+    },
+    {
+      "cadence" : 3.4531815439534315,
+      "distance" : 0.06600824743509293,
+      "duration" : 17.37528109550476,
+      "end" : 1793667428.89136,
+      "heartRateAvg" : 156.5,
+      "heartRateMax" : 159,
+      "heartRateMin" : 150,
+      "index" : 3,
+      "kind" : "rest",
+      "movement" : "rest",
+      "start" : 1793667411.516079,
+      "steps" : 1,
+      "title" : "Rest"
+    },
+    {
+      "cadence" : 0,
+      "distance" : 0,
+      "duration" : 2.448840856552124,
+      "end" : 1793667431.340201,
+      "index" : 4,
+      "kind" : "station",
+      "movement" : "powerCleanAndJerk",
+      "start" : 1793667428.89136,
+      "steps" : 0,
+      "title" : "Power C&J 2"
+    },
+    {
+      "cadence" : 3.751565720506619,
+      "distance" : 0.0030244566677062323,
+      "duration" : 0.8878202438354492,
+      "end" : 1793667432.2280211,
+      "index" : 5,
+      "kind" : "rest",
+      "movement" : "rest",
+      "start" : 1793667431.340201,
+      "steps" : 0.05551193321241499,
+      "title" : "Rest"
+    },
+    {
+      "cadence" : 62.2720009368575,
+      "distance" : 11.652984563209653,
+      "duration" : 26.248515844345093,
+      "end" : 1793667458.476537,
+      "heartRateAvg" : 148.2,
+      "heartRateMax" : 151,
+      "heartRateMin" : 146,
+      "index" : 6,
+      "kind" : "station",
+      "movement" : "powerCleanAndJerk",
+      "start" : 1793667432.2280211,
+      "steps" : 27.242460054169612,
+      "title" : "Power C&J 2"
+    },
+    {
+      "cadence" : 5.734261509639525,
+      "distance" : 0.7397501395686419,
+      "duration" : 33.93967890739441,
+      "end" : 1793667492.416216,
+      "heartRateAvg" : 151.28571428571428,
+      "heartRateMax" : 156,
+      "heartRateMin" : 146,
+      "index" : 7,
+      "kind" : "rest",
+      "movement" : "rest",
+      "start" : 1793667458.476537,
+      "steps" : 3.2436499068032703,
+      "title" : "Rest"
+    },
+    {
+      "cadence" : 52.095827450929036,
+      "distance" : 12.840353343875584,
+      "duration" : 28.935015201568604,
+      "end" : 1793667521.351231,
+      "heartRateAvg" : 153.83333333333334,
+      "heartRateMax" : 156,
+      "heartRateMin" : 152,
+      "index" : 8,
+      "kind" : "station",
+      "movement" : "powerCleanAndJerk",
+      "start" : 1793667492.416216,
+      "steps" : 25.12322598718211,
+      "title" : "Power C&J 2"
+    },
+    {
+      "cadence" : 39.28181790672613,
+      "distance" : 12.970478555200877,
+      "duration" : 31.06040382385254,
+      "end" : 1793667552.411635,
+      "heartRateAvg" : 155.5,
+      "heartRateMax" : 162,
+      "heartRateMin" : 150,
+      "index" : 9,
+      "kind" : "rest",
+      "movement" : "rest",
+      "start" : 1793667521.351231,
+      "steps" : 20.335152118632593,
+      "title" : "Rest"
+    },
+    {
+      "cadence" : 18.737977244677825,
+      "distance" : 4.70417121052742,
+      "duration" : 35.22258520126343,
+      "end" : 1793667587.6342201,
+      "heartRateAvg" : 153.14285714285714,
+      "heartRateMax" : 161,
+      "heartRateMin" : 146,
+      "index" : 10,
+      "kind" : "station",
+      "movement" : "powerCleanAndJerk",
+      "start" : 1793667552.411635,
+      "steps" : 11,
+      "title" : "Power C&J 2"
+    },
+    {
+      "cadence" : 26.765560942548124,
+      "distance" : 2.6454188153147697,
+      "duration" : 24.658552885055542,
+      "end" : 1793667612.292773,
+      "heartRateAvg" : 161.8,
+      "heartRateMax" : 165,
+      "heartRateMin" : 159,
+      "index" : 11,
+      "kind" : "rest",
+      "movement" : "rest",
+      "start" : 1793667587.6342201,
+      "steps" : 11,
+      "title" : "Rest"
+    },
+    {
+      "cadence" : 10.387901560313308,
+      "distance" : 4.309488341212273,
+      "duration" : 63.53544998168945,
+      "end" : 1793667675.828223,
+      "heartRateAvg" : 163.46153846153845,
+      "heartRateMax" : 167,
+      "heartRateMin" : 159,
+      "index" : 12,
+      "kind" : "station",
+      "movement" : "powerCleanAndJerk",
+      "start" : 1793667612.292773,
+      "steps" : 11,
+      "title" : "Power C&J 2"
+    },
+    {
+      "cadence" : 39.37115652085087,
+      "distance" : 11.54702379181981,
+      "duration" : 48.76666498184204,
+      "end" : 1793667724.594888,
+      "heartRateAvg" : 162.7,
+      "heartRateMax" : 167,
+      "heartRateMin" : 159,
+      "index" : 13,
+      "kind" : "rest",
+      "movement" : "rest",
+      "start" : 1793667675.828223,
+      "steps" : 32,
+      "title" : "Rest"
+    },
+    {
+      "cadence" : 3.588116666477433,
+      "distance" : 0.813158318400383,
+      "duration" : 50.16559290885925,
+      "end" : 1793667774.7604809,
+      "heartRateAvg" : 160.2,
+      "heartRateMax" : 170,
+      "heartRateMin" : 149,
+      "index" : 14,
+      "kind" : "station",
+      "movement" : "powerCleanAndJerk",
+      "start" : 1793667724.594888,
+      "steps" : 3,
+      "title" : "Power C&J 2"
+    }
+  ],
+  "startDate" : "2026-11-03T00:54:12.212Z",
+  "totalSeconds" : 522.5488748550415,
+  "version" : 2
+}

@@ -159,6 +159,48 @@ final class HeartRateRecoveryTests: XCTestCase {
         XCTAssertEqual(back.heartRateSeries, filled.heartRateSeries)
     }
 
+    // MARK: Updated result after the background recovery (W6)
+
+    func testWatchUpdateReplacesOrMergesTheSeries() throws {
+        let t0: Double = 1_800_000_000
+        let finish: Double = t0 + HeartRateRecoveryTests.realFinish
+        let endPress: Double = finish + 30
+        let end: Double = t0 + HeartRateRecoveryTests.realEnd
+        let samples: [TimedValue] = tailSamples(offset: t0)
+        // Sent at End (30 s after the finish), then again when the background recording stopped.
+        var first = result(series: HeartRateSeries.make(samples: samples, start: t0, end: endPress),
+                           start: t0, finish: finish, end: endPress)
+        first.partialReps = 3
+        var update = first
+        update.heartRateSeries = HeartRateSeries.make(samples: samples, start: t0, end: end)
+        update.endDate = Date(timeIntervalSince1970: end)
+        XCTAssertNil(first.heartRateRecovery)                  // < 60 s after the finish
+        XCTAssertEqual(update.heartRateRecovery?.marks.count ?? 0, 3)
+
+        // Untouched on the phone: the update replaces it; a late first copy doesn't.
+        XCTAssertEqual(WorkoutResult.storedAfterWatchUpdate(existing: first, incoming: update,
+                                                            existingWasChanged: false), update)
+        XCTAssertNil(WorkoutResult.storedAfterWatchUpdate(existing: update, incoming: first,
+                                                          existingWasChanged: false))
+
+        // Edited on the phone: the edit stays, only the series and endDate are taken over.
+        var edited = first
+        edited.partialReps = 5
+        edited.editedAt = Date(timeIntervalSince1970: end + 60)
+        let merged = try XCTUnwrap(WorkoutResult.storedAfterWatchUpdate(existing: edited, incoming: update,
+                                                                        existingWasChanged: true))
+        XCTAssertEqual(merged.partialReps, 5)
+        XCTAssertEqual(merged.editedAt, edited.editedAt)
+        XCTAssertEqual(merged.heartRateSeries, update.heartRateSeries)
+        XCTAssertEqual(merged.endDate, update.endDate)
+        XCTAssertEqual(merged.heartRateRecovery?.marks.count ?? 0, 3)
+        // A re-sent copy of what the phone already has doesn't clobber the edit.
+        XCTAssertNil(WorkoutResult.storedAfterWatchUpdate(existing: edited, incoming: first,
+                                                          existingWasChanged: true))
+        XCTAssertNil(WorkoutResult.storedAfterWatchUpdate(existing: merged, incoming: update,
+                                                          existingWasChanged: true))
+    }
+
     // MARK: Recovery tail on the overview timeline (same cases as test_workout.py test_recovery_tail_*)
 
     /// Partner WOD 1 shape: 4 quick-test segments from the start to the finish (1389.3 s), the
