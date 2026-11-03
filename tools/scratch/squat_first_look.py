@@ -17,7 +17,7 @@ for k,f in files.items():
         except: pass
     d=np.array(rows); t=d[:,0]; a=d[:,5:8]; g=d[:,8:11]
     fs=1/np.median(np.diff(t))
-    up=-(a*g).sum(1)*9.81
+    up=(a*g).sum(1)*9.81  # CoreMotion: userAccel shares gravity sign, so up = +(a.g)
     upf=bp(up,fs,0.1,4)
     v=bp(np.cumsum(upf)/fs,fs,0.12,4); x=bp(np.cumsum(v)/fs,fs,0.12,4)
     marks=sorted(set(marks)); lo,hi=marks[0],marks[-1]
