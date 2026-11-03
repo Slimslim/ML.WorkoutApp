@@ -9,3 +9,6 @@
 
 Loads (owner, lb): EMOM sets 1–8 = 125, 135, 145, 145, 155, 155, 165, 175 lb.
 Freedom power cleans: 155 lb (≈ 70 kg), not the 85 kg written in the workout definition.
+
+Extra rep after the EMOM finish (~38 s after): a single clean of 125 lb onto a rack for a friend,
+after walking over to their station. Not part of the workout; useful as a known walk-then-clean example.
