@@ -978,6 +978,9 @@ final class WorkoutSessionModel: ObservableObject {
     func stopBackgroundRecovery(reason: String, then: MainAction? = nil) {
         recoveryTask?.cancel()
         recoveryTask = nil
+        // Not started yet (End still saving): a session started now (lifting) must not be
+        // followed by a recovery session that would take HealthKit from it.
+        pendingRecovery = nil
         if let recovery = backgroundRecovery {
             backgroundRecovery = nil
             backgroundRecoveryFinish = nil

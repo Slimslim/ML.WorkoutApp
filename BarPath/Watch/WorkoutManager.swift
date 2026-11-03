@@ -17,6 +17,9 @@ final class WorkoutManager: NSObject, ObservableObject {
     private var session: HKWorkoutSession?
     private var builder: HKLiveWorkoutBuilder?
     private var isFinishing = false
+    /// `start()` was called and its session isn't created yet (authorization pending);
+    /// `end()` before then cancels it, so no session comes up after the caller moved on.
+    private var startPending = false
     private(set) var startDate: Date?
     /// Used by `beginSession()`. Lifting keeps the defaults; workout mode sets them before `start()`.
     var activityType: HKWorkoutActivityType = .traditionalStrengthTraining
@@ -49,6 +52,7 @@ final class WorkoutManager: NSObject, ObservableObject {
             onError?("Health data is not available on this device")
             return
         }
+        startPending = true
         let share: Set<HKSampleType> = [HKObjectType.workoutType()]
         let read: Set<HKObjectType> = [
             HKQuantityType(.heartRate),
@@ -68,7 +72,8 @@ final class WorkoutManager: NSObject, ObservableObject {
     }
 
     private func beginSession() {
-        guard session == nil else { return }
+        guard session == nil, startPending else { return }
+        startPending = false
         let configuration = HKWorkoutConfiguration()
         configuration.activityType = activityType
         configuration.locationType = locationType
@@ -107,6 +112,7 @@ final class WorkoutManager: NSObject, ObservableObject {
     /// Ends the session properly: session.end(), then (on `.ended`) endCollection + finishWorkout.
     func end() {
         guard let session = session else {
+            startPending = false
             onFinished?()
             return
         }
