@@ -55,9 +55,20 @@ enum LibraryDay {
         return f
     }()
 
+    /// Noon of that day: a formatter's midnight does not exist on days where DST starts at
+    /// midnight (Chile, Paraguay…), and it would return nil there.
     static func date(_ text: String?) -> Date? {
         guard let text = text, !text.isEmpty else { return nil }
-        return formatter.date(from: String(text.prefix(10)))
+        let parts: [Int] = String(text.prefix(10)).split(separator: "-").compactMap { (p: Substring) -> Int? in Int(p) }
+        guard parts.count == 3 else { return nil }
+        var components = DateComponents()
+        components.year = parts[0]
+        components.month = parts[1]
+        components.day = parts[2]
+        components.hour = 12
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone.autoupdatingCurrent
+        return calendar.date(from: components)
     }
 
     static func string(_ date: Date) -> String {
