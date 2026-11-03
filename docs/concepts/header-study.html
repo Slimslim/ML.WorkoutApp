@@ -258,10 +258,10 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
         moves: [["5 Power Snatches", "85 lb", "2.31 m/s"], ["5 Power Snatches", "85 lb", "2.29 m/s"], ["5 Power Snatches", "95 lb", "2.22 m/s"], ["5 Power Snatches", "95 lb", "2.20 m/s"], ["5 Power Snatches", "95 lb", "2.18 m/s"], ["5 Power Snatches", "105 lb", "2.10 m/s"], ["5 Power Snatches", "105 lb", "2.08 m/s"], ["5 Power Snatches", "105 lb", "2.05 m/s"], ["5 Power Snatches", "105 lb", "2.03 m/s"], ["5 Power Snatches", "110 lb", "1.98 m/s"], ["5 Power Snatches", "110 lb", "1.95 m/s"], ["5 Power Snatches", "110 lb", "1.93 m/s"], ["5 Power Snatches", "115 lb", "1.88 m/s"], ["5 Power Snatches", "115 lb", "1.86 m/s"], ["5 Power Snatches", "115 lb", "1.83 m/s"]] } },
     { label: "Core Work", note: "Units between number and movement", src: "Mayhem", date: "Mon Nov 9", source: "Mayhem", block: "Accessory", type: "For quality",
       name: "Core Work", fmt: ["3 rounds"], moves: [["1/side Turkish Get-up", "pick"], ["1:00 Suitcase Hold", "pick"], ["50 ft Front-Rack Carry"]] },
-    { label: "Freedom (yours)", note: "Real result, done Scaled: Rx 187 lb, you 155 lb", src: "Your data · Nov 2", date: "Mon Nov 2", source: "Your library", block: "Metcon", type: "RFT",
-      name: "Freedom", fmt: ["5 rounds"], scheme: "40-30-20-30-40 Cal", moves: [["Row"], ["7 Power Cleans", "187 lb"]], cap: "20 min",
-      orig: "Row 40-30-20-30-40 cal, 7 power cleans 85 kg after each row. Cap 20 min",
-      done: { date: "Mon Nov 2", n: "19:37", rx: "Scaled", vs: "0:23 under the cap · Rx 187 lb, you did 155 lb", moves: [["Row"], ["7 Power Cleans", "155 lb"]], ask: true } },
+    { label: "Freedom (yours)", note: "Real result, done Scaled: Rx 185 lb, you 155 lb", src: "Your data · Nov 2", date: "Mon Nov 2", source: "Your library", block: "Metcon", type: "RFT",
+      name: "Freedom", fmt: ["5 rounds"], scheme: "40-30-20-30-40 Cal", moves: [["Row"], ["7 Power Cleans", "185 lb"]], cap: "20 min",
+      orig: "Row 40-30-20-30-40 cal, 7 power cleans 185 lb after each row. Cap 20 min",
+      done: { date: "Mon Nov 2", n: "19:37", rx: "Scaled", vs: "0:23 under the cap · Rx 185 lb, you did 155 lb", moves: [["Row"], ["7 Power Cleans", "155 lb"]], ask: true } },
     { label: "Power C&J EMOM (yours)", note: "Real: one line per minute, load + speed", src: "Your data · Nov 2", date: "Mon Nov 2", source: "Your library", block: "Strength", type: "EMOM", doneOnly: true,
       name: "Power Clean & Jerk", fmt: ["Every 1:00 × 8"], moves: [["2 Power C&J", "125 → 175 lb"]],
       done: { date: "Mon Nov 2", n: "175 lb", u: "top set · 16/16 reps", rx: "8/8 min", vs: "Clean peak speed per minute, wrist estimate",
@@ -297,7 +297,7 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
   }
   function askSheet() {
     return '<div class="ask"><b>Rx or scaled?</b><div class="seg"><span>Rx</span><span class="on">Scaled</span></div>' +
-      '<div class="edit">7 Power Cleans <s>@187 lb</s> → <b>@155 lb</b> <span>edit</span></div><div class="edit">Row 40-30-20-30-40 Cal <span>as written</span></div></div>';
+      '<div class="edit">7 Power Cleans <s>@185 lb</s> → <b>@155 lb</b> <span>edit</span></div><div class="edit">Row 40-30-20-30-40 Cal <span>as written</span></div></div>';
   }
 
   function render() {

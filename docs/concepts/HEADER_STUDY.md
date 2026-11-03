@@ -148,7 +148,7 @@ program days, logged lifts). Built from the decisions and writing conventions ab
 - **Anatomy, top to bottom:** date · program (left) and block tag + type tag (right); name, or
   the format as the name (2 lines max, Open prefix); format line only when needed (rounds,
   intervals, rest); shared rep scheme once; one movement per line `qty unit movement @load`, no
-  dividers; `Cap mm:ss` at the bottom; after logging, one score line under a thin rule: score,
+  dividers; `20 min cap` at the bottom; after logging, one score line under a thin rule: score,
   unit, Rx / Scaled badge (dashed `?` = not answered yet), one comparison (last time or cap).
 - **Type scale:** name 20/500 (compact row 16/500, 1 line) · score 26/500 tabular · lines 14/400
   (scheme 14/500) · format 13.5 · meta 12 · tags 10.5/500. **Spacing:** card padding 16, 9 between
@@ -163,8 +163,14 @@ program days, logged lifts). Built from the decisions and writing conventions ab
   score (Choose) or score + badge (Log).
 - **Report:** the card's score line replaces the report v3 hero number; the time budget, tiles and
   "What stood out" follow.
-- **Program day:** date and program move to a day header; each block keeps its card and tags.
-- **Logged lifts / lift EMOMs:** one line per set or minute with load and bar speed (labelled
-  `peak` until average vs peak is decided).
-- **Open:** average vs peak bar speed; Freedom Rx weight (85 kg = 187 lb?) so 19:37 @155 lb is
-  Scaled or not; final colours; send a program day to the watch all at once or block by block.
+- **Program day:** date and program sit once in the day header. Every card keeps the same anatomy:
+  top-left = block order + block type (`A · Strength`, `B · Metcon`, `C · Accessory`), or once done
+  the time it was done (`A · 6:12 pm`); top-right = type tag. Blocks are sent to the watch **block
+  by block** (a "Send to watch" per card, "Next: B · Metcon" hint).
+- **Logged lifts / lift EMOMs:** one line per set or minute with load and bar speed, written with
+  its kind: **mean** concentric velocity for strength lifts (squats, presses, deadlifts, pull-ups)
+  `mean 0.62 m/s`, **peak** velocity for Olympic / ballistic lifts (snatch, clean, jerk, C&J)
+  `peak 1.95 m/s` (VBT practice; owner, 2026-11-03).
+- **Decided (owner answers):** bar speed mean vs peak as above; Freedom Rx was **185 lb**, so the
+  owner's 19:37 @155 lb is **Scaled** ("Rx 185 lb · you 155 lb"); program days go block by block.
+- **Still open:** Rx/Scaled for AMRAP 40 and Helen (shown as `?`); final colours.

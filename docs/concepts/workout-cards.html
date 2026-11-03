@@ -119,6 +119,10 @@ section { display: flex; flex-direction: column; gap: 16px; }
 .score .vs { font: 400 12.5px var(--f-ui); color: var(--ink2); width: 100%; }
 .score .vs b { color: var(--good); font-weight: 500; }
 .details { font: 500 12.5px var(--f-ui); color: var(--accent); }
+.sendrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid var(--line); padding-top: 10px; }
+.sbtn { background: var(--ink); color: var(--page); border-radius: 10px; padding: 8px 14px; font: 600 13px var(--f-ui); }
+.sbtn.dim { background: transparent; color: var(--ink2); border: 1px solid var(--line); }
+.hint { font: 400 12px var(--f-ui); color: var(--ink3); }
 
 /* compact row (lists) */
 .crow { background: var(--card); border-radius: 14px; padding: 12px 14px; display: grid; grid-template-columns: 1fr auto; gap: 3px 12px; align-items: center; }
@@ -316,9 +320,19 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
           <div class="nav"><span>‹ Choose</span><span></span></div>
           <div class="dayhead"><b>Thu Nov 5</b><span>Mayhem · 3 blocks</span></div>
           <div id="ctx-day" style="display:flex;flex-direction:column;gap:10px"></div>
-          <div class="btn">Send all 3 to watch</div>
         </div></div>
-        <p class="note">Each block keeps its own card and tags; the date and program move up into the day header, so the cards drop that line.</p>
+        <p class="note">Planned. Date and program sit once in the day header; each card keeps the same anatomy with its block order and block type top-left. Blocks go to the watch one at a time.</p>
+      </div>
+
+      <div class="pcol">
+        <h3>e2 · The same day, done <small>time each block was done</small> <span class="ex">example scores</span></h3>
+        <div class="phone"><div class="screen">
+          <div class="status"><span>19:05</span><i>●●● ▮</i></div>
+          <div class="nav"><span>‹ Log</span><span>Share</span></div>
+          <div class="dayhead"><b>Thu Nov 5</b><span>Mayhem · 3 of 3 done</span></div>
+          <div id="ctx-day-done" style="display:flex;flex-direction:column;gap:10px"></div>
+        </div></div>
+        <p class="note">Top-left turns into the time the block was done. The front squat shows mean speed (strength lift); Olympic lifts show peak.</p>
       </div>
 
       <div class="pcol">
@@ -328,7 +342,7 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
           <div class="nav"><span>‹ Log</span><span>Share</span></div>
           <div id="ctx-lift"></div>
         </div></div>
-        <p class="note">Your real power C&amp;J EMOM from Nov 2: 16/16 reps, loads you entered, peak clean speed per minute from the wrist. Labelled "peak" until you choose average or peak.</p>
+        <p class="note">Your real power C&amp;J EMOM from Nov 2: 16/16 reps, loads you entered, peak clean speed per minute from the wrist. Olympic lifts show peak speed; strength lifts show mean (see e2).</p>
       </div>
     </div>
   </section>
@@ -342,17 +356,16 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
         <li><span class="ok">DECIDED</span><span>Rep scheme on top once, one movement per line with <code style="font:400 12px var(--f-mono)">@load</code>, no dividers, cap at the bottom.</span></li>
         <li><span class="ok">DECIDED</span><span>Loads from the profile division, "See details" for the original, Rx / Scaled asked after logging.</span></li>
         <li><span class="ok">DECIDED</span><span>Logged lifts one line per set or minute; abbreviations and units as listed.</span></li>
-        <li><span class="op">OPEN</span><span>Bar speed per set: average or peak (shown as peak here).</span></li>
-        <li><span class="op">OPEN</span><span>Freedom: was Rx 85 kg (187 lb)? Until then your 19:37 @155 lb shows <span class="badge q">?</span>.</span></li>
+        <li><span class="ok">DECIDED</span><span>Bar speed: <b>mean</b> for strength lifts (squats, presses, deadlifts, pull-ups), <b>peak</b> for Olympic and ballistic lifts (snatch, clean, jerk, C&amp;J), always written with its kind: <code style="font:400 12px var(--f-mono)">mean 0.62 m/s</code>, <code style="font:400 12px var(--f-mono)">peak 1.95 m/s</code>.</span></li>
+        <li><span class="ok">DECIDED</span><span>Freedom Rx was 185 lb: your 19:37 @155 lb is Scaled. AMRAP 40 and Helen stay <span class="badge q">?</span> until you answer.</span></li>
+        <li><span class="ok">DECIDED</span><span>Program days go to the watch block by block. Cards in a day keep their anatomy: block order + type top-left (<code style="font:400 12px var(--f-mono)">A · Strength</code>), then the time it was done.</span></li>
         <li><span class="op">OPEN</span><span>Colours are placeholders; the accent and the cyclic/barbell tints are not final.</span></li>
       </ul>
     </div>
     <div class="panel">
       <span class="eyebrow">Questions for you</span>
       <ol class="qs">
-        <li>Bar speed on logged sets: average (what velocity-based training apps show) or peak?</li>
-        <li>Freedom at PitFIRE: was the Rx power clean 85 kg / 187 lb, so your 155 lb was Scaled?</li>
-        <li>Program days: send all blocks to the watch at once (as in e), or one block at a time?</li>
+        <li>AMRAP 40 and Helen: Rx or Scaled? (they still show "?")</li>
       </ol>
     </div>
   </section>
@@ -375,11 +388,11 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
   var FREEDOM = { date: "Mon Nov 2", source: "PitFIRE", block: "Metcon", type: "RFT", name: "Freedom", fmt: ["5 rounds"],
     scheme: "40-30-20-30-40 Cal", moves: [["Row"], ["7 Power Cleans", "155 lb"]], cap: "20 min",
     summary: "40-30-20-30-40 Cal Row · 7 Power Cleans @155 lb",
-    done: { n: "19:37", rx: "?", vs: "0:23 under the cap · first time logged" } };
+    done: { n: "19:37", rx: "Scaled", vs: "Rx 185 lb · you 155 lb · 0:23 under the cap" } };
   var PCJ = { date: "Mon Nov 2", source: "PitFIRE", block: "Strength", type: "EMOM", name: "Power Clean & Jerk", fmt: ["Every 1:00 × 8"],
     moves: [["2 Power C&J", "125 → 175 lb"]], summary: "2 Power C&J @125 → 175 lb",
-    done: { n: "175 lb", u: "top set · 16/16 reps", rx: "8/8 min", vs: "Peak clean speed per minute, wrist estimate",
-      moves: [["2 Power C&J", "125 lb", "1.95 m/s"], ["2 Power C&J", "135 lb", "1.84 m/s"], ["2 Power C&J", "145 lb", "1.89 m/s"], ["2 Power C&J", "145 lb", "1.88 m/s"], ["2 Power C&J", "155 lb", "1.97 m/s"], ["2 Power C&J", "155 lb", "1.80 m/s"], ["2 Power C&J", "165 lb", "1.70 m/s"], ["2 Power C&J", "175 lb", "1.62 m/s"]], speedHead: "peak" } };
+    done: { n: "175 lb", u: "top set · 16/16 reps", rx: "8/8 min", vs: "Peak clean speed per minute (Olympic lift), wrist estimate",
+      moves: [["2 Power C&J", "125 lb", "peak 1.95 m/s"], ["2 Power C&J", "135 lb", "peak 1.84 m/s"], ["2 Power C&J", "145 lb", "peak 1.89 m/s"], ["2 Power C&J", "145 lb", "peak 1.88 m/s"], ["2 Power C&J", "155 lb", "peak 1.97 m/s"], ["2 Power C&J", "155 lb", "peak 1.80 m/s"], ["2 Power C&J", "165 lb", "peak 1.70 m/s"], ["2 Power C&J", "175 lb", "peak 1.62 m/s"]], speedHead: "peak" } };
   var HELEN = { date: "Thu Oct 29", source: "Built-in", block: "Metcon", type: "RFT", name: "Helen", fmt: ["3 rounds"],
     moves: [["400 m Run"], ["21 KB Swings"], ["12 Pull-ups"]], cap: "16 min", summary: "400 m Run · 21 KB Swings · 12 Pull-ups",
     done: { n: "12:47", rx: "?", vs: "3:13 under the cap" } };
@@ -397,8 +410,8 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
     var d = o.done ? w.done : null;
     var mv = (d && d.moves) || w.moves;
     var h = '<div class="hc">';
-    h += '<div class="r1">' + (o.noMeta ? '<span></span>' : '<div class="meta"><span>' + esc(o.date || w.date) + '</span><span class="dot"></span><span>' + esc(w.source) + '</span></div>') +
-      '<div class="tags"><span class="tag block">' + esc(w.block) + '</span><span class="tag type">' + esc(w.type) + '</span></div></div>';
+    h += '<div class="r1">' + (o.slot ? '<div class="meta"><span style="color:var(--ink);font-weight:500">' + esc(o.slot) + '</span></div>' : '<div class="meta"><span>' + esc(o.date || w.date) + '</span><span class="dot"></span><span>' + esc(w.source) + '</span></div>') +
+      '<div class="tags">' + (o.slot ? '' : '<span class="tag block">' + esc(w.block) + '</span>') + '<span class="tag type">' + esc(w.type) + '</span></div></div>';
     h += '<div class="name">' + esc(o.name || w.name) + '</div>';
     if (w.fmt && w.fmt.length) h += '<div class="fmt">' + w.fmt.map(esc).join('<span class="sep">·</span>') + '</div>';
     h += '<div class="mv">' + (w.scheme ? '<div class="scheme">' + esc(w.scheme) + '</div>' : '') + (d && d.speedHead ? '<div class="grp" style="padding-top:0">Each minute<span class="spd" style="font-size:10.5px">' + esc(d.speedHead) + ' speed</span></div>' : '') + mv.map(function (m) {
@@ -415,11 +428,12 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
         '<span class="vs">' + (sc.good ? '<b>' + esc(sc.good) + '</b> ' : '') + esc(sc.vs) + '</span></div>';
     }
     if (o.details) h += '<div class="details">See details</div>';
+    if (o.send) h += '<div class="sendrow"><span class="sbtn' + (o.send === "next" ? " dim" : "") + '">Send to watch</span>' + (o.hint ? '<span class="hint">' + esc(o.hint) + '</span>' : '') + '</div>';
     return h + '</div>';
   }
   function crow(w, o) {
     o = o || {};
-    var right = o.done ? '<b>' + esc(w.done.n) + '</b><span>' + esc(w.done.u ? w.done.u.split(" · ")[0] : "") + '</span><span class="badge' + (w.done.rx === "?" ? " q" : "") + '">' + esc(w.done.rx === "?" ? "?" : w.done.rx) + '</span>'
+    var right = o.done ? '<b>' + esc(w.done.n) + '</b><span>' + esc(w.done.u ? w.done.u.split(" · ")[0] : "") + '</span><span class="badge' + (w.done.rx === "?" ? " q" : w.done.rx === "Scaled" ? " sc" : "") + '">' + esc(w.done.rx === "?" ? "?" : w.done.rx) + '</span>'
       : (o.last ? '<span>last</span><b style="font-size:14px">' + esc(o.last) + '</b>' : '<span class="chev">›</span>');
     return '<div class="crow"><span class="cn">' + esc(w.name) + '</span><div class="rt">' + right + '</div>' +
       '<span class="cm">' + esc(o.date ? o.date + ' · ' : '') + esc(w.block) + ' · ' + esc(w.type) + '</span><span class="cs">' + esc(w.summary) + '</span></div>';
@@ -451,7 +465,13 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
   document.getElementById("ctx-log").innerHTML = crow(FREEDOM, { done: true, date: "Mon Nov 2" }) + crow(PCJ, { done: true, date: "Mon Nov 2" }) +
     crow(AMRAP40, { done: true, date: "Sun Nov 1" }) + crow(HELEN, { done: true, date: "Thu Oct 29" });
   document.getElementById("ctx-report").innerHTML = card(FREEDOM, { done: true });
-  document.getElementById("ctx-day").innerHTML = card(FSQ, { noMeta: true }) + card(GAMEOVER, { noMeta: true }) + card(CORE, { noMeta: true });
+  document.getElementById("ctx-day").innerHTML = card(FSQ, { slot: "A · Strength", send: "now", hint: "Next: B · Metcon" }) + card(GAMEOVER, { slot: "B · Metcon", send: "next" }) + card(CORE, { slot: "C · Accessory", send: "next" });
+  var FSQ_DONE = { source: "Mayhem", block: "Strength", type: "Sets × reps", name: "Front Squat",
+    done: { n: "205 lb", u: "best set", rx: "Rx", vs: "Mean speed per set (strength lift), wrist estimate",
+      moves: [["3 Front Squats", "165 lb", "mean 0.71 m/s"], ["3 Front Squats", "180 lb", "mean 0.66 m/s"], ["3 Front Squats", "190 lb", "mean 0.62 m/s"], ["3 Front Squats", "200 lb", "mean 0.56 m/s"], ["3 Front Squats", "205 lb", "mean 0.52 m/s"]] } };
+  document.getElementById("ctx-day-done").innerHTML = card(FSQ_DONE, { slot: "A · 6:12 pm", done: true }) +
+    card(GAMEOVER, { slot: "B · 6:31 pm", score: { n: "7:12", rx: "Rx", vs: "0:48 under the cap" } }) +
+    card(CORE, { slot: "C · 6:52 pm", score: { n: "Done", rx: "Rx", vs: "3 rounds" } });
   document.getElementById("ctx-lift").innerHTML = card(PCJ, { done: true });
 })();
 </script>
