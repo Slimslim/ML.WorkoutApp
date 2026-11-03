@@ -1,0 +1,455 @@
+<title>Workout Cards</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: spec first (anatomy, tokens, states, rules), then the card in its six real app
+   contexts inside phone frames, then the ready-to-build checklist. */
+:root {
+  --page: #F3F4F6;
+  --screen: #F2F2F7;
+  --card: #FFFFFF;
+  --sunk: #F4F5F7;
+  --ink: #1B1D21;
+  --ink2: #5F6570;
+  --ink3: #969CA6;
+  --line: #E5E7EB;
+  --accent: #D9692E;
+  --good: #2E8466;
+  --warnBg: #FFF3DE;
+  --warnInk: #87540A;
+  --run: #7EA2F4;
+  --st: #F4935A;
+  --stL: #F9C7A6;
+  --stBand: #FDE8DA;
+  --frame: #1A1C21;
+  --f-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page: #0E0F11; --screen: #000000; --card: #1A1B1E; --sunk: #25262A; --ink: #EDEEF0; --ink2: #A3A8B1; --ink3: #6C717A;
+    --line: #2D2F34; --accent: #F08A52; --good: #5CC59E; --warnBg: #36290F; --warnInk: #F2C473;
+    --run: #3A5FB0; --st: #A8501F; --stL: #6E3D24; --stBand: #42251A; --frame: #3A3D45;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --page: #0E0F11; --screen: #000000; --card: #1A1B1E; --sunk: #25262A; --ink: #EDEEF0; --ink2: #A3A8B1; --ink3: #6C717A;
+  --line: #2D2F34; --accent: #F08A52; --good: #5CC59E; --warnBg: #36290F; --warnInk: #F2C473;
+  --run: #3A5FB0; --st: #A8501F; --stL: #6E3D24; --stBand: #42251A; --frame: #3A3D45;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--page); color: var(--ink); font: 400 14px/1.5 var(--f-ui); margin: 0;
+  padding-block: 32px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+h1, h2, h3 { margin: 0; font-weight: 500; letter-spacing: -.2px; text-wrap: balance; }
+h1 { font-size: clamp(28px, 4vw, 38px); }
+h2 { font-size: 21px; }
+h3 { font-size: 15px; font-weight: 600; }
+p { margin: 0; max-width: 70ch; }
+.muted { color: var(--ink2); }
+.eyebrow { font: 500 11px/1.2 var(--f-mono); letter-spacing: .8px; text-transform: uppercase; color: var(--ink3); }
+.top { display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: flex-end; }
+.top > div:first-child { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.toggle { display: flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.toggle button { background: transparent; border: 0; color: var(--ink2); font: 500 12.5px var(--f-ui); padding: 7px 13px; cursor: pointer; }
+.toggle button[aria-pressed="true"] { background: var(--ink); color: var(--page); }
+.toggle button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+section { display: flex; flex-direction: column; gap: 16px; }
+.sechead { display: flex; flex-direction: column; gap: 6px; }
+
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 18px; align-items: start; }
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.anat { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 22px; align-items: start; }
+@media (max-width: 760px) { .anat { grid-template-columns: 1fr; } }
+.callouts { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; font-size: 13.5px; color: var(--ink2); }
+.callouts b { color: var(--ink); font-weight: 600; }
+.callouts code, .rules code, .tok code { font: 400 12px var(--f-mono); background: var(--sunk); color: var(--ink); padding: 1px 5px; border-radius: 4px; }
+.tok { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tok th { text-align: left; font: 500 10.5px var(--f-mono); letter-spacing: .6px; text-transform: uppercase; color: var(--ink3); padding: 0 8px 6px 0; }
+.tok td { padding: 6px 8px 6px 0; border-top: 1px solid var(--line); vertical-align: top; color: var(--ink2); }
+.tok td:first-child { color: var(--ink); }
+.tblwrap { overflow-x: auto; }
+.rules { display: flex; flex-direction: column; }
+.rules > div { display: grid; grid-template-columns: 130px 1fr; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); font-size: 13.5px; }
+.rules > div:first-child { border-top: 0; padding-top: 0; }
+.rules b { font-weight: 600; }
+.rules span { color: var(--ink2); }
+@media (max-width: 560px) { .rules > div { grid-template-columns: 1fr; gap: 2px; } }
+.states { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; align-items: start; }
+.stcol { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.stlabel { font: 500 10.5px var(--f-mono); letter-spacing: .7px; text-transform: uppercase; color: var(--ink3); display: flex; gap: 8px; align-items: center; }
+.ex { font: 500 10px var(--f-ui); letter-spacing: 0; text-transform: none; background: var(--warnBg); color: var(--warnInk); padding: 2px 6px; border-radius: 5px; }
+
+/* the card */
+.hc { background: var(--card); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 9px; border: 1px solid var(--line); }
+.r1 { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font: 400 12px/1.3 var(--f-ui); color: var(--ink2); }
+.meta .dot::before { content: "·"; color: var(--ink3); }
+.tags { display: flex; gap: 5px; }
+.tag { font: 500 10.5px/1 var(--f-ui); border-radius: 999px; padding: 4px 8px; letter-spacing: .2px; white-space: nowrap; }
+.tag.block { background: var(--sunk); color: var(--ink2); }
+.tag.type { color: var(--accent); border: 1px solid var(--accent); padding: 3px 7px; }
+.name { font: 500 20px/1.22 var(--f-ui); letter-spacing: -.2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-wrap: balance; }
+.fmt { font: 400 13.5px/1.4 var(--f-ui); color: var(--ink2); }
+.fmt .sep { color: var(--ink3); padding: 0 4px; }
+.mv { display: flex; flex-direction: column; gap: 5px; padding-top: 2px; }
+.mv div { font: 400 14px/1.35 var(--f-ui); font-variant-numeric: tabular-nums; }
+.mv .scheme { font-weight: 500; letter-spacing: .2px; margin-bottom: 1px; }
+.mv .at { color: var(--ink2); white-space: nowrap; }
+.mv .spd { color: var(--ink3); font-size: 12px; float: right; }
+.mv .grp { font: 500 10.5px/1 var(--f-mono); letter-spacing: .6px; text-transform: uppercase; color: var(--ink3); padding-top: 5px; }
+.cap { font: 400 13px var(--f-ui); color: var(--ink2); }
+.live { display: flex; align-items: center; gap: 8px; font: 500 12.5px var(--f-ui); color: var(--accent); border-top: 1px solid var(--line); padding-top: 10px; }
+.live i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: inline-block; }
+.live span { color: var(--ink2); font-weight: 400; }
+.score { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; border-top: 1px solid var(--line); padding-top: 10px; margin-top: 3px; }
+.score .n { font: 500 26px/1 var(--f-ui); font-variant-numeric: tabular-nums; letter-spacing: -.3px; }
+.score .u { font: 400 13px var(--f-ui); color: var(--ink2); }
+.badge { font: 500 10.5px/1 var(--f-ui); padding: 3px 6px; border-radius: 5px; background: var(--sunk); color: var(--ink2); }
+.badge.sc { background: var(--warnBg); color: var(--warnInk); }
+.badge.q { background: transparent; border: 1px dashed var(--ink3); color: var(--ink2); padding: 2px 5px; }
+.score .vs { font: 400 12.5px var(--f-ui); color: var(--ink2); width: 100%; }
+.score .vs b { color: var(--good); font-weight: 500; }
+.details { font: 500 12.5px var(--f-ui); color: var(--accent); }
+
+/* compact row (lists) */
+.crow { background: var(--card); border-radius: 14px; padding: 12px 14px; display: grid; grid-template-columns: 1fr auto; gap: 3px 12px; align-items: center; }
+.crow .cn { font: 500 16px/1.25 var(--f-ui); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.crow .cm { font: 400 12px var(--f-ui); color: var(--ink2); grid-column: 1; }
+.crow .cs { font: 400 12.5px var(--f-ui); color: var(--ink2); grid-column: 1; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.crow .rt { grid-column: 2; grid-row: 1 / span 3; text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.crow .rt b { font: 500 17px var(--f-ui); font-variant-numeric: tabular-nums; }
+.crow .rt span { font: 400 11px var(--f-ui); color: var(--ink3); }
+.crow .chev { color: var(--ink3); font-size: 18px; }
+
+/* phones */
+.phones { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 26px; align-items: start; }
+.pcol { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.pcol h3 { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.pcol h3 small { font: 400 12.5px var(--f-ui); color: var(--ink2); }
+.phone { background: var(--frame); border-radius: 44px; padding: 9px; max-width: 375px; width: 100%; }
+.screen { background: var(--screen); border-radius: 36px; overflow: hidden; padding: 0 12px 24px; display: flex; flex-direction: column; gap: 10px; color: var(--ink); }
+.status { display: flex; justify-content: space-between; align-items: center; height: 44px; padding: 0 14px 0 20px; font: 600 14px var(--f-ui); }
+.status i { font-style: normal; font-size: 11px; letter-spacing: 1px; }
+.nav { display: flex; justify-content: space-between; align-items: baseline; margin-top: -4px; font: 400 15px var(--f-ui); color: var(--accent); }
+.big { font: 600 28px/1.15 var(--f-ui); letter-spacing: -.3px; color: var(--ink); padding: 2px 2px 4px; }
+.seg { display: flex; background: var(--sunk); border-radius: 9px; padding: 2px; }
+.seg span { flex: 1; text-align: center; font: 500 12.5px var(--f-ui); color: var(--ink2); padding: 6px 0; border-radius: 7px; }
+.seg span.on { background: var(--card); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.sect { font: 500 10.5px var(--f-mono); letter-spacing: .7px; text-transform: uppercase; color: var(--ink3); padding: 8px 4px 0; }
+.btn { background: var(--ink); color: var(--page); border-radius: 14px; text-align: center; padding: 14px; font: 600 15px var(--f-ui); }
+.btn2 { text-align: center; font: 500 14px var(--f-ui); color: var(--accent); padding: 4px; }
+.watchrow { display: flex; justify-content: space-between; font: 400 12.5px var(--f-ui); color: var(--ink2); padding: 0 4px; }
+.dayhead { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 4px 0; }
+.dayhead b { font: 500 17px var(--f-ui); }
+.dayhead span { font: 400 12px var(--f-ui); color: var(--ink2); }
+/* report join (v3 first block, lighter) */
+.rcard { background: var(--card); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.rcard h4 { margin: 0; font: 600 15px var(--f-ui); display: flex; justify-content: space-between; align-items: center; }
+.rx { font: 600 9.5px/1 var(--f-ui); letter-spacing: .6px; text-transform: uppercase; color: var(--accent); border: 1px solid var(--stL); border-radius: 999px; padding: 4px 7px; }
+.budget { display: flex; height: 16px; border-radius: 5px; overflow: hidden; }
+.budget div { display: flex; align-items: center; padding: 0 6px; font: 500 10px var(--f-ui); color: var(--ink); white-space: nowrap; overflow: hidden; }
+.hatch { background: repeating-linear-gradient(135deg, var(--stL) 0 4px, var(--stBand) 4px 7px); }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tile { border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; display: flex; flex-direction: column; gap: 3px; }
+.tile span { font: 600 9.5px var(--f-ui); letter-spacing: .6px; text-transform: uppercase; color: var(--ink2); }
+.tile b { font: 600 17px var(--f-ui); font-variant-numeric: tabular-nums; }
+.tile em { font: 400 10.5px var(--f-ui); font-style: normal; color: var(--ink3); }
+.ins > div { display: flex; flex-direction: column; gap: 3px; padding: 9px 0; border-top: 1px solid var(--line); }
+.ins > div:first-child { border-top: 0; padding-top: 0; }
+.ins .tg { font: 600 10px var(--f-ui); letter-spacing: .8px; text-transform: uppercase; color: var(--ink3); }
+.ins .say { font: 600 14.5px/1.35 var(--f-ui); }
+.ins .ev { font: 400 12.5px/1.4 var(--f-ui); color: var(--ink2); }
+.note { font: 400 12.5px/1.45 var(--f-ui); color: var(--ink2); }
+.check { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.check li { display: grid; grid-template-columns: 74px 1fr; gap: 10px; }
+.check .ok { font: 500 11px var(--f-mono); color: var(--good); }
+.check .op { font: 500 11px var(--f-mono); color: var(--warnInk); }
+ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 14.5px; }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <span class="eyebrow">Rx Lab · iPhone · final card mockups, not app code</span>
+      <h1>Workout Cards</h1>
+      <p class="muted">The workout card as the app will use it, built from the header study decisions and writing conventions. First the spec, then the card in six real places in the app. Your own workouts and scores are real; anything else is marked as an example. Colours are placeholders.</p>
+    </div>
+    <div class="toggle" role="group" aria-label="Theme">
+      <button type="button" data-theme-btn="sys" aria-pressed="true">System</button>
+      <button type="button" data-theme-btn="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme-btn="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+
+  <!-- ============ 1. SPEC ============ -->
+  <section>
+    <div class="sechead"><span class="eyebrow">1 · Card spec</span><h2>Anatomy</h2></div>
+    <div class="panel anat">
+      <div id="anat-card"></div>
+      <ol class="callouts">
+        <li><b>Date · program</b> on the left (<code>Today</code>, <code>Mon Nov 2</code>, <code>Mar 2023</code>; <code>PitFIRE</code>, <code>Mayhem</code>, <code>Built-in</code>).</li>
+        <li><b>Block tag + type tag</b> on the right. Block: Metcon, Strength, Accessory (neutral). Type: Chipper, EMOM, AMRAP, AMREP, Death by, Ladder, RFT, Complex, Sets × reps, For quality (outlined, the one accent).</li>
+        <li><b>Name</b>, 2 lines max then "…". Open workouts get the prefix (<code>Open 13.4</code>). No name: the format is the name (<code>Every 3:00 × 3</code>).</li>
+        <li><b>Format line</b>, only when needed: rounds, intervals, rest (<code>5 rounds</code>, <code>Every 1:00 × 8</code>, <code>rest 1:00</code>). No cap here.</li>
+        <li><b>Rep scheme on top, once</b>, when movements share it: <code>21-15-9</code>, <code>40-30-20-30-40 Cal</code>.</li>
+        <li><b>One movement per line, no dividers:</b> quantity, unit, movement, <code>@load</code>. Movements under a shared scheme carry no reps; fixed reps stay (<code>7 Power Cleans @155 lb</code>).</li>
+        <li><b>Cap at the bottom</b>: <code>Cap 20:00</code>.</li>
+        <li><b>After logging, the score line</b> under one thin rule: score, unit, Rx / Scaled badge, then one comparison (last time or the cap).</li>
+      </ol>
+    </div>
+
+    <div class="grid2">
+      <div class="panel">
+        <h3>Type scale and spacing</h3>
+        <div class="tblwrap"><table class="tok">
+          <tr><th>Token</th><th>Value</th><th>Used for</th></tr>
+          <tr><td>name</td><td>20 / 500, 2 lines</td><td>Workout name (compact rows: 16 / 500, 1 line)</td></tr>
+          <tr><td>score</td><td>26 / 500, tabular</td><td>Time, rounds, top set</td></tr>
+          <tr><td>line</td><td>14 / 400 (scheme 14 / 500)</td><td>Movements and rep scheme</td></tr>
+          <tr><td>format</td><td>13.5 / 400, secondary</td><td>Format line, cap (13)</td></tr>
+          <tr><td>meta</td><td>12 / 400, secondary</td><td>Date · program, comparison</td></tr>
+          <tr><td>tag</td><td>10.5 / 500, pill</td><td>Block and type tags, badges</td></tr>
+          <tr><td>spacing</td><td><code>16</code> pad · <code>9</code> blocks · <code>5</code> lines</td><td>Card padding, gap between blocks, gap between movement lines</td></tr>
+          <tr><td>shape</td><td>radius <code>16</code>, 1 px border</td><td>Card (compact row radius 14, no border)</td></tr>
+          <tr><td>colour</td><td>neutrals + 1 accent</td><td>Accent only on the type tag and links. Green only for "better than last time"</td></tr>
+        </table></div>
+      </div>
+      <div class="panel">
+        <h3>Rules</h3>
+        <div class="rules">
+          <div><b>Nothing else</b><span>No coach notes, strategy, stimulus, targets or RPE. The card logs what was done.</span></div>
+          <div><b>Your load</b><span>From your profile division (no manual pick): <code>225/155 lb</code> → <code>@225 lb</code>. "See details" shows the original Rx M/F card.</span></div>
+          <div><b>Rx / Scaled</b><span>Asked after logging, with loads and reps editable. <code>?</code> (dashed) = not answered yet, as on your older logs.</span></div>
+          <div><b>Abbreviations</b><span>HSPU, T2B, C&amp;J, DB, KB, DU; <code>ALT</code> = alternating, <code>Double DB</code> = two dumbbells.</span></div>
+          <div><b>Units</b><span><code>lb</code> never lbs · heights in <code>in</code> · runs in <code>m</code> (miles when the workout says so) · carries in <code>ft</code> · calories <code>Cal</code> before the movement.</span></div>
+          <div><b>Long lists</b><span>More than 5 movements: first 4 + <code>+18 more</code>. Logged lifts: one line per set or minute, no limit.</span></div>
+          <div><b>Truncation</b><span>Name 2 lines (compact row 1 line), movement lines never wrap mid-load: the <code>@load</code> stays together.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sechead"><h2>States</h2></div>
+    <div class="states" id="states"></div>
+  </section>
+
+  <!-- ============ 2. CONTEXTS ============ -->
+  <section>
+    <div class="sechead"><span class="eyebrow">2 · In the app</span><h2>The card in its six places</h2></div>
+    <div class="phones">
+      <div class="pcol">
+        <h3>a · Choose <small>compact rows, library and built-ins</small></h3>
+        <div class="phone"><div class="screen">
+          <div class="status"><span>9:41</span><i>●●● ▮</i></div>
+          <div class="big">Workouts</div>
+          <div class="seg"><span class="on">Choose</span><span>Log</span></div>
+          <div class="sect">Your library · PitFIRE</div>
+          <div id="ctx-choose-lib" style="display:flex;flex-direction:column;gap:8px"></div>
+          <div class="sect">Built-in</div>
+          <div id="ctx-choose-built" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div></div>
+        <p class="note">One line of movements in the list; the full card opens on tap. The right side shows your last score when there is one.</p>
+      </div>
+
+      <div class="pcol">
+        <h3>b · Preview <small>planned, before the watch</small></h3>
+        <div class="phone"><div class="screen">
+          <div class="status"><span>17:58</span><i>●●● ▮</i></div>
+          <div class="nav"><span>‹ Choose</span><span>Edit</span></div>
+          <div id="ctx-preview"></div>
+          <div class="watchrow"><span>Apple Watch</span><span>● Connected</span></div>
+          <div class="btn">Send to watch</div>
+          <div class="btn2">See details</div>
+        </div></div>
+        <p class="note">The planned card is the whole preview. "See details" shows the program's original wording with both Rx weights.</p>
+      </div>
+
+      <div class="pcol">
+        <h3>c · Log <small>history, done cards</small></h3>
+        <div class="phone"><div class="screen">
+          <div class="status"><span>9:41</span><i>●●● ▮</i></div>
+          <div class="big">Workouts</div>
+          <div class="seg"><span>Choose</span><span class="on">Log</span></div>
+          <div class="sect">This week</div>
+          <div id="ctx-log" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div></div>
+        <p class="note">Same compact row, now with the score on the right and the Rx / Scaled badge under it.</p>
+      </div>
+
+      <div class="pcol">
+        <h3>d · Report top <small>card + report v3 first block</small></h3>
+        <div class="phone"><div class="screen">
+          <div class="status"><span>19:40</span><i>●●● ▮</i></div>
+          <div class="nav"><span>‹ Log</span><span>Share</span></div>
+          <div id="ctx-report"></div>
+          <div class="rcard">
+            <div class="budget"><div style="width:57.7%;background:var(--run)">Row 11:19</div><div style="width:27.3%;background:var(--st)">Cleans 5:21</div><div class="hatch" style="width:15%">2:57</div></div>
+            <div class="tiles">
+              <div class="tile"><span>Cleans</span><b>35/35</b><em>all singles</em></div>
+              <div class="tile"><span>Row rate</span><b>20/min</b><em>19–23</em></div>
+              <div class="tile"><span>HR max</span><b>175</b><em>at the finish</em></div>
+            </div>
+          </div>
+          <div class="rcard">
+            <h4>What stood out <span class="rx">Rx insight</span></h4>
+            <div class="ins">
+              <div><span class="tg">Transitions</span><span class="say">Getting from the rower to the bar cost you the most time.</span><span class="ev">Row → bar 30, 31, 24, 24, 12 s · 2:57 in total (15 %)</span></div>
+              <div><span class="tg">Speed</span><span class="say">Your clean speed held for all 35 reps.</span><span class="ev">1.89–1.99 m/s per round (wrist estimate)</span></div>
+            </div>
+          </div>
+        </div></div>
+        <p class="note">The card's score line replaces the big v3 hero number, so the score appears once. The time-budget bar and tiles follow, then "What stood out".</p>
+      </div>
+
+      <div class="pcol">
+        <h3>e · A program day <small>three blocks stacked</small> <span class="ex">example day</span></h3>
+        <div class="phone"><div class="screen">
+          <div class="status"><span>6:02</span><i>●●● ▮</i></div>
+          <div class="nav"><span>‹ Choose</span><span></span></div>
+          <div class="dayhead"><b>Thu Nov 5</b><span>Mayhem · 3 blocks</span></div>
+          <div id="ctx-day" style="display:flex;flex-direction:column;gap:10px"></div>
+          <div class="btn">Send all 3 to watch</div>
+        </div></div>
+        <p class="note">Each block keeps its own card and tags; the date and program move up into the day header, so the cards drop that line.</p>
+      </div>
+
+      <div class="pcol">
+        <h3>f · Logged lift <small>one line per set, bar speed</small></h3>
+        <div class="phone"><div class="screen">
+          <div class="status"><span>19:12</span><i>●●● ▮</i></div>
+          <div class="nav"><span>‹ Log</span><span>Share</span></div>
+          <div id="ctx-lift"></div>
+        </div></div>
+        <p class="note">Your real power C&amp;J EMOM from Nov 2: 16/16 reps, loads you entered, peak clean speed per minute from the wrist. Labelled "peak" until you choose average or peak.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 3. READY ============ -->
+  <section class="grid2">
+    <div class="panel">
+      <span class="eyebrow">Ready to build</span>
+      <ul class="check">
+        <li><span class="ok">DECIDED</span><span>Anatomy and order, block + type tags, fixed type vocabulary, format-as-name, Open prefix.</span></li>
+        <li><span class="ok">DECIDED</span><span>Rep scheme on top once, one movement per line with <code style="font:400 12px var(--f-mono)">@load</code>, no dividers, cap at the bottom.</span></li>
+        <li><span class="ok">DECIDED</span><span>Loads from the profile division, "See details" for the original, Rx / Scaled asked after logging.</span></li>
+        <li><span class="ok">DECIDED</span><span>Logged lifts one line per set or minute; abbreviations and units as listed.</span></li>
+        <li><span class="op">OPEN</span><span>Bar speed per set: average or peak (shown as peak here).</span></li>
+        <li><span class="op">OPEN</span><span>Freedom: was Rx 85 kg (187 lb)? Until then your 19:37 @155 lb shows <span class="badge q">?</span>.</span></li>
+        <li><span class="op">OPEN</span><span>Colours are placeholders; the accent and the cyclic/barbell tints are not final.</span></li>
+      </ul>
+    </div>
+    <div class="panel">
+      <span class="eyebrow">Questions for you</span>
+      <ol class="qs">
+        <li>Bar speed on logged sets: average (what velocity-based training apps show) or peak?</li>
+        <li>Freedom at PitFIRE: was the Rx power clean 85 kg / 187 lb, so your 155 lb was Scaled?</li>
+        <li>Program days: send all blocks to the watch at once (as in e), or one block at a time?</li>
+      </ol>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var root = document.documentElement;
+  document.querySelectorAll("[data-theme-btn]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var k = b.getAttribute("data-theme-btn");
+      if (k === "sys") root.removeAttribute("data-theme"); else root.setAttribute("data-theme", k);
+      document.querySelectorAll("[data-theme-btn]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    });
+  });
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+
+  // ---- workouts (real unless ex: true) ----
+  var FREEDOM = { date: "Mon Nov 2", source: "PitFIRE", block: "Metcon", type: "RFT", name: "Freedom", fmt: ["5 rounds"],
+    scheme: "40-30-20-30-40 Cal", moves: [["Row"], ["7 Power Cleans", "155 lb"]], cap: "20:00",
+    summary: "40-30-20-30-40 Cal Row · 7 Power Cleans @155 lb",
+    done: { n: "19:37", rx: "?", vs: "0:23 under the cap · first time logged" } };
+  var PCJ = { date: "Mon Nov 2", source: "PitFIRE", block: "Strength", type: "EMOM", name: "Power Clean & Jerk", fmt: ["Every 1:00 × 8"],
+    moves: [["2 Power C&J", "125 → 175 lb"]], summary: "2 Power C&J @125 → 175 lb",
+    done: { n: "175 lb", u: "top set · 16/16 reps", rx: "8/8 min", vs: "Peak clean speed per minute, wrist estimate",
+      moves: [["2 Power C&J", "125 lb", "1.95 m/s"], ["2 Power C&J", "135 lb", "1.84 m/s"], ["2 Power C&J", "145 lb", "1.89 m/s"], ["2 Power C&J", "145 lb", "1.88 m/s"], ["2 Power C&J", "155 lb", "1.97 m/s"], ["2 Power C&J", "155 lb", "1.80 m/s"], ["2 Power C&J", "165 lb", "1.70 m/s"], ["2 Power C&J", "175 lb", "1.62 m/s"]], speedHead: "peak" } };
+  var HELEN = { date: "Thu Oct 29", source: "Built-in", block: "Metcon", type: "RFT", name: "Helen", fmt: ["3 rounds"],
+    moves: [["400 m Run"], ["21 KB Swings"], ["12 Pull-ups"]], cap: "16:00", summary: "400 m Run · 21 KB Swings · 12 Pull-ups",
+    done: { n: "12:47", rx: "?", vs: "3:13 under the cap" } };
+  var AMRAP40 = { date: "Sun Nov 1", source: "Built-in", block: "Metcon", type: "AMRAP", name: "AMRAP 40", fmt: ["40:00", "rest 1:00 between rounds"],
+    moves: [{ g: "A rounds" }, ["12 Cal Row"], ["15 Push-ups"], ["12 ALT DB C&J", "40 lb"], ["15 Burpees"], { g: "B rounds" }, ["12 Cal Bike"], ["6 Strict Pull-ups"], ["12 ALT DB Snatches", "40 lb"], ["3 Wall Walks"]],
+    summary: "A: Row · Push-ups · ALT DB C&J · Burpees / B: Bike · Pull-ups · Snatches · Wall Walks",
+    done: { n: "7", u: "rounds + 0", rx: "?", vs: "Avg round 4:51 · first time logged" } };
+  var FSQ = { source: "Mayhem", block: "Strength", type: "Sets × reps", name: "Front Squat", moves: [["5×3 Front Squat", "165–190 lb"]] };
+  var GAMEOVER = { source: "Mayhem", block: "Metcon", type: "RFT", name: "“GAME OVER”", scheme: "21-15-9", moves: [["Deadlift", "225 lb"], ["T2B"]], cap: "8:00" };
+  var CORE = { source: "Mayhem", block: "Accessory", type: "For quality", name: "Core Work", fmt: ["3 rounds"], moves: [["1/side Turkish Get-up", "pick"], ["1:00 Suitcase Hold", "pick"], ["50 ft Front-Rack Carry"]] };
+
+  function card(w, o) {
+    o = o || {};
+    var d = o.done ? w.done : null;
+    var mv = (d && d.moves) || w.moves;
+    var h = '<div class="hc">';
+    h += '<div class="r1">' + (o.noMeta ? '<span></span>' : '<div class="meta"><span>' + esc(o.date || w.date) + '</span><span class="dot"></span><span>' + esc(w.source) + '</span></div>') +
+      '<div class="tags"><span class="tag block">' + esc(w.block) + '</span><span class="tag type">' + esc(w.type) + '</span></div></div>';
+    h += '<div class="name">' + esc(o.name || w.name) + '</div>';
+    if (w.fmt && w.fmt.length) h += '<div class="fmt">' + w.fmt.map(esc).join('<span class="sep">·</span>') + '</div>';
+    h += '<div class="mv">' + (w.scheme ? '<div class="scheme">' + esc(w.scheme) + '</div>' : '') + (d && d.speedHead ? '<div class="grp" style="padding-top:0">Each minute<span class="spd" style="font-size:10.5px">' + esc(d.speedHead) + ' speed</span></div>' : '') + mv.map(function (m) {
+      if (m.g) return '<div class="grp">' + esc(m.g) + '</div>';
+      return '<div>' + esc(m[0]) + (m[1] ? ' <span class="at">@' + esc(m[1]) + '</span>' : '') + (m[2] ? '<span class="spd">' + esc(m[2]) + '</span>' : '') + '</div>';
+    }).join("") + '</div>';
+    if (w.cap) h += '<div class="cap">Cap ' + esc(w.cap) + '</div>';
+    if (o.live) h += '<div class="live"><i></i>On the watch <span>' + esc(o.live) + '</span></div>';
+    var sc = o.score || d;
+    if (sc) {
+      var bcls = sc.rx === "Scaled" ? " sc" : sc.rx === "?" ? " q" : "";
+      h += '<div class="score"><span class="n">' + esc(sc.n) + '</span>' + (sc.u ? '<span class="u">' + esc(sc.u) + '</span>' : '') +
+        '<span class="badge' + bcls + '">' + esc(sc.rx === "?" ? "Rx / Scaled ?" : sc.rx) + '</span>' +
+        '<span class="vs">' + (sc.good ? '<b>' + esc(sc.good) + '</b> ' : '') + esc(sc.vs) + '</span></div>';
+    }
+    if (o.details) h += '<div class="details">See details</div>';
+    return h + '</div>';
+  }
+  function crow(w, o) {
+    o = o || {};
+    var right = o.done ? '<b>' + esc(w.done.n) + '</b><span>' + esc(w.done.u ? w.done.u.split(" · ")[0] : "") + '</span><span class="badge' + (w.done.rx === "?" ? " q" : "") + '">' + esc(w.done.rx === "?" ? "?" : w.done.rx) + '</span>'
+      : (o.last ? '<span>last</span><b style="font-size:14px">' + esc(o.last) + '</b>' : '<span class="chev">›</span>');
+    return '<div class="crow"><span class="cn">' + esc(w.name) + '</span><div class="rt">' + right + '</div>' +
+      '<span class="cm">' + esc(o.date ? o.date + ' · ' : '') + esc(w.block) + ' · ' + esc(w.type) + '</span><span class="cs">' + esc(w.summary) + '</span></div>';
+  }
+
+  // anatomy
+  document.getElementById("anat-card").innerHTML = card(FREEDOM, { done: true });
+
+  // states
+  var DIANE = { date: "Today", source: "Benchmark", block: "Metcon", type: "RFT", name: "Diane", scheme: "21-15-9", moves: [["Deadlift", "225 lb"], ["HSPU"]] };
+  var DIANE_SC = { date: "Today", source: "Benchmark", block: "Metcon", type: "RFT", name: "Diane", scheme: "21-15-9", moves: [["Deadlift", "185 lb"], ["Box HSPU"]] };
+  var st = [
+    ["Planned", "", card(DIANE, { details: true })],
+    ["In progress", "example", card(FREEDOM, { date: "Today", live: "Round 3 of 5 · 11:02" })],
+    ["Done, Rx", "example score", card(DIANE, { score: { n: "8:31", rx: "Rx", good: "−0:23", vs: "vs last time (8:54, 2023)" } })],
+    ["Done, scaled", "example score", card(DIANE_SC, { score: { n: "7:58", rx: "Scaled", vs: "Rx 225 lb + HSPU · you did 185 lb + box HSPU" } })],
+    ["Capped", "example score", card(GAMEOVER, { date: "Fri Nov 6", score: { n: "75", u: "reps at the cap", rx: "Rx", vs: "Capped at 8:00 · 21-15 done, 3 of 9 deadlifts" } })]
+  ];
+  GAMEOVER.date = "Fri Nov 6";
+  document.getElementById("states").innerHTML = st.map(function (s) {
+    return '<div class="stcol"><span class="stlabel">' + s[0] + (s[1] ? '<span class="ex">' + s[1] + '</span>' : '') + '</span>' + s[2] + '</div>';
+  }).join("");
+
+  // contexts
+  document.getElementById("ctx-choose-lib").innerHTML = crow(FREEDOM, { last: "19:37" }) + crow(PCJ, { last: "175 lb" });
+  document.getElementById("ctx-choose-built").innerHTML = crow(HELEN, { last: "12:47" }) + crow(AMRAP40, { last: "7 rds" });
+  document.getElementById("ctx-preview").innerHTML = card(HELEN, { date: "Today" });
+  document.getElementById("ctx-log").innerHTML = crow(FREEDOM, { done: true, date: "Mon Nov 2" }) + crow(PCJ, { done: true, date: "Mon Nov 2" }) +
+    crow(AMRAP40, { done: true, date: "Sun Nov 1" }) + crow(HELEN, { done: true, date: "Thu Oct 29" });
+  document.getElementById("ctx-report").innerHTML = card(FREEDOM, { done: true });
+  document.getElementById("ctx-day").innerHTML = card(FSQ, { noMeta: true }) + card(GAMEOVER, { noMeta: true }) + card(CORE, { noMeta: true });
+  document.getElementById("ctx-lift").innerHTML = card(PCJ, { done: true });
+})();
+</script>

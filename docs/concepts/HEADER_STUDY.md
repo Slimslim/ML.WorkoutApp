@@ -132,3 +132,29 @@ a new workout doesn't fit.
 - **Per side:** `1/side Turkish Get-up` or `6/6`? (alternating is decided: `ALT`)
 - **Calories:** `12 Cal Row` vs `Row 12 cal` (decided: `12 Cal Row`); M/F calories (`15/12 Cal`).
 - **Ranges and progressions:** `@125 → 175 lb` for building sets, `@165–190 lb` from %1RM.
+
+## Final card spec (2026-11-03, mockups: `workout-cards.html`)
+
+The workout card used everywhere (Choose list, preview before the watch, Log, top of the report,
+program days, logged lifts). Built from the decisions and writing conventions above.
+
+- **Anatomy, top to bottom:** date · program (left) and block tag + type tag (right); name, or
+  the format as the name (2 lines max, Open prefix); format line only when needed (rounds,
+  intervals, rest); shared rep scheme once; one movement per line `qty unit movement @load`, no
+  dividers; `Cap mm:ss` at the bottom; after logging, one score line under a thin rule: score,
+  unit, Rx / Scaled badge (dashed `?` = not answered yet), one comparison (last time or cap).
+- **Type scale:** name 20/500 (compact row 16/500, 1 line) · score 26/500 tabular · lines 14/400
+  (scheme 14/500) · format 13.5 · meta 12 · tags 10.5/500. **Spacing:** card padding 16, 9 between
+  blocks, 5 between movement lines, radius 16, 1 px border. Neutrals + one accent (type tag,
+  links); green only for "better than last time". Colours not final.
+- **States:** planned · in progress (live line "On the watch · Round 3 of 5 · 11:02") · done Rx ·
+  done Scaled · capped (reps at the cap).
+- **Compact row** (Choose / Log): name, `block · type`, one-line movement summary; right side last
+  score (Choose) or score + badge (Log).
+- **Report:** the card's score line replaces the report v3 hero number; the time budget, tiles and
+  "What stood out" follow.
+- **Program day:** date and program move to a day header; each block keeps its card and tags.
+- **Logged lifts / lift EMOMs:** one line per set or minute with load and bar speed (labelled
+  `peak` until average vs peak is decided).
+- **Open:** average vs peak bar speed; Freedom Rx weight (85 kg = 187 lb?) so 19:37 @155 lb is
+  Scaled or not; final colours; send a program day to the watch all at once or block by block.
