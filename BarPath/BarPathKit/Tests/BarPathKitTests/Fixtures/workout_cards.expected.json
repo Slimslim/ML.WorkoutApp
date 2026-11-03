@@ -1,0 +1,2847 @@
+{
+ "cards": [
+  {
+   "definition": {
+    "id": "hyrox.solo",
+    "name": "HYROX Solo",
+    "shortName": "Hyrox Solo",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "mixedCardio",
+    "segments": [
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "skiErg",
+      "name": "SkiErg",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "sledPush",
+      "name": "Sled Push",
+      "target": {
+       "value": 50,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "sledPull",
+      "name": "Sled Pull",
+      "target": {
+       "value": 50,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpeeBroadJumps",
+      "name": "Burpee Broad Jumps",
+      "target": {
+       "value": 80,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "farmersCarry",
+      "name": "Farmers Carry",
+      "target": {
+       "value": 200,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "sandbagLunges",
+      "name": "Sandbag Lunges",
+      "target": {
+       "value": 100,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "wallBalls",
+      "name": "Wall Balls",
+      "target": {
+       "value": 100,
+       "unit": "reps"
+      }
+     }
+    ],
+    "roundSize": 2
+   },
+   "card": {
+    "name": "HYROX Solo",
+    "nameIsFormat": false,
+    "typeTag": "Chipper",
+    "blockTag": "Metcon",
+    "timeDomainLine": null,
+    "repSchemeLine": "8 × (1000 m Run + station)",
+    "lines": [
+     {
+      "text": "1000 m SkiErg",
+      "load": null
+     },
+     {
+      "text": "50 m Sled Push",
+      "load": null
+     },
+     {
+      "text": "50 m Sled Pull",
+      "load": null
+     },
+     {
+      "text": "80 m Burpee Broad Jumps",
+      "load": null
+     },
+     {
+      "text": "1000 m Row",
+      "load": null
+     },
+     {
+      "text": "200 m Farmers Carry",
+      "load": null
+     },
+     {
+      "text": "100 m Sandbag Lunges",
+      "load": null
+     },
+     {
+      "text": "100 Wall Balls",
+      "load": null
+     }
+    ],
+    "capLine": null,
+    "summaryLine": "8 × (1000 m Run + station) · 1000 m SkiErg · 50 m Sled Push · 50 m Sled Pull · 80 m Burpee Broad Jumps · 1000 m Row · 200 m Farmers Carry · 100 m Sandbag Lunges · 100 Wall Balls",
+    "visibleLineCount": 4,
+    "hiddenLineCount": 4
+   }
+  },
+  {
+   "definition": {
+    "id": "hyrox.doubles",
+    "name": "HYROX Doubles",
+    "shortName": "Hyrox Dbl",
+    "format": "forTime",
+    "team": "doubles",
+    "healthKitActivity": "mixedCardio",
+    "segments": [
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "skiErg",
+      "name": "SkiErg",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "sledPush",
+      "name": "Sled Push",
+      "target": {
+       "value": 50,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "sledPull",
+      "name": "Sled Pull",
+      "target": {
+       "value": 50,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpeeBroadJumps",
+      "name": "Burpee Broad Jumps",
+      "target": {
+       "value": 80,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "farmersCarry",
+      "name": "Farmers Carry",
+      "target": {
+       "value": 200,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "sandbagLunges",
+      "name": "Sandbag Lunges",
+      "target": {
+       "value": 100,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "wallBalls",
+      "name": "Wall Balls",
+      "target": {
+       "value": 100,
+       "unit": "reps"
+      }
+     }
+    ],
+    "roundSize": 2
+   },
+   "card": {
+    "name": "HYROX Doubles",
+    "nameIsFormat": false,
+    "typeTag": "Chipper",
+    "blockTag": "Metcon",
+    "timeDomainLine": null,
+    "repSchemeLine": "8 × (1000 m Run + station)",
+    "lines": [
+     {
+      "text": "1000 m SkiErg",
+      "load": null
+     },
+     {
+      "text": "50 m Sled Push",
+      "load": null
+     },
+     {
+      "text": "50 m Sled Pull",
+      "load": null
+     },
+     {
+      "text": "80 m Burpee Broad Jumps",
+      "load": null
+     },
+     {
+      "text": "1000 m Row",
+      "load": null
+     },
+     {
+      "text": "200 m Farmers Carry",
+      "load": null
+     },
+     {
+      "text": "100 m Sandbag Lunges",
+      "load": null
+     },
+     {
+      "text": "100 Wall Balls",
+      "load": null
+     }
+    ],
+    "capLine": null,
+    "summaryLine": "8 × (1000 m Run + station) · 1000 m SkiErg · 50 m Sled Push · 50 m Sled Pull · 80 m Burpee Broad Jumps · 1000 m Row · 200 m Farmers Carry · 100 m Sandbag Lunges · 100 Wall Balls",
+    "visibleLineCount": 4,
+    "hiddenLineCount": 4
+   }
+  },
+  {
+   "definition": {
+    "id": "hyrox.half",
+    "name": "Half HYROX",
+    "shortName": "Half Hyrox",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "mixedCardio",
+    "segments": [
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "skiErg",
+      "name": "SkiErg",
+      "target": {
+       "value": 500,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "sledPush",
+      "name": "Sled Push",
+      "target": {
+       "value": 25,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "sledPull",
+      "name": "Sled Pull",
+      "target": {
+       "value": 25,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpeeBroadJumps",
+      "name": "Burpee Broad Jumps",
+      "target": {
+       "value": 40,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 500,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "farmersCarry",
+      "name": "Farmers Carry",
+      "target": {
+       "value": 100,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "sandbagLunges",
+      "name": "Sandbag Lunges",
+      "target": {
+       "value": 50,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "wallBalls",
+      "name": "Wall Balls",
+      "target": {
+       "value": 50,
+       "unit": "reps"
+      }
+     }
+    ],
+    "roundSize": 2
+   },
+   "card": {
+    "name": "Half HYROX",
+    "nameIsFormat": false,
+    "typeTag": "Chipper",
+    "blockTag": "Metcon",
+    "timeDomainLine": null,
+    "repSchemeLine": "8 × (500 m Run + station)",
+    "lines": [
+     {
+      "text": "500 m SkiErg",
+      "load": null
+     },
+     {
+      "text": "25 m Sled Push",
+      "load": null
+     },
+     {
+      "text": "25 m Sled Pull",
+      "load": null
+     },
+     {
+      "text": "40 m Burpee Broad Jumps",
+      "load": null
+     },
+     {
+      "text": "500 m Row",
+      "load": null
+     },
+     {
+      "text": "100 m Farmers Carry",
+      "load": null
+     },
+     {
+      "text": "50 m Sandbag Lunges",
+      "load": null
+     },
+     {
+      "text": "50 Wall Balls",
+      "load": null
+     }
+    ],
+    "capLine": null,
+    "summaryLine": "8 × (500 m Run + station) · 500 m SkiErg · 25 m Sled Push · 25 m Sled Pull · 40 m Burpee Broad Jumps · 500 m Row · 100 m Farmers Carry · 50 m Sandbag Lunges · 50 Wall Balls",
+    "visibleLineCount": 4,
+    "hiddenLineCount": 4
+   }
+  },
+  {
+   "definition": {
+    "id": "partner.wod1",
+    "name": "Partner WOD 1 (Scaled)",
+    "shortName": "WOD 1",
+    "format": "forTime",
+    "team": "doubles",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 800,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "wallBalls",
+      "name": "Wall Balls",
+      "target": {
+       "value": 80,
+       "unit": "reps"
+      },
+      "load": {
+       "value": 14,
+       "unit": "lb",
+       "count": 1
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 600,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellWalkingLunges",
+      "name": "DB Walking Lunges",
+      "target": {
+       "value": 60,
+       "unit": "reps"
+      },
+      "load": {
+       "value": 50,
+       "unit": "lb",
+       "count": 1
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 400,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 40,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 200,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "medBallBoxStepOvers",
+      "name": "Med Ball Box Step-Overs",
+      "target": {
+       "value": 20,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 100,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "devilPress",
+      "name": "Devil Press",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      },
+      "load": {
+       "value": 40,
+       "unit": "lb",
+       "count": 2
+      }
+     }
+    ],
+    "timeCapSeconds": 1800.0,
+    "roundSize": 2
+   },
+   "card": {
+    "name": "Partner WOD 1 (Scaled)",
+    "nameIsFormat": false,
+    "typeTag": "Chipper",
+    "blockTag": "Metcon",
+    "timeDomainLine": null,
+    "repSchemeLine": null,
+    "lines": [
+     {
+      "text": "800 m Run",
+      "load": null
+     },
+     {
+      "text": "80 Wall Balls",
+      "load": "14 lb"
+     },
+     {
+      "text": "600 m Run",
+      "load": null
+     },
+     {
+      "text": "60 DB Walking Lunges",
+      "load": "50 lb"
+     },
+     {
+      "text": "400 m Run",
+      "load": null
+     },
+     {
+      "text": "40 Burpees",
+      "load": null
+     },
+     {
+      "text": "200 m Run",
+      "load": null
+     },
+     {
+      "text": "20 Med Ball Box Step-overs",
+      "load": null
+     },
+     {
+      "text": "100 m Run",
+      "load": null
+     },
+     {
+      "text": "10 Devil Press",
+      "load": "2 × 40 lb"
+     }
+    ],
+    "capLine": "30 min cap",
+    "summaryLine": "800 m Run · 80 Wall Balls @14 lb · 600 m Run · 60 DB Walking Lunges @50 lb · 400 m Run · 40 Burpees · 200 m Run · 20 Med Ball Box Step-overs · 100 m Run · 10 Devil Press @2 × 40 lb",
+    "visibleLineCount": 4,
+    "hiddenLineCount": 6
+   }
+  },
+  {
+   "definition": {
+    "id": "partner.wod2",
+    "name": "Partner WOD 2",
+    "shortName": "WOD 2",
+    "format": "forTime",
+    "team": "doubles",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "skiErg",
+      "name": "SkiErg",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "sledPush",
+      "name": "Sled Push",
+      "target": {
+       "value": 40,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "farmersCarry",
+      "name": "Farmers Carry",
+      "target": {
+       "value": 100,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellOverShoulder",
+      "name": "DB Over-Shoulder",
+      "target": {
+       "value": 40,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "skiErg",
+      "name": "SkiErg",
+      "target": {
+       "value": 1000,
+       "unit": "meters"
+      }
+     }
+    ]
+   },
+   "card": {
+    "name": "Partner WOD 2",
+    "nameIsFormat": false,
+    "typeTag": "Chipper",
+    "blockTag": "Metcon",
+    "timeDomainLine": null,
+    "repSchemeLine": null,
+    "lines": [
+     {
+      "text": "1000 m SkiErg",
+      "load": null
+     },
+     {
+      "text": "40 m Sled Push",
+      "load": null
+     },
+     {
+      "text": "100 m Farmers Carry",
+      "load": null
+     },
+     {
+      "text": "40 DB Over-Shoulder",
+      "load": null
+     },
+     {
+      "text": "1000 m SkiErg",
+      "load": null
+     }
+    ],
+    "capLine": null,
+    "summaryLine": "1000 m SkiErg · 40 m Sled Push · 100 m Farmers Carry · 40 DB Over-Shoulder · 1000 m SkiErg",
+    "visibleLineCount": 5,
+    "hiddenLineCount": 0
+   }
+  },
+  {
+   "definition": {
+    "id": "wod.amrap40",
+    "name": "AMRAP 40 with 1:00 rest",
+    "shortName": "AMRAP 40",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row / Bike",
+      "target": {
+       "value": 12,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pushUps",
+      "name": "Push-ups / Pull-ups",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "DB C&J / Snatch",
+      "target": {
+       "value": 12,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees / Wall Walks",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 60,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row / Bike",
+      "target": {
+       "value": 12,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pushUps",
+      "name": "Push-ups / Pull-ups",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "DB C&J / Snatch",
+      "target": {
+       "value": 12,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees / Wall Walks",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 60,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row / Bike",
+      "target": {
+       "value": 12,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pushUps",
+      "name": "Push-ups / Pull-ups",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "DB C&J / Snatch",
+      "target": {
+       "value": 12,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees / Wall Walks",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 60,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row / Bike",
+      "target": {
+       "value": 12,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pushUps",
+      "name": "Push-ups / Pull-ups",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "DB C&J / Snatch",
+      "target": {
+       "value": 12,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees / Wall Walks",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 60,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row / Bike",
+      "target": {
+       "value": 12,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pushUps",
+      "name": "Push-ups / Pull-ups",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "DB C&J / Snatch",
+      "target": {
+       "value": 12,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees / Wall Walks",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 60,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row / Bike",
+      "target": {
+       "value": 12,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pushUps",
+      "name": "Push-ups / Pull-ups",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "DB C&J / Snatch",
+      "target": {
+       "value": 12,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees / Wall Walks",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 60,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row / Bike",
+      "target": {
+       "value": 12,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pushUps",
+      "name": "Push-ups / Pull-ups",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "DB C&J / Snatch",
+      "target": {
+       "value": 12,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees / Wall Walks",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 60,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row / Bike",
+      "target": {
+       "value": 12,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pushUps",
+      "name": "Push-ups / Pull-ups",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "DB C&J / Snatch",
+      "target": {
+       "value": 12,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees / Wall Walks",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 60,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row / Bike",
+      "target": {
+       "value": 12,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pushUps",
+      "name": "Push-ups / Pull-ups",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "DB C&J / Snatch",
+      "target": {
+       "value": 12,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees / Wall Walks",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 60,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row / Bike",
+      "target": {
+       "value": 12,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pushUps",
+      "name": "Push-ups / Pull-ups",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "DB C&J / Snatch",
+      "target": {
+       "value": 12,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees / Wall Walks",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 60,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row / Bike",
+      "target": {
+       "value": 12,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pushUps",
+      "name": "Push-ups / Pull-ups",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "DB C&J / Snatch",
+      "target": {
+       "value": 12,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees / Wall Walks",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 60,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row / Bike",
+      "target": {
+       "value": 12,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pushUps",
+      "name": "Push-ups / Pull-ups",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "DB C&J / Snatch",
+      "target": {
+       "value": 12,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees / Wall Walks",
+      "target": {
+       "value": 15,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 60,
+       "unit": "seconds"
+      }
+     }
+    ],
+    "timeCapSeconds": 2400,
+    "roundSize": 5
+   },
+   "card": {
+    "name": "AMRAP 40",
+    "nameIsFormat": true,
+    "typeTag": "AMRAP",
+    "blockTag": "Metcon",
+    "timeDomainLine": "40 min AMRAP · rest 1 min between rounds",
+    "repSchemeLine": null,
+    "lines": [
+     {
+      "text": "12 Cal Row / Bike",
+      "load": null
+     },
+     {
+      "text": "15 Push-ups / Pull-ups",
+      "load": null
+     },
+     {
+      "text": "12 DB C&J / Snatch",
+      "load": null
+     },
+     {
+      "text": "15 Burpees / Wall Walks",
+      "load": null
+     }
+    ],
+    "capLine": null,
+    "summaryLine": "12 Cal Row / Bike · 15 Push-ups / Pull-ups · 12 DB C&J / Snatch · 15 Burpees / Wall Walks",
+    "visibleLineCount": 4,
+    "hiddenLineCount": 0
+   }
+  },
+  {
+   "definition": {
+    "id": "wod.helen",
+    "name": "Helen",
+    "shortName": "Helen",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 400,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "kettlebellSwings",
+      "name": "KB Swings",
+      "target": {
+       "value": 21,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pullUps",
+      "name": "Pull-ups",
+      "target": {
+       "value": 12,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 400,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "kettlebellSwings",
+      "name": "KB Swings",
+      "target": {
+       "value": 21,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pullUps",
+      "name": "Pull-ups",
+      "target": {
+       "value": 12,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 400,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "kettlebellSwings",
+      "name": "KB Swings",
+      "target": {
+       "value": 21,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pullUps",
+      "name": "Pull-ups",
+      "target": {
+       "value": 12,
+       "unit": "reps"
+      }
+     }
+    ],
+    "timeCapSeconds": 960,
+    "roundSize": 3
+   },
+   "card": {
+    "name": "Helen",
+    "nameIsFormat": false,
+    "typeTag": "RFT",
+    "blockTag": "Metcon",
+    "timeDomainLine": "3 rounds",
+    "repSchemeLine": null,
+    "lines": [
+     {
+      "text": "400 m Run",
+      "load": null
+     },
+     {
+      "text": "21 KB Swings",
+      "load": null
+     },
+     {
+      "text": "12 Pull-ups",
+      "load": null
+     }
+    ],
+    "capLine": "16 min cap",
+    "summaryLine": "400 m Run · 21 KB Swings · 12 Pull-ups",
+    "visibleLineCount": 3,
+    "hiddenLineCount": 0
+   }
+  },
+  {
+   "definition": {
+    "id": "wod.rowThrusters",
+    "name": "Every 3:00 × 6: Row + Thrusters",
+    "shortName": "Row Thrust",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 15,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "thrusters",
+      "name": "Thrusters",
+      "target": {
+       "value": 12,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 15,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "thrusters",
+      "name": "Thrusters",
+      "target": {
+       "value": 12,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 15,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "thrusters",
+      "name": "Thrusters",
+      "target": {
+       "value": 12,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 15,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "thrusters",
+      "name": "Thrusters",
+      "target": {
+       "value": 12,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 15,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "thrusters",
+      "name": "Thrusters",
+      "target": {
+       "value": 12,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 15,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "thrusters",
+      "name": "Thrusters",
+      "target": {
+       "value": 12,
+       "unit": "reps"
+      }
+     }
+    ],
+    "timeCapSeconds": 1080,
+    "intervalSeconds": 180.0,
+    "roundSize": 3
+   },
+   "card": {
+    "name": "Row + Thrusters",
+    "nameIsFormat": false,
+    "typeTag": "EMOM",
+    "blockTag": "Metcon",
+    "timeDomainLine": "Every 3:00 × 6",
+    "repSchemeLine": null,
+    "lines": [
+     {
+      "text": "15 Cal Row",
+      "load": null
+     },
+     {
+      "text": "12 Thrusters",
+      "load": null
+     }
+    ],
+    "capLine": null,
+    "summaryLine": "15 Cal Row · 12 Thrusters",
+    "visibleLineCount": 2,
+    "hiddenLineCount": 0
+   }
+  },
+  {
+   "definition": {
+    "id": "free.workout",
+    "name": "Free Workout",
+    "shortName": "Free",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 1"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 2"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 3"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 4"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 5"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 6"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 7"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 8"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 9"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 10"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 11"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 12"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 13"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 14"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 15"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 16"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 17"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 18"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 19"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 20"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 21"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 22"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 23"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 24"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 25"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 26"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 27"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 28"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 29"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 30"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 31"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 32"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 33"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 34"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 35"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 36"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 37"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 38"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 39"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 40"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 41"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 42"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 43"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 44"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 45"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 46"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 47"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 48"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 49"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 50"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 51"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 52"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 53"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 54"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 55"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 56"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 57"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 58"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 59"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 60"
+     }
+    ]
+   },
+   "card": {
+    "name": "Free Workout",
+    "nameIsFormat": false,
+    "typeTag": null,
+    "blockTag": null,
+    "timeDomainLine": null,
+    "repSchemeLine": null,
+    "lines": [
+     {
+      "text": "Turn the Crown at each change",
+      "load": null
+     }
+    ],
+    "capLine": null,
+    "summaryLine": "Turn the Crown at each change",
+    "visibleLineCount": 1,
+    "hiddenLineCount": 0
+   }
+  },
+  {
+   "definition": {
+    "id": "wod.nightmareAmrap",
+    "name": "Nightmare AMRAP 20",
+    "shortName": "AMRAP 20",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "lateralBurpeeOverDumbbell",
+      "name": "Lateral Burpee Over DB",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "doubleUnders",
+      "name": "Double Unders",
+      "target": {
+       "value": 31,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "Alt. DB Snatch",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "doubleUnders",
+      "name": "Double Unders",
+      "target": {
+       "value": 31,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "lateralBurpeeOverDumbbell",
+      "name": "Lateral Burpee Over DB",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "doubleUnders",
+      "name": "Double Unders",
+      "target": {
+       "value": 31,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "Alt. DB Snatch",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "doubleUnders",
+      "name": "Double Unders",
+      "target": {
+       "value": 31,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "lateralBurpeeOverDumbbell",
+      "name": "Lateral Burpee Over DB",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "doubleUnders",
+      "name": "Double Unders",
+      "target": {
+       "value": 31,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "Alt. DB Snatch",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "doubleUnders",
+      "name": "Double Unders",
+      "target": {
+       "value": 31,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "lateralBurpeeOverDumbbell",
+      "name": "Lateral Burpee Over DB",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "doubleUnders",
+      "name": "Double Unders",
+      "target": {
+       "value": 31,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "Alt. DB Snatch",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "doubleUnders",
+      "name": "Double Unders",
+      "target": {
+       "value": 31,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "lateralBurpeeOverDumbbell",
+      "name": "Lateral Burpee Over DB",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "doubleUnders",
+      "name": "Double Unders",
+      "target": {
+       "value": 31,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "Alt. DB Snatch",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "doubleUnders",
+      "name": "Double Unders",
+      "target": {
+       "value": 31,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "lateralBurpeeOverDumbbell",
+      "name": "Lateral Burpee Over DB",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "doubleUnders",
+      "name": "Double Unders",
+      "target": {
+       "value": 31,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "Alt. DB Snatch",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "doubleUnders",
+      "name": "Double Unders",
+      "target": {
+       "value": 31,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "lateralBurpeeOverDumbbell",
+      "name": "Lateral Burpee Over DB",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "doubleUnders",
+      "name": "Double Unders",
+      "target": {
+       "value": 31,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "Alt. DB Snatch",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "doubleUnders",
+      "name": "Double Unders",
+      "target": {
+       "value": 31,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "lateralBurpeeOverDumbbell",
+      "name": "Lateral Burpee Over DB",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "doubleUnders",
+      "name": "Double Unders",
+      "target": {
+       "value": 31,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "Alt. DB Snatch",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "doubleUnders",
+      "name": "Double Unders",
+      "target": {
+       "value": 31,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "lateralBurpeeOverDumbbell",
+      "name": "Lateral Burpee Over DB",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "doubleUnders",
+      "name": "Double Unders",
+      "target": {
+       "value": 31,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "Alt. DB Snatch",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "doubleUnders",
+      "name": "Double Unders",
+      "target": {
+       "value": 31,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "lateralBurpeeOverDumbbell",
+      "name": "Lateral Burpee Over DB",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "doubleUnders",
+      "name": "Double Unders",
+      "target": {
+       "value": 31,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "dumbbellSnatch",
+      "name": "Alt. DB Snatch",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "doubleUnders",
+      "name": "Double Unders",
+      "target": {
+       "value": 31,
+       "unit": "reps"
+      }
+     }
+    ],
+    "timeCapSeconds": 1200,
+    "roundSize": 4
+   },
+   "card": {
+    "name": "Nightmare AMRAP 20",
+    "nameIsFormat": false,
+    "typeTag": "AMRAP",
+    "blockTag": "Metcon",
+    "timeDomainLine": "20 min AMRAP",
+    "repSchemeLine": null,
+    "lines": [
+     {
+      "text": "10 Lateral Burpees Over DB",
+      "load": null
+     },
+     {
+      "text": "31 DU",
+      "load": null
+     },
+     {
+      "text": "10 ALT DB Snatches",
+      "load": null
+     },
+     {
+      "text": "31 DU",
+      "load": null
+     }
+    ],
+    "capLine": null,
+    "summaryLine": "10 Lateral Burpees Over DB · 31 DU · 10 ALT DB Snatches · 31 DU",
+    "visibleLineCount": 4,
+    "hiddenLineCount": 0
+   }
+  },
+  {
+   "definition": {
+    "id": "quick.test",
+    "name": "Quick Test",
+    "shortName": "Test",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 200,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 20,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 200,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 10,
+       "unit": "reps"
+      }
+     }
+    ]
+   },
+   "card": {
+    "name": "Quick Test",
+    "nameIsFormat": false,
+    "typeTag": "Chipper",
+    "blockTag": "Metcon",
+    "timeDomainLine": null,
+    "repSchemeLine": "2 × (200 m Run + station)",
+    "lines": [
+     {
+      "text": "20 Air Squats",
+      "load": null
+     },
+     {
+      "text": "10 Burpees",
+      "load": null
+     }
+    ],
+    "capLine": null,
+    "summaryLine": "2 × (200 m Run + station) · 20 Air Squats · 10 Burpees",
+    "visibleLineCount": 2,
+    "hiddenLineCount": 0
+   }
+  },
+  {
+   "definition": {
+    "id": "lib.pitfire.20261102.freedom",
+    "name": "Freedom",
+    "shortName": "Freedom",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 40.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleans",
+      "name": "Power Cleans",
+      "target": {
+       "value": 7.0,
+       "unit": "reps"
+      },
+      "load": {
+       "value": 155.0,
+       "unit": "lb",
+       "count": 1
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 30.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleans",
+      "name": "Power Cleans",
+      "target": {
+       "value": 7.0,
+       "unit": "reps"
+      },
+      "load": {
+       "value": 155.0,
+       "unit": "lb",
+       "count": 1
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 20.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleans",
+      "name": "Power Cleans",
+      "target": {
+       "value": 7.0,
+       "unit": "reps"
+      },
+      "load": {
+       "value": 155.0,
+       "unit": "lb",
+       "count": 1
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 30.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleans",
+      "name": "Power Cleans",
+      "target": {
+       "value": 7.0,
+       "unit": "reps"
+      },
+      "load": {
+       "value": 155.0,
+       "unit": "lb",
+       "count": 1
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 40.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleans",
+      "name": "Power Cleans",
+      "target": {
+       "value": 7.0,
+       "unit": "reps"
+      },
+      "load": {
+       "value": 155.0,
+       "unit": "lb",
+       "count": 1
+      }
+     }
+    ],
+    "timeCapSeconds": 1200.0,
+    "roundSize": 2
+   },
+   "card": {
+    "name": "Freedom",
+    "nameIsFormat": false,
+    "typeTag": "RFT",
+    "blockTag": "Metcon",
+    "timeDomainLine": "5 rounds",
+    "repSchemeLine": "40-30-20-30-40 Cal",
+    "lines": [
+     {
+      "text": "Row",
+      "load": null
+     },
+     {
+      "text": "7 Power Cleans",
+      "load": "155 lb"
+     }
+    ],
+    "capLine": "20 min cap",
+    "summaryLine": "40-30-20-30-40 Cal Row · 7 Power Cleans @155 lb",
+    "visibleLineCount": 2,
+    "hiddenLineCount": 0
+   }
+  },
+  {
+   "definition": {
+    "id": "lib.pitfire.20261102.pcj-emom",
+    "name": "Every 1:00 × 8: Power C&J",
+    "shortName": "PC&J EMOM",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "functionalStrengthTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "powerCleanAndJerk",
+      "name": "Power C&J",
+      "target": {
+       "value": 2.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleanAndJerk",
+      "name": "Power C&J",
+      "target": {
+       "value": 2.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleanAndJerk",
+      "name": "Power C&J",
+      "target": {
+       "value": 2.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleanAndJerk",
+      "name": "Power C&J",
+      "target": {
+       "value": 2.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleanAndJerk",
+      "name": "Power C&J",
+      "target": {
+       "value": 2.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleanAndJerk",
+      "name": "Power C&J",
+      "target": {
+       "value": 2.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleanAndJerk",
+      "name": "Power C&J",
+      "target": {
+       "value": 2.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleanAndJerk",
+      "name": "Power C&J",
+      "target": {
+       "value": 2.0,
+       "unit": "reps"
+      }
+     }
+    ],
+    "timeCapSeconds": 480.0,
+    "intervalSeconds": 60.0,
+    "roundSize": 2
+   },
+   "card": {
+    "name": "Power C&J",
+    "nameIsFormat": false,
+    "typeTag": "EMOM",
+    "blockTag": "Strength",
+    "timeDomainLine": "Every 1:00 × 8",
+    "repSchemeLine": null,
+    "lines": [
+     {
+      "text": "2 Power C&J",
+      "load": null
+     }
+    ],
+    "capLine": null,
+    "summaryLine": "2 Power C&J",
+    "visibleLineCount": 1,
+    "hiddenLineCount": 0
+   }
+  }
+ ]
+}

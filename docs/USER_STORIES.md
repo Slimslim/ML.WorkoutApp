@@ -227,6 +227,18 @@ last time, so I can send one to the watch without a connection.
 *Done when:* in airplane mode (or signed out) after one successful refresh, Choose shows the same
 library workouts and Send to watch works; a failed refresh shows a short note and keeps the list.
 
+### Workout card (docs/concepts/HEADER_STUDY.md, workout-cards.html)
+
+**W11. Read a workout the way the whiteboard writes it (Now)**
+As an athlete choosing what to send to the watch, I want each workout written like the gym
+whiteboard (name, `3 rounds` / `40 min AMRAP` / `Every 1:00 × 8`, one movement per line with its
+load, the cap at the bottom), so I can tell what it is at a glance and check it before I start.
+*Done when:* every row in Choose shows the name, `block · type`, one line of movements and my
+last score when I have one; the preview shows the full card (date · program or Built-in, block
+and type tags, time domain, rep scheme, movements, cap) above Send to watch; Freedom reads
+`5 rounds` / `40-30-20-30-40 Cal` / `Row` / `7 Power Cleans @155 lb` / `20 min cap`. The card text
+comes from one model (Python reference + Swift port with a parity test).
+
 ## Navigation and layout
 
 *Owned by the Navigation UI/UX chat. Add stories here with the `N` prefix.*
