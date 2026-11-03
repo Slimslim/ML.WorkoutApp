@@ -71,7 +71,11 @@ public struct WorkoutDefinition: Codable, Equatable, Identifiable {
     /// "functionalStrengthTraining", "highIntensityIntervalTraining", "running".
     public var healthKitActivity: String
     public var segments: [WorkoutSegment]
-    public var intervalSeconds: Double?   // optional: "every N:00" sets
+    public var intervalSeconds: Double?   // optional: "every N:00" sets. Every segment of a set
+                                          // ends on the next interval boundary (2026-11-03, W1/W2):
+                                          // a Crown turn after the reps starts the rest; without
+                                          // it the clock jumps to the next set (rest recorded 0 s).
+                                          // WorkoutProgress.autoAdvanceTime / autoAdvance(at:).
     public var roundSize: Int?            // optional (v2): segments per round/set incl. rest
     public init(id:name:shortName:format:team:timeCapSeconds:healthKitActivity:segments:
                 intervalSeconds: = nil, roundSize: = nil)

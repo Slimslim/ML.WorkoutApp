@@ -7,7 +7,7 @@ import pytest
 
 from barpath.workout import (
     PedometerSample, SegmentTarget, TimedValue, WorkoutLibrary, WorkoutProgress, WorkoutResult,
-    WorkoutSegment, load_workout_csv, split_stats)
+    WorkoutSegment, WorkoutDefinition, Movement, load_workout_csv, split_stats)
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import workout_report  # noqa: E402
@@ -189,9 +189,9 @@ def test_csv_without_lift_type_header_is_tolerated(tmp_path):
 def test_interval_rest_ends_on_the_clock():
     p = WorkoutProgress(WorkoutLibrary.rowThrusters)
     p.start(1000)
-    assert p.auto_advance_time() is None          # rowing
+    assert p.auto_advance_time() == 1180          # rowing: the set ends on the clock too (2026-11-03)
     p.advance(1060, "crown")                       # thrusters
-    assert p.auto_advance_time() is None
+    assert p.auto_advance_time() == 1180
     p.advance(1100, "crown")                       # rest from 1:40
     assert p.auto_advance_time() == 1180          # next set at 3:00
     p.advance(1180, "auto")                        # set 2 row
@@ -563,3 +563,64 @@ def test_recovery_tail_real_partner_wod1_after_backfill():
     assert [round(m.heart_rate) for m in tail.marks] == [145, 123, 105]
     assert tail.heart_rate_low == 101.0 and tail.heart_rate_high == 162.0
     assert tail.moment(tail.start + 83).change == -25.0
+
+
+# ---- interval workouts: the clock moves on even if the Crown was not turned (2026-11-03) ----
+
+def _emom(sets=3, interval=60.0):
+    work = WorkoutSegment("station", "powerCleanAndJerk", "Power C&J", SegmentTarget(2, "reps"))
+    rest = WorkoutSegment("rest", Movement.rest, "Rest", None)
+    segs = ([work, rest] * sets)[:-1]
+    return WorkoutDefinition("t.emom", "EMOM", "EMOM", "emom", "solo", sets * interval, "crossTraining",
+                             segs, interval_seconds=interval, round_size=2)
+
+
+def test_emom_work_segment_ends_on_the_minute_without_crown():
+    p = WorkoutProgress(_emom())
+    p.start(1000.0)
+    assert p.auto_advance_time() == 1060.0          # work segment: next minute mark
+    assert p.auto_advance(1060.0)
+    assert p.current_index == 2                     # skipped the rest straight to set 2
+    sp = p.splits(1060.0)
+    assert sp[1].duration == 0.0 and sp[2].start == 1060.0
+    assert p.auto_advance_time() == 1120.0
+
+
+def test_emom_crown_after_reps_starts_rest_until_the_minute():
+    p = WorkoutProgress(_emom())
+    p.start(1000.0)
+    p.advance(1018.0, "crown")                      # set done after 18 s
+    assert p.current_segment.kind == "rest"
+    assert p.auto_advance_time() == 1060.0
+    p.auto_advance(1060.0)
+    assert p.current_index == 2 and p.segment_starts[-1] == 1060.0
+
+
+def test_emom_last_set_finishes_on_the_last_minute():
+    p = WorkoutProgress(_emom(sets=2))
+    p.start(1000.0)
+    p.auto_advance(1060.0)
+    assert p.current_index == 2
+    assert p.auto_advance_time() == 1120.0
+    p.auto_advance(1120.0)
+    assert p.is_finished and p.finish_time == 1120.0
+
+
+def test_interval_with_two_movements_jumps_to_next_set():
+    row = WorkoutSegment("station", Movement.row, "Row", SegmentTarget(15, "calories"))
+    thr = WorkoutSegment("station", Movement.thrusters, "Thrusters", SegmentTarget(12, "reps"))
+    rest = WorkoutSegment("rest", Movement.rest, "Rest", None)
+    d = WorkoutDefinition("t.e3", "E3", "E3", "emom", "solo", 540.0, "crossTraining",
+                          ([row, thr, rest] * 3)[:-1], interval_seconds=180.0, round_size=3)
+    p = WorkoutProgress(d)
+    p.start(0.0)
+    assert p.auto_advance_time() == 180.0           # still rowing at 3:00
+    p.auto_advance(180.0)
+    assert p.current_index == 3 and p.current_segment.movement == Movement.row
+
+
+def test_non_interval_work_segments_never_auto_advance():
+    p = WorkoutProgress(WorkoutLibrary.helen)
+    p.start(0.0)
+    assert p.auto_advance_time() is None
+    assert p.auto_advance_target_index() == 1

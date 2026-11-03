@@ -115,20 +115,46 @@ public struct WorkoutProgress: Codable, Equatable {
     /// When the current segment ends by itself (seconds since 1970), or nil if only the
     /// athlete ends it:
     /// - a rest with a seconds target ends after that long ("1:00 rest");
-    /// - another rest in a definition with `intervalSeconds` ends on the next interval
-    ///   boundary after it began ("every 3:00": the next set starts on the clock).
+    /// - in an interval workout ("every 1:00"), any segment ends on the next interval boundary
+    ///   after it began: a rest hands over to the next set, and a work segment still running at
+    ///   the boundary jumps to the next set (work segments need `roundSize`). Changed 2026-11-03:
+    ///   the athlete expected each minute to start by itself without a Crown turn.
     public func autoAdvanceTime() -> Double? {
-        guard isStarted, !isFinished, let segment = currentSegment, segment.kind == .rest,
+        guard isStarted, !isFinished, let segment = currentSegment,
               let segmentStart = segmentStarts.last, let start = startTime else { return nil }
-        if let target = segment.target, target.unit == .seconds, target.value > 0 {
+        if segment.kind == .rest, let target = segment.target, target.unit == .seconds, target.value > 0 {
             return segmentStart + target.value
         }
-        if let interval = definition.intervalSeconds, interval > 0 {
+        if let interval = definition.intervalSeconds, interval > 0,
+           segment.kind == .rest || (definition.roundSize ?? 0) > 0 {
             let elapsed = segmentStart - start
             let next = (elapsed / interval).rounded(.down) + 1.0
             return start + next * interval
         }
         return nil
+    }
+
+    /// The segment the clock moves to: the next one, or for a work segment of an interval
+    /// workout the first segment of the next set (skipping what is left of this set).
+    public var autoAdvanceTargetIndex: Int {
+        let i: Int = currentIndex
+        guard let segment = currentSegment, segment.kind != .rest,
+              let interval = definition.intervalSeconds, interval > 0,
+              let r = definition.roundSize, r > 0 else { return i + 1 }
+        return (i / r + 1) * r
+    }
+
+    /// Applies the clock's change at t: one or more advances (source .auto), finishing when the
+    /// target is past the last segment. Returns true if anything changed.
+    @discardableResult
+    public mutating func autoAdvance(at t: Double) -> Bool {
+        let target: Int = autoAdvanceTargetIndex
+        var changed: Bool = false
+        while !isFinished && currentIndex < target {
+            if !advance(at: t, source: .auto) { break }
+            changed = true
+        }
+        return changed
     }
 
     /// AMRAP time cap: when the workout finishes by itself, or nil.

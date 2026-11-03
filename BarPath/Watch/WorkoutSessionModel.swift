@@ -338,6 +338,31 @@ final class WorkoutSessionModel: ObservableObject {
         return true
     }
 
+    /// The clock's change: like `advance(source: .auto)`, but in an interval workout a work
+    /// segment still running at the minute mark jumps to the next set (the rest in between is
+    /// recorded as 0 s), and the last set finishes on its minute. One "go" haptic.
+    @discardableResult
+    func clockAdvance() -> Bool {
+        guard phase == .running else { return false }
+        let t = Date().timeIntervalSince1970
+        let uptime = ProcessInfo.processInfo.systemUptime
+        guard progress.autoAdvance(at: t) else { return false }
+        if progress.isFinished {
+            play(.success)
+            recorder.appendEvent(atUptime: uptime,
+                                 description: "name=finish index=\(progress.currentIndex) source=auto")
+        } else {
+            let kind = progress.currentSegment?.kind ?? .station
+            play(.start)
+            recorder.appendEvent(atUptime: uptime,
+                                 description: "name=segment index=\(progress.currentIndex) kind=\(kind.rawValue) source=auto")
+        }
+        lastChangeDate = Date()
+        persistProgress()
+        workoutLog.info("clock advance -> \(self.progress.currentIndex) finished \(self.progress.isFinished)")
+        return true
+    }
+
     /// Back one segment, or un-finish. Returns true if something changed.
     @discardableResult
     func undo(source: AdvanceSource) -> Bool {
@@ -519,7 +544,7 @@ final class WorkoutSessionModel: ObservableObject {
             if event.isFinish {
                 finishByCap()
             } else {
-                _ = advance(source: .auto)
+                _ = clockAdvance()
             }
             return
         }

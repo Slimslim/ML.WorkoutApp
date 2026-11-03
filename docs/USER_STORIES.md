@@ -142,6 +142,40 @@ time.
 
 *Owned by the Workouts chat. Add stories here with the `W` prefix.*
 
+### Interval workouts (EMOM, "every N:00")
+
+**W1. Each minute starts by itself (Now)**
+As an athlete doing an EMOM, I want the watch to start the next set on every minute mark with
+a 3-2-1 and a strong tap, whether or not I turned the Crown, so I never have to catch up.
+*Done when:* in an 8-minute EMOM done without touching the Crown, the watch shows set k from
+minute k−1:00 for every k (±1 s), the last set finishes at 8:00, and later minutes never shift.
+
+**W2. Turning the Crown means "set done" (Now)**
+As an athlete, I want a Crown turn after my reps to start my rest, with the time left in the
+minute shown, so my rest is recorded; skipping it must not break anything.
+*Done when:* Crown after the reps → rest until the minute mark; no Crown → the rest is recorded
+as 0 s and the next set still starts on the minute.
+
+**W3. See my EMOM minute by minute (Now)**
+As an athlete, I want the workout report to show each minute as a row: weight, reps found,
+how fast I started after the beep, work time and rest left, so I see where the minutes got
+tight.
+*Done when:* the 2026-11-02 power C&J EMOM shows 8 rows matching the motion analysis
+(16 reps, start delays 2.5–24 s, rest left 42 → 12 s).
+
+**W4. Weight per set (Later)**
+As an athlete, I want to enter the weight of each set (125 → 175 lb) once, on the phone, so
+bar speed can be compared with the load.
+*Done when:* weights entered in under 30 s for 8 sets and shown in the W3 rows.
+
+### Transitions
+
+**W5. Transition vs work time (Later)**
+As an athlete, I want each split shown as setup + work, with total time in transitions, so I
+see the time I lose walking and setting up.
+*Done when:* on the AMRAP 40 and Freedom files, transitions match the motion analysis within
+5 s for 80 % of segments (docs/TRANSITIONS.md).
+
 ## Navigation and layout
 
 *Owned by the Navigation UI/UX chat. Add stories here with the `N` prefix.*

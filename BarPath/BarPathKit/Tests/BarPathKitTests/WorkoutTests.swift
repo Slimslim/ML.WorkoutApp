@@ -239,15 +239,60 @@ final class WorkoutTests: XCTestCase {
     func testIntervalRestEndsOnTheClock() {
         var p = WorkoutProgress(definition: WorkoutLibrary.rowThrusters)
         p.start(at: 1000)
-        XCTAssertNil(p.autoAdvanceTime())
+        XCTAssertEqual(p.autoAdvanceTime(), 1180)    // rowing: the set ends on the clock too
         p.advance(at: 1060, source: .crown)
-        XCTAssertNil(p.autoAdvanceTime())
+        XCTAssertEqual(p.autoAdvanceTime(), 1180)
         p.advance(at: 1100, source: .crown)
         XCTAssertEqual(p.autoAdvanceTime(), 1180)
         p.advance(at: 1180, source: .auto)
         p.advance(at: 1250, source: .crown)
         p.advance(at: 1370, source: .crown)
         XCTAssertEqual(p.autoAdvanceTime(), 1540)
+    }
+
+    private func emom(sets: Int) -> WorkoutDefinition {
+        let work = WorkoutSegment(kind: .station, movement: "powerCleanAndJerk", name: "Power C&J",
+                                  target: SegmentTarget(2, .reps))
+        let rest = WorkoutSegment(kind: .rest, movement: Movement.rest, name: "Rest", target: nil)
+        var segs: [WorkoutSegment] = []
+        for _ in 0..<sets { segs.append(work); segs.append(rest) }
+        segs.removeLast()
+        return WorkoutDefinition(id: "t.emom", name: "EMOM", shortName: "EMOM", format: .emom, team: .solo,
+                                 timeCapSeconds: Double(sets) * 60.0, healthKitActivity: "crossTraining",
+                                 segments: segs, intervalSeconds: 60.0, roundSize: 2)
+    }
+
+    func testEmomWorkSegmentEndsOnTheMinuteWithoutCrown() {
+        var p = WorkoutProgress(definition: emom(sets: 3))
+        p.start(at: 1000)
+        XCTAssertEqual(p.autoAdvanceTime(), 1060)
+        XCTAssertTrue(p.autoAdvance(at: 1060))
+        XCTAssertEqual(p.currentIndex, 2)            // straight to set 2, rest of 0 s
+        let sp = p.splits(now: 1060)
+        XCTAssertEqual(sp[1].duration, 0)
+        XCTAssertEqual(sp[2].start, 1060)
+        XCTAssertEqual(p.autoAdvanceTime(), 1120)
+    }
+
+    func testEmomCrownStartsRestThenLastSetFinishesOnTheMinute() {
+        var p = WorkoutProgress(definition: emom(sets: 2))
+        p.start(at: 1000)
+        p.advance(at: 1018, source: .crown)
+        XCTAssertEqual(p.currentSegment?.kind, SegmentKind.rest)
+        XCTAssertEqual(p.autoAdvanceTime(), 1060)
+        p.autoAdvance(at: 1060)
+        XCTAssertEqual(p.currentIndex, 2)
+        XCTAssertEqual(p.autoAdvanceTime(), 1120)
+        p.autoAdvance(at: 1120)
+        XCTAssertTrue(p.isFinished)
+        XCTAssertEqual(p.finishTime, 1120)
+    }
+
+    func testNonIntervalWorkNeverAutoAdvances() {
+        var p = WorkoutProgress(definition: WorkoutLibrary.helen)
+        p.start(at: 0)
+        XCTAssertNil(p.autoAdvanceTime())
+        XCTAssertEqual(p.autoAdvanceTargetIndex, 1)
     }
 
     func testFixedRestAndAmrapCap() {

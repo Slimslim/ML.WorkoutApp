@@ -397,21 +397,46 @@ class WorkoutProgress:
         return True
 
     def auto_advance_time(self) -> Optional[float]:
-        """When the current rest ends by itself: a seconds target, or the next interval boundary."""
+        """When the current segment ends by itself:
+        - a rest with a seconds target ends after that long ("1:00 rest");
+        - in an interval workout ("every 1:00"), any segment ends on the next interval boundary
+          after it began: a rest hands over to the next set, and a work segment that is still
+          running at the boundary jumps to the next set (needs round_size for work segments)."""
         if not self.is_started or self.is_finished:
             return None
         seg = self.current_segment
-        if seg is None or seg.kind != "rest":
+        if seg is None:
             return None
         seg_start = self.segment_starts[-1]
         start = self.start_time
-        if seg.target is not None and seg.target.unit == "seconds" and seg.target.value > 0:
+        if seg.kind == "rest" and seg.target is not None and seg.target.unit == "seconds" and seg.target.value > 0:
             return seg_start + seg.target.value
         interval = self.definition.interval_seconds
-        if interval is not None and interval > 0:
+        if interval is not None and interval > 0 and (seg.kind == "rest" or self.definition.round_size):
             nxt = math.floor((seg_start - start) / interval) + 1.0
             return start + nxt * interval
         return None
+
+    def auto_advance_target_index(self) -> int:
+        """Segment the clock moves to: the next one, or for a work segment of an interval
+        workout the first segment of the next set (skipping what is left of this set)."""
+        i = self.current_index
+        seg = self.current_segment
+        r = self.definition.round_size
+        if seg is None or seg.kind == "rest" or not self.definition.interval_seconds or not r:
+            return i + 1
+        return (i // r + 1) * r
+
+    def auto_advance(self, t: float) -> bool:
+        """Applies the clock's change at t: one or more advances (source "auto"), finishing
+        when the target is past the last segment. Returns True if anything changed."""
+        target = self.auto_advance_target_index()
+        changed = False
+        while not self.is_finished and self.current_index < target:
+            if not self.advance(t, "auto"):
+                break
+            changed = True
+        return changed
 
     @property
     def cap_time(self) -> Optional[float]:
