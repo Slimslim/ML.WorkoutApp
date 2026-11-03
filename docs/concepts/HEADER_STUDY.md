@@ -36,7 +36,13 @@ of every workout — the header.
 | 10 | Knee Health | block purpose | 3 rounds for quality | backward sled drag 100 ft (pick load), 40 calf raises, 20 tibia raises | — | none |
 | 11 | Complex: Tall Jerks, Jerk Balances, Jerks, A… | complex (truncated) | 3 × [3+3+3+3], heaviest, rest as needed | 4 jerk variations | RPE 5/10 | load |
 | 12 | "Your mother was a hamster and your fathe…" | very long quoted name | for time chipper 20/30 alternating, cap 14 | DB snatch 50/35, T2B, burpee-to-target | target 9–11 min, RPE 8.5, strategy per movement, scaling | time |
+| 14 | Every 1 min for 15 mins: Power Snatch | interval + lift | EMOM 15, 5 power snatches, pick load | power snatch | recent maxes 1RM 135, 3RM 105 lb | load per minute / none |
+| 15 | Front Squat : 3-3-3-3-3 | lift + scheme | 5 × 3, heaviest each set; 3–5 sets at 65–75 % 1RM | front squat | previous result "2655 lbs" = Σ load × reps (150→205 lb), Rx'd; recent maxes 5RM 235, 10RM 185 | heaviest set / volume |
 | 13 | Core Work ("3 RFQ: Turkish Get-ups, …") | block purpose + subtitle | 3 rounds for quality | TGU (pick load), suitcase hold 1 min, front rack carry 50 ft | per-side notes | none |
+
+Note on lift blocks (14, 15): the app's "previous result" leads with total volume (2655 lb),
+which is hard to read; the heaviest set and the maxes are what the athlete looks at. Our header
+should lead with the heaviest set (205 lb) and show volume second, and turn %1RM into real loads.
 
 ### Patterns
 - **Titles come in five kinds:** named benchmark (Diane, The Chief) · competition code (13.4) ·
