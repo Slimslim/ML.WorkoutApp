@@ -186,6 +186,14 @@ class WorkoutDefinition:
                    None if interval is None else float(interval),
                    None if round_size is None else int(round_size))
 
+    def to_json(self) -> str:
+        """JSON as BarPathKit's JSONEncoder writes it (nil optionals left out)."""
+        return json.dumps(self.to_dict(), ensure_ascii=False, separators=(",", ":"))
+
+    @classmethod
+    def from_json(cls, text: str) -> "WorkoutDefinition":
+        return cls.from_dict(json.loads(text))
+
 
 # ---- library ----------------------------------------------------------------------------------
 

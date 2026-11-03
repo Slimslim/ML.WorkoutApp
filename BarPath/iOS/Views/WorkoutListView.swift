@@ -51,6 +51,7 @@ enum WorkoutFmt {
 /// Finished workouts, newest first.
 struct WorkoutListView: View {
     @EnvironmentObject private var store: WorkoutStore
+    @Environment(\.scenePhase) private var scenePhase
     @State private var resultToDelete: WorkoutResult?
 
     private var confirmBinding: Binding<Bool> {
@@ -79,6 +80,16 @@ struct WorkoutListView: View {
                 NextWorkoutBar()
             }
             .navigationTitle("Workouts")
+            // Library workouts added in the database (WorkoutLibraryStore skips refreshes
+            // closer than a minute apart, and does nothing signed out).
+            .task {
+                await WorkoutLibraryStore.shared.refresh()
+            }
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .active {
+                    WorkoutLibraryStore.shared.refreshSoon()
+                }
+            }
             .navigationDestination(for: WorkoutRoute.self) { route in
                 WorkoutDetailView(resultId: route.id)
             }

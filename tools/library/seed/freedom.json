@@ -1,0 +1,132 @@
+{
+  "program": "PitFIRE",
+  "scheduled_on": "2026-11-02",
+  "published": true,
+  "definition": {
+    "id": "lib.pitfire.20261102.freedom",
+    "name": "Freedom",
+    "shortName": "Freedom",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+      {
+        "kind": "station",
+        "movement": "row",
+        "name": "Row",
+        "target": {
+          "value": 40,
+          "unit": "calories"
+        }
+      },
+      {
+        "kind": "station",
+        "movement": "powerCleans",
+        "name": "Power Cleans",
+        "target": {
+          "value": 7,
+          "unit": "reps"
+        },
+        "load": {
+          "value": 155,
+          "unit": "lb",
+          "count": 1
+        }
+      },
+      {
+        "kind": "station",
+        "movement": "row",
+        "name": "Row",
+        "target": {
+          "value": 30,
+          "unit": "calories"
+        }
+      },
+      {
+        "kind": "station",
+        "movement": "powerCleans",
+        "name": "Power Cleans",
+        "target": {
+          "value": 7,
+          "unit": "reps"
+        },
+        "load": {
+          "value": 155,
+          "unit": "lb",
+          "count": 1
+        }
+      },
+      {
+        "kind": "station",
+        "movement": "row",
+        "name": "Row",
+        "target": {
+          "value": 20,
+          "unit": "calories"
+        }
+      },
+      {
+        "kind": "station",
+        "movement": "powerCleans",
+        "name": "Power Cleans",
+        "target": {
+          "value": 7,
+          "unit": "reps"
+        },
+        "load": {
+          "value": 155,
+          "unit": "lb",
+          "count": 1
+        }
+      },
+      {
+        "kind": "station",
+        "movement": "row",
+        "name": "Row",
+        "target": {
+          "value": 30,
+          "unit": "calories"
+        }
+      },
+      {
+        "kind": "station",
+        "movement": "powerCleans",
+        "name": "Power Cleans",
+        "target": {
+          "value": 7,
+          "unit": "reps"
+        },
+        "load": {
+          "value": 155,
+          "unit": "lb",
+          "count": 1
+        }
+      },
+      {
+        "kind": "station",
+        "movement": "row",
+        "name": "Row",
+        "target": {
+          "value": 40,
+          "unit": "calories"
+        }
+      },
+      {
+        "kind": "station",
+        "movement": "powerCleans",
+        "name": "Power Cleans",
+        "target": {
+          "value": 7,
+          "unit": "reps"
+        },
+        "load": {
+          "value": 155,
+          "unit": "lb",
+          "count": 1
+        }
+      }
+    ],
+    "timeCapSeconds": 1200.0,
+    "roundSize": 2
+  }
+}
