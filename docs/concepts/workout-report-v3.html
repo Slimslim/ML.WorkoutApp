@@ -1,0 +1,878 @@
+<title>Workout Report v3</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Nunito:wght@600;700;800;900&display=swap">
+<style>
+/* Layout: a design sheet. Page chrome (title, legend, notes) around four iPhone mockups
+   side by side; each phone shows one format, with the end of the first screen marked. */
+:root {
+  /* page */
+  --page: #E9ECF1;
+  --ink: #14161B;
+  --ink2: #565C69;
+  --ink3: #868C99;
+  --rule: #CDD2DB;
+  --frame: #1A1C21;
+  --note: #FFFFFF;
+  /* app (matches OverviewTheme.swift / Theme.swift) */
+  --screen: #F2F2F7;
+  --card: #FFFFFF;
+  --fill: #F2F2F7;
+  --line: #E4E4EA;
+  --accent: #FF6B14;
+  --run: #2F6BF0;
+  --runL: #B8CCF8;
+  --runBand: #E3EBFD;
+  --st: #F0600A;
+  --stMid: #F59A63;
+  --stL: #F9C7A6;
+  --stBand: #FDE8DA;
+  --rest: #8E8E93;
+  --restBand: #E9E9EE;
+  --hr: #D9251A;
+  --fast: #0F9C8C;
+  --slow: #B03C78;
+  --rec: #0889A8;
+  --recBand: #DFF2F7;
+  --warnBg: #FFF2DC;
+  --warnInk: #8A5300;
+  --onBar: #FFFFFF;
+  --f-display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --f-num: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, sans-serif;
+  --f-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page: #0D0E11; --ink: #F1F2F5; --ink2: #A7ADB9; --ink3: #6F7581; --rule: #2C2F36;
+    --frame: #3A3D45; --note: #17191D;
+    --screen: #000000; --card: #1C1C1E; --fill: #2C2C2E; --line: #38383C; --accent: #FF7A2E;
+    --run: #5A8CFF; --runL: #2E4475; --runBand: #1C2947;
+    --st: #F57228; --stMid: #B85C2B; --stL: #6E3D24; --stBand: #42251A;
+    --rest: #8E8E93; --restBand: #2A2A2D;
+    --hr: #FF5B4F; --fast: #3FD1BE; --slow: #E77BB2; --rec: #45C4E5; --recBand: #13313B;
+    --warnBg: #3A2A10; --warnInk: #FFC46B; --onBar: #FFFFFF;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --page: #0D0E11; --ink: #F1F2F5; --ink2: #A7ADB9; --ink3: #6F7581; --rule: #2C2F36;
+  --frame: #3A3D45; --note: #17191D;
+  --screen: #000000; --card: #1C1C1E; --fill: #2C2C2E; --line: #38383C; --accent: #FF7A2E;
+  --run: #5A8CFF; --runL: #2E4475; --runBand: #1C2947;
+  --st: #F57228; --stMid: #B85C2B; --stL: #6E3D24; --stBand: #42251A;
+  --rest: #8E8E93; --restBand: #2A2A2D;
+  --hr: #FF5B4F; --fast: #3FD1BE; --slow: #E77BB2; --rec: #45C4E5; --recBand: #13313B;
+  --warnBg: #3A2A10; --warnInk: #FFC46B; --onBar: #FFFFFF;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--page); color: var(--ink); font-family: var(--f-ui);
+  margin: 0; padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1640px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; letter-spacing: .2px; }
+h1 { font-size: clamp(40px, 6vw, 64px); font-weight: 800; line-height: .95; text-transform: uppercase; }
+h2 { font-size: 28px; font-weight: 700; text-transform: uppercase; }
+h3 { font-size: 20px; font-weight: 700; }
+p { margin: 0; line-height: 1.5; max-width: 68ch; }
+.lede { color: var(--ink2); font-size: 15px; }
+.eyebrow { font: 700 12px/1 var(--f-ui); letter-spacing: 1.4px; text-transform: uppercase; color: var(--accent); }
+.top { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end; justify-content: space-between; }
+.top > div:first-child { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.toggle { display: flex; gap: 0; border: 1px solid var(--rule); border-radius: 999px; overflow: hidden; }
+.toggle button { background: transparent; color: var(--ink2); border: 0; font: 600 13px var(--f-ui); padding: 8px 14px; cursor: pointer; }
+.toggle button[aria-pressed="true"] { background: var(--ink); color: var(--page); }
+.toggle button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* anatomy + legend */
+.sheet { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.panel { background: var(--note); border: 1px solid var(--rule); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.anatomy { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; counter-reset: a; }
+.anatomy li { display: grid; grid-template-columns: 26px 1fr; gap: 8px; font-size: 14px; line-height: 1.45; }
+.anatomy li::before { counter-increment: a; content: counter(a); font: 800 15px/1.3 var(--f-num); color: var(--accent); }
+.anatomy b { font-weight: 650; }
+.legend { display: flex; flex-direction: column; gap: 9px; font-size: 14px; }
+.legend div { display: grid; grid-template-columns: 92px 1fr; gap: 10px; align-items: center; }
+.sw { height: 14px; border-radius: 4px; }
+
+/* phones row */
+.phones { display: flex; gap: 28px; overflow-x: auto; padding-bottom: 12px; scroll-snap-type: x proximity; }
+.col { flex: 0 0 auto; width: 375px; max-width: calc(100vw - 32px); display: flex; flex-direction: column; gap: 14px; scroll-snap-align: start; }
+.colhead { display: flex; flex-direction: column; gap: 4px; }
+.colhead h3 { font-size: 24px; text-transform: uppercase; }
+.src { font-size: 12px; color: var(--ink2); }
+.src.ill { color: var(--warnInk); background: var(--warnBg); padding: 4px 8px; border-radius: 6px; align-self: flex-start; font-weight: 600; }
+.notes { font-size: 13.5px; line-height: 1.5; color: var(--ink2); margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.notes b { color: var(--ink); font-weight: 650; }
+
+.phone { background: var(--frame); border-radius: 46px; padding: 9px; width: 100%; }
+.screen { background: var(--screen); border-radius: 38px; overflow: hidden; position: relative; padding: 0 12px 26px; color: var(--ink); display: flex; flex-direction: column; gap: 10px; }
+.status { display: flex; justify-content: space-between; align-items: center; height: 46px; padding: 0 16px 0 22px; font: 600 15px var(--f-ui); }
+.status i { font-style: normal; font-size: 12px; letter-spacing: 1px; }
+.nav { display: flex; justify-content: space-between; align-items: center; margin-top: -6px; font: 400 16px var(--f-ui); color: var(--run); }
+.fold { position: absolute; left: 0; right: 0; top: 794px; border-top: 2px dashed var(--accent); pointer-events: none; z-index: 3; }
+.fold span { position: absolute; right: 10px; top: -11px; background: var(--accent); color: #fff; font: 700 10px/1 var(--f-ui); letter-spacing: .6px; text-transform: uppercase; padding: 5px 7px; border-radius: 999px; }
+
+/* app components */
+.card { background: var(--card); border-radius: 20px; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.card h4 { margin: 0; font: 700 17px var(--f-ui); display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.card h4 small { font: 500 12px var(--f-ui); color: var(--ink3); }
+.kicker { font: 700 11px/1.2 var(--f-ui); letter-spacing: 1px; color: var(--accent); text-transform: uppercase; }
+.wname { font: 800 22px/1.15 var(--f-num); }
+.scoreline { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.score { font: 900 54px/0.95 var(--f-num); font-variant-numeric: tabular-nums; letter-spacing: -1px; }
+.score small { font-size: 22px; font-weight: 800; letter-spacing: 0; color: var(--ink2); }
+.pill { font: 800 15px/1 var(--f-num); padding: 7px 10px; border-radius: 999px; color: #fff; }
+.pill.slow { background: var(--slow); }
+.ctx { font: 600 14px/1.4 var(--f-ui); color: var(--ink2); }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tile { background: var(--fill); border-radius: 12px; padding: 8px 9px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.tile span { font: 700 9.5px/1.1 var(--f-ui); letter-spacing: .6px; text-transform: uppercase; color: var(--ink2); }
+.tile b { font: 800 21px/1.05 var(--f-num); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tile b small { font-size: 12px; font-weight: 700; color: var(--ink2); }
+.tile em { font: 600 10.5px/1.2 var(--f-ui); font-style: normal; color: var(--ink3); }
+.trust { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 600 11.5px/1 var(--f-ui); padding: 6px 8px; border-radius: 999px; background: var(--fill); color: var(--ink2); white-space: nowrap; }
+.chip b { color: var(--ink); font-weight: 750; }
+.cf { font-weight: 800; }
+.cf.m { color: var(--fast); }
+.cf.e { color: var(--ink2); }
+.cf.x { color: var(--warnInk); }
+
+/* insights */
+.ins { display: flex; flex-direction: column; gap: 0; }
+.ins > div { display: flex; flex-direction: column; gap: 4px; padding: 10px 0; border-top: 1px solid var(--line); }
+.ins > div:first-of-type { border-top: 0; padding-top: 2px; }
+.ins .tag { font: 700 10px/1 var(--f-ui); letter-spacing: .8px; text-transform: uppercase; color: var(--ink3); }
+.ins .say { font: 700 15.5px/1.3 var(--f-ui); }
+.ins .ev { font: 500 12.5px/1.4 var(--f-ui); color: var(--ink2); font-variant-numeric: tabular-nums; }
+
+/* bars */
+.hdr { display: grid; font: 700 9.5px/1 var(--f-ui); letter-spacing: .6px; text-transform: uppercase; color: var(--ink3); align-items: end; }
+.rows { display: flex; flex-direction: column; }
+.row { display: grid; align-items: center; column-gap: 8px; padding: 7px 0; border-top: 1px solid var(--line); }
+.row:first-child { border-top: 0; }
+.row .sub { grid-column: 2 / -1; font: 500 11.5px/1.35 var(--f-ui); color: var(--ink2); font-variant-numeric: tabular-nums; margin-top: 3px; }
+.idx { font: 800 14px var(--f-num); color: var(--ink3); }
+.big { font: 800 21px/1 var(--f-num); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.big small { font-size: 11px; font-weight: 700; color: var(--ink2); }
+.right { text-align: right; }
+.slot { position: relative; height: 24px; border-radius: 6px; background: var(--restBand); overflow: hidden; display: flex; }
+.part { height: 100%; position: relative; }
+.p-st { background: var(--st); }
+.p-st2 { background: var(--stMid); }
+.p-run { background: var(--run); }
+.p-trS { background: repeating-linear-gradient(135deg, var(--stL) 0 4px, var(--stBand) 4px 7px); }
+.p-trR { background: repeating-linear-gradient(135deg, var(--runL) 0 4px, var(--runBand) 4px 7px); }
+.p-rox { background: repeating-linear-gradient(135deg, var(--restBand) 0 4px, var(--card) 4px 7px); box-shadow: inset 0 0 0 1px var(--line); }
+.tick { position: absolute; top: 4px; bottom: 4px; width: 2px; border-radius: 1px; background: var(--onBar); opacity: .9; }
+.plabel { position: absolute; left: 4px; top: 50%; transform: translateY(-50%); font: 700 10px/1 var(--f-ui); color: var(--onBar); white-space: nowrap; }
+.track { position: relative; height: 24px; }
+.track .slot { position: absolute; top: 0; left: 0; }
+.open { background: var(--fill); border-radius: 12px; padding: 9px 10px; margin-top: 7px; grid-column: 1 / -1; display: flex; flex-direction: column; gap: 5px; font: 500 12px/1.4 var(--f-ui); color: var(--ink2); }
+.open b { color: var(--ink); }
+.open .mini { display: grid; grid-template-columns: 44px repeat(3, 1fr); gap: 4px; font-variant-numeric: tabular-nums; }
+.open .mini span:nth-child(-n+4) { font: 700 9.5px var(--f-ui); letter-spacing: .5px; text-transform: uppercase; color: var(--ink3); }
+.foot { font: 500 12.5px/1.4 var(--f-ui); color: var(--ink2); }
+.keyline { display: flex; flex-wrap: wrap; gap: 10px; font: 600 11px var(--f-ui); color: var(--ink2); }
+.keyline span { display: inline-flex; align-items: center; gap: 5px; }
+.keyline i { display: inline-block; width: 14px; height: 10px; border-radius: 3px; }
+.budget { display: flex; height: 30px; border-radius: 8px; overflow: hidden; }
+.budget > div { display: flex; align-items: center; padding: 0 7px; font: 800 12.5px var(--f-num); color: var(--onBar); white-space: nowrap; overflow: hidden; }
+.budget .tr { color: var(--ink); }
+.minis { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; }
+.minis > div { display: flex; flex-direction: column; gap: 3px; align-items: stretch; }
+.vslot { height: 46px; border-radius: 5px; background: var(--restBand); overflow: hidden; display: flex; flex-direction: column; }
+.minis span { font: 800 10.5px var(--f-num); text-align: center; color: var(--ink2); }
+.clock { position: relative; height: 26px; border-radius: 7px; background: var(--restBand); overflow: hidden; }
+.clock > div { position: absolute; top: 0; bottom: 0; display: flex; align-items: center; justify-content: center; font: 800 11px var(--f-num); color: var(--onBar); }
+.axis { display: flex; justify-content: space-between; font: 600 10px var(--f-ui); color: var(--ink3); font-variant-numeric: tabular-nums; }
+.grid7 { display: grid; grid-template-columns: 30px repeat(7, 1fr); gap: 3px; font-variant-numeric: tabular-nums; }
+.grid7 > div { font: 700 11px/1 var(--f-num); text-align: center; padding: 7px 0; border-radius: 5px; }
+.grid7 .h { font: 700 9.5px var(--f-ui); color: var(--ink3); padding: 2px 0; }
+.mt { display: grid; grid-template-columns: 1fr 64px 46px 46px; gap: 4px 6px; font: 500 12.5px/1.3 var(--f-ui); font-variant-numeric: tabular-nums; align-items: baseline; }
+.mt .h { font: 700 9.5px var(--f-ui); letter-spacing: .5px; text-transform: uppercase; color: var(--ink3); }
+.mt .g { grid-column: 1 / -1; font: 800 12px var(--f-ui); color: var(--ink); padding-top: 6px; border-top: 1px solid var(--line); margin-top: 2px; }
+.mt .n { text-align: right; font-weight: 700; }
+.mt .s { color: var(--ink3); font-size: 11px; }
+.rec { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.rec div { background: var(--recBand); border-radius: 10px; padding: 7px 8px; display: flex; flex-direction: column; gap: 2px; }
+.rec span { font: 700 9.5px var(--f-ui); letter-spacing: .5px; text-transform: uppercase; color: var(--ink2); }
+.rec b { font: 800 19px/1 var(--f-num); font-variant-numeric: tabular-nums; }
+.rec em { font: 700 11px var(--f-num); font-style: normal; color: var(--rec); }
+.datanote { font: 500 11.5px/1.45 var(--f-ui); color: var(--ink3); text-align: center; padding: 0 6px; }
+svg { display: block; width: 100%; height: auto; overflow: visible; }
+svg text { font-family: var(--f-ui); font-size: 9.5px; fill: var(--ink3); }
+svg .lbl { fill: var(--ink2); font-weight: 600; }
+svg .lblb { fill: var(--ink); font-weight: 800; font-family: var(--f-num); font-size: 11px; }
+details > summary { cursor: pointer; list-style: none; font: 600 14px var(--f-ui); color: var(--run); }
+details > summary::-webkit-details-marker { display: none; }
+details > summary:focus-visible { outline: 2px solid var(--accent); border-radius: 6px; }
+.qs { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; font-size: 15px; line-height: 1.5; }
+.decisions { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 7px; font-size: 14.5px; line-height: 1.5; color: var(--ink2); }
+.decisions b { color: var(--ink); }
+@media (prefers-reduced-motion: no-preference) { .toggle button { transition: background .15s; } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <pattern id="hatchS" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="6" height="6" style="fill: var(--stBand)"/><rect width="3" height="6" style="fill: var(--stL)"/>
+    </pattern>
+    <pattern id="hatchR" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="6" height="6" style="fill: var(--runBand)"/><rect width="3" height="6" style="fill: var(--runL)"/>
+    </pattern>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <span class="eyebrow">Rx Lab · iPhone · design proposal, not app code</span>
+      <h1>Workout Report v3</h1>
+      <p class="lede">How the phone report looks now that the watch gives us every rep, the loads, the time before the first rep and a bar-speed estimate. One layout for every format: score, what stood out, the workout itself, heart rate, then the details. Numbers come from your sessions on Nov 1 and Nov 2 unless a phone is marked as an example.</p>
+    </div>
+    <div class="toggle" role="group" aria-label="Theme">
+      <button type="button" id="t-sys" aria-pressed="true">System</button>
+      <button type="button" id="t-light" aria-pressed="false">Light</button>
+      <button type="button" id="t-dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+
+  <section class="sheet" aria-label="How every report is built">
+    <div class="panel">
+      <span class="eyebrow">Same order in every format</span>
+      <ol class="anatomy">
+        <li><span><b>Score.</b> Name, the one number that format is scored by, one context line, three tiles and a tiny picture of the workout. Readable from 2 m.</span></li>
+        <li><span><b>What stood out.</b> Two or three plain sentences, each with the numbers behind it. Only things the data really shows.</span></li>
+        <li><span><b>The workout.</b> One view shaped like the format: minute slots, rounds, the 40:00 clock, race legs. Tap a row to open its reps.</span></li>
+        <li><span><b>Heart rate and recovery.</b> The whole session with the work coloured behind it, then the drop at 1, 2 and 3 minutes.</span></li>
+        <li><span><b>Details.</b> Every rep or split, folded until you ask for it.</span></li>
+        <li><span><b>Data note.</b> One grey line saying what was found by motion, what you entered and what is an estimate.</span></li>
+      </ol>
+    </div>
+    <div class="panel">
+      <span class="eyebrow">How sure we are (shown next to the number)</span>
+      <div class="legend">
+        <div><span class="cf m">● motion</span><span>Found by the watch from your wrist (reps, sets, the first rep after a transition).</span></div>
+        <div><span class="cf e">✎ entered</span><span>From you or the plan (loads, calories, reps the watch can't count yet, like push-ups).</span></div>
+        <div><span class="cf x">~ estimate</span><span>Measured but not calibrated (wrist speed as a bar-speed proxy, stroke rate). Compare with yourself only.</span></div>
+      </div>
+      <span class="eyebrow" style="margin-top:6px">Colours</span>
+      <div class="legend">
+        <div><span class="sw" style="background:var(--st)"></span><span>Barbell, dumbbell, bodyweight work</span></div>
+        <div><span class="sw" style="background:var(--run)"></span><span>Run, row, bike, ski (cyclic work)</span></div>
+        <div><span class="sw" style="background:repeating-linear-gradient(135deg,var(--stL) 0 4px,var(--stBand) 4px 7px)"></span><span>Hatched, same hue: time before the first rep (walk over, set up, start after the beep)</span></div>
+        <div><span class="sw" style="background:var(--restBand)"></span><span>Rest</span></div>
+        <div><span class="sw" style="background:var(--fast)"></span><span style="display:flex;gap:6px;align-items:center">Better than your own average <span class="sw" style="background:var(--slow);width:28px;display:inline-block"></span> worse (always with a number too)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="phones" aria-label="Phone mockups">
+    <!-- ================= EMOM ================= -->
+    <div class="col">
+      <div class="colhead">
+        <span class="eyebrow">1 · Every minute (EMOM)</span>
+        <h3>Power clean &amp; jerk 8 × 2</h3>
+        <span class="src">Real data · Nov 2 · loads entered by you</span>
+      </div>
+      <div class="phone"><div class="screen">
+        <div class="fold"><span>end of first screen</span></div>
+        <div class="status"><span>19:12</span><i>●●● ▮</i></div>
+        <div class="nav"><span>‹ Workouts</span><span>Share</span></div>
+        <div class="card">
+          <span class="kicker">Mon Nov 2 · Every 1:00 × 8</span>
+          <div class="wname">Power Clean &amp; Jerk</div>
+          <div class="scoreline"><span class="score">8/8 <small>minutes on time</small></span></div>
+          <div class="ctx">2 reps a minute · 125 → 175 lb · 16 of 16 locked out <span class="cf m">●</span></div>
+          <div class="minis" id="emom-minis"></div>
+          <div class="tiles">
+            <div class="tile"><span>Top load</span><b>175 <small>lb</small></b><em><span class="cf e">✎</span> minute 8</em></div>
+            <div class="tile"><span>Tightest rest</span><b>0:12</b><em>minute 8</em></div>
+            <div class="tile"><span>HR max</span><b>170</b><em>avg 155</em></div>
+          </div>
+        </div>
+        <div class="card">
+          <h4>What stood out</h4>
+          <div class="ins">
+            <div><span class="tag">Speed vs load</span><span class="say">Your clean slowed as the bar got heavier. Your jerk did not.</span><span class="ev">Clean 1.95 → 1.62 m/s from 125 → 175 lb · jerk drive about 1.3 m/s on every set <span class="cf x">~</span></span></div>
+            <div><span class="tag">Pacing</span><span class="say">The last three minutes got tight.</span><span class="ev">First pull 8 → 15 → 24 s after the beep · rest left 30 → 23 → 12 s</span></div>
+            <div><span class="tag">Technique</span><span class="say">You stood longer in the rack before the jerk at the top loads.</span><span class="ev">Rack pause 1.3 s at 125 lb → 2.6 s at 175 lb</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h4>Minute by minute <small>tap a minute</small></h4>
+          <div class="hdr" style="grid-template-columns:18px 60px 1fr 46px;column-gap:8px"><span>#</span><span>Load</span><span>0 · · · 60 s</span><span class="right">Rest left</span></div>
+          <div class="rows" id="emom-rows"></div>
+          <div class="keyline"><span><i class="p-trS"></i>after the beep</span><span><i class="p-st"></i>set (│ = rep)</span><span><i style="background:var(--restBand)"></i>rest</span></div>
+        </div>
+        <div class="card">
+          <h4>Clean speed vs load <small>m/s, wrist <span class="cf x">~</span></small></h4>
+          <div id="emom-vl"></div>
+          <div class="foot">−0.13 m/s per 10 kg. Next time this tells you how close 175 lb was to your limit for 2 reps.</div>
+        </div>
+        <div class="card">
+          <h4>Heart rate <small>8:43 + 2:23 after</small></h4>
+          <div id="emom-hr"></div>
+          <div class="rec">
+            <div><span>Finish</span><b>152</b></div>
+            <div><span>1 min</span><b>135</b><em>−17</em></div>
+            <div><span>2 min</span><b>118</b><em>−34</em></div>
+            <div><span>3 min</span><b>–</b><em style="color:var(--ink3)">ended</em></div>
+          </div>
+        </div>
+        <div class="card"><details><summary>All 16 reps ›</summary><p class="foot" style="margin-top:8px">Set · rep · pull s · rack s · clean m/s · jerk m/s, same rows as the analysis table.</p></details></div>
+        <div class="datanote">16 reps found by motion · loads entered · minutes placed by the clock (sets 1–3 and 8 moved out of the wrong watch segments) · speed is a wrist estimate</div>
+      </div></div>
+      <ul class="notes">
+        <li><b>The minute is the unit.</b> Each row is the full 60 s: hatched from the beep to the first pull, solid while lifting, grey for what was left. A shrinking grey part is the story.</li>
+        <li><b>Load and rest left are the big numbers</b> (readable from 2 m); start delay, work time and speed sit underneath.</li>
+        <li><b>Reps are attached to the minute they happened in</b>, not to the watch segment that was open, so the Crown mix-ups of Nov 2 don't show.</li>
+      </ul>
+    </div>
+
+    <!-- ================= FOR TIME ================= -->
+    <div class="col">
+      <div class="colhead">
+        <span class="eyebrow">2 · For time (chipper / rounds)</span>
+        <h3>Freedom</h3>
+        <span class="src">Real data · Nov 2 · 155 lb entered by you</span>
+      </div>
+      <div class="phone"><div class="screen">
+        <div class="fold"><span>end of first screen</span></div>
+        <div class="status"><span>19:40</span><i>●●● ▮</i></div>
+        <div class="nav"><span>‹ Workouts</span><span>Share</span></div>
+        <div class="card">
+          <span class="kicker">Mon Nov 2 · For time · cap 20:00</span>
+          <div class="wname">Freedom</div>
+          <div class="scoreline"><span class="score">19:37</span></div>
+          <div class="ctx">0:23 under the cap · row 40-30-20-30-40 cal + 7 power cleans 155 lb <span class="cf e">✎</span></div>
+          <div class="budget" id="fr-budget"></div>
+          <div class="keyline"><span><i class="p-run"></i>Rowing 11:19</span><span><i class="p-st"></i>Cleans 5:21</span><span><i class="p-trS"></i>Transitions 2:57</span></div>
+          <div class="tiles">
+            <div class="tile"><span>Cleans</span><b>35/35</b><em><span class="cf m">●</span> all singles</em></div>
+            <div class="tile"><span>Row rate</span><b>20 <small>/min</small></b><em><span class="cf x">~</span> 19–23</em></div>
+            <div class="tile"><span>HR max</span><b>175</b><em>at the finish</em></div>
+          </div>
+        </div>
+        <div class="card">
+          <h4>What stood out</h4>
+          <div class="ins">
+            <div><span class="tag">Transitions</span><span class="say">Getting from the rower to the bar cost you the most time.</span><span class="ev">Row → bar 30, 31, 24, 24, 12 s · bar → row 14, 17, 11, 13 s · 2:57 in total (15 %)</span></div>
+            <div><span class="tag">Speed</span><span class="say">Your clean speed held for all 35 reps.</span><span class="ev">1.89–1.99 m/s per round <span class="cf x">~</span> · same as EMOM minutes 5–6 at 155 lb (1.97, 1.80)</span></div>
+            <div><span class="tag">Pace</span><span class="say">Round 5 cleans went twice as fast.</span><span class="ev">One rep every 4.8 s, vs every 10–12 s in rounds 1–4</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h4>Rounds <small>to scale · tap a round</small></h4>
+          <div class="rows" id="fr-rows"></div>
+          <div class="keyline"><span><i class="p-trR"></i><i class="p-run"></i>to the rower, row</span><span><i class="p-trS"></i><i class="p-st"></i>to the bar, cleans (│ = rep)</span></div>
+        </div>
+        <div class="card">
+          <h4>Heart rate <small>19:37 + 3:13 after</small></h4>
+          <div id="fr-hr"></div>
+          <div class="rec">
+            <div><span>Finish</span><b>175</b></div>
+            <div><span>1 min</span><b>153</b><em>−22</em></div>
+            <div><span>2 min</span><b>135</b><em>−40</em></div>
+            <div><span>3 min</span><b>118</b><em>−57</em></div>
+          </div>
+        </div>
+        <div class="card">
+          <h4>Every clean <small>m/s · shown open here</small></h4>
+          <div class="grid7" id="fr-grid"></div>
+          <div class="foot">Darker = faster than your average for the day (1.94). Round 4, rep 2 came after the only long break (24 s).</div>
+        </div>
+        <div class="datanote">35 cleans found by motion · calories and load entered · strokes, transitions and speed are estimates (rows ±3–5 s)</div>
+      </div></div>
+      <ul class="notes">
+        <li><b>The score bar is the time budget.</b> Rowing, cleans and transitions add up to 19:37, so "where did my time go" is answered before any scrolling.</li>
+        <li><b>Each round is one bar to scale</b>, with the transition as the hatched start of each part (same colour, lighter). Rep ticks show the clean rhythm: R5 is visibly packed.</li>
+        <li>Helen and other repeated-round workouts use the same rows; the grid of rounds × movements from v2 stays as the tap-in detail.</li>
+      </ul>
+    </div>
+
+    <!-- ================= AMRAP ================= -->
+    <div class="col">
+      <div class="colhead">
+        <span class="eyebrow">3 · AMRAP</span>
+        <h3>AMRAP 40, A/B rounds</h3>
+        <span class="src">Real data · Nov 1 · round labels and DB weight from you</span>
+      </div>
+      <div class="phone"><div class="screen">
+        <div class="fold"><span>end of first screen</span></div>
+        <div class="status"><span>18:02</span><i>●●● ▮</i></div>
+        <div class="nav"><span>‹ Workouts</span><span>Share</span></div>
+        <div class="card">
+          <span class="kicker">Sun Nov 1 · AMRAP 40:00 · 1:00 rest between rounds</span>
+          <div class="wname">AMRAP 40</div>
+          <div class="scoreline"><span class="score">7 <small>rounds + 0</small></span></div>
+          <div class="ctx">Rounds alternate A and B · avg round 4:51 · DB 40 lb <span class="cf e">✎</span></div>
+          <div>
+            <div class="clock" id="am-clock"></div>
+            <div class="axis" style="margin-top:4px"><span>0:00</span><span>10:00</span><span>20:00</span><span>30:00</span><span>40:00</span></div>
+          </div>
+          <div class="tiles">
+            <div class="tile"><span>A rounds</span><b>5:21</b><em>avg of 4</em></div>
+            <div class="tile"><span>B rounds</span><b>4:10</b><em>avg of 3</em></div>
+            <div class="tile"><span>Transitions</span><b>7:38</b><em><span class="cf m">●</span> 23 % of work</em></div>
+          </div>
+        </div>
+        <div class="card">
+          <h4>What stood out</h4>
+          <div class="ins">
+            <div><span class="tag">A vs B</span><span class="say">B rounds were faster every time.</span><span class="ev">A 4:44 · 5:28 · 6:14 · 4:58 &nbsp;|&nbsp; B 3:52 · 4:08 · 4:30</span></div>
+            <div><span class="tag">Transitions</span><span class="say">Almost a quarter of your work time went to getting set up.</span><span class="ev">7:38 of 33:54 · wall walks 35 s before the first rep on average · DB C&amp;J 23 s</span></div>
+            <div><span class="tag">Slowest round</span><span class="say">Round 5 was the slow one: 44 s at the dumbbell before the first C&amp;J.</span><span class="ev">6:14 total · other rounds waited 10–21 s there</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h4>Rounds <small>to scale · tap a round</small></h4>
+          <div class="rows" id="am-rows"></div>
+          <div class="keyline"><span><i class="p-trS"></i>before first rep</span><span><i class="p-run"></i>row / bike</span><span><i class="p-st"></i><i class="p-st2"></i>movements</span></div>
+        </div>
+        <div class="card">
+          <h4>Per movement <small>A with A, B with B</small></h4>
+          <div class="mt" id="am-mt"></div>
+        </div>
+        <div class="card">
+          <h4>Heart rate <small>40:00 + 3:47 after</small></h4>
+          <div id="am-hr"></div>
+          <div class="rec">
+            <div><span>At cap</span><b>166</b></div>
+            <div><span>1 min</span><b>138</b><em>−28</em></div>
+            <div><span>2 min</span><b>117</b><em>−49</em></div>
+            <div><span>3 min</span><b>118</b><em>−48</em></div>
+          </div>
+        </div>
+        <div class="datanote">Burpees, C&amp;J, snatches, wall walks counted by motion · push-up and pull-up reps entered (motion finds the sets) · row/bike calories entered · first set of thresholds tuned on this session</div>
+      </div></div>
+      <ul class="notes">
+        <li><b>The 40:00 clock</b> in the score card shows where each round fell, with the 1:00 rests as gaps. A and B are labelled, never just coloured.</li>
+        <li><b>Movements compare only with the same option</b>: A rounds with A rounds, B with B. Mixing them would make every second round look "slow".</li>
+        <li><b>Rep counts say where they came from.</b> Push-ups show the 3 sets the watch found, but the reps are yours: motion was ±1 per set.</li>
+      </ul>
+    </div>
+
+    <!-- ================= HYROX ================= -->
+    <div class="col">
+      <div class="colhead">
+        <span class="eyebrow">4 · HYROX race</span>
+        <h3>HYROX Solo with a race plan</h3>
+        <span class="src ill">Example numbers · no HYROX recorded yet</span>
+      </div>
+      <div class="phone"><div class="screen">
+        <div class="fold"><span>end of first screen</span></div>
+        <div class="status"><span>14:05</span><i>●●● ▮</i></div>
+        <div class="nav"><span>‹ Workouts</span><span>Share</span></div>
+        <div class="card">
+          <span class="kicker">Example · HYROX Solo · plan 1:15:00</span>
+          <div class="wname">HYROX Anaheim</div>
+          <div class="scoreline"><span class="score">1:18:42</span><span class="pill slow">+3:42 vs plan</span></div>
+          <div class="ctx">Runs 36:40 · Stations 33:12 · Roxzone 8:50</div>
+          <div class="budget" id="hy-budget"></div>
+          <div class="tiles">
+            <div class="tile"><span>Run fade</span><b>+0:23</b><em>run 8 vs 1, /km</em></div>
+            <div class="tile"><span>Roxzone</span><b>+1:10</b><em>vs plan 7:40</em></div>
+            <div class="tile"><span>HR max</span><b>184</b><em>Wall Balls</em></div>
+          </div>
+        </div>
+        <div class="card">
+          <h4>What stood out</h4>
+          <div class="ins">
+            <div><span class="tag">Where the 3:42 went</span><span class="say">Roxzone and Wall Balls cost the most.</span><span class="ev">Roxzone +1:10 · Wall Balls +1:05 · other stations +0:47 · runs +0:40</span></div>
+            <div><span class="tag">Pacing</span><span class="say">You were on plan through leg 2, then lost time on every leg.</span><span class="ev">−0:08 after leg 1, +0:01 after leg 2, +1:40 after leg 6, +3:42 at the finish</span></div>
+            <div><span class="tag">Runs</span><span class="say">Your runs faded from 4:20 to 4:43 per km.</span><span class="ev">Run 1 was 0:10 faster than plan; runs 6–8 were 0:09–0:13 slower</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h4>Ahead or behind plan <small>after each part</small></h4>
+          <div id="hy-delta"></div>
+        </div>
+        <div class="card">
+          <h4>Legs <small>run + Roxzone + station</small></h4>
+          <div class="hdr" style="grid-template-columns:18px 1fr 52px;column-gap:8px"><span>#</span><span>to scale</span><span class="right">vs plan</span></div>
+          <div class="rows" id="hy-rows"></div>
+          <div class="keyline"><span><i class="p-run"></i>run</span><span><i class="p-rox"></i>Roxzone</span><span><i class="p-st"></i>station</span></div>
+        </div>
+        <div class="card">
+          <h4>Heart rate <small>example curve</small></h4>
+          <div id="hy-hr"></div>
+          <div class="rec">
+            <div><span>Finish</span><b>184</b></div>
+            <div><span>1 min</span><b>156</b><em>−28</em></div>
+            <div><span>2 min</span><b>139</b><em>−45</em></div>
+            <div><span>3 min</span><b>128</b><em>−56</em></div>
+          </div>
+        </div>
+        <div class="datanote">Example. In a real race: splits from Crown turns, Roxzone from motion (first stride, first stroke), run distance from the pedometer with your calibration</div>
+      </div></div>
+      <ul class="notes">
+        <li><b>With a plan, the score gets one delta pill</b> (+3:42) and the story becomes "ahead or behind" after each part, the number racers actually watch.</li>
+        <li><b>Roxzone becomes its own part</b> of every leg instead of hiding inside run time, matching the official HYROX results.</li>
+        <li>Without a plan the pill compares with your last race of the same type; with neither, it is left out.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sheet">
+    <div class="panel">
+      <span class="eyebrow">Design decisions</span>
+      <ul class="decisions">
+        <li><b>One skeleton, four stories.</b> Score → what stood out → the workout → heart rate → details → data note, in every format.</li>
+        <li><b>The first screen answers "how did it go".</b> Score, a tiny picture of the workout and three insights all sit above the dashed line.</li>
+        <li><b>Hatched = before the first rep</b>, in the colour of what comes next. Start delay in an EMOM, a walk to the bar, Roxzone: one visual rule.</li>
+        <li><b>Every number says where it came from</b>: ● motion, ✎ entered, ~ estimate. Bar speed is always labelled as a wrist estimate.</li>
+        <li><b>Insights are plain sentences with their evidence</b> right under them, picked from comparisons with your own numbers only.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <span class="eyebrow">Questions for you</span>
+      <ol class="qs">
+        <li>EMOM rows: is <b>rest left</b> the right big number, or would you rather see <b>time after the beep</b> (how long you waited before pulling)?</li>
+        <li>Loads: type them on the phone after the workout (one field per set, copied down), or pick them on the watch before each set?</li>
+        <li>Bar speed: keep m/s numbers, or show it only relative to yourself ("−17 % from your 125 lb sets")?</li>
+        <li>AMRAP with alternating options: is comparing A rounds with A rounds (and B with B) how you think about it?</li>
+        <li>HYROX: should the plan come from a target finish time you type in, or from your last race's splits?</li>
+      </ol>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  // ---------- theme toggle ----------
+  var root = document.documentElement;
+  var btns = { sys: document.getElementById("t-sys"), light: document.getElementById("t-light"), dark: document.getElementById("t-dark") };
+  function setTheme(k) {
+    if (k === "sys") { root.removeAttribute("data-theme"); } else { root.setAttribute("data-theme", k); }
+    Object.keys(btns).forEach(function (b) { btns[b].setAttribute("aria-pressed", String(b === k)); });
+  }
+  Object.keys(btns).forEach(function (k) { btns[k].addEventListener("click", function () { setTheme(k); }); });
+
+  // ---------- helpers ----------
+  function fmt(s) { var neg = s < 0; s = Math.round(Math.abs(s)); var m = Math.floor(s / 60), r = s % 60; return (neg ? "−" : "") + m + ":" + (r < 10 ? "0" : "") + r; }
+  function fmtH(s) { s = Math.round(s); var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), r = s % 60; return (h ? h + ":" + (m < 10 ? "0" : "") : "") + m + ":" + (r < 10 ? "0" : "") + r; }
+  function signed(s) { return (s > 0 ? "+" : s < 0 ? "−" : "±") + fmt(Math.abs(s)); }
+  function el(id) { return document.getElementById(id); }
+  function pct(a, b) { return (100 * a / b).toFixed(2) + "%"; }
+
+  // HR chart: series every 5 s from t=0; bands behind; recovery tail after finish.
+  function hrChart(o) {
+    var W = 320, H = 132, x0 = 26, x1 = 314, y0 = 10, y1 = 100;
+    var T = o.series.length * 5;
+    var X = function (t) { return x0 + (x1 - x0) * t / T; };
+    var Y = function (v) { return y1 - (y1 - y0) * (v - o.yMin) / (o.yMax - o.yMin); };
+    var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + o.label + '">';
+    o.bands.forEach(function (b) {
+      var fill = { st: "var(--stBand)", trS: "url(#hatchS)", run: "var(--runBand)", trR: "url(#hatchR)", rest: "var(--restBand)", rox: "var(--restBand)" }[b.k];
+      s += '<rect x="' + X(b.a).toFixed(1) + '" y="' + y0 + '" width="' + Math.max(0.6, X(b.b) - X(b.a)).toFixed(1) + '" height="' + (y1 - y0) + '" style="fill:' + fill + '"/>';
+    });
+    s += '<rect x="' + X(o.finish).toFixed(1) + '" y="' + y0 + '" width="' + (x1 - X(o.finish)).toFixed(1) + '" height="' + (y1 - y0) + '" style="fill:var(--recBand)"/>';
+    o.grid.forEach(function (g) {
+      s += '<line x1="' + x0 + '" x2="' + x1 + '" y1="' + Y(g).toFixed(1) + '" y2="' + Y(g).toFixed(1) + '" style="stroke:var(--line);stroke-width:1"/>';
+      s += '<text x="' + (x0 - 4) + '" y="' + (Y(g) + 3).toFixed(1) + '" text-anchor="end">' + g + '</text>';
+    });
+    var pts = o.series.map(function (v, i) { return X(i * 5 + 2.5).toFixed(1) + "," + Y(Math.max(o.yMin, Math.min(o.yMax, v))).toFixed(1); }).join(" ");
+    s += '<polyline points="' + pts + '" style="fill:none;stroke:var(--hr);stroke-width:1.8;stroke-linejoin:round"/>';
+    s += '<line x1="' + X(o.finish).toFixed(1) + '" x2="' + X(o.finish).toFixed(1) + '" y1="' + (y0 - 4) + '" y2="' + (y1 + 2) + '" style="stroke:var(--ink);stroke-width:1.2"/>';
+    s += '<text class="lbl" x="' + (X(o.finish) - 3).toFixed(1) + '" y="' + (y0 - 1) + '" text-anchor="end">finish</text>';
+    o.rec.forEach(function (r) {
+      var cx = X(o.finish + r.dt), cy = Y(r.hr);
+      s += '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="3.2" style="fill:var(--rec);stroke:var(--card);stroke-width:1.2"/>';
+    });
+    s += '<line x1="' + x0 + '" x2="' + x1 + '" y1="' + (y1 + 8) + '" y2="' + (y1 + 8) + '" style="stroke:var(--line)"/>';
+    o.ticks.forEach(function (t) {
+      s += '<text x="' + X(t).toFixed(1) + '" y="' + (y1 + 20) + '" text-anchor="middle">' + fmtH(t) + '</text>';
+    });
+    s += '<text class="lbl" x="' + x1 + '" y="' + (y1 + 31) + '" text-anchor="end" style="fill:var(--rec)">recovery →</text>';
+    s += '</svg>';
+    return s;
+  }
+
+  // ================= EMOM =================
+  var emom = [
+    { lb: 125, lead: 3.2, work: 14.5, rest: 42.3, pulls: [3.2, 12.4], v: [1.95, 1.95], rack: [1.0, 1.6], jd: [1.28, 1.38] },
+    { lb: 135, lead: 2.5, work: 17.4, rest: 40.1, pulls: [2.4, 14.1], v: [1.86, 1.82], rack: [1.6, 1.8], jd: [1.16, 1.47] },
+    { lb: 145, lead: 8.9, work: 18.8, rest: 32.3, pulls: [8.8, 21.8], v: [1.91, 1.88], rack: [1.7, 2.0], jd: [1.14, 1.57] },
+    { lb: 145, lead: 5.0, work: 17.0, rest: 37.9, pulls: [5.0, 16.8], v: [1.89, 1.87], rack: [1.5, 1.5], jd: [1.30, 1.37] },
+    { lb: 155, lead: 4.3, work: 19.8, rest: 35.8, pulls: [4.3, 18.6], v: [2.00, 1.95], rack: [1.6, 1.7], jd: [1.17, 1.43] },
+    { lb: 155, lead: 7.8, work: 22.0, rest: 30.2, pulls: [7.7, 23.2], v: [1.77, 1.82], rack: [1.9, 2.6], jd: [1.41, 1.49] },
+    { lb: 165, lead: 14.8, work: 21.9, rest: 23.4, pulls: [14.7, 30.6], v: [1.65, 1.75], rack: [1.5, 1.8], jd: [1.40, 1.16] },
+    { lb: 175, lead: 24.0, work: 23.9, rest: 12.0, pulls: [24.0, 40.7], v: [1.63, 1.61], rack: [2.4, 2.7], jd: [1.40, 1.21] }
+  ];
+  el("emom-minis").innerHTML = emom.map(function (m) {
+    return '<div><div class="vslot"><div class="p-trS" style="height:' + pct(m.lead, 60) + '"></div><div class="p-st" style="height:' + pct(m.work, 60) + '"></div></div><span>' + m.lb + '</span></div>';
+  }).join("");
+  el("emom-rows").innerHTML = emom.map(function (m, i) {
+    var ticks = m.pulls.map(function (p) { return '<span class="tick" style="left:' + pct(p + 0.9, 60) + '"></span>'; }).join("");
+    var vm = (m.v[0] + m.v[1]) / 2;
+    var tight = m.rest < 15;
+    var row = '<div class="row" style="grid-template-columns:18px 60px 1fr 46px">' +
+      '<span class="idx">' + (i + 1) + '</span>' +
+      '<span class="big">' + m.lb + '<small> lb</small></span>' +
+      '<div class="slot"><div class="part p-trS" style="width:' + pct(m.lead, 60) + '"></div><div class="part p-st" style="width:' + pct(m.work, 60) + '"></div>' + ticks + '</div>' +
+      '<span class="big right" style="color:' + (tight ? "var(--slow)" : "var(--ink)") + '">' + fmt(m.rest) + '</span>' +
+      '<span class="sub">2/2 <span class="cf m">●</span> · start +' + Math.round(m.lead) + ' s · set ' + Math.round(m.work) + ' s · ' + vm.toFixed(2) + ' m/s <span class="cf x">~</span>' + (tight ? ' · <b style="color:var(--slow)">tight</b>' : '') + '</span>';
+    if (i === 7) {
+      row += '<div class="open"><div class="mini"><span>Rep</span><span>Clean</span><span>Rack</span><span>Jerk</span>' +
+        m.v.map(function (v, k) { return '<b>' + (k + 1) + '</b><span>' + v.toFixed(2) + ' m/s</span><span>' + m.rack[k].toFixed(1) + ' s</span><span>' + m.jd[k].toFixed(2) + ' m/s</span>'; }).join("") +
+        '</div><span>Set 8 fell inside a rest on the watch (late Crown in minute 7). Placed in minute 8 by motion.</span></div>';
+    }
+    return row + '</div>';
+  }).join("");
+
+  // speed vs load
+  (function () {
+    var W = 320, H = 168, x0 = 32, x1 = 300, y0 = 10, y1 = 132;
+    var X = function (lb) { return x0 + (x1 - x0) * (lb - 120) / 60; };
+    var Y = function (v) { return y1 - (y1 - y0) * (v - 1.0) / 1.1; };
+    var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Clean and jerk speed versus load">';
+    [1.2, 1.4, 1.6, 1.8, 2.0].forEach(function (g) {
+      s += '<line x1="' + x0 + '" x2="' + x1 + '" y1="' + Y(g).toFixed(1) + '" y2="' + Y(g).toFixed(1) + '" style="stroke:var(--line)"/><text x="' + (x0 - 5) + '" y="' + (Y(g) + 3).toFixed(1) + '" text-anchor="end">' + g.toFixed(1) + '</text>';
+    });
+    [125, 135, 145, 155, 165, 175].forEach(function (lb) {
+      s += '<text x="' + X(lb).toFixed(1) + '" y="' + (y1 + 14) + '" text-anchor="middle">' + lb + '</text>';
+    });
+    s += '<text x="' + ((x0 + x1) / 2) + '" y="' + (y1 + 28) + '" text-anchor="middle" class="lbl">load, lb</text>';
+    s += '<line x1="' + X(125).toFixed(1) + '" y1="' + Y(1.98).toFixed(1) + '" x2="' + X(175).toFixed(1) + '" y2="' + Y(1.69).toFixed(1) + '" style="stroke:var(--st);stroke-width:1.5;stroke-dasharray:4 3"/>';
+    var seen = {};
+    emom.forEach(function (m) {
+      m.v.forEach(function (v, k) {
+        var key = m.lb; seen[key] = (seen[key] || 0) + 1;
+        var dx = (seen[key] - 2.5) * 2.6;
+        s += '<circle cx="' + (X(m.lb) + dx).toFixed(1) + '" cy="' + Y(v).toFixed(1) + '" r="3.6" style="fill:var(--st)"/>';
+        s += '<circle cx="' + (X(m.lb) + dx).toFixed(1) + '" cy="' + Y(m.jd[k]).toFixed(1) + '" r="3.2" style="fill:var(--card);stroke:var(--run);stroke-width:1.6"/>';
+      });
+    });
+    s += '<text class="lblb" x="' + (x1 + 4) + '" y="' + (Y(1.66) + 4).toFixed(1) + '" style="fill:var(--st)">clean</text>';
+    s += '<text class="lblb" x="' + (x1 + 4) + '" y="' + (Y(1.30) + 4).toFixed(1) + '" style="fill:var(--run)">jerk</text>';
+    s += '<text class="lbl" x="' + X(126).toFixed(1) + '" y="' + (Y(2.02) - 4).toFixed(1) + '">1.95</text>';
+    s += '<text class="lbl" x="' + (X(175) - 4).toFixed(1) + '" y="' + (Y(1.62) + 14).toFixed(1) + '" text-anchor="middle">1.62</text>';
+    s += '</svg>';
+    el("emom-vl").innerHTML = s;
+  })();
+
+  var hrEmom = [148,148,148,149,148,155,155,144,143,146,149,151,143,141,140,145,145,146,151,151,141,141,143,148,149,145,144,145,145,148,149,157,159,159,158,150,146,147,148,149,151,151,156,155,153,146,146,152,153,153,153,152,156,156,159,162,158,153,150,151,155,147,146,146,157,160,161,164,165,162,159,159,161,162,164,165,164,162,163,163,164,167,167,164,159,159,161,161,161,162,162,163,165,166,167,170,170,169,166,161,160,153,152,152,149,148,140,140,142,136,136,127,132,132,132,133,135,136,136,132,125,125,126,127,129,126,125,125,115,114,118,119,117,117];
+  var emomBands = [];
+  emom.forEach(function (m, i) { var a = i * 60; emomBands.push({ k: "trS", a: a, b: a + m.lead }); emomBands.push({ k: "st", a: a + m.lead, b: a + m.lead + m.work }); });
+  el("emom-hr").innerHTML = hrChart({ label: "Heart rate during the EMOM and after", series: hrEmom, finish: 523, yMin: 105, yMax: 175, grid: [120, 140, 160], ticks: [0, 240, 480], bands: emomBands, rec: [{ dt: 0, hr: 152 }, { dt: 60, hr: 135 }, { dt: 120, hr: 118 }] });
+
+  // ================= FREEDOM =================
+  var fr = [
+    { cal: 40, strokes: 52, rate: 19.9, trIn: 0, row: 154, trOut: 29.9, clean: 68.0, gap: 10.4, v: 1.99, pulls: [0, 7, 17, 27, 39, 55, 66], vs: [2.10, 2.00, 1.95, 1.92, 2.02, 1.98, 1.96] },
+    { cal: 30, strokes: 43, rate: 19.8, trIn: 13.6, row: 127, trOut: 30.7, clean: 71.8, gap: 11.4, v: 1.93, pulls: [0, 10, 22, 33, 45, 58, 70], vs: [1.95, 1.95, 2.06, 1.93, 1.92, 1.91, 1.78] },
+    { cal: 20, strokes: 33, rate: 22.9, trIn: 16.7, row: 84, trOut: 23.5, clean: 68.1, gap: 11.3, v: 1.94, pulls: [0, 10, 20, 32, 43, 54, 66], vs: [1.91, 1.96, 1.93, 1.97, 1.88, 2.00, 1.93] },
+    { cal: 30, strokes: 48, rate: 20.8, trIn: 10.8, row: 135, trOut: 24.1, clean: 82.2, gap: 11.5, v: 1.89, pulls: [0, 25, 35, 46, 58, 70, 80], vs: [1.89, 1.94, 1.82, 1.95, 1.99, 1.82, 1.85] },
+    { cal: 40, strokes: 57, rate: 18.8, trIn: 13.3, row: 179, trOut: 12.2, clean: 31.4, gap: 4.8, v: 1.94, pulls: [0, 5, 10, 15, 20, 25, 29], vs: [1.95, 2.06, 1.93, 1.95, 1.89, 2.01, 1.82] }
+  ];
+  var frMax = 0; fr.forEach(function (r) { r.tot = r.trIn + r.row + r.trOut + r.clean; frMax = Math.max(frMax, r.tot); });
+  el("fr-budget").innerHTML =
+    '<div class="p-run" style="width:' + pct(679, 1177) + '">11:19</div>' +
+    '<div class="p-st" style="width:' + pct(321, 1177) + '">5:21</div>' +
+    '<div class="p-trS tr" style="width:' + pct(177, 1177) + '">2:57</div>';
+  el("fr-rows").innerHTML = fr.map(function (r, i) {
+    var ticks = r.pulls.map(function (p) { return '<span class="tick" style="left:' + pct(p + 1, r.clean + 1) + '"></span>'; }).join("");
+    var bar = '<div class="slot" style="width:' + pct(r.tot, frMax) + ';background:transparent">' +
+      (r.trIn ? '<div class="part p-trR" style="width:' + pct(r.trIn, r.tot) + '"></div>' : '') +
+      '<div class="part p-run" style="width:' + pct(r.row, r.tot) + '"><span class="plabel">' + r.cal + ' cal</span></div>' +
+      '<div class="part p-trS" style="width:' + pct(r.trOut, r.tot) + '"></div>' +
+      '<div class="part p-st" style="width:' + pct(r.clean, r.tot) + '">' + ticks + '</div></div>';
+    var html = '<div class="row" style="grid-template-columns:24px 1fr 44px">' +
+      '<span class="idx">R' + (i + 1) + '</span>' + '<div class="track">' + bar + '</div>' +
+      '<span class="big right" style="font-size:18px">' + fmt(r.tot) + '</span>' +
+      '<span class="sub">' + r.strokes + ' strokes <span class="cf x">~</span> · to bar ' + Math.round(r.trOut) + ' s · 7/7 <span class="cf m">●</span> · 1 rep / ' + r.gap.toFixed(1).replace(".0", "") + ' s · ' + r.v.toFixed(2) + ' m/s</span>';
+    if (i === 3) {
+      html += '<div class="open"><span><b>Round 4 · 4:12</b> · row 2:15 · to bar 0:24 · cleans 1:22</span><span>Rep 2 came 24 s after rep 1, the only long break of the day. Other gaps 10–12 s. Speed 1.82–1.99 m/s.</span></div>';
+    }
+    return html + '</div>';
+  }).join("");
+  // speed grid
+  (function () {
+    var all = []; fr.forEach(function (r) { all = all.concat(r.vs); });
+    var mean = all.reduce(function (a, b) { return a + b; }, 0) / all.length;
+    var g = '<div class="h"></div>'; for (var k = 1; k <= 7; k++) { g += '<div class="h">' + k + '</div>'; }
+    fr.forEach(function (r, i) {
+      g += '<div class="h" style="text-align:left;padding-top:7px">R' + (i + 1) + '</div>';
+      r.vs.forEach(function (v) {
+        var d = v - mean;
+        var bg = d >= 0.04 ? "var(--fast)" : d <= -0.06 ? "var(--slow)" : "var(--fill)";
+        var fg = (d >= 0.04 || d <= -0.06) ? "var(--onBar)" : "var(--ink)";
+        g += '<div style="background:' + bg + ';color:' + fg + '">' + v.toFixed(2) + '</div>';
+      });
+    });
+    el("fr-grid").innerHTML = g;
+  })();
+  var hrFr = [100,102,100,115,119,122,132,136,137,139,141,147,150,152,153,155,155,154,154,155,159,160,160,160,159,159,160,160,161,162,162,163,163,163,163,164,164,162,162,163,164,165,166,166,167,167,165,166,166,164,167,166,166,166,165,164,164,162,162,161,161,160,159,159,159,159,159,160,160,161,162,162,163,164,164,164,165,165,165,164,165,165,164,163,162,162,160,160,162,161,161,161,161,163,164,163,163,163,164,164,164,165,165,165,157,157,158,159,160,161,160,159,159,159,158,158,158,158,159,160,160,161,161,159,161,160,161,161,162,163,163,163,163,164,163,166,166,168,167,165,167,169,169,167,166,165,162,162,161,160,160,160,159,160,160,161,162,161,161,162,162,161,162,162,161,162,161,162,162,160,160,163,164,162,162,161,162,160,161,161,161,162,161,164,164,165,166,167,167,165,165,165,166,164,164,162,162,162,161,161,161,161,160,159,158,159,159,159,160,161,162,163,163,164,164,164,163,163,163,164,164,165,166,166,166,167,167,167,167,167,168,170,172,172,173,175,175,176,175,170,167,167,160,160,160,156,156,155,147,145,139,139,143,143,142,139,137,136,136,137,133,126,126,127,128,129,126,124,123,120,119,117,117,118];
+  var frBands = [], t = 0;
+  fr.forEach(function (r) {
+    if (r.trIn) { frBands.push({ k: "trR", a: t, b: t + r.trIn }); t += r.trIn; }
+    frBands.push({ k: "run", a: t, b: t + r.row }); t += r.row;
+    frBands.push({ k: "trS", a: t, b: t + r.trOut }); t += r.trOut;
+    frBands.push({ k: "st", a: t, b: t + r.clean }); t += r.clean;
+  });
+  el("fr-hr").innerHTML = hrChart({ label: "Heart rate during Freedom and after", series: hrFr, finish: 1177, yMin: 95, yMax: 180, grid: [120, 140, 160], ticks: [0, 600, 1177], bands: frBands, rec: [{ dt: 0, hr: 175 }, { dt: 60, hr: 153 }, { dt: 120, hr: 135 }, { dt: 180, hr: 118 }] });
+
+  // ================= AMRAP 40 =================
+  var A = ["Row", "Push-ups", "DB C&J", "Burpees"], B = ["Bike", "Pull-ups", "Snatch", "Wall walks"];
+  var am = [
+    { o: "A", d: [50, 56, 59, 118], tr: [1, 6, 10, 11] },
+    { o: "B", d: [71, 31, 55, 76], tr: [3, 12, 24, 30] },
+    { o: "A", d: [53, 73, 68, 134], tr: [10, 17, 21, 28] },
+    { o: "B", d: [87, 33, 48, 79], tr: [1, 14, 19, 32] },
+    { o: "A", d: [62, 72, 97, 144], tr: [4, 13, 44, 25] },
+    { o: "B", d: [94, 39, 50, 87], tr: [8, 17, 19, 42] },
+    { o: "A", d: [49, 71, 71, 107], tr: [0, 15, 17, 17] }
+  ];
+  var amMax = 0; am.forEach(function (r) { r.tot = r.d.reduce(function (a, b) { return a + b; }, 0); amMax = Math.max(amMax, r.tot); });
+  // clock strip
+  (function () {
+    var t = 0, h = "";
+    am.forEach(function (r, i) {
+      h += '<div class="' + (r.o === "A" ? "p-st" : "p-st2") + '" style="left:' + pct(t, 2400) + ';width:' + pct(r.tot, 2400) + '">' + r.o + '</div>';
+      t += r.tot + (i < 6 ? 60 : 6);
+    });
+    el("am-clock").innerHTML = h;
+  })();
+  el("am-rows").innerHTML = am.map(function (r, i) {
+    var names = r.o === "A" ? A : B;
+    var parts = r.d.map(function (d, k) {
+      var cls = k === 0 ? "p-run" : (k % 2 ? "p-st" : "p-st2");
+      var tcls = k === 0 ? "p-trR" : "p-trS";
+      var w = pct(d, r.tot), trw = pct(r.tr[k], d);
+      var lab = d - r.tr[k] > 44 ? '<span class="plabel">' + names[k] + '</span>' : '';
+      return '<div class="part" style="width:' + w + ';display:flex"><div class="' + tcls + '" style="width:' + trw + '"></div><div class="' + cls + '" style="flex:1;position:relative">' + lab + '</div></div>';
+    }).join("");
+    var trs = r.tr.reduce(function (a, b) { return a + b; }, 0);
+    var html = '<div class="row" style="grid-template-columns:30px 1fr 44px">' +
+      '<span class="idx">R' + (i + 1) + ' <span style="font-size:11px;color:var(--ink2)">' + r.o + '</span></span>' +
+      '<div class="track"><div class="slot" style="width:' + pct(r.tot, amMax) + ';background:transparent">' + parts + '</div></div>' +
+      '<span class="big right" style="font-size:18px;color:' + (i === 4 ? "var(--slow)" : "var(--ink)") + '">' + fmt(r.tot) + '</span>' +
+      '<span class="sub">' + names.map(function (n, k) { return n + " " + fmt(r.d[k]); }).join(" · ") + ' · before reps ' + fmt(trs) + '</span>';
+    if (i === 4) {
+      html += '<div class="open"><span><b>Round 5 · 6:14</b> · slowest round</span><span>DB C&amp;J 1:37 = 0:44 before the first rep + 0:53 of reps. The reps themselves took as long as in other rounds (0:47–0:54).</span></div>';
+    }
+    return html + '</div>';
+  }).join("");
+  el("am-mt").innerHTML =
+    '<span class="h">Movement</span><span class="h">Reps</span><span class="h n">Avg</span><span class="h n">Before</span>' +
+    '<span class="g">A · rounds 1 3 5 7</span>' +
+    '<span>Row <span class="s">21–28 /min <span class="cf x">~</span></span></span><span>12 cal <span class="cf e">✎</span></span><span class="n">0:54</span><span class="n">0:04</span>' +
+    '<span>Push-ups <span class="s">3 sets found <span class="cf m">●</span></span></span><span>15 <span class="cf e">✎</span></span><span class="n">1:08</span><span class="n">0:13</span>' +
+    '<span>DB clean &amp; jerk</span><span>12 <span class="cf m">●</span> 4/4</span><span class="n">1:14</span><span class="n">0:23</span>' +
+    '<span>Burpees to target</span><span>15 <span class="cf m">●</span> 4/4</span><span class="n">2:06</span><span class="n">0:20</span>' +
+    '<span class="g">B · rounds 2 4 6</span>' +
+    '<span>Bike <span class="s">54–60 rpm <span class="cf x">~</span></span></span><span>12 cal <span class="cf e">✎</span></span><span class="n">1:24</span><span class="n">0:04</span>' +
+    '<span>Strict pull-ups <span class="s">motion 6, 6, 7</span></span><span>6 <span class="cf e">✎</span></span><span class="n">0:34</span><span class="n">0:14</span>' +
+    '<span>DB snatch</span><span>12 <span class="cf m">●</span> 3/3</span><span class="n">0:51</span><span class="n">0:20</span>' +
+    '<span>Wall walks</span><span>3 <span class="cf m">●</span> 3/3</span><span class="n">1:21</span><span class="n" style="color:var(--slow)">0:35</span>';
+  var hrAm = [83,76,107.1,136,136,121,122,123,128,130,131,137,137,134,141,142,141,144,144,144,143,143,140,143,142,139,142,142,149,150,153,154,157,158,158,156,156,153.5,152.3,151,152,153,153,153,153,154,154,153,151,149,150,150,151,151,151,151,152,152,153,154,154,153,152,152,146,144,143,143,142,135,134,132,126,131,135,137,141,142,143,146,149,152,153,153,153,150,150,150,154,158,158,156,153,147,144,144,144.6,145.3,146,148.4,151,153,153,153,153,152,134,136,141,143,147,149,148,148,149,146,147,149,148,150,148,144,141,140,137,136,133,120,118,120,122,125,125,128,134,135,142,143,145,147,146,147,147,143,146,149,149,149,145,146,145,142,139,140,141,139,141,141,142,139,142,150,153,155,157,159,160,161,160,156,155,155,155,153,150,150,152,152,152,152,152,153,153,153,154,153,154,154,155,155,155,154,154,155,154,155,154,150,149,149,144,145,143,141,140,133,131,128,127,129,132,134,137,141,142,142,144,144,146,146,148,149,150,149,148,148,147,146,153,159,158,157,150,148,147,146,147,150,154,155,155,154,150,150,152,152,152,149,149,150,149,147,149,150,149,147,148,148,148,148,147,145,142,138,137,132,131,132,131,123,125,125,129,134,136,138,142,144,144,145,146,145,145,144,143,144,146,147,146,142,142,143,141,141,141,140,140,139,140,140,139,138,136,136,136,136,148,148,148,148,148,148,157,157,157,156,155,155,153,150,151,151,151,148,149,149,150,150,151,152,152,151,151,152,152,152,152,152,154,154,154,152,151,153,152,151,150,146,145,145,138,133,133,136,134.4,132.7,131,130,132,132,137,138,140,141,142,144,146,147,148,149,149,151,153,152,151,150,149,148,148,149,155,154,152,151,147,147,143,147,149,153,154,155,155,153,150,146,148,150,149,149,142,145,147,146,143,146,147,143,146,146,146,147,146,144,146,145,145,146,142,137,137,129,129,134,137,141,145,147,149,153,154,154,151,150,148,151,151,151,149,149,149,149,148,147,147,147,147,147,148,149,149,153,156,156,158,159,160,162,161,160,160,158,158,155,155,156,156,156,157,157,159,160,161,162,162,163,163,164,166,166,166,162,160,156,155,154,152,148,144,140,136,135,139,139,139,139,133,126,126,123,118,122,114,116,118,118,115,114,115,115,115,118,121,120,119,119,119,116,116,113,113,113,111,112,109,109];
+  var amBands = []; t = 0;
+  am.forEach(function (r, i) {
+    r.d.forEach(function (d, k) {
+      amBands.push({ k: k === 0 ? "trR" : "trS", a: t, b: t + r.tr[k] });
+      amBands.push({ k: k === 0 ? "run" : "st", a: t + r.tr[k], b: t + d });
+      t += d;
+    });
+    t += (i < 6 ? 60 : 6);
+  });
+  el("am-hr").innerHTML = hrChart({ label: "Heart rate during AMRAP 40 and after", series: hrAm, finish: 2400, yMin: 100, yMax: 175, grid: [120, 140, 160], ticks: [0, 1200, 2400], bands: amBands, rec: [{ dt: 0, hr: 166 }, { dt: 60, hr: 138 }, { dt: 120, hr: 117 }, { dt: 180, hr: 118 }] });
+
+  // ================= HYROX (example numbers) =================
+  var st = ["SkiErg", "Sled Push", "Sled Pull", "Burpee BJ", "Row", "Farmers", "Lunges", "Wall Balls"];
+  var hy = {
+    run: [260, 268, 275, 278, 276, 281, 279, 283],
+    rox: [62, 64, 66, 68, 66, 64, 68, 72],
+    sta: [252, 185, 260, 275, 265, 110, 250, 395],
+    runT: 270, roxT: 57.5,
+    staT: [255, 180, 255, 255, 260, 105, 240, 330]
+  };
+  el("hy-budget").innerHTML =
+    '<div class="p-run" style="width:' + pct(2200, 4722) + '">36:40</div>' +
+    '<div class="p-st" style="width:' + pct(1992, 4722) + '">33:12</div>' +
+    '<div class="p-rox tr" style="width:' + pct(530, 4722) + '">8:50</div>';
+  var legMax = 0, cum = 0, pts = [{ x: 0, d: 0, lab: "" }];
+  for (var i = 0; i < 8; i++) {
+    legMax = Math.max(legMax, hy.run[i] + hy.rox[i] + hy.sta[i]);
+    cum += hy.run[i] - hy.runT; pts.push({ d: cum, k: "run" });
+    cum += hy.rox[i] - hy.roxT; pts.push({ d: cum, k: "rox" });
+    cum += hy.sta[i] - hy.staT[i]; pts.push({ d: cum, k: "st", name: st[i] });
+  }
+  el("hy-rows").innerHTML = st.map(function (name, i) {
+    var tot = hy.run[i] + hy.rox[i] + hy.sta[i];
+    var tgt = hy.runT + hy.roxT + hy.staT[i];
+    var d = tot - tgt;
+    var col = d <= 0 ? "var(--fast)" : d > 30 ? "var(--slow)" : "var(--ink)";
+    return '<div class="row" style="grid-template-columns:18px 1fr 52px">' +
+      '<span class="idx">' + (i + 1) + '</span>' +
+      '<div class="track"><div class="slot" style="width:' + pct(tot, legMax) + ';background:transparent">' +
+      '<div class="part p-run" style="width:' + pct(hy.run[i], tot) + '"></div>' +
+      '<div class="part p-rox" style="width:' + pct(hy.rox[i], tot) + '"></div>' +
+      '<div class="part p-st" style="width:' + pct(hy.sta[i], tot) + '"><span class="plabel">' + name + '</span></div></div></div>' +
+      '<span class="big right" style="font-size:17px;color:' + col + '">' + signed(d) + '</span>' +
+      '<span class="sub">Run ' + fmt(hy.run[i]) + ' · Rox ' + fmt(hy.rox[i]) + ' · ' + name + ' ' + fmt(hy.sta[i]) + ' (plan ' + fmt(hy.staT[i]) + ')</span></div>';
+  }).join("");
+  (function () {
+    var W = 320, H = 150, x0 = 34, x1 = 312, y0 = 12, y1 = 118;
+    var n = pts.length - 1, lo = -30, hi = 240;
+    var X = function (i) { return x0 + (x1 - x0) * i / n; };
+    var Y = function (d) { return y1 - (y1 - y0) * (d - lo) / (hi - lo); };
+    var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Time ahead or behind the race plan after each part">';
+    [0, 60, 120, 180, 240].forEach(function (g) {
+      s += '<line x1="' + x0 + '" x2="' + x1 + '" y1="' + Y(g).toFixed(1) + '" y2="' + Y(g).toFixed(1) + '" style="stroke:' + (g === 0 ? "var(--ink2)" : "var(--line)") + ';stroke-width:' + (g === 0 ? 1.2 : 1) + '"/>';
+      s += '<text x="' + (x0 - 4) + '" y="' + (Y(g) + 3).toFixed(1) + '" text-anchor="end">' + (g === 0 ? "plan" : "+" + fmt(g)) + '</text>';
+    });
+    for (var k = 0; k < 8; k++) { s += '<text x="' + X(3 * k + 2).toFixed(1) + '" y="' + (y1 + 14) + '" text-anchor="middle">' + (k + 1) + '</text>'; }
+    s += '<text class="lbl" x="' + ((x0 + x1) / 2) + '" y="' + (y1 + 27) + '" text-anchor="middle">leg (run · Roxzone · station)</text>';
+    var area = "M" + X(0) + "," + Y(0);
+    pts.forEach(function (p, i) { area += " L" + X(i).toFixed(1) + "," + Y(p.d).toFixed(1); });
+    area += " L" + X(n) + "," + Y(0) + " Z";
+    s += '<path d="' + area + '" style="fill:var(--slow);opacity:.14"/>';
+    s += '<polyline points="' + pts.map(function (p, i) { return X(i).toFixed(1) + "," + Y(p.d).toFixed(1); }).join(" ") + '" style="fill:none;stroke:var(--slow);stroke-width:2;stroke-linejoin:round"/>';
+    pts.forEach(function (p, i) {
+      if (!i) return;
+      var c = p.k === "run" ? "var(--run)" : p.k === "rox" ? "var(--rest)" : "var(--st)";
+      s += '<circle cx="' + X(i).toFixed(1) + '" cy="' + Y(p.d).toFixed(1) + '" r="2.6" style="fill:' + c + '"/>';
+    });
+    s += '<text class="lblb" x="' + (X(n) - 2).toFixed(1) + '" y="' + (Y(pts[n].d) - 7).toFixed(1) + '" text-anchor="end" style="fill:var(--slow)">+3:42</text>';
+    s += '<text class="lbl" x="' + (X(21) - 4).toFixed(1) + '" y="' + (Y(pts[21].d) - 8).toFixed(1) + '" text-anchor="end">Wall Balls +1:05</text>';
+    s += '<text class="lbl" x="' + X(3).toFixed(1) + '" y="' + (Y(pts[3].d) - 8).toFixed(1) + '" text-anchor="start" style="fill:var(--fast)">−0:08</text>';
+    s += '</svg>';
+    el("hy-delta").innerHTML = s;
+  })();
+  // example HR curve (illustrative)
+  (function () {
+    var series = [], bands = [], t = 0;
+    var stBase = [172, 177, 176, 178, 171, 174, 177, 181];
+    function push(dur, base, k) {
+      bands.push({ k: k, a: t, b: t + dur });
+      for (var s = 0; s < dur; s += 5) { var tt = t + s; series.push(base + 2.5 * Math.sin(tt / 37) + 1.5 * Math.sin(tt / 11)); }
+      t += dur;
+    }
+    for (var i = 0; i < 8; i++) {
+      push(hy.run[i], 166 + i * 0.9, "run");
+      push(hy.rox[i] / 2, 168, "rox");
+      push(hy.sta[i], stBase[i] + (i === 7 ? 1 : 0), "st");
+      push(hy.rox[i] / 2, 170, "rox");
+    }
+    var fin = t;
+    var tail = [], knots = [[0, 184], [12, 156], [24, 139], [36, 128]];
+    for (var q = 0; q <= 36; q++) {
+      var j = Math.min(2, Math.floor(q / 12)), f = (q - knots[j][0]) / 12;
+      tail.push(knots[j][1] + (knots[j + 1][1] - knots[j][1]) * f);
+    }
+    while (series.length * 5 < fin) series.push(170);
+    series = series.slice(0, Math.floor(fin / 5));
+    series[series.length - 1] = 184;
+    series = series.concat(tail);
+    el("hy-hr").innerHTML = hrChart({ label: "Example heart rate during a HYROX race and after", series: series, finish: series.length * 5 - tail.length * 5, yMin: 120, yMax: 190, grid: [140, 160, 180], ticks: [0, 2400, 4722], bands: bands, rec: [{ dt: 0, hr: 184 }, { dt: 60, hr: 156 }, { dt: 120, hr: 139 }, { dt: 180, hr: 128 }] });
+  })();
+})();
+</script>
