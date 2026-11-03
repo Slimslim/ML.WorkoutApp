@@ -25,7 +25,7 @@ of every workout — the header.
 | # | Source title (as written) | Kind of title | Format line | Movements / loads | Meta | Score type |
 |---|---|---|---|---|---|---|
 | 1 | Double Unders, AbMat Sit-ups | none → movement list | E3MOM, ping pong, 3 rounds | 50 DU, 25 AbMat sit-ups | "not a timed workout" | none / done |
-| 2 | 13.4 - CrossFit Games Open | competition code | AMRAP 7 min, ladder +3 reps/round | C&J 135/95 lb, T2B | levels (58 reps = level 50), ages | reps |
+| 2 | 13.4 - CrossFit Games Open | competition code | AMREP 7:00, ladder 3-6-9-12-15… (C&J + T2B each rung) | C&J 135/95 lb, T2B | levels (58 reps = level 50), ages | total reps |
 | 3 | The Chief | named benchmark | 5 cycles × AMRAP 3 min, rest 1 min, restart each cycle | 3 power cleans 135/95, 6 push-ups, 9 air squats | long dedication story | total rounds |
 | 4 | Diane | named benchmark | 21-15-9, for time | deadlift 225/155, HSPU | levels, previous 8:54 Rx'd (2023) | time |
 | 5 | "GAME OVER" (1/2 versions) | quoted fun name | for time 21-15-9, cap 8 min | deadlift 225/155, T2B | strategy/scaling behind "Read more" | time or reps at cap |
@@ -114,7 +114,8 @@ a new workout doesn't fit.
    workout says so), `lb` never `lbs`.
 8. **Alternating** = `ALT` (`12 ALT DB Snatches @40 lb`); two dumbbells = `Double DB`.
 9. **Cap at the bottom** of the card, under the movements: `Cap 8:00`. Not in the format line.
-10. **CrossFit Open** workouts get the `Open` prefix: `Open 13.4` (scheme `3-6-9-12…`).
+10. **CrossFit Open** workouts get the `Open` prefix. `Open 13.4` is an **AMREP** (tag AMREP, not
+    AMRAP): format `7:00 · 3-6-9-12…`, then `C&J @135 lb` (F 95 lb) and `T2B`; score = total reps.
 11. **No name → the format is the name** (`Every 3:00 × 3`), no generated movement name.
 12. **Lift blocks:** planned stays simple (`5×3 Front Squat @165–190 lb`); logged = one line per
     set or minute with load and average bar speed (`3 Front Squats @200 lb · 0.60 m/s`). Same for
@@ -147,6 +148,8 @@ program days, logged lifts). Built from the decisions and writing conventions ab
   (scheme 14/500) · format 13.5 · meta 12 · tags 10.5/500. **Spacing:** card padding 16, 9 between
   blocks, 5 between movement lines, radius 16, 1 px border. Neutrals + one accent (type tag,
   links); green only for "better than last time". Colours not final.
+- **Ladders / AMREP:** the time domain and ladder go in the format line (`7:00 · 3-6-9-12…`, Open 13.4);
+  the score is total reps.
 - **States:** planned · in progress (live line "On the watch · Round 3 of 5 · 11:02") · done Rx ·
   done Scaled · capped (reps at the cap).
 - **Compact row** (Choose / Log): name, `block · type`, one-line movement summary; right side last

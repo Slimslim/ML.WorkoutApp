@@ -199,7 +199,7 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
         <li><b>Date · program</b> on the left (<code>Today</code>, <code>Mon Nov 2</code>, <code>Mar 2023</code>; <code>PitFIRE</code>, <code>Mayhem</code>, <code>Built-in</code>).</li>
         <li><b>Block tag + type tag</b> on the right. Block: Metcon, Strength, Accessory (neutral). Type: Chipper, EMOM, AMRAP, AMREP, Death by, Ladder, RFT, Complex, Sets × reps, For quality (outlined, the one accent).</li>
         <li><b>Name</b>, 2 lines max then "…". Open workouts get the prefix (<code>Open 13.4</code>). No name: the format is the name (<code>Every 3:00 × 3</code>).</li>
-        <li><b>Format line</b>, only when needed: rounds, intervals, rest (<code>5 rounds</code>, <code>Every 1:00 × 8</code>, <code>rest 1:00</code>). No cap here.</li>
+        <li><b>Format line</b>, only when needed: rounds, intervals, rest, time domain and ladder (<code>5 rounds</code>, <code>Every 1:00 × 8</code>, <code>7:00 · 3-6-9-12…</code>). No cap here.</li>
         <li><b>Rep scheme on top, once</b>, when movements share it: <code>21-15-9</code>, <code>40-30-20-30-40 Cal</code>.</li>
         <li><b>One movement per line, no dividers:</b> quantity, unit, movement, <code>@load</code>. Movements under a shared scheme carry no reps; fixed reps stay (<code>7 Power Cleans @155 lb</code>).</li>
         <li><b>Cap at the bottom</b>: <code>Cap 20:00</code>.</li>
@@ -389,6 +389,7 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
     done: { n: "7", u: "rounds + 0", rx: "?", vs: "Avg round 4:51 · first time logged" } };
   var FSQ = { source: "Mayhem", block: "Strength", type: "Sets × reps", name: "Front Squat", moves: [["5×3 Front Squat", "165–190 lb"]] };
   var GAMEOVER = { source: "Mayhem", block: "Metcon", type: "RFT", name: "“GAME OVER”", scheme: "21-15-9", moves: [["Deadlift", "225 lb"], ["T2B"]], cap: "8:00" };
+  var OPEN134 = { date: "Thu Nov 5", source: "Open", block: "Metcon", type: "AMREP", name: "Open 13.4", fmt: ["7:00", "3-6-9-12…"], moves: [["C&J", "135 lb"], ["T2B"]] };
   var CORE = { source: "Mayhem", block: "Accessory", type: "For quality", name: "Core Work", fmt: ["3 rounds"], moves: [["1/side Turkish Get-up", "pick"], ["1:00 Suitcase Hold", "pick"], ["50 ft Front-Rack Carry"]] };
 
   function card(w, o) {
@@ -432,6 +433,7 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
   var DIANE_SC = { date: "Today", source: "Benchmark", block: "Metcon", type: "RFT", name: "Diane", scheme: "21-15-9", moves: [["Deadlift", "185 lb"], ["Box HSPU"]] };
   var st = [
     ["Planned", "", card(DIANE, { details: true })],
+    ["Planned, AMREP", "", card(OPEN134, {})],
     ["In progress", "example", card(FREEDOM, { date: "Today", live: "Round 3 of 5 · 11:02" })],
     ["Done, Rx", "example score", card(DIANE, { score: { n: "8:31", rx: "Rx", good: "−0:23", vs: "vs last time (8:54, 2023)" } })],
     ["Done, scaled", "example score", card(DIANE_SC, { score: { n: "7:58", rx: "Scaled", vs: "Rx 225 lb + HSPU · you did 185 lb + box HSPU" } })],
