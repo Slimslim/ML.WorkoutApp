@@ -36,3 +36,8 @@ After the race: benchmarks/PR history, lifting + WOD unified sessions, insight e
 ## Naming implication
 The name should cover all training, not only HYROX or only lifting. "BarPath" can stay as the
 name of the lifting feature.
+
+## Business note (owner, 2026-11-03)
+The "What stood out" insights on the workout report (plain-language findings with their evidence,
+compared with the athlete's own history) are a candidate paid feature ("Rx insight"). Measuring
+and the basic report stay free.
