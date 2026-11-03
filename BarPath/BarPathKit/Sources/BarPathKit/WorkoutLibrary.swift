@@ -200,6 +200,19 @@ public enum WorkoutLibrary {
                                  roundSize: 2)
     }()
 
+    /// Class workout (Mon 2026-11-02, PitFIRE): every 1:00 × 8 sets of 2 power clean & jerks,
+    /// building to moderate-heavy (score: heaviest set). Turn the Crown after the 2 reps; the rest
+    /// ends by itself on the next minute (`intervalSeconds`) with the 3-2-1 countdown.
+    public static let powerCleanJerkEmom: WorkoutDefinition = WorkoutDefinition(
+        id: "wod.pcjEmom", name: "Every 1:00 × 8: Power C&J", shortName: "PC&J EMOM",
+        format: .emom, team: .solo, timeCapSeconds: 480.0, healthKitActivity: "functionalStrengthTraining",
+        segments: Array(repeated([
+            station(Movement.powerCleanAndJerk, 2, .reps),
+            restSegment()
+        ], rounds: 8).dropLast()),
+        intervalSeconds: 60.0,
+        roundSize: 2)
+
     /// Free workout: for anything not built yet. 60 open "Part N" segments with no target and no
     /// cap; turn the Crown at each change (new movement, new set, rest…), End when done. Name and
     /// details are added later on the phone.
@@ -216,14 +229,14 @@ public enum WorkoutLibrary {
 
     /// Exactly 9, in this order (fills the watch's 3×3 picker). quickTest stays defined but is
     /// off the grid since 2026-11-01 (Screen demo replaces it); amrap20 made room for Free;
-    /// Helen made room for Freedom on 2026-11-02.
+    /// Helen made room for Freedom and Row + Thrusters for the PC&J EMOM on 2026-11-02.
     public static let all: [WorkoutDefinition] = [
         hyroxSolo, hyroxDoubles, halfHyrox, partnerWod1, partnerWod2, amrap40,
-        freedom, rowThrusters, free
+        freedom, powerCleanJerkEmom, free
     ]
 
     /// Every built-in definition, including ones off the watch grid (old results still resolve).
-    public static let known: [WorkoutDefinition] = all + [amrap20, quickTest, helen]
+    public static let known: [WorkoutDefinition] = all + [amrap20, quickTest, helen, rowThrusters]
 
     public static func definition(id: String) -> WorkoutDefinition? {
         return known.first(where: { (d: WorkoutDefinition) -> Bool in d.id == id })

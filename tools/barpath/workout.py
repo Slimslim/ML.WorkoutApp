@@ -123,6 +123,7 @@ class Movement:
     dumbbellSnatch = "dumbbellSnatch"
     pushUps = "pushUps"
     powerCleans = "powerCleans"
+    powerCleanAndJerk = "powerCleanAndJerk"
     part = "part"
     rest = "rest"
 
@@ -135,7 +136,7 @@ class Movement:
         "dumbbellOverShoulder": "DB Over-Shoulder", "airSquats": "Air Squats",
         "kettlebellSwings": "KB Swings", "pullUps": "Pull-ups", "thrusters": "Thrusters",
         "lateralBurpeeOverDumbbell": "Lateral Burpee Over DB", "doubleUnders": "Double Unders",
-        "dumbbellSnatch": "Alt. DB Snatch", "pushUps": "Push-ups", "powerCleans": "Power Cleans", "part": "Part", "rest": "Rest",
+        "dumbbellSnatch": "Alt. DB Snatch", "pushUps": "Push-ups", "powerCleans": "Power Cleans", "powerCleanAndJerk": "Power C&J", "part": "Part", "rest": "Rest",
     }
 
     @staticmethod
@@ -280,12 +281,17 @@ class WorkoutLibrary:
          for seg in (_station(Movement.row, cals, "calories"),
                      _station(Movement.powerCleans, 7, "reps", SegmentLoad(85, "kg")))],
         round_size=2)
+    powerCleanJerkEmom = WorkoutDefinition(
+        "wod.pcjEmom", "Every 1:00 × 8: Power C&J", "PC&J EMOM", "emom", "solo", 8 * 60,
+        "functionalStrengthTraining",
+        ([_station(Movement.powerCleanAndJerk, 2, "reps"), _rest()] * 8)[:-1],
+        interval_seconds=60.0, round_size=2)
     free = WorkoutDefinition(
         "free.workout", "Free Workout", "Free", "forTime", "solo", None, "crossTraining",
         [WorkoutSegment("station", Movement.part, "Part %d" % i, None) for i in range(1, 61)])
     all = [hyroxSolo, hyroxDoubles, halfHyrox, partnerWod1, partnerWod2, amrap40,
-           freedom, rowThrusters, free]
-    known = all + [amrap20, quickTest, helen]   # off the watch grid but still resolvable
+           freedom, powerCleanJerkEmom, free]
+    known = all + [amrap20, quickTest, helen, rowThrusters]   # off the watch grid but still resolvable
 
     @staticmethod
     def definition(id: str) -> Optional[WorkoutDefinition]:
