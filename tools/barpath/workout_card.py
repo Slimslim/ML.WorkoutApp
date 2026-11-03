@@ -17,6 +17,7 @@ The Swift port must give the same output on the same definitions: the parity fix
 from __future__ import annotations
 
 import json
+import math
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -80,14 +81,19 @@ def short_name(movement_id: str, plural: bool) -> Optional[str]:
     return names[1] if plural else names[0]
 
 
+def _whole_seconds(seconds: float) -> int:
+    """Swift's Int(x.rounded()): halves away from zero (Python's round() goes to even)."""
+    return int(math.floor(abs(seconds) + 0.5)) * (1 if seconds >= 0 else -1)
+
+
 def clock(seconds: float) -> str:
-    total = int(round(seconds))
+    total = _whole_seconds(seconds)
     return f"{total // 60}:{total % 60:02d}"
 
 
 def duration_text(seconds: float) -> str:
     """'40 min', '1 min', '30 s', '1:30'."""
-    total = int(round(seconds))
+    total = _whole_seconds(seconds)
     if total >= 60 and total % 60 == 0:
         return f"{total // 60} min"
     if total < 60:
@@ -357,7 +363,7 @@ def _time_domain_line(d: WorkoutDefinition, shape: _Shape, type_tag: Optional[st
         cap = d.time_cap_seconds
         head = "AMRAP"
         if cap is not None and cap > 0:
-            whole = int(round(cap)) % 60 == 0
+            whole = _whole_seconds(cap) % 60 == 0
             head = (duration_text(cap) if whole else clock(cap)) + " AMRAP"
         return head + _rest_suffix(shape)
     if type_tag == "emom":
