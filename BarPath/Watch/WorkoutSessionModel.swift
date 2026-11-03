@@ -770,6 +770,12 @@ final class WorkoutSessionModel: ObservableObject {
         return remaining > 0 ? remaining : nil
     }
 
+    /// True when End now would first record recovery to finish + `recoverySeconds` (W6);
+    /// the End sheet says so.
+    var endWaitsForRecovery: Bool {
+        return recoveryWaitBeforeEnd(now: Date().timeIntervalSince1970) != nil
+    }
+
     /// End pressed after the finish: keep HealthKit, HR, motion and pedometer running until
     /// `recoverySaveTime` (the clock then calls `endNow`). Nothing is sent before that.
     private func beginRecoveryWait(remaining: Double) {

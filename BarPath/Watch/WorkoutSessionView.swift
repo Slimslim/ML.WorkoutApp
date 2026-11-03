@@ -190,7 +190,11 @@ struct WorkoutSessionView: View {
         let p = model.progress
         let count = p.definition.segments.count
         let demo: String = model.isDemo ? "Demo · " : ""
-        if p.isFinished { return demo + "Finished · \(count)/\(count)" }
+        if p.isFinished {
+            // W6: End after the finish keeps recording recovery, then saves by itself.
+            if model.endWaitsForRecovery { return "Saves at 3:00 recovery" }
+            return demo + "Finished · \(count)/\(count)"
+        }
         return demo + "Segment \(p.currentIndex + 1)/\(count)"
     }
 }
