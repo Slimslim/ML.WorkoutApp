@@ -279,7 +279,9 @@ struct WorkoutMainPage: View {
                     .ignoresSafeArea()
                 // Wrist down: the SAME main layout, dimmed, with system-rendered clocks
                 // (athlete feedback 2026-11-01: glance without raising the arm). No NOW flash.
-                if !isLuminanceReduced && showSwitchFlash(now: now) {
+                if !isLuminanceReduced && showCapBanner(now: now) {
+                    capBanner()
+                } else if !isLuminanceReduced && showSwitchFlash(now: now) {
                     switchFlash()
                 } else {
                     mainScreen(now: now)
@@ -292,6 +294,9 @@ struct WorkoutMainPage: View {
     /// For a moment after every switch, the new segment fills the screen so it's obvious
     /// where the watch is (added after the round-4 mix-up on 2026-10-30).
     static let switchFlashSeconds: Double = 1.8
+    /// For time with a cap (§5b, W7): "TIME CAP · keep going" fills the screen this long after
+    /// the cap's "Time!" haptic; the workout keeps going.
+    static let capBannerSeconds: Double = 3.0
     /// "Turn Crown back to undo" replaces the bottom line for this long after a switch.
     static let undoHintSeconds: Double = 5.0
     /// Share of a run's target distance from which the bottom turns into "Exit soon".
@@ -315,6 +320,36 @@ struct WorkoutMainPage: View {
     private func showSwitchFlash(now: Date) -> Bool {
         guard let last = model.lastChangeDate else { return false }
         return now.timeIntervalSince(last) < WorkoutMainPage.switchFlashSeconds
+    }
+
+    private func showCapBanner(now: Date) -> Bool {
+        guard let announced = model.forTimeCapAnnouncedDate else { return false }
+        return now.timeIntervalSince(announced) < WorkoutMainPage.capBannerSeconds
+    }
+
+    /// For time at the cap: the workout does not stop, the athlete is told and keeps going.
+    private func capBanner() -> some View {
+        let cap: Double = model.progress.definition.timeCapSeconds ?? 0
+        return VStack(spacing: 4) {
+            Spacer(minLength: 0)
+            Text("TIME CAP")
+                .font(.system(size: 30, weight: .heavy, design: .rounded))
+                .foregroundColor(SegmentPalette.elapsed)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+            Text(SessionModel.formatElapsed(cap))
+                .font(.system(size: 18, weight: .bold, design: .rounded).monospacedDigit())
+                .foregroundColor(.white)
+                .lineLimit(1)
+            Text("KEEP GOING")
+                .font(.system(size: 22, weight: .heavy, design: .rounded))
+                .foregroundColor(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 10)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func showUndoHint(now: Date) -> Bool {
@@ -603,10 +638,14 @@ struct WorkoutMainPage: View {
             let clock: Text = WorkoutMainPage.liveCountDown(from: start, to: cap)
             return Text(verbatim: prefix) + clock + Text(verbatim: " left")
         }
+        if let forTimeCap = p.forTimeCapTime, now.timeIntervalSince1970 > forTimeCap {
+            return WorkoutMainPage.liveCountUp(from: start) + Text(verbatim: " · over cap")
+        }
         return WorkoutMainPage.liveCountUp(from: start)
     }
 
-    /// Small line under the name: total race time; AMRAP: round and time left to the cap.
+    /// Small line under the name: total race time; AMRAP: round and time left to the cap; for
+    /// time past the cap (§5b): total and the time over it, "18:42 · +2:42 over cap".
     private func totalLine(now: Date) -> String {
         let p: WorkoutProgress = model.progress
         let nowT: Double = now.timeIntervalSince1970
@@ -617,7 +656,11 @@ struct WorkoutMainPage: View {
             }
             return left
         }
-        return SessionModel.formatElapsed(p.totalElapsed(now: nowT))
+        let total: String = SessionModel.formatElapsed(p.totalElapsed(now: nowT))
+        if let forTimeCap = p.forTimeCapTime, nowT > forTimeCap {
+            return total + " · +" + SessionModel.formatElapsed(nowT - forTimeCap) + " over cap"
+        }
+        return total
     }
 
     /// Undo hint for 5 s after a switch, else "Exit soon" near the end of a run, else Next.
@@ -692,11 +735,12 @@ struct WorkoutMainPage: View {
         }
     }
 
-    /// Finished by the cap: compact TIME line, one recovery line, the reps picker, Undo.
+    /// Finished by the AMRAP cap (TIME) or a for-time finish past the cap (DONE, §5b): compact
+    /// line, one recovery line, the reps picker, Undo.
     private func capDoneContent(total: Double, ink: Color, now: Date) -> some View {
         VStack(spacing: 3) {
             HStack(alignment: .firstTextBaseline, spacing: 6) {
-                Text("TIME")
+                Text(finishedByCap ? "TIME" : "DONE")
                     .font(.system(size: 24, weight: .heavy, design: .rounded))
                 Text(SessionModel.formatElapsed(total))
                     .font(.system(size: 24, weight: .heavy, design: .rounded).monospacedDigit())
@@ -713,6 +757,7 @@ struct WorkoutMainPage: View {
             }
             Spacer(minLength: 0)
             PartialRepsPicker(segmentName: model.partialRepsSegment?.name ?? "",
+                              atCap: model.asksRepsAtCap,
                               maxReps: model.partialRepsMax,
                               ink: ink,
                               wantsFocus: isActivePage)
@@ -875,12 +920,16 @@ struct DemoTag: View {
 
 // MARK: - Partial reps picker (WORKOUT_SPEC §5)
 
-/// "Reps of Double Unders?" on the done screen after the time cap. The number is picked with
-/// the Digital Crown (this view takes Crown focus; the main page gives it up meanwhile), Save
-/// is a deliberate tap. Editable until End; the model keeps the last saved value.
+/// "Reps of Double Unders?" on the done screen after the AMRAP time cap, or "Reps of Pull-ups
+/// at the cap?" after a for-time finish past the cap (§5b; skippable: End without Save). The
+/// number is picked with the Digital Crown (this view takes Crown focus; the main page gives it
+/// up meanwhile), Save is a deliberate tap. Editable until End; the model keeps the last saved
+/// value.
 struct PartialRepsPicker: View {
     @EnvironmentObject var model: WorkoutSessionModel
     let segmentName: String
+    /// For time past the cap (§5b): "Reps of <name> at the cap?".
+    let atCap: Bool
     let maxReps: Int
     let ink: Color
     /// Page 1 visible: take Crown focus (dropped on page 2 so it can't change unseen).
@@ -905,13 +954,20 @@ struct PartialRepsPicker: View {
         return "Turn the Crown, then Save"
     }
 
+    private var questionText: String {
+        if atCap {
+            return "Reps of " + segmentName + " at the cap?"
+        }
+        return "Reps of " + segmentName + "?"
+    }
+
     var body: some View {
         VStack(spacing: 2) {
-            Text("Reps of \(segmentName)?")
+            Text(questionText)
                 .font(.system(size: 14, weight: .bold, design: .rounded))
                 .foregroundColor(ink)
                 .lineLimit(1)
-                .minimumScaleFactor(0.6)
+                .minimumScaleFactor(atCap ? 0.5 : 0.6)
             HStack(spacing: 8) {
                 Text("\(reps)")
                     .font(.system(size: 40, weight: .heavy, design: .rounded).monospacedDigit())

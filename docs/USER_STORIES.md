@@ -191,6 +191,20 @@ kept. Starting a new workout or a lifting session before 3:00 stops the recordin
 gets what was recorded) and the new session starts within ~1 s. Apple Fitness shows the
 workout ending at the End press.
 
+### Time caps
+
+**W7. Keep going past a for-time cap (Now)**
+As an athlete doing a for-time workout with a cap, I want the watch to tell me when the cap
+passes but let me finish the whole workout, and then ask how many reps of the movement I was
+on I had done at the cap, so I know both my full time and how far I got within the cap. I can
+still press End whenever I decide to stop.
+*Done when:* Helen (16:00 cap) still running at 16:00 → the strong "Time!" haptic and a
+"TIME CAP · KEEP GOING" banner for ~3 s, the workout does not stop and the total keeps counting
+("+0:42 over cap"); after the last Crown turn the done screen asks "Reps of <movement> at the
+cap?" (Crown, 0…target, skippable); the phone shows the full time as the score and "… over the
+16:00 cap · at the cap: 7/12 Pull-ups (R3)". Finishing under the cap and AMRAP caps behave as
+before.
+
 ## Navigation and layout
 
 *Owned by the Navigation UI/UX chat. Add stories here with the `N` prefix.*

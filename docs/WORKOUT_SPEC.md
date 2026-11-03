@@ -391,6 +391,73 @@ an AMRAP row "Reps after the cap" with a stepper (setPartialReps). Save writes t
 result over Documents/Workouts/<id>.json after keeping the first original as
 Documents/Workouts/<id>.original.json (once), and reloads the store. Cancel discards.
 
+## 5b. For-time caps: keep going past the cap (added 2026-11-03, W7)
+
+Owner, 2026-11-03: "For time with a cap: if you are not done within the cap, I don't want the
+workout to stop. Let me know at the cap and let me continue, so I can see how fast I did the
+full workout. At the end ask how many reps I did on that movement before the time cap, so we
+know how far I was. If I want to stop I can stop — it's my decision."
+
+AMRAP caps are unchanged (the clock finishes the workout, `capTime`, `partialReps`, §5). This
+section is for `format == .forTime` with `timeCapSeconds > 0` (Freedom 20:00, Helen 16:00,
+Partner WOD 1 30:00).
+
+### Result format (no version bump, one new optional key)
+- `repsAtCap: Int?` — reps done in the segment running at the cap, entered after the finish.
+  Absent in older files and when not asked / skipped. `totalSeconds` stays start → finish (the
+  time for the full workout), past the cap or not.
+- No new `WorkoutEventKind` case: an older app would fail to decode the whole file on an
+  unknown event kind. Everything else is derived, so older files that went past a cap read as
+  capped too (with `repsAtCap` nil).
+
+### Kit (`WorkoutProgress.swift`, new `WorkoutResultCap.swift`; Python mirror in workout.py)
+```swift
+// WorkoutProgress
+public var forTimeCapTime: Double?                 // start + cap (for time only), nil otherwise
+public func segmentIndex(at t: Double) -> Int?     // last segment started at or before t
+public func capSegmentIndex(now: Double) -> Int?   // segment at the cap once (finish ?? now) > cap
+// WorkoutResult
+public var repsAtCap: Int?
+public var forTimeCapSeconds: Double?              // definition cap, for time only
+public var isCapped: Bool                          // forTimeCapSeconds != nil && totalSeconds > cap
+public var capReachedAt: Date?                     // startDate + cap when capped
+public var capSegmentIndex: Int?                   // recorded segment with start ≤ cap < end
+public var capSegment: WorkoutSegment?
+public var repsAtCapLimit: Int?                    // reps target of that segment, else nil
+public mutating func setRepsAtCap(_ reps: Int?, now: Date = Date())   // clamped, sets editedAt
+public var capPositionText: String?                // see below
+```
+Python: `for_time_cap_time`, `segment_index_at`, `cap_segment_index(now)`; on the result
+`reps_at_cap`, `for_time_cap_seconds`, `is_capped`, `cap_reached_at` (s since 1970),
+`cap_segment_index`, `cap_segment`, `reps_at_cap_limit`, `set_reps_at_cap`,
+`cap_position_text`. Finishing exactly on the cap is not capped (strictly greater).
+
+### Score format
+- The big score is always the time for the full workout: "19:37" under the cap, "18:20" past it.
+- Under the cap the context line is unchanged: "3 rounds for time · 0:23 under the 16:00 cap".
+- Past the cap: "3 rounds for time · 2:20 over the 16:00 cap · at the cap: 7/12 Pull-ups (R3)".
+- `capPositionText`: "7/12 Pull-ups (R3)" (reps / target), "7 Burpees" (no reps target),
+  "in Pull-ups (R3)" (reps not entered). The round suffix only for `roundSize > 1`.
+- Ended (not finished) past the cap: "… · Not finished · ended in KB Swings · at the cap: in
+  KB Swings (R1)".
+- `Headline.repsAtCap` carries the value (nil when not capped).
+
+### Watch
+- At the cap the workout keeps running: the "Time!" haptic (stop ×3, success — same as the
+  AMRAP cap), a 3 s full-screen banner "TIME CAP · 16:00 · KEEP GOING", and
+  `# event name=capReached index=<i>` in the CSV. Once per workout. The total line then reads
+  "18:42 · +2:42 over cap" (wrist down: live total + " · over cap"). No 3-2-1 before the cap.
+- Finished past the cap (last Crown turn): the done screen shows the reps picker, "Reps of
+  <segment> at the cap?", 0…the segment's reps target (else 200), Save; skippable (End without
+  Save). Asked only when the segment at the cap is not a run, a rest, or a metre/time target.
+  Saved as `repsAtCap` at End and `# event name=repsAtCap reps=<n>` in the CSV (the AMRAP
+  picker keeps writing `partialReps`). Undo of the finish clears it, as for AMRAP.
+- Screen demo: the cap is shortened like the other clock times (WorkoutDemo).
+
+### Phone
+- Overview hero: the context line above (WorkoutSummary), no view change.
+- Fix splits: "Reps at the cap · <segment>" stepper when the result is capped (setRepsAtCap).
+
 ## 6. Heart-rate recovery after the finish (added 2026-11-01)
 
 Motivation: after the last segment the athlete stays on the done screen until End (Partner WOD 1,

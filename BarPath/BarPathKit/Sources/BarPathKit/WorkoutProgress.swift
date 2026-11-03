@@ -164,6 +164,35 @@ public struct WorkoutProgress: Codable, Equatable {
         return start + cap
     }
 
+    /// For time with a cap (WORKOUT_SPEC §5b): when the cap is reached (start + cap), or nil.
+    /// The workout does not stop there: the athlete is told and keeps going. Not AMRAP (`capTime`).
+    public var forTimeCapTime: Double? {
+        guard definition.format == .forTime, let cap = definition.timeCapSeconds, cap > 0,
+              let start = startTime else { return nil }
+        return start + cap
+    }
+
+    /// Index of the segment running at t (the last one started at or before t); nil before the
+    /// start or after the finish.
+    public func segmentIndex(at t: Double) -> Int? {
+        guard let first = segmentStarts.first, t >= first else { return nil }
+        if let f = finishTime, t > f { return nil }
+        var index: Int = 0
+        for i in 0..<segmentStarts.count where segmentStarts[i] <= t {
+            index = i
+        }
+        return index
+    }
+
+    /// For time: the segment running at the cap once the cap has passed (the finish, or `now`
+    /// when not finished, is later than the cap); nil otherwise.
+    public func capSegmentIndex(now: Double) -> Int? {
+        guard let cap = forTimeCapTime else { return nil }
+        let end: Double = finishTime ?? now
+        if !(end > cap) { return nil }
+        return segmentIndex(at: cap)
+    }
+
     public mutating func recordEnd(at t: Double) {
         events.append(WorkoutEvent(t: t, kind: .end, segmentIndex: currentIndex, source: nil))
     }

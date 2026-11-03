@@ -132,7 +132,12 @@ final class WorkoutSessionModel: ObservableObject {
     @Published private(set) var latestPedometer: PedometerSnapshot?
     /// Reps done in the segment cut by the time cap, entered on the done screen
     /// (WORKOUT_SPEC §5). Written into the WorkoutResult at End; nil = not entered.
+    /// For time past the cap (§5b, W7) the same picker asks the reps of the segment running at
+    /// the cap; the value then goes to `WorkoutResult.repsAtCap` instead.
     @Published private(set) var partialReps: Int?
+    /// For time with a cap (§5b, W7): when the "Time cap · keep going" announcement played
+    /// (wall clock), for the banner; nil before the cap. The workout does not stop there.
+    @Published private(set) var forTimeCapAnnouncedDate: Date?
     /// Screen demo (`startDemo`): the real screen with mock HR / run distance (WorkoutDemo).
     /// No HealthKit, motion, pedometer, CSV, result, phone transfer or summary.
     @Published private(set) var isDemo = false
@@ -367,6 +372,7 @@ final class WorkoutSessionModel: ObservableObject {
         csvBytes = 0
         marksCount = 0
         partialReps = nil
+        forTimeCapAnnouncedDate = nil
         finalized = false
         autoSuppressedStart = nil
         capSuppressed = false
@@ -467,9 +473,32 @@ final class WorkoutSessionModel: ObservableObject {
     }
 
     /// The segment the cap cut (asked "Reps of <name>?"), nil when there is nothing to ask.
+    /// AMRAP: the segment the cap finished in. For time finished past the cap: the segment
+    /// running at the cap (`repsAtCapSegment`).
     var partialRepsSegment: WorkoutSegment? {
-        guard isFinishedByCap, let segment = progress.currentSegment, segment.kind != .rest else { return nil }
+        if isFinishedByCap {
+            guard let segment = progress.currentSegment, segment.kind != .rest else { return nil }
+            return segment
+        }
+        return repsAtCapSegment
+    }
+
+    /// For time finished past the cap (§5b, W7): the segment running at the cap when it counts
+    /// reps (asked "Reps of <name> at the cap?"); nil for a run, a rest, a metre or time target,
+    /// or when the workout finished under the cap.
+    var repsAtCapSegment: WorkoutSegment? {
+        guard progress.isFinished, let finish = progress.finishTime,
+              let i = progress.capSegmentIndex(now: finish),
+              i >= 0, i < progress.definition.segments.count else { return nil }
+        let segment: WorkoutSegment = progress.definition.segments[i]
+        if segment.kind == .rest || segment.kind == .run { return nil }
+        if let target = segment.target, target.unit == .meters || target.unit == .seconds { return nil }
         return segment
+    }
+
+    /// The picker asks about the for-time cap (title "… at the cap?"), not an AMRAP cut.
+    var asksRepsAtCap: Bool {
+        return !isFinishedByCap && repsAtCapSegment != nil
     }
 
     /// The done screen shows the reps picker (it then owns the Digital Crown).
@@ -491,8 +520,9 @@ final class WorkoutSessionModel: ObservableObject {
         guard phase == .running, partialRepsSegment != nil else { return }
         let value: Int = min(max(0, reps), partialRepsMax)
         partialReps = value
+        let name: String = asksRepsAtCap ? "repsAtCap" : "partialReps"
         recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
-                             description: "name=partialReps reps=\(value)")
+                             description: "name=\(name) reps=\(value)")
         play(.click)
         workoutLog.info("partial reps saved: \(value)")
     }
@@ -576,7 +606,7 @@ final class WorkoutSessionModel: ObservableObject {
         workoutLog.info("Workout started: \(self.progress.definition.id, privacy: .public), HK \(self.healthKitRunning), data \(self.dataMode)")
     }
 
-    // MARK: - Clock (timed rests, AMRAP cap)
+    // MARK: - Clock (timed rests, AMRAP cap, for-time cap announcement)
 
     /// The next automatic change, if any: a timed rest ending (advance) or the AMRAP cap
     /// (finish), whichever comes first.
@@ -610,6 +640,7 @@ final class WorkoutSessionModel: ObservableObject {
 
     private func clockTick() {
         updateRecovery(now: Date().timeIntervalSince1970)
+        checkForTimeCap(now: Date().timeIntervalSince1970)
         guard let event = nextClockEvent() else {
             countdownTarget = nil
             return
@@ -640,8 +671,17 @@ final class WorkoutSessionModel: ObservableObject {
     private func finishByCap() {
         let t = Date().timeIntervalSince1970
         guard progress.finish(at: t, source: .auto) else { return }
-        // "Time!": a strong, unmistakable pattern (stop ×3, then success), since a single
-        // tap was missed mid-movement on 2026-10-30.
+        playTimeHaptic()
+        recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
+                             description: "name=finish index=\(progress.currentIndex) source=auto")
+        lastChangeDate = Date()
+        persistProgress()
+        workoutLog.info("time cap reached at segment \(self.progress.currentIndex)")
+    }
+
+    /// "Time!": a strong, unmistakable pattern (stop ×3, then success), since a single
+    /// tap was missed mid-movement on 2026-10-30. AMRAP cap and for-time cap.
+    private func playTimeHaptic() {
         play(.stop)
         Task { @MainActor in
             for _ in 0..<2 {
@@ -651,11 +691,21 @@ final class WorkoutSessionModel: ObservableObject {
             try? await Task.sleep(nanoseconds: 650_000_000)
             WKInterfaceDevice.current().play(.success)
         }
+    }
+
+    /// For time with a cap (§5b, W7): once the cap passes while the workout runs, the "Time!"
+    /// haptic, the banner (`forTimeCapAnnouncedDate`) and `name=capReached` in the CSV. The
+    /// workout keeps going: nothing finishes, the total keeps counting. Announced once per
+    /// workout (an undo of the finish after the cap does not repeat it).
+    private func checkForTimeCap(now t: Double) {
+        guard forTimeCapAnnouncedDate == nil, progress.isStarted, !progress.isFinished,
+              let cap = progress.forTimeCapTime, t >= cap else { return }
+        forTimeCapAnnouncedDate = Date()
+        playTimeHaptic()
+        let index: Int = progress.segmentIndex(at: cap) ?? progress.currentIndex
         recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
-                             description: "name=finish index=\(progress.currentIndex) source=auto")
-        lastChangeDate = Date()
-        persistProgress()
-        workoutLog.info("time cap reached at segment \(self.progress.currentIndex)")
+                             description: "name=capReached index=\(index)")
+        workoutLog.info("for-time cap reached at segment \(index); keep going")
     }
 
     // MARK: - HealthKit callbacks
@@ -1245,8 +1295,13 @@ final class WorkoutSessionModel: ObservableObject {
                                    recordingFileName: input.recordedCSV ? "session-\(input.id.uuidString).csv" : nil,
                                    heartRateSeries: hrSeries)
         if p.isFinished, let reps = input.partialReps {
-            // Entered on the watch: not an edit, so editedAt stays nil.
-            result.partialReps = min(max(0, reps), result.partialRepsLimit ?? reps)
+            // Entered on the watch: not an edit, so editedAt stays nil. For time past the cap
+            // the picker asked the reps at the cap (§5b); AMRAP: the reps of the cut segment.
+            if result.isCapped {
+                result.repsAtCap = min(max(0, reps), result.repsAtCapLimit ?? reps)
+            } else {
+                result.partialReps = min(max(0, reps), result.partialRepsLimit ?? reps)
+            }
         }
         return result
     }

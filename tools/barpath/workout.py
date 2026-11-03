@@ -446,6 +446,39 @@ class WorkoutProgress:
             return None
         return self.start_time + d.time_cap_seconds
 
+    @property
+    def for_time_cap_time(self) -> Optional[float]:
+        """For time with a cap (WORKOUT_SPEC §5b): when the cap is reached (start + cap), or None.
+        The workout does not stop there; the athlete is told and keeps going."""
+        d = self.definition
+        if d.format != "forTime" or d.time_cap_seconds is None or d.time_cap_seconds <= 0 or not self.is_started:
+            return None
+        return self.start_time + d.time_cap_seconds
+
+    def segment_index_at(self, t: float) -> Optional[int]:
+        """Index of the segment running at t (the last one started at or before t); None before
+        the start or after the finish."""
+        if not self.is_started or t < self.segment_starts[0]:
+            return None
+        if self.finish_time is not None and t > self.finish_time:
+            return None
+        idx = 0
+        for i, s in enumerate(self.segment_starts):
+            if s <= t:
+                idx = i
+        return idx
+
+    def cap_segment_index(self, now: float) -> Optional[int]:
+        """For time: the segment running at the cap once the cap has passed (finish, or now when
+        not finished, later than the cap); None otherwise."""
+        cap = self.for_time_cap_time
+        if cap is None:
+            return None
+        end = self.finish_time if self.finish_time is not None else now
+        if not end > cap:
+            return None
+        return self.segment_index_at(cap)
+
     def record_end(self, t: float) -> None:
         self.events.append(WorkoutEvent(t, "end", self.current_index, None))
 
@@ -650,7 +683,7 @@ class HeartRateSeries:
 
 
 RESULT_VERSION = 2  # 2 adds heartRateSeries, heartRateMin per segment, definition.roundSize (all optional)
-# partialReps / editedAt (§5) are optional too and need no version bump.
+# partialReps / editedAt (§5) and repsAtCap (§5b) are optional too and need no version bump.
 
 
 def _swift_round(v: float) -> float:
@@ -708,6 +741,7 @@ class WorkoutResult:
     heart_rate_series: Optional[HeartRateSeries] = None
     partial_reps: Optional[int] = None        # §5: reps done in the segment cut by the cap / end
     edited_at: Optional[datetime] = None      # §5: when the athlete corrected the result
+    reps_at_cap: Optional[int] = None         # §5b: for time, reps of the segment running at the cap
 
     @property
     def run_seconds(self) -> float:
@@ -737,6 +771,8 @@ class WorkoutResult:
             d["partialReps"] = self.partial_reps
         if self.edited_at is not None:
             d["editedAt"] = format_iso8601(self.edited_at)
+        if self.reps_at_cap is not None:
+            d["repsAtCap"] = self.reps_at_cap
         return d
 
     @classmethod
@@ -761,7 +797,8 @@ class WorkoutResult:
             id=d["id"], version=version,
             heart_rate_series=None if series is None else HeartRateSeries.from_dict(series),
             partial_reps=None if d.get("partialReps") is None else int(d["partialReps"]),
-            edited_at=parse_iso8601(edited) if edited else None)
+            edited_at=parse_iso8601(edited) if edited else None,
+            reps_at_cap=None if d.get("repsAtCap") is None else int(d["repsAtCap"]))
 
     # ---- corrections (WORKOUT_SPEC §5, WorkoutResultEditing.swift) ----
 
@@ -827,6 +864,90 @@ class WorkoutResult:
                 v = min(v, limit)
             self.partial_reps = v
         self.edited_at = now if now is not None else datetime.now(timezone.utc)
+
+    # ---- for-time cap (WORKOUT_SPEC §5b, WorkoutResultCap.swift) ----
+
+    @property
+    def for_time_cap_seconds(self) -> Optional[float]:
+        """The definition's cap for a for-time workout (> 0), else None (AMRAP caps are not this)."""
+        d = self.definition
+        if d.format != "forTime" or d.time_cap_seconds is None or d.time_cap_seconds <= 0:
+            return None
+        return d.time_cap_seconds
+
+    @property
+    def is_capped(self) -> bool:
+        """For time and the workout ran past the cap (finished after it, or ended after it)."""
+        cap = self.for_time_cap_seconds
+        return cap is not None and self.total_seconds > cap
+
+    @property
+    def cap_reached_at(self) -> Optional[float]:
+        """Seconds since 1970 when the cap was reached (start + cap), None when not capped."""
+        if not self.is_capped:
+            return None
+        return self.start_date.timestamp() + self.for_time_cap_seconds
+
+    @property
+    def cap_segment_index(self) -> Optional[int]:
+        """Definition index of the segment running at the cap: the recorded segment with
+        start <= cap < end, else the last one ending at or before the cap; None when not capped."""
+        t = self.cap_reached_at
+        if t is None or not self.segments:
+            return None
+        best = None
+        for s in self.segments:
+            if s.start <= t < s.end:
+                return s.index
+            if s.start <= t:
+                best = s.index
+        return best
+
+    @property
+    def cap_segment(self) -> Optional[WorkoutSegment]:
+        i = self.cap_segment_index
+        if i is None or i < 0 or i >= len(self.definition.segments):
+            return None
+        return self.definition.segments[i]
+
+    @property
+    def reps_at_cap_limit(self) -> Optional[int]:
+        """Reps target of the segment running at the cap (upper bound for reps_at_cap), else None."""
+        seg = self.cap_segment
+        if seg is None or seg.target is None or seg.target.unit != "reps":
+            return None
+        return max(0, int(_swift_round(seg.target.value)))
+
+    def set_reps_at_cap(self, reps: Optional[int], now: Optional[datetime] = None) -> None:
+        """reps_at_cap = None or clamped to 0..reps_at_cap_limit (lower bound only without a reps
+        target); edited_at = now."""
+        if reps is None:
+            self.reps_at_cap = None
+        else:
+            v = max(0, int(reps))
+            limit = self.reps_at_cap_limit
+            if limit is not None:
+                v = min(v, limit)
+            self.reps_at_cap = v
+        self.edited_at = now if now is not None else datetime.now(timezone.utc)
+
+    @property
+    def cap_position_text(self) -> Optional[str]:
+        """Where the athlete was at the cap: "12/21 KB Swings (R3)", "12 Burpees" (no reps target),
+        "in Burpees" (reps unknown); the round suffix only with round_size > 1. None when not capped."""
+        seg = self.cap_segment
+        if seg is None:
+            return None
+        name = seg.name
+        r = self.definition.round_size
+        if r is not None and r > 1 and len(self.definition.segments) > r:
+            name += f" (R{self.cap_segment_index // r + 1})"
+        if self.reps_at_cap is None:
+            return "in " + name
+        limit = self.reps_at_cap_limit
+        if limit is not None:
+            return f"{self.reps_at_cap}/{limit} {name}"
+        return f"{self.reps_at_cap} {name}"
 
     # ---- heart-rate recovery (WORKOUT_SPEC §6, HeartRateRecovery.swift) ----
 
@@ -1132,6 +1253,8 @@ class WorkoutCSV:
     end_time: float           # last motion sample or event time, on the CSV's clock
     progress: Optional[WorkoutProgress] = None   # replayed boundaries (None if definition unknown)
     partial_reps: Optional[int] = None           # last '# event name=partialReps reps=<n>' (§5)
+    reps_at_cap: Optional[int] = None            # last '# event name=repsAtCap reps=<n>' (§5b)
+    cap_reached: Optional[dict] = None           # '# event name=capReached index=<i>' → {"t", "index"}
 
 
 def _none_if_neg(x):
@@ -1164,6 +1287,8 @@ def load_workout_csv(path) -> WorkoutCSV:
     s = load_session_csv(path)
     boundaries, hrs, ped = [], [], []
     partial_reps = None
+    reps_at_cap = None
+    cap_reached = None
     for e in s.events:
         name = e.get("name")
         t = float(e.get("t", 0.0))
@@ -1184,6 +1309,13 @@ def load_workout_csv(path) -> WorkoutCSV:
             reps = e.get("reps")
             if isinstance(reps, float) and reps >= 0:
                 partial_reps = int(reps)
+        elif name == "repsAtCap":
+            reps = e.get("reps")
+            if isinstance(reps, float) and reps >= 0:
+                reps_at_cap = int(reps)
+        elif name == "capReached" and cap_reached is None:
+            idx = e.get("index")
+            cap_reached = {"t": t, "index": int(idx) if isinstance(idx, float) else None}
     times = [float(x) for x in s.motion.t[-1:]] + [float(e.get("t", 0.0)) for e in s.events]
     end_time = max(times) if times else 0.0
     definition = WorkoutLibrary.definition(s.workout) if s.workout else None
@@ -1192,4 +1324,4 @@ def load_workout_csv(path) -> WorkoutCSV:
         definition = cand if isinstance(cand, WorkoutDefinition) else None
     progress = replay_boundaries(definition, boundaries) if definition else None
     return WorkoutCSV(s.workout, s.session_id, s.start_date, definition, boundaries, hrs, ped,
-                      s.marks, end_time, progress, partial_reps)
+                      s.marks, end_time, progress, partial_reps, reps_at_cap, cap_reached)

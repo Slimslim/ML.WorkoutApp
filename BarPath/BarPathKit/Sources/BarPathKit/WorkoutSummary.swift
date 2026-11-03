@@ -65,6 +65,9 @@ public struct WorkoutSummary: Equatable {
         public let capSeconds: Double?
         /// For time: cap − total when finished under the cap (nil otherwise).
         public let underCapSeconds: Double?
+        /// For time past the cap (§5b): reps done in the segment running at the cap
+        /// (WorkoutResult.repsAtCap), nil when not capped or not entered.
+        public let repsAtCap: Int?
         /// AMRAP: completed rounds and reps of the completed segments of the unfinished round
         /// (plus the result's `partialReps`).
         public let rounds: Int?
@@ -258,6 +261,19 @@ public struct WorkoutSummary: Equatable {
                 notFinishedText = "Not finished"
             }
         }
+        // For time past the cap (§5b): the score stays the time for the full workout; where the
+        // athlete was at the cap goes last, e.g. "… · 1:05 over the 16:00 cap · at the cap: 7/12
+        // Pull-ups (R3)".
+        if let position = ctx.result.capPositionText {
+            let atCap: String = "at the cap: " + position
+            if let n = notFinishedText {
+                notFinishedText = n + " · " + atCap
+            } else if let t = capText {
+                capText = t + " · " + atCap
+            } else {
+                capText = atCap
+            }
+        }
 
         switch story {
         case .runsAndStations(let r):
@@ -337,7 +353,9 @@ public struct WorkoutSummary: Equatable {
 
         return Headline(title: def.name, format: def.format, scoreText: score, scoreUnit: unit,
                         contextText: context, totalSeconds: total, isFinished: finished,
-                        capSeconds: cap, underCapSeconds: underCap, rounds: rounds, extraReps: extraReps,
+                        capSeconds: cap, underCapSeconds: underCap,
+                        repsAtCap: ctx.result.isCapped ? ctx.result.repsAtCap : nil,
+                        rounds: rounds, extraReps: extraReps,
                         partialReps: ctx.result.partialReps, stoppedIn: stoppedIn, stoppedAfterSeconds: stoppedAfter,
                         setsCompleted: setsDone, setsPlanned: setsPlanned, averageWorkSeconds: avgWork,
                         heartRateAvg: hrAvg, heartRateMax: hrMax, zone45Seconds: z45,
