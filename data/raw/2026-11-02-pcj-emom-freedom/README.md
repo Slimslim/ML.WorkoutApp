@@ -6,3 +6,6 @@
    turns. Rests then ended on the minute (auto). Segment times before ~00:57 are not real sets.
 2. Freedom (`wod.freedom`): 40-30-20-30-40 cal row, 7 power cleans at 85 kg after each row,
    20:00 cap. Start 01:06:43Z, finish 19:37 (under the cap), End 3:13 later.
+
+Loads (owner, lb): EMOM sets 1–8 = 125, 135, 145, 145, 155, 155, 165, 175 lb.
+Freedom power cleans: 155 lb (≈ 70 kg), not the 85 kg written in the workout definition.
