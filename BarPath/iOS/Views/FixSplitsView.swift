@@ -96,9 +96,10 @@ struct FixSplitsView: View {
         return m > 0 && s.duration > 2 * m
     }
 
-    /// The built-in version of this workout, when it differs from the saved one and fits it.
+    /// The current version of this workout (cloud library, else built-in), when it differs from
+    /// the saved one and fits it.
     private var newerVersion: WorkoutDefinition? {
-        guard let lib = WorkoutLibrary.definition(id: draft.definition.id),
+        guard let lib = WorkoutLibraryStore.shared.definition(id: draft.definition.id),
               draft.canApplyDefinition(lib) else { return nil }
         return lib
     }

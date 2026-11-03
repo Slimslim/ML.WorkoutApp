@@ -73,6 +73,7 @@ enum WorkoutGroups {
 /// Top of the Workouts tab: the workout the watch will run next, with a button to change it.
 struct NextWorkoutBar: View {
     @ObservedObject private var link = PhoneLink.shared
+    @ObservedObject private var library = WorkoutLibraryStore.shared
 
     var body: some View {
         NavigationLink {
@@ -105,19 +106,40 @@ struct NextWorkoutBar: View {
     }
 
     private var sentName: String {
-        guard let id = link.sentWorkoutId, let definition = WorkoutLibrary.definition(id: id) else {
+        guard let id = link.sentWorkoutId else {
             return "Not chosen yet"
+        }
+        // A library workout removed since it was sent: still on the watch, name unknown here.
+        guard let definition = library.definition(id: id) else {
+            return id
         }
         return definition.name
     }
 }
 
-/// Built-in workouts by group; tap one to preview it and send it to the watch.
+/// Today's library workouts, then the library by program (newest first, with the date), then the
+/// built-in workouts by group; tap one to preview it and send it to the watch. Pull to refresh
+/// the library (docs/WORKOUT_LIBRARY.md).
 struct WorkoutChooserView: View {
     @ObservedObject private var link = PhoneLink.shared
+    @ObservedObject private var library = WorkoutLibraryStore.shared
 
     var body: some View {
         List {
+            if !library.todayWorkouts.isEmpty {
+                Section("Today") {
+                    ForEach(library.todayWorkouts) { (w: LibraryWorkout) in
+                        libraryLink(w, detail: w.program)
+                    }
+                }
+            }
+            ForEach(library.programGroups) { (group: LibraryGroup) in
+                Section(group.title) {
+                    ForEach(group.workouts) { (w: LibraryWorkout) in
+                        libraryLink(w, detail: w.dateLabel)
+                    }
+                }
+            }
             ForEach(WorkoutGroups.sections) { (section: WorkoutGroup) in
                 Section(section.title) {
                     ForEach(section.ids, id: \.self) { id in
@@ -131,17 +153,69 @@ struct WorkoutChooserView: View {
                     }
                 }
             }
+            libraryStatus
+        }
+        .refreshable {
+            await library.refresh(force: true)
+        }
+        .task {
+            await library.refresh()
         }
         .navigationTitle("Choose workout")
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    private func row(_ definition: WorkoutDefinition) -> some View {
+    private func libraryLink(_ w: LibraryWorkout, detail: String?) -> some View {
+        NavigationLink {
+            WorkoutPreviewView(definition: w.definition, note: w.caption)
+        } label: {
+            row(w.definition, detail: detail)
+        }
+    }
+
+    /// Last refresh, why it failed, rows that could not be read. The cached list stays usable.
+    @ViewBuilder
+    private var libraryStatus: some View {
+        if !library.problems.isEmpty {
+            Section("Library rows not shown") {
+                ForEach(Array(library.problems.enumerated()), id: \.offset) { item in
+                    Text(item.element)
+                        .font(.caption)
+                }
+            }
+        }
+        Section {
+            if let error = library.lastError {
+                Text(error)
+                    .font(.footnote)
+                    .foregroundStyle(.orange)
+            }
+        } footer: {
+            Text(libraryFooter)
+        }
+    }
+
+    private var libraryFooter: String {
+        var text: String
+        if let date = library.lastRefresh {
+            text = "Library updated " + date.formatted(date: .abbreviated, time: .shortened) + "."
+        } else {
+            text = "Library not loaded yet."
+        }
+        if CloudConfig.isConfigured && !CloudAccount.shared.isSignedIn {
+            text += " Sign in to get new workouts."
+        } else {
+            text += " Pull down to refresh."
+        }
+        return text
+    }
+
+    private func row(_ definition: WorkoutDefinition, detail: String? = nil) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text(definition.name)
                     .font(.body.weight(.semibold))
-                Text(WorkoutGroups.summary(definition))
+                Text(rowCaption(definition, detail: detail))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -152,11 +226,21 @@ struct WorkoutChooserView: View {
             }
         }
     }
+
+    private func rowCaption(_ definition: WorkoutDefinition, detail: String?) -> String {
+        let summary: String = WorkoutGroups.summary(definition)
+        if let detail = detail, !detail.isEmpty {
+            return detail + " · " + summary
+        }
+        return summary
+    }
 }
 
 /// The segments of one workout and a big "Send to watch" button.
 struct WorkoutPreviewView: View {
     let definition: WorkoutDefinition
+    /// Library workouts: "Mayhem · Mon, Nov 2".
+    var note: String? = nil
     @ObservedObject private var link = PhoneLink.shared
 
     private var isSent: Bool {
@@ -190,7 +274,7 @@ struct WorkoutPreviewView: View {
                         .foregroundStyle(.secondary)
                 }
             } footer: {
-                Text(WorkoutGroups.summary(definition))
+                Text(footerText)
             }
 
             Section {
@@ -223,6 +307,14 @@ struct WorkoutPreviewView: View {
             return Array(definition.segments.prefix(r))
         }
         return definition.segments
+    }
+
+    private var footerText: String {
+        let summary: String = WorkoutGroups.summary(definition)
+        if let note = note, !note.isEmpty {
+            return note + " · " + summary
+        }
+        return summary
     }
 
     private var sentText: String {
