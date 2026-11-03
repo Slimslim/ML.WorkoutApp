@@ -78,12 +78,13 @@ decisions, now binding for the header ("D", mocked in `header-study.html`, round
 2. **Keep the block tag:** Metcon · Strength · Accessory.
 3. **Add a workout-type tag from a fixed vocabulary:** Chipper, EMOM (incl. E2MOM/E3MOM),
    AMRAP, AMREP (as many reps as possible, e.g. 13.4 / "Cheat Code" ladders), Death by, Ladder,
-   RFT (rounds for time), "Each RFT" (owner's term, shown as written), Complex, plus other
-   variations: For quality, Cycles (e.g. The Chief), Sets × reps (lift days).
+   RFT (rounds for time), Complex, plus other variations: For quality, Cycles (e.g. The Chief),
+   Sets × reps (lift days). "Each RFT" (owner's term) is **pending an example** from the owner:
+   not in the legend or on any card until then.
 4. **Name:** some workouts have one, some don't; keep the no-name fallback (movements joined
    with "+", lighter text). 2 lines max.
 5. **No notes, instructions, stimulus or strategy anywhere in the header** (also no targets or
    RPE). The app logs what was done; it is not a planning tool.
 
-Open (round 2 questions): The Chief tagged AMRAP or Cycles; exact meaning of "Each RFT";
-whether planned lift days show the load range from the stored max.
+Open (round 2 questions): The Chief tagged AMRAP or Cycles; whether planned lift days show the
+load range from the stored max. "Each RFT": pending an example from the owner.
