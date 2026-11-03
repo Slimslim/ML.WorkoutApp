@@ -1,0 +1,125 @@
+{
+  "program": "PitFIRE",
+  "scheduled_on": "2026-11-02",
+  "published": true,
+  "definition": {
+    "id": "lib.pitfire.20261102.pcj-emom",
+    "name": "Every 1:00 × 8: Power C&J",
+    "shortName": "PC&J EMOM",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "functionalStrengthTraining",
+    "segments": [
+      {
+        "kind": "station",
+        "movement": "powerCleanAndJerk",
+        "name": "Power C&J",
+        "target": {
+          "value": 2,
+          "unit": "reps"
+        }
+      },
+      {
+        "kind": "rest",
+        "movement": "rest",
+        "name": "Rest"
+      },
+      {
+        "kind": "station",
+        "movement": "powerCleanAndJerk",
+        "name": "Power C&J",
+        "target": {
+          "value": 2,
+          "unit": "reps"
+        }
+      },
+      {
+        "kind": "rest",
+        "movement": "rest",
+        "name": "Rest"
+      },
+      {
+        "kind": "station",
+        "movement": "powerCleanAndJerk",
+        "name": "Power C&J",
+        "target": {
+          "value": 2,
+          "unit": "reps"
+        }
+      },
+      {
+        "kind": "rest",
+        "movement": "rest",
+        "name": "Rest"
+      },
+      {
+        "kind": "station",
+        "movement": "powerCleanAndJerk",
+        "name": "Power C&J",
+        "target": {
+          "value": 2,
+          "unit": "reps"
+        }
+      },
+      {
+        "kind": "rest",
+        "movement": "rest",
+        "name": "Rest"
+      },
+      {
+        "kind": "station",
+        "movement": "powerCleanAndJerk",
+        "name": "Power C&J",
+        "target": {
+          "value": 2,
+          "unit": "reps"
+        }
+      },
+      {
+        "kind": "rest",
+        "movement": "rest",
+        "name": "Rest"
+      },
+      {
+        "kind": "station",
+        "movement": "powerCleanAndJerk",
+        "name": "Power C&J",
+        "target": {
+          "value": 2,
+          "unit": "reps"
+        }
+      },
+      {
+        "kind": "rest",
+        "movement": "rest",
+        "name": "Rest"
+      },
+      {
+        "kind": "station",
+        "movement": "powerCleanAndJerk",
+        "name": "Power C&J",
+        "target": {
+          "value": 2,
+          "unit": "reps"
+        }
+      },
+      {
+        "kind": "rest",
+        "movement": "rest",
+        "name": "Rest"
+      },
+      {
+        "kind": "station",
+        "movement": "powerCleanAndJerk",
+        "name": "Power C&J",
+        "target": {
+          "value": 2,
+          "unit": "reps"
+        }
+      }
+    ],
+    "timeCapSeconds": 480.0,
+    "intervalSeconds": 60.0,
+    "roundSize": 2
+  }
+}
