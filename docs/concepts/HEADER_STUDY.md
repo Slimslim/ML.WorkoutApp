@@ -113,9 +113,9 @@ a new workout doesn't fit.
 7. **Units:** heights in inches (`Box Jumps @24 in`), run distances in m (miles only when the
    workout says so), `lb` never `lbs`.
 8. **Alternating** = `ALT` (`12 ALT DB Snatches @40 lb`); two dumbbells = `Double DB`.
-9. **Cap at the bottom** of the card, under the movements: `Cap 8:00`. Not in the format line.
+9. **Cap at the bottom** of the card, under the movements: `8 min cap`. Not in the time-domain line.
 10. **CrossFit Open** workouts get the `Open` prefix. `Open 13.4` is an **AMREP** (tag AMREP, not
-    AMRAP): format `7:00 · 3-6-9-12…`, then `C&J @135 lb` (F 95 lb) and `T2B`; score = total reps.
+    AMRAP): `7 min AMREP` / `3-6-9-12…` / `C&J @135 lb` (F 95 lb) / `T2B`; score = total reps.
 11. **No name → the format is the name** (`Every 3:00 × 3`), no generated movement name.
 12. **Lift blocks:** planned stays simple (`5×3 Front Squat @165–190 lb`); logged = one line per
     set or minute with load and average bar speed (`3 Front Squats @200 lb · 0.60 m/s`). Same for
@@ -123,6 +123,12 @@ a new workout doesn't fit.
 13. **Rx/Scaled:** the header shows the athlete's own division load from the profile (no manual
     pick). "See details" shows the original card with Rx M/F weights. After logging the app asks
     "Rx or scaled?" and lets the athlete edit loads/reps; the score then says `Scaled`.
+
+14. **Time domain on its own first line, written `<N> min <TYPE>`:** `7 min AMREP` (Open 13.4,
+    then `3-6-9-12…` on its own line, then `C&J @135 lb`, `T2B`), `40 min AMRAP`,
+    `8 min AMREP` ("Cheat Code"), `5 × 3 min AMRAP · rest 1 min` (The Chief). EMOMs keep
+    `Every 1:00 × 8`; rounds for time keep `5 rounds`. For-time caps stay at the bottom, written
+    `20 min cap` (was `Cap 20:00`).
 
 ### Open questions
 - **More abbreviations** (decided so far: HSPU, T2B, C&J, DB, KB, DU): GHD, OHS, RDL, MU, C2B…?
@@ -148,8 +154,9 @@ program days, logged lifts). Built from the decisions and writing conventions ab
   (scheme 14/500) · format 13.5 · meta 12 · tags 10.5/500. **Spacing:** card padding 16, 9 between
   blocks, 5 between movement lines, radius 16, 1 px border. Neutrals + one accent (type tag,
   links); green only for "better than last time". Colours not final.
-- **Ladders / AMREP:** the time domain and ladder go in the format line (`7:00 · 3-6-9-12…`, Open 13.4);
-  the score is total reps.
+- **Time domain line** first (`7 min AMREP`, `40 min AMRAP`, `Every 1:00 × 8`, `5 rounds`), then the
+  rep scheme line (`3-6-9-12…`), then movements; for-time caps at the bottom (`20 min cap`). AMREP
+  scores total reps.
 - **States:** planned · in progress (live line "On the watch · Round 3 of 5 · 11:02") · done Rx ·
   done Scaled · capped (reps at the cap).
 - **Compact row** (Choose / Log): name, `block · type`, one-line movement summary; right side last

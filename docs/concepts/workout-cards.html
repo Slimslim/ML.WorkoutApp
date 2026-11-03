@@ -98,8 +98,8 @@ section { display: flex; flex-direction: column; gap: 16px; }
 .tag.block { background: var(--sunk); color: var(--ink2); }
 .tag.type { color: var(--accent); border: 1px solid var(--accent); padding: 3px 7px; }
 .name { font: 500 20px/1.22 var(--f-ui); letter-spacing: -.2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-wrap: balance; }
-.fmt { font: 400 13.5px/1.4 var(--f-ui); color: var(--ink2); }
-.fmt .sep { color: var(--ink3); padding: 0 4px; }
+.fmt { font: 500 14px/1.35 var(--f-ui); color: var(--ink); letter-spacing: .2px; }
+.fmt .sep { color: var(--ink3); padding: 0 4px; font-weight: 400; }
 .mv { display: flex; flex-direction: column; gap: 5px; padding-top: 2px; }
 .mv div { font: 400 14px/1.35 var(--f-ui); font-variant-numeric: tabular-nums; }
 .mv .scheme { font-weight: 500; letter-spacing: .2px; margin-bottom: 1px; }
@@ -199,10 +199,10 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
         <li><b>Date · program</b> on the left (<code>Today</code>, <code>Mon Nov 2</code>, <code>Mar 2023</code>; <code>PitFIRE</code>, <code>Mayhem</code>, <code>Built-in</code>).</li>
         <li><b>Block tag + type tag</b> on the right. Block: Metcon, Strength, Accessory (neutral). Type: Chipper, EMOM, AMRAP, AMREP, Death by, Ladder, RFT, Complex, Sets × reps, For quality (outlined, the one accent).</li>
         <li><b>Name</b>, 2 lines max then "…". Open workouts get the prefix (<code>Open 13.4</code>). No name: the format is the name (<code>Every 3:00 × 3</code>).</li>
-        <li><b>Format line</b>, only when needed: rounds, intervals, rest, time domain and ladder (<code>5 rounds</code>, <code>Every 1:00 × 8</code>, <code>7:00 · 3-6-9-12…</code>). No cap here.</li>
+        <li><b>Time domain line</b>, first and on its own: <code>&lt;N&gt; min &lt;TYPE&gt;</code> (<code>7 min AMREP</code>, <code>40 min AMRAP</code>, <code>5 × 3 min AMRAP · rest 1 min</code>), <code>Every 1:00 × 8</code> for EMOMs, <code>5 rounds</code> for RFT. No cap here.</li>
         <li><b>Rep scheme on top, once</b>, when movements share it: <code>21-15-9</code>, <code>40-30-20-30-40 Cal</code>.</li>
         <li><b>One movement per line, no dividers:</b> quantity, unit, movement, <code>@load</code>. Movements under a shared scheme carry no reps; fixed reps stay (<code>7 Power Cleans @155 lb</code>).</li>
-        <li><b>Cap at the bottom</b>: <code>Cap 20:00</code>.</li>
+        <li><b>Cap at the bottom</b>: <code>20 min cap</code>.</li>
         <li><b>After logging, the score line</b> under one thin rule: score, unit, Rx / Scaled badge, then one comparison (last time or the cap).</li>
       </ol>
     </div>
@@ -215,7 +215,7 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
           <tr><td>name</td><td>20 / 500, 2 lines</td><td>Workout name (compact rows: 16 / 500, 1 line)</td></tr>
           <tr><td>score</td><td>26 / 500, tabular</td><td>Time, rounds, top set</td></tr>
           <tr><td>line</td><td>14 / 400 (scheme 14 / 500)</td><td>Movements and rep scheme</td></tr>
-          <tr><td>format</td><td>13.5 / 400, secondary</td><td>Format line, cap (13)</td></tr>
+          <tr><td>time domain</td><td>14 / 500</td><td>First line: 7 min AMREP, Every 1:00 × 8 (cap line 13 / 400)</td></tr>
           <tr><td>meta</td><td>12 / 400, secondary</td><td>Date · program, comparison</td></tr>
           <tr><td>tag</td><td>10.5 / 500, pill</td><td>Block and type tags, badges</td></tr>
           <tr><td>spacing</td><td><code>16</code> pad · <code>9</code> blocks · <code>5</code> lines</td><td>Card padding, gap between blocks, gap between movement lines</td></tr>
@@ -373,7 +373,7 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
 
   // ---- workouts (real unless ex: true) ----
   var FREEDOM = { date: "Mon Nov 2", source: "PitFIRE", block: "Metcon", type: "RFT", name: "Freedom", fmt: ["5 rounds"],
-    scheme: "40-30-20-30-40 Cal", moves: [["Row"], ["7 Power Cleans", "155 lb"]], cap: "20:00",
+    scheme: "40-30-20-30-40 Cal", moves: [["Row"], ["7 Power Cleans", "155 lb"]], cap: "20 min",
     summary: "40-30-20-30-40 Cal Row · 7 Power Cleans @155 lb",
     done: { n: "19:37", rx: "?", vs: "0:23 under the cap · first time logged" } };
   var PCJ = { date: "Mon Nov 2", source: "PitFIRE", block: "Strength", type: "EMOM", name: "Power Clean & Jerk", fmt: ["Every 1:00 × 8"],
@@ -381,15 +381,15 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
     done: { n: "175 lb", u: "top set · 16/16 reps", rx: "8/8 min", vs: "Peak clean speed per minute, wrist estimate",
       moves: [["2 Power C&J", "125 lb", "1.95 m/s"], ["2 Power C&J", "135 lb", "1.84 m/s"], ["2 Power C&J", "145 lb", "1.89 m/s"], ["2 Power C&J", "145 lb", "1.88 m/s"], ["2 Power C&J", "155 lb", "1.97 m/s"], ["2 Power C&J", "155 lb", "1.80 m/s"], ["2 Power C&J", "165 lb", "1.70 m/s"], ["2 Power C&J", "175 lb", "1.62 m/s"]], speedHead: "peak" } };
   var HELEN = { date: "Thu Oct 29", source: "Built-in", block: "Metcon", type: "RFT", name: "Helen", fmt: ["3 rounds"],
-    moves: [["400 m Run"], ["21 KB Swings"], ["12 Pull-ups"]], cap: "16:00", summary: "400 m Run · 21 KB Swings · 12 Pull-ups",
+    moves: [["400 m Run"], ["21 KB Swings"], ["12 Pull-ups"]], cap: "16 min", summary: "400 m Run · 21 KB Swings · 12 Pull-ups",
     done: { n: "12:47", rx: "?", vs: "3:13 under the cap" } };
-  var AMRAP40 = { date: "Sun Nov 1", source: "Built-in", block: "Metcon", type: "AMRAP", name: "AMRAP 40", fmt: ["40:00", "rest 1:00 between rounds"],
+  var AMRAP40 = { date: "Sun Nov 1", source: "Built-in", block: "Metcon", type: "AMRAP", name: "AMRAP 40", fmt: ["40 min AMRAP", "rest 1 min between rounds"],
     moves: [{ g: "A rounds" }, ["12 Cal Row"], ["15 Push-ups"], ["12 ALT DB C&J", "40 lb"], ["15 Burpees"], { g: "B rounds" }, ["12 Cal Bike"], ["6 Strict Pull-ups"], ["12 ALT DB Snatches", "40 lb"], ["3 Wall Walks"]],
     summary: "A: Row · Push-ups · ALT DB C&J · Burpees / B: Bike · Pull-ups · Snatches · Wall Walks",
     done: { n: "7", u: "rounds + 0", rx: "?", vs: "Avg round 4:51 · first time logged" } };
   var FSQ = { source: "Mayhem", block: "Strength", type: "Sets × reps", name: "Front Squat", moves: [["5×3 Front Squat", "165–190 lb"]] };
-  var GAMEOVER = { source: "Mayhem", block: "Metcon", type: "RFT", name: "“GAME OVER”", scheme: "21-15-9", moves: [["Deadlift", "225 lb"], ["T2B"]], cap: "8:00" };
-  var OPEN134 = { date: "Thu Nov 5", source: "Open", block: "Metcon", type: "AMREP", name: "Open 13.4", fmt: ["7:00", "3-6-9-12…"], moves: [["C&J", "135 lb"], ["T2B"]] };
+  var GAMEOVER = { source: "Mayhem", block: "Metcon", type: "RFT", name: "“GAME OVER”", scheme: "21-15-9", moves: [["Deadlift", "225 lb"], ["T2B"]], cap: "8 min" };
+  var OPEN134 = { date: "Thu Nov 5", source: "Open", block: "Metcon", type: "AMREP", name: "Open 13.4", fmt: ["7 min AMREP"], scheme: "3-6-9-12…", moves: [["C&J", "135 lb"], ["T2B"]] };
   var CORE = { source: "Mayhem", block: "Accessory", type: "For quality", name: "Core Work", fmt: ["3 rounds"], moves: [["1/side Turkish Get-up", "pick"], ["1:00 Suitcase Hold", "pick"], ["50 ft Front-Rack Carry"]] };
 
   function card(w, o) {
@@ -405,7 +405,7 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
       if (m.g) return '<div class="grp">' + esc(m.g) + '</div>';
       return '<div>' + esc(m[0]) + (m[1] ? ' <span class="at">@' + esc(m[1]) + '</span>' : '') + (m[2] ? '<span class="spd">' + esc(m[2]) + '</span>' : '') + '</div>';
     }).join("") + '</div>';
-    if (w.cap) h += '<div class="cap">Cap ' + esc(w.cap) + '</div>';
+    if (w.cap) h += '<div class="cap">' + esc(w.cap) + ' cap</div>';
     if (o.live) h += '<div class="live"><i></i>On the watch <span>' + esc(o.live) + '</span></div>';
     var sc = o.score || d;
     if (sc) {
