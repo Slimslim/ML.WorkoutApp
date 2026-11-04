@@ -227,6 +227,52 @@ last time, so I can send one to the watch without a connection.
 *Done when:* in airplane mode (or signed out) after one successful refresh, Choose shows the same
 library workouts and Send to watch works; a failed refresh shows a short note and keeps the list.
 
+### Workout card (docs/concepts/HEADER_STUDY.md, workout-cards.html)
+
+**W11. Read a workout the way the whiteboard writes it (Now)**
+As an athlete choosing what to send to the watch, I want each workout written like the gym
+whiteboard (name, `3 rounds` / `40 min AMRAP` / `Every 1:00 × 8`, one movement per line with its
+load, the cap at the bottom), so I can tell what it is at a glance and check it before I start.
+*Done when:* every row in Choose shows the name, `block · type`, one line of movements and my
+last score when I have one; the preview shows the full card (date · program or Built-in, block
+and type tags, time domain, rep scheme, movements, cap) above Send to watch; Freedom reads
+`5 rounds` / `40-30-20-30-40 Cal` / `Row` / `7 Power Cleans @155 lb` / `20 min cap`. The card text
+comes from one model (Python reference + Swift port with a parity test).
+
+**W12. Find a workout by searching (Now)**
+As an athlete with a growing library, I want a search button at the top right of Choose, so I
+can find "Freedom", every workout with KB swings, or every EMOM without scrolling through
+programs.
+*Done when:* the magnifying glass opens a search field; typing filters Today, every program and
+the built-ins together, matching the name, short name, program or group, movement names (as
+written, full and short: "KB", "C&J", "Row") and the type or block tag ("EMOM", "RFT",
+"Strength"); every word typed must match; no match says so; clearing the search brings the
+full list back.
+
+**W13. See my history of a workout before I send it (Now)**
+As an athlete about to redo a workout, I want the preview to list my past results of it, so I
+know the score to beat and can open how it went last time.
+*Done when:* under the card a "Your results" list shows each past result newest first (date,
+score, Rx / Scaled once that is recorded, average heart rate), three at first with "Show all";
+tapping one opens its report. A result counts for the workout when it has the same id, or the
+same name and the same segment kinds and movements in order (my Freedom saved as `wod.freedom`
+shows under the library's PitFIRE Freedom; the PC&J EMOM saved as `wod.pcjEmom` likewise). The
+"last" score on the Choose rows uses the same rule (Freedom shows 19:37). Matcher in BarPathKit
+(WorkoutHistory) with a Python reference and tests in both.
+
+**W14. A log of done cards (Now)**
+As an athlete looking back at my week, I want the Workouts tab to list what I did as the same
+cards, with the score on the right, so the log reads like the whiteboard and I see results at a
+glance.
+*Done when:* the "Next workout on watch · Choose" row is the first row of the list and never
+covers the title or the results; each logged workout is a compact done card (name, date ·
+program · block · type, one line of movements, score and an Rx / Scaled badge on the right,
+dashed `?` until answered), drawn from the library's current version of the workout when it has
+it; swipe to delete still works. The report opens with the full done card (date · program, tags,
+name, time domain, rep scheme, movements, cap, then the score line with the context, the change
+vs last time and the heart-rate facts), replacing the old header; heart rate, recovery, story,
+splits, share and Fix splits follow unchanged.
+
 ## Navigation and layout
 
 *Owned by the Navigation UI/UX chat. Add stories here with the `N` prefix.*

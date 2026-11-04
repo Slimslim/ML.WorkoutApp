@@ -4,6 +4,10 @@ import BarPathKit
 /// The post-workout overview: score, heart rate through the workout, one story view per
 /// format, folded splits and a data note. All numbers come from `WorkoutSummary`.
 ///
+/// With a `card` (the report, WorkoutDetailView) the top is the done workout card (spec context
+/// d): meta, tags, name, time domain, rep scheme, movements, cap, then the score line, which
+/// replaces the HeroCard. Without one (Live) the HeroCard stays.
+///
 /// One shared selection (a range of segment indices) links every part: tap a band, run,
 /// cell, set, round or row and the same segment lights up everywhere.
 struct WorkoutOverviewView: View {
@@ -12,23 +16,35 @@ struct WorkoutOverviewView: View {
     let isNew: Bool
     /// HR after the finish (nil for older results or when End came right away: no card).
     let recovery: HeartRateRecovery?
+    /// Report top: the workout card and its meta ("Mon, Nov 2 · PitFIRE").
+    let card: WorkoutCard?
+    let cardMeta: String?
 
     @State private var selection: ClosedRange<Int>? = nil
     @State private var hoverTime: Double? = nil
 
     /// - kicker: line above the title; nil shows the workout date.
-    init(result: WorkoutResult, previous: WorkoutResult?, kicker: String? = nil, isNew: Bool = false) {
+    /// - card: when set, the done card replaces the HeroCard (kicker and isNew are then unused).
+    init(result: WorkoutResult, previous: WorkoutResult?, kicker: String? = nil, isNew: Bool = false,
+         card: WorkoutCard? = nil, cardMeta: String? = nil) {
         let stored: Double = UserDefaults.standard.double(forKey: "maxHeartRate")
         let maxHR: Double? = stored > 0 ? stored : nil
         self.summary = WorkoutSummary.make(result: result, previous: previous, maxHeartRate: maxHR)
         self.kicker = kicker ?? OverviewFormat.dayAndTime(result.startDate).uppercased()
         self.isNew = isNew
         self.recovery = result.heartRateRecovery
+        self.card = card
+        self.cardMeta = cardMeta
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HeroCard(summary: summary, kicker: kicker, isNew: isNew)
+            if let card = card {
+                WorkoutCardView(card: card, meta: cardMeta, style: WorkoutCardView.Style.full,
+                                score: WorkoutCardScore.make(summary))
+            } else {
+                HeroCard(summary: summary, kicker: kicker, isNew: isNew)
+            }
             HeartRateTimelineCard(summary: summary, selection: $selection, hoverTime: $hoverTime)
             if let recovery = recovery {
                 RecoveryCard(recovery: recovery)

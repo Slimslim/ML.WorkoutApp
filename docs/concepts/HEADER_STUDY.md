@@ -25,7 +25,7 @@ of every workout — the header.
 | # | Source title (as written) | Kind of title | Format line | Movements / loads | Meta | Score type |
 |---|---|---|---|---|---|---|
 | 1 | Double Unders, AbMat Sit-ups | none → movement list | E3MOM, ping pong, 3 rounds | 50 DU, 25 AbMat sit-ups | "not a timed workout" | none / done |
-| 2 | 13.4 - CrossFit Games Open | competition code | AMRAP 7 min, ladder +3 reps/round | C&J 135/95 lb, T2B | levels (58 reps = level 50), ages | reps |
+| 2 | 13.4 - CrossFit Games Open | competition code | AMREP 7:00, ladder 3-6-9-12-15… (C&J + T2B each rung) | C&J 135/95 lb, T2B | levels (58 reps = level 50), ages | total reps |
 | 3 | The Chief | named benchmark | 5 cycles × AMRAP 3 min, rest 1 min, restart each cycle | 3 power cleans 135/95, 6 push-ups, 9 air squats | long dedication story | total rounds |
 | 4 | Diane | named benchmark | 21-15-9, for time | deadlift 225/155, HSPU | levels, previous 8:54 Rx'd (2023) | time |
 | 5 | "GAME OVER" (1/2 versions) | quoted fun name | for time 21-15-9, cap 8 min | deadlift 225/155, T2B | strategy/scaling behind "Read more" | time or reps at cap |
@@ -113,8 +113,9 @@ a new workout doesn't fit.
 7. **Units:** heights in inches (`Box Jumps @24 in`), run distances in m (miles only when the
    workout says so), `lb` never `lbs`.
 8. **Alternating** = `ALT` (`12 ALT DB Snatches @40 lb`); two dumbbells = `Double DB`.
-9. **Cap at the bottom** of the card, under the movements: `Cap 8:00`. Not in the format line.
-10. **CrossFit Open** workouts get the `Open` prefix: `Open 13.4` (scheme `3-6-9-12…`).
+9. **Cap at the bottom** of the card, under the movements: `8 min cap`. Not in the time-domain line.
+10. **CrossFit Open** workouts get the `Open` prefix. `Open 13.4` is an **AMREP** (tag AMREP, not
+    AMRAP): `7 min AMREP` / `3-6-9-12…` / `C&J @135 lb` (F 95 lb) / `T2B`; score = total reps.
 11. **No name → the format is the name** (`Every 3:00 × 3`), no generated movement name.
 12. **Lift blocks:** planned stays simple (`5×3 Front Squat @165–190 lb`); logged = one line per
     set or minute with load and average bar speed (`3 Front Squats @200 lb · 0.60 m/s`). Same for
@@ -122,6 +123,12 @@ a new workout doesn't fit.
 13. **Rx/Scaled:** the header shows the athlete's own division load from the profile (no manual
     pick). "See details" shows the original card with Rx M/F weights. After logging the app asks
     "Rx or scaled?" and lets the athlete edit loads/reps; the score then says `Scaled`.
+
+14. **Time domain on its own first line, written `<N> min <TYPE>`:** `7 min AMREP` (Open 13.4,
+    then `3-6-9-12…` on its own line, then `C&J @135 lb`, `T2B`), `40 min AMRAP`,
+    `8 min AMREP` ("Cheat Code"), `5 × 3 min AMRAP · rest 1 min` (The Chief). EMOMs keep
+    `Every 1:00 × 8`; rounds for time keep `5 rounds`. For-time caps stay at the bottom, written
+    `20 min cap` (was `Cap 20:00`).
 
 ### Open questions
 - **More abbreviations** (decided so far: HSPU, T2B, C&J, DB, KB, DU): GHD, OHS, RDL, MU, C2B…?
@@ -132,3 +139,38 @@ a new workout doesn't fit.
 - **Per side:** `1/side Turkish Get-up` or `6/6`? (alternating is decided: `ALT`)
 - **Calories:** `12 Cal Row` vs `Row 12 cal` (decided: `12 Cal Row`); M/F calories (`15/12 Cal`).
 - **Ranges and progressions:** `@125 → 175 lb` for building sets, `@165–190 lb` from %1RM.
+
+## Final card spec (2026-11-03, mockups: `workout-cards.html`)
+
+The workout card used everywhere (Choose list, preview before the watch, Log, top of the report,
+program days, logged lifts). Built from the decisions and writing conventions above.
+
+- **Anatomy, top to bottom:** date · program (left) and block tag + type tag (right); name, or
+  the format as the name (2 lines max, Open prefix); format line only when needed (rounds,
+  intervals, rest); shared rep scheme once; one movement per line `qty unit movement @load`, no
+  dividers; `20 min cap` at the bottom; after logging, one score line under a thin rule: score,
+  unit, Rx / Scaled badge (dashed `?` = not answered yet), one comparison (last time or cap).
+- **Type scale:** name 20/500 (compact row 16/500, 1 line) · score 26/500 tabular · lines 14/400
+  (scheme 14/500) · format 13.5 · meta 12 · tags 10.5/500. **Spacing:** card padding 16, 9 between
+  blocks, 5 between movement lines, radius 16, 1 px border. Neutrals + one accent (type tag,
+  links); green only for "better than last time". Colours not final.
+- **Time domain line** first (`7 min AMREP`, `40 min AMRAP`, `Every 1:00 × 8`, `5 rounds`), then the
+  rep scheme line (`3-6-9-12…`), then movements; for-time caps at the bottom (`20 min cap`). AMREP
+  scores total reps.
+- **States:** planned · in progress (live line "On the watch · Round 3 of 5 · 11:02") · done Rx ·
+  done Scaled · capped (reps at the cap).
+- **Compact row** (Choose / Log): name, `block · type`, one-line movement summary; right side last
+  score (Choose) or score + badge (Log).
+- **Report:** the card's score line replaces the report v3 hero number; the time budget, tiles and
+  "What stood out" follow.
+- **Program day:** date and program sit once in the day header. Every card keeps the same anatomy:
+  top-left = block order + block type (`A · Strength`, `B · Metcon`, `C · Accessory`), or once done
+  the time it was done (`A · 6:12 pm`); top-right = type tag. Blocks are sent to the watch **block
+  by block** (a "Send to watch" per card, "Next: B · Metcon" hint).
+- **Logged lifts / lift EMOMs:** one line per set or minute with load and bar speed, written with
+  its kind: **mean** concentric velocity for strength lifts (squats, presses, deadlifts, pull-ups)
+  `mean 0.62 m/s`, **peak** velocity for Olympic / ballistic lifts (snatch, clean, jerk, C&J)
+  `peak 1.95 m/s` (VBT practice; owner, 2026-11-03).
+- **Decided (owner answers):** bar speed mean vs peak as above; Freedom Rx was **185 lb**, so the
+  owner's 19:37 @155 lb is **Scaled** ("Rx 185 lb · you 155 lb"); program days go block by block.
+- **Still open:** Rx/Scaled for AMRAP 40 and Helen (shown as `?`); final colours.

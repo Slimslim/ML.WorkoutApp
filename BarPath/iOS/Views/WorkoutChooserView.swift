@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 import BarPathKit
 
 struct WorkoutGroup: Identifiable {
@@ -17,60 +18,10 @@ enum WorkoutGroups {
                                            WorkoutLibrary.amrap20.id, WorkoutLibrary.amrap40.id]),
         WorkoutGroup(title: "Other", ids: [WorkoutLibrary.free.id])
     ]
-
-    /// Round length when every segment repeats the first round (by title and kind), else nil.
-    /// HYROX (different stations each round) is not repeating; a cut last round is fine.
-    static func repeatingRoundSize(_ definition: WorkoutDefinition) -> Int? {
-        guard let r = definition.roundSize, r >= 1, definition.segments.count > r else { return nil }
-        let segs: [WorkoutSegment] = definition.segments
-        for i in r..<segs.count {
-            let first: WorkoutSegment = segs[i % r]
-            if segs[i].title != first.title || segs[i].kind != first.kind { return nil }
-        }
-        return r
-    }
-
-    /// "Each round · as many rounds as possible in 40:00", "3 rounds of", "Every 3:00 · 6 sets of", "Segments".
-    static func roundHeader(_ definition: WorkoutDefinition) -> String {
-        if definition.id == WorkoutLibrary.free.id {
-            return "No plan: turn the Crown at each change (new movement, set or rest), End when done"
-        }
-        guard let r = repeatingRoundSize(definition) else { return "Segments" }
-        let rounds: Int = (definition.segments.count + r - 1) / r
-        if definition.format == .amrap, let cap = definition.timeCapSeconds {
-            return "Each round · as many rounds as you can in " + WorkoutFmt.clock(cap)
-        }
-        if let interval = definition.intervalSeconds {
-            return "Every " + WorkoutFmt.clock(interval) + " · \(rounds) sets of"
-        }
-        return "\(rounds) rounds of"
-    }
-
-    static func summary(_ definition: WorkoutDefinition) -> String {
-        if definition.id == WorkoutLibrary.free.id {
-            return "No plan · Crown at each change"
-        }
-        let count = definition.segments.count
-        var text = "\(count) segment\(count == 1 ? "" : "s")"
-        if let r = repeatingRoundSize(definition) {
-            if definition.format == .amrap {
-                text = "\(r) per round"
-            } else {
-                let rounds: Int = (count + r - 1) / r
-                text = "\(rounds) rounds of \(r)"
-            }
-        }
-        if definition.runCount > 0 {
-            text += " · \(definition.runCount) run\(definition.runCount == 1 ? "" : "s")"
-        }
-        if let cap = definition.timeCapSeconds {
-            text += " · cap \(WorkoutFmt.clock(cap))"
-        }
-        return text
-    }
 }
 
-/// Top of the Workouts tab: the workout the watch will run next, with a button to change it.
+/// First row of the Workouts tab: the workout the watch will run next; tap to choose another.
+/// A plain list row (not an inset over the list), so it never covers the title or the results.
 struct NextWorkoutBar: View {
     @ObservedObject private var link = PhoneLink.shared
     @ObservedObject private var library = WorkoutLibraryStore.shared
@@ -91,18 +42,13 @@ struct NextWorkoutBar: View {
                         .font(.headline)
                         .lineLimit(1)
                 }
-                Spacer()
+                Spacer(minLength: 8)
                 Text("Choose")
                     .font(.subheadline.weight(.semibold))
-                Image(systemName: "chevron.right")
-                    .font(.footnote.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.accent)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .background(.bar)
+            .padding(.vertical, 2)
         }
-        .buttonStyle(.plain)
     }
 
     private var sentName: String {
@@ -119,33 +65,43 @@ struct NextWorkoutBar: View {
 
 /// Today's library workouts, then the library by program (newest first, with the date), then the
 /// built-in workouts by group; tap one to preview it and send it to the watch. Pull to refresh
-/// the library (docs/WORKOUT_LIBRARY.md).
+/// the library (docs/WORKOUT_LIBRARY.md). The search button (top right) filters every section by
+/// name, program, movements and type.
 struct WorkoutChooserView: View {
     @ObservedObject private var link = PhoneLink.shared
     @ObservedObject private var library = WorkoutLibraryStore.shared
+    @ObservedObject private var store = WorkoutStore.shared
+    /// Last score per definition id (newest result of the same workout), rebuilt when the
+    /// results or the library change.
+    @State private var lastScores: [String: String] = [:]
+    @State private var query: String = ""
+    @State private var searching: Bool = false
 
     var body: some View {
         List {
-            if !library.todayWorkouts.isEmpty {
+            let today: [LibraryWorkout] = filteredToday
+            let groups: [LibraryGroup] = filteredGroups
+            let builtIns: [WorkoutGroup] = filteredBuiltIns
+            if !today.isEmpty {
                 Section("Today") {
-                    ForEach(library.todayWorkouts) { (w: LibraryWorkout) in
+                    ForEach(today) { (w: LibraryWorkout) in
                         libraryLink(w, detail: w.program)
                     }
                 }
             }
-            ForEach(library.programGroups) { (group: LibraryGroup) in
+            ForEach(groups) { (group: LibraryGroup) in
                 Section(group.title) {
                     ForEach(group.workouts) { (w: LibraryWorkout) in
                         libraryLink(w, detail: w.dateLabel)
                     }
                 }
             }
-            ForEach(WorkoutGroups.sections) { (section: WorkoutGroup) in
+            ForEach(builtIns) { (section: WorkoutGroup) in
                 Section(section.title) {
                     ForEach(section.ids, id: \.self) { id in
                         if let definition = WorkoutLibrary.definition(id: id) {
                             NavigationLink {
-                                WorkoutPreviewView(definition: definition)
+                                WorkoutPreviewView(definition: definition, meta: WorkoutCardMeta.text(nil))
                             } label: {
                                 row(definition)
                             }
@@ -153,7 +109,29 @@ struct WorkoutChooserView: View {
                     }
                 }
             }
-            libraryStatus
+            if isSearching && today.isEmpty && groups.isEmpty && builtIns.isEmpty {
+                Section {
+                    Text("No workout matches \u{201C}" + trimmedQuery + "\u{201D}.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            if !isSearching {
+                libraryStatus
+            }
+        }
+        .searchable(text: $query, isPresented: $searching,
+                    placement: .navigationBarDrawer(displayMode: .automatic),
+                    prompt: "Name, program, movement, type")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    searching = true
+                } label: {
+                    Image(systemName: "magnifyingglass")
+                }
+                .accessibilityLabel("Search workouts")
+            }
         }
         .refreshable {
             await library.refresh(force: true)
@@ -161,13 +139,81 @@ struct WorkoutChooserView: View {
         .task {
             await library.refresh()
         }
+        .onReceive(store.$results) { (results: [WorkoutResult]) in
+            lastScores = WorkoutLastScore.byDefinition(allDefinitions(library.workouts), results: results)
+        }
+        .onReceive(library.$workouts) { (workouts: [LibraryWorkout]) in
+            lastScores = WorkoutLastScore.byDefinition(allDefinitions(workouts), results: store.results)
+        }
         .navigationTitle("Choose workout")
         .navigationBarTitleDisplayMode(.inline)
     }
 
+    // MARK: Search
+
+    private var trimmedQuery: String {
+        return query.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var isSearching: Bool {
+        return !trimmedQuery.isEmpty
+    }
+
+    private var filteredToday: [LibraryWorkout] {
+        let q: String = trimmedQuery
+        if q.isEmpty { return library.todayWorkouts }
+        return library.todayWorkouts.filter { (w: LibraryWorkout) -> Bool in
+            WorkoutSearch.matches(w.definition, program: w.program, query: q)
+        }
+    }
+
+    private var filteredGroups: [LibraryGroup] {
+        let q: String = trimmedQuery
+        if q.isEmpty { return library.programGroups }
+        var out: [LibraryGroup] = []
+        for g in library.programGroups {
+            let kept: [LibraryWorkout] = g.workouts.filter { (w: LibraryWorkout) -> Bool in
+                WorkoutSearch.matches(w.definition, program: w.program ?? g.title, query: q)
+            }
+            if !kept.isEmpty {
+                out.append(LibraryGroup(title: g.title, workouts: kept))
+            }
+        }
+        return out
+    }
+
+    private var filteredBuiltIns: [WorkoutGroup] {
+        let q: String = trimmedQuery
+        if q.isEmpty { return WorkoutGroups.sections }
+        var out: [WorkoutGroup] = []
+        for g in WorkoutGroups.sections {
+            let kept: [String] = g.ids.filter { (id: String) -> Bool in
+                guard let d = WorkoutLibrary.definition(id: id) else { return false }
+                return WorkoutSearch.matches(d, program: g.title, query: q)
+            }
+            if !kept.isEmpty {
+                out.append(WorkoutGroup(title: g.title, ids: kept))
+            }
+        }
+        return out
+    }
+
+    /// Library workouts and the built-ins shown here (for the last scores).
+    private func allDefinitions(_ workouts: [LibraryWorkout]) -> [WorkoutDefinition] {
+        var out: [WorkoutDefinition] = workouts.map { (w: LibraryWorkout) -> WorkoutDefinition in w.definition }
+        for g in WorkoutGroups.sections {
+            for id in g.ids {
+                if let d = WorkoutLibrary.definition(id: id) {
+                    out.append(d)
+                }
+            }
+        }
+        return out
+    }
+
     private func libraryLink(_ w: LibraryWorkout, detail: String?) -> some View {
         NavigationLink {
-            WorkoutPreviewView(definition: w.definition, note: w.caption)
+            WorkoutPreviewView(definition: w.definition, meta: WorkoutCardMeta.text(w))
         } label: {
             row(w.definition, detail: detail)
         }
@@ -210,46 +256,41 @@ struct WorkoutChooserView: View {
         return text
     }
 
+    /// Compact card row: name, "date · block · type", one line of movements, last score.
     private func row(_ definition: WorkoutDefinition, detail: String? = nil) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(definition.name)
-                    .font(.body.weight(.semibold))
-                Text(rowCaption(definition, detail: detail))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
-            if link.sentWorkoutId == definition.id {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(Theme.accent)
-            }
-        }
-    }
-
-    private func rowCaption(_ definition: WorkoutDefinition, detail: String?) -> String {
-        let summary: String = WorkoutGroups.summary(definition)
-        if let detail = detail, !detail.isEmpty {
-            return detail + " · " + summary
-        }
-        return summary
+        WorkoutCardView(card: WorkoutCard.make(definition: definition), meta: detail,
+                        style: WorkoutCardView.Style.compact,
+                        lastScore: lastScores[definition.id],
+                        isSent: link.sentWorkoutId == definition.id)
     }
 }
 
-/// The segments of one workout and a big "Send to watch" button.
+/// The workout card (the whole preview), a big "Send to watch" button with its status, and a
+/// collapsed list of every segment (for checking what the watch will step through).
 struct WorkoutPreviewView: View {
     let definition: WorkoutDefinition
-    /// Library workouts: "Mayhem · Mon, Nov 2".
-    var note: String? = nil
+    /// Top-left of the card: "Mon, Nov 2 · PitFIRE", "Built-in".
+    var meta: String? = nil
     @ObservedObject private var link = PhoneLink.shared
+    @ObservedObject private var store = WorkoutStore.shared
+    @State private var showSegments: Bool = false
+    @State private var showAllResults: Bool = false
+
+    /// "Your results" shows this many rows before "Show all".
+    private static let resultRows: Int = 3
 
     private var isSent: Bool {
         return link.sentWorkoutId == definition.id
     }
 
     var body: some View {
-        List {
-            Section {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                WorkoutCardView(card: WorkoutCard.make(definition: definition), meta: meta,
+                                style: WorkoutCardView.Style.full)
+
+                historySection
+
                 Button {
                     link.sendWorkout(definition)
                 } label: {
@@ -262,59 +303,117 @@ struct WorkoutPreviewView: View {
                     .padding(.vertical, 6)
                 }
                 .buttonStyle(.borderedProminent)
-                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
 
                 if let error = link.sendWorkoutError {
                     Text(error)
                         .font(.footnote)
                         .foregroundStyle(.orange)
+                        .fixedSize(horizontal: false, vertical: true)
                 } else if isSent {
                     Text(sentText)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-            } footer: {
-                Text(footerText)
-            }
 
-            Section {
-                ForEach(Array(shownSegments.enumerated()), id: \.offset) { item in
-                    HStack(spacing: 10) {
-                        Text("\(item.offset + 1)")
-                            .font(.caption.monospacedDigit())
+                if !allSegments.isEmpty {
+                    DisclosureGroup(isExpanded: $showSegments) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            ForEach(Array(allSegments.enumerated()), id: \.offset) { item in
+                                segmentRow(index: item.offset, segment: item.element)
+                            }
+                        }
+                        .padding(.top, 8)
+                    } label: {
+                        Text("All segments (\(allSegments.count))")
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
-                            .frame(width: 24, alignment: .trailing)
-                        Circle()
-                            .fill(item.element.kind == .run ? Theme.workoutRun : (item.element.kind == .rest ? Color.gray : Theme.workoutStation))
-                            .frame(width: 8, height: 8)
-                        Text(item.element.title + (item.element.load.map { " · " + $0.text } ?? ""))
                     }
+                    .padding(.horizontal, 4)
                 }
-            } header: {
-                Text(WorkoutGroups.roundHeader(definition))
             }
+            .padding(16)
         }
+        .background(Theme.pageBackground)
         .navigationTitle(definition.name)
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    /// One round when the workout repeats the same round (AMRAP 40, Helen…), else every segment.
-    private var shownSegments: [WorkoutSegment] {
+    // MARK: Your results
+
+    /// Past results of this workout, newest first (also those saved under another id for the
+    /// same workout, WorkoutHistory); each row opens the report. Nothing when never done.
+    @ViewBuilder
+    private var historySection: some View {
+        let history: [WorkoutResult] = store.history(of: definition)
+        if !history.isEmpty {
+            let shown: [WorkoutResult] = showAllResults ? history : Array(history.prefix(WorkoutPreviewView.resultRows))
+            VStack(alignment: .leading, spacing: 0) {
+                Text("Your results")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(WorkoutCardTheme.fg2)
+                    .padding(.bottom, 6)
+                ForEach(Array(shown.enumerated()), id: \.element.id) { item in
+                    if item.offset > 0 {
+                        Rectangle()
+                            .fill(WorkoutCardTheme.border)
+                            .frame(height: 1)
+                    }
+                    NavigationLink {
+                        WorkoutDetailView(resultId: item.element.id)
+                            .environmentObject(WorkoutStore.shared)
+                    } label: {
+                        WorkoutHistoryRow(result: item.element)
+                    }
+                    .buttonStyle(.plain)
+                }
+                if history.count > WorkoutPreviewView.resultRows {
+                    Button {
+                        showAllResults.toggle()
+                    } label: {
+                        Text(showAllResults ? "Show fewer" : "Show all " + String(history.count))
+                            .font(.system(size: 12.5, weight: .medium))
+                            .foregroundColor(WorkoutCardTheme.accent)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.top, 8)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(WorkoutCardTheme.cardFill)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(WorkoutCardTheme.border, lineWidth: 1)
+            )
+        }
+    }
+
+    /// Every segment the watch steps through (rests included); none for the Free Workout.
+    private var allSegments: [WorkoutSegment] {
         if definition.id == WorkoutLibrary.free.id {
             return []
-        }
-        if let r = WorkoutGroups.repeatingRoundSize(definition) {
-            return Array(definition.segments.prefix(r))
         }
         return definition.segments
     }
 
-    private var footerText: String {
-        let summary: String = WorkoutGroups.summary(definition)
-        if let note = note, !note.isEmpty {
-            return note + " · " + summary
+    private func segmentRow(index: Int, segment: WorkoutSegment) -> some View {
+        HStack(spacing: 10) {
+            Text("\(index + 1)")
+                .font(.caption.monospacedDigit())
+                .foregroundStyle(.secondary)
+                .frame(width: 24, alignment: .trailing)
+            Circle()
+                .fill(segment.kind == .run ? Theme.workoutRun : (segment.kind == .rest ? Color.gray : Theme.workoutStation))
+                .frame(width: 8, height: 8)
+            WorkoutCardView.lineText(WorkoutCard.segmentLine(segment))
+                .font(.footnote)
+            Spacer(minLength: 0)
         }
-        return summary
     }
 
     private var sentText: String {
@@ -325,5 +424,72 @@ struct WorkoutPreviewView: View {
             text += " as soon as BarPath opens on the watch."
         }
         return text + " Tap START on the watch when you begin."
+    }
+}
+
+/// One past result under a workout's preview: date, score, Rx / Scaled (only once answered:
+/// nothing stores it yet), average heart rate.
+struct WorkoutHistoryRow: View {
+    let result: WorkoutResult
+
+    var body: some View {
+        let h: WorkoutSummary.Headline = WorkoutSummary.make(result: result, previous: nil, maxHeartRate: nil).headline
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Text(WorkoutResultCard.dateLabel(result.startDate))
+                .font(.system(size: 14))
+                .lineLimit(1)
+            Spacer(minLength: 8)
+            if let avg = h.heartRateAvg {
+                Text("\u{2665}\u{FE0E} " + SummaryFormat.bpm(avg))
+                    .font(.system(size: 11.5))
+                    .foregroundColor(WorkoutCardTheme.fg3)
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .accessibilityLabel("Average heart rate " + SummaryFormat.bpm(avg))
+            }
+            Text(WorkoutLastScore.text(h))
+                .font(.system(size: 15, weight: .medium))
+                .monospacedDigit()
+                .lineLimit(1)
+            Image(systemName: "chevron.right")
+                .font(.caption.weight(.semibold))
+                .foregroundColor(WorkoutCardTheme.fg3)
+        }
+        .padding(.vertical, 9)
+        .contentShape(Rectangle())
+    }
+}
+
+/// Search in Choose: every word of the query must appear (case and accents ignored) in the
+/// workout's name, short name, program or group, type and block tags, the card lines, or a
+/// movement's names (as written, display name, card short names: "KB", "C&J", "Row").
+enum WorkoutSearch {
+    static func matches(_ d: WorkoutDefinition, program: String?, query: String) -> Bool {
+        let words: [String] = query.split(whereSeparator: { (c: Character) -> Bool in c == " " || c == "\n" })
+            .map { (w: Substring) -> String in String(w) }
+        if words.isEmpty { return true }
+        let text: String = haystack(d, program: program)
+        for w in words where text.range(of: w, options: [.caseInsensitive, .diacriticInsensitive]) == nil {
+            return false
+        }
+        return true
+    }
+
+    private static func haystack(_ d: WorkoutDefinition, program: String?) -> String {
+        let card: WorkoutCard = WorkoutCard.make(definition: d)
+        var parts: [String] = [d.name, d.shortName, card.name, card.summaryLine]
+        if let p = program { parts.append(p) }
+        if let t = card.typeTag { parts.append(t.label) }
+        if let b = card.blockTag { parts.append(b.label) }
+        if let domain = card.timeDomainLine { parts.append(domain) }
+        var seen: Set<String> = []
+        for s in d.segments where !seen.contains(s.movement) {
+            seen.insert(s.movement)
+            parts.append(s.name)
+            parts.append(Movement.displayName(s.movement))
+            if let one = Movement.shortName(s.movement, plural: false) { parts.append(one) }
+            if let many = Movement.shortName(s.movement, plural: true) { parts.append(many) }
+        }
+        return parts.joined(separator: " | ")
     }
 }

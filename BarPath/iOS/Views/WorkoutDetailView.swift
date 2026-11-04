@@ -1,10 +1,12 @@
 import SwiftUI
 import BarPathKit
 
-/// Overview (score, heart rate, story, splits) and the share buttons for one workout.
+/// The report of one workout: the done workout card with its score line on top, then heart
+/// rate, recovery, story, splits, the share buttons and Fix splits.
 struct WorkoutDetailView: View {
     let resultId: UUID
     @EnvironmentObject private var store: WorkoutStore
+    @ObservedObject private var library = WorkoutLibraryStore.shared
     @State private var fixingSplits = false
 
     var body: some View {
@@ -20,9 +22,13 @@ struct WorkoutDetailView: View {
     }
 
     private func content(_ result: WorkoutResult) -> some View {
-        ScrollView {
+        let resolved: (definition: WorkoutDefinition, program: String?) =
+            WorkoutResultCard.resolve(result, library: library.workouts)
+        return ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                WorkoutOverviewView(result: result, previous: store.previousAttempt(before: result))
+                WorkoutOverviewView(result: result, previous: store.previousAttempt(before: result),
+                                    card: WorkoutCard.make(definition: resolved.definition),
+                                    cardMeta: WorkoutResultCard.reportMeta(result, program: resolved.program))
                     .id(result.id)
                 WorkoutShareCard(result: result)
                 Button {

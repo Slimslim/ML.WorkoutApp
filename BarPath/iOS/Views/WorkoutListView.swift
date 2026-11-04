@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 import BarPathKit
 
 struct WorkoutRoute: Hashable {
@@ -48,11 +49,16 @@ enum WorkoutFmt {
     }
 }
 
-/// Finished workouts, newest first.
+/// The Workouts tab: the workout the watch runs next (first row, tap to choose), then the Log:
+/// finished workouts newest first, each a compact done card (name, date · program · block · type,
+/// one line of movements, score and Rx / Scaled badge on the right).
 struct WorkoutListView: View {
     @EnvironmentObject private var store: WorkoutStore
+    @ObservedObject private var library = WorkoutLibraryStore.shared
     @Environment(\.scenePhase) private var scenePhase
     @State private var resultToDelete: WorkoutResult?
+    /// Score of each result, rebuilt when the results change (a summary per row is not free).
+    @State private var scores: [UUID: WorkoutCardScore] = [:]
 
     private var confirmBinding: Binding<Bool> {
         return Binding<Bool>(
@@ -65,65 +71,68 @@ struct WorkoutListView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if store.results.isEmpty && store.problems.isEmpty {
-                    ContentUnavailableView {
-                        Label("No workouts yet", systemImage: "figure.run")
-                    } description: {
-                        Text("Choose a workout above and send it to your watch. Results appear here when you finish.")
+            resultList
+                .navigationTitle("Workouts")
+                // Library workouts added in the database (WorkoutLibraryStore skips refreshes
+                // closer than a minute apart, and does nothing signed out).
+                .task {
+                    await WorkoutLibraryStore.shared.refresh()
+                }
+                .onChange(of: scenePhase) { _, phase in
+                    if phase == .active {
+                        WorkoutLibraryStore.shared.refreshSoon()
                     }
-                } else {
-                    resultList
                 }
-            }
-            .safeAreaInset(edge: .top, spacing: 0) {
-                NextWorkoutBar()
-            }
-            .navigationTitle("Workouts")
-            // Library workouts added in the database (WorkoutLibraryStore skips refreshes
-            // closer than a minute apart, and does nothing signed out).
-            .task {
-                await WorkoutLibraryStore.shared.refresh()
-            }
-            .onChange(of: scenePhase) { _, phase in
-                if phase == .active {
-                    WorkoutLibraryStore.shared.refreshSoon()
+                .onReceive(store.$results) { (results: [WorkoutResult]) in
+                    scores = WorkoutLastScore.byResult(results)
                 }
-            }
-            .navigationDestination(for: WorkoutRoute.self) { route in
-                WorkoutDetailView(resultId: route.id)
-            }
-            .confirmationDialog("Delete this workout?",
-                                isPresented: confirmBinding,
-                                titleVisibility: .visible,
-                                presenting: resultToDelete) { result in
-                Button("Delete \(result.definition.name)", role: .destructive) {
-                    store.delete(result)
-                    resultToDelete = nil
+                .navigationDestination(for: WorkoutRoute.self) { route in
+                    WorkoutDetailView(resultId: route.id)
                 }
-                Button("Cancel", role: .cancel) {
-                    resultToDelete = nil
+                .confirmationDialog("Delete this workout?",
+                                    isPresented: confirmBinding,
+                                    titleVisibility: .visible,
+                                    presenting: resultToDelete) { result in
+                    Button("Delete \(result.definition.name)", role: .destructive) {
+                        store.delete(result)
+                        resultToDelete = nil
+                    }
+                    Button("Cancel", role: .cancel) {
+                        resultToDelete = nil
+                    }
+                } message: { _ in
+                    Text("The result is removed from this iPhone. A motion recording stays in the Debug tab.")
                 }
-            } message: { _ in
-                Text("The result is removed from this iPhone. A motion recording stays in the Debug tab.")
-            }
         }
     }
 
     private var resultList: some View {
         List {
             Section {
-                ForEach(store.results) { result in
-                    NavigationLink(value: WorkoutRoute(id: result.id)) {
-                        WorkoutRow(result: result)
+                NextWorkoutBar()
+            }
+            if store.results.isEmpty && store.problems.isEmpty {
+                Section {
+                    ContentUnavailableView {
+                        Label("No workouts yet", systemImage: "figure.run")
+                    } description: {
+                        Text("Choose a workout above and send it to your watch. Results appear here when you finish.")
                     }
-                    .swipeActions(edge: .trailing) {
-                        Button {
-                            resultToDelete = result
-                        } label: {
-                            Label("Delete", systemImage: "trash")
+                }
+            } else if !store.results.isEmpty {
+                Section("Log") {
+                    ForEach(store.results) { (result: WorkoutResult) in
+                        NavigationLink(value: WorkoutRoute(id: result.id)) {
+                            logRow(result)
                         }
-                        .tint(Color.red)
+                        .swipeActions(edge: .trailing) {
+                            Button {
+                                resultToDelete = result
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                            .tint(Color.red)
+                        }
                     }
                 }
             }
@@ -138,31 +147,14 @@ struct WorkoutListView: View {
         }
         .listStyle(.insetGrouped)
     }
-}
 
-struct WorkoutRow: View {
-    let result: WorkoutResult
-
-    var body: some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(result.definition.name)
-                    .font(.headline)
-                    .lineLimit(1)
-                Text(result.startDate.formatted(date: .abbreviated, time: .shortened))
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer(minLength: 8)
-            VStack(alignment: .trailing, spacing: 3) {
-                Text(WorkoutFmt.hms(result.totalSeconds))
-                    .font(.headline)
-                    .monospacedDigit()
-                Text("\(result.segments.count) segment\(result.segments.count == 1 ? "" : "s")")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .padding(.vertical, 2)
+    /// Compact done card (context c "Log" of docs/concepts/workout-cards.html).
+    private func logRow(_ result: WorkoutResult) -> some View {
+        let resolved: (definition: WorkoutDefinition, program: String?) =
+            WorkoutResultCard.resolve(result, library: library.workouts)
+        return WorkoutCardView(card: WorkoutCard.make(definition: resolved.definition),
+                               meta: WorkoutResultCard.logMeta(result, program: resolved.program),
+                               style: WorkoutCardView.Style.compact,
+                               score: scores[result.id] ?? WorkoutLastScore.byResult([result])[result.id])
     }
 }
