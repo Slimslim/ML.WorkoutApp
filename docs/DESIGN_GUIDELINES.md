@@ -127,8 +127,8 @@ Effort does not capture heavy lifting well, which is why lifted weight sits besi
 Footer: **Today · + · Log**, plain text, with the + in the middle. Progress joins when it has
 something to show.
 
-The avatar at the top right of Today opens Settings. A small dot on it shows the watch status;
-Settings says it in words.
+The avatar at the top right of Today opens a small flat menu, not a full screen: watch status,
+upload status, Settings, Sign out. A small dot on the avatar shows the watch status at a glance.
 
 The + opens a plain list: Record a lift, Start a workout, Cancel. Log a result joins it later.
 
@@ -145,10 +145,10 @@ The + opens a plain list: Record a lift, Start a workout, Cancel. Log a result j
 | Workouts: result list | Log | Merged with lifting history |
 | Workout detail, share, Fix splits | Report, from Log or Today | Fix splits is a sheet, unchanged |
 | History: sessions, lifts, delete | Log | Keep delete with confirmation |
-| Debug: account section | Settings › Account | Sign out, Upload now, Delete account |
+| Debug: account section | Avatar menu and Settings | Sign out in the menu; Upload now and Delete account in Settings |
 | Debug: recordings, files, config, connection | Settings › For testing › Debug tools | Keep in TestFlight builds |
 | Sign in gate | Unchanged | |
-| Watch status chip | Dot on the avatar, words in Settings | |
+| Watch status chip | Dot on the avatar, words in its menu | |
 
 ### New screens that do not exist yet
 
