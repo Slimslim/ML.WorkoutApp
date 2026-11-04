@@ -31,8 +31,8 @@ Watch rules: no scrolling, one signal per state, glanceable mid-set.
 
 - White page, side margin 20. No shadows or gradients in the content.
 - **Home is flat:** no cards and no rounded boxes. Separate things with space and thin lines.
-- **Long pages** (reports): separate sections as white bands on a light grey page (`#F3F4F6`), edge
-  to edge, with no rounded boxes.
+- **Long pages** (reports): each section is a white card, radius 16, margin 12, on a light grey page
+  (`#F3F4F6`). No shadows. Home stays flat.
 - Workout cards (radius 16, 1 px border) are for card screens: Choose, the preview, Log, reports.
   On Home the same content appears as a flat block, and tapping it opens the full card.
 - Straight edges for bars and lines. The Effort ring is the one circle in Home's content.
