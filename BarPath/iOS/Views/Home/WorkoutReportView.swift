@@ -10,7 +10,21 @@ private struct BudgetPart: Identifiable {
 }
 
 private enum TimeBudget {
+    /// EMOM with found lifts: lifting, Transitioning before the first lift, and Rest.
+    static func minutes(_ result: WorkoutResult) -> [BudgetPart]? {
+        let sets: [EmomSet] = EmomSet.all(result)
+        guard !sets.isEmpty, sets.allSatisfy({ (s: EmomSet) -> Bool in s.found }) else { return nil }
+        let lifting: Double = sets.reduce(0) { (t: Double, s: EmomSet) -> Double in t + s.lastEnd - s.firstStart }
+        let lead: Double = sets.reduce(0) { (t: Double, s: EmomSet) -> Double in t + s.firstStart }
+        let rest: Double = sets.reduce(0) { (t: Double, s: EmomSet) -> Double in t + s.rest }
+        let m: Modality? = Modality.of(movement: sets[0].station.movement)
+        return [BudgetPart(id: 0, name: "Lifting", color: m?.color ?? Color(uiColor: .systemGray3), seconds: lifting),
+                BudgetPart(id: 1, name: "Transitioning", color: Color(uiColor: .systemGray4), seconds: lead),
+                BudgetPart(id: 2, name: "Rest", color: Theme.tileBackground, seconds: rest)]
+    }
+
     static func make(_ result: WorkoutResult) -> [BudgetPart] {
+        if let parts = minutes(result) { return parts }
         var order: [String] = []
         var seconds: [String: Double] = [:]
         var colors: [String: Color] = [:]
@@ -43,12 +57,65 @@ private enum TimeBudget {
     }
 }
 
-/// One round, set or split of the report.
+/// One round, set or split of the report. A minute of an EMOM has `minute` instead of parts.
 private struct ReportRow: Identifiable {
     let id: Int
     let title: String
     let seconds: Double
+    var right: String? = nil
+    var note: String? = nil
     let parts: [(color: Color, seconds: Double)]
+    var minute: MinuteTrack? = nil
+}
+
+/// Where the lifts fell inside one minute, as shares of the minute.
+private struct MinuteTrack {
+    let lead: Double
+    let lifts: [(start: Double, width: Double)]
+    let color: Color
+}
+
+/// One set of an EMOM, placed in its own minute from the found lifts (or the segment without them).
+private struct EmomSet {
+    let number: Int
+    let interval: Double
+    let station: SegmentResult
+    let load: SegmentLoad?
+    /// [start, end] in seconds into the minute.
+    let spans: [(start: Double, end: Double)]
+    let found: Bool
+
+    var firstStart: Double { return spans.first?.start ?? 0 }
+    var lastEnd: Double { return spans.last?.end ?? 0 }
+    var rest: Double { return Swift.max(0, interval - lastEnd) }
+
+    static func all(_ result: WorkoutResult) -> [EmomSet] {
+        guard result.definition.format == .emom, let t0 = result.segments.first?.start else { return [] }
+        let interval: Double = result.definition.intervalSeconds ?? 60
+        let stations: [SegmentResult] = result.segments.filter { (s: SegmentResult) -> Bool in s.kind == .station }
+        return stations.enumerated().map { (item: (offset: Int, element: SegmentResult)) -> EmomSet in
+            let st: SegmentResult = item.element
+            let mark: Double = t0 + Double(item.offset) * interval
+            let lifts: [[Double]] = (st.lifts ?? []).filter { (l: [Double]) -> Bool in l.count == 2 }
+            var spans: [(start: Double, end: Double)] = lifts.map { (l: [Double]) -> (start: Double, end: Double) in
+                (l[0] - mark, l[1] - mark)
+            }
+            if spans.isEmpty {
+                spans = [(Swift.max(0, st.start - mark), Swift.min(interval, st.end - mark))]
+            }
+            let defs: [WorkoutSegment] = result.definition.segments
+            let load: SegmentLoad? = st.index < defs.count ? defs[st.index].load : nil
+            return EmomSet(number: item.offset + 1, interval: interval, station: st, load: load,
+                           spans: spans, found: !lifts.isEmpty)
+        }
+    }
+
+    /// Heaviest set in pounds, nil when no set has a load.
+    static func heaviestPounds(_ sets: [EmomSet]) -> Int? {
+        let kilos: [Double] = sets.compactMap { (s: EmomSet) -> Double? in s.load?.kilograms }
+        guard let top = kilos.max() else { return nil }
+        return Int((top / 0.45359237).rounded())
+    }
 }
 
 private enum ReportRows {
@@ -63,6 +130,8 @@ private enum ReportRows {
     }
 
     static func make(_ result: WorkoutResult) -> (title: String, rows: [ReportRow]) {
+        let sets: [EmomSet] = EmomSet.all(result)
+        if !sets.isEmpty { return ("Minute by minute", minuteRows(sets)) }
         let size: Int = result.definition.roundSize ?? 1
         let segments: [SegmentResult] = result.segments
         if size <= 1 {
@@ -72,18 +141,42 @@ private enum ReportRows {
             }
             return ("Splits", rows)
         }
-        let isEmom: Bool = result.definition.format == .emom
         var rows: [ReportRow] = []
         var i: Int = 0
         while i < segments.count {
             let group: [SegmentResult] = Array(segments[i..<Swift.min(i + size, segments.count)])
             let n: Int = rows.count + 1
-            rows.append(ReportRow(id: n, title: (isEmom ? "Minute " : "Round ") + String(n),
+            rows.append(ReportRow(id: n, title: "Round " + String(n),
                                   seconds: group.reduce(0) { (t: Double, s: SegmentResult) -> Double in t + s.duration },
                                   parts: group.map { (s: SegmentResult) -> (color: Color, seconds: Double) in (color(s), s.duration) }))
             i += size
         }
-        return (isEmom ? "Minute by minute" : "Rounds", rows)
+        return ("Rounds", rows)
+    }
+
+    private static func minuteRows(_ sets: [EmomSet]) -> [ReportRow] {
+        return sets.map { (s: EmomSet) -> ReportRow in
+            var title: String = String(s.number)
+            if let load = s.load {
+                title += " \u{00B7} " + String(Int((load.kilograms / 0.45359237).rounded())) + " lb"
+            } else {
+                title = "Minute " + title
+            }
+            let spans: [(start: Double, width: Double)] = s.spans.map { (x: (start: Double, end: Double)) -> (start: Double, width: Double) in
+                (x.start / s.interval, (x.end - x.start) / s.interval)
+            }
+            let color: Color = Modality.of(movement: s.station.movement)?.color ?? Color(uiColor: .systemGray3)
+            var note: String? = nil
+            if s.found {
+                let reps: Int = s.spans.count
+                note = "Started " + String(Int(s.firstStart.rounded())) + " s in \u{00B7} "
+                    + String(Int((s.lastEnd - s.firstStart).rounded())) + " s for " + String(reps)
+                    + (reps == 1 ? " rep" : " reps")
+            }
+            return ReportRow(id: s.number, title: title, seconds: s.interval,
+                             right: String(Int(s.rest.rounded())) + " s rest", note: note, parts: [],
+                             minute: MinuteTrack(lead: s.firstStart / s.interval, lifts: spans, color: color))
+        }
     }
 }
 
@@ -171,16 +264,21 @@ struct WorkoutReportView: View {
     }
 
     private func scoreText(_ h: WorkoutSummary.Headline) -> String {
+        if let top = EmomSet.heaviestPounds(EmomSet.all(result)) { return String(top) }
         if let rounds = h.rounds, (h.extraReps ?? 0) == 0 { return String(rounds) }
         return h.scoreText
     }
 
     private func scoreUnit(_ h: WorkoutSummary.Headline) -> String? {
+        if EmomSet.heaviestPounds(EmomSet.all(result)) != nil { return "lb, heaviest set" }
         if h.rounds != nil, (h.extraReps ?? 0) == 0 { return "rounds" }
         return h.scoreUnit
     }
 
     private func contextText(_ h: WorkoutSummary.Headline) -> String {
+        if EmomSet.heaviestPounds(EmomSet.all(result)) != nil {
+            return h.scoreText.replacingOccurrences(of: " / ", with: " of ") + " sets"
+        }
         if let under = h.underCapSeconds, let cap = h.capSeconds {
             return WorkoutFmt.clock(under) + " under the " + WorkoutFmt.clock(cap) + " cap"
         }
@@ -275,10 +373,13 @@ struct WorkoutReportView: View {
                         Text(row.title)
                             .lineLimit(1)
                         Spacer()
-                        Text(WorkoutFmt.clock(row.seconds))
+                        Text(row.right ?? WorkoutFmt.clock(row.seconds))
                             .monospacedDigit()
                     }
                     .font(.system(size: 14, weight: .medium))
+                    if let minute = row.minute {
+                        minuteBar(minute)
+                    } else {
                     GeometryReader { (geo: GeometryProxy) in
                         let width: CGFloat = geo.size.width * CGFloat(longest > 0 ? row.seconds / longest : 0)
                         let gaps: CGFloat = CGFloat(max(0, row.parts.count - 1))
@@ -292,6 +393,13 @@ struct WorkoutReportView: View {
                         }
                     }
                     .frame(height: 4)
+                    }
+                    if let note = row.note {
+                        Text(note)
+                            .font(.system(size: 12.5))
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                    }
                 }
                 .padding(.vertical, 8)
                 if row.id != rows.last?.id {
@@ -301,6 +409,27 @@ struct WorkoutReportView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .card()
+    }
+
+    /// The whole minute: Transitioning before the first lift, a pill per lift, Rest after.
+    private func minuteBar(_ minute: MinuteTrack) -> some View {
+        GeometryReader { (geo: GeometryProxy) in
+            ZStack(alignment: .leading) {
+                Rectangle()
+                    .fill(Theme.tileBackground)
+                Rectangle()
+                    .fill(Color(uiColor: .systemGray4))
+                    .frame(width: geo.size.width * CGFloat(minute.lead))
+                ForEach(minute.lifts.indices, id: \.self) { (i: Int) in
+                    Capsule()
+                        .fill(minute.color)
+                        .frame(width: Swift.max(4, geo.size.width * CGFloat(minute.lifts[i].width)))
+                        .offset(x: geo.size.width * CGFloat(minute.lifts[i].start))
+                }
+            }
+        }
+        .frame(height: 10)
+        .accessibilityHidden(true)
     }
 
     // MARK: Heart rate

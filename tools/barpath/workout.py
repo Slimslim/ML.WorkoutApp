@@ -546,6 +546,7 @@ class SegmentResult:
     cadence: Optional[float] = None
     pace_seconds_per_km: Optional[float] = None
     heart_rate_min: Optional[float] = None
+    lifts: Optional[list] = None    # [[start, end], ...] of each lift, seconds since 1970
 
     _KEYS = (("heartRateAvg", "heart_rate_avg"), ("heartRateMax", "heart_rate_max"), ("steps", "steps"),
              ("distance", "distance"), ("cadence", "cadence"), ("paceSecondsPerKm", "pace_seconds_per_km"),
@@ -558,11 +559,14 @@ class SegmentResult:
             v = getattr(self, pk)
             if v is not None:
                 d[jk] = v
+        if self.lifts is not None:
+            d["lifts"] = self.lifts
         return d
 
     @classmethod
     def from_dict(cls, d: dict) -> "SegmentResult":
         kw = {pk: (None if d.get(jk) is None else float(d[jk])) for jk, pk in cls._KEYS}
+        kw["lifts"] = d.get("lifts")
         return cls(int(d["index"]), d["kind"], d["movement"], d["title"], float(d["start"]),
                    float(d["end"]), float(d["duration"]), **kw)
 

@@ -232,7 +232,7 @@ struct TimelineDrawing {
                 line.move(to: CGPoint(x: 0, y: y))
                 line.addLine(to: CGPoint(x: width, y: y))
                 context.stroke(line, with: .color(Theme.ovGrid), lineWidth: 1)
-                text(&context, String(Int(h)), CGPoint(x: width - 2, y: y - 3), UnitPoint.bottomTrailing,
+                text(&context, String(Int(h)), CGPoint(x: 2, y: y - 2), UnitPoint.bottomLeading,
                      size: 10, weight: .regular, color: Theme.ovFg2)
             }
             h += 20

@@ -2,6 +2,12 @@
 
 Newest first. Paste the latest entry into "What to Test" for the build in App Store Connect.
 
+## Build 10
+
+- EMOM results: heaviest set, lift pills inside each minute, load, start time and rest.
+- Heart rate numbers moved to the left of the chart.
+- Smaller dot in the avatar menu.
+
 ## Build 9
 
 - Heart rate through the workout is back on the results page: bands, zones, tap to read, and recovery.

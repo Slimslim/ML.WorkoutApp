@@ -518,9 +518,13 @@ struct AccountMenu: View {
     /// Green when the watch app is reachable, orange when not.
     private var watchDot: UIImage {
         let color: UIColor = link.isReachable ? UIColor.systemGreen : UIColor.systemOrange
-        let image: UIImage? = UIImage(systemName: "circle.fill")?
-            .withTintColor(color, renderingMode: .alwaysOriginal)
-        return image ?? UIImage()
+        let size: CGSize = CGSize(width: 22, height: 22)
+        let dot: CGRect = CGRect(x: 7, y: 7, width: 8, height: 8)
+        let image: UIImage = UIGraphicsImageRenderer(size: size).image { (context: UIGraphicsImageRendererContext) in
+            color.setFill()
+            context.cgContext.fillEllipse(in: dot)
+        }
+        return image.withRenderingMode(.alwaysOriginal)
     }
 
     private var avatar: some View {

@@ -12,3 +12,5 @@ Freedom power cleans: 155 lb (≈ 70 kg), not the 85 kg written in the workout d
 
 Extra rep after the EMOM finish (~38 s after): a single clean of 125 lb onto a rack for a friend,
 after walking over to their station. Not part of the workout; useful as a known walk-then-clean example.
+
+**Corrected 2026-11-03:** the EMOM result now has each set in its own minute, the loads and each lift's time (from ANALYSIS.md). The original is in git history and kept as `.original.json` on the phone.

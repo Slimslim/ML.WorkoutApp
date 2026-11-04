@@ -39,13 +39,16 @@ public struct SegmentResult: Codable, Equatable {
     public var paceSecondsPerKm: Double?
     /// Lowest HR sample with start ≤ t < end (useful for rest recovery). Optional in JSON.
     public var heartRateMin: Double?
+    /// Each lift found in this segment, [start, end] in seconds since 1970. Optional in JSON
+    /// (absent unless the motion analysis ran).
+    public var lifts: [[Double]]?
 
     public init(index: Int, kind: SegmentKind, movement: String, title: String,
                 start: Double, end: Double, duration: Double,
                 heartRateAvg: Double? = nil, heartRateMax: Double? = nil,
                 steps: Double? = nil, distance: Double? = nil,
                 cadence: Double? = nil, paceSecondsPerKm: Double? = nil,
-                heartRateMin: Double? = nil) {
+                heartRateMin: Double? = nil, lifts: [[Double]]? = nil) {
         self.index = index
         self.kind = kind
         self.movement = movement
@@ -60,6 +63,7 @@ public struct SegmentResult: Codable, Equatable {
         self.cadence = cadence
         self.paceSecondsPerKm = paceSecondsPerKm
         self.heartRateMin = heartRateMin
+        self.lifts = lifts
     }
 }
 
