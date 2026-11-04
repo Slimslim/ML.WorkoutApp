@@ -319,7 +319,7 @@ enum CardText {
         case .calories:
             text = number(t.value) + " Cal " + movementName(s, plural: false)
         case .meters:
-            text = number(t.value) + " m " + movementName(s, plural: true)
+            text = SegmentTarget.distance(t.value) + " " + movementName(s, plural: true)
         case .seconds:
             text = clock(t.value) + " " + movementName(s, plural: false)
         }

@@ -771,3 +771,11 @@ def test_csv_cap_events(tmp_path):
     assert w.reps_at_cap == 6 and w.partial_reps is None
     assert w.cap_reached == {"t": 150.0, "index": 2}
     assert w.progress is not None and w.progress.is_finished   # boundaries unaffected
+
+
+def test_distance_text_keeps_miles_as_miles():
+    from barpath.workout import distance_text
+    assert distance_text(1609) == "1 mile"
+    assert distance_text(3219) == "2 miles"
+    assert distance_text(2414) == "1.5 miles"
+    assert [distance_text(m) for m in (200, 400, 800, 1000, 1600)] == ["200 m", "400 m", "800 m", "1000 m", "1600 m"]

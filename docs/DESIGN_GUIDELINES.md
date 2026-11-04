@@ -98,7 +98,7 @@ System font (SF). Weights 400 and 500 only on Home, so it stays light. Numbers a
 
 ## 4. Writing
 
-- `lb` never `lbs`. Heights in `in`, runs in `m`, carries in `ft`, `Cal` before the movement.
+- `lb` never `lbs`. Heights in `in`, runs in `m` (a mile stays `1 mile`, stored as meters), carries in `ft`, `Cal` before the movement.
 - Time domain: `20 min AMRAP`, `Every 1:00 × 8`, `5 rounds`.
 - Load with `@`: `7 Power Cleans @155 lb`. The load stays together on one line.
 - Abbreviations: HSPU, T2B, C&J, DB, KB, DU, ALT.

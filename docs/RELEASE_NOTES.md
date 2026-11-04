@@ -6,6 +6,7 @@ Newest first. Paste the latest entry into "What to Test" for the build in App St
 
 - EMOM results: heaviest set, load, start time and rest for each minute.
 - Monday no longer shows a finished workout twice.
+- A 1 mile run now reads 1 mile, not 1609 m.
 - Heart rate numbers moved to the left of the chart.
 - Smaller dot in the avatar menu.
 

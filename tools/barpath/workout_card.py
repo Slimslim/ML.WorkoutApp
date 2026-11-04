@@ -23,6 +23,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
+from .workout import distance_text
 from .workout import Movement, WorkoutDefinition, WorkoutLibrary, WorkoutSegment, _number
 
 # Fixed vocabulary of the type tag (HEADER_STUDY.md decision 3). Only some are produced from
@@ -229,7 +230,7 @@ def movement_line(seg: WorkoutSegment, with_quantity: bool = True) -> CardLine:
     elif t.unit == "calories":
         text = _number(t.value) + " Cal " + _movement_name(seg, False)
     elif t.unit == "meters":
-        text = _number(t.value) + " m " + _movement_name(seg, True)
+        text = distance_text(t.value) + " " + _movement_name(seg, True)
     else:
         text = clock(t.value) + " " + _movement_name(seg, False)
     return CardLine(text, load)

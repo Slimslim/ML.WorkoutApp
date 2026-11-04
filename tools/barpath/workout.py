@@ -24,6 +24,18 @@ def _number(v: float) -> str:
 
 # ---- definition -------------------------------------------------------------------------------
 
+def distance_text(meters: float) -> str:
+    """ "400 m", or "1 mile", "1.5 miles" for a whole quarter of a mile (distances are stored in
+    meters, so 1 mile is 1609 m; 400 m and 800 m stay in meters)."""
+    mile = 1609.344
+    quarters = float(int(meters / mile * 4 + 0.5))
+    if quarters >= 1 and abs(meters - quarters * mile / 4) <= 1.5:
+        miles = quarters / 4
+        text = str(int(miles)) if miles == int(miles) else str(miles)
+        return text + (" mile" if miles <= 1 else " miles")
+    return _number(meters) + " m"
+
+
 @dataclass
 class SegmentTarget:
     value: float
@@ -32,7 +44,7 @@ class SegmentTarget:
     @property
     def text(self) -> str:
         if self.unit == "meters":
-            return _number(self.value) + " m"
+            return distance_text(self.value)
         if self.unit == "reps":
             return _number(self.value) + " reps"
         if self.unit == "calories":
