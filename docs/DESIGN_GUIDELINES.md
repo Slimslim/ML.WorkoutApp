@@ -107,6 +107,7 @@ The top of Home shows **Effort**: heart rate load for the day, added across all 
 
 - Formula: minutes × zone, summed (Edwards TRIMP). Zones are 50–60 % of max heart rate = 1,
   60–70 % = 2, 70–80 % = 3, 80–90 % = 4, 90 %+ = 5. Count from start to finish.
+- A day with no heart rate data shows a dash, not 0.
 - Max heart rate: the highest the watch has recorded for now. **Open:** let the athlete set it.
 - The ring fills against the athlete's hardest day so far.
 - Show it with what heart rate misses: total time and total weight lifted.
@@ -123,9 +124,13 @@ Effort does not capture heavy lifting well, which is why lifted weight sits besi
 
 ## 6. Navigation
 
-Footer: **Today · Log · + · Progress · Settings**, plain text, with the + in the middle.
+Footer: **Today · + · Log**, plain text, with the + in the middle. Progress joins when it has
+something to show.
 
-The + opens a plain list: Record a lift, Start a workout, Log a result, Cancel.
+The avatar at the top right of Today opens Settings. A small dot on it shows the watch status;
+Settings says it in words.
+
+The + opens a plain list: Record a lift, Start a workout, Cancel. Log a result joins it later.
 
 ### Where everything goes
 
@@ -133,8 +138,8 @@ The + opens a plain list: Record a lift, Start a workout, Log a result, Cancel.
 |---|---|---|
 | Live: newest workout overview | Today, then its report | Opens by itself after a workout |
 | Live: newest lift, session list | Today, then the lift report | |
-| Live: live rep count during a set | Full live screen, opens by itself | **Needs design** |
-| Live: phone stays awake | Same live screen | Must stay: transfers only arrive while the app runs |
+| Live: live rep count during a set | Current Live screen, opens by itself | |
+| Live: phone stays awake | Today and Live | Must stay: transfers only arrive while the app runs |
 | Lifts: choose lift and load, send | + › Record a lift | Keep "Log load" and the on-watch row |
 | Workouts: Next workout bar, Choose | + › Start a workout; Today's Send to watch | Keep the library, refresh and offline cache |
 | Workouts: result list | Log | Merged with lifting history |
@@ -143,7 +148,7 @@ The + opens a plain list: Record a lift, Start a workout, Log a result, Cancel.
 | Debug: account section | Settings › Account | Sign out, Upload now, Delete account |
 | Debug: recordings, files, config, connection | Settings › For testing › Debug tools | Keep in TestFlight builds |
 | Sign in gate | Unchanged | |
-| Watch status chip | Top line of Today | **Needs design** |
+| Watch status chip | Dot on the avatar, words in Settings | |
 
 ### New screens that do not exist yet
 
@@ -174,7 +179,7 @@ Don't bring these back without asking.
 - Rounded cards on Home, heavy top cards.
 - Judgement words at the top ("Hard day"), intensity estimates before training.
 - Race countdowns.
-- Press-and-slide radial + menu, + in the corner, menu at the top.
+- Press-and-slide radial + menu, + in the corner, menu at the top, Settings in the footer.
 - Showing modalities with no data.
 - Lime or rainbow colour schemes.
 - Leaderboards, comments, gym billing.
