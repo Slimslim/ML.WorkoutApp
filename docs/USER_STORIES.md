@@ -266,8 +266,8 @@ existing lift chooser and workout Choose. The next workout on the watch and its 
 As an athlete, I want one number for how much I did, based on measured heart rate.
 *Done when:* Effort is minutes × heart rate zone from start to finish, added per local day, with max
 heart rate the highest ever recorded. Days with no heart rate data (lifting sessions today) show a
-dash, not 0. Python reference, Swift port and parity test. Weight lifted appears only for loads the
-app knows, and it never pretends to be the full total.
+dash, not 0. Python reference, Swift port and parity test. Weight lifted is left out of the beta: the
+app doesn't know the loads actually lifted yet.
 
 **N7. Live on the bench (Now)**
 As an athlete lifting with the phone on the bench, I want the live screen to come up by itself, so
