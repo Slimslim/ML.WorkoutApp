@@ -106,6 +106,12 @@ public struct WorkoutCard: Equatable {
         return (Array(lines.prefix(keep)), lines.count - keep)
     }
 
+    /// One segment written like a card line, quantity first: "2 Power C&J", "15 Cal Row",
+    /// "400 m Run", "21 KB Swings" @ "24 kg", "Rest" (the preview's "All segments" list).
+    public static func segmentLine(_ segment: WorkoutSegment) -> Line {
+        return CardText.line(segment)
+    }
+
     // MARK: - Building
 
     public static func make(definition d: WorkoutDefinition) -> WorkoutCard {
