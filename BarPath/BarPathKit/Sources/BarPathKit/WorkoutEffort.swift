@@ -5,7 +5,7 @@ import Foundation
 ///
 /// Effort is Edwards TRIMP: minutes in each heart rate zone × the zone number (1-5), from the
 /// start to the finish. Zones are shares of max heart rate, and max heart rate is the highest
-/// value recorded in the athlete's results.
+/// value recorded in the athlete's results (series or stored max).
 public enum WorkoutEffort {
     /// Lower bound of zones 1-5, as a share of max heart rate.
     public static let zoneFloors: [Double] = [0.5, 0.6, 0.7, 0.8, 0.9]
@@ -31,12 +31,14 @@ public enum WorkoutEffort {
         return readings > 0 ? total : nil
     }
 
-    /// Highest reading in any result's series, nil when there is none.
+    /// Highest heart rate recorded in any result, from its series or its stored max (results
+    /// without a series have only the max). Nil when there is none.
     public static func highestHeartRate(_ results: [WorkoutResult]) -> Double? {
         var best: Double? = nil
         for r in results {
-            guard let series = r.heartRateSeries else { continue }
-            for case let bpm? in series.bpm {
+            var values: [Double] = r.heartRateSeries?.bpm.compactMap({ (b: Double?) -> Double? in b }) ?? []
+            if let m = r.heartRateMax { values.append(m) }
+            for bpm in values {
                 if let b = best { best = Swift.max(b, bpm) } else { best = bpm }
             }
         }
