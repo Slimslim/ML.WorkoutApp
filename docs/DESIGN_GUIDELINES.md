@@ -72,9 +72,12 @@ Each movement belongs to exactly one modality. Show only modalities that have da
 | **CRY** | Carries | `#8E78C9` purple | Sled push and pull, farmers carry, sandbag lunges |
 
 - A block's straight line uses these colours. A mixed block splits the line by its share.
+- **These colours are the same on every screen:** block lines, time bars, charts and reports. Never
+  use another colour for a modality, and don't use these colours for anything else.
 - Colour never works alone: always pair it with the abbreviation or a label.
 - **Open:** thrusters, wall balls and other in-between movements need one modality each.
 - **Open:** whether percentages use time or Effort points. Time counts rest as work.
+- Time that isn't a modality: `#D5D9DF` for moving between stations, `#ECEEF1` for rest.
 - The speed colours in `Theme.speedColors` are a separate scale, only for speed.
 
 ### Type
