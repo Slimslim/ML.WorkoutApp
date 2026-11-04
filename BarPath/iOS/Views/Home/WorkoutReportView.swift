@@ -1,5 +1,4 @@
 import SwiftUI
-import Charts
 import BarPathKit
 
 /// One colour of the time bar: a modality, Rest, or other time.
@@ -58,6 +57,11 @@ private enum ReportRows {
         return Modality.of(movement: s.movement)?.color ?? Color(uiColor: .systemGray3)
     }
 
+    static func color(band: WorkoutSummary.Band) -> Color {
+        if band.kind == .rest { return Color(uiColor: .systemGray3) }
+        return Modality.of(movement: band.movement)?.color ?? Color(uiColor: .systemGray3)
+    }
+
     static func make(_ result: WorkoutResult) -> (title: String, rows: [ReportRow]) {
         let size: Int = result.definition.roundSize ?? 1
         let segments: [SegmentResult] = result.segments
@@ -84,7 +88,8 @@ private enum ReportRows {
 }
 
 /// The workout report (docs/DESIGN_GUIDELINES.md): score, time by modality, Effort and heart rate,
-/// AI insights (coming soon), rounds, heart rate and recovery, each in its own card.
+/// AI insights (coming soon), rounds, heart rate through the workout with its bands, zones and
+/// scrubbing, and recovery, each in its own card.
 struct WorkoutReportView: View {
     let result: WorkoutResult
     let previous: WorkoutResult?
@@ -92,10 +97,18 @@ struct WorkoutReportView: View {
     let meta: String
     /// Highest heart rate recorded, for Effort.
     let maxHeartRate: Double?
+    private let summary: WorkoutSummary
     @State private var showAI: Bool = false
+    @State private var selection: ClosedRange<Int>? = nil
+    @State private var hoverTime: Double? = nil
 
-    private var summary: WorkoutSummary {
-        return WorkoutSummary.make(result: result, previous: previous, maxHeartRate: nil)
+    init(result: WorkoutResult, previous: WorkoutResult?, card: WorkoutCard, meta: String, maxHeartRate: Double?) {
+        self.result = result
+        self.previous = previous
+        self.card = card
+        self.meta = meta
+        self.maxHeartRate = maxHeartRate
+        self.summary = WorkoutSummary.make(result: result, previous: previous, maxHeartRate: maxHeartRate)
     }
 
     var body: some View {
@@ -292,46 +305,36 @@ struct WorkoutReportView: View {
 
     // MARK: Heart rate
 
-    private struct HeartPoint: Identifiable {
-        let id: Int
-        let minutes: Double
-        let bpm: Double
-    }
-
-    private var heartPoints: [HeartPoint] {
-        guard let series = result.heartRateSeries else { return [] }
-        var points: [HeartPoint] = []
-        for k in 0..<series.bpm.count {
-            if let bpm = series.bpm[k] {
-                points.append(HeartPoint(id: k, minutes: (series.centre(k) - series.start) / 60.0, bpm: bpm))
-            }
-        }
-        return points
-    }
-
     private var heartRateCard: some View {
-        let points: [HeartPoint] = heartPoints
+        let timeline: WorkoutSummary.Timeline = summary.timeline
         let recovery: HeartRateRecovery? = result.heartRateRecovery
         return VStack(alignment: .leading, spacing: 10) {
-            Text("Heart rate")
-                .font(.system(size: 15, weight: .medium))
-            if points.isEmpty {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Heart rate through the workout")
+                    .font(.system(size: 15, weight: .medium))
+                Text("Tap or drag across the chart.")
+                    .font(.system(size: 12.5))
+                    .foregroundStyle(.secondary)
+            }
+            TimelineChartView(timeline: timeline, selection: selection, hoverTime: hoverTime,
+                              onTouch: touch, onStep: step, bandColor: ReportRows.color(band:))
+            zoneLine(timeline)
+            if selection != nil || hoverTime != nil {
+                TimelineChip(summary: summary, selection: selection, hoverTime: hoverTime, onClear: clearChart)
+            }
+            if !timeline.hasHeartRate {
                 Text("No heart rate saved for this one.")
                     .font(.system(size: 14))
                     .foregroundStyle(.secondary)
-            } else {
-                Chart(points) { (p: HeartPoint) in
-                    LineMark(x: .value("Minutes", p.minutes), y: .value("BPM", p.bpm))
-                        .foregroundStyle(Color.primary)
-                        .lineStyle(StrokeStyle(lineWidth: 1.5))
-                    RuleMark(x: .value("Finish", result.totalSeconds / 60.0))
-                        .foregroundStyle(Color.secondary)
-                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
-                }
-                .chartYScale(domain: .automatic(includesZero: false))
-                .frame(height: 120)
+            } else if timeline.isEstimated {
+                Text("Detailed heart rate wasn't saved. The line shows each split's average.")
+                    .font(.system(size: 12.5))
+                    .foregroundStyle(.secondary)
             }
             if let r = recovery {
+                Divider()
+                Text("Recovery")
+                    .font(.system(size: 15, weight: .medium))
                 HStack(spacing: 0) {
                     recoveryCell("Finish", String(Int(r.heartRateAtFinish.rounded())), nil)
                     ForEach(1...3, id: \.self) { (m: Int) in
@@ -341,10 +344,63 @@ struct WorkoutReportView: View {
                                      mark.map { (x: HeartRateRecovery.Mark) -> String in "\u{2212}" + String(Int(x.drop.rounded())) })
                     }
                 }
+                Text("A bigger drop in the first minute usually means better fitness.")
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .card()
+    }
+
+    private func zoneLine(_ timeline: WorkoutSummary.Timeline) -> some View {
+        HStack(spacing: 5) {
+            ForEach(1..<6, id: \.self) { (z: Int) in
+                Rectangle()
+                    .fill(Theme.ovZone(z))
+                    .frame(width: 8, height: 8)
+            }
+            Text("Zones 1\u{2013}5, max " + String(Int(timeline.maxHeartRate.rounded())))
+                .font(.system(size: 12))
+                .foregroundStyle(.secondary)
+            if timeline.recovery != nil {
+                Rectangle()
+                    .fill(Theme.ovRecovery)
+                    .frame(width: 8, height: 8)
+                    .padding(.leading, 8)
+                Text("Recovery")
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private func touch(_ t: Double) {
+        let timeline: WorkoutSummary.Timeline = summary.timeline
+        hoverTime = t
+        if timeline.isRecovery(at: t) {
+            selection = nil
+        } else if let index = timeline.segment(at: t) {
+            selection = index...index
+        }
+    }
+
+    private func step(_ delta: Int) {
+        let bands: [WorkoutSummary.Band] = summary.timeline.bands
+        if bands.isEmpty { return }
+        var current: Int = 0
+        if let s = selection, let i = bands.firstIndex(where: { (b: WorkoutSummary.Band) -> Bool in b.segmentIndex == s.lowerBound }) {
+            current = i + delta
+        }
+        let n: Int = bands.count
+        let index: Int = bands[((current % n) + n) % n].segmentIndex
+        hoverTime = nil
+        selection = index...index
+    }
+
+    private func clearChart() {
+        hoverTime = nil
+        selection = nil
     }
 
     private func recoveryCell(_ label: String, _ value: String, _ drop: String?) -> some View {
