@@ -235,9 +235,9 @@ Beta scope agreed with the owner on 3 Nov 2026. Layout, colours and wording: `do
 
 **N1. One footer I understand (Now)**
 As a tester opening the app, I want a plain footer, so I can find everything without being told.
-*Done when:* the footer is Today · Log · + · Settings, the app opens on Today, and every feature of
+*Done when:* the footer is Today · + · Log, the app opens on Today, and every feature of
 the old Live, Lifts, Workouts, History and Debug tabs can still be reached (table in the guidelines,
-section 6). Progress is left out until it has something to show.
+section 6). Progress is left out until it has something to show. Settings sits behind the avatar.
 
 **N2. See my day first (Now)**
 As an athlete, I want Today to show my effort, the week and today's workouts, so I know what I did
@@ -277,10 +277,10 @@ closes with a swipe or Done, and the phone stays awake on Today and Live, so tra
 
 **N8. Settings has my account (Now)**
 As a tester, I want my account where I expect it.
-*Done when:* Settings has Account (Upload now, Sign out, Delete account), Privacy and For testing ›
-Debug tools, plus the watch connection status. Debug is no longer in the footer.
+*Done when:* the avatar at the top right of Today opens Settings: watch status, Account (Upload now,
+Sign out, Delete account), Privacy and For testing › Debug tools. Debug is no longer a tab.
 
 **N9. Know the watch is there (Now)**
 As an athlete, I want to see if the watch is connected without leaving Today.
-*Done when:* Today shows the existing watch status in its top line, and it reads the same as the
-old chip.
+*Done when:* a small dot on the avatar shows connected or not, Settings says it in words with the
+same text as the old chip, and the dot's state is in the avatar's accessibility label.
