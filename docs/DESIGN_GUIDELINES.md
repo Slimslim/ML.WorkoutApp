@@ -129,8 +129,9 @@ the loads actually lifted. It is left out until then, because a partial total wo
 
 ## 6. Navigation
 
-Footer: the standard iOS tab bar with **Today · + · Log**, with the + in the middle. Progress joins
-when it has something to show.
+Footer: the standard iOS tab bar with **Today · Workouts · + · Log · Progress**, with the + centred in
+its own glass circle. Each button answers one question: what's today, what's available, start now,
+what did I do, am I improving.
 
 The avatar at the top right of Today opens a standard iOS menu, not a full screen: watch status,
 upload status, Settings, Sign out. A small dot on the avatar shows the watch status at a glance.
@@ -146,7 +147,7 @@ The + opens a standard iOS menu: Record a lift, Start a workout. Log a result jo
 | Live: live rep count during a set | Current Live screen, opens by itself | |
 | Live: phone stays awake | Today and Live | Must stay: transfers only arrive while the app runs |
 | Lifts: choose lift and load, send | + › Record a lift | Keep "Log load" and the on-watch row |
-| Workouts: Next workout bar, Choose | + › Start a workout; Today's Send to watch | Keep the library, refresh and offline cache |
+| Workouts: Next workout bar, Choose | Workouts tab; Today's Send to watch | Keep the library, search, history, refresh and offline cache |
 | Workouts: result list | Log | Merged with lifting history |
 | Workout detail, share, Fix splits | Report, from Log or Today | Fix splits is a sheet, unchanged |
 | History: sessions, lifts, delete | Log | Keep delete with confirmation |
@@ -162,7 +163,7 @@ Home needs these before everything above works. Listed so nothing is assumed to 
 - Today, the days strip and blocks (programs come from `workout_library`, with `program` and
   `scheduled_on`).
 - Log (merged lifts and workouts).
-- Progress: **Open**, not designed.
+- Progress: first version is Effort per day and per week. **Open:** what comes after that.
 - Log a result: manual entry, not designed.
 - Effort and modality calculations.
 - Settings. Program, loads and units are new: the app has no unit setting and no followed program.
