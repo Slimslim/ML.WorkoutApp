@@ -8,6 +8,14 @@ struct SettingsView: View {
 
     private static let privacyURL = URL(string: "https://github.com/Slimslim/ML.WorkoutApp/blob/main/PRIVACY.md")
 
+    /// "1.0 (8)".
+    private var versionText: String {
+        let info: [String: Any] = Bundle.main.infoDictionary ?? [:]
+        let version: String = info["CFBundleShortVersionString"] as? String ?? "?"
+        let build: String = info["CFBundleVersion"] as? String ?? "?"
+        return version + " (" + build + ")"
+    }
+
     var body: some View {
         List {
             Section("Watch") {
@@ -25,6 +33,9 @@ struct SettingsView: View {
                 NavigationLink("Debug tools") {
                     DebugView()
                 }
+            }
+            Section {
+                LabeledContent("Version", value: versionText)
             }
         }
         .navigationTitle("Settings")
