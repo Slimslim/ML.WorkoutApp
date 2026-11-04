@@ -271,7 +271,8 @@ struct TodayView: View {
         let done: [WorkoutResult] = results(on: selected)
         return planned(on: selected).filter { (w: LibraryWorkout) -> Bool in
             !done.contains(where: { (r: WorkoutResult) -> Bool in
-                r.definition.id == w.id || WorkoutHistory.isSameWorkout(w.definition, r.definition)
+                WorkoutHistory.isSameWorkout(w.definition, r.definition)
+                    || WorkoutHistory.sameMovements(w.definition, r.definition)
             })
         }
     }

@@ -4,7 +4,8 @@ Newest first. Paste the latest entry into "What to Test" for the build in App St
 
 ## Build 10
 
-- EMOM results: heaviest set, lift pills inside each minute, load, start time and rest.
+- EMOM results: heaviest set, load, start time and rest for each minute.
+- Monday no longer shows a finished workout twice.
 - Heart rate numbers moved to the left of the chart.
 - Smaller dot in the avatar menu.
 

@@ -162,9 +162,8 @@ private enum ReportRows {
             } else {
                 title = "Minute " + title
             }
-            let spans: [(start: Double, width: Double)] = s.spans.map { (x: (start: Double, end: Double)) -> (start: Double, width: Double) in
-                (x.start / s.interval, (x.end - x.start) / s.interval)
-            }
+            // One block per set until rep detection runs in the app, then a pill per lift.
+            let spans: [(start: Double, width: Double)] = [(s.firstStart / s.interval, (s.lastEnd - s.firstStart) / s.interval)]
             let color: Color = Modality.of(movement: s.station.movement)?.color ?? Color(uiColor: .systemGray3)
             var note: String? = nil
             if s.found {
@@ -411,7 +410,7 @@ struct WorkoutReportView: View {
         .card()
     }
 
-    /// The whole minute: Transitioning before the first lift, a pill per lift, Rest after.
+    /// The whole minute: Transitioning before the first lift, the lifting, Rest after.
     private func minuteBar(_ minute: MinuteTrack) -> some View {
         GeometryReader { (geo: GeometryProxy) in
             ZStack(alignment: .leading) {
@@ -421,7 +420,7 @@ struct WorkoutReportView: View {
                     .fill(Color(uiColor: .systemGray4))
                     .frame(width: geo.size.width * CGFloat(minute.lead))
                 ForEach(minute.lifts.indices, id: \.self) { (i: Int) in
-                    Capsule()
+                    Rectangle()
                         .fill(minute.color)
                         .frame(width: Swift.max(4, geo.size.width * CGFloat(minute.lifts[i].width)))
                         .offset(x: geo.size.width * CGFloat(minute.lifts[i].start))
