@@ -114,10 +114,11 @@ The top of Home shows **Effort**: heart rate load for the day, added across all 
 - A day with no heart rate data shows a dash, not 0.
 - Max heart rate: the highest the watch has recorded for now. **Open:** let the athlete set it.
 - The ring fills against the athlete's hardest day so far.
-- Show it with what heart rate misses: total time and total weight lifted.
+- Show it with total time.
 - Today before training shows `0` and yesterday's value. Future days show a dash. No estimates.
 
-Effort does not capture heavy lifting well, which is why lifted weight sits beside it.
+Effort does not capture heavy lifting well. **Open:** show weight lifted beside it once the app logs
+the loads actually lifted. It is left out until then, because a partial total would be wrong.
 
 ### Honesty
 
@@ -163,7 +164,7 @@ Home needs these before everything above works. Listed so nothing is assumed to 
 - Log (merged lifts and workouts).
 - Progress: **Open**, not designed.
 - Log a result: manual entry, not designed.
-- Effort, weight lifted and modality calculations.
+- Effort and modality calculations.
 - Settings. Program, loads and units are new: the app has no unit setting and no followed program.
   "Buzz and sounds" in the mockup has no feature behind it yet.
 
