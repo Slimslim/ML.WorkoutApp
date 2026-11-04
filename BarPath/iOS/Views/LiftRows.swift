@@ -211,22 +211,32 @@ struct RepSetView: View {
     }
 }
 
+extension PhoneLink {
+    /// Watch connection in words (the chip, the avatar menu, Settings).
+    var watchStatusText: String {
+        if isReachable { return "Watch connected" }
+        if activationState != .activated { return "Connecting…" }
+        if !isPaired { return "No watch paired" }
+        if !isWatchAppInstalled { return "Watch app missing" }
+        if isLaunchingWatchApp { return "Opening on watch…" }
+        if watchLaunchError != nil { return "Unlock watch, tap to retry" }
+        return "Tap to open on watch"
+    }
+
+    var canLaunchWatchApp: Bool {
+        return !isReachable && activationState == .activated && isPaired && isWatchAppInstalled
+    }
+}
+
 struct WatchStatusChip: View {
     @EnvironmentObject private var link: PhoneLink
 
     private var text: String {
-        if link.isReachable { return "Watch connected" }
-        if link.activationState != .activated { return "Connecting…" }
-        if !link.isPaired { return "No watch paired" }
-        if !link.isWatchAppInstalled { return "Watch app missing" }
-        if link.isLaunchingWatchApp { return "Opening on watch…" }
-        if link.watchLaunchError != nil { return "Unlock watch, tap to retry" }
-        return "Tap to open on watch"
+        return link.watchStatusText
     }
 
     private var canLaunch: Bool {
-        return !link.isReachable && link.activationState == .activated
-            && link.isPaired && link.isWatchAppInstalled
+        return link.canLaunchWatchApp
     }
 
     private var color: Color {

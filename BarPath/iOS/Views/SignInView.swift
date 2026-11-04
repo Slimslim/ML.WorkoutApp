@@ -82,7 +82,7 @@ struct SignInView: View {
     }
 }
 
-/// Account and upload status, at the top of the Debug tab.
+/// Account and upload status, in Settings.
 struct AccountSection: View {
     @EnvironmentObject private var cloud: CloudAccount
     @State private var confirmDelete = false

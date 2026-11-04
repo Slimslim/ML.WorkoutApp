@@ -84,7 +84,7 @@ enum LibraryDay {
 /// JSON in Application Support (not Documents: Documents/Lifts, Workouts and Debug are uploaded),
 /// so the chooser works offline and signed out with the last good list.
 ///
-/// Refreshed by the Workouts tab (appear, app foreground) and the chooser (appear, pull to refresh).
+/// Refreshed by the app's tabs (appear, app foreground) and the chooser (appear, pull to refresh).
 /// v1: everyone reads the shared library (`owner` is null). When private workouts arrive, the
 /// cache must be cleared when the signed-in user changes.
 @MainActor
