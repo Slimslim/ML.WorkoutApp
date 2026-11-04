@@ -137,10 +137,12 @@ struct AppTabsView: View {
     }
 }
 
-/// The + in its glass circle, centred on the tab bar. A standard menu.
+/// The + in its glass circle, centred on the tab bar and floating above it. A plain button with a
+/// system dialog: a Menu's press highlight turns the circle into a rectangle.
 struct PlusMenu: View {
     let onRecordLift: () -> Void
     let onStartWorkout: () -> Void
+    @State private var showChoices: Bool = false
 
     /// Circle centre on the tab bar's centre: the floating bar of current iOS sits higher than
     /// the classic one.
@@ -150,26 +152,32 @@ struct PlusMenu: View {
     }
 
     var body: some View {
-        Menu {
-            Button {
-                onRecordLift()
-            } label: {
-                Label("Record a lift", systemImage: "figure.strengthtraining.traditional")
-            }
-            Button {
-                onStartWorkout()
-            } label: {
-                Label("Start a workout", systemImage: "applewatch")
-            }
+        Button {
+            showChoices = true
         } label: {
             Image(systemName: "plus")
                 .font(.system(size: 24, weight: .medium))
                 .foregroundStyle(Theme.accent)
-                .frame(width: 56, height: 56)
+                .frame(width: 58, height: 58)
                 .modifier(GlassCircle())
+                .shadow(color: Color.black.opacity(0.22), radius: 12, y: 6)
+                .contentShape(Circle())
         }
-        .menuOrder(.fixed)
+        .buttonStyle(PlusPressStyle())
         .accessibilityLabel("Record a lift or start a workout")
+        .confirmationDialog("Add", isPresented: $showChoices, titleVisibility: .hidden) {
+            Button("Record a lift", action: onRecordLift)
+            Button("Start a workout", action: onStartWorkout)
+        }
+    }
+}
+
+/// Stays a circle while pressed.
+private struct PlusPressStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.93 : 1)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
     }
 }
 
@@ -192,7 +200,6 @@ private struct GlassCircle: ViewModifier {
         return content
             .background(.ultraThinMaterial, in: Circle())
             .overlay(Circle().strokeBorder(Color.white.opacity(0.7), lineWidth: 1))
-            .shadow(color: Color.black.opacity(0.16), radius: 12, y: 6)
     }
 }
 

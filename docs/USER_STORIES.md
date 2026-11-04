@@ -273,6 +273,19 @@ name, time domain, rep scheme, movements, cap, then the score line with the cont
 vs last time and the heart-rate facts), replacing the old header; heart rate, recovery, story,
 splits, share and Fix splits follow unchanged.
 
+**W15. Scale a workout before I do it (Now)**
+As an athlete, I want to change a workout's weights, rep scheme and movements, so the watch runs
+what I am really doing.
+*Done when:* the workout preview has Scale; I can change the load, reps or rep scheme and swap a
+movement; the changed version is saved as my copy and sent to the watch, the original stays as it
+was, and the result is recorded as Scaled with what I did.
+
+**W16. Correct a result after the workout (Now)**
+As an athlete, I want to fix the weights or reps of a finished workout.
+*Done when:* the report and the done card have Edit; I can change the load per set or movement, the
+reps and Rx / Scaled, and save; the original stays restorable (like Fix splits); the report, Log and
+the "last" score use the corrected values.
+
 ## Navigation and layout
 
 *Owned by the Navigation UI/UX chat. Add stories here with the `N` prefix.*
