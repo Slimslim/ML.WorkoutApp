@@ -50,6 +50,14 @@ def test_real_class():
     assert sum(result_effort(r, 176.0) for r in results) == pytest.approx(132.25, abs=0.01)
 
 
+def test_max_comes_from_the_stored_max_without_a_series():
+    series = HeartRateSeries(start=0.0, interval=5.0, bpm=[150.0])
+    with_series = result([], [], series=series)
+    only_max = result([], [])
+    only_max.heart_rate_max = 180.0
+    assert highest_heart_rate([with_series, only_max]) == 180.0
+
+
 def test_weight_lifted():
     r = result([cleans()], [(0, "station")])
     assert weight_lifted_kg(r) == pytest.approx(7 * 155 * 0.45359237)

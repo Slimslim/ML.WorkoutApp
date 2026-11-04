@@ -369,6 +369,30 @@ final class WorkoutSummaryTests: XCTestCase {
 
     // MARK: AMRAP 20
 
+    func testAmrapRoundEndingInTheRestIsComplete() {
+        let def = WorkoutLibrary.amrap40
+        XCTAssertEqual(def.roundSize, 5)
+        let result = buildResult(def, durations: [50, 50, 50, 50, 60, 50, 50, 50, 50, 6], capFinish: true)
+        let s = WorkoutSummary.make(result: result, previous: nil, maxHeartRate: nil)
+        guard case .amrapClock(let a) = s.story else {
+            return XCTFail("expected amrapClock, got \(s.story)")
+        }
+        XCTAssertEqual(a.completedRounds, 2)
+        XCTAssertEqual(a.extraReps, 0)
+        XCTAssertNil(a.stoppedIn)
+        XCTAssertEqual(s.headline.scoreText, "2 + 0")
+    }
+
+    func testAmrapPartialRoundCountsCalories() {
+        let result = buildResult(WorkoutLibrary.amrap40, durations: [50, 50, 50, 50, 60, 50, 50, 20], capFinish: true)
+        let s = WorkoutSummary.make(result: result, previous: nil, maxHeartRate: nil)
+        guard case .amrapClock(let a) = s.story else {
+            return XCTFail("expected amrapClock, got \(s.story)")
+        }
+        XCTAssertEqual(a.completedRounds, 1)
+        XCTAssertEqual(a.extraReps, 27)                 // 12 cal + 15
+    }
+
     func testAmrapPartialRound() {
         let def = WorkoutLibrary.amrap20
         let rounds: [[Double]] = [[75, 40, 55, 38], [82, 44, 60, 42], [88, 47, 63, 45],
