@@ -235,9 +235,10 @@ Beta scope agreed with the owner on 3 Nov 2026. Layout, colours and wording: `do
 
 **N1. One footer I understand (Now)**
 As a tester opening the app, I want a plain footer, so I can find everything without being told.
-*Done when:* the footer is the standard iOS tab bar with Today · + · Log, the app opens on Today, and every feature of
+*Done when:* the footer is the standard iOS tab bar with Today · Workouts · + · Log · Progress, the
+app opens on Today, and every feature of
 the old Live, Lifts, Workouts, History and Debug tabs can still be reached (table in the guidelines,
-section 6). Progress is left out until it has something to show. Settings sits behind the avatar.
+section 6). Settings sits behind the avatar.
 
 **N2. See my day first (Now)**
 As an athlete, I want Today to show my effort, the week and today's workouts, so I know what I did
@@ -260,7 +261,7 @@ and keeps delete with confirmation and Fix splits.
 **N5. The + starts things (Now)**
 As an athlete, I want one place to start something new.
 *Done when:* tapping + opens a standard iOS menu, Record a lift and Start a workout, which open the
-existing lift chooser and workout Choose. The next workout on the watch and its send status stay visible.
+existing lift chooser and the Workouts tab. The next workout on the watch and its send status stay visible.
 
 **N6. Effort from what the watch measured (Now)**
 As an athlete, I want one number for how much I did, based on measured heart rate.
@@ -280,6 +281,16 @@ As a tester, I want my account where I expect it.
 *Done when:* the avatar at the top right of Today opens a standard iOS menu, not a full screen: watch status,
 upload status, Settings, Sign out. Settings holds Upload now, Delete account, Privacy and For testing ›
 Debug tools. Debug is no longer a tab.
+
+**N10. Browse all workouts (Now)**
+As an athlete, I want one place for every workout, so I can find one that isn't on today's plan.
+*Done when:* the Workouts tab is the library: programs, built-ins, search and my past results of a
+workout, with Send to watch. It is the existing Choose, moved to its own tab.
+
+**N11. See my effort over time (Now)**
+As an athlete, I want a simple view of how much I've been doing.
+*Done when:* Progress shows Effort per day and per week from my results, using only real data, and
+says what to do when there is none yet. More can come later.
 
 **N9. Know the watch is there (Now)**
 As an athlete, I want to see if the watch is connected without leaving Today.
