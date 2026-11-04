@@ -15,5 +15,8 @@ Score: 5 rounds + 64 reps (round 6: 10 burpees, 31 DUs, 10 snatches, then 13 DUs
 - Real round 4: burpees 556.9–619.3, DUs 619.3–700.1 (incl. ~22 s lost fixing the watch), snatches
   700.1–755.5, DUs 755.5–795.8. The saved result has DU R3 spanning 496.8–694.6 and two ~2–3 s segments.
 
+**Corrected 2026-11-03:** the saved result now has the real round 4 splits above and `partialReps` 13, so the
+score reads 5 + 64. The original is in git history and kept as `.original.json` on the phone.
+
 Motion signatures seen: DUs = bursts of high |a| SD (1.1–1.4 g); burpees = SD 0.5–0.7 g with gravity.x ≈ −0.9;
 snatches = gravity.x swinging up to ≈ +0.2 (arm overhead).
