@@ -33,7 +33,8 @@ final class WorkoutStore: ObservableObject {
         return newest
     }
 
-    /// The most recent earlier attempt at the same workout (same definition id).
+    /// The most recent earlier attempt at the same workout (same definition id: WorkoutSummary
+    /// only compares results of the same id).
     func previousAttempt(before result: WorkoutResult) -> WorkoutResult? {
         var best: WorkoutResult? = nil
         for r in results where r.definition.id == result.definition.id
@@ -45,6 +46,11 @@ final class WorkoutStore: ObservableObject {
             }
         }
         return best
+    }
+
+    /// Every result of this workout, newest first (the history under a workout's preview).
+    func history(of definition: WorkoutDefinition) -> [WorkoutResult] {
+        return WorkoutHistory.results(of: definition, in: results)
     }
 
     func loadIfNeeded() {
