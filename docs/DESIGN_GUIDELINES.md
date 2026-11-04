@@ -15,7 +15,8 @@ Live mockups: home page canvas (Round 3 is current) and the workout cards
    into a judgement word such as "Hard".
 4. **The plan comes first.** Home answers: what did I do, what is next, how is the week going.
 5. **Measured, not fussed over.** As few taps as possible, usable with chalky hands.
-6. **Normal navigation.** Familiar patterns over clever gestures.
+6. **Apple around the edges, ours in the middle.** The footer and menus are standard iOS. The
+   content is our flat style. Familiar patterns over clever gestures.
 7. **Say it plainly.** Short sentences, the words used at the gym.
 
 ## 2. The watch stays
@@ -28,11 +29,14 @@ Watch rules: no scrolling, one signal per state, glanceable mid-set.
 
 ### Layout
 
-- White page, side margin 20. No shadows or gradients.
+- White page, side margin 20. No shadows or gradients in the content.
 - **Home is flat:** no cards and no rounded boxes. Separate things with space and thin lines.
 - Workout cards (radius 16, 1 px border) are for card screens: Choose, the preview, Log, reports.
   On Home the same content appears as a flat block, and tapping it opens the full card.
-- Straight edges for bars and lines. The Effort ring is the one circle on Home.
+- Straight edges for bars and lines. The Effort ring is the one circle in Home's content.
+- **Navigation is Apple's.** The tab bar and menus use the standard SwiftUI components, so they
+  get the system glass look on current iOS and the older frosted look on older versions. Don't
+  draw our own, and don't restyle them. Rounded corners and glass are fine there, and only there.
 - Touch targets are at least 44 pt.
 
 ### Colour
@@ -124,13 +128,13 @@ Effort does not capture heavy lifting well, which is why lifted weight sits besi
 
 ## 6. Navigation
 
-Footer: **Today · + · Log**, plain text, with the + in the middle. Progress joins when it has
-something to show.
+Footer: the standard iOS tab bar with **Today · + · Log**, with the + in the middle. Progress joins
+when it has something to show.
 
-The avatar at the top right of Today opens a small flat menu, not a full screen: watch status,
+The avatar at the top right of Today opens a standard iOS menu, not a full screen: watch status,
 upload status, Settings, Sign out. A small dot on the avatar shows the watch status at a glance.
 
-The + opens a plain list: Record a lift, Start a workout, Cancel. Log a result joins it later.
+The + opens a standard iOS menu: Record a lift, Start a workout. Log a result joins it later.
 
 ### Where everything goes
 
