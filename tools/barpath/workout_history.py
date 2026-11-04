@@ -2,8 +2,9 @@
 
 The same workout can reach the phone under more than one id: a built-in on a branch that was never
 merged ("wod.freedom") and the library row of the same day ("lib.pitfire.20261102.freedom"). Two
-definitions are the same workout when their ids are equal, or when their names match once
-normalized AND their segments have the same kinds and movements in the same order. Targets and
+definitions are the same workout when their ids are equal, when one lists the other's id in its
+`aliases` (a library row renamed after results were saved: "For Time" keeps "wod.freedom" as an
+alias), or when their names match once normalized AND their segments have the same kinds and movements in the same order. Targets and
 loads are left out on purpose: a load typed differently (85 kg vs 155 lb) is still the workout.
 """
 from __future__ import annotations
@@ -37,9 +38,17 @@ def movement_sequence(d: WorkoutDefinition) -> list:
     return [f"{s.kind}:{s.movement}" for s in d.segments]
 
 
+def has_alias(d: WorkoutDefinition, other_id: str) -> bool:
+    """True when `d` lists `other_id` as one of its older ids."""
+    return d.aliases is not None and other_id in d.aliases
+
+
 def is_same_workout(a: WorkoutDefinition, b: WorkoutDefinition) -> bool:
-    """Same id, or same normalized (non-empty) name and the same segment kinds and movements."""
+    """Same id, one's id among the other's aliases (either way), or same normalized (non-empty)
+    name and the same segment kinds and movements."""
     if a.id == b.id:
+        return True
+    if has_alias(a, b.id) or has_alias(b, a.id):
         return True
     if len(a.segments) != len(b.segments):  # cheap check first
         return False

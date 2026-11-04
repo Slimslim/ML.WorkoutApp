@@ -97,7 +97,10 @@ final class WorkoutCardTests: XCTestCase {
         let c = WorkoutCard.make(definition: d)
         XCTAssertEqual(c.repSchemeLine, "40-30-20-30-40 Cal")
         XCTAssertEqual(c.lines.map { (l: WorkoutCard.Line) -> String in l.full }, ["Row", "7 Power Cleans @155 lb"])
-        XCTAssertEqual(c.name, "5 rounds")
+        // A rep scheme is for time, not rounds: Chipper, no "5 rounds" line (HEADER_STUDY rule 15).
+        XCTAssertEqual(c.typeTag, WorkoutCard.TypeTag.chipper)
+        XCTAssertNil(c.timeDomainLine)
+        XCTAssertEqual(c.name, "For time")
         XCTAssertTrue(c.nameIsFormat)
         XCTAssertEqual(c.capLine, "20 min cap")
         XCTAssertEqual(c.summaryLine, "40-30-20-30-40 Cal Row · 7 Power Cleans @155 lb")

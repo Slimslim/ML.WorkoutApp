@@ -47,11 +47,14 @@ def test_seed_definitions():
         by_id[definition.id] = definition
     freedom = by_id["lib.pitfire.20261102.freedom"]
     assert freedom.format == "forTime" and freedom.time_cap_seconds == 1200
+    # "Freedom" was only the RX level label: the row is "For Time", results saved as wod.freedom stay linked.
+    assert (freedom.name, freedom.short_name, freedom.aliases) == ("For Time", "For Time", ["wod.freedom"])
     assert [s.target.value for s in freedom.segments if s.movement == "row"] == [40, 30, 20, 30, 40]
     cleans = [s for s in freedom.segments if s.movement == "powerCleans"]
     assert len(cleans) == 5 and all(s.target.value == 7 and s.load.value == 155 and s.load.unit == "lb"
                                     for s in cleans)
     emom = by_id["lib.pitfire.20261102.pcj-emom"]
+    assert emom.aliases == ["wod.pcjEmom"]
     assert emom.format == "emom" and emom.interval_seconds == 60 and emom.round_size == 2
     assert len(emom.segments) == 15
     assert sum(1 for s in emom.segments if s.kind == "station" and s.target.value == 2) == 8
@@ -129,3 +132,18 @@ def test_builtin_option(capsys):
     out = capsys.readouterr().out
     assert "'lib.benchmark.20261110.helen'" in out and "'Benchmark'" in out
     assert make_row.main(["--builtin", "wod.helen"]) == 1
+
+
+def test_aliases_round_trip_and_validation():
+    d = dict(base(), aliases=["wod.helen", "lib.old.helen"])
+    definition = make_row.validate_definition(d)
+    assert definition.aliases == ["wod.helen", "lib.old.helen"]
+    assert definition.to_dict() == d
+    assert WorkoutDefinition.from_json(definition.to_json()) == definition
+    assert "aliases" not in make_row.validate_definition(base()).to_dict()   # omitted when nil
+    for bad in ([""], ["lib.benchmark.20261110.helen"], ["a", "a"]):
+        with pytest.raises(make_row.LibraryError):
+            make_row.validate_definition(dict(base(), aliases=bad))
+    for bad in ("wod.helen", [1]):
+        with pytest.raises(make_row.LibraryError, match="does not decode"):
+            make_row.validate_definition(dict(base(), aliases=bad))

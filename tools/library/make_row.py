@@ -14,7 +14,8 @@ Paste the output into the Supabase dashboard -> SQL editor -> Run. See docs/WORK
 Every definition is checked against the Python mirror of BarPathKit's WorkoutDefinition: it must
 round-trip unchanged (no unknown or misspelled keys, every required key present), use known
 kinds/units/formats, and have a `lib.` id that no built-in workout uses (the watch prefers its
-built-in version for a shared id).
+built-in version for a shared id). Optional `aliases` lists older ids of the same workout (e.g. a
+result saved as "wod.freedom" before the row existed or was renamed) so those results stay linked.
 """
 from __future__ import annotations
 
@@ -97,6 +98,15 @@ def validate_definition(d: dict) -> WorkoutDefinition:
         raise LibraryError("intervalSeconds must be > 0")
     if definition.round_size is not None and not 1 <= definition.round_size <= len(definition.segments):
         raise LibraryError("roundSize must be between 1 and the number of segments")
+    if definition.aliases is not None:
+        # Older ids of the same workout: results saved under them stay linked after a rename.
+        for a in definition.aliases:
+            if not a.strip():
+                raise LibraryError("aliases must not contain empty ids")
+            if a == definition.id:
+                raise LibraryError(f"alias {a!r} is the definition's own id")
+        if len(set(definition.aliases)) != len(definition.aliases):
+            raise LibraryError("aliases must not repeat an id")
     if definition.format == "amrap" and definition.time_cap_seconds is None:
         raise LibraryError("an AMRAP needs timeCapSeconds")
     return definition

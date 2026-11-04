@@ -33,10 +33,11 @@ def test_helen_rounds_for_time():
     assert c.summary_line == "400 m Run · 21 KB Swings · 12 Pull-ups"
 
 
-def test_freedom_mixed_scheme():
+def test_for_time_mixed_scheme():
+    """A rep scheme is for time, not rounds: Chipper tag and no "5 rounds" line (HEADER_STUDY rule 15)."""
     c = card_of("lib.pitfire.20261102.freedom")
-    assert (c.name, c.type_label) == ("Freedom", "RFT")
-    assert c.time_domain_line == "5 rounds"
+    assert (c.name, c.type_label) == ("For Time", "Chipper")
+    assert c.time_domain_line is None
     assert c.rep_scheme_line == "40-30-20-30-40 Cal"
     assert texts(c) == ["Row", "7 Power Cleans @155 lb"]
     assert c.lines[1].text == "7 Power Cleans" and c.lines[1].load == "155 lb"
@@ -105,8 +106,8 @@ def test_shared_scheme_for_every_movement_and_no_name():
     c = WorkoutCard.make(d)
     assert c.rep_scheme_line == "21-15-9"
     assert texts(c) == ["Deadlift @225 lb", "HSPU"]
-    assert c.type_label == "RFT" and c.time_domain_line == "3 rounds"
-    assert (c.name, c.name_is_format) == ("3 rounds", True)
+    assert c.type_label == "Chipper" and c.time_domain_line is None
+    assert (c.name, c.name_is_format) == ("For time", True)
     assert c.cap_line == "8 min cap"
     assert c.summary_line == "21-15-9 Deadlift @225 lb · HSPU"
 

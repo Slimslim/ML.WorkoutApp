@@ -102,7 +102,7 @@ a new workout doesn't fit.
    `21-15-9` / `Deadlift @225 lb` / `Handstand Push-up`. Same for `3-3-3-3-3`, ladders
    (`3-3, 6-6, 9-9 …`), `22 each`.
 2. **Mixed schemes:** the shared part goes on top with its unit, movements with their own fixed
-   reps keep them. Freedom: `40-30-20-30-40 Cal` / `Row` / `7 Power Cleans @155 lb`.
+   reps keep them. PitFIRE "For Time" (Nov 2): `40-30-20-30-40 Cal` / `Row` / `7 Power Cleans @155 lb`.
 3. **One movement per line:** quantity, unit, movement, `@load`.
    `12 Cal Row` · `15 Push-ups` · `12 DB C&J @40 lb` · `50 ft Front-Rack Carry` ·
    `1:00 Suitcase Hold @pick`. Number first; the unit (`Cal`, `m`, `ft`, `s`, `1:00`) sits
@@ -129,6 +129,12 @@ a new workout doesn't fit.
     `8 min AMREP` ("Cheat Code"), `5 × 3 min AMRAP · rest 1 min` (The Chief). EMOMs keep
     `Every 1:00 × 8`; rounds for time keep `5 rounds`. For-time caps stay at the bottom, written
     `20 min cap` (was `Cap 20:00`).
+15. **A rep scheme is not rounds (2026-11-04, owner).** A for-time workout whose rounds differ only
+    by a varying rep scheme (a rep-scheme line exists: `40-30-20-30-40 Cal`, `21-15-9`) is **for
+    time**, not "N rounds": type tag **Chipper**, **no** `N rounds` time-domain line. Card:
+    `40-30-20-30-40 Cal` / `Row` / `7 Power Cleans @155 lb` / `20 min cap`. Only identical repeated
+    rounds (Helen: `3 rounds`) are **RFT** with a `N rounds` line. The PitFIRE row is named
+    `For Time` ("Freedom" was only Mayhem's RX level label).
 
 ### Open questions
 - **More abbreviations** (decided so far: HSPU, T2B, C&J, DB, KB, DU): GHD, OHS, RDL, MU, C2B…?
@@ -154,7 +160,8 @@ program days, logged lifts). Built from the decisions and writing conventions ab
   (scheme 14/500) · format 13.5 · meta 12 · tags 10.5/500. **Spacing:** card padding 16, 9 between
   blocks, 5 between movement lines, radius 16, 1 px border. Neutrals + one accent (type tag,
   links); green only for "better than last time". Colours not final.
-- **Time domain line** first (`7 min AMREP`, `40 min AMRAP`, `Every 1:00 × 8`, `5 rounds`), then the
+- **Time domain line** first (`7 min AMREP`, `40 min AMRAP`, `Every 1:00 × 8`, `3 rounds` for
+  identical rounds only, see rule 15), then the
   rep scheme line (`3-6-9-12…`), then movements; for-time caps at the bottom (`20 min cap`). AMREP
   scores total reps.
 - **States:** planned · in progress (live line "On the watch · Round 3 of 5 · 11:02") · done Rx ·

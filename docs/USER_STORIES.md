@@ -235,8 +235,10 @@ whiteboard (name, `3 rounds` / `40 min AMRAP` / `Every 1:00 × 8`, one movement 
 load, the cap at the bottom), so I can tell what it is at a glance and check it before I start.
 *Done when:* every row in Choose shows the name, `block · type`, one line of movements and my
 last score when I have one; the preview shows the full card (date · program or Built-in, block
-and type tags, time domain, rep scheme, movements, cap) above Send to watch; Freedom reads
-`5 rounds` / `40-30-20-30-40 Cal` / `Row` / `7 Power Cleans @155 lb` / `20 min cap`. The card text
+and type tags, time domain, rep scheme, movements, cap) above Send to watch; PitFIRE's "For
+Time" (Nov 2) reads `40-30-20-30-40 Cal` / `Row` / `7 Power Cleans @155 lb` / `20 min cap` with
+the Chipper tag and no `5 rounds` line (a rep scheme is for time, not rounds; only identical
+rounds such as Helen's read `3 rounds`, tag RFT). The card text
 comes from one model (Python reference + Swift port with a parity test).
 
 **W12. Find a workout by searching (Now)**
@@ -272,6 +274,20 @@ it; swipe to delete still works. The report opens with the full done card (date 
 name, time domain, rep scheme, movements, cap, then the score line with the context, the change
 vs last time and the heart-rate facts), replacing the old header; heart rate, recovery, story,
 splits, share and Fix splits follow unchanged.
+
+**W15. Old results stay linked after a library rename (Now)**
+As the owner who renames a library workout after doing it (PitFIRE's Nov 2 piece went from
+"Freedom", only Mayhem's RX level label, to "For Time"), I want my results saved under the old
+id to stay that workout's results, so the Log, the report and the history don't show a stale name
+or lose my score to beat.
+*Done when:* a library row can list older ids in `definition.aliases` (`["wod.freedom"]`); a result
+whose definition id is in a row's aliases (or the reverse) counts as that workout even when name
+and movements no longer match: its Log card and report card show the row's current name and
+program ("For Time" · PitFIRE, not "Freedom"), the Choose row shows it as the "last" score, and
+the preview lists it under "Your results". Old files and older app versions are unaffected (the
+key is optional). Matcher rule in BarPathKit WorkoutHistory with the Python reference and tests in
+both, including the real case (`wod.freedom` "Freedom" vs `lib.pitfire.20261102.freedom` "For
+Time" with alias `wod.freedom`).
 
 ## Navigation and layout
 

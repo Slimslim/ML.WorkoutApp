@@ -12,7 +12,7 @@ write from the app.
 
 1. Supabase dashboard → SQL editor → paste the whole migration file
    `supabase/migrations/20261104000000_workout_library.sql` → Run.
-2. Paste `tools/library/seed/seed.sql` → Run (adds Freedom and the power C&J EMOM).
+2. Paste `tools/library/seed/seed.sql` → Run (adds PitFIRE's "For Time" and the power C&J EMOM).
 3. On the phone: Workouts → Choose → pull down. The two workouts appear under "PitFIRE".
 
 ## Add a workout
@@ -51,7 +51,7 @@ To hide a workout: `update public.workout_library set published = false where id
 | Column | Meaning |
 |---|---|
 | `id` | Primary key, the same string as `definition.id` (a check constraint enforces it). |
-| `definition` | `jsonb`, the WorkoutDefinition JSON exactly as BarPathKit encodes it (`id`, `name`, `shortName`, `format` forTime/amrap/emom, `team` solo/doubles/team, `healthKitActivity`, `segments`, optional `timeCapSeconds`, `intervalSeconds`, `roundSize`). Segment: `kind` run/station/transition/rest, `movement`, `name`, optional `target` {`value`, `unit` meters/reps/calories/seconds}, optional `load` {`value`, `unit` lb/kg, `count`}. |
+| `definition` | `jsonb`, the WorkoutDefinition JSON exactly as BarPathKit encodes it (`id`, `name`, `shortName`, `format` forTime/amrap/emom, `team` solo/doubles/team, `healthKitActivity`, `segments`, optional `timeCapSeconds`, `intervalSeconds`, `roundSize`, `aliases`). Segment: `kind` run/station/transition/rest, `movement`, `name`, optional `target` {`value`, `unit` meters/reps/calories/seconds}, optional `load` {`value`, `unit` lb/kg, `count`}. |
 | `program` | Section title in Choose: "Mayhem", "Blue Republic", "Benchmark", "HYROX", … (null → "Library"). |
 | `scheduled_on` | The day it is programmed. Today's (phone calendar) go into the "Today" section at the top; the others are listed newest first with their date. Null = undated. |
 | `published` | false hides it from the app. |
@@ -68,6 +68,27 @@ Ids must never be a built-in id (`hyrox.solo`, `wod.helen`, …): for a built-in
 always runs its own built-in version (`WorkoutSessionModel.selectedDefinition`), and the phone
 skips such rows. Changing a row keeps its id, so past results find the new version (Fix splits →
 "Use the current version"). A workout that is really different gets a new id.
+
+### Aliases (older ids of the same workout)
+
+`definition.aliases` (optional list of strings, left out when empty) names older ids under which
+results of **the same workout** were saved: a built-in on a branch that was never merged, or a
+row that existed before under another id. The phone treats a result whose definition id is in a
+row's `aliases` (or a row whose id is in the result's `aliases`) as that row's workout, even after
+the row is renamed: Log card and report show the row's current name and program, Choose shows
+its "last" score, the preview lists it under "Your results" (user story W15). Without an alias the
+phone still links results by same normalized name + same segment kinds and movements, but that
+breaks as soon as the row is renamed.
+
+Add an alias to an existing row without touching the rest of the definition:
+
+```sql
+update public.workout_library set definition = definition || '{"aliases":["wod.freedom"]}'::jsonb
+where id = 'lib.pitfire.20261102.freedom';
+```
+
+Then update the seed JSON the same way and regenerate `seed.sql`. `make_row.py` refuses an empty
+alias, the row's own id, or a repeated alias. Older app versions ignore the key.
 
 ## How it reaches the watch
 
