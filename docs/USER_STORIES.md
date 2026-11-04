@@ -235,7 +235,7 @@ Beta scope agreed with the owner on 3 Nov 2026. Layout, colours and wording: `do
 
 **N1. One footer I understand (Now)**
 As a tester opening the app, I want a plain footer, so I can find everything without being told.
-*Done when:* the footer is Today · + · Log, the app opens on Today, and every feature of
+*Done when:* the footer is the standard iOS tab bar with Today · + · Log, the app opens on Today, and every feature of
 the old Live, Lifts, Workouts, History and Debug tabs can still be reached (table in the guidelines,
 section 6). Progress is left out until it has something to show. Settings sits behind the avatar.
 
@@ -259,8 +259,8 @@ and keeps delete with confirmation and Fix splits.
 
 **N5. The + starts things (Now)**
 As an athlete, I want one place to start something new.
-*Done when:* tapping + opens a plain list, Record a lift and Start a workout, which open the existing
-lift chooser and workout Choose. The next workout on the watch and its send status stay visible.
+*Done when:* tapping + opens a standard iOS menu, Record a lift and Start a workout, which open the
+existing lift chooser and workout Choose. The next workout on the watch and its send status stay visible.
 
 **N6. Effort from what the watch measured (Now)**
 As an athlete, I want one number for how much I did, based on measured heart rate.
@@ -277,7 +277,7 @@ closes with a swipe or Done, and the phone stays awake on Today and Live, so tra
 
 **N8. Settings has my account (Now)**
 As a tester, I want my account where I expect it.
-*Done when:* the avatar at the top right of Today opens a small menu, not a full screen: watch status,
+*Done when:* the avatar at the top right of Today opens a standard iOS menu, not a full screen: watch status,
 upload status, Settings, Sign out. Settings holds Upload now, Delete account, Privacy and For testing ›
 Debug tools. Debug is no longer a tab.
 
