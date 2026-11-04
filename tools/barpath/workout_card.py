@@ -309,7 +309,9 @@ class _Shape:
                 return False
         self.kind = "scheme"
         self.rounds = rounds
-        self.scheme_line = "-".join(_number(t.value) for t in first) + _unit_suffix(first[0].unit)
+        # Calories move to the movement line: "40-30-20-30-40" then "Cal Row".
+        cal = first[0].unit == "calories"
+        self.scheme_line = "-".join(_number(t.value) for t in first) + ("" if cal else _unit_suffix(first[0].unit))
         for p in range(r):
             x = segs[p]
             if x.kind == "rest":
@@ -318,7 +320,8 @@ class _Shape:
                 continue
             if p in varying:
                 self.scheme_indices.append(len(self.lines))
-                self.lines.append(movement_line(x, with_quantity=False))
+                line = movement_line(x, with_quantity=False)
+                self.lines.append(CardLine("Cal " + line.text, line.load) if cal else line)
             else:
                 self.lines.append(movement_line(x))
         return True

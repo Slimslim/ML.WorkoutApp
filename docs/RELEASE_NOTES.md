@@ -2,6 +2,10 @@
 
 Newest first. Paste the latest entry into "What to Test" for the build in App Store Connect.
 
+## Build 11
+
+- Results page writes the workout like the whiteboard, one thing per line.
+
 ## Build 10
 
 - EMOM results: heaviest set, load, start time and rest for each minute.

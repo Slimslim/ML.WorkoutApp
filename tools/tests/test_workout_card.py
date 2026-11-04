@@ -37,8 +37,8 @@ def test_freedom_mixed_scheme():
     c = card_of("lib.pitfire.20261102.freedom")
     assert (c.name, c.type_label) == ("Freedom", "RFT")
     assert c.time_domain_line == "5 rounds"
-    assert c.rep_scheme_line == "40-30-20-30-40 Cal"
-    assert texts(c) == ["Row", "7 Power Cleans @155 lb"]
+    assert c.rep_scheme_line == "40-30-20-30-40"
+    assert texts(c) == ["Cal Row", "7 Power Cleans @155 lb"]
     assert c.lines[1].text == "7 Power Cleans" and c.lines[1].load == "155 lb"
     assert c.cap_line == "20 min cap"
     assert c.summary_line == "40-30-20-30-40 Cal Row · 7 Power Cleans @155 lb"

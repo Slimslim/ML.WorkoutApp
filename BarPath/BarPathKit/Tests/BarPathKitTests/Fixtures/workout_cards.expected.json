@@ -2686,10 +2686,10 @@
     "typeTag": "RFT",
     "blockTag": "Metcon",
     "timeDomainLine": "5 rounds",
-    "repSchemeLine": "40-30-20-30-40 Cal",
+    "repSchemeLine": "40-30-20-30-40",
     "lines": [
      {
-      "text": "Row",
+      "text": "Cal Row",
       "load": null
      },
      {

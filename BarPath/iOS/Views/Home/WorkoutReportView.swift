@@ -225,10 +225,8 @@ struct WorkoutReportView: View {
             Text(card.name)
                 .font(.system(size: 25, weight: .medium))
                 .padding(.top, 6)
-            Text(card.summaryLine)
-                .font(.system(size: 13))
-                .foregroundStyle(.secondary)
-                .padding(.top, 4)
+            boardLines
+                .padding(.top, 6)
             HStack(alignment: .firstTextBaseline, spacing: 10) {
                 Text(scoreText(h))
                     .font(.system(size: 46, weight: .medium))
@@ -253,6 +251,25 @@ struct WorkoutReportView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .card()
+    }
+
+    /// The workout as the whiteboard writes it, one thing per line.
+    private var boardLines: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            if let scheme = card.repSchemeLine {
+                Text(scheme)
+                    .font(.system(size: 14, weight: .medium))
+                    .monospacedDigit()
+            } else if let domain = card.timeDomainLine {
+                Text(domain)
+                    .font(.system(size: 14, weight: .medium))
+                    .monospacedDigit()
+            }
+            ForEach(Array(card.visibleLines().lines.enumerated()), id: \.offset) { (item: (offset: Int, element: WorkoutCard.Line)) in
+                WorkoutCardView.lineText(item.element)
+                    .font(.system(size: 14))
+            }
+        }
     }
 
     private var tagLine: String {
