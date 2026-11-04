@@ -2,6 +2,10 @@
 
 Newest first. Paste the latest entry into "What to Test" for the build in App Store Connect.
 
+## Build 9
+
+- Heart rate through the workout is back on the results page: bands, zones, tap to read, and recovery.
+
 ## Build 8
 
 - New workout results page: score, time by modality, Effort, rounds, heart rate and recovery.
