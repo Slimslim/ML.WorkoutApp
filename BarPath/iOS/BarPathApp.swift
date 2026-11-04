@@ -96,27 +96,6 @@ struct GateView: View {
 
 struct RootView: View {
     var body: some View {
-        TabView {
-            LiveView()
-                .tabItem {
-                    Label("Live", systemImage: "waveform.path.ecg")
-                }
-            LiftChooserView()
-                .tabItem {
-                    Label("Lifts", systemImage: "figure.strengthtraining.traditional")
-                }
-            WorkoutListView()
-                .tabItem {
-                    Label("Workouts", systemImage: "figure.run")
-                }
-            HistoryView()
-                .tabItem {
-                    Label("History", systemImage: "clock.arrow.circlepath")
-                }
-            DebugView()
-                .tabItem {
-                    Label("Debug", systemImage: "ladybug")
-                }
-        }
+        AppTabsView()
     }
 }
