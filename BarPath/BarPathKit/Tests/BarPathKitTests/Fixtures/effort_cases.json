@@ -1,0 +1,113 @@
+[
+ {
+  "name": "all zone 5",
+  "series": {
+   "start": 1000.0,
+   "interval": 5.0,
+   "bpm": [
+    170.0,
+    170.0,
+    170.0,
+    170.0,
+    170.0,
+    170.0,
+    170.0,
+    170.0,
+    170.0,
+    170.0,
+    170.0,
+    170.0
+   ]
+  },
+  "finish": 1060.0,
+  "maxHeartRate": 176.0,
+  "effort": 5.0
+ },
+ {
+  "name": "each zone",
+  "series": {
+   "start": 1000.0,
+   "interval": 5.0,
+   "bpm": [
+    80.0,
+    90.0,
+    110.0,
+    125.0,
+    145.0,
+    160.0
+   ]
+  },
+  "finish": 1030.0,
+  "maxHeartRate": 176.0,
+  "effort": 1.25
+ },
+ {
+  "name": "gaps are skipped",
+  "series": {
+   "start": 1000.0,
+   "interval": 5.0,
+   "bpm": [
+    null,
+    150.0,
+    null,
+    150.0
+   ]
+  },
+  "finish": 1020.0,
+  "maxHeartRate": 176.0,
+  "effort": 0.6666666666666666
+ },
+ {
+  "name": "stops at the finish",
+  "series": {
+   "start": 1000.0,
+   "interval": 5.0,
+   "bpm": [
+    150.0,
+    150.0,
+    150.0,
+    150.0,
+    150.0,
+    150.0,
+    150.0,
+    150.0,
+    150.0,
+    150.0
+   ]
+  },
+  "finish": 1012.0,
+  "maxHeartRate": 176.0,
+  "effort": 0.6666666666666666
+ },
+ {
+  "name": "nothing before the finish",
+  "series": {
+   "start": 1000.0,
+   "interval": 5.0,
+   "bpm": [
+    150.0,
+    150.0
+   ]
+  },
+  "finish": 1000.0,
+  "maxHeartRate": 176.0,
+  "effort": null
+ },
+ {
+  "name": "zone floors are inclusive",
+  "series": {
+   "start": 1000.0,
+   "interval": 5.0,
+   "bpm": [
+    100.0,
+    120.0,
+    140.0,
+    160.0,
+    180.0
+   ]
+  },
+  "finish": 1025.0,
+  "maxHeartRate": 200.0,
+  "effort": 1.25
+ }
+]

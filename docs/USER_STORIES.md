@@ -230,3 +230,69 @@ library workouts and Send to watch works; a failed refresh shows a short note an
 ## Navigation and layout
 
 *Owned by the Navigation UI/UX chat. Add stories here with the `N` prefix.*
+
+Beta scope agreed with the owner on 3 Nov 2026. Layout, colours and wording: `docs/DESIGN_GUIDELINES.md`.
+
+**N1. One footer I understand (Now)**
+As a tester opening the app, I want a plain footer, so I can find everything without being told.
+*Done when:* the footer is the standard iOS tab bar with Today · Workouts · + · Log · Progress, the
+app opens on Today, and every feature of
+the old Live, Lifts, Workouts, History and Debug tabs can still be reached (table in the guidelines,
+section 6). Settings sits behind the avatar.
+
+**N2. See my day first (Now)**
+As an athlete, I want Today to show my effort, the week and today's workouts, so I know what I did
+and what is next.
+*Done when:* the top shows Effort (N6), the days strip moves through the week with ✓ for days with a
+result, and tapping a day shows its library workouts (`scheduled_on`) as flat blocks: planned blocks
+with Send to watch, done blocks with name and score. A block opens its card or report.
+
+**N3. A first look for new testers (Now)**
+As a new tester with no program and no data, I want Today to tell me how to start.
+*Done when:* with no library workouts and no results, Today offers Start a workout and Record a lift,
+and nothing looks broken or empty.
+
+**N4. One log (Now)**
+As an athlete, I want lifts and workouts in one list, newest first, so I don't have to remember
+where something is.
+*Done when:* Log shows lifting sessions and workouts together by date, opens the existing reports,
+and keeps delete with confirmation and Fix splits.
+
+**N5. The + starts things (Now)**
+As an athlete, I want one place to start something new.
+*Done when:* tapping + opens a standard iOS menu, Record a lift and Start a workout, which open the
+existing lift chooser and the Workouts tab. The next workout on the watch and its send status stay visible.
+
+**N6. Effort from what the watch measured (Now)**
+As an athlete, I want one number for how much I did, based on measured heart rate.
+*Done when:* Effort is minutes × heart rate zone from start to finish, added per local day, with max
+heart rate the highest ever recorded. Days with no heart rate data (lifting sessions today) show a
+dash, not 0. Python reference, Swift port and parity test. Weight lifted is left out of the beta: the
+app doesn't know the loads actually lifted yet.
+
+**N7. Live on the bench (Now)**
+As an athlete lifting with the phone on the bench, I want the live screen to come up by itself, so
+I never touch the phone mid-session.
+*Done when:* the current Live content opens over Today when a set is live or a new lift arrives,
+closes with a swipe or Done, and the phone stays awake on Today and Live, so transfers keep arriving.
+
+**N8. Settings has my account (Now)**
+As a tester, I want my account where I expect it.
+*Done when:* the avatar at the top right of Today opens a standard iOS menu, not a full screen: watch status,
+upload status, Settings, Sign out. Settings holds Upload now, Delete account, Privacy and For testing ›
+Debug tools. Debug is no longer a tab.
+
+**N10. Browse all workouts (Now)**
+As an athlete, I want one place for every workout, so I can find one that isn't on today's plan.
+*Done when:* the Workouts tab is the library: programs, built-ins, search and my past results of a
+workout, with Send to watch. It is the existing Choose, moved to its own tab.
+
+**N11. See my effort over time (Now)**
+As an athlete, I want a simple view of how much I've been doing.
+*Done when:* Progress shows Effort per day and per week from my results, using only real data, and
+says what to do when there is none yet. More can come later.
+
+**N9. Know the watch is there (Now)**
+As an athlete, I want to see if the watch is connected without leaving Today.
+*Done when:* a small dot on the avatar shows connected or not, the avatar menu says it in words with
+the same text as the old chip, and the dot's state is in the avatar's accessibility label.
