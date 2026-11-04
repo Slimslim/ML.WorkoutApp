@@ -46,7 +46,7 @@ struct ProgressTabView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if days.isEmpty {
+                if !days.contains(where: { (d: WorkoutEffort.Day) -> Bool in d.effort != nil }) {
                     ContentUnavailableView {
                         Label("Nothing to show yet", systemImage: "chart.bar")
                     } description: {
@@ -66,7 +66,7 @@ struct ProgressTabView: View {
             }
             .navigationTitle("Progress")
             .onReceive(workouts.$results) { (results: [WorkoutResult]) in
-                days = WorkoutEffort.days(results, calendar: Calendar.current)
+                days = WorkoutEffort.days(results, calendar: EffortDays.gregorian)
             }
         }
     }

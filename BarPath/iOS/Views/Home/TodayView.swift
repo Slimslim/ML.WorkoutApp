@@ -12,6 +12,9 @@ struct TodayView: View {
     @EnvironmentObject private var workouts: WorkoutStore
     @ObservedObject private var library = WorkoutLibraryStore.shared
     @State private var selected: Date = Calendar.current.startOfDay(for: Date())
+    /// The day this screen last treated as today: moves `selected` along when the date changes.
+    @State private var shownToday: Date = Calendar.current.startOfDay(for: Date())
+    @Environment(\.scenePhase) private var scenePhase
     @State private var effortDays: [String: WorkoutEffort.Day] = [:]
     @State private var scores: [UUID: WorkoutCardScore] = [:]
 
@@ -61,7 +64,20 @@ struct TodayView: View {
                 effortDays = EffortDays.make(results)
                 scores = WorkoutLastScore.byResult(results)
             }
+            .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged)) { _ in
+                followToday()
+            }
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .active { followToday() }
+            }
         }
+    }
+
+    private func followToday() {
+        let now: Date = today
+        if now == shownToday { return }
+        if selected == shownToday { selected = now }
+        shownToday = now
     }
 
     // MARK: Top
@@ -137,6 +153,9 @@ struct TodayView: View {
                                 line1: String(Int(day.minutes.rounded())) + " min",
                                 line2: rankLine(day))
         }
+        if hasActivity(selected) {
+            return EffortHeader(value: "\u{2014}", share: 0, line1: "Lifting, no heart rate saved", line2: nil)
+        }
         if calendar.isDate(selected, inSameDayAs: today) {
             var line2: String? = nil
             if let yesterday = calendar.date(byAdding: .day, value: -1, to: today),
@@ -145,9 +164,7 @@ struct TodayView: View {
             }
             return EffortHeader(value: "0", share: 0, line1: "Nothing yet today", line2: line2)
         }
-        let future: Bool = selected > today
-        let line: String = hasActivity(selected) ? "Lifting, no heart rate saved"
-            : (future ? "Still to come" : "No workout")
+        let line: String = selected > today ? "Still to come" : "No workout"
         return EffortHeader(value: "\u{2014}", share: 0, line1: line, line2: nil)
     }
 
@@ -182,6 +199,7 @@ struct TodayView: View {
         }
         .gesture(
             DragGesture(minimumDistance: 30).onEnded { (value: DragGesture.Value) in
+                if abs(value.translation.width) <= abs(value.translation.height) { return }
                 let weeks: Int = value.translation.width < 0 ? 1 : -1
                 if let moved = calendar.date(byAdding: .day, value: 7 * weeks, to: selected) {
                     selected = moved
@@ -449,7 +467,7 @@ struct TodayView: View {
             let total: Double = days.compactMap { (d: WorkoutEffort.Day) -> Double? in d.effort }.reduce(0, +)
             let minutes: Double = days.map { (d: WorkoutEffort.Day) -> Double in d.minutes }.reduce(0, +)
             HStack {
-                Text("This week")
+                Text(week.contains(today) ? "This week" : "That week")
                     .font(.system(size: 13, weight: .medium))
                 Spacer()
                 Text("Effort " + EffortDays.text(total) + " \u{00B7} " + String(Int(minutes.rounded())) + " min")
@@ -497,7 +515,8 @@ struct AccountMenu: View {
     }
 
     private var uploadText: String {
-        if cloud.isSyncing { return String(cloud.pendingCount) + " uploads left" }
+        if cloud.lastError != nil { return "Uploads need attention" }
+        if cloud.isSyncing || cloud.pendingCount > 0 { return String(cloud.pendingCount) + " uploads left" }
         return cloud.lastSync == nil ? "Uploads waiting" : "Uploads up to date"
     }
 

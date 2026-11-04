@@ -319,8 +319,8 @@ app doesn't know the loads actually lifted yet.
 **N7. Live on the bench (Now)**
 As an athlete lifting with the phone on the bench, I want the live screen to come up by itself, so
 I never touch the phone mid-session.
-*Done when:* the current Live content opens over Today when a set is live or a new lift arrives,
-closes with a swipe or Done, and the phone stays awake on Today and Live, so transfers keep arriving.
+*Done when:* the current Live content opens over the tabs when a set is live, a new lift arrives or
+a workout has just finished, closes with a swipe or Done, and the phone stays awake on Today and Live, so transfers keep arriving.
 
 **N8. Settings has my account (Now)**
 As a tester, I want my account where I expect it.

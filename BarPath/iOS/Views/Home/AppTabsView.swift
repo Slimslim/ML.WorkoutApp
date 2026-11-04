@@ -14,16 +14,20 @@ enum AppSheet: String, Identifiable {
 
 /// The app's frame: Today · Workouts · + · Log · Progress (docs/DESIGN_GUIDELINES.md section 6).
 /// A standard tab bar with an empty middle tab and the + menu centred over it. Live comes up by
-/// itself during a set or when a lift arrives. The phone stays awake on Today and Live, because
+/// itself during a set, when a lift arrives or when a workout has just finished. The phone stays awake on Today and Live, because
 /// transfers from the watch only arrive while the app runs.
 struct AppTabsView: View {
     @EnvironmentObject private var store: LiftStore
+    @EnvironmentObject private var workoutStore: WorkoutStore
     @EnvironmentObject private var link: PhoneLink
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var selection: AppTab = AppTab.today
     @State private var sheet: AppSheet?
     @State private var showAddChoices: Bool = false
+
+    /// A result this recent opens Live when it arrives.
+    private static let justFinishedSeconds: TimeInterval = 900
 
     /// The circle only fits a bottom tab bar. Elsewhere (a side bar on wide screens) the middle
     /// tab is a plain + and asks with a dialog.
@@ -101,10 +105,30 @@ struct AppTabsView: View {
             }
         }
         .onChange(of: link.liveSet != nil) { _, isLive in
-            if isLive { sheet = AppSheet.live }
+            if isLive { openLive() }
         }
         .onChange(of: store.latestArrivalId) { _, id in
-            if id != nil { sheet = AppSheet.live }
+            if id != nil { openLive() }
+        }
+        .onChange(of: workoutStore.newestResult?.id) { old, new in
+            // Not on launch (no old id), and not when deleting the newest brings an older one up.
+            guard old != nil, new != nil, let result = workoutStore.newestResult,
+                  Date().timeIntervalSince(result.endDate) < AppTabsView.justFinishedSeconds else { return }
+            openLive()
+        }
+        // Sent: the lift chooser's job is done and the phone goes on the bench.
+        .onChange(of: link.sentLift) { _, _ in
+            if sheet == AppSheet.recordLift { sheet = nil }
+        }
+        .onDisappear {
+            UIApplication.shared.isIdleTimerDisabled = false
+        }
+    }
+
+    /// Never over the lift chooser while the athlete is filling it in.
+    private func openLive() {
+        if sheet != AppSheet.recordLift {
+            sheet = AppSheet.live
         }
     }
 

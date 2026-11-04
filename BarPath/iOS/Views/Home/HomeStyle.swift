@@ -134,10 +134,17 @@ struct EffortRing: View {
 enum EffortDays {
     static func make(_ results: [WorkoutResult]) -> [String: WorkoutEffort.Day] {
         var out: [String: WorkoutEffort.Day] = [:]
-        for d in WorkoutEffort.days(results, calendar: Calendar.current) {
+        for d in WorkoutEffort.days(results, calendar: gregorian) {
             out[d.day] = d
         }
         return out
+    }
+
+    /// Day keys are gregorian whatever calendar the phone uses (LibraryDay).
+    static var gregorian: Calendar {
+        var c = Calendar(identifier: .gregorian)
+        c.timeZone = TimeZone.autoupdatingCurrent
+        return c
     }
 
     /// Rounded for display, "—" without heart rate data.
