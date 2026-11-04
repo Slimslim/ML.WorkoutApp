@@ -277,10 +277,11 @@ closes with a swipe or Done, and the phone stays awake on Today and Live, so tra
 
 **N8. Settings has my account (Now)**
 As a tester, I want my account where I expect it.
-*Done when:* the avatar at the top right of Today opens Settings: watch status, Account (Upload now,
-Sign out, Delete account), Privacy and For testing › Debug tools. Debug is no longer a tab.
+*Done when:* the avatar at the top right of Today opens a small menu, not a full screen: watch status,
+upload status, Settings, Sign out. Settings holds Upload now, Delete account, Privacy and For testing ›
+Debug tools. Debug is no longer a tab.
 
 **N9. Know the watch is there (Now)**
 As an athlete, I want to see if the watch is connected without leaving Today.
-*Done when:* a small dot on the avatar shows connected or not, Settings says it in words with the
-same text as the old chip, and the dot's state is in the avatar's accessibility label.
+*Done when:* a small dot on the avatar shows connected or not, the avatar menu says it in words with
+the same text as the old chip, and the dot's state is in the avatar's accessibility label.
