@@ -489,16 +489,13 @@ struct AccountMenu: View {
 
     var body: some View {
         Menu {
-            Section {
-                Text(link.watchStatusText)
+            // The section title: small, grey and not tappable, unlike a menu row.
+            Section(statusText) {
                 if link.canLaunchWatchApp {
                     Button("Open on watch") { link.launchWatchApp() }
                 }
-                if cloud.isSignedIn {
-                    Text(uploadText)
-                }
+                Button("Settings") { showSettings = true }
             }
-            Button("Settings") { showSettings = true }
             if cloud.isSignedIn {
                 Button("Sign out") {
                     Task { await cloud.signOut() }
@@ -514,10 +511,15 @@ struct AccountMenu: View {
         }
     }
 
+    private var statusText: String {
+        if !cloud.isSignedIn { return link.watchStatusText }
+        return link.watchStatusText + " \u{00B7} " + uploadText
+    }
+
     private var uploadText: String {
         if cloud.lastError != nil { return "Uploads need attention" }
         if cloud.isSyncing || cloud.pendingCount > 0 { return String(cloud.pendingCount) + " uploads left" }
-        return cloud.lastSync == nil ? "Uploads waiting" : "Uploads up to date"
+        return cloud.lastSync == nil ? "Uploads waiting" : "Uploaded"
     }
 
     private var avatar: some View {
