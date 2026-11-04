@@ -41,6 +41,8 @@ def is_same_workout(a: WorkoutDefinition, b: WorkoutDefinition) -> bool:
     """Same id, or same normalized (non-empty) name and the same segment kinds and movements."""
     if a.id == b.id:
         return True
+    if len(a.segments) != len(b.segments):  # cheap check first
+        return False
     name_a = normalized_name(a.name)
     if not name_a or name_a != normalized_name(b.name):
         return False

@@ -44,6 +44,10 @@ public enum WorkoutHistory {
         if a.id == b.id {
             return true
         }
+        // Cheap check first: Choose compares every definition with every result.
+        if a.segments.count != b.segments.count {
+            return false
+        }
         let nameA: String = normalizedName(a.name)
         if nameA.isEmpty || nameA != normalizedName(b.name) {
             return false
