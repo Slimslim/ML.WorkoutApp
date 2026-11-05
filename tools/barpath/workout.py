@@ -14,7 +14,7 @@ from .recording import format_iso8601, load_session_csv, parse_iso8601
 
 SEGMENT_KINDS = ("run", "station", "transition", "rest")
 TARGET_UNITS = ("meters", "reps", "calories", "seconds")
-ADVANCE_SOURCES = ("crown", "press", "button", "auto")
+ADVANCE_SOURCES = ("crown", "press", "button", "auto", "edit")
 EVENT_KINDS = ("start", "advance", "undo", "finish", "unfinish", "end")
 
 

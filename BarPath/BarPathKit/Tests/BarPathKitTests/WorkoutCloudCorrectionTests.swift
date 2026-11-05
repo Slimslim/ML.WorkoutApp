@@ -68,6 +68,14 @@ final class WorkoutCloudCorrectionTests: XCTestCase {
         XCTAssertNil(WorkoutCloudCorrection.resultId(fileName: "notes.json"))
     }
 
+    /// Events added by a correction carry source "edit".
+    func testCorrectionWithEditEventDecodes() throws {
+        var r: WorkoutResult = result(id: id, editedAt: t1)
+        r.events = [WorkoutEvent(t: 1_793_850_000, kind: .advance, segmentIndex: 1, source: .edit)]
+        let decoded: WorkoutResult = try WorkoutResult.decode(from: try r.encoded())
+        XCTAssertEqual(decoded.events.first?.source, .edit)
+    }
+
     /// A corrected file carries keys this build does not know yet (e.g. `rx`, W19): it still
     /// decodes, and its editedAt (fractional seconds) is read.
     func testCorrectionWithUnknownKeysDecodes() throws {

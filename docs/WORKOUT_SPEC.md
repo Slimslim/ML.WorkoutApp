@@ -123,7 +123,7 @@ public enum WorkoutLibrary {
 ### Progress state machine
 
 ```swift
-public enum AdvanceSource: String, Codable { case crown, press, button, auto }
+public enum AdvanceSource: String, Codable { case crown, press, button, auto, edit }
 
 public enum WorkoutEventKind: String, Codable { case start, advance, undo, finish, unfinish, end }
 
@@ -406,7 +406,8 @@ original), the store reloads, and the written files are marked as uploaded so th
 back (a `.original.json` created this way does not overwrite the cloud's watch copy). A result
 with a phone change not yet uploaded (or uploading) is skipped until that upload is done: the
 phone's change wins. A cloud file that does not decode is reported once and skipped until it
-changes. Results deleted on the phone are not brought back. Keys this build does not know (e.g. `rx`) are
+changes or a new app build is installed (every build checks each file once). Events a correction
+adds carry `source: "edit"`. Results deleted on the phone are not brought back. Keys this build does not know (e.g. `rx`) are
 dropped from the phone's copy when it is written; the cloud copy keeps them.
 
 ## 5b. For-time caps: keep going past the cap (added 2026-11-03, W7)
