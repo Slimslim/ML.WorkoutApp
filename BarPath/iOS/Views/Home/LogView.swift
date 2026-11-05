@@ -161,6 +161,10 @@ struct LogView: View {
         }
         .listStyle(.plain)
         .contentMargins(.bottom, 90, for: .scrollContent)
+        .refreshable {
+            // Story W17: pull down to fetch results corrected in the cloud.
+            await CloudAccount.shared.refreshNow()
+        }
     }
 
     private func effortText(_ day: Date) -> String {
