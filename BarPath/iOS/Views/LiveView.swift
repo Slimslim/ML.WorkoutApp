@@ -10,6 +10,8 @@ struct LiveView: View {
     @EnvironmentObject private var workoutStore: WorkoutStore
     @EnvironmentObject private var link: PhoneLink
     @AppStorage(WorkoutViewed.key) private var lastViewedWorkoutId: String = ""
+    /// Closes the screen (it opens as a sheet over the tabs).
+    var onDone: () -> Void = {}
 
     var body: some View {
         NavigationStack {
@@ -22,17 +24,15 @@ struct LiveView: View {
                     WorkoutDetailView(resultId: route.id)
                 }
                 .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button("Done", action: onDone)
+                    }
                     ToolbarItem(placement: .topBarTrailing) {
                         WatchStatusChip()
                     }
                 }
         }
-        .onAppear {
-            // Transfers only arrive while this app runs: keep the screen awake on the bench.
-            UIApplication.shared.isIdleTimerDisabled = true
-        }
         .onDisappear {
-            UIApplication.shared.isIdleTimerDisabled = false
             if let workout = workoutToShow {
                 lastViewedWorkoutId = workout.id.uuidString
             }
@@ -126,7 +126,7 @@ struct LiveView: View {
                         .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
                                                 removal: .opacity))
                     earlierLifts(session)
-                    Text("Screen stays awake while this tab is open. Lifts arrive a few seconds after you drop the bar.")
+                    Text("Screen stays awake while this screen is open. Lifts arrive a few seconds after you drop the bar.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, alignment: .center)

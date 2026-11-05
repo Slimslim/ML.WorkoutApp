@@ -758,15 +758,20 @@ extension WorkoutSummary {
         let def: WorkoutDefinition = ctx.definition
         let rs: Int = ctx.roundSize ?? Swift.max(1, def.segments.count)
         let cap: Double = (def.timeCapSeconds ?? 0) > 0 ? (def.timeCapSeconds ?? 0) : ctx.duration
+        // A rest doesn't score: a round is complete once its work is done, even when the cap
+        // falls in (or before) the rest that ends it.
+        let plannedWork: Int = def.segments.prefix(rs).filter({ (s: WorkoutSegment) -> Bool in s.kind != .rest }).count
 
         var rounds: [AmrapRound] = []
         var items: [(String, String, Double)] = []
         for (r, segs) in groups(ctx.segments, roundSize: rs) {
             var parts: [RoundPart] = []
             var done: Int = 0
+            var workDone: Int = 0
             for seg in segs {
                 let partial: Bool = ctx.isPartial(seg)
                 if !partial { done += 1 }
+                if !partial && seg.kind != .rest { workDone += 1 }
                 let name: String = ctx.name(seg)
                 parts.append(RoundPart(segmentIndex: seg.index, column: seg.index % rs, title: seg.title,
                                        name: name, movement: seg.movement,
@@ -780,7 +785,7 @@ extension WorkoutSummary {
             let st: RangeStats = timeline.stats(from: start, to: end)
             rounds.append(AmrapRound(index: r, firstSegmentIndex: segs[0].index,
                                      lastSegmentIndex: segs[segs.count - 1].index, parts: parts, start: start,
-                                     end: end, duration: end - start, isComplete: done == rs,
+                                     end: end, duration: end - start, isComplete: workDone == plannedWork,
                                      completedParts: done, totalParts: rs, heartRateAvg: st.average,
                                      heartRateMax: st.max))
         }
@@ -789,13 +794,15 @@ extension WorkoutSummary {
         var extra: Int = 0
         if let last = rounds.last, !last.isComplete {
             for p in last.parts where !p.isPartial {
-                if let d = ctx.definitionSegment(p.segmentIndex), let t = d.target, t.unit == .reps {
+                // Calories count like reps, as on the gym's whiteboard.
+                if let d = ctx.definitionSegment(p.segmentIndex), let t = d.target,
+                   t.unit == .reps || t.unit == .calories {
                     extra += Int(t.value.rounded())
                 }
             }
         }
         var stop: StopPoint? = nil
-        if let seg = ctx.segments.last, ctx.isPartial(seg) {
+        if let seg = ctx.segments.last, ctx.isPartial(seg), seg.kind != .rest {
             let partialReps: Int? = ctx.result.partialReps
             stop = StopPoint(segmentIndex: seg.index, name: ctx.name(seg), title: seg.title,
                              secondsIn: seg.duration, round: seg.index / rs, partialReps: partialReps)

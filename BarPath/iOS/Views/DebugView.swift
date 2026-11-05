@@ -19,11 +19,8 @@ struct DebugView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        Group {
             List {
-                if cloud.isSignedIn {
-                    AccountSection()
-                }
                 recordingsSection
                 liftFilesSection
                 connectionSection

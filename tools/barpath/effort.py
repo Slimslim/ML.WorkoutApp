@@ -35,9 +35,11 @@ def series_effort(series, finish: float, max_heart_rate: float) -> Optional[floa
 
 
 def highest_heart_rate(results: list) -> Optional[float]:
-    """Highest reading in any result's series, None when there is none."""
+    """Highest heart rate recorded in any result, from its series or its stored max (results
+    without a series have only the max). None when there is none."""
     values = [b for r in results if r.heart_rate_series is not None
               for b in r.heart_rate_series.bpm if b is not None]
+    values += [r.heart_rate_max for r in results if r.heart_rate_max is not None]
     return max(values) if values else None
 
 

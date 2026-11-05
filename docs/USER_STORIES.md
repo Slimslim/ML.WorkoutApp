@@ -275,7 +275,20 @@ name, time domain, rep scheme, movements, cap, then the score line with the cont
 vs last time and the heart-rate facts), replacing the old header; heart rate, recovery, story,
 splits, share and Fix splits follow unchanged.
 
-**W15. Old results stay linked after a library rename (Now)**
+**W15. Scale a workout before I do it (Now)**
+As an athlete, I want to change a workout's weights, rep scheme and movements, so the watch runs
+what I am really doing.
+*Done when:* the workout preview has Scale; I can change the load, reps or rep scheme and swap a
+movement; the changed version is saved as my copy and sent to the watch, the original stays as it
+was, and the result is recorded as Scaled with what I did.
+
+**W16. Correct a result after the workout (Now)**
+As an athlete, I want to fix the weights or reps of a finished workout.
+*Done when:* the report and the done card have Edit; I can change the load per set or movement, the
+reps and Rx / Scaled, and save; the original stays restorable (like Fix splits); the report, Log and
+the "last" score use the corrected values.
+
+**W17. Old results stay linked after a library rename (Now)**
 As the owner who renames a library workout after doing it (PitFIRE's Nov 2 piece went from
 "Freedom", only Mayhem's RX level label, to "For Time"), I want my results saved under the old
 id to stay that workout's results, so the Log, the report and the history don't show a stale name
@@ -335,8 +348,8 @@ app doesn't know the loads actually lifted yet.
 **N7. Live on the bench (Now)**
 As an athlete lifting with the phone on the bench, I want the live screen to come up by itself, so
 I never touch the phone mid-session.
-*Done when:* the current Live content opens over Today when a set is live or a new lift arrives,
-closes with a swipe or Done, and the phone stays awake on Today and Live, so transfers keep arriving.
+*Done when:* the current Live content opens over the tabs when a set is live, a new lift arrives or
+a workout has just finished, closes with a swipe or Done, and the phone stays awake on Today and Live, so transfers keep arriving.
 
 **N8. Settings has my account (Now)**
 As a tester, I want my account where I expect it.

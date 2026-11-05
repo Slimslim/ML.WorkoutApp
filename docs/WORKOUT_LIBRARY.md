@@ -76,7 +76,7 @@ results of **the same workout** were saved: a built-in on a branch that was neve
 row that existed before under another id. The phone treats a result whose definition id is in a
 row's `aliases` (or a row whose id is in the result's `aliases`) as that row's workout, even after
 the row is renamed: Log card and report show the row's current name and program, Choose shows
-its "last" score, the preview lists it under "Your results" (user story W15). Without an alias the
+its "last" score, the preview lists it under "Your results" (user story W17). Without an alias the
 phone still links results by same normalized name + same segment kinds and movements, but that
 breaks as soon as the row is renamed.
 

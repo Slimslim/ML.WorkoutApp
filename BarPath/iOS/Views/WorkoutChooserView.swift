@@ -20,35 +20,27 @@ enum WorkoutGroups {
     ]
 }
 
-/// First row of the Workouts tab: the workout the watch will run next; tap to choose another.
-/// A plain list row (not an inset over the list), so it never covers the title or the results.
+/// First row of the Workouts tab: the workout the watch will run next.
 struct NextWorkoutBar: View {
     @ObservedObject private var link = PhoneLink.shared
     @ObservedObject private var library = WorkoutLibraryStore.shared
 
     var body: some View {
-        NavigationLink {
-            WorkoutChooserView()
-        } label: {
-            HStack(spacing: 10) {
-                Image(systemName: "applewatch")
-                    .font(.title3)
-                    .foregroundStyle(Theme.accent)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Next workout on watch")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(sentName)
-                        .font(.headline)
-                        .lineLimit(1)
-                }
-                Spacer(minLength: 8)
-                Text("Choose")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Theme.accent)
+        HStack(spacing: 10) {
+            Image(systemName: "applewatch")
+                .font(.title3)
+                .foregroundStyle(Theme.accent)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Next workout on watch")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(sentName)
+                    .font(.headline)
+                    .lineLimit(1)
             }
-            .padding(.vertical, 2)
+            Spacer(minLength: 8)
         }
+        .padding(.vertical, 2)
     }
 
     private var sentName: String {
@@ -82,6 +74,11 @@ struct WorkoutChooserView: View {
             let today: [LibraryWorkout] = filteredToday
             let groups: [LibraryGroup] = filteredGroups
             let builtIns: [WorkoutGroup] = filteredBuiltIns
+            if !isSearching {
+                Section {
+                    NextWorkoutBar()
+                }
+            }
             if !today.isEmpty {
                 Section("Today") {
                     ForEach(today) { (w: LibraryWorkout) in
@@ -145,8 +142,7 @@ struct WorkoutChooserView: View {
         .onReceive(library.$workouts) { (workouts: [LibraryWorkout]) in
             lastScores = WorkoutLastScore.byDefinition(allDefinitions(workouts), results: store.results)
         }
-        .navigationTitle("Choose workout")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle("Workouts")
     }
 
     // MARK: Search

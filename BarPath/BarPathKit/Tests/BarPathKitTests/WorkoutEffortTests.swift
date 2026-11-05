@@ -51,6 +51,13 @@ final class WorkoutEffortTests: XCTestCase {
         }
     }
 
+    func testMaxComesFromTheStoredMaxWithoutASeries() {
+        let series = HeartRateSeries(start: 0, interval: 5, bpm: [150])
+        var onlyMax = result([], done: [])
+        onlyMax.heartRateMax = 180
+        XCTAssertEqual(WorkoutEffort.highestHeartRate([result([], done: [], series: series), onlyMax]), 180)
+    }
+
     func testWeightLifted() {
         let lb: Double = 0.45359237
         XCTAssertEqual(result([cleans()], done: [(0, .station)]).weightLiftedKg, 7 * 155 * lb, accuracy: 1e-9)
