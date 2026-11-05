@@ -391,6 +391,21 @@ an AMRAP row "Reps after the cap" with a stepper (setPartialReps). Save writes t
 result over Documents/Workouts/<id>.json after keeping the first original as
 Documents/Workouts/<id>.original.json (once), and reloads the store. Cancel discards.
 
+### Corrections from the cloud (added 2026-11-05, W17)
+For learning and debugging: a result can be corrected outside the app by replacing
+`<user id>/Workouts/<id>.json` in the `uploads` bucket (service role; keep the watch copy as
+`<id>.original.json` next to it). The correction must set `editedAt` to the time of the edit and
+may change the result's own definition (its parts) — the library workout stays as written.
+
+Every phone sync (app comes to the foreground, Upload now, pull down in the Log) first lists that
+folder. For each `<id>.json` whose cloud date changed since the last check and whose result is on
+the phone, it downloads the file and replaces the phone's copy when
+`WorkoutCloudCorrection.shouldReplace` says so: the cloud copy has an `editedAt` and the phone's
+copy has none or an earlier one. The phone's copy is kept as `<id>.original.json` (Restore
+original), the store reloads, and the written file is marked as uploaded so it is not sent back.
+Results deleted on the phone are not brought back. Keys this build does not know (e.g. `rx`) are
+dropped from the phone's copy when it is written; the cloud copy keeps them.
+
 ## 5b. For-time caps: keep going past the cap (added 2026-11-03, W7)
 
 Owner, 2026-11-03: "For time with a cap: if you are not done within the cap, I don't want the
