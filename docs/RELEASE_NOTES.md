@@ -2,6 +2,10 @@
 
 Newest first. Paste the latest entry into "What to Test" for the build in App Store Connect.
 
+## Build 12
+
+- Pull down on Log to bring in results corrected in the cloud.
+
 ## Build 11
 
 - Results page writes the workout like the whiteboard, one thing per line.
