@@ -1,4 +1,5 @@
 import Foundation
+import BarPathKit
 import Supabase
 
 /// Sign in with Apple (through Supabase Auth) and upload of every stored file to the user's
@@ -109,6 +110,7 @@ final class CloudAccount: ObservableObject {
             try await client.rpc("delete_user").execute()
             UploadManifest.clear(userId: userId)
             PendingRows.clear(userId: userId)
+            DownloadManifest.clear(userId: userId)
             try? await client.auth.signOut()
             apply(nil)
             isSyncing = false
@@ -133,11 +135,16 @@ final class CloudAccount: ObservableObject {
     /// is suspended; `uploadFinished` records each one. Also retries rows that could not be written.
     private func sync() async {
         guard let client, let userId else { return }
+        if isQueueing {
+            syncAgain = true
+            return
+        }
         isQueueing = true
         defer { isQueueing = false }
         repeat {
             syncAgain = false
             await writePendingRows(userId: userId)
+            await downloadCorrections(userId: userId)
             let manifest = UploadManifest.load(userId: userId)
             let files = LocalFiles.all().filter { manifest[$0.path] != $0.version }
             pendingCount = files.count
@@ -170,6 +177,115 @@ final class CloudAccount: ObservableObject {
                                                  contentType: file.contentType, accessToken: token)
             }
         } while syncAgain
+    }
+
+    /// Pull to refresh in the Log: one sync now (downloads corrections, queues uploads).
+    func refreshNow() async {
+        guard client != nil, isSignedIn else { return }
+        await sync()
+    }
+
+    // MARK: - Corrections from the cloud (story W17)
+
+    /// Prefix of the errors set by `downloadCorrections` (cleared at its next run).
+    private static let correctionErrorPrefix = "Corrected workouts: "
+
+    /// Replaces a workout result on the phone with the copy in the user's Storage folder when
+    /// that copy is a later correction (`WorkoutCloudCorrection.shouldReplace`). The phone's
+    /// previous copy is kept as <id>.original.json (Restore original), and the written files are
+    /// marked as uploaded so they are not sent back. Only results already on the phone and with
+    /// nothing waiting to upload are considered (a phone change not yet in the cloud always
+    /// wins); files whose cloud date has not changed since the last check are skipped.
+    private func downloadCorrections(userId: UUID) async {
+        guard let client else { return }
+        if let error = lastError, error.hasPrefix(CloudAccount.correctionErrorPrefix) {
+            lastError = nil
+        }
+        let folder: String = userId.uuidString.lowercased() + "/" + WorkoutFiles.workoutsURL.lastPathComponent
+        let bucket = client.storage.from(CloudConfig.bucket)
+        var objects: [FileObject] = []
+        let pageSize: Int = 500
+        do {
+            while true {
+                let page: [FileObject] = try await bucket.list(
+                    path: folder, options: SearchOptions(limit: pageSize, offset: objects.count))
+                objects += page
+                if page.count < pageSize { break }
+            }
+        } catch {
+            lastError = CloudAccount.correctionErrorPrefix + "could not check: \(error.localizedDescription)"
+            return
+        }
+        let store: WorkoutStore = WorkoutStore.shared
+        store.loadIfNeeded()
+        let uploaded: [String: String] = UploadManifest.load(userId: userId)
+        let busy = Set(await BackgroundUploads.shared.inFlight()
+            .filter { $0.userId == userId }
+            .map { $0.path })
+        var seen: [String: String] = DownloadManifest.load(userId: userId)
+        for object in objects {
+            guard let id = WorkoutCloudCorrection.resultId(fileName: object.name),
+                  store.result(id: id) != nil else { continue }
+            let url: URL = WorkoutFiles.fileURL(id: id)
+            // A phone change not yet uploaded (or uploading) wins: check again after it is sent.
+            guard let path = CloudAccount.relativePath(url), !busy.contains(path),
+                  let version = CloudAccount.localVersion(url), uploaded[path] == version else { continue }
+            let stamp: String = object.updatedAt.map { String($0.timeIntervalSince1970) } ?? ""
+            if !stamp.isEmpty && seen[object.name] == stamp { continue }
+            let cloud: WorkoutResult
+            do {
+                let data: Data = try await bucket.download(path: folder + "/" + object.name)
+                cloud = try WorkoutResult.decode(from: data)
+            } catch is DecodingError {
+                // Not a result this build can read: don't download it again until it changes.
+                seen[object.name] = stamp
+                lastError = CloudAccount.correctionErrorPrefix + "\(object.name) is not readable"
+                continue
+            } catch {
+                lastError = CloudAccount.correctionErrorPrefix + "\(object.name): \(error.localizedDescription)"
+                continue
+            }
+            // Read the phone's copy again: it may have been edited during the download.
+            guard let local = store.result(id: id) else { continue }
+            if WorkoutCloudCorrection.shouldReplace(local: local, with: cloud) {
+                let hadOriginal: Bool = WorkoutFiles.hasOriginal(id: id)
+                guard store.saveEdited(cloud) else { continue }   // retried at the next sync
+                markUploaded(url: url, userId: userId)
+                if !hadOriginal {
+                    // Keep the cloud's <id>.original.json (the watch copy) as it is.
+                    markUploaded(url: WorkoutFiles.originalURL(id: id), userId: userId)
+                }
+            }
+            seen[object.name] = stamp
+        }
+        DownloadManifest.save(seen, userId: userId)
+    }
+
+    /// Path relative to Documents ("Workouts/<id>.json"), as `LocalFile.path`.
+    private static func relativePath(_ url: URL) -> String? {
+        let documents = LiftFiles.documentsURL.standardizedFileURL.path
+        let full = url.standardizedFileURL.path
+        guard full.hasPrefix(documents + "/") else { return nil }
+        return String(full.dropFirst(documents.count + 1))
+    }
+
+    /// The file's current version string, as `LocalFile.version`; nil when it does not exist.
+    private static func localVersion(_ url: URL) -> String? {
+        var fresh: URL = url
+        fresh.removeAllCachedResourceValues()   // the file may have just been rewritten
+        guard let values = try? fresh.resourceValues(forKeys: [.contentModificationDateKey, .fileSizeKey]) else {
+            return nil
+        }
+        return "\(Int64(values.fileSize ?? 0))-\(Int((values.contentModificationDate ?? Date()).timeIntervalSince1970))"
+    }
+
+    /// Records a file just written from the cloud as already uploaded, so the next sync does not
+    /// send it back.
+    private func markUploaded(url: URL, userId: UUID) {
+        guard let path = CloudAccount.relativePath(url), let version = CloudAccount.localVersion(url) else { return }
+        var manifest = UploadManifest.load(userId: userId)
+        manifest[path] = version
+        UploadManifest.save(manifest, userId: userId)
     }
 
     /// Called for each file iOS finished sending (also after a background relaunch).
@@ -302,6 +418,32 @@ private enum LocalFiles {
             }
         }
         return found
+    }
+}
+
+/// Cloud workout files already checked for corrections (name → cloud updated time), per user:
+/// Application Support/cloud-<user>-downloads.json.
+private enum DownloadManifest {
+    private static func url(userId: UUID) -> URL {
+        let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        try? FileManager.default.createDirectory(at: support, withIntermediateDirectories: true)
+        return support.appendingPathComponent("cloud-\(userId.uuidString.lowercased())-downloads.json")
+    }
+
+    static func load(userId: UUID) -> [String: String] {
+        guard let data = try? Data(contentsOf: url(userId: userId)),
+              let map = try? JSONDecoder().decode([String: String].self, from: data) else { return [:] }
+        return map
+    }
+
+    static func save(_ map: [String: String], userId: UUID) {
+        if let data = try? JSONEncoder().encode(map) {
+            try? data.write(to: url(userId: userId), options: .atomic)
+        }
+    }
+
+    static func clear(userId: UUID) {
+        try? FileManager.default.removeItem(at: url(userId: userId))
     }
 }
 
