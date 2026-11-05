@@ -2,6 +2,10 @@
 
 Newest first. Paste the latest entry into "What to Test" for the build in App Store Connect.
 
+## Build 14
+
+- Watch: with your wrist down the clocks show the seconds, not 1:--.
+
 ## Build 13
 
 - Results corrected in the cloud now open on the phone.
