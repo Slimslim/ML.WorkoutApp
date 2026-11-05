@@ -154,6 +154,7 @@ class WorkoutDefinition:
     segments: list = field(default_factory=list)
     interval_seconds: Optional[float] = None
     round_size: Optional[int] = None   # segments per round/set (rest included); last round may be partial
+    aliases: Optional[list] = None     # older ids of the same workout (results saved under them still link)
 
     @property
     def run_count(self) -> int:
@@ -173,6 +174,8 @@ class WorkoutDefinition:
             d["intervalSeconds"] = self.interval_seconds
         if self.round_size is not None:
             d["roundSize"] = self.round_size
+        if self.aliases is not None:
+            d["aliases"] = list(self.aliases)
         return d
 
     @classmethod
@@ -180,11 +183,16 @@ class WorkoutDefinition:
         cap = d.get("timeCapSeconds")
         interval = d.get("intervalSeconds")
         round_size = d.get("roundSize")
+        aliases = d.get("aliases")
+        if aliases is not None and (not isinstance(aliases, list)
+                                    or not all(isinstance(a, str) for a in aliases)):
+            raise TypeError("aliases must be a list of strings")
         return cls(d["id"], d["name"], d["shortName"], d["format"], d["team"],
                    None if cap is None else float(cap), d["healthKitActivity"],
                    [WorkoutSegment.from_dict(s) for s in d["segments"]],
                    None if interval is None else float(interval),
-                   None if round_size is None else int(round_size))
+                   None if round_size is None else int(round_size),
+                   None if aliases is None else list(aliases))
 
     def to_json(self) -> str:
         """JSON as BarPathKit's JSONEncoder writes it (nil optionals left out)."""

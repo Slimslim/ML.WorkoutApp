@@ -108,13 +108,19 @@ enum WorkoutViewed {
 /// "Last workout: Helen · 12:47 ›" row shown on Live while the lifting content is newer.
 struct LastWorkoutRow: View {
     let result: WorkoutResult
+    @ObservedObject private var library = WorkoutLibraryStore.shared
+
+    /// The library's current name for this workout (a renamed row keeps old results linked).
+    private var name: String {
+        return WorkoutResultCard.resolve(result, library: library.workouts).definition.name
+    }
 
     var body: some View {
         NavigationLink(value: WorkoutRoute(id: result.id)) {
             HStack(spacing: 10) {
                 Image(systemName: "figure.run")
                     .foregroundStyle(Theme.accent)
-                Text("Last workout: \(result.definition.name) \u{00B7} \(SummaryFormat.clock(result.totalSeconds))")
+                Text("Last workout: \(name) \u{00B7} \(SummaryFormat.clock(result.totalSeconds))")
                     .font(.subheadline.weight(.semibold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)

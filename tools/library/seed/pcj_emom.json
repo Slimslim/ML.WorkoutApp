@@ -120,6 +120,9 @@
     ],
     "timeCapSeconds": 480.0,
     "intervalSeconds": 60.0,
-    "roundSize": 2
+    "roundSize": 2,
+    "aliases": [
+      "wod.pcjEmom"
+    ]
   }
 }

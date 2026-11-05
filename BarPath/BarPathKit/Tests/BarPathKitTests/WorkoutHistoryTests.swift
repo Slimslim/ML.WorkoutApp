@@ -117,4 +117,67 @@ final class WorkoutHistoryTests: XCTestCase {
         XCTAssertEqual(freedom.segments.prefix(2).map { WorkoutCard.segmentLine($0).full },
                        ["40 Cal Row", "7 Power Cleans @155 lb"])
     }
+
+    /// The real case: the result was recorded as wod.freedom "Freedom"; the library row was renamed
+    /// "For Time" (Freedom was only the RX level label) and lists wod.freedom as an alias.
+    func testAliasLinksResultAfterLibraryRename() throws {
+        let lib: WorkoutDefinition = try libraryDefinition("lib.pitfire.20261102.freedom")
+        XCTAssertEqual(lib.name, "For Time")
+        XCTAssertEqual(lib.aliases ?? [], ["wod.freedom"])
+        var old: WorkoutDefinition = renamed(lib, "wod.freedom")
+        old.name = "Freedom"
+        old.shortName = "Freedom"
+        old.aliases = nil
+        XCTAssertTrue(WorkoutHistory.hasAlias(lib, "wod.freedom"))
+        XCTAssertFalse(WorkoutHistory.hasAlias(old, lib.id))
+        XCTAssertTrue(WorkoutHistory.isSameWorkout(lib, old))
+        XCTAssertTrue(WorkoutHistory.isSameWorkout(old, lib))
+        // Without the alias the rename breaks the name + movements rule.
+        var plain: WorkoutDefinition = lib
+        plain.aliases = nil
+        XCTAssertFalse(WorkoutHistory.isSameWorkout(plain, old))
+        guard let helenDef = WorkoutLibrary.definition(id: "wod.helen") else {
+            throw XCTSkip("no Helen")
+        }
+        let a: WorkoutResult = result(old, day: 2)
+        let helen: WorkoutResult = result(helenDef, day: 5)
+        XCTAssertEqual(WorkoutHistory.results(of: lib, in: [a, helen]).map { $0.id }, [a.id])
+        XCTAssertEqual(WorkoutHistory.latest(of: lib, in: [helen, a])?.id, a.id)
+    }
+
+    func testAliasOnEitherSideAndOnlyForListedIds() throws {
+        let lib: WorkoutDefinition = try libraryDefinition("lib.pitfire.20261102.pcj-emom")
+        var old: WorkoutDefinition = renamed(lib, "wod.pcjEmom")
+        old.name = "PCJ EMOM (old)"
+        old.aliases = nil
+        XCTAssertTrue(WorkoutHistory.isSameWorkout(lib, old))
+        XCTAssertTrue(WorkoutHistory.isSameWorkout(old, lib))
+        var newer: WorkoutDefinition = renamed(lib, "lib.pitfire.20261109.pcj-emom")
+        newer.name = "Something else"
+        newer.aliases = nil
+        var back: WorkoutDefinition = lib
+        back.aliases = ["lib.pitfire.20261109.pcj-emom"]
+        XCTAssertTrue(WorkoutHistory.isSameWorkout(newer, back))
+        XCTAssertTrue(WorkoutHistory.isSameWorkout(back, newer))
+        var stranger: WorkoutDefinition = renamed(lib, "wod.other")
+        stranger.name = "Other"
+        stranger.aliases = nil
+        XCTAssertFalse(WorkoutHistory.isSameWorkout(lib, stranger))
+    }
+
+    func testAliasesAreOptionalInJSON() throws {
+        guard let helen = WorkoutLibrary.definition(id: "wod.helen") else {
+            throw XCTSkip("no Helen")
+        }
+        let plainData: Data = try JSONEncoder().encode(helen)
+        let plainText: String = String(data: plainData, encoding: .utf8) ?? ""
+        XCTAssertFalse(plainText.contains("aliases"))
+        XCTAssertNil(try JSONDecoder().decode(WorkoutDefinition.self, from: plainData).aliases)
+        var withAlias: WorkoutDefinition = helen
+        withAlias.aliases = ["wod.oldHelen"]
+        let data: Data = try JSONEncoder().encode(withAlias)
+        let back: WorkoutDefinition = try JSONDecoder().decode(WorkoutDefinition.self, from: data)
+        XCTAssertEqual(back, withAlias)
+        XCTAssertEqual(back.aliases ?? [], ["wod.oldHelen"])
+    }
 }

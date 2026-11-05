@@ -5,8 +5,10 @@ import Foundation
 ///
 /// The same workout can reach the phone under more than one id: a built-in on a branch that was
 /// never merged ("wod.freedom") and the library row of the same day ("lib.pitfire.20261102.freedom").
-/// Two definitions are the same workout when their ids are equal, or when their names match once
-/// normalized AND their segments have the same kinds and movements in the same order. Targets and
+/// Two definitions are the same workout when their ids are equal, when one lists the other's id in
+/// its `aliases` (a library row renamed after results were saved: "For Time" keeps
+/// "wod.freedom" as an alias), or when their names match once normalized AND their segments have
+/// the same kinds and movements in the same order. Targets and
 /// loads are left out on purpose: a load typed differently (85 kg vs 155 lb) is still the workout.
 ///
 /// Port of tools/barpath/workout_history.py.
@@ -39,9 +41,19 @@ public enum WorkoutHistory {
         return d.segments.map { (s: WorkoutSegment) -> String in s.kind.rawValue + ":" + s.movement }
     }
 
-    /// Same id, or same normalized (non-empty) name and the same segment kinds and movements.
+    /// True when `d` lists `id` as one of its older ids.
+    public static func hasAlias(_ d: WorkoutDefinition, _ id: String) -> Bool {
+        guard let aliases = d.aliases else { return false }
+        return aliases.contains(id)
+    }
+
+    /// Same id, one's id among the other's aliases (either way), or same normalized (non-empty)
+    /// name and the same segment kinds and movements.
     public static func isSameWorkout(_ a: WorkoutDefinition, _ b: WorkoutDefinition) -> Bool {
         if a.id == b.id {
+            return true
+        }
+        if hasAlias(a, b.id) || hasAlias(b, a.id) {
             return true
         }
         // Cheap check first: Choose compares every definition with every result.

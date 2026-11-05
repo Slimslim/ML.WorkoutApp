@@ -384,8 +384,8 @@ struct WorkoutCardView: View {
 }
 
 /// Last score of each workout for the Choose rows, written like the score line ("19:37", "7 rds",
-/// "7 + 12", "8 sets"). The newest result of the same workout (WorkoutHistory: same id, or same
-/// name and movements, so a result saved as "wod.freedom" counts for the library's Freedom).
+/// "7 + 12", "8 sets"). The newest result of the same workout (WorkoutHistory: same id, an alias,
+/// or same name and movements, so a result saved as "wod.freedom" counts for PitFIRE's "For Time").
 enum WorkoutLastScore {
     /// Keyed by definition id.
     static func byDefinition(_ definitions: [WorkoutDefinition], results: [WorkoutResult]) -> [String: String] {
@@ -427,13 +427,19 @@ enum WorkoutLastScore {
 }
 
 /// The card of a logged workout: the definition to draw it from and its program. A result keeps
-/// the definition it was recorded with; when the library has the same workout (same id, or, for an
-/// id that is no built-in any more such as "wod.freedom", the same name and movements) the
-/// library's current version and program are used.
+/// the definition it was recorded with; when the library has the same workout (same id, a library
+/// row that lists the result's id in its aliases — "wod.freedom" for PitFIRE's "For Time" — or, for
+/// an id that is no built-in any more, the same name and movements) the library's current version,
+/// name and program are used.
 enum WorkoutResultCard {
     static func resolve(_ result: WorkoutResult, library: [LibraryWorkout]) -> (definition: WorkoutDefinition, program: String?) {
         let id: String = result.definition.id
         if let w = library.first(where: { (w: LibraryWorkout) -> Bool in w.id == id }) {
+            return (w.definition, WorkoutResultCard.clean(w.program))
+        }
+        // An alias is written on purpose, so it counts even for an id a built-in still uses.
+        if let w = library.first(where: { (w: LibraryWorkout) -> Bool in
+            WorkoutHistory.hasAlias(w.definition, id) }) {
             return (w.definition, WorkoutResultCard.clean(w.program))
         }
         if WorkoutLibrary.definition(id: id) == nil,

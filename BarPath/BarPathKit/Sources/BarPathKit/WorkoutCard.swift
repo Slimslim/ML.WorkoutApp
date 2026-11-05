@@ -6,6 +6,7 @@ import Foundation
 ///     block tag · type tag (top-right; the app adds date · program top-left)
 ///     name, or the format as the name
 ///     time-domain line   "40 min AMRAP · rest 1 min between rounds", "Every 1:00 × 8", "3 rounds"
+///                        (identical rounds only; a rep-scheme for-time workout has none)
 ///     rep-scheme line    "40-30-20-30-40 Cal", "8 × (1000 m Run + station)"
 ///     movement lines     "qty unit movement @load", one round only
 ///     cap line           "20 min cap" (for-time caps only)
@@ -161,7 +162,10 @@ public struct WorkoutCard: Equatable {
         case .emom:
             return .emom
         case .forTime:
-            if (shape.kind == .identical || shape.kind == .scheme) && shape.rounds >= 2 {
+            // Identical repeated rounds (Helen) are rounds for time. Rounds that differ only by a
+            // varying rep scheme (40-30-20-30-40 Cal Row + 7 Power Cleans) read as one for-time
+            // piece: the scheme line says it all, so no "N rounds" line.
+            if shape.kind == .identical && shape.rounds >= 2 {
                 return .rft
             }
             return .chipper

@@ -4,8 +4,8 @@
   "published": true,
   "definition": {
     "id": "lib.pitfire.20261102.freedom",
-    "name": "Freedom",
-    "shortName": "Freedom",
+    "name": "For Time",
+    "shortName": "For Time",
     "format": "forTime",
     "team": "solo",
     "healthKitActivity": "crossTraining",
@@ -127,6 +127,9 @@
       }
     ],
     "timeCapSeconds": 1200.0,
-    "roundSize": 2
+    "roundSize": 2,
+    "aliases": [
+      "wod.freedom"
+    ]
   }
 }

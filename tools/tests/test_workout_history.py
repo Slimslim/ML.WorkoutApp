@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 
 from barpath.workout import SegmentLoad, WorkoutDefinition, WorkoutLibrary, WorkoutResult
 from barpath.workout_card import SEED, movement_line
-from barpath.workout_history import (is_same_workout, latest_of, movement_sequence, normalized_name,
+from barpath.workout_history import (has_alias, is_same_workout, latest_of, movement_sequence, normalized_name,
                                      results_of)
 
 
@@ -97,3 +97,45 @@ def test_segment_lines_quantity_first():
     assert [movement_line(s).full for s in helen.segments[:3]] == ["400 m Run", "21 KB Swings", "12 Pull-ups"]
     freedom = seed("freedom")
     assert [movement_line(s).full for s in freedom.segments[:2]] == ["40 Cal Row", "7 Power Cleans @155 lb"]
+
+
+def test_alias_links_a_result_after_the_library_rename():
+    """The real case: the result was recorded as wod.freedom "Freedom"; the library row was renamed
+    "For Time" (Freedom was only the RX level label) and lists wod.freedom as an alias."""
+    lib = seed("freedom")
+    assert (lib.name, lib.aliases) == ("For Time", ["wod.freedom"])
+    old = renamed(lib, "wod.freedom")
+    old.name = "Freedom"
+    old.short_name = "Freedom"
+    old.aliases = None
+    assert has_alias(lib, "wod.freedom") and not has_alias(old, lib.id)
+    assert is_same_workout(lib, old)
+    assert is_same_workout(old, lib)
+    # Without the alias the rename breaks the name + movements rule.
+    plain = copy.deepcopy(lib)
+    plain.aliases = None
+    assert not is_same_workout(plain, old)
+    # Results and the "last" score follow the alias.
+    a = result(old, 2)
+    helen = result(WorkoutLibrary.definition("wod.helen"), 5)
+    assert [r.id for r in results_of(lib, [a, helen])] == [a.id]
+    assert latest_of(lib, [helen, a]).id == a.id
+
+
+def test_alias_on_either_side_and_only_for_listed_ids():
+    lib = seed("pcj_emom")
+    old = renamed(lib, "wod.pcjEmom")
+    old.name = "PCJ EMOM (old)"
+    old.aliases = None
+    assert is_same_workout(lib, old) and is_same_workout(old, lib)
+    # Reverse: the result lists the library id (a row moved to a new id later).
+    newer = renamed(lib, "lib.pitfire.20261109.pcj-emom")
+    newer.name = "Something else"
+    newer.aliases = None
+    back = copy.deepcopy(lib)
+    back.aliases = ["lib.pitfire.20261109.pcj-emom"]
+    assert is_same_workout(newer, back) and is_same_workout(back, newer)
+    stranger = renamed(lib, "wod.other")
+    stranger.name = "Other"
+    stranger.aliases = None
+    assert not is_same_workout(lib, stranger)

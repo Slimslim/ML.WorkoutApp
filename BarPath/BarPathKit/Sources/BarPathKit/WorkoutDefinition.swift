@@ -181,13 +181,18 @@ public struct WorkoutDefinition: Codable, Equatable, Identifiable {
     /// partial (Row + Thrusters has no rest after set 6). Optional in JSON (older files: nil,
     /// and WorkoutSummary detects the pattern).
     public var roundSize: Int?
+    /// Older ids of the same workout (a library row renamed after results were saved under a
+    /// built-in or earlier id, e.g. "wod.freedom"). WorkoutHistory links results saved under any
+    /// of them. Optional in JSON, left out when nil.
+    public var aliases: [String]?
 
     public init(id: String, name: String, shortName: String, format: WorkoutFormat,
                 team: TeamFormat, timeCapSeconds: Double?, healthKitActivity: String,
                 segments: [WorkoutSegment], intervalSeconds: Double? = nil,
-                roundSize: Int? = nil) {
+                roundSize: Int? = nil, aliases: [String]? = nil) {
         self.intervalSeconds = intervalSeconds
         self.roundSize = roundSize
+        self.aliases = aliases
         self.id = id
         self.name = name
         self.shortName = shortName

@@ -2555,8 +2555,8 @@
   {
    "definition": {
     "id": "lib.pitfire.20261102.freedom",
-    "name": "Freedom",
-    "shortName": "Freedom",
+    "name": "For Time",
+    "shortName": "For Time",
     "format": "forTime",
     "team": "solo",
     "healthKitActivity": "crossTraining",
@@ -2678,14 +2678,17 @@
      }
     ],
     "timeCapSeconds": 1200.0,
-    "roundSize": 2
+    "roundSize": 2,
+    "aliases": [
+     "wod.freedom"
+    ]
    },
    "card": {
-    "name": "Freedom",
-    "nameIsFormat": false,
-    "typeTag": "RFT",
+    "name": "For Time",
+    "nameIsFormat": true,
+    "typeTag": "Chipper",
     "blockTag": "Metcon",
-    "timeDomainLine": "5 rounds",
+    "timeDomainLine": null,
     "repSchemeLine": "40-30-20-30-40 Cal",
     "lines": [
      {
@@ -2822,7 +2825,10 @@
     ],
     "timeCapSeconds": 480.0,
     "intervalSeconds": 60.0,
-    "roundSize": 2
+    "roundSize": 2,
+    "aliases": [
+     "wod.pcjEmom"
+    ]
    },
    "card": {
     "name": "Power C&J",
