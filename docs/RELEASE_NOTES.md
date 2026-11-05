@@ -2,6 +2,11 @@
 
 Newest first. Paste the latest entry into "What to Test" for the build in App Store Connect.
 
+## Build 13
+
+- Results corrected in the cloud now open on the phone.
+- A free workout keeps the name it was given.
+
 ## Build 12
 
 - Pull down on Log to bring in results corrected in the cloud.
