@@ -116,7 +116,7 @@ public struct WorkoutCard: Equatable {
 
     public static func make(definition d: WorkoutDefinition) -> WorkoutCard {
         if d.id == freeWorkoutId {
-            return WorkoutCard(name: "Free Workout", nameIsFormat: false, typeTag: nil, blockTag: nil,
+            return WorkoutCard(name: d.name, nameIsFormat: false, typeTag: nil, blockTag: nil,
                                timeDomainLine: nil, repSchemeLine: nil,
                                lines: [Line(text: freeLine, load: nil)], capLine: nil,
                                summaryLine: freeLine)

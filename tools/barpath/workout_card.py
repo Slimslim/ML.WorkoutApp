@@ -167,7 +167,7 @@ class WorkoutCard:
     @classmethod
     def make(cls, d: WorkoutDefinition) -> "WorkoutCard":
         if d.id == FREE_WORKOUT_ID:
-            return cls("Free Workout", False, None, None, None, None, [CardLine(FREE_LINE)], None, FREE_LINE)
+            return cls(d.name, False, None, None, None, None, [CardLine(FREE_LINE)], None, FREE_LINE)
 
         shape = _Shape.detect(d)
         type_tag = _type_tag(d, shape)
