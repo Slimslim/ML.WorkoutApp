@@ -12,7 +12,8 @@ public enum WorkoutCloudCorrection {
         guard local.id == cloud.id else { return false }
         guard let cloudEdited = cloud.editedAt else { return false }
         guard let localEdited = local.editedAt else { return true }
-        return cloudEdited > localEdited
+        // Files keep milliseconds: an upload of the phone's own edit can come back rounded.
+        return cloudEdited.timeIntervalSince(localEdited) > 0.001
     }
 
     /// The result id of a cloud file name "<UUID>.json"; nil for "<UUID>.original.json" and

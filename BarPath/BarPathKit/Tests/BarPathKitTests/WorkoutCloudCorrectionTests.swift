@@ -40,6 +40,17 @@ final class WorkoutCloudCorrectionTests: XCTestCase {
                                                             with: result(id: id, editedAt: t1)))
     }
 
+    /// The phone's own upload comes back with editedAt rounded to milliseconds.
+    func testOwnUploadRoundedToMillisecondsIsNotTakenAgain() {
+        let precise: Date = Date(timeIntervalSince1970: 1_793_850_000.123_456_7)
+        let rounded: Date = Date(timeIntervalSince1970: 1_793_850_000.124)
+        XCTAssertFalse(WorkoutCloudCorrection.shouldReplace(local: result(id: id, editedAt: precise),
+                                                            with: result(id: id, editedAt: rounded)))
+        let later: Date = Date(timeIntervalSince1970: 1_793_850_000.200)
+        XCTAssertTrue(WorkoutCloudCorrection.shouldReplace(local: result(id: id, editedAt: precise),
+                                                           with: result(id: id, editedAt: later)))
+    }
+
     func testUneditedCloudCopyIsIgnored() {
         XCTAssertFalse(WorkoutCloudCorrection.shouldReplace(local: result(id: id, editedAt: nil),
                                                             with: result(id: id, editedAt: nil)))

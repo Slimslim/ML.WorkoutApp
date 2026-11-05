@@ -402,8 +402,11 @@ folder. For each `<id>.json` whose cloud date changed since the last check and w
 the phone, it downloads the file and replaces the phone's copy when
 `WorkoutCloudCorrection.shouldReplace` says so: the cloud copy has an `editedAt` and the phone's
 copy has none or an earlier one. The phone's copy is kept as `<id>.original.json` (Restore
-original), the store reloads, and the written file is marked as uploaded so it is not sent back.
-Results deleted on the phone are not brought back. Keys this build does not know (e.g. `rx`) are
+original), the store reloads, and the written files are marked as uploaded so they are not sent
+back (a `.original.json` created this way does not overwrite the cloud's watch copy). A result
+with a phone change not yet uploaded (or uploading) is skipped until that upload is done: the
+phone's change wins. A cloud file that does not decode is reported once and skipped until it
+changes. Results deleted on the phone are not brought back. Keys this build does not know (e.g. `rx`) are
 dropped from the phone's copy when it is written; the cloud copy keeps them.
 
 ## 5b. For-time caps: keep going past the cap (added 2026-11-03, W7)

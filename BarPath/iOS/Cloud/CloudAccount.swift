@@ -135,6 +135,10 @@ final class CloudAccount: ObservableObject {
     /// is suspended; `uploadFinished` records each one. Also retries rows that could not be written.
     private func sync() async {
         guard let client, let userId else { return }
+        if isQueueing {
+            syncAgain = true
+            return
+        }
         isQueueing = true
         defer { isQueueing = false }
         repeat {
@@ -178,65 +182,109 @@ final class CloudAccount: ObservableObject {
     /// Pull to refresh in the Log: one sync now (downloads corrections, queues uploads).
     func refreshNow() async {
         guard client != nil, isSignedIn else { return }
-        if isQueueing {
-            syncAgain = true
-            return
-        }
         await sync()
     }
 
     // MARK: - Corrections from the cloud (story W17)
 
+    /// Prefix of the errors set by `downloadCorrections` (cleared at its next run).
+    private static let correctionErrorPrefix = "Corrected workouts: "
+
     /// Replaces a workout result on the phone with the copy in the user's Storage folder when
     /// that copy is a later correction (`WorkoutCloudCorrection.shouldReplace`). The phone's
-    /// previous copy is kept as <id>.original.json (Restore original), and the written file is
-    /// marked as uploaded so it is not sent back. Only results already on the phone are
-    /// considered; files whose cloud date has not changed since the last check are skipped.
+    /// previous copy is kept as <id>.original.json (Restore original), and the written files are
+    /// marked as uploaded so they are not sent back. Only results already on the phone and with
+    /// nothing waiting to upload are considered (a phone change not yet in the cloud always
+    /// wins); files whose cloud date has not changed since the last check are skipped.
     private func downloadCorrections(userId: UUID) async {
         guard let client else { return }
+        if let error = lastError, error.hasPrefix(CloudAccount.correctionErrorPrefix) {
+            lastError = nil
+        }
         let folder: String = userId.uuidString.lowercased() + "/" + WorkoutFiles.workoutsURL.lastPathComponent
-        let objects: [FileObject]
+        let bucket = client.storage.from(CloudConfig.bucket)
+        var objects: [FileObject] = []
+        let pageSize: Int = 500
         do {
-            objects = try await client.storage.from(CloudConfig.bucket)
-                .list(path: folder, options: SearchOptions(limit: 1000))
+            while true {
+                let page: [FileObject] = try await bucket.list(
+                    path: folder, options: SearchOptions(limit: pageSize, offset: objects.count))
+                objects += page
+                if page.count < pageSize { break }
+            }
         } catch {
-            lastError = "Could not check for corrected workouts: \(error.localizedDescription)"
+            lastError = CloudAccount.correctionErrorPrefix + "could not check: \(error.localizedDescription)"
             return
         }
-        var seen: [String: String] = DownloadManifest.load(userId: userId)
         let store: WorkoutStore = WorkoutStore.shared
         store.loadIfNeeded()
+        let uploaded: [String: String] = UploadManifest.load(userId: userId)
+        let busy = Set(await BackgroundUploads.shared.inFlight()
+            .filter { $0.userId == userId }
+            .map { $0.path })
+        var seen: [String: String] = DownloadManifest.load(userId: userId)
         for object in objects {
             guard let id = WorkoutCloudCorrection.resultId(fileName: object.name),
-                  let local = store.result(id: id) else { continue }
+                  store.result(id: id) != nil else { continue }
+            let url: URL = WorkoutFiles.fileURL(id: id)
+            // A phone change not yet uploaded (or uploading) wins: check again after it is sent.
+            guard let path = CloudAccount.relativePath(url), !busy.contains(path),
+                  let version = CloudAccount.localVersion(url), uploaded[path] == version else { continue }
             let stamp: String = object.updatedAt.map { String($0.timeIntervalSince1970) } ?? ""
             if !stamp.isEmpty && seen[object.name] == stamp { continue }
+            let cloud: WorkoutResult
             do {
-                let data: Data = try await client.storage.from(CloudConfig.bucket)
-                    .download(path: folder + "/" + object.name)
-                let cloud: WorkoutResult = try WorkoutResult.decode(from: data)
-                if WorkoutCloudCorrection.shouldReplace(local: local, with: cloud), store.saveEdited(cloud) {
-                    markUploaded(url: WorkoutFiles.fileURL(id: id), userId: userId)
-                }
+                let data: Data = try await bucket.download(path: folder + "/" + object.name)
+                cloud = try WorkoutResult.decode(from: data)
+            } catch is DecodingError {
+                // Not a result this build can read: don't download it again until it changes.
                 seen[object.name] = stamp
+                lastError = CloudAccount.correctionErrorPrefix + "\(object.name) is not readable"
+                continue
             } catch {
-                lastError = "Could not read corrected workout \(object.name): \(error.localizedDescription)"
+                lastError = CloudAccount.correctionErrorPrefix + "\(object.name): \(error.localizedDescription)"
+                continue
             }
+            // Read the phone's copy again: it may have been edited during the download.
+            guard let local = store.result(id: id) else { continue }
+            if WorkoutCloudCorrection.shouldReplace(local: local, with: cloud) {
+                let hadOriginal: Bool = WorkoutFiles.hasOriginal(id: id)
+                guard store.saveEdited(cloud) else { continue }   // retried at the next sync
+                markUploaded(url: url, userId: userId)
+                if !hadOriginal {
+                    // Keep the cloud's <id>.original.json (the watch copy) as it is.
+                    markUploaded(url: WorkoutFiles.originalURL(id: id), userId: userId)
+                }
+            }
+            seen[object.name] = stamp
         }
         DownloadManifest.save(seen, userId: userId)
     }
 
-    /// Records a file just written from the cloud as already uploaded (same version string as
-    /// `LocalFile.version`), so the next sync does not send it back.
-    private func markUploaded(url: URL, userId: UUID) {
+    /// Path relative to Documents ("Workouts/<id>.json"), as `LocalFile.path`.
+    private static func relativePath(_ url: URL) -> String? {
         let documents = LiftFiles.documentsURL.standardizedFileURL.path
         let full = url.standardizedFileURL.path
-        guard full.hasPrefix(documents + "/"),
-              let values = try? url.resourceValues(forKeys: [.contentModificationDateKey, .fileSizeKey]) else { return }
-        let relative = String(full.dropFirst(documents.count + 1))
-        let version = "\(Int64(values.fileSize ?? 0))-\(Int((values.contentModificationDate ?? Date()).timeIntervalSince1970))"
+        guard full.hasPrefix(documents + "/") else { return nil }
+        return String(full.dropFirst(documents.count + 1))
+    }
+
+    /// The file's current version string, as `LocalFile.version`; nil when it does not exist.
+    private static func localVersion(_ url: URL) -> String? {
+        var fresh: URL = url
+        fresh.removeAllCachedResourceValues()   // the file may have just been rewritten
+        guard let values = try? fresh.resourceValues(forKeys: [.contentModificationDateKey, .fileSizeKey]) else {
+            return nil
+        }
+        return "\(Int64(values.fileSize ?? 0))-\(Int((values.contentModificationDate ?? Date()).timeIntervalSince1970))"
+    }
+
+    /// Records a file just written from the cloud as already uploaded, so the next sync does not
+    /// send it back.
+    private func markUploaded(url: URL, userId: UUID) {
+        guard let path = CloudAccount.relativePath(url), let version = CloudAccount.localVersion(url) else { return }
         var manifest = UploadManifest.load(userId: userId)
-        manifest[relative] = version
+        manifest[path] = version
         UploadManifest.save(manifest, userId: userId)
     }
 
