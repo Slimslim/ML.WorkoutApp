@@ -286,6 +286,35 @@ As an athlete, I want to fix the weights or reps of a finished workout.
 reps and Rx / Scaled, and save; the original stays restorable (like Fix splits); the report, Log and
 the "last" score use the corrected values.
 
+### Corrections from the cloud
+
+**W17. A recording corrected in the cloud shows on my phone (Now)**
+As an athlete whose recording was corrected outside the app (by Claude reading my uploaded watch
+data, or by me in the dashboard), I want the phone to pick up the corrected version, so the report,
+Log and history show what I really did and not what the watch guessed.
+*Done when:* after the result file in my cloud folder is replaced by a version with a later
+`editedAt` than the phone's copy, opening the app (or pulling down in the Log) replaces the phone's
+copy within 10 s; the report shows the corrected parts, reps, loads and heart rate; Restore original
+brings back the phone's previous copy; a phone copy edited later than the cloud copy is never
+overwritten; offline, the phone copy stays as it was. The download goes in the same sync that
+uploads, and a downloaded file is not uploaded back.
+
+**W18. See a partitioned workout round by round (Now)**
+As an athlete who splits a chipper into small rounds (e.g. 50 pull-ups + 100 push-ups done as
+25 × 2 + 4), I want the recording to show each round with its reps, the time on each movement, the
+rest and my heart rate, so I can see where I slowed down and how long each movement really took.
+*Done when:* a result whose own parts are rounds (the recording carries its parts; the planned
+workout in the library stays as written) shows in the report as Round 1…N, each with time per
+movement, rest and average / max heart rate, plus a total per movement (time and reps); the done
+card and score use the recording's parts, not the library version of the workout.
+
+**W19. Rx / Scaled saved with the result (Now)**
+As an athlete, I want whether I did a workout Rx or Scaled stored with the result, so my history
+and the "last" score compare like with like.
+*Done when:* a result with `rx: true` (set by a cloud correction or by W16's Edit) shows the Rx
+badge on its done card, report and in "Your results" (W13); `rx: false` shows Scaled; no value
+shows the dashed `?` as today; older results without the key still open unchanged.
+
 ## Navigation and layout
 
 *Owned by the Navigation UI/UX chat. Add stories here with the `N` prefix.*
