@@ -113,7 +113,9 @@ def validate(d: dict) -> List[str]:
 def switches(d: dict) -> List[dict]:
     """Real changes of movement: {t, from, to} at the start of every working segment whose
     movement differs from the previous working one (rest and transition in between are skipped,
-    so wall balls -> rest -> run is one switch, at the run's start)."""
+    so wall balls -> rest -> run is one switch, at the run's start). When the segment has labelled
+    sets, the switch is the first set's start: the first rep, not the Crown tap before the walk
+    to the ball."""
     out: List[dict] = []
     prev: Optional[str] = None
     for s in d.get("segments", []):
@@ -121,7 +123,8 @@ def switches(d: dict) -> List[dict]:
         if mv in NON_WORK:
             continue
         if prev is not None and mv != prev:
-            out.append({"t": float(s["start"]), "from": prev, "to": mv})
+            t = s["sets"][0]["start"] if s.get("sets") else s["start"]
+            out.append({"t": float(t), "from": prev, "to": mv})
         prev = mv
     return out
 

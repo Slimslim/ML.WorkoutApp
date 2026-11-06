@@ -89,3 +89,58 @@ slow pull), and 1 rep in a 4 s false start.
 
 A detector that changes movement by itself has to beat the Crown on the AMRAP and find the 50
 pull-up ↔ push-up switches the Crown never had.
+
+## Phases
+
+1. **Switches (now)**: plan-aware. The watch knows the plan, so it only decides "current movement,
+   rest, or the next planned movement?" (`tools/barpath/switches.py`).
+2. **Which movement**: recognise the movement without a plan (Free Workout).
+3. **Reps**: count reps inside a movement (deadlift already has `barpath.reps`).
+
+## Eval
+
+`python3 tools/score_labels.py --record` scores every detector on every labelled session and
+appends one line to `data/eval/history.jsonl` (date, commit, match window, every score). Rules:
+
+- **Score every new version and record it** before deciding it is better. Better = more switches
+  found **and** fewer false switches, on the same sessions, at the same window (3 s).
+- **Freeze settings, then test on new sessions.** v0 was tuned on the AMRAP 20 and the November
+  challenge, so its scores there are optimistic. Every session labelled after a version is frozen
+  is a real test of that version; say which sessions a version was tuned on.
+- **Compare like with like.** v0 starts after round 1, so it is compared with the Crown and onset
+  on the part after round 1 ("after round 1" rows).
+- The real switch is the first rep (the first labelled set's start), not the Crown tap.
+
+### switch-v0 baseline (2026-11-06, tuned on these two sessions)
+
+| Session, after round 1 | Crown taps | Crown + first rep (`work_onset`) | switch-v0 (no taps) |
+|---|---|---|---|
+| AMRAP 20 (15 switches) | 10 (5 false) | 12 (4 false) | 10 (6 false), median 1.2 s off |
+| November challenge (47 switches) | 0 (Crown tapped twice) | 0 | 27 (21 false), median 1.3 s off |
+
+v0 needs no taps after round 1 but is not yet as good as taps + `work_onset` where the athlete
+tapped. It loses track on short sets (6 s of pull-ups) and confuses bike / step-ups. Next: add the
+movement-specific signals from `transitions.py` (hang, overhead, cyclic rhythm) as features, and
+learn templates from past sessions of the same movement, not only from round 1.
+
+### switch-v1 (2026-11-06): + 6 movement signals
+
+Hang, overhead, throws, planted hand, rhythm strength, step rate (`Config(features="v1")`).
+Challenge label updated the same day: the push-ups start at the first planted-hand rep, not when the
+hands leave the bar (confirmed by the athlete, see below). That check is close to v1's planted-hand signal, so v1's challenge score
+is partly self-agreement.
+
+| Session, after round 1 | Crown + first rep | switch-v0 | switch-v1 |
+|---|---|---|---|
+| AMRAP 20 (15) | 12 (4 false) | 10 (6 false) | 9 (7 false) |
+| November challenge (47) | 0 | 37 (11 false) | 41 (7 false), median 0.5 s |
+
+Challenge label confirmed by the athlete the same day ("when I hold the bar I do pull-ups, when my
+hands hit the floor I do push-ups"; down on the knees, sometimes sitting, before the push-ups;
+standing rest and chalk after). Push-ups now end when the hands leave the floor; the rest after
+them is labelled. Rescored: v0 41/47 (7 false), **v1 46/47 (2 false), median 0.3 s**.
+
+Tried and reverted: relabelling the AMRAP bike starts with the `transitions` bike check (it put the
+first stroke 8-14 s after the Crown, too late to be true). Labels must not copy a detector.
+AMRAP misses: bike starts come 4-9 s after the Crown tap (unverified label), and one bike ->
+step-ups confusion fires 17 s early.
