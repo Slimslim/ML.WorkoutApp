@@ -1,0 +1,61 @@
+{
+ "version": 1,
+ "id": "2026-11-04-z-press",
+ "date": "2026-11-04",
+ "kind": "workout",
+ "name": "Z Press 3 x 8",
+ "format": "forTime",
+ "files": {
+  "csv": "Debug/session-8E0B09D1-028D-4394-BEBD-D3155B2EDE22.csv",
+  "result": "Workouts/8E0B09D1-028D-4394-BEBD-D3155B2EDE22.original.json"
+ },
+ "score": "3 x 8 @ 20 lb",
+ "notes": [
+  "Recorded as Free Workout; the athlete's Crown taps already matched set / rest / set / rest / set.",
+  "Load entered as one 20 lb weight (not confirmed whether it was one or two)."
+ ],
+ "segments": [
+  {
+   "movement": "zPress",
+   "start": 2.8,
+   "end": 24.5,
+   "reps": 8,
+   "unit": "reps",
+   "loadLb": 20,
+   "source": "motion",
+   "note": "forearm overhead (gravity x > 0.6)"
+  },
+  {
+   "movement": "rest",
+   "start": 24.5,
+   "end": 77.4,
+   "source": "motion"
+  },
+  {
+   "movement": "zPress",
+   "start": 77.4,
+   "end": 97.9,
+   "reps": 8,
+   "unit": "reps",
+   "loadLb": 20,
+   "source": "motion",
+   "note": "forearm overhead (gravity x > 0.6)"
+  },
+  {
+   "movement": "rest",
+   "start": 97.9,
+   "end": 153.1,
+   "source": "motion"
+  },
+  {
+   "movement": "zPress",
+   "start": 153.1,
+   "end": 172.9,
+   "reps": 8,
+   "unit": "reps",
+   "loadLb": 20,
+   "source": "motion",
+   "note": "forearm overhead (gravity x > 0.6)"
+  }
+ ]
+}

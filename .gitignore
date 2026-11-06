@@ -27,3 +27,6 @@ videos/
 *.MOV
 *.mp4
 *.MP4
+
+# Recordings downloaded for scoring (tools/fetch_sessions.py); never committed
+data/cache/
