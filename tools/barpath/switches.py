@@ -20,11 +20,13 @@ from typing import List, Optional, Sequence
 import numpy as np
 
 FS = 100.0
-VERSION = "switch-v0"
+VERSION = "switch-v0"      # kept for the eval history; detect(..., Config(features="v1")) is v1
+VERSION_V1 = "switch-v1"
 
 
 @dataclass
 class Config:
+    features: str = "v0"    # "v0": 12 general motion summaries; "v1": + 6 movement signals
     window: float = 3.0     # s of motion per summary
     hop: float = 0.5        # s between decisions
     k: int = 7              # neighbours
@@ -32,10 +34,18 @@ class Config:
     dwell: float = 0.5      # x round-1 duration of the current movement before a switch is allowed
 
 
-def window_features(motion, t_end: Sequence[float], window: float) -> List[Optional[np.ndarray]]:
+def window_features(motion, t_end: Sequence[float], window: float, extra: bool = False,
+                    steps=None) -> List[Optional[np.ndarray]]:
     """12 numbers per window ending at each t_end: gravity mean / SD (arm angle), |userAccel|
     mean / SD / p90 (effort), rotation mean / SD, dominant rhythm 0.25-4 Hz. None when the
-    window has under 0.5 s of samples."""
+    window has under 0.5 s of samples.
+
+    extra (v1) adds 6 movement signals (thresholds from barpath.transitions): time hanging
+    (gravity x > 0.8), time overhead (> 0.5), overhead rises per second (forearm from below -0.3
+    to above 0.5: a throw / press), time with the hand planted (0.5 s blocks with vertical accel
+    SD < 0.04 g and gravity x < -0.5: push-ups), rhythm strength (best autocorrelation of |accel|
+    at 0.5-4 s: bike, row) and step rate (steps/s from the watch pedometer; 0 without it).
+    steps: (times, cumulative steps) arrays, session seconds."""
     t = motion.t
     acc = np.linalg.norm(motion.user_accel, axis=1)
     rot = np.linalg.norm(motion.rotation_rate, axis=1)
@@ -52,12 +62,48 @@ def window_features(motion, t_end: Sequence[float], window: float) -> List[Optio
         freq = np.fft.rfftfreq(len(a), 1 / FS)
         band = (freq > 0.25) & (freq < 4)
         dom = freq[band][np.argmax(spec[band])] if band.any() else 0.0
-        out.append(np.r_[G.mean(0), G.std(0), a.mean(), a.std(), np.percentile(a, 90),
-                         rot[i0:i1].mean(), rot[i0:i1].std(), dom])
+        base = np.r_[G.mean(0), G.std(0), a.mean(), a.std(), np.percentile(a, 90),
+                     rot[i0:i1].mean(), rot[i0:i1].std(), dom]
+        if extra:
+            base = np.r_[base, movement_signals(motion, i0, i1, a, steps, te, window)]
+        out.append(base)
     return out
 
 
-def detect(motion, plan: Sequence[str], known: Sequence[dict], cfg: Config = Config()) -> List[float]:
+def movement_signals(motion, i0: int, i1: int, a: np.ndarray, steps, te: float, window: float) -> np.ndarray:
+    gx = motion.gravity[i0:i1, 0]
+    hang = float((gx > 0.8).mean())
+    overhead = float((gx > 0.5).mean())
+    rises, low = 0, False
+    for v in gx:
+        if v < -0.3:
+            low = True
+        elif v > 0.5 and low:
+            rises += 1
+            low = False
+    g = motion.gravity[i0:i1]
+    vert = (motion.user_accel[i0:i1] * g).sum(1)
+    blk = int(0.5 * FS)
+    nb = len(vert) // blk
+    planted = 0.0
+    if nb:
+        v = vert[: nb * blk].reshape(nb, blk).std(1)
+        x = gx[: nb * blk].reshape(nb, blk).mean(1)
+        planted = float(((v < 0.04) & (x < -0.5)).mean())
+    rhythm = 0.0
+    z = a - a.mean()
+    den = float((z * z).sum())
+    if den > 1e-9:
+        for lag in range(int(0.5 * FS), min(int(4 * FS), len(z) - 1), 5):
+            rhythm = max(rhythm, float((z[:-lag] * z[lag:]).sum()) / den)
+    rate = 0.0
+    if steps is not None and len(steps[0]) > 1:
+        st, sv = steps
+        rate = float(np.interp(te, st, sv) - np.interp(te - window, st, sv)) / window
+    return np.array([hang, overhead, rises / window, planted, rhythm, rate])
+
+
+def detect(motion, plan: Sequence[str], known: Sequence[dict], cfg: Config = Config(), steps=None) -> List[float]:
     """Switch times (session seconds) after the known part.
 
     plan   working movements in order, repeating (["airBike", "boxStepUps", "wallBalls"]).
@@ -68,7 +114,7 @@ def detect(motion, plan: Sequence[str], known: Sequence[dict], cfg: Config = Con
         return []
     known_end = max(s["end"] for s in known)
     t_end = np.arange(cfg.window, float(motion.t[-1]), cfg.hop)
-    feats = window_features(motion, t_end, cfg.window)
+    feats = window_features(motion, t_end, cfg.window, extra=cfg.features == "v1", steps=steps)
 
     def label_at(c: float) -> Optional[str]:
         for s in known:
@@ -86,6 +132,8 @@ def detect(motion, plan: Sequence[str], known: Sequence[dict], cfg: Config = Con
         return []
     mu = X[train].mean(0)
     sd = X[train].std(0) + 1e-6
+    if cfg.features == "v1":
+        sd = np.maximum(sd, 0.05)   # a signal that never moved in round 1 must not blow up on noise
     Xn = (X - mu) / sd
 
     work = [s for s in known if s["movement"] not in ("rest", "transition")]

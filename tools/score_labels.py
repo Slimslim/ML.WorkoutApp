@@ -11,7 +11,9 @@ Workout sessions, two questions:
 Detectors:
   crown      the athlete's own Crown taps from the watch result (the untouched copy).
   onset      crown taps moved to the first rep by barpath.transitions.work_onset.
-  switch-v0  barpath.switches (plan-aware, learns round 1). Only on labels with rounds, and only
+  switch-v0  barpath.switches (plan-aware, learns round 1).
+  switch-v1  the same with 6 movement signals added (hang, overhead, throws, planted hand,
+             rhythm, step rate). Only on labels with rounds, and only
              switches after round 1; crown and onset are also shown on that same part
              ("after round 1" rows) so the three compare like with like.
 --record appends this run's scores to data/eval/history.jsonl (commit, date, every number), so
@@ -96,7 +98,20 @@ def score_workout(d: dict, tol: float, records: list) -> list:
             sw, _ = predicted(name, motion, segs)
             add(name, "after-round-1", L.match(truth_after, [t for t in sw if t > after], tol), None)
         add(SW.VERSION, "after-round-1", L.match(truth_after, SW.detect(motion, plan, known), tol), None)
+        steps = pedometer(d)
+        add(SW.VERSION_V1, "after-round-1",
+            L.match(truth_after, SW.detect(motion, plan, known, SW.Config(features="v1"), steps=steps), tol), None)
     return rows
+
+
+def pedometer(d: dict):
+    """(times, cumulative steps) from the CSV's '# event name=pedometer' lines, session seconds."""
+    from barpath.recording import load_session_csv
+    ev = [e for e in load_session_csv(L.cache_path(d, "csv")).events
+          if e.get("name") == "pedometer" and "steps" in e]
+    if not ev:
+        return None
+    return [float(e["t"]) for e in ev], [float(e["steps"]) for e in ev]
 
 
 def median_abs(errors):

@@ -122,3 +122,21 @@ v0 needs no taps after round 1 but is not yet as good as taps + `work_onset` whe
 tapped. It loses track on short sets (6 s of pull-ups) and confuses bike / step-ups. Next: add the
 movement-specific signals from `transitions.py` (hang, overhead, cyclic rhythm) as features, and
 learn templates from past sessions of the same movement, not only from round 1.
+
+### switch-v1 (2026-11-06): + 6 movement signals
+
+Hang, overhead, throws, planted hand, rhythm strength, step rate (`Config(features="v1")`).
+Challenge label updated the same day: the push-ups start at the first planted-hand rep, not when the
+hands leave the bar (most of each round's rest is between the pull-ups and the push-ups; to be
+confirmed by the athlete). That check is close to v1's planted-hand signal, so v1's challenge score
+is partly self-agreement.
+
+| Session, after round 1 | Crown + first rep | switch-v0 | switch-v1 |
+|---|---|---|---|
+| AMRAP 20 (15) | 12 (4 false) | 10 (6 false) | 9 (7 false) |
+| November challenge (47) | 0 | 37 (11 false) | 41 (7 false), median 0.5 s |
+
+Tried and reverted: relabelling the AMRAP bike starts with the `transitions` bike check (it put the
+first stroke 8-14 s after the Crown, too late to be true). Labels must not copy a detector.
+AMRAP misses: bike starts come 4-9 s after the Crown tap (unverified label), and one bike ->
+step-ups confusion fires 17 s early.
