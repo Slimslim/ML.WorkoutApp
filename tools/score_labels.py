@@ -8,9 +8,14 @@ Workout sessions, two questions:
   switches  - does the detector put a "new movement" boundary where the athlete really changed
               movement (pull-ups -> push-ups, bike -> step-ups)?
   set ends  - does it put "set done" where a set really ended (including the 9 of 9 + 6)?
-Detectors scored today (baselines, to beat):
-  crown     the athlete's own Crown taps from the watch result (the untouched copy).
-  onset     crown taps moved to the first rep by barpath.transitions.work_onset.
+Detectors:
+  crown      the athlete's own Crown taps from the watch result (the untouched copy).
+  onset      crown taps moved to the first rep by barpath.transitions.work_onset.
+  switch-v0  barpath.switches (plan-aware, learns round 1). Only on labels with rounds, and only
+             switches after round 1; crown and onset are also shown on that same part
+             ("after round 1" rows) so the three compare like with like.
+--record appends this run's scores to data/eval/history.jsonl (commit, date, every number), so
+each new detector version can be compared with the previous ones (docs/LABELS.md, "Eval").
 Lifting sessions: barpath.reps.count_reps against the labelled reps of each set.
 
 Fetch the recordings first: tools/fetch_sessions.py. Labels without recordings are listed and
@@ -65,15 +70,37 @@ def fmt(m: dict) -> str:
     return f"{m['hits']}/{n} ({m['false']} false, {err})"
 
 
-def score_workout(d: dict, tol: float) -> list:
+def score_workout(d: dict, tol: float, records: list) -> list:
     motion, segs = crown_segments(d)
     truth_sw = [x["t"] for x in L.switches(d)]
     truth_end = L.set_ends(d)
     rows = []
+
+    def add(name, part, sw_m, end_m):
+        rows.append((d["id"], name if part == "all" else f"{name} (after round 1)", fmt(sw_m),
+                     fmt(end_m) if end_m else "-"))
+        records.append({"session": d["id"], "detector": name, "part": part,
+                        "switches": {k: v for k, v in sw_m.items() if k != "errors"},
+                        "switchErrorMedian": median_abs(sw_m["errors"]),
+                        "setEnds": None if end_m is None else {k: v for k, v in end_m.items() if k != "errors"}})
+
     for name in ("crown", "onset"):
         sw, ends = predicted(name, motion, segs)
-        rows.append((d["id"], name, fmt(L.match(truth_sw, sw, tol)), fmt(L.match(truth_end, ends, tol))))
+        add(name, "all", L.match(truth_sw, sw, tol), L.match(truth_end, ends, tol))
+    if any(s.get("round") for s in d["segments"]):
+        from barpath import switches as SW
+        plan, known = SW.round1(d)
+        after = max(s["end"] for s in known)
+        truth_after = [t for t in truth_sw if t > after]
+        for name in ("crown", "onset"):
+            sw, _ = predicted(name, motion, segs)
+            add(name, "after-round-1", L.match(truth_after, [t for t in sw if t > after], tol), None)
+        add(SW.VERSION, "after-round-1", L.match(truth_after, SW.detect(motion, plan, known), tol), None)
     return rows
+
+
+def median_abs(errors):
+    return round(statistics.median(abs(e) for e in errors), 2) if errors else None
 
 
 def score_lifts(d: dict) -> list:
@@ -100,8 +127,9 @@ def has_cache(d: dict) -> bool:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--tol", type=float, default=3.0, help="match window, seconds")
+    ap.add_argument("--record", action="store_true", help="append the scores to data/eval/history.jsonl")
     args = ap.parse_args()
-    work, lifts, missing = [], [], []
+    work, lifts, missing, records = [], [], [], []
     for p in L.all_label_files():
         d = L.load(p)
         errs = L.validate(d)
@@ -111,7 +139,7 @@ def main() -> int:
         if not has_cache(d):
             missing.append(d["id"])
         elif d["kind"] == "workout":
-            work += score_workout(d, args.tol)
+            work += score_workout(d, args.tol, records)
         else:
             lifts += score_lifts(d)
     if work:
@@ -127,10 +155,35 @@ def main() -> int:
         print("|---|---|---:|---:|---:|")
         for r in lifts:
             print("| " + " | ".join(str(c) for c in r) + " |")
+            records.append({"session": r[0], "detector": "count_reps", "set": r[1], "labelled": r[2], "counted": r[3]})
         print()
     if missing:
         print("Not scored (recordings not in data/cache, run tools/fetch_sessions.py): " + ", ".join(missing))
+    if args.record:
+        record(records, args.tol, missing)
     return 0
+
+
+def record(records: list, tol: float, missing: list) -> None:
+    """One line per run in data/eval/history.jsonl: when, which commit, the match window, the
+    labelled sessions that were scored (and the ones that were not), and every score."""
+    import datetime
+    import subprocess
+    out = L.REPO / "data" / "eval" / "history.jsonl"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=L.REPO, capture_output=True,
+                                text=True, check=True).stdout.strip()
+        dirty = bool(subprocess.run(["git", "status", "--porcelain", "--", "tools"], cwd=L.REPO,
+                                    capture_output=True, text=True).stdout.strip())
+    except (OSError, subprocess.CalledProcessError):
+        commit, dirty = "unknown", True
+    line = {"date": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "commit": commit + ("+changes" if dirty else ""), "tol": tol,
+            "sessions": sorted({r["session"] for r in records}), "notScored": missing, "scores": records}
+    with open(out, "a") as f:
+        f.write(json.dumps(line) + "\n")
+    print(f"Recorded in {out.relative_to(L.REPO)}")
 
 
 if __name__ == "__main__":

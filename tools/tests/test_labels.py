@@ -30,6 +30,12 @@ def test_switches_skip_rest_and_same_movement():
         (6.0, "pullUps", "pushUps"), (30.0, "pushUps", "pullUps"), (45.0, "pullUps", "run")]
 
 
+def test_switch_is_the_first_set_when_sets_are_labelled():
+    d = {"segments": [seg("boxStepUps", 0, 40), seg("wallBalls", 40, 90, reps=15,
+                      sets=[dict(start=48, end=65, reps=9), dict(start=73, end=84, reps=6)])]}
+    assert [x["t"] for x in L.switches(d)] == [48.0]
+
+
 def test_set_ends_use_sets_inside_a_station():
     d = {"segments": [seg("wallBalls", 0, 40, reps=15, sets=[dict(start=2, end=19, reps=9),
                                                               dict(start=27, end=38, reps=6)]),
