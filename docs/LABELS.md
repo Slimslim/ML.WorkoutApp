@@ -127,14 +127,18 @@ learn templates from past sessions of the same movement, not only from round 1.
 
 Hang, overhead, throws, planted hand, rhythm strength, step rate (`Config(features="v1")`).
 Challenge label updated the same day: the push-ups start at the first planted-hand rep, not when the
-hands leave the bar (most of each round's rest is between the pull-ups and the push-ups; to be
-confirmed by the athlete). That check is close to v1's planted-hand signal, so v1's challenge score
+hands leave the bar (confirmed by the athlete, see below). That check is close to v1's planted-hand signal, so v1's challenge score
 is partly self-agreement.
 
 | Session, after round 1 | Crown + first rep | switch-v0 | switch-v1 |
 |---|---|---|---|
 | AMRAP 20 (15) | 12 (4 false) | 10 (6 false) | 9 (7 false) |
 | November challenge (47) | 0 | 37 (11 false) | 41 (7 false), median 0.5 s |
+
+Challenge label confirmed by the athlete the same day ("when I hold the bar I do pull-ups, when my
+hands hit the floor I do push-ups"; down on the knees, sometimes sitting, before the push-ups;
+standing rest and chalk after). Push-ups now end when the hands leave the floor; the rest after
+them is labelled. Rescored: v0 41/47 (7 false), **v1 46/47 (2 false), median 0.3 s**.
 
 Tried and reverted: relabelling the AMRAP bike starts with the `transitions` bike check (it put the
 first stroke 8-14 s after the Crown, too late to be true). Labels must not copy a detector.
