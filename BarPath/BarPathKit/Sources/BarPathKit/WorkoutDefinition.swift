@@ -23,7 +23,7 @@ public struct SegmentTarget: Codable, Equatable {
     public var text: String {
         switch unit {
         case .meters:
-            return SegmentTarget.number(value) + " m"
+            return SegmentTarget.distance(value)
         case .reps:
             return SegmentTarget.number(value) + " reps"
         case .calories:
@@ -34,6 +34,19 @@ public struct SegmentTarget: Codable, Equatable {
             let secs: Int = total % 60
             return String(format: "%d:%02d", minutes, secs)
         }
+    }
+
+    /// "400 m", or "1 mile", "1.5 miles" for a whole quarter of a mile (distances are stored in
+    /// meters, so 1 mile is 1609 m; 400 m and 800 m stay in meters).
+    public static func distance(_ meters: Double) -> String {
+        let mile: Double = 1609.344
+        let quarters: Double = (meters / mile * 4).rounded()
+        if quarters >= 1, abs(meters - quarters * mile / 4) <= 1.5 {
+            let miles: Double = quarters / 4
+            let text: String = miles == miles.rounded() ? String(Int(miles)) : String(miles)
+            return text + (miles <= 1 ? " mile" : " miles")
+        }
+        return number(meters) + " m"
     }
 
     /// Number without a trailing ".0".

@@ -39,6 +39,12 @@ public enum WorkoutHistory {
         return d.segments.map { (s: WorkoutSegment) -> String in s.kind.rawValue + ":" + s.movement }
     }
 
+    /// Same segment kinds and movements in the same order, whatever the names. For workouts of
+    /// the same day: a program can rename the workout the watch ran.
+    public static func sameMovements(_ a: WorkoutDefinition, _ b: WorkoutDefinition) -> Bool {
+        return !a.segments.isEmpty && movementSequence(a) == movementSequence(b)
+    }
+
     /// Same id, or same normalized (non-empty) name and the same segment kinds and movements.
     public static func isSameWorkout(_ a: WorkoutDefinition, _ b: WorkoutDefinition) -> Bool {
         if a.id == b.id {

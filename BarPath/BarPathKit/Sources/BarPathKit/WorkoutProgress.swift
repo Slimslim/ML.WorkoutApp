@@ -1,6 +1,6 @@
 import Foundation
 
-public enum AdvanceSource: String, Codable { case crown, press, button, auto }
+public enum AdvanceSource: String, Codable { case crown, press, button, auto, edit }
 
 public enum WorkoutEventKind: String, Codable { case start, advance, undo, finish, unfinish, end }
 

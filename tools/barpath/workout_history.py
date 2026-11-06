@@ -37,6 +37,12 @@ def movement_sequence(d: WorkoutDefinition) -> list:
     return [f"{s.kind}:{s.movement}" for s in d.segments]
 
 
+def same_movements(a: WorkoutDefinition, b: WorkoutDefinition) -> bool:
+    """Same segment kinds and movements in the same order, whatever the names. For workouts of
+    the same day: a program can rename the workout the watch ran."""
+    return bool(a.segments) and movement_sequence(a) == movement_sequence(b)
+
+
 def is_same_workout(a: WorkoutDefinition, b: WorkoutDefinition) -> bool:
     """Same id, or same normalized (non-empty) name and the same segment kinds and movements."""
     if a.id == b.id:

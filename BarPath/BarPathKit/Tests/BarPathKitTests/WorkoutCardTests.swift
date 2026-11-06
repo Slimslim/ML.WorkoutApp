@@ -95,8 +95,8 @@ final class WorkoutCardTests: XCTestCase {
                                   timeCapSeconds: 1200, healthKitActivity: "crossTraining",
                                   segments: segs, roundSize: 2)
         let c = WorkoutCard.make(definition: d)
-        XCTAssertEqual(c.repSchemeLine, "40-30-20-30-40 Cal")
-        XCTAssertEqual(c.lines.map { (l: WorkoutCard.Line) -> String in l.full }, ["Row", "7 Power Cleans @155 lb"])
+        XCTAssertEqual(c.repSchemeLine, "40-30-20-30-40")
+        XCTAssertEqual(c.lines.map { (l: WorkoutCard.Line) -> String in l.full }, ["Cal Row", "7 Power Cleans @155 lb"])
         XCTAssertEqual(c.name, "5 rounds")
         XCTAssertTrue(c.nameIsFormat)
         XCTAssertEqual(c.capLine, "20 min cap")

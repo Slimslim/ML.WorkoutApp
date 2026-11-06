@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import BarPathKit
 
 /// Home: Effort for the day, the days of the week, and that day's workouts as flat blocks
@@ -270,7 +271,8 @@ struct TodayView: View {
         let done: [WorkoutResult] = results(on: selected)
         return planned(on: selected).filter { (w: LibraryWorkout) -> Bool in
             !done.contains(where: { (r: WorkoutResult) -> Bool in
-                r.definition.id == w.id || WorkoutHistory.isSameWorkout(w.definition, r.definition)
+                WorkoutHistory.isSameWorkout(w.definition, r.definition)
+                    || WorkoutHistory.sameMovements(w.definition, r.definition)
             })
         }
     }
@@ -480,8 +482,7 @@ struct TodayView: View {
     }
 }
 
-/// The avatar: a dot for the watch, and a standard menu with watch and upload status, Settings
-/// and Sign out.
+/// The avatar: a dot for the watch, and a standard menu with Open on watch, Settings and Sign out.
 struct AccountMenu: View {
     @EnvironmentObject private var link: PhoneLink
     @EnvironmentObject private var cloud: CloudAccount
@@ -489,13 +490,17 @@ struct AccountMenu: View {
 
     var body: some View {
         Menu {
-            // The section title: small, grey and not tappable, unlike a menu row.
-            Section(statusText) {
-                if link.canLaunchWatchApp {
-                    Button("Open on watch") { link.launchWatchApp() }
+            Button {
+                link.launchWatchApp()
+            } label: {
+                // A menu only keeps a colour on an image that carries its own.
+                Label {
+                    Text("Open on watch")
+                } icon: {
+                    Image(uiImage: watchDot)
                 }
-                Button("Settings") { showSettings = true }
             }
+            Button("Settings") { showSettings = true }
             if cloud.isSignedIn {
                 Button("Sign out") {
                     Task { await cloud.signOut() }
@@ -511,15 +516,16 @@ struct AccountMenu: View {
         }
     }
 
-    private var statusText: String {
-        if !cloud.isSignedIn { return link.watchStatusText }
-        return link.watchStatusText + " \u{00B7} " + uploadText
-    }
-
-    private var uploadText: String {
-        if cloud.lastError != nil { return "Uploads need attention" }
-        if cloud.isSyncing || cloud.pendingCount > 0 { return String(cloud.pendingCount) + " uploads left" }
-        return cloud.lastSync == nil ? "Uploads waiting" : "Uploaded"
+    /// Green when the watch app is reachable, orange when not.
+    private var watchDot: UIImage {
+        let color: UIColor = link.isReachable ? UIColor.systemGreen : UIColor.systemOrange
+        let size: CGSize = CGSize(width: 22, height: 22)
+        let dot: CGRect = CGRect(x: 7, y: 7, width: 8, height: 8)
+        let image: UIImage = UIGraphicsImageRenderer(size: size).image { (context: UIGraphicsImageRendererContext) in
+            color.setFill()
+            context.cgContext.fillEllipse(in: dot)
+        }
+        return image.withRenderingMode(.alwaysOriginal)
     }
 
     private var avatar: some View {
@@ -530,7 +536,7 @@ struct AccountMenu: View {
             .overlay(Circle().strokeBorder(Color(uiColor: .separator), lineWidth: 1))
             .overlay(alignment: .bottomTrailing) {
                 Circle()
-                    .fill(link.isReachable ? Color.green : Color.gray)
+                    .fill(link.isReachable ? Color.green : Color.orange)
                     .frame(width: 10, height: 10)
                     .overlay(Circle().strokeBorder(Color(uiColor: .systemBackground), lineWidth: 2))
             }
