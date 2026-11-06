@@ -1,0 +1,41 @@
+{
+ "version": 1,
+ "id": "2026-11-05-deadlift-3x12",
+ "date": "2026-11-05",
+ "kind": "lifts",
+ "name": "Deadlift 3 x 12, build to heavy",
+ "files": {},
+ "score": "225 lb",
+ "notes": [
+  "Class strength piece: 3 sets of 12, start moderate-heavy, build to heavy; score is the heaviest weight.",
+  "Each set was saved as its own lift session.",
+  "A 4-second 185 lb recording with 1 rep before set 2 is a false start, not a set."
+ ],
+ "sets": [
+  {
+   "file": "Lifts/D454BD30-88C1-4D90-AA71-FB0C42BD8220/5B37D882-C56E-4B82-8AFD-76255CC9E776.json",
+   "lift": "deadlift",
+   "loadLb": 135,
+   "reps": 12
+  },
+  {
+   "file": "Lifts/AB33799F-E439-4948-A72D-9CCAC1A523D9/1AE48447-0CBE-4104-B481-2950CB331657.json",
+   "lift": "deadlift",
+   "loadLb": 185,
+   "reps": 0,
+   "note": "false start"
+  },
+  {
+   "file": "Lifts/04721415-08F8-408D-AD04-11AC118121C0/F9F466C0-BF05-414A-820A-E0AB037072D6.json",
+   "lift": "deadlift",
+   "loadLb": 185,
+   "reps": 12
+  },
+  {
+   "file": "Lifts/1DEF43F9-CD44-4717-B631-EAC623F0D6E5/9CB1A161-EA40-4DB1-B79B-ED1BDBA5A21C.json",
+   "lift": "deadlift",
+   "loadLb": 225,
+   "reps": 12
+  }
+ ]
+}

@@ -1,0 +1,57 @@
+{
+ "version": 1,
+ "id": "2026-11-04-ring-dip-negatives",
+ "date": "2026-11-04",
+ "kind": "workout",
+ "name": "Ring Dip Negatives",
+ "format": "forTime",
+ "files": {
+  "csv": "Debug/session-EC42E908-4337-4C01-9D53-A67BFB3AFA15.csv",
+  "result": "Workouts/EC42E908-4337-4C01-9D53-A67BFB3AFA15.original.json"
+ },
+ "score": "3 sets: 5, 3, 3",
+ "notes": [
+  "Planned more sets; the athlete did 3 (5, 3, 3 negatives) and ended 6 s into the third rest.",
+  "Boundaries are the Crown taps (not checked against motion yet); set times include setting up on the rings."
+ ],
+ "segments": [
+  {
+   "movement": "ringDipNegatives",
+   "start": -0.0,
+   "end": 197.2,
+   "source": "crown",
+   "reps": 5,
+   "unit": "reps"
+  },
+  {
+   "movement": "rest",
+   "start": 197.2,
+   "end": 257.3,
+   "source": "crown",
+   "note": "planned 1:00 rest (timed by the watch)"
+  },
+  {
+   "movement": "ringDipNegatives",
+   "start": 257.3,
+   "end": 389.7,
+   "source": "crown",
+   "reps": 3,
+   "unit": "reps"
+  },
+  {
+   "movement": "rest",
+   "start": 389.7,
+   "end": 449.9,
+   "source": "crown",
+   "note": "planned 1:00 rest (timed by the watch)"
+  },
+  {
+   "movement": "ringDipNegatives",
+   "start": 449.9,
+   "end": 549.1,
+   "source": "crown",
+   "reps": 3,
+   "unit": "reps"
+  }
+ ]
+}
