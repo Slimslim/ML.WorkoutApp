@@ -91,6 +91,13 @@ def validate(d: dict) -> List[str]:
                 need("reps", int, x, c2)
                 if a is not None and b is not None and not (st - 0.05 <= a < b <= en + 0.05):
                     errs.append(f"{c2}: must lie inside the segment and end after it starts")
+                rt = x.get("repTimes")
+                if rt is not None:
+                    if not isinstance(rt, list) or len(rt) != x.get("reps"):
+                        errs.append(f"{c2}: repTimes must have one time per rep")
+                    elif a is not None and b is not None and (
+                            any(q <= p for p, q in zip(rt, rt[1:])) or rt[0] < a - 0.05 or rt[-1] > b + 0.05):
+                        errs.append(f"{c2}: repTimes must increase and lie inside the set")
             if s.get("sets") and isinstance(s.get("reps"), int):
                 total = sum(x.get("reps", 0) for x in s["sets"])
                 if total != s["reps"]:

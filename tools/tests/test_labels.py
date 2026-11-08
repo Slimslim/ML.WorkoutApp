@@ -57,3 +57,12 @@ def test_validate_catches_bad_labels():
     errs = L.validate(d)
     assert any("sets add up to 9" in e for e in errs)
     assert any("starts before the previous segment ends" in e for e in errs)
+
+
+def test_rep_times_must_match_the_reps():
+    d = {"version": 1, "id": "x", "date": "2026-11-08", "name": "x", "kind": "workout",
+         "files": {"csv": "a.csv", "result": "a.json"},
+         "segments": [seg("thrusters", 0, 40, reps=3, sets=[dict(start=2, end=10, reps=3, repTimes=[3.0, 5.0])])]}
+    assert any("one time per rep" in e for e in L.validate(d))
+    d["segments"][0]["sets"][0]["repTimes"] = [3.0, 5.0, 7.0]
+    assert L.validate(d) == []
