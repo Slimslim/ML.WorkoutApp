@@ -113,6 +113,13 @@ appends one line to `data/eval/history.jsonl` (date, commit, match window, every
 - **Compare like with like.** v0 starts after round 1, so it is compared with the Crown and onset
   on the part after round 1 ("after round 1" rows).
 - The real switch is the first rep (the first labelled set's start), not the Crown tap.
+- **The Crown marks the end of a movement, never the start** (athlete, 2026-11-08: he often rests
+  after the turn; on the strict press the turn came 7-10 s after the last rep). So: Crown taps are
+  scored as **set ends only**; a switch is truth only when its start is known from motion, the
+  athlete or a mark; switches whose start is only a Crown tap are listed as "unverified starts"
+  and not scored, and a predicted switch in the first half of such a movement is set aside
+  (neither found nor false). Better labels (motion, notes, marks, race splits, video) shrink the
+  unverified count. Rule in force from 2026-11-08; earlier history lines used the old rule.
 
 ### switch-v0 baseline (2026-11-06, tuned on these two sessions)
 

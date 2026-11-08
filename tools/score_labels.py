@@ -8,8 +8,12 @@ Workout sessions, two questions:
   switches  - does the detector put a "new movement" boundary where the athlete really changed
               movement (pull-ups -> push-ups, bike -> step-ups)?
   set ends  - does it put "set done" where a set really ended (including the 9 of 9 + 6)?
+Truth: the Crown marks the END of a movement. A switch counts only when its start is known from
+motion, the athlete or a mark (labels.switches); starts known only from a Crown tap are reported
+as "unverified starts" and not scored, and a predicted switch in the first half of such a movement
+is set aside (neither found nor false: labels.drop_unknown). Crown taps are scored as set ends only.
 Detectors:
-  crown      the athlete's own Crown taps from the watch result (the untouched copy).
+  crown      the athlete's own Crown taps from the watch result (the untouched copy): set ends.
   onset      crown taps moved to the first rep by barpath.transitions.work_onset.
   switch-v0  barpath.switches (plan-aware, learns round 1).
   switch-v1  the same with 6 movement signals added (hang, overhead, throws, planted hand,
@@ -78,29 +82,32 @@ def score_workout(d: dict, tol: float, records: list) -> list:
     truth_end = L.set_ends(d)
     rows = []
 
+    unverified = len(L.switches(d, unverified=True))
+
     def add(name, part, sw_m, end_m):
-        rows.append((d["id"], name if part == "all" else f"{name} (after round 1)", fmt(sw_m),
-                     fmt(end_m) if end_m else "-"))
+        rows.append((d["id"], name if part == "all" else f"{name} (after round 1)",
+                     fmt(sw_m) if sw_m else "-", fmt(end_m) if end_m else "-", unverified))
         records.append({"session": d["id"], "detector": name, "part": part,
-                        "switches": {k: v for k, v in sw_m.items() if k != "errors"},
-                        "switchErrorMedian": median_abs(sw_m["errors"]),
+                        "switches": None if sw_m is None else {k: v for k, v in sw_m.items() if k != "errors"},
+                        "switchErrorMedian": None if sw_m is None else median_abs(sw_m["errors"]),
+                        "unverifiedStarts": unverified,
                         "setEnds": None if end_m is None else {k: v for k, v in end_m.items() if k != "errors"}})
 
-    for name in ("crown", "onset"):
-        sw, ends = predicted(name, motion, segs)
-        add(name, "all", L.match(truth_sw, sw, tol), L.match(truth_end, ends, tol))
+    _, ends = predicted("crown", motion, segs)
+    add("crown", "all", None, L.match(truth_end, ends, tol))
+    sw, ends = predicted("onset", motion, segs)
+    add("onset", "all", L.match(truth_sw, L.drop_unknown(d, sw), tol), L.match(truth_end, ends, tol))
     if any(s.get("round") for s in d["segments"]):
         from barpath import switches as SW
         plan, known = SW.round1(d)
         after = max(s["end"] for s in known)
         truth_after = [t for t in truth_sw if t > after]
-        for name in ("crown", "onset"):
-            sw, _ = predicted(name, motion, segs)
-            add(name, "after-round-1", L.match(truth_after, [t for t in sw if t > after], tol), None)
-        add(SW.VERSION, "after-round-1", L.match(truth_after, SW.detect(motion, plan, known), tol), None)
+        sw, _ = predicted("onset", motion, segs)
+        add("onset", "after-round-1", L.match(truth_after, L.drop_unknown(d, [t for t in sw if t > after]), tol), None)
+        add(SW.VERSION, "after-round-1", L.match(truth_after, L.drop_unknown(d, SW.detect(motion, plan, known)), tol), None)
         steps = pedometer(d)
         add(SW.VERSION_V1, "after-round-1",
-            L.match(truth_after, SW.detect(motion, plan, known, SW.Config(features="v1"), steps=steps), tol), None)
+            L.match(truth_after, L.drop_unknown(d, SW.detect(motion, plan, known, SW.Config(features="v1"), steps=steps)), tol), None)
     return rows
 
 
@@ -159,8 +166,8 @@ def main() -> int:
             lifts += score_lifts(d)
     if work:
         print(f"### Workouts (match window {args.tol:g} s)\n")
-        print("| session | detector | switches found | set ends found |")
-        print("|---|---|---|---|")
+        print("| session | detector | switches found | set ends found | unverified starts (not scored) |")
+        print("|---|---|---|---|---:|")
         for r in work:
             print("| " + " | ".join(str(c) for c in r) + " |")
         print()
