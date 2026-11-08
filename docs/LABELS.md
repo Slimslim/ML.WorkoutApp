@@ -65,6 +65,9 @@ Times are **session seconds**: the watch CSV's `t` column (0 = START on the watc
 - `source`: how the times were found. `crown` = the athlete's Crown taps (not checked against
   motion), `motion` = read from the motion data, `athlete` = told by the athlete. Prefer `motion`.
 - `sets`: sets inside one station, with their reps (they must add up to the segment's `reps`).
+  Optional `repTimes`: one time per rep (session seconds, increasing, inside the set), for rep
+  counting. From motion they are the peak of each cycle in the named `signal` (`gx`, `gy`, `gz`,
+  `vert`) with its rep `period`, and are kept **only when the count equals the athlete's reps**.
 - Lifting sessions (`"kind": "lifts"`) have `sets` instead of `segments`: `{file, lift, loadLb,
   reps, note}` per lift recording (`reps: 0` for a false start).
 
@@ -157,3 +160,13 @@ v1 is in step for round 2 (thrusters 0 s, sit-ups -2 s, lunges +2 s), then sees 
 the Crown tap (walking to the door before running) and never recovers: it only waits for the *next*
 planned movement. For v2: resync when the motion clearly shows another planned movement, and label
 run starts from the step rate (the tap is before the run really starts).
+
+### SunYay as training data (2026-11-08)
+
+The athlete gave the reps (thrusters, GHD sit-ups, lunges unbroken; ball slams with a few breaks).
+From the motion: 8 of 24 stations got sets with one time per rep (86 rep times; ball slams rounds
+1-2 at ~3.5 s per rep from the arm angle, thrusters round 1 at 2.2 s from vertical accel, GHD
+sit-ups rounds 1, 2, 3, 5 at 2.5 s from the wrist tilt, lunges round 1); the rest stay on the Crown
+taps, not verified. Runs start at the first 6 s at >= 2.2 steps/s: 5-28 s after the Crown (walking
+out), so the taps themselves match only 17 of 25 real switches after round 1. Rescored: v0 5/25,
+v1 7/25 (18 false): v1 still loses sync after the first late run.
