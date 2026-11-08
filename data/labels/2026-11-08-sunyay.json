@@ -1,0 +1,315 @@
+{
+ "version": 1,
+ "id": "2026-11-08-sunyay",
+ "date": "2026-11-08",
+ "kind": "workout",
+ "name": "SunYay (AMRAP 40)",
+ "format": "amrap",
+ "rx": false,
+ "files": {
+  "csv": "Debug/session-8656C282-DD8D-466E-A669-0CAECD4E465B.csv",
+  "result": "Workouts/8656C282-DD8D-466E-A669-0CAECD4E465B.original.json"
+ },
+ "score": "5 rounds + 44 reps + 41 m",
+ "notes": [
+  "Per round: 12 ball slams, 12 dual DB thrusters (2 x 25 lb), 10 GHD sit-ups (instead of toes-to-bar), 10 dual DB lunges (2 x 50 lb held at the sides), 400 m run.",
+  "Scaled: GHD sit-ups instead of toes-to-bar. Ball weight not given.",
+  "Boundaries are the Crown taps (not checked against motion). First session labelled after switch-v1 was frozen (2026-11-06)."
+ ],
+ "segments": [
+  {
+   "movement": "ballSlams",
+   "round": 1,
+   "start": 0,
+   "end": 40.0,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps"
+  },
+  {
+   "movement": "thrusters",
+   "round": 1,
+   "start": 40.0,
+   "end": 80.1,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps",
+   "loadLb": 50,
+   "note": "2 x 25 lb dumbbells"
+  },
+  {
+   "movement": "ghdSitUps",
+   "round": 1,
+   "start": 80.1,
+   "end": 131.4,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps"
+  },
+  {
+   "movement": "lunges",
+   "round": 1,
+   "start": 131.4,
+   "end": 189.3,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps",
+   "loadLb": 100,
+   "note": "2 x 50 lb dumbbells"
+  },
+  {
+   "movement": "run",
+   "round": 1,
+   "start": 189.3,
+   "end": 353.5,
+   "source": "crown",
+   "unit": "meters",
+   "note": "400 m planned; pedometer 390 m"
+  },
+  {
+   "movement": "ballSlams",
+   "round": 2,
+   "start": 353.5,
+   "end": 411.5,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps"
+  },
+  {
+   "movement": "thrusters",
+   "round": 2,
+   "start": 411.5,
+   "end": 462.1,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps",
+   "loadLb": 50,
+   "note": "2 x 25 lb dumbbells"
+  },
+  {
+   "movement": "ghdSitUps",
+   "round": 2,
+   "start": 462.1,
+   "end": 524.1,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps"
+  },
+  {
+   "movement": "lunges",
+   "round": 2,
+   "start": 524.1,
+   "end": 577.0,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps",
+   "loadLb": 100,
+   "note": "2 x 50 lb dumbbells"
+  },
+  {
+   "movement": "run",
+   "round": 2,
+   "start": 577.0,
+   "end": 750.8,
+   "source": "crown",
+   "unit": "meters",
+   "note": "400 m planned; pedometer 392 m"
+  },
+  {
+   "movement": "ballSlams",
+   "round": 3,
+   "start": 750.8,
+   "end": 815.1,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps"
+  },
+  {
+   "movement": "thrusters",
+   "round": 3,
+   "start": 815.1,
+   "end": 867.7,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps",
+   "loadLb": 50,
+   "note": "2 x 25 lb dumbbells"
+  },
+  {
+   "movement": "ghdSitUps",
+   "round": 3,
+   "start": 867.7,
+   "end": 929.6,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps"
+  },
+  {
+   "movement": "lunges",
+   "round": 3,
+   "start": 929.6,
+   "end": 994.9,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps",
+   "loadLb": 100,
+   "note": "2 x 50 lb dumbbells"
+  },
+  {
+   "movement": "run",
+   "round": 3,
+   "start": 994.9,
+   "end": 1176.3,
+   "source": "crown",
+   "unit": "meters",
+   "note": "400 m planned; pedometer 411 m"
+  },
+  {
+   "movement": "ballSlams",
+   "round": 4,
+   "start": 1176.3,
+   "end": 1254.1,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps"
+  },
+  {
+   "movement": "thrusters",
+   "round": 4,
+   "start": 1254.1,
+   "end": 1316.2,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps",
+   "loadLb": 50,
+   "note": "2 x 25 lb dumbbells"
+  },
+  {
+   "movement": "ghdSitUps",
+   "round": 4,
+   "start": 1316.2,
+   "end": 1392.5,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps"
+  },
+  {
+   "movement": "lunges",
+   "round": 4,
+   "start": 1392.5,
+   "end": 1462.4,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps",
+   "loadLb": 100,
+   "note": "2 x 50 lb dumbbells"
+  },
+  {
+   "movement": "run",
+   "round": 4,
+   "start": 1462.4,
+   "end": 1651.3,
+   "source": "crown",
+   "unit": "meters",
+   "note": "400 m planned; pedometer 403 m"
+  },
+  {
+   "movement": "ballSlams",
+   "round": 5,
+   "start": 1651.3,
+   "end": 1722.8,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps"
+  },
+  {
+   "movement": "thrusters",
+   "round": 5,
+   "start": 1722.8,
+   "end": 1792.1,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps",
+   "loadLb": 50,
+   "note": "2 x 25 lb dumbbells"
+  },
+  {
+   "movement": "ghdSitUps",
+   "round": 5,
+   "start": 1792.1,
+   "end": 1871.5,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps"
+  },
+  {
+   "movement": "lunges",
+   "round": 5,
+   "start": 1871.5,
+   "end": 1933.4,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps",
+   "loadLb": 100,
+   "note": "2 x 50 lb dumbbells"
+  },
+  {
+   "movement": "run",
+   "round": 5,
+   "start": 1933.4,
+   "end": 2123.8,
+   "source": "crown",
+   "unit": "meters",
+   "note": "400 m planned; pedometer 399 m"
+  },
+  {
+   "movement": "ballSlams",
+   "round": 6,
+   "start": 2123.8,
+   "end": 2201.1,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps"
+  },
+  {
+   "movement": "thrusters",
+   "round": 6,
+   "start": 2201.1,
+   "end": 2271.2,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps",
+   "loadLb": 50,
+   "note": "2 x 25 lb dumbbells"
+  },
+  {
+   "movement": "ghdSitUps",
+   "round": 6,
+   "start": 2271.2,
+   "end": 2334.4,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps"
+  },
+  {
+   "movement": "lunges",
+   "round": 6,
+   "start": 2334.4,
+   "end": 2379.2,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps",
+   "loadLb": 100,
+   "note": "2 x 50 lb dumbbells"
+  },
+  {
+   "movement": "run",
+   "round": 6,
+   "start": 2379.2,
+   "end": 2400.1,
+   "source": "crown",
+   "unit": "meters",
+   "note": "time cap 21 s into the run: 41 m (pedometer)"
+  }
+ ]
+}
