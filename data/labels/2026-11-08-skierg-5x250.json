@@ -1,0 +1,88 @@
+{
+ "version": 1,
+ "id": "2026-11-08-skierg-5x250",
+ "date": "2026-11-08",
+ "kind": "workout",
+ "name": "SkiErg 5 x 250 m",
+ "format": "forTime",
+ "files": {
+  "csv": "Debug/session-0813B442-366E-4BE7-846C-B7F3C8B260F7.csv",
+  "result": "Workouts/0813B442-366E-4BE7-846C-B7F3C8B260F7.json"
+ },
+ "score": "5 x 250 m",
+ "notes": [
+  "Interval times (Crown to Crown): 1:03, 1:04, 1:04, 1:02, 1:01; 1:00 rests timed by the watch.",
+  "Ski starts from the stroke rhythm (1.6-1.8 s per stroke); in 4 of 5 intervals the athlete started about 4 s before the rest timer ran out.",
+  "Recorded for training data. Monitor times were not given."
+ ],
+ "segments": [
+  {
+   "movement": "skiErg",
+   "start": 0.0,
+   "end": 63.0,
+   "unit": "meters",
+   "source": "motion",
+   "note": "start = first stroke (motion); end = Crown. About 44 strokes, 39/min (gy), not verified"
+  },
+  {
+   "movement": "rest",
+   "start": 63.0,
+   "end": 118.8,
+   "source": "motion",
+   "note": "1:00 rest timed by the watch; skiing started before it ran out"
+  },
+  {
+   "movement": "skiErg",
+   "start": 118.8,
+   "end": 187.5,
+   "unit": "meters",
+   "source": "motion",
+   "note": "start = first stroke (motion); end = Crown. About 41 strokes, 35/min (gx), not verified"
+  },
+  {
+   "movement": "rest",
+   "start": 187.5,
+   "end": 242.8,
+   "source": "motion",
+   "note": "1:00 rest timed by the watch; skiing started before it ran out"
+  },
+  {
+   "movement": "skiErg",
+   "start": 242.8,
+   "end": 311.4,
+   "unit": "meters",
+   "source": "motion",
+   "note": "start = first stroke (motion); end = Crown. About 41 strokes, 37/min (gy), not verified"
+  },
+  {
+   "movement": "rest",
+   "start": 311.4,
+   "end": 366.4,
+   "source": "motion",
+   "note": "1:00 rest timed by the watch; skiing started before it ran out"
+  },
+  {
+   "movement": "skiErg",
+   "start": 366.4,
+   "end": 433.3,
+   "unit": "meters",
+   "source": "motion",
+   "note": "start = first stroke (motion); end = Crown. About 38 strokes, 34/min (gy), not verified"
+  },
+  {
+   "movement": "rest",
+   "start": 433.3,
+   "end": 492.2,
+   "source": "motion",
+   "note": "1:00 rest timed by the watch; skiing started before it ran out"
+  },
+  {
+   "movement": "skiErg",
+   "start": 492.2,
+   "end": 554.2,
+   "unit": "meters",
+   "source": "motion",
+   "note": "start = first stroke (motion); end = Crown. About 38 strokes, 35/min (gy), not verified"
+  }
+ ]
+}

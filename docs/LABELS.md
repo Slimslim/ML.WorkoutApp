@@ -170,3 +170,14 @@ sit-ups rounds 1, 2, 3, 5 at 2.5 s from the wrist tilt, lunges round 1); the res
 taps, not verified. Runs start at the first 6 s at >= 2.2 steps/s: 5-28 s after the Crown (walking
 out), so the taps themselves match only 17 of 25 real switches after round 1. Rescored: v0 5/25,
 v1 7/25 (18 false): v1 still loses sync after the first late run.
+
+### Strict press and SkiErg (2026-11-08, recorded for training data)
+
+- **Strict press 3 x 10 @ 65 / 75 / 75 lb:** every rep is a sharp upward push of the wrist
+  (vertical accel > 0.2 g with the forearm vertical): exactly 10 per set, 30 rep times (set 1 also
+  shows the push that takes the bar out of the rack, dropped). 2.7-3.0 s per rep in set 1; sets 2-3
+  start at 2.2-2.5 s and slow to ~3 s. The Crown comes 7-10 s after the last rep (rack, then the
+  watch): it marks the end of the set, late; the start is not marked.
+- **SkiErg 5 x 250 m:** 1.6-1.8 s per stroke (34-39/min), ~38-44 strokes per 250 m (not
+  verified). In 4 of 5 intervals skiing started ~4 s before the watch's 1:00 rest ran out; the Crown
+  matches the last stroke.
