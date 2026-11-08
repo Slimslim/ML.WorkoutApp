@@ -315,6 +315,15 @@ and the "last" score compare like with like.
 badge on its done card, report and in "Your results" (W13); `rx: false` shows Scaled; no value
 shows the dashed `?` as today; older results without the key still open unchanged.
 
+
+**W20. An AMRAP that ends on a run scores the distance (Now)**
+As an athlete whose time cap hits during a run, I want the score to say how far I got on that run
+(e.g. "5 rounds + 44 reps + 41 m"), so I don't have to make up a rep count for a run.
+*Done when:* when the cap ends a run segment, the watch does not ask "Reps of …?"; the result keeps
+the run's measured distance (pedometer, or GPS once runs use it) as the partial and the score reads
+"+ <m> m" on the watch done screen, the report and the done card; for a station the reps question
+stays as today. (SunYay 2026-11-08: the cap hit 21 s and 41 m into the run; 11 "reps" were entered.)
+
 ## Navigation and layout
 
 *Owned by the Navigation UI/UX chat. Add stories here with the `N` prefix.*
