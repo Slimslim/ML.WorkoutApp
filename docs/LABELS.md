@@ -144,3 +144,16 @@ Tried and reverted: relabelling the AMRAP bike starts with the `transitions` bik
 first stroke 8-14 s after the Crown, too late to be true). Labels must not copy a detector.
 AMRAP misses: bike starts come 4-9 s after the Crown tap (unverified label), and one bike ->
 step-ups confusion fires 17 s early.
+
+### First held-out test: SunYay AMRAP 40 (2026-11-08, labelled after v1 was frozen)
+
+Ball slams, dual DB thrusters, GHD sit-ups, dual DB lunges, 400 m run; labels are the Crown taps.
+
+| After round 1 (24 switches) | Crown taps | Crown + first rep | switch-v0 | switch-v1 |
+|---|---|---|---|---|
+| SunYay | 24 (by construction) | 8 (17 false) | 3 (22 false) | 4 (21 false) |
+
+v1 is in step for round 2 (thrusters 0 s, sit-ups -2 s, lunges +2 s), then sees the run 14 s after
+the Crown tap (walking to the door before running) and never recovers: it only waits for the *next*
+planned movement. For v2: resync when the motion clearly shows another planned movement, and label
+run starts from the step rate (the tap is before the run really starts).
