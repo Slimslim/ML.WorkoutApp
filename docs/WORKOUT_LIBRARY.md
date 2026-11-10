@@ -46,6 +46,21 @@ the owner's own or public workouts (see Privacy). Keep `seed.sql` in sync:
 To hide a workout: `update public.workout_library set published = false where id = '…';`
 (phones drop it on their next refresh). Deleting the row works the same way.
 
+## Who sees what (migration `20261110000000_gyms.sql`)
+
+| Row | Seen by | Written by |
+|---|---|---|
+| Gym programming (`gym_id` set) | every member of that gym (`gym_members`), on their schedule | the project owner (SQL editor / service role); later coaches |
+| Personal workout (`owner` set) | only that user | that user (the app, later) or the owner for them |
+| Public (both null) | every signed-in user | the project owner; only benchmarks (Helen, HYROX, ...) |
+
+Recordings and results (`uploads`) are always private to their user. Gym members are added by the
+owner for now: `insert into public.gym_members (gym_id, user_id) values ('blue-republic', '<user id>');`
+(the user id is the user's folder name in the `uploads` bucket, or `auth.users.id`). A new gym:
+`insert into public.gyms (id, name) values ('<slug>', '<Name>');`. Gym rows from a file: add
+`"gym": "<slug>"` to the JSON or pass `--gym <slug>` to `tools/library/make_row.py`.
+Gym programming is the gym's work: it stays out of this repo (the database only).
+
 ## Fields
 
 | Column | Meaning |
@@ -55,7 +70,8 @@ To hide a workout: `update public.workout_library set published = false where id
 | `program` | Section title in Choose: "Mayhem", "Blue Republic", "Benchmark", "HYROX", … (null → "Library"). |
 | `scheduled_on` | The day it is programmed. Today's (phone calendar) go into the "Today" section at the top; the others are listed newest first with their date. Null = undated. |
 | `published` | false hides it from the app. |
-| `owner` | Reserved for private workouts (a user id). Null = shared library. v1 never sets it. |
+| `owner` | A user id: that user's **personal** workout, seen only by them. Null otherwise. |
+| `gym_id` | A gym id (`gyms.id`, e.g. `blue-republic`): that gym's **programming**, seen by its members. Null otherwise. A row has an owner or a gym, never both; neither = public (benchmarks). |
 | `created_at`, `updated_at` | Set by the database (`updated_at` follows every change). |
 
 ## Id convention
