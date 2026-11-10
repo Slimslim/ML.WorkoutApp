@@ -188,3 +188,15 @@ v1 7/25 (18 false): v1 still loses sync after the first late run.
 - **SkiErg 5 x 250 m:** 1.6-1.8 s per stroke (34-39/min), ~38-44 strokes per 250 m (not
   verified). In 4 of 5 intervals skiing started ~4 s before the watch's 1:00 rest ran out; the Crown
   matches the last stroke.
+
+### Power snatch EMOM and Freedom (2026-11-09): every rep from the motion
+
+A snatch (and a burpee to the bar) is a forearm rise from hanging to vertical in < 1.5 s with the
+arm held overhead 1.3-2.0 s (catch / hand on the bar); a failed snatch comes straight down (0.1-0.6 s).
+- **Power snatch every 1:00 x 10 (2 singles), 95-145 lb:** all 20 good reps; the missed rep at
+  145 lb (0.6 s overhead) between the two good ones, as the athlete said.
+- **Freedom 9-7-5, 135 lb + burpee chest-to-bar (scaled):** all 21 snatches and 20 burpees; the
+  failed rep 7 in round 1 and the chalk break, the 33 s wristband break in round 2, 2 + 1 + 1 + 1
+  in round 3; two athlete Marks, each just before walking to the bar. Capped at 10:00 with 38
+  reps (1 burpee into the last 5). The Crown came at the next minute / after walking, never
+  within 3 s of the set end.

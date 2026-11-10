@@ -1,0 +1,213 @@
+{
+ "version": 1,
+ "id": "2026-11-09-freedom-snatch-burpee-c2b",
+ "date": "2026-11-09",
+ "kind": "workout",
+ "name": "Freedom 9-7-5 power snatch + burpee chest-to-bar",
+ "format": "forTime",
+ "rx": false,
+ "files": {
+  "csv": "Debug/session-0494554E-9EB5-46C2-9A75-845FF2E6C727.csv",
+  "result": "Workouts/0494554E-9EB5-46C2-9A75-845FF2E6C727.original.json"
+ },
+ "score": "capped at 10:00, 38 reps (9+9+7+7+5+1); 41 reps at 10:21",
+ "notes": [
+  "Scaled: burpee chest-to-bar instead of burpee bar muscle-ups. Power snatch at 135 lb (Rx weight, assumed from 'I went 35').",
+  "Athlete marks (Data mode) at 303.0 and 518.1, each just before walking to the bar.",
+  "Every snatch and burpee found in the motion and matching the athlete's account (failed rep, wristband break, 2 + 1 + 1 + 1)."
+ ],
+ "segments": [
+  {
+   "movement": "powerSnatches",
+   "round": 1,
+   "start": 0,
+   "end": 169.2,
+   "reps": 9,
+   "unit": "reps",
+   "loadLb": 135,
+   "source": "crown",
+   "sets": [
+    {
+     "start": 2.2,
+     "end": 74.5,
+     "reps": 6,
+     "repTimes": [
+      4.2,
+      25.3,
+      33.6,
+      47.5,
+      59.8,
+      73.0
+     ]
+    },
+    {
+     "start": 120.7,
+     "end": 163.4,
+     "reps": 3,
+     "repTimes": [
+      122.7,
+      139.5,
+      161.9
+     ]
+    }
+   ],
+   "note": "6 singles, failed rep 7 at 78.9 (overhead 0.1 s) plus short attempts at 94.7 and 97.4, chalked, then reps 7-9"
+  },
+  {
+   "movement": "burpeeChestToBar",
+   "round": 1,
+   "start": 169.2,
+   "end": 273.5,
+   "reps": 9,
+   "unit": "reps",
+   "source": "crown",
+   "sets": [
+    {
+     "start": 184.5,
+     "end": 269.8,
+     "reps": 9,
+     "repTimes": [
+      186.5,
+      196.6,
+      206.6,
+      216.8,
+      226.9,
+      237.3,
+      247.4,
+      258.1,
+      268.8
+     ]
+    }
+   ],
+   "note": "rep time = hand reaches the bar overhead; unbroken"
+  },
+  {
+   "movement": "powerSnatches",
+   "round": 2,
+   "start": 273.5,
+   "end": 423.9,
+   "reps": 6,
+   "unit": "reps",
+   "loadLb": 135,
+   "source": "crown",
+   "sets": [
+    {
+     "start": 308.9,
+     "end": 312.4,
+     "reps": 1,
+     "repTimes": [
+      310.9
+     ]
+    },
+    {
+     "start": 342.0,
+     "end": 418.7,
+     "reps": 5,
+     "repTimes": [
+      344.0,
+      360.3,
+      377.7,
+      395.9,
+      417.2
+     ]
+    }
+   ],
+   "note": "1 rep, 33 s putting on wristbands, then 6 singles (the 0.2 s rise at 334.4 is not a rep); athlete Mark at 303.0 just before the bar"
+  },
+  {
+   "movement": "burpeeChestToBar",
+   "round": 2,
+   "start": 423.9,
+   "end": 494.0,
+   "reps": 7,
+   "unit": "reps",
+   "source": "crown",
+   "sets": [
+    {
+     "start": 430.1,
+     "end": 490.3,
+     "reps": 7,
+     "repTimes": [
+      432.1,
+      441.6,
+      451.0,
+      460.6,
+      469.9,
+      479.6,
+      489.3
+     ]
+    }
+   ],
+   "note": "rep time = hand reaches the bar overhead; unbroken"
+  },
+  {
+   "movement": "powerSnatches",
+   "round": 3,
+   "start": 494.0,
+   "end": 592.2,
+   "reps": 5,
+   "unit": "reps",
+   "loadLb": 135,
+   "source": "crown",
+   "sets": [
+    {
+     "start": 522.1,
+     "end": 534.6,
+     "reps": 2,
+     "repTimes": [
+      524.1,
+      533.1
+     ]
+    },
+    {
+     "start": 559.2,
+     "end": 562.7,
+     "reps": 1,
+     "repTimes": [
+      561.2
+     ]
+    },
+    {
+     "start": 572.7,
+     "end": 576.2,
+     "reps": 1,
+     "repTimes": [
+      574.7
+     ]
+    },
+    {
+     "start": 585.0,
+     "end": 588.5,
+     "reps": 1,
+     "repTimes": [
+      587.0
+     ]
+    }
+   ],
+   "note": "2 quick reps then 1, 1, 1 (athlete); Mark at 518.1 just before the bar"
+  },
+  {
+   "movement": "burpeeChestToBar",
+   "round": 3,
+   "start": 592.2,
+   "end": 620.8,
+   "reps": 4,
+   "unit": "reps",
+   "source": "crown",
+   "sets": [
+    {
+     "start": 594.7,
+     "end": 617.5,
+     "reps": 4,
+     "repTimes": [
+      596.7,
+      603.2,
+      609.9,
+      616.5
+     ]
+    }
+   ],
+   "note": "rep time = hand reaches the bar overhead; unbroken; time cap at 600.0: 1 done at the cap (596.7), 4 by the finish (5 planned)"
+  }
+ ]
+}

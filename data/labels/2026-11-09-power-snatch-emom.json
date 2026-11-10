@@ -1,0 +1,303 @@
+{
+ "version": 1,
+ "id": "2026-11-09-power-snatch-emom",
+ "date": "2026-11-09",
+ "kind": "workout",
+ "name": "Power Snatch every 1:00 x 10 (2 singles)",
+ "format": "emom",
+ "files": {
+  "csv": "Debug/session-93767116-8F8F-4156-B550-0E5B3FD22793.csv",
+  "result": "Workouts/93767116-8F8F-4156-B550-0E5B3FD22793.original.json"
+ },
+ "score": "145 lb",
+ "notes": [
+  "Coach ran it every minute on the minute: 2 power snatch singles per minute, 95, 105, 115, 125, 125, 135, 135, 140, 140, 145 lb (athlete).",
+  "Set 10 at 145: caught the first, missed the second (dropped, chalked), caught the third (athlete; matches the motion).",
+  "All 20 good reps found in the motion: one hang-to-overhead rise per rep with a 1.3-2.0 s hold."
+ ],
+ "segments": [
+  {
+   "movement": "powerSnatches",
+   "round": 1,
+   "start": 0,
+   "end": 18.5,
+   "reps": 2,
+   "unit": "reps",
+   "loadLb": 95,
+   "source": "crown",
+   "sets": [
+    {
+     "start": 2.2,
+     "end": 11.9,
+     "reps": 2,
+     "repTimes": [
+      4.2,
+      10.4
+     ]
+    }
+   ],
+   "note": "rep time = arm locked overhead (forearm from hanging to vertical in < 1.5 s, held 1.3-2.0 s)"
+  },
+  {
+   "movement": "rest",
+   "start": 18.5,
+   "end": 61.1,
+   "source": "crown",
+   "note": "every-minute clock; the Crown was turned at the next minute"
+  },
+  {
+   "movement": "powerSnatches",
+   "round": 2,
+   "start": 61.1,
+   "end": 94.2,
+   "reps": 2,
+   "unit": "reps",
+   "loadLb": 105,
+   "source": "crown",
+   "sets": [
+    {
+     "start": 64.4,
+     "end": 75.4,
+     "reps": 2,
+     "repTimes": [
+      66.4,
+      73.9
+     ]
+    }
+   ],
+   "note": "rep time = arm locked overhead (forearm from hanging to vertical in < 1.5 s, held 1.3-2.0 s)"
+  },
+  {
+   "movement": "rest",
+   "start": 94.2,
+   "end": 120.6,
+   "source": "crown",
+   "note": "every-minute clock; the Crown was turned at the next minute"
+  },
+  {
+   "movement": "powerSnatches",
+   "round": 3,
+   "start": 120.6,
+   "end": 147.0,
+   "reps": 2,
+   "unit": "reps",
+   "loadLb": 115,
+   "source": "crown",
+   "sets": [
+    {
+     "start": 124.4,
+     "end": 138.8,
+     "reps": 2,
+     "repTimes": [
+      126.4,
+      137.3
+     ]
+    }
+   ],
+   "note": "rep time = arm locked overhead (forearm from hanging to vertical in < 1.5 s, held 1.3-2.0 s)"
+  },
+  {
+   "movement": "rest",
+   "start": 147.0,
+   "end": 180.5,
+   "source": "crown",
+   "note": "every-minute clock; the Crown was turned at the next minute"
+  },
+  {
+   "movement": "powerSnatches",
+   "round": 4,
+   "start": 180.5,
+   "end": 201.6,
+   "reps": 2,
+   "unit": "reps",
+   "loadLb": 125,
+   "source": "crown",
+   "sets": [
+    {
+     "start": 185.5,
+     "end": 196.4,
+     "reps": 2,
+     "repTimes": [
+      187.5,
+      194.9
+     ]
+    }
+   ],
+   "note": "rep time = arm locked overhead (forearm from hanging to vertical in < 1.5 s, held 1.3-2.0 s)"
+  },
+  {
+   "movement": "rest",
+   "start": 201.6,
+   "end": 240.9,
+   "source": "crown",
+   "note": "every-minute clock; the Crown was turned at the next minute"
+  },
+  {
+   "movement": "powerSnatches",
+   "round": 5,
+   "start": 240.9,
+   "end": 260.3,
+   "reps": 2,
+   "unit": "reps",
+   "loadLb": 125,
+   "source": "crown",
+   "sets": [
+    {
+     "start": 244.7,
+     "end": 256.5,
+     "reps": 2,
+     "repTimes": [
+      246.7,
+      255.0
+     ]
+    }
+   ],
+   "note": "rep time = arm locked overhead (forearm from hanging to vertical in < 1.5 s, held 1.3-2.0 s)"
+  },
+  {
+   "movement": "rest",
+   "start": 260.3,
+   "end": 301.5,
+   "source": "crown",
+   "note": "every-minute clock; the Crown was turned at the next minute"
+  },
+  {
+   "movement": "powerSnatches",
+   "round": 6,
+   "start": 301.5,
+   "end": 335.5,
+   "reps": 2,
+   "unit": "reps",
+   "loadLb": 135,
+   "source": "crown",
+   "sets": [
+    {
+     "start": 305.7,
+     "end": 321.0,
+     "reps": 2,
+     "repTimes": [
+      307.7,
+      319.5
+     ]
+    }
+   ],
+   "note": "rep time = arm locked overhead (forearm from hanging to vertical in < 1.5 s, held 1.3-2.0 s)"
+  },
+  {
+   "movement": "rest",
+   "start": 335.5,
+   "end": 361.3,
+   "source": "crown",
+   "note": "every-minute clock; the Crown was turned at the next minute"
+  },
+  {
+   "movement": "powerSnatches",
+   "round": 7,
+   "start": 361.3,
+   "end": 384.6,
+   "reps": 2,
+   "unit": "reps",
+   "loadLb": 135,
+   "source": "crown",
+   "sets": [
+    {
+     "start": 365.3,
+     "end": 379.4,
+     "reps": 2,
+     "repTimes": [
+      367.3,
+      377.9
+     ]
+    }
+   ],
+   "note": "rep time = arm locked overhead (forearm from hanging to vertical in < 1.5 s, held 1.3-2.0 s)"
+  },
+  {
+   "movement": "rest",
+   "start": 384.6,
+   "end": 423.8,
+   "source": "crown",
+   "note": "every-minute clock; the Crown was turned at the next minute"
+  },
+  {
+   "movement": "powerSnatches",
+   "round": 8,
+   "start": 423.8,
+   "end": 451.3,
+   "reps": 2,
+   "unit": "reps",
+   "loadLb": 140,
+   "source": "crown",
+   "sets": [
+    {
+     "start": 429.4,
+     "end": 447.3,
+     "reps": 2,
+     "repTimes": [
+      431.4,
+      445.8
+     ]
+    }
+   ],
+   "note": "rep time = arm locked overhead (forearm from hanging to vertical in < 1.5 s, held 1.3-2.0 s)"
+  },
+  {
+   "movement": "rest",
+   "start": 451.3,
+   "end": 481.4,
+   "source": "crown",
+   "note": "every-minute clock; the Crown was turned at the next minute"
+  },
+  {
+   "movement": "powerSnatches",
+   "round": 9,
+   "start": 481.4,
+   "end": 522.7,
+   "reps": 2,
+   "unit": "reps",
+   "loadLb": 140,
+   "source": "crown",
+   "sets": [
+    {
+     "start": 498.4,
+     "end": 516.2,
+     "reps": 2,
+     "repTimes": [
+      500.4,
+      514.7
+     ]
+    }
+   ],
+   "note": "rep time = arm locked overhead (forearm from hanging to vertical in < 1.5 s, held 1.3-2.0 s)"
+  },
+  {
+   "movement": "rest",
+   "start": 522.7,
+   "end": 544.0,
+   "source": "crown",
+   "note": "every-minute clock; the Crown was turned at the next minute"
+  },
+  {
+   "movement": "powerSnatches",
+   "round": 10,
+   "start": 544.0,
+   "end": 588.9,
+   "reps": 2,
+   "unit": "reps",
+   "loadLb": 145,
+   "source": "crown",
+   "sets": [
+    {
+     "start": 554.5,
+     "end": 585.2,
+     "reps": 2,
+     "repTimes": [
+      556.5,
+      583.7
+     ]
+    }
+   ],
+   "note": "rep time = arm locked overhead (forearm from hanging to vertical in < 1.5 s, held 1.3-2.0 s); failed attempt at 569.2 (overhead 0.6 s, dropped), chalked, then the second rep"
+  }
+ ]
+}
