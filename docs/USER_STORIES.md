@@ -324,6 +324,29 @@ the run's measured distance (pedometer, or GPS once runs use it) as the partial 
 "+ <m> m" on the watch done screen, the report and the done card; for a station the reps question
 stays as today. (SunYay 2026-11-08: the cap hit 21 s and 41 m into the run; 11 "reps" were entered.)
 
+### Recording follows the plan (spans Lifting and Workouts; after the MVP)
+
+**W21. The watch records each part the way that part needs (Later)**
+As an athlete whose program mixes barbell lifts, runs, ergs and metcons, I want the watch to
+switch to the right sensors and analysis for whatever comes next in the plan, so every movement is
+measured properly (a snatch gets bar speed, height and catch; a run gets GPS; a bike doesn't waste
+battery) without me choosing modes.
+*Done when:* in one session that has a barbell piece and a metcon (e.g. power snatch every 1:00 x 10,
+then Freedom), with one START:
+- **Olympic lifts** record 200 Hz motion + 800 Hz accel and give each lift its peak pull speed, max
+  bar height and catch height, also without a still moment before the lift (the 2026-11-09 EMOM:
+  today only 6 of 20 snatches could be analysed); **strength lifts** count reps with speed per rep;
+  **runs** use GPS outdoors (pedometer indoors); **ergs/bike** use a low rate and no GPS; **metcon
+  stations** stay at 100 Hz; **rest** drops to a low rate but still sees the next set start within 1 s.
+- Switching profiles loses no data: no gap over 0.1 s at a switch, in the CSV or the result.
+- **Apple Fitness stays clean: one session is one workout** in Fitness/Health (one activity type,
+  one route only when there was an outdoor run), never one per part or per lift; HR and calories
+  continuous across the whole session.
+- Battery and upload size per hour are measured on a 60-min session and are no worse than today's
+  workout mode (30 MB / 40 min).
+Needs: lift pieces in the program (sets x reps x weight) and the single start screen; tested first
+on recordings, then in the gym, before it replaces the two modes.
+
 ## Navigation and layout
 
 *Owned by the Navigation UI/UX chat. Add stories here with the `N` prefix.*
