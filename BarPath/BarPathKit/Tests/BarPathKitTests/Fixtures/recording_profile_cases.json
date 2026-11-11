@@ -932,6 +932,72 @@
     }
    ],
    "profile": "high"
+  },
+  {
+   "name": "epicJumps / Epic Jumps",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "epicJumps",
+     "name": "Epic Jumps"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "magicJacks / Magic Jacks",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "magicJacks",
+     "name": "Magic Jacks"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "basicJog / Basic Jog",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "basicJog",
+     "name": "Basic Jog"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "cj / CJ",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "cj",
+     "name": "CJ"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "powerCj / power cj",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "powerCj",
+     "name": "power cj"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "x / C&J",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "x",
+     "name": "C&J"
+    }
+   ],
+   "profile": "high"
   }
  ],
  "library": [

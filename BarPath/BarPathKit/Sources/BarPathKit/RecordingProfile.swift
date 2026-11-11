@@ -107,6 +107,25 @@ public enum RecordingProfile: String {
         return out
     }
 
+    /// True when consecutive words join to exactly `keyword` ("cj", "c&j" -> "c", "j"), never when
+    /// the letters only appear inside a longer word or across a word boundary ("epic jumps").
+    private static func hasWholeWord(_ ws: [String], _ keyword: String) -> Bool {
+        let n: Int = ws.count
+        var i: Int = 0
+        while i < n {
+            var acc: String = ""
+            var j: Int = i
+            while j < n {
+                acc += ws[j]
+                if acc == keyword { return true }
+                if acc.count >= keyword.count { break }
+                j += 1
+            }
+            i += 1
+        }
+        return false
+    }
+
     private static func classify(_ text: String) -> (high: Bool, excluded: Bool) {
         let ws: [String] = words(text)
         var joined: String = ws.joined()
@@ -119,7 +138,10 @@ public enum RecordingProfile: String {
             isExcluded = true
             joined = joined.replacingOccurrences(of: phrase, with: "")
         }
-        for k in keywords where joined.contains(k) {
+        for k in keywords where k.count > 3 && joined.contains(k) {
+            return (true, isExcluded)
+        }
+        for k in keywords where k.count <= 3 && hasWholeWord(ws, k) {
             return (true, isExcluded)
         }
         if isLocomotion && joined.contains("barbell") {

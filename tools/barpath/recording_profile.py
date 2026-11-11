@@ -16,7 +16,8 @@ HIGH = "high"
 EXCLUDED = ("airsquat", "bodyweightsquat", "bwsquat", "jumpsquat", "squatjump", "pistolsquat", "pistol", "pushup",
             "pressup", "wallball", "burpee", "curlup", "benchdip", "benchjump", "benchstep")
 
-# Barbell / dumbbell / kettlebell strength and Olympic movements (substring of the joined form).
+# Barbell / dumbbell / kettlebell strength and Olympic movements (substring of the joined form;
+# keywords of three letters or fewer, i.e. "cj", must be a whole word instead).
 KEYWORDS = ("snatch", "clean", "jerk", "cleanandjerk", "cj", "press", "deadlift", "squat", "thruster",
             "curl", "swing", "bench", "overshoulder", "highpull", "shrug", "goodmorning", "hipthrust",
             "windmill", "turkishgetup", "bentoverrow", "barbellrow", "dumbbellrow", "kettlebellrow",
@@ -58,6 +59,21 @@ def words(text: str) -> list:
     return out
 
 
+def _has_whole_word(ws: list, keyword: str) -> bool:
+    """True when consecutive words join to exactly `keyword` ("cj", "c&j" -> "c", "j"), never when
+    the letters only appear inside a longer word or across a word boundary ("epic jumps")."""
+    n = len(ws)
+    for i in range(n):
+        acc = ""
+        for j in range(i, n):
+            acc += ws[j]
+            if acc == keyword:
+                return True
+            if len(acc) >= len(keyword):
+                break
+    return False
+
+
 def _classify_text(text: str):
     """(has_keyword, had_excluded_phrase) for one id or name."""
     ws = words(text)
@@ -69,7 +85,12 @@ def _classify_text(text: str):
             excluded = True
             joined = joined.replace(phrase, "")
     for k in KEYWORDS:
+        if len(k) <= 3:
+            continue   # short keywords ("cj") must be whole words, checked below
         if k in joined:
+            return True, excluded
+    for k in KEYWORDS:
+        if len(k) <= 3 and _has_whole_word(ws, k):
             return True, excluded
     if locomotion and "barbell" in joined:
         return True, excluded
