@@ -3,8 +3,8 @@ import json
 import numpy as np
 import pytest
 
-from barpath.analyzer import (WRIST_REFERENCE, NOTE_GRAVITY_ONLY, NOTE_NO_ANCHOR, AnalyzerConfig, NoHomingFound, TooShort,
-                              analyze, principal_axis)
+from barpath.analyzer import (WRIST_REFERENCE, NOTE_ANCHOR_OVERLAP, NOTE_GRAVITY_ONLY, NOTE_NO_ANCHOR, NOTE_PSEUDO_ANCHOR,
+                              AnalyzerConfig, NoHomingFound, TooShort, analyze, principal_axis)
 from barpath.recording import LiftRecording, MotionSeries
 from barpath.simulate import simulate_lift
 
@@ -128,3 +128,39 @@ def test_principal_axis():
     e = principal_axis(xy)
     assert abs(abs(e @ d) - 1) < 1e-2
     assert np.allclose(np.abs(principal_axis(np.array([[0, 0], [0, 1.0], [0, 2.0]]))), [0, 1])
+
+
+def _still_from(sim, t_from, t_to=None):
+    """Zero the accel and rotation rate from t_from (to t_to or the end): a still hold that
+    starts right after the pull (before the forearm turns over) and runs on."""
+    t = sim.recording.motion.t
+    i0 = int(np.searchsorted(t, t_from))
+    i1 = len(t) if t_to is None else int(np.searchsorted(t, t_to))
+    sim.recording.motion.user_accel[i0:i1] = 0
+    sim.recording.motion.rotation_rate[i0:i1] = 0
+
+
+def test_still_hold_spanning_the_turnover_does_not_crash():
+    # A still run that starts before the turnover and outlasts the pseudo-anchor used to give a
+    # negative velocity segment (IndexError); now a normal, low-confidence result with a note.
+    sim = simulate_lift("snatch", seed=1, fill_detector_fields=False)
+    _still_from(sim, sim.lift.t_homing + 0.9, sim.lift.t_end + 0.1)
+    a = analyze(sim.recording, WRIST_REFERENCE)
+    assert a.confidence == "low"
+    assert NOTE_ANCHOR_OVERLAP in a.notes
+    assert np.all(np.isfinite(a.path.vertical)) and len(a.segments) >= 1
+    assert a.endIndex > a.homingIndex
+
+
+def test_last_anchor_released_at_final_sample_does_not_crash():
+    # End-only pseudo anchor (cleans) with the last still hold running to the final sample used
+    # to integrate one sample past the end (IndexError).
+    import dataclasses
+    sim = simulate_lift("snatch", seed=1, fill_detector_fields=False)
+    sim.recording.lift_type = "clean"
+    _still_from(sim, sim.lift.t_homing + 0.9)
+    cfg = dataclasses.replace(WRIST_REFERENCE, pseudoAnchorMode="auto")
+    a = analyze(sim.recording, cfg)
+    assert a.endIndex <= len(sim.recording.motion) - 1
+    assert NOTE_PSEUDO_ANCHOR not in a.notes
+    assert np.all(np.isfinite(a.path.vertical))

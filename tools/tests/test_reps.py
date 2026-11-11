@@ -140,3 +140,12 @@ def test_long_set_keeps_counting():
     assert [len(s[3]) for s in sets] == [25]
     assert live == list(range(1, 26))
     assert sets[0][1] < 8.0   # recording still starts before the first rep
+
+
+def test_unusable_timestamps_return_zero_reps():
+    n = 400
+    rng = np.random.default_rng(0)
+    ua = rng.normal(scale=0.2, size=(n, 3))
+    g = np.tile([-1.0, 0.0, 0.0], (n, 1))
+    for t in (np.zeros(n), np.full(n, 5.0), np.full(n, np.nan)):
+        assert count_reps(t, ua, g).count == 0

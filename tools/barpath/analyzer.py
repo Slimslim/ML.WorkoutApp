@@ -28,6 +28,7 @@ NOTE_LATERAL = "Large sideways drift: horizontal path unreliable"
 NOTE_END_OVER_START = "Forward/back estimated: assumes the bar finishes above where it started"
 NOTE_NO_ANCHOR = "No still recovery found: path uncorrected"
 NOTE_FORWARD_ESTIMATED = "Forward direction estimated"
+NOTE_ANCHOR_OVERLAP = "Still hold overlaps the lift: path unreliable"
 
 
 class AnalysisError(Exception):
@@ -360,6 +361,28 @@ def analyze(rec: LiftRecording, config: AnalyzerConfig = AnalyzerConfig(), *, sp
                             anchors.append((pa, pa, pa))
                         notes.append(NOTE_PSEUDO_ANCHOR)
 
+    # 4c. an anchor that starts before the previous one has released (a still run that began
+    # before the forearm turned over and outlasts the pseudo-anchor) would give a negative
+    # segment: drop it, and mark the result low confidence.
+    anchors_ok: List[Tuple[int, int, int]] = []
+    s_prev = homing_idx
+    for a in anchors:
+        if a[0] < s_prev:
+            continue
+        anchors_ok.append(a)
+        s_prev = a[1]
+    anchors_overlap = len(anchors_ok) != len(anchors)
+    if anchors_overlap:
+        anchors = anchors_ok
+        notes.append(NOTE_ANCHOR_OVERLAP)
+
+    # An end-only pseudo anchor integrates one sample past the last anchor's release; with the
+    # release at the final sample there is nothing to integrate: that anchor is the end.
+    if pseudo_end is not None and anchors and anchors[-1][1] + 1 > n - 1:
+        pseudo_end = None
+        if NOTE_PSEUDO_ANCHOR in notes:
+            notes.remove(NOTE_PSEUDO_ANCHOR)
+
     # 5. velocity: piecewise ZUPT between still runs
     v = np.zeros((n, 3))
     seg_bounds: List[Tuple[int, int, float]] = []  # (s, e, driftCorrection)
@@ -525,7 +548,7 @@ def analyze(rec: LiftRecording, config: AnalyzerConfig = AnalyzerConfig(), *, sp
     conf = "high" if max_drift < 0.25 else ("medium" if max_drift < 0.6 else "low")
     if mode == "gravityOnly" and conf == "high":
         conf = "medium"
-    if no_anchor:
+    if no_anchor or anchors_overlap:
         conf = "low"
     if NOTE_LATERAL in notes and conf == "high":
         conf = "medium"
