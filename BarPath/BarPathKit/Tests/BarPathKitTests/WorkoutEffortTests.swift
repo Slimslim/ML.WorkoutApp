@@ -34,8 +34,9 @@ final class WorkoutEffortTests: XCTestCase {
     func testParityWithPython() throws {
         let data: Data = try fixtureData("effort_cases", "json")
         let cases = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [[String: Any]])
-        XCTAssertEqual(cases.count, 6)
+        XCTAssertEqual(cases.filter({ (c: [String: Any]) -> Bool in c["kind"] == nil }).count, 6)
         for c in cases {
+            if c["kind"] != nil { continue }
             let s = try XCTUnwrap(c["series"] as? [String: Any])
             let raw = try XCTUnwrap(s["bpm"] as? [Any])
             let series = HeartRateSeries(start: try XCTUnwrap(s["start"] as? Double),
@@ -49,6 +50,57 @@ final class WorkoutEffortTests: XCTestCase {
                 XCTAssertNil(got, c["name"] as? String ?? "")
             }
         }
+    }
+
+    func testEffectiveMaxParityWithPython() throws {
+        let data: Data = try fixtureData("effort_cases", "json")
+        let cases = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [[String: Any]])
+        var checked: Int = 0
+        for c in cases {
+            guard (c["kind"] as? String) == "effectiveMax" else { continue }
+            let name: String = c["name"] as? String ?? ""
+            let items = try XCTUnwrap(c["results"] as? [[String: Any]])
+            var results: [WorkoutResult] = []
+            for item in items {
+                var r = result([], done: [])
+                if let raw = item["bpm"] as? [Any] {
+                    r.heartRateSeries = HeartRateSeries(start: 0, interval: 5, bpm: raw.map { $0 as? Double })
+                }
+                r.heartRateMax = item["max"] as? Double
+                results.append(r)
+            }
+            let got = WorkoutEffort.effectiveMaxHeartRate(results: results, birthYear: c["birthYear"] as? Int,
+                                                          override: c["override"] as? Double,
+                                                          year: try XCTUnwrap(c["year"] as? Int))
+            if let value = c["value"] as? Double {
+                XCTAssertEqual(try XCTUnwrap(got).value, value, accuracy: 1e-9, name)
+                XCTAssertEqual(got?.source.rawValue, c["source"] as? String, name)
+            } else {
+                XCTAssertNil(got, name)
+            }
+            checked += 1
+        }
+        XCTAssertEqual(checked, 14)
+    }
+
+    func testSustainedIgnoresALoneSpike() {
+        let spike = HeartRateSeries(start: 0, interval: 5, bpm: [178, 210, 178])
+        XCTAssertEqual(WorkoutEffort.sustainedHeartRate([result([], done: [], series: spike)]), 178)
+        let one = HeartRateSeries(start: 0, interval: 5, bpm: [190])
+        XCTAssertNil(WorkoutEffort.sustainedHeartRate([result([], done: [], series: one)]))
+        XCTAssertNil(WorkoutEffort.sustainedHeartRate([]))
+    }
+
+    func testAgeEstimateIsTheFloorAndDataOnlyRaisesIt() {
+        let low = result([], done: [], series: HeartRateSeries(start: 0, interval: 5, bpm: [120, 120]))
+        let high = result([], done: [], series: HeartRateSeries(start: 0, interval: 5, bpm: [191, 191]))
+        let none = WorkoutEffort.effectiveMaxHeartRate(results: [], birthYear: 1991, override: nil, year: 2026)
+        XCTAssertEqual(none, WorkoutEffort.MaxHeartRate(value: 183.5, source: .age))
+        let still = WorkoutEffort.effectiveMaxHeartRate(results: [low], birthYear: 1991, override: nil, year: 2026)
+        XCTAssertEqual(still?.source, .age)
+        let raised = WorkoutEffort.effectiveMaxHeartRate(results: [low, high], birthYear: 1991, override: nil,
+                                                         year: 2026)
+        XCTAssertEqual(raised, WorkoutEffort.MaxHeartRate(value: 191, source: .workouts))
     }
 
     func testMaxComesFromTheStoredMaxWithoutASeries() {
