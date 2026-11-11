@@ -12,6 +12,8 @@ Selim Gawad, an individual developer. Contact: selim.gawad@gmail.com.
 - **Your training data:** the lifts, workouts and watch recordings the app saves. This
   includes wrist motion during lifts, workout splits and scores, and heart rate during
   workouts recorded on your Apple Watch.
+- **Your date of birth:** the app reads it from Apple Health to estimate your maximum heart
+  rate and keeps it on your phone. It is not uploaded.
 
 Rx Lab does not collect your location, contacts, photos or advertising identifiers. It
 contains no ads and no third-party analytics.

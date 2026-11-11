@@ -369,6 +369,21 @@ last checkpoint, with no finish time unless I had already finished; the start sc
 it, and an active Health workout left over is ended and saved. A normal End leaves no checkpoint.
 It does not resume the running workout, and time after the last checkpoint is not recorded.
 
+**W25. My heart rate zones start from my age (Now)**
+As a new athlete, I want Effort to make sense from my first workout, so an easy session is not
+scored as all zone 5 and one sensor spike does not skew every later score.
+*Done when:* max heart rate is the manual value if I set one (100-230), else the larger of
+208 - 0.7 × age (from my Health birth date, or a birth year typed in Settings) and the highest
+heart rate I held for at least two 5-s points in my results (old results without a series count
+their stored max). It never goes down by itself. Effort, zones and the heart rate chart agree on it
+everywhere. Settings > Heart rate shows the birth year ("From Health", or a field when Health has
+none) and the max in use with where it comes from (Estimated from age, From your workouts, Set by
+you), with a field to set my own and a way to clear it. The watch's one Health sheet also asks for
+date of birth. Both stay on the phone: no upload, no result field, no watch message. With no birth
+year and no heart rate data, nothing is scored, as before.
+*Status:* built on branch `claude/funny-faraday-1adqio` (phone and one watch permission line; not
+run on a device yet).
+
 ### Recording follows the plan (spans Lifting and Workouts; after the MVP)
 
 **W21. The watch records each part the way that part needs (Later)**
@@ -431,7 +446,7 @@ existing lift chooser and the Workouts tab. The next workout on the watch and it
 **N6. Effort from what the watch measured (Now)**
 As an athlete, I want one number for how much I did, based on measured heart rate.
 *Done when:* Effort is minutes × heart rate zone from start to finish, added per local day, with max
-heart rate the highest ever recorded. Days with no heart rate data (lifting sessions today) show a
+heart rate as in W25. Days with no heart rate data (lifting sessions today) show a
 dash, not 0. Python reference, Swift port and parity test. Weight lifted is left out of the beta: the
 app doesn't know the loads actually lifted yet.
 
