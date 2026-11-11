@@ -28,7 +28,6 @@ tools/                           Python reference implementation + simulator + p
   tests/                         pytest
   plot_lift.py                   CLI: plot an exported recording
   make_fixtures.py               writes Swift test fixtures
-legacy/                          old 2024 Python ML code (untouched, moved)
 docs/
 ```
 
