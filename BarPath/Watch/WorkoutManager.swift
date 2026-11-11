@@ -76,11 +76,15 @@ final class WorkoutManager: NSObject, ObservableObject {
     /// what a workout does).
     private func authorizationSets() -> (share: Set<HKSampleType>, read: Set<HKObjectType>) {
         let share: Set<HKSampleType> = [HKObjectType.workoutType()]
-        let read: Set<HKObjectType> = [
+        var read: Set<HKObjectType> = [
             HKQuantityType(.heartRate),
             HKQuantityType(.activeEnergyBurned),
             HKObjectType.workoutType()
         ]
+        // Date of birth, for the max heart rate estimate on the phone (asked in the same sheet).
+        if let birth = HKObjectType.characteristicType(forIdentifier: .dateOfBirth) {
+            read.insert(birth)
+        }
         return (share: share, read: read)
     }
 

@@ -23,7 +23,7 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSHealthShareUsageDescription</key>
-	<string>Rx Lab reads your heart rate during workouts and lifting sessions, to show your effort and recovery.</string>
+	<string>Rx Lab reads your heart rate during workouts and lifting sessions, and your date of birth, to show your effort and recovery.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>Rx Lab saves your workouts and lifting sessions to Health.</string>
 	<key>NSMotionUsageDescription</key>
