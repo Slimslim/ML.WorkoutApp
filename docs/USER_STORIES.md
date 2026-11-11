@@ -349,6 +349,17 @@ I don't find out afterwards that nothing was measured.
 right Settings page; the banner goes away as soon as access is on. (Kevin, 2026-11-10: no HR or
 steps recorded at all.)
 
+**W24. A crash does not lose my workout (Now)**
+As an athlete, I want a workout that was cut off (app crash, memory kill, reboot, dead battery)
+to still show up on my phone, so a 40-minute effort is not gone because of a watch hiccup.
+*Done when:* while a workout runs, the watch saves a checkpoint (splits, heart rate, steps, reps
+entered, whether a recording was started) at every split and about every 15 s. When the app is
+opened again, a checkpoint left behind is sent to the phone as a normal result that ends at the
+last checkpoint, with no finish time unless I had already finished; the start screen line reads
+"<name> · 12:34 · saved after interruption". The debug recording from that session is sent with
+it, and an active Health workout left over is ended and saved. A normal End leaves no checkpoint.
+It does not resume the running workout, and time after the last checkpoint is not recorded.
+
 ### Recording follows the plan (spans Lifting and Workouts; after the MVP)
 
 **W21. The watch records each part the way that part needs (Later)**

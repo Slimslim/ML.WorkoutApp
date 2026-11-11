@@ -38,6 +38,11 @@ final class WorkoutManager: NSObject, ObservableObject {
         super.init()
     }
 
+    /// Number of times any manager in this process was asked to start a session. The launch
+    /// recovery below only acts while this is still 0, so it can never end a session started
+    /// in this run.
+    private static var startRequests = 0
+
     var hasSession: Bool { session != nil }
 
     // MARK: - Start
@@ -53,6 +58,7 @@ final class WorkoutManager: NSObject, ObservableObject {
             return
         }
         startPending = true
+        WorkoutManager.startRequests += 1
         let share: Set<HKSampleType> = [HKObjectType.workoutType()]
         let read: Set<HKObjectType> = [
             HKQuantityType(.heartRate),
@@ -103,6 +109,59 @@ final class WorkoutManager: NSObject, ObservableObject {
                 Log.workout.error("beginCollection failed: \(error.localizedDescription, privacy: .public)")
             } else {
                 Log.workout.info("beginCollection ok: \(success)")
+            }
+        }
+    }
+
+    // MARK: - Recovery after the app died
+
+    /// Called once at launch by the workout model. If the app died mid-workout the system may
+    /// still hold an active HKWorkoutSession for it: end it and save the Health workout (end
+    /// collection now, then finishWorkout). Fire and forget; errors are only logged. A lifting
+    /// session (traditional strength) is left alone, and nothing happens if a session was
+    /// already requested in this run.
+    nonisolated static func recoverInterruptedSession() {
+        guard HKHealthStore.isHealthDataAvailable() else { return }
+        let store = HKHealthStore()
+        store.recoverActiveWorkoutSession { session, error in
+            if let error = error {
+                Log.workout.error("recoverActiveWorkoutSession failed: \(error.localizedDescription, privacy: .public)")
+                return
+            }
+            guard let session = session else { return }
+            Task { @MainActor in
+                finishRecovered(session)
+            }
+        }
+    }
+
+    private static func finishRecovered(_ session: HKWorkoutSession) {
+        if startRequests > 0 {
+            Log.workout.info("Recovered session ignored: a session was already requested in this run")
+            return
+        }
+        if session.workoutConfiguration.activityType == .traditionalStrengthTraining {
+            Log.workout.info("Recovered session is a lifting session; left alone")
+            return
+        }
+        Log.workout.error("Recovered an active workout session from before the app died; saving it")
+        let builder: HKLiveWorkoutBuilder = session.associatedWorkoutBuilder()
+        if session.state != .ended {
+            session.end()
+        }
+        let endDate = Date()
+        builder.endCollection(withEnd: endDate) { _, error in
+            if let error = error {
+                Log.workout.error("Recovered endCollection failed: \(error.localizedDescription, privacy: .public)")
+            }
+            builder.finishWorkout { _, error in
+                if let error = error {
+                    Log.workout.error("Recovered finishWorkout failed: \(error.localizedDescription, privacy: .public)")
+                } else {
+                    Log.workout.info("Recovered workout saved")
+                }
+                // Keeps the session alive until the workout is saved.
+                _ = session
             }
         }
     }

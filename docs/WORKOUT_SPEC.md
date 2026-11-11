@@ -282,7 +282,12 @@ at 1110, 1170, 1200 (the last one finishes).
   `PhoneLink.metadata(forFileNamed:)` must map `workout-<uuid>.json` to that metadata (check
   it **before** the lift `.json` rule).
 - After every event, persist `progress` (JSON) to `UserDefaults` key `workoutProgress.v1`.
-  Crash recovery comes later; this keeps the splits.
+  Crash recovery (W24): a checkpoint file (`WorkoutCheckpoint`, Application Support) holds the
+  progress, HR, pedometer samples, partial reps and `savedAt`; it is rewritten at every split and
+  about every 15 s, and deleted once the result is written at End. At the next launch a leftover
+  checkpoint becomes a result ending at `savedAt` (no finish time unless finished), is sent as
+  `workout-<id>.json`, and the start screen reads "… · saved after interruption". The workout is
+  not resumed; an active HealthKit session is ended and saved.
 
 ### Screens (no scrolling; SF Rounded)
 
