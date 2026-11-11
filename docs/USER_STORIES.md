@@ -346,7 +346,7 @@ As an athlete, I want the app to tell me before a workout if heart rate or motio
 I don't find out afterwards that nothing was measured.
 *Done when:* the phone's Workouts tab and the watch start screen show "Heart rate is off" /
 "Motion is off" with what it costs (no HR, recovery, distance, reps) and a button that opens the
-right Settings page; the banner goes away as soon as access is on. (Kevin, 2026-11-10: no HR or
+right Settings page; the banner goes away as soon as access is on. (First tester, 2026-11-10: no HR or
 steps recorded at all.)
 
 **W24. A crash does not lose my workout (Now)**

@@ -41,8 +41,8 @@ phone (W19), round-by-round view (W18), run distance at the cap (W20), partner s
 
 ## Build (2): first workout and permissions (from the first tester)
 
-Kevin's first workout (2026-11-10): the heart-rate prompt came mid-run, he refused or dismissed it
-(no HR, no steps recorded) and he did not find the Crown, so the whole workout was one part.
+The first tester's first workout (2026-11-10): the heart-rate prompt came mid-run and was refused or
+dismissed (no HR, no steps recorded), and the Crown was never found, so the whole workout was one part.
 - **W22 Practice workout:** permissions asked before START with the reason, a 2-part practice with
   real HR that teaches "turn the Crown", and the finish screen explaining the 3-min recovery and
   "swipe left, End" (recovery keeps recording). Saves nothing.
