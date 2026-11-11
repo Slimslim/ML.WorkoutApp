@@ -13,7 +13,18 @@ questions, so the build starts from the same place.
   row) -> device motion 200 Hz through `CMBatchedSensorManager` (needs the running HealthKit
   session; falls back to 100 Hz without one). `.standard`: everything else, including long simple
   pieces with a load (step-ups with a vest, rucks, carries, sleds, ergs) -> 100 Hz as before.
-- No switching inside a session and no GPS yet. Lifting mode is unchanged (already 200 Hz + 800 Hz).
+- No switching inside a session. **GPS (build 16):** decided once at START with the rate
+  (`RecordingProfile.usesLocation`, `uses_location` in Python, `locationCases` in the shared fixture):
+  on when the plan has at least one `run` segment, off for Free Workout and plans without a run.
+  The session's `locationType` is `.outdoor` when on. Fixes (horizontal accuracy 0-30 m, newer than
+  the start) feed the route builder of the same live builder (one Fitness workout; route finished
+  after `finishWorkout`, discarded with a discarded workout) and one CSV comment line each. **Map
+  coordinates are never written to the app's files**: the route goes only to Apple Health; the CSV
+  has distance, speed, accuracy and relative altitude. Recorded for comparison with the pedometer
+  only; the displayed distance and the result stay on the pedometer. Header `gps=on|off`. No
+  `location` in `WKBackgroundModes` (not a documented value; the workout session keeps the app
+  running) and `allowsBackgroundLocationUpdates` is set only if a `location` mode is declared.
+  Lifting mode is unchanged (already 200 Hz + 800 Hz).
   No 800 Hz accel in workout mode: the session CSV has no accel columns.
 - The CSV header records `sampleRate` (real nominal rate) and `planProfile`. The Python loader
   decimates workout files to 100 Hz on load, so the detectors need no change.

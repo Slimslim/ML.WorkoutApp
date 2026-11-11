@@ -274,6 +274,17 @@ at 1110, 1170, 1200 (the last one finishes).
   - `# event t=<s> name=finish index=<last>` and `name=unfinish`
   - `# event t=<s> name=hr bpm=<value>`
   - `# event t=<s> name=pedometer steps=<cum> distance=<cum m or -1> cadence=<spm or -1> pace=<s/km or -1>`
+  - `# event t=<s> name=gps distance=<cum m> speed=<m/s> accuracy=<m> altitudeDelta=<m>` (build 16,
+    only in sessions whose header says `gps=on`, i.e. the plan has a run): one line per accepted
+    location fix (horizontal accuracy 0-30 m, timestamp after the start). `distance` = meters since
+    the first accepted fix (sum of the distances between consecutive accepted fixes); `speed` =
+    `CLLocation.speed`, the key is omitted when negative (unknown); `accuracy` = horizontal accuracy;
+    `altitudeDelta` = altitude change since the first fix (relative). **No latitude, longitude,
+    absolute altitude or course.** Example:
+    `# event t=412.350000 name=gps distance=1043.2 speed=3.41 accuracy=4.8 altitudeDelta=-1.6`.
+    Parsed by `barpath.recording.parse_gps_events` / `SessionCSV.gps_fixes()`. Recorded for comparison
+    with the pedometer; the displayed distance and the result still use the pedometer. The route goes
+    to Apple Health only (route builder of the live builder, `finishRoute` after `finishWorkout`).
   - `# mark t=<s> n=<k> label=mark` (Mark button on the controls page)
 - With Data mode off: no CSV. The pedometer, HR and result still work.
 

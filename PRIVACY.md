@@ -15,8 +15,12 @@ Selim Gawad, an individual developer. Contact: selim.gawad@gmail.com.
 - **Your date of birth:** the app reads it from Apple Health to estimate your maximum heart
   rate and keeps it on your phone. It is not uploaded.
 
-Rx Lab does not collect your location, contacts, photos or advertising identifiers. It
-contains no ads and no third-party analytics.
+During workouts that include a run, your Apple Watch uses your location to measure distance
+and pace. Your route is saved to Apple Health on your devices. The recording that is uploaded
+contains distance, speed and accuracy, but no coordinates (no latitude or longitude).
+
+Rx Lab does not collect your contacts, photos or advertising identifiers. It contains no ads
+and no third-party analytics.
 
 ## Why
 
