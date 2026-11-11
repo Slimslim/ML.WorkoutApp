@@ -83,3 +83,15 @@ def test_predictions_at_unconfirmed_starts_are_set_aside():
                       dict(movement="thrusters", start=40, end=80, source="crown")]}
     assert L.unknown_windows(d) == [(40.0, 60.0)]
     assert L.drop_unknown(d, [20.0, 45.0, 70.0]) == [20.0, 70.0]
+
+
+def test_a_flag_keeps_the_athletes_count_and_says_what_to_check():
+    d = {"version": 1, "id": "x", "date": "2026-11-10", "name": "x", "kind": "workout",
+         "files": {"csv": "a.csv", "result": "a.json"},
+         "segments": [seg("bentOverRows", 0, 20, reps=12,
+                          flag=dict(motion=13, athlete=12, reason="on the buzzer", check="video"))]}
+    assert L.validate(d) == []
+    assert [(f["motion"], f["athlete"], f["movement"]) for f in L.flags(d)] == [(13, 12, "bentOverRows")]
+    d["segments"][0]["flag"] = dict(motion=13, reason="x", check="guess")
+    errs = L.validate(d)
+    assert any("athlete" in e for e in errs) and any("check must be" in e for e in errs)

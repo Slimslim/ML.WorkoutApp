@@ -33,6 +33,10 @@ phone (W19), round-by-round view (W18), run distance at the cap (W20), partner s
   `BarPathKit/Sources/BarPathKit/Models.swift`: small separate commit, called out in the PR).
 - Same `RepCounter` / `barpath.reps` as the deadlift. Evidence: on the 2026-11-08 strict press
   (3 x 10, labelled), the unchanged counter counts **10 / 10 / 10**, bar travel 0.44-0.65 m.
+- **A press rep is counted at lockout** (forearm fully vertical after the push), not on any push:
+  on the 2026-11-10 Tabata press this gives the athlete's count in all 8 sets and skips a missed rep
+  and the re-rack. Where the counter and the athlete disagree, the label keeps the athlete's count
+  and is flagged for video.
 - Bench press: not yet seen in data. Check on the first bench session (Thursday 2026-11-12, dumbbell
   bench) before the build goes to testers; if it miscounts, ship bench without rep counting.
 - Python reference + Swift parity test on a press fixture; watch lift picker and phone lift report
