@@ -88,6 +88,13 @@ t,qw,qx,qy,qz,ax,ay,az,gx,gy,gz,rx,ry,rz
 Six decimals for t, five for the rest. Sent to the phone at session end via `transferFile`.
 No 800 Hz accel in the CSV (keeps size ≈ 20 MB per 10 min).
 
+**Cloud upload.** The phone uploads recordings as standard gzip files, `<user id>/<path>.csv.gz`
+(about 2.6x smaller; the local `.csv` stays as it is). Recordings uploaded by earlier builds are
+plain `.csv` objects and stay that way; `tools/fetch_sessions.py` reads both. The bucket accepts
+at most 50 MB per file: a file that is still too large after compression, or that the server
+refuses for its size, is remembered per version and not retried (the app shows "1 file too large
+to upload" once); it is tried again only if the file changes.
+
 ---
 
 ## 3. BarPathKit public API (Swift) — exact names

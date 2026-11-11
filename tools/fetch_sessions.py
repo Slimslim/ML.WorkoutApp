@@ -7,12 +7,15 @@ The recordings live in the owner's private Supabase Storage folder (bucket `uplo
     BARPATH_USER_ID=<user id> BARPATH_SUPABASE_KEY=<secret key> python3 tools/fetch_sessions.py
 
 In a Claude cloud session the network proxy adds the key; pass any placeholder as the key.
+Recordings are stored gzip-compressed (`<path>.gz`); older ones may be plain. Each file is asked
+for as `.gz` first, then plain, and the cache always holds the plain file.
 Files already in the cache are skipped (use --force to download again). data/cache/ is ignored
 by git: recordings never go into the repository.
 """
 from __future__ import annotations
 
 import argparse
+import gzip
 import os
 import sys
 import urllib.error
@@ -33,11 +36,36 @@ def files_of(d: dict) -> list:
     return [v for v in d["files"].values() if isinstance(v, str)]
 
 
+def candidate_paths(path: str) -> list:
+    """Object paths to try, in order: recordings (.csv) are stored as `<path>.gz` since the
+    compressing uploader, older ones are plain."""
+    if path.lower().endswith(".csv"):
+        return [path + ".gz", path]
+    return [path]
+
+
+def decode_body(object_path: str, data: bytes) -> bytes:
+    """The plain file content of a downloaded object (gunzips `.gz` objects)."""
+    if object_path.endswith(".gz"):
+        return gzip.decompress(data)
+    return data
+
+
 def fetch(user: str, key: str, path: str, dest: Path) -> None:
-    url = f"{PROJECT_URL}/storage/v1/object/{BUCKET}/{user}/{path}"
-    req = urllib.request.Request(url, headers={"apikey": key, "Authorization": f"Bearer {key}"})
-    with urllib.request.urlopen(req, timeout=120) as r:
-        data = r.read()
+    candidates = candidate_paths(path)
+    data = b""
+    for i, object_path in enumerate(candidates):
+        url = f"{PROJECT_URL}/storage/v1/object/{BUCKET}/{user}/{object_path}"
+        req = urllib.request.Request(url, headers={"apikey": key, "Authorization": f"Bearer {key}"})
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                data = decode_body(object_path, r.read())
+            break
+        except urllib.error.HTTPError as e:
+            # Storage answers 400 or 404 for a missing object: try the next name.
+            if e.code in (400, 404) and i < len(candidates) - 1:
+                continue
+            raise
     dest.parent.mkdir(parents=True, exist_ok=True)
     tmp = dest.with_suffix(dest.suffix + ".part")
     tmp.write_bytes(data)
