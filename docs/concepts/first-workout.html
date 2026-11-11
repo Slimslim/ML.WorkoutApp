@@ -1,0 +1,193 @@
+<title>Practice Workout Mockups</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&family=Nunito:wght@700;800;900&display=swap">
+<style>
+/* Layout: a review sheet. Steps of the W22 flow left to right (wrapping), each watch with its
+   caption; then W23 banners on phone and watch. Watch screens use the approved watch palette. */
+:root{
+  --page:#F5F6F8; --card:#FFFFFF; --ink:#1B1D21; --ink2:#5F6570; --line:#ECEEF1;
+  --accent:#D9692E; --accent-text:#B4501C; --good:#2E8466; --shadow:rgba(20,22,26,.35);
+  /* watch (fixed: the watch screen is always dark) */
+  --bg:#0C0D0F; --fg:#F3F4F6; --fg2:#A4A8B0; --fg3:#6D727B; --volt:#B8FF3C; --run:#4D8EFF;
+  --station:#FF7A1A; --hr:#FF5B4F; --warn:#FFB86B;
+  --case-hi:#6A6E76; --case:#3A3D43; --case-lo:#1D1F23; --band:#141518; --screen:#000;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,sans-serif;
+  --f-round:ui-rounded,"SF Pro Rounded","Nunito",system-ui,sans-serif;
+  --f-phone:-apple-system,"SF Pro Text",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --page:#121417; --card:#1B1E22; --ink:#ECEEF1; --ink2:#A2A8B2; --line:#2A2E34;
+  --accent-text:#F08A52; --shadow:rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme="dark"]{--page:#121417; --card:#1B1E22; --ink:#ECEEF1; --ink2:#A2A8B2; --line:#2A2E34;
+  --accent-text:#F08A52; --shadow:rgba(0,0,0,.6); color-scheme:dark}
+
+body{background:var(--page);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 64px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:40px}
+header{display:flex;flex-direction:column;gap:8px;max-width:70ch}
+.eyebrow{font:700 12px/1 var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--accent-text)}
+h1{font:800 44px/1 var(--f-display);margin:0;text-wrap:balance;letter-spacing:.01em}
+h2{font:700 28px/1.1 var(--f-display);margin:0;text-wrap:balance}
+p{margin:0}
+.lede{color:var(--ink2)}
+section{display:flex;flex-direction:column;gap:20px}
+.why{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;max-width:78ch;color:var(--ink2)}
+.why b{color:var(--ink)}
+.flow{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:28px 20px}
+.step{display:flex;flex-direction:column;gap:10px;align-items:center}
+.cap{width:100%;max-width:260px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.cap .n{font:700 12px/1 var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--ink2)}
+.cap .t{font:700 18px/1.2 var(--f-display)}
+.cap .d{font-size:14px;color:var(--ink2)}
+.alt .cap .n{color:var(--accent-text)}
+
+/* watch frame (from watch-vote.html, approved) */
+.watchwrap{width:244px;height:330px;position:relative;flex:none}
+.watch{position:absolute;inset:0}
+.band{position:absolute;left:39px;width:150px;height:44px;background:linear-gradient(180deg,var(--band),var(--case-lo))}
+.band.t{top:0;border-radius:14px 14px 4px 4px}
+.band.b{bottom:0;border-radius:4px 4px 14px 14px;background:linear-gradient(0deg,var(--band),var(--case-lo))}
+.case{position:absolute;left:0;top:30px;width:228px;height:270px;border-radius:56px;background:linear-gradient(145deg,var(--case-hi),var(--case) 30%,var(--case-lo) 85%);box-shadow:0 18px 40px -12px var(--shadow),inset 0 1px 1px var(--case-hi)}
+.crown{position:absolute;left:224px;top:122px;width:14px;height:40px;border-radius:5px;background:repeating-linear-gradient(180deg,var(--case-hi) 0 2px,var(--case) 2px 4px);box-shadow:inset -2px 0 2px var(--case-lo)}
+.crown.glow{box-shadow:0 0 0 3px var(--volt),0 0 18px 4px rgba(184,255,60,.55)}
+.sidebtn{position:absolute;left:225px;top:188px;width:7px;height:52px;border-radius:3px;background:linear-gradient(90deg,var(--case),var(--case-lo))}
+.bezel{position:absolute;left:8px;top:8px;width:212px;height:254px;border-radius:49px;background:var(--screen);padding:4px}
+.screen{position:relative;width:204px;height:246px;border-radius:45px;overflow:hidden;background:var(--screen);color:var(--fg);font-family:var(--f-round);font-variant-numeric:tabular-nums}
+
+/* watch screen content */
+.s{position:absolute;inset:0;padding:30px 18px 18px;display:flex;flex-direction:column;gap:6px}
+.top{display:flex;justify-content:space-between;font:700 13px/1 var(--f-round);color:var(--fg2)}
+.top .tag{color:var(--volt)}
+.big{font:800 30px/1 var(--f-display);letter-spacing:.01em;text-transform:uppercase}
+.mid{font:700 15px/1.25 var(--f-round)}
+.small{font:600 12.5px/1.3 var(--f-round);color:var(--fg2)}
+.hr{color:var(--hr);font:800 26px/1 var(--f-round)}
+.hr small{font-size:12px;color:var(--fg2);font-weight:700}
+.btn{margin-top:auto;border-radius:22px;background:var(--volt);color:#0C0D0F;text-align:center;font:800 16px/1 var(--f-round);padding:12px 0}
+.btn.ghost{background:#1E2024;color:var(--fg)}
+.row{display:flex;gap:6px}
+.row .btn{flex:1}
+.dots{display:flex;gap:5px}
+.dots i{width:22px;height:4px;border-radius:2px;background:#2A2D32}
+.dots i.on{background:var(--volt)}
+.arrow{position:absolute;right:4px;top:96px;display:flex;align-items:center;gap:4px;color:var(--volt);font:800 12px/1.1 var(--f-round);text-align:right}
+.arrow svg{flex:none}
+.perm{display:flex;flex-direction:column;gap:7px}
+.perm div{display:flex;gap:8px;align-items:flex-start}
+.perm b{flex:none;width:18px;height:18px;border-radius:9px;display:grid;place-items:center;font:800 11px/1 var(--f-round);color:#0C0D0F}
+.perm .h b{background:var(--hr)} .perm .m b{background:var(--run)}
+.warnline{display:flex;gap:6px;align-items:center;color:var(--warn);font:800 13px/1.2 var(--f-round)}
+.warnbox{border-radius:14px;background:#2A2116;padding:8px 10px;display:flex;flex-direction:column;gap:4px}
+
+/* phone */
+.phonerow{display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start}
+.phone{width:300px;max-width:100%;border-radius:40px;background:#111;padding:10px;box-shadow:0 18px 40px -14px var(--shadow);flex:none}
+.pscreen{border-radius:31px;background:#FFFFFF;color:#1B1D21;font-family:var(--f-phone);overflow:hidden;min-height:540px;display:flex;flex-direction:column}
+.status{display:flex;justify-content:space-between;padding:12px 22px 4px;font:600 13px/1 var(--f-phone)}
+.ptitle{font:700 28px/1.1 var(--f-phone);padding:10px 20px 12px;letter-spacing:-.01em}
+.pbanner{margin:0 16px 14px;border-radius:14px;background:#FFF3EA;border:1px solid #F4D2BC;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.pbanner .h{font:600 15px/1.25 var(--f-phone);color:#1B1D21}
+.pbanner .b{font:400 13.5px/1.35 var(--f-phone);color:#5F6570}
+.pbanner .a{align-self:flex-start;margin-top:2px;background:#D9692E;color:#fff;border-radius:10px;padding:9px 14px;font:600 14px/1 var(--f-phone);min-height:20px}
+.pcard{margin:0 16px 10px;border:1px solid #ECEEF1;border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:3px}
+.pcard .k{font:600 12px/1 var(--f-phone);letter-spacing:.06em;text-transform:uppercase;color:#5F6570}
+.pcard .v{font:600 16px/1.3 var(--f-phone)}
+.pcard .s2{font:400 13px/1.3 var(--f-phone);color:#5F6570}
+.tabbar{margin-top:auto;display:flex;justify-content:space-around;border-top:1px solid #ECEEF1;padding:8px 0 16px;font:500 10.5px/1 var(--f-phone);color:#8A9099}
+.tabbar span.on{color:#D9692E}
+.example{font:600 11px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.decide{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 20px;max-width:78ch}
+.decide ol{margin:8px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:6px;color:var(--ink2)}
+.decide b{color:var(--ink)}
+@media (prefers-reduced-motion:no-preference){.crown.glow{animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 3px var(--volt),0 0 26px 8px rgba(184,255,60,.35)}}}
+</style>
+
+<div class="wrap">
+<header>
+  <span class="eyebrow">Mockups for approval · W22 + W23</span>
+  <h1>Practice workout and permission banner</h1>
+  <p class="lede">From the first tester's first workout (10 Nov): the heart-rate prompt appeared mid-run, he dismissed it, so nothing but time was recorded, and he never found the Crown. The practice workout asks for permissions before anything starts and teaches the Crown in one minute. Saves nothing.</p>
+</header>
+
+<section>
+  <h2>W22 · Practice workout on the watch</h2>
+  <p class="why"><b>Where it starts:</b> first launch of the watch app opens it; afterwards it is the first row of the workout list (<i>Practice · 1 min</i>). The phone's tester guide says "do the practice workout first". Heart rate below is example data.</p>
+  <div class="flow" id="flow"></div>
+</section>
+
+<section>
+  <h2>If a permission is refused</h2>
+  <div class="flow" id="refused"></div>
+</section>
+
+<section>
+  <h2>W23 · Banner when Heart rate or Motion is off</h2>
+  <p class="why">Shown until the permission is back on. One line saying what is lost, one button. Wording follows the honesty rule: say what the recording will miss, never more.</p>
+  <div class="phonerow">
+    <div class="step">
+      <div class="phone"><div class="pscreen">
+        <div class="status"><span>9:41</span><span>●●● 5G</span></div>
+        <div class="ptitle">Workouts</div>
+        <div class="pbanner">
+          <div class="h">Heart rate is off</div>
+          <div class="b">Your workouts record time and splits, but no heart rate or calories.</div>
+          <div class="a">Turn on in Health</div>
+        </div>
+        <div class="pcard"><span class="k">Today · Blue Republic</span><span class="v">AMRAP 15</span><span class="s2">Row · wall balls</span></div>
+        <div class="pcard"><span class="k">Choose</span><span class="v">Library, benchmarks, Free Workout</span></div>
+        <div class="tabbar"><span>Today</span><span class="on">Workouts</span><span>+</span><span>Log</span><span>Progress</span></div>
+      </div></div>
+      <div class="cap"><span class="n">Phone · Workouts tab</span><span class="t">Top of the tab, above Today</span><span class="d">Button opens Health → Sharing → BarPath (the app cannot switch it on itself). Motion off: "Motion is off · no steps, no rep data" → Settings.</span></div>
+    </div>
+    <div class="step" id="watchbanner"></div>
+  </div>
+</section>
+
+<section class="decide">
+  <h2>To decide</h2>
+  <ol>
+    <li><b>Walk or march in place</b> for part 1 (so HR and steps show something), or any movement?</li>
+    <li>Practice <b>length</b>: no timer (ends at the second Crown turn), or a 1-minute cap?</li>
+    <li>Show the practice <b>once</b> on first launch, or until one is finished?</li>
+    <li>Finish screen: <b>skip the 3-min recovery</b> in practice (just explain it), as drawn?</li>
+  </ol>
+</section>
+</div>
+
+<script>
+const watch=(inner,glow)=>'<div class="watchwrap"><div class="watch"><div class="band t"></div><div class="band b"></div><div class="case"><div class="bezel"><div class="screen">'+inner+'</div></div></div><div class="crown'+(glow?' glow':'')+'"></div><div class="sidebtn"></div></div></div>';
+const arrow='<div class="arrow"><span>Turn<br>the Crown</span><svg width="22" height="16" viewBox="0 0 22 16"><path d="M2 8h15M12 3l5 5-5 5" stroke="#B8FF3C" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
+const dots=n=>'<div class="dots">'+[1,2,3].map(i=>'<i class="'+(i<=n?'on':'')+'"></i>').join('')+'</div>';
+const step=(n,t,d,html,glow,cls)=>'<div class="step '+(cls||'')+'">'+watch(html,glow)+'<div class="cap"><span class="n">'+n+'</span><span class="t">'+t+'</span><span class="d">'+d+'</span></div></div>';
+
+const S=[
+ step('1 · Before START','Ask, with the reason',
+  'Shown before the system prompts, so they come now, standing still, not mid-run. "Continue" opens the Health prompt, then Motion.',
+  '<div class="s"><div class="top"><span class="tag">PRACTICE</span><span>1 min</span></div><div class="mid">Two permissions, so your workouts count:</div><div class="perm"><div class="h"><b>♥</b><span class="small">Heart rate · effort and recovery</span></div><div class="m"><b>↟</b><span class="small">Motion · steps and reps</span></div></div><div class="btn">Continue</div></div>'),
+ step('2 · Part 1','Move, and see your heart rate',
+  'Real HR from the first seconds proves it works. The Crown is lit and pointed at: the one thing to learn.',
+  '<div class="s"><div class="top"><span class="tag">PART 1 OF 2</span><span>0:18</span></div>'+dots(1)+'<div class="big">Walk</div><div class="small">or march in place</div><div class="hr" style="margin-top:6px">112 <small>BPM</small></div><div class="small" style="margin-top:auto;color:var(--fg)">Done? <span style="color:var(--volt)">Turn the Crown</span></div></div>'+arrow,true),
+ step('3 · Part 2','Again: turn the Crown',
+  'Same gesture, a second time, so it sticks. Copy reminds: one turn at the end of every movement.',
+  '<div class="s"><div class="top"><span class="tag">PART 2 OF 2</span><span>0:41</span></div>'+dots(2)+'<div class="big" style="color:var(--volt)">Nice.</div><div class="mid">In a workout you turn it after <i>every</i> run, station and set.</div><div class="small" style="margin-top:auto;color:var(--fg)">Once more to finish</div></div>'+arrow,true),
+ step('4 · Finish','Recovery, and how to leave',
+  'The real thing records 3 min of recovery HR after the last movement. Swipe left → End anytime; recovery keeps recording in the background.',
+  '<div class="s"><div class="top"><span class="tag">DONE</span><span>0:52</span></div>'+dots(3)+'<div class="mid">After a workout the watch records <span style="color:var(--hr)">3 min of recovery</span>.</div><div class="small">No need to wait: swipe left and tap <b style="color:var(--fg)">End</b>. Recovery keeps recording in the background.</div><div class="btn">Got it</div></div>'),
+];
+document.getElementById('flow').innerHTML=S.join('');
+
+document.getElementById('refused').innerHTML=[
+ step('1b · Heart rate refused','Say what is lost, offer the fix',
+  'Shown right after the refusal. Practice continues either way; the banner (W23) stays until it is on.',
+  '<div class="s"><div class="top"><span class="tag" style="color:var(--warn)">PRACTICE</span><span></span></div><div class="warnline">♥ Heart rate is off</div><div class="small">Workouts will have time and splits, but no heart rate, calories or recovery.</div><div class="small">Turn on: iPhone → Health → Sharing → BarPath.</div><div class="row" style="margin-top:auto"><div class="btn">Continue</div></div></div>','','alt'),
+ step('2b · Part 1 without HR','No fake numbers',
+  'Where HR would be: a dash and "off". Never a placeholder value.',
+  '<div class="s"><div class="top"><span class="tag">PART 1 OF 2</span><span>0:18</span></div>'+dots(1)+'<div class="big">Walk</div><div class="small">or march in place</div><div class="hr" style="margin-top:6px;color:var(--fg3)">— <small style="color:var(--warn)">HR OFF</small></div><div class="small" style="margin-top:auto;color:var(--fg)">Done? <span style="color:var(--volt)">Turn the Crown</span></div></div>'+arrow,true,'alt'),
+].join('');
+
+document.getElementById('watchbanner').innerHTML=watch('<div class="s"><div class="top"><span class="tag">TODAY</span><span>9:41</span></div><div class="warnbox"><div class="warnline">♥ Heart rate is off</div><div class="small">No HR or calories. iPhone → Health.</div></div><div class="big" style="margin-top:4px">AMRAP 15</div><div class="small">Row · wall balls</div><div class="btn">START</div></div>')+'<div class="cap"><span class="n">Watch · start screen</span><span class="t">Above START, never blocking it</span><span class="d">One line and where to fix it. START still works: a workout without HR is better than none.</span></div>';
+</script>
