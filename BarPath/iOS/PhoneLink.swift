@@ -108,7 +108,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
             return
         }
         guard session.isWatchAppInstalled else {
-            sendWorkoutError = "BarPath isn't installed on the watch."
+            sendWorkoutError = "Rx Lab isn't installed on the watch."
             return
         }
         let data: Data
@@ -160,7 +160,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
             return
         }
         guard session.isWatchAppInstalled else {
-            sendLiftError = "BarPath isn't installed on the watch."
+            sendLiftError = "Rx Lab isn't installed on the watch."
             return
         }
         var context = session.applicationContext
