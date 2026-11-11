@@ -417,7 +417,7 @@ struct WorkoutPreviewView: View {
         if link.isReachable {
             text += "."
         } else {
-            text += " as soon as BarPath opens on the watch."
+            text += " as soon as Rx Lab opens on the watch."
         }
         return text + " Tap START on the watch when you begin."
     }

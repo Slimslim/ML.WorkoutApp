@@ -55,7 +55,7 @@ struct LiftChooserView: View {
                             .foregroundStyle(Color.orange)
                     }
                 } footer: {
-                    Text("Opens BarPath on the watch with this lift and load set. Press START there. During a session it is used at your next Change on the watch.")
+                    Text("Opens Rx Lab on the watch with this lift and load set. Press START there. During a session it is used at your next Change on the watch.")
                 }
             }
             .navigationTitle("Lifts")

@@ -52,7 +52,7 @@ struct DebugView: View {
                     Text(LiftFiles.documentsURL.path)
                         .font(.caption.monospaced())
                         .textSelection(.enabled)
-                    Text("Also visible in the Files app: On My iPhone › BarPath.")
+                    Text("Also visible in the Files app: On My iPhone › Rx Lab.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
