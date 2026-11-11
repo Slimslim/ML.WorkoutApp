@@ -1,0 +1,281 @@
+{
+ "version": 1,
+ "id": "2026-11-10-freedom-flipped",
+ "date": "2026-11-10",
+ "kind": "workout",
+ "name": "Freedom (flipped, scaled)",
+ "format": "forTime",
+ "rx": false,
+ "files": {
+  "csv": "Debug/session-EF777973-D66B-4169-A97C-4C7426952CEC.csv",
+  "result": "Workouts/EF777973-D66B-4169-A97C-4C7426952CEC.json"
+ },
+ "score": "14:37",
+ "notes": [
+  "Planned by the gym: 800 m run, 50 GHD sit-ups, 800 m run, 50 toes-to-bar (21:00 cap). Done flipped and scaled: 50 GHD sit-ups, 800 m run, 50 AbMat sit-ups, 800 m run.",
+  "Athlete (2026-11-10): GHD 15, 10, 10, 5, then 2 and a cramp; finished with 8 sit-ups on the floor. AbMat 20, 20, 10. Runs fine.",
+  "Every set and rep found in the motion matches the athlete's count: GHD and floor sit-ups from the wrist tilt (gz), AbMat sit-ups from gx, ~2.2-2.5 s per rep.",
+  "The athlete said 80 AbMat sit-ups once; the sets (20 + 20 + 10) and the plan say 50, and the motion counts 50.",
+  "Run starts: first steps at >= 2.2 steps/s, 2 s and 4 s after the Crown (no walking out this time)."
+ ],
+ "segments": [
+  {
+   "movement": "ghdSitUps",
+   "start": 0.0,
+   "end": 156.0,
+   "source": "motion",
+   "reps": 42,
+   "unit": "reps",
+   "sets": [
+    {
+     "start": 1.0,
+     "end": 34.4,
+     "reps": 15,
+     "repTimes": [
+      2.11,
+      4.59,
+      6.95,
+      9.24,
+      11.46,
+      13.66,
+      15.86,
+      18.01,
+      20.17,
+      22.35,
+      24.49,
+      26.64,
+      28.83,
+      31.0,
+      33.2
+     ],
+     "signal": "gz",
+     "period": 2.22
+    },
+    {
+     "start": 48.0,
+     "end": 70.5,
+     "reps": 10,
+     "repTimes": [
+      49.1,
+      51.5,
+      53.77,
+      56.05,
+      58.28,
+      60.49,
+      62.71,
+      64.89,
+      67.09,
+      69.29
+     ],
+     "signal": "gz",
+     "period": 2.24
+    },
+    {
+     "start": 86.8,
+     "end": 110.0,
+     "reps": 10,
+     "repTimes": [
+      87.94,
+      90.25,
+      92.5,
+      94.76,
+      97.03,
+      99.27,
+      101.5,
+      103.95,
+      106.43,
+      108.78
+     ],
+     "signal": "gz",
+     "period": 2.32
+    },
+    {
+     "start": 125.9,
+     "end": 137.6,
+     "reps": 5,
+     "repTimes": [
+      127.01,
+      129.32,
+      131.55,
+      133.93,
+      136.37
+     ],
+     "signal": "gz",
+     "period": 2.34
+    },
+    {
+     "start": 148.0,
+     "end": 152.5,
+     "reps": 2,
+     "repTimes": [
+      149.13,
+      151.35
+     ],
+     "signal": "gz",
+     "period": 2.22
+    }
+   ],
+   "note": "sets and repTimes from motion, kept only because the count matched the athlete's reps; the 5th set stopped after 2 reps with a cramp (a third half-cycle at 154.9 s is the cramp, not a rep)"
+  },
+  {
+   "movement": "rest",
+   "start": 156.0,
+   "end": 181.0,
+   "source": "motion",
+   "note": "cramp: off the GHD, down to the floor"
+  },
+  {
+   "movement": "sitUps",
+   "start": 181.0,
+   "end": 206.9,
+   "source": "motion",
+   "reps": 8,
+   "unit": "reps",
+   "sets": [
+    {
+     "start": 181.0,
+     "end": 200.5,
+     "reps": 8,
+     "repTimes": [
+      182.13,
+      184.57,
+      186.93,
+      189.29,
+      191.71,
+      194.21,
+      196.74,
+      199.26
+     ],
+     "signal": "gz",
+     "period": 2.45
+    }
+   ],
+   "note": "floor sit-ups to finish the 50 (42 GHD + 8 floor); sets and repTimes from motion, kept only because the count matched the athlete's reps; ends at the Crown"
+  },
+  {
+   "movement": "transition",
+   "start": 206.9,
+   "end": 209.1,
+   "source": "motion"
+  },
+  {
+   "movement": "run",
+   "start": 209.1,
+   "end": 473.1,
+   "source": "motion",
+   "reps": 800,
+   "unit": "meters",
+   "note": "start/end: pedometer >= 2.2 steps/s; the watch measured 718 m from steps"
+  },
+  {
+   "movement": "transition",
+   "start": 473.1,
+   "end": 484.9,
+   "source": "motion",
+   "note": "walk in, Crown at 474.8 s, set up on the AbMat"
+  },
+  {
+   "movement": "sitUps",
+   "start": 484.9,
+   "end": 617.5,
+   "source": "motion",
+   "reps": 50,
+   "unit": "reps",
+   "sets": [
+    {
+     "start": 484.9,
+     "end": 530.0,
+     "reps": 20,
+     "repTimes": [
+      485.98,
+      488.43,
+      490.65,
+      492.83,
+      495.0,
+      497.19,
+      499.37,
+      501.53,
+      503.74,
+      506.01,
+      508.18,
+      510.33,
+      512.57,
+      514.82,
+      517.04,
+      519.27,
+      521.55,
+      524.26,
+      526.04,
+      528.82
+     ],
+     "signal": "gx",
+     "period": 2.25
+    },
+    {
+     "start": 537.3,
+     "end": 585.0,
+     "reps": 20,
+     "repTimes": [
+      538.4,
+      540.51,
+      542.72,
+      544.96,
+      547.25,
+      549.69,
+      552.13,
+      554.53,
+      556.97,
+      559.34,
+      561.77,
+      564.21,
+      566.71,
+      569.1,
+      571.51,
+      573.93,
+      576.31,
+      578.71,
+      581.24,
+      583.84
+     ],
+     "signal": "gx",
+     "period": 2.39
+    },
+    {
+     "start": 591.4,
+     "end": 615.9,
+     "reps": 10,
+     "repTimes": [
+      592.45,
+      594.56,
+      596.87,
+      599.26,
+      601.85,
+      604.46,
+      607.02,
+      609.58,
+      612.09,
+      614.65
+     ],
+     "signal": "gx",
+     "period": 2.47
+    }
+   ],
+   "note": "AbMat sit-ups; sets and repTimes from motion, kept only because the count matched the athlete's reps; ends at the Crown"
+  },
+  {
+   "movement": "transition",
+   "start": 617.5,
+   "end": 621.7,
+   "source": "motion"
+  },
+  {
+   "movement": "run",
+   "start": 621.7,
+   "end": 877.3,
+   "source": "motion",
+   "reps": 800,
+   "unit": "meters",
+   "note": "start: pedometer >= 2.2 steps/s; ends at the finish Crown (875.4 s last fast steps); the watch measured 720 m from steps"
+  }
+ ]
+}
