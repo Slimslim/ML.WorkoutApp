@@ -23,11 +23,11 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSHealthShareUsageDescription</key>
-	<string>Rx Lab reads your heart rate during a lifting session.</string>
+	<string>Rx Lab reads your heart rate during workouts and lifting sessions, to show your effort and recovery.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>Rx Lab saves your lifting sessions as strength-training workouts.</string>
+	<string>Rx Lab saves your workouts and lifting sessions to Health.</string>
 	<key>NSMotionUsageDescription</key>
-	<string>Rx Lab records wrist motion during your lifts to reconstruct the bar path.</string>
+	<string>Rx Lab records wrist motion during your lifts and workouts to reconstruct the bar path and count reps and steps.</string>
 	<key>WKApplication</key>
 	<true/>
 	<key>WKBackgroundModes</key>

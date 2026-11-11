@@ -27,9 +27,9 @@
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>NSHealthShareUsageDescription</key>
-	<string>Rx Lab reads your heart rate during lifting sessions recorded on your Apple Watch.</string>
+	<string>Rx Lab reads your heart rate during workouts and lifting sessions recorded on your Apple Watch, to show your effort and recovery.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>Rx Lab saves your lifting sessions from Apple Watch as strength training workouts.</string>
+	<string>Rx Lab saves your workouts and lifting sessions from Apple Watch to Health.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
