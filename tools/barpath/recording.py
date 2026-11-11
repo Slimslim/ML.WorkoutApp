@@ -178,6 +178,9 @@ class SessionCSV:
     marks: list = field(default_factory=list)    # [{"t": float, "n": int, "label": str}]
     events: list = field(default_factory=list)   # [{"t": float, "name": str, "homing": .., ...}]
     workout: Optional[str] = None                # workout definition id (header 'workout=', no liftType)
+    sample_rate: Optional[float] = None          # rate of .motion in Hz (after any resampling)
+    source_rate: Optional[float] = None          # rate of the file (header sampleRate, else measured)
+    plan_profile: Optional[str] = None           # header planProfile (build 15+): high | standard
 
 
 _HEADER_RE = re.compile(r"(\w+)=([^,\s]+)")
@@ -190,8 +193,32 @@ def _num(x: str):
         return x
 
 
-def load_session_csv(path) -> SessionCSV:
-    """Reads a debug session CSV. Comment lines are skipped anywhere in the file; the watch's
+WORKOUT_HZ = 100.0   # the workout detectors (switches, segments, transitions) are tuned for 100 Hz
+
+
+def _measured_rate(t: np.ndarray) -> Optional[float]:
+    if len(t) < 3:
+        return None
+    dt = float(np.median(np.diff(t)))
+    return 1.0 / dt if dt > 0 else None
+
+
+def decimate_motion(motion: MotionSeries, factor: int) -> MotionSeries:
+    """Every `factor`-th sample, starting with the first (exact values and timestamps)."""
+    if factor <= 1:
+        return motion
+    return MotionSeries(motion.t[::factor], motion.q[::factor], motion.user_accel[::factor],
+                        motion.gravity[::factor], motion.rotation_rate[::factor])
+
+
+def load_session_csv(path, workout_hz: Optional[float] = WORKOUT_HZ) -> SessionCSV:
+    """Reads a debug session CSV.
+
+    Workout recordings (header 'workout=') made at 200 Hz (build 15+, CMBatchedSensorManager) are
+    decimated to `workout_hz` (default 100) on load, so every workout detector sees 100 Hz as before;
+    pass workout_hz=None to keep the file's own rate. Lifting CSVs are never resampled. The rate is
+    the header 'sampleRate' when present, else measured from the timestamps.
+     Comment lines are skipped anywhere in the file; the watch's
     '# mark t=.. n=.. label=..' and '# event t=.. name=.. homing=.. end=.. reason=..' lines are
     collected into .marks / .events."""
     meta: dict = {}
@@ -225,8 +252,18 @@ def load_session_csv(path) -> SessionCSV:
     for m in marks:
         if "n" in m and isinstance(m["n"], float):
             m["n"] = int(m["n"])
-    return SessionCSV(meta.get("sessionId"), start, meta.get("liftType"), MotionSeries.from_columns(d),
-                      marks, events, meta.get("workout"))
+    motion = MotionSeries.from_columns(d)
+    rate = _num(meta["sampleRate"]) if "sampleRate" in meta else None
+    if not isinstance(rate, float) or rate <= 0:
+        rate = _measured_rate(motion.t)
+    source_rate = rate
+    if meta.get("workout") is not None and workout_hz and rate is not None:
+        factor = int(round(rate / workout_hz))
+        if factor >= 2 and rate / workout_hz >= 1.5:
+            motion = decimate_motion(motion, factor)
+            rate = rate / factor
+    return SessionCSV(meta.get("sessionId"), start, meta.get("liftType"), motion,
+                      marks, events, meta.get("workout"), rate, source_rate, meta.get("planProfile"))
 
 
 def save_session_csv(path, motion: MotionSeries, session_id: str, start_date: datetime,

@@ -257,7 +257,16 @@ at 1110, 1170, 1200 (the last one finishes).
   `PhoneLink.sessionCSVMetadata`, so the phone files it under Debug unchanged.
 - Header line: `# barpath-session v1, sessionId=<workoutId>, startDate=<ISO8601>, workout=<definitionId>`
   (instead of `liftType=`). Same columns: `t,qw,qx,qy,qz,ax,ay,az,gx,gy,gz,rx,ry,rz`.
-- Device motion at **100 Hz** from `CMMotionManager` (no 800 Hz accel, no lift detector).
+- Device motion, rate chosen **once at START** for the whole session (build 15). **200 Hz** through
+  `CMBatchedSensorManager` when the planned workout's `RecordingProfile` is `.high` (it contains a
+  barbell / dumbbell / kettlebell strength or Olympic movement; locomotion, machines and metcon
+  stations such as step-ups, runs, rucks, ergs, wall balls and burpees stay standard even with a
+  load), the HealthKit session is running and the watch supports it. Otherwise **100 Hz** from
+  `CMMotionManager`, unchanged. The high-rate path falls back to 100 Hz when HealthKit is not
+  running at START (no Health access, or the start timed out) or when the batched stream delivers
+  nothing within 2.5 s. No 800 Hz accel (the session CSV has no accel columns), no lift detector.
+  The header carries the real `sampleRate=<100|200>` and the rule's verdict `planProfile=<high|standard>`.
+  The Python loader (`load_session_csv`) decimates workout files to 100 Hz, so the detectors are unchanged.
 - Comment lines (key=value with no spaces in values, so `tools/barpath/recording.py` parses
   them as events):
   - `# event t=<s> name=segment index=<i> kind=<run|station> source=<start|crown|press|button|auto>`

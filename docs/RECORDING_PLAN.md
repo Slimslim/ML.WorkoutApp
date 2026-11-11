@@ -1,8 +1,26 @@
 # Recording follows the plan (what the watch measures, per planned movement)
 
 Owner discussion of 2026-11-09/10, after the power snatch EMOM and Freedom. Story: **W21**
-(`docs/USER_STORIES.md`, Later). Nothing here is built yet; this is the reasoning and the open
+(`docs/USER_STORIES.md`, Later). Apart from build 15 (below) nothing here is built yet; this is the reasoning and the open
 questions, so the build starts from the same place.
+
+## Built in build 15
+
+- **Only the sensor rate is built**, chosen **once at START** for the whole session from the planned
+  workout (`RecordingProfile`, `BarPathKit` + `tools/barpath/recording_profile.py`, shared cases in
+  `Fixtures/recording_profile_cases.json`). `.high`: any barbell / dumbbell / kettlebell strength or
+  Olympic movement (snatch, clean, jerk, presses, deadlift, squat, thruster, curl, swing, weighted
+  row) -> device motion 200 Hz through `CMBatchedSensorManager` (needs the running HealthKit
+  session; falls back to 100 Hz without one). `.standard`: everything else, including long simple
+  pieces with a load (step-ups with a vest, rucks, carries, sleds, ergs) -> 100 Hz as before.
+- No switching inside a session and no GPS yet. Lifting mode is unchanged (already 200 Hz + 800 Hz).
+  No 800 Hz accel in workout mode: the session CSV has no accel columns.
+- The CSV header records `sampleRate` (real nominal rate) and `planProfile`. The Python loader
+  decimates workout files to 100 Hz on load, so the detectors need no change.
+- **File size:** about **twice** the CSV for high-rate sessions before compression (~90 MB/h vs
+  ~45 MB/h; 30 MB per 40 min at 100 Hz). Uploads are gzip-compressed about 2.6x: ~35 MB/h at 200 Hz,
+  ~17 MB/h at 100 Hz. A compressed 200 Hz recording reaches the 50 MB upload limit at about 85-90
+  minutes; at 100 Hz after about 2 h 50 min. Battery at 200 Hz over a long session is not measured.
 
 ## The problem
 

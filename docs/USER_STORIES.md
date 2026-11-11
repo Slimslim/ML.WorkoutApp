@@ -404,6 +404,9 @@ then Freedom), with one START:
   continuous across the whole session.
 - Battery and upload size per hour are measured on a 60-min session and are no worse than today's
   workout mode (30 MB / 40 min).
+Built so far (build 15): only the sensor rate, chosen once at START from the planned movements
+(200 Hz when the plan has a barbell / dumbbell / kettlebell movement, else 100 Hz); no switching
+inside a session, no GPS, no analysis changes.
 Needs: lift pieces in the program (sets x reps x weight) and the single start screen; tested first
 on recordings, then in the gym, before it replaces the two modes.
 

@@ -1,0 +1,1031 @@
+{
+ "cases": [
+  {
+   "name": "powerSnatches / Power Snatches",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "powerSnatches",
+     "name": "Power Snatches"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "powerCleanAndJerk / Power C&J",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "powerCleanAndJerk",
+     "name": "Power C&J"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "powerCleans / Power Cleans",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "powerCleans",
+     "name": "Power Cleans"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "strictPress / Strict Press",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "strictPress",
+     "name": "Strict Press"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "zPress / Z Press",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "zPress",
+     "name": "Z Press"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "pushPress / Push Press",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "pushPress",
+     "name": "Push Press"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "benchPress / Bench Press",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "benchPress",
+     "name": "Bench Press"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "bench / Bench",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "bench",
+     "name": "Bench"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "deadlift / Deadlift",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "deadlift",
+     "name": "Deadlift"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "backSquat / Back Squat",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "backSquat",
+     "name": "Back Squat"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "thrusters / Thrusters",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "thrusters",
+     "name": "Thrusters"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "bicepCurl / Bicep Curl",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "bicepCurl",
+     "name": "Bicep Curl"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "bentOverRow / Bent-over Row",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "bentOverRow",
+     "name": "Bent-over Row"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "dumbbellRow / DB Row",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "dumbbellRow",
+     "name": "DB Row"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "dumbbellSnatch / Alt. DB Snatch",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "dumbbellSnatch",
+     "name": "Alt. DB Snatch"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "devilPress / Devil Press",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "devilPress",
+     "name": "Devil Press"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "kettlebellSwings / KB Swings",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "hangPowerClean / Hang Power Clean",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "hangPowerClean",
+     "name": "Hang Power Clean"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "ohp / OHP",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "ohp",
+     "name": "OHP"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "romanianDeadlift / RDL",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "romanianDeadlift",
+     "name": "RDL"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "x / DB C&J / Snatch",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "x",
+     "name": "DB C&J / Snatch"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "dumbbellOverShoulder / DB Over-Shoulder",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "dumbbellOverShoulder",
+     "name": "DB Over-Shoulder"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "push_jerk / Push Jerk",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "push_jerk",
+     "name": "Push Jerk"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "row / Row",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "row",
+     "name": "Row"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "rowErg / Row / Bike",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "rowErg",
+     "name": "Row / Bike"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "skiErg / SkiErg",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "skiErg",
+     "name": "SkiErg"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "pushUps / Push-ups",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "pushUps",
+     "name": "Push-ups"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "pushUps / Push-ups / Pull-ups",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "pushUps",
+     "name": "Push-ups / Pull-ups"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "wallBalls / Wall Balls",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "wallBalls",
+     "name": "Wall Balls"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "airSquats / Air Squats",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "airSquats",
+     "name": "Air Squats"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "burpees / Burpees",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "pullUps / Pull-ups",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "pullUps",
+     "name": "Pull-ups"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "lateralBurpeeOverDumbbell / Lateral Burpee Over DB",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "lateralBurpeeOverDumbbell",
+     "name": "Lateral Burpee Over DB"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "doubleUnders / Double Unders",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "doubleUnders",
+     "name": "Double Unders"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "sledPush / Sled Push",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "sledPush",
+     "name": "Sled Push"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "farmersCarry / Farmers Carry",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "farmersCarry",
+     "name": "Farmers Carry"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "sandbagLunges / Sandbag Lunges",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "sandbagLunges",
+     "name": "Sandbag Lunges"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "ballSlams / Ball Slams",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "ballSlams",
+     "name": "Ball Slams"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "ghdSitUps / GHD Sit-ups",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "ghdSitUps",
+     "name": "GHD Sit-ups"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "boxStepUps / Box Step-ups",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "boxStepUps",
+     "name": "Box Step-ups"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "ringDipNegatives / Ring Dip Negatives",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "ringDipNegatives",
+     "name": "Ring Dip Negatives"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "benchDips / Bench Dips",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "benchDips",
+     "name": "Bench Dips"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "pistolSquats / Pistol Squats",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "pistolSquats",
+     "name": "Pistol Squats"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "jumpSquats / Jump Squats",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "jumpSquats",
+     "name": "Jump Squats"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "burpeeBoxJump / Burpee Box Jump",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpeeBoxJump",
+     "name": "Burpee Box Jump"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "medBallBoxStepOvers / Med Ball Box Step-Overs",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "medBallBoxStepOvers",
+     "name": "Med Ball Box Step-Overs"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "wallWalks / Wall Walks",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "wallWalks",
+     "name": "Wall Walks"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "situps / Sit-ups",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "situps",
+     "name": "Sit-ups"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "ringRow / Ring Row",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "ringRow",
+     "name": "Ring Row"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "wall balls with load",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "wallBalls",
+     "name": "Wall Balls",
+     "load": true
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "air squats with load",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "airSquats",
+     "name": "Air Squats",
+     "load": true
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "unknown movement with load",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "zercherCarry",
+     "name": "Zercher Carry",
+     "load": true
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "unknown movement without load",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "zercherCarry",
+     "name": "Zercher Carry"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "run with load is not a lift",
+   "segments": [
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "load": true
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "rest and transition only",
+   "segments": [
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "transition",
+     "movement": "transition",
+     "name": "Transition"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "Free Workout parts",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "part",
+     "name": "Part 1"
+    },
+    {
+     "kind": "station",
+     "movement": "part",
+     "name": "Part 2"
+    },
+    {
+     "kind": "station",
+     "movement": "part",
+     "name": "Part 3"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "no segments",
+   "segments": [],
+   "profile": "standard"
+  },
+  {
+   "name": "erg then snatch",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "row",
+     "name": "Row"
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run"
+    },
+    {
+     "kind": "station",
+     "movement": "dumbbellSnatch",
+     "name": "Alt. DB Snatch"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "metcon without lifts",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "wallBalls",
+     "name": "Wall Balls"
+    },
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees"
+    },
+    {
+     "kind": "station",
+     "movement": "pullUps",
+     "name": "Pull-ups"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "Chad 1000X: box step-ups with a vest",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "boxStepUps",
+     "name": "Box Step-ups",
+     "load": true
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "lib.brc.20261111.chad-1000x style: one long for-time block of step-ups with a load",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "boxStepUps",
+     "name": "Box Step-ups",
+     "load": true
+    },
+    {
+     "kind": "station",
+     "movement": "boxStepUps",
+     "name": "Box Step-ups",
+     "load": true
+    },
+    {
+     "kind": "station",
+     "movement": "boxStepUps",
+     "name": "Box Step-ups",
+     "load": true
+    },
+    {
+     "kind": "station",
+     "movement": "boxStepUps",
+     "name": "Box Step-ups",
+     "load": true
+    },
+    {
+     "kind": "station",
+     "movement": "boxStepUps",
+     "name": "Box Step-ups",
+     "load": true
+    },
+    {
+     "kind": "station",
+     "movement": "boxStepUps",
+     "name": "Box Step-ups",
+     "load": true
+    },
+    {
+     "kind": "station",
+     "movement": "boxStepUps",
+     "name": "Box Step-ups",
+     "load": true
+    },
+    {
+     "kind": "station",
+     "movement": "boxStepUps",
+     "name": "Box Step-ups",
+     "load": true
+    },
+    {
+     "kind": "station",
+     "movement": "boxStepUps",
+     "name": "Box Step-ups",
+     "load": true
+    },
+    {
+     "kind": "station",
+     "movement": "boxStepUps",
+     "name": "Box Step-ups",
+     "load": true
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "Chad in parts, step-ups and rests",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "boxStepUps",
+     "name": "Box Step-ups",
+     "load": true
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "boxStepUps",
+     "name": "Box Step-ups",
+     "load": true
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "boxStepUps",
+     "name": "Box Step-ups",
+     "load": true
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "boxStepUps",
+     "name": "Box Step-ups",
+     "load": true
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "boxStepUps",
+     "name": "Box Step-ups",
+     "load": true
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "ruck with load",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "ruck",
+     "name": "Ruck",
+     "load": true
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "run in a weight vest",
+   "segments": [
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "load": true
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "sled push with load",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "sledPush",
+     "name": "Sled Push",
+     "load": true
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "sandbag carry with load",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "sandbagCarry",
+     "name": "Sandbag Carry",
+     "load": true
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "dumbbell walking lunges with load",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "dumbbellWalkingLunges",
+     "name": "DB Walking Lunges",
+     "load": true
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "row erg with load",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "row",
+     "name": "Row",
+     "load": true
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "bike erg",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "bikeErg",
+     "name": "Bike Erg",
+     "load": true
+    }
+   ],
+   "profile": "standard"
+  },
+  {
+   "name": "barbell lunge",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "barbellLunge",
+     "name": "Barbell Lunge"
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "name": "dumbbell snatch in a ruck workout",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "ruck",
+     "name": "Ruck",
+     "load": true
+    },
+    {
+     "kind": "station",
+     "movement": "dumbbellSnatch",
+     "name": "DB Snatch"
+    }
+   ],
+   "profile": "high"
+  }
+ ],
+ "library": [
+  {
+   "id": "hyrox.solo",
+   "source": "builtin",
+   "profile": "standard"
+  },
+  {
+   "id": "hyrox.doubles",
+   "source": "builtin",
+   "profile": "standard"
+  },
+  {
+   "id": "hyrox.half",
+   "source": "builtin",
+   "profile": "standard"
+  },
+  {
+   "id": "partner.wod1",
+   "source": "builtin",
+   "profile": "high"
+  },
+  {
+   "id": "partner.wod2",
+   "source": "builtin",
+   "profile": "high"
+  },
+  {
+   "id": "wod.amrap40",
+   "source": "builtin",
+   "profile": "high"
+  },
+  {
+   "id": "wod.helen",
+   "source": "builtin",
+   "profile": "high"
+  },
+  {
+   "id": "wod.rowThrusters",
+   "source": "builtin",
+   "profile": "high"
+  },
+  {
+   "id": "free.workout",
+   "source": "builtin",
+   "profile": "standard"
+  },
+  {
+   "id": "wod.nightmareAmrap",
+   "source": "builtin",
+   "profile": "high"
+  },
+  {
+   "id": "quick.test",
+   "source": "builtin",
+   "profile": "standard"
+  },
+  {
+   "id": "lib.pitfire.20261102.freedom",
+   "source": "seed",
+   "file": "freedom.json",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "row",
+     "name": "Row"
+    },
+    {
+     "kind": "station",
+     "movement": "powerCleans",
+     "name": "Power Cleans",
+     "load": true
+    }
+   ],
+   "profile": "high"
+  },
+  {
+   "id": "lib.pitfire.20261102.pcj-emom",
+   "source": "seed",
+   "file": "pcj_emom.json",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "powerCleanAndJerk",
+     "name": "Power C&J"
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    }
+   ],
+   "profile": "high"
+  }
+ ]
+}

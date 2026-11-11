@@ -609,7 +609,11 @@ final class WorkoutSessionModel: ObservableObject {
             return
         }
         if dataMode {
-            recorder.start(sessionId: workoutId, definitionId: progress.definition.id)
+            // Rate chosen once for the whole session: 200 Hz only if the plan has a barbell /
+            // dumbbell / kettlebell movement (RecordingProfile) and HealthKit is running now.
+            recorder.start(sessionId: workoutId, definitionId: progress.definition.id,
+                           planned: RecordingProfile.profile(for: progress.definition),
+                           healthKitRunning: healthKitRunning)
             isRecordingCSV = true
         }
         let kind = progress.currentSegment?.kind ?? .station
