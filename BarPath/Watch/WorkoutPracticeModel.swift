@@ -40,7 +40,9 @@ final class WorkoutPracticeModel: ObservableObject {
     static let receivedHeartRateKey: String = "lastSessionReceivedHeartRate.v1"
 
     /// No heart-rate sample this long after the session is running: heart rate is off.
-    static let heartRateCheckSeconds: Double = 12.0
+    static let heartRateCheckSeconds: Double = 20.0
+    /// The Motion question is given this long; after it the practice goes on.
+    static let motionTimeoutSeconds: Double = 10.0
     /// If the session never reports running, decide after this long anyway.
     static let sessionStartGraceSeconds: Double = 25.0
     /// Part 2 shows "Nice." this long before the undo hint, and the hint this long.
@@ -70,6 +72,8 @@ final class WorkoutPracticeModel: ObservableObject {
     private var pedometer: CMPedometer?
     private var locationRequest: LocationPermissionRequest?
     private var motionOff: Bool = false
+    private var motionStepDone: Bool = false
+    private var motionTimeoutTask: Task<Void, Never>?
     private var heartRateNoticeShown: Bool = false
     private var hintShown: Bool = false
     /// Bumped on every reset/leave: callbacks and timers of an earlier run check it and stop.
@@ -105,6 +109,9 @@ final class WorkoutPracticeModel: ObservableObject {
         safetyTask?.cancel()
         safetyTask = nil
         pedometer = nil
+        motionTimeoutTask?.cancel()
+        motionTimeoutTask = nil
+        motionStepDone = false
         locationRequest = nil
         stage = .permissions
         heartRate = nil
@@ -151,6 +158,12 @@ final class WorkoutPracticeModel: ObservableObject {
         }
         let p = CMPedometer()
         pedometer = p
+        motionTimeoutTask?.cancel()
+        motionTimeoutTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: UInt64(WorkoutPracticeModel.motionTimeoutSeconds * 1_000_000_000))
+            if Task.isCancelled { return }
+            self?.motionAnswered(generation: gen)
+        }
         let now = Date()
         p.queryPedometerData(from: now.addingTimeInterval(-60), to: now) { [weak self] _, _ in
             DispatchQueue.main.async {
@@ -162,7 +175,10 @@ final class WorkoutPracticeModel: ObservableObject {
     }
 
     private func motionAnswered(generation gen: Int) {
-        guard gen == generation, stage == .requesting else { return }
+        guard gen == generation, stage == .requesting, !motionStepDone else { return }
+        motionStepDone = true
+        motionTimeoutTask?.cancel()
+        motionTimeoutTask = nil
         pedometer = nil
         let status: CMAuthorizationStatus = CMPedometer.authorizationStatus()
         motionOff = status == .denied || status == .restricted
@@ -183,6 +199,22 @@ final class WorkoutPracticeModel: ObservableObject {
     private func locationAnswered(generation gen: Int) {
         guard gen == generation, stage == .requesting else { return }
         locationRequest = nil
+        // Health was asked first, before Location, so the route type was left out of that
+        // request. When Location was allowed, ask once more so Health's route question is
+        // asked here and never at a real workout's START. With nothing new to ask, HealthKit
+        // shows nothing and the completion runs at once.
+        let status: CLAuthorizationStatus = CLLocationManager().authorizationStatus
+        if status == .authorizedWhenInUse || status == .authorizedAlways {
+            manager.requestAuthorization { [weak self] in
+                self?.beginPartOne(generation: gen)
+            }
+        } else {
+            beginPartOne(generation: gen)
+        }
+    }
+
+    private func beginPartOne(generation gen: Int) {
+        guard gen == generation, stage == .requesting else { return }
         stage = .part1
         partStart = Date()
         if motionOff {
@@ -239,6 +271,9 @@ final class WorkoutPracticeModel: ObservableObject {
         guard gen == generation, isSessionStage, bpm > 0 else { return }
         heartRate = Int(bpm.rounded())
         heartRateOff = false
+        if notice == .heartRate {
+            notice = nil   // a late reading: the "no heart rate" screen no longer applies
+        }
         heartRateTask?.cancel()
         heartRateTask = nil
         UserDefaults.standard.set(true, forKey: WorkoutPracticeModel.receivedHeartRateKey)

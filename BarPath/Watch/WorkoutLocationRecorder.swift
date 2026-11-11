@@ -191,7 +191,7 @@ final class WorkoutLocationRecorder: NSObject, CLLocationManagerDelegate {
 /// whether access was granted.
 @MainActor
 final class LocationPermissionRequest: NSObject, CLLocationManagerDelegate {
-    static let timeoutSeconds: Double = 60.0
+    static let timeoutSeconds: Double = 10.0
 
     private var manager: CLLocationManager?
     private var completion: (@MainActor () -> Void)?
