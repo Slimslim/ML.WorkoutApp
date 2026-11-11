@@ -95,7 +95,7 @@ def test_gps_comment_lines(tmp_path):
     assert [f.t for f in fixes] == [1.0, 2.0]
     assert fixes[0].distance == 0.0 and fixes[0].speed == 3.2 and fixes[0].accuracy == 6.5
     assert fixes[1].speed is None and fixes[1].distance == 3.3 and fixes[1].altitude_delta == -1.2
-    # a file from before build 16 has no gps key and no fixes
+    # a file from before build 15 has no gps key and no fixes
     path.write_text(header.replace(", gps=on", "") + body.replace("gps", "x"))
     old = load_session_csv(path)
     assert old.gps is None and old.gps_fixes() == []

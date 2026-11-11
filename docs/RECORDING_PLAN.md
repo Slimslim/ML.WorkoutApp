@@ -13,7 +13,7 @@ questions, so the build starts from the same place.
   row) -> device motion 200 Hz through `CMBatchedSensorManager` (needs the running HealthKit
   session; falls back to 100 Hz without one). `.standard`: everything else, including long simple
   pieces with a load (step-ups with a vest, rucks, carries, sleds, ergs) -> 100 Hz as before.
-- No switching inside a session. **GPS (build 16):** decided once at START with the rate
+- No switching inside a session. **GPS (build 15):** decided once at START with the rate
   (`RecordingProfile.usesLocation`, `uses_location` in Python, `locationCases` in the shared fixture):
   on when the plan has at least one `run` segment, off for Free Workout and plans without a run.
   The session's `locationType` is `.outdoor` when on. Fixes (horizontal accuracy 0-30 m, newer than

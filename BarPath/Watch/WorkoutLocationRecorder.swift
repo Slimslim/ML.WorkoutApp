@@ -1,7 +1,7 @@
 import Foundation
 import CoreLocation
 
-/// GPS for workouts whose plan contains a run (docs/RECORDING_PLAN.md, build 16). Self-contained:
+/// GPS for workouts whose plan contains a run (docs/RECORDING_PLAN.md, build 15). Self-contained:
 /// owns a `CLLocationManager`, filters fixes, and hands them on as
 /// - `onFix`: one plain `Fix` per accepted location (distance since the start, speed, accuracy,
 ///   relative altitude: no coordinates), for the session CSV;

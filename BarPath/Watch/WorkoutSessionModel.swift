@@ -151,7 +151,7 @@ final class WorkoutSessionModel: ObservableObject {
     private let recorder: WorkoutMotionRecorder
     private let link: PhoneLink
     private var pedometer: CMPedometer?
-    /// GPS for plans with a run (build 16): decided at START, started in `beginRunning`.
+    /// GPS for plans with a run (build 15): decided at START, started in `beginRunning`.
     private let locationRecorder = WorkoutLocationRecorder()
     private var workoutId = UUID()
     private var heartRates: [HeartRateSample] = []

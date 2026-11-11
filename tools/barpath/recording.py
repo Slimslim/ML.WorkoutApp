@@ -181,7 +181,7 @@ class SessionCSV:
     sample_rate: Optional[float] = None          # rate of .motion in Hz (after any resampling)
     source_rate: Optional[float] = None          # rate of the file (header sampleRate, else measured)
     plan_profile: Optional[str] = None           # header planProfile (build 15+): high | standard
-    gps: Optional[str] = None                    # header gps (build 16+): on | off (location updates started)
+    gps: Optional[str] = None                    # header gps (build 15+): on | off (location updates started)
 
     def gps_fixes(self) -> list:
         """The '# event ... name=gps' lines of this file as GpsFix records."""
@@ -193,7 +193,7 @@ _HEADER_RE = re.compile(r"(\w+)=([^,\s]+)")
 
 @dataclass
 class GpsFix:
-    """One accepted location fix of a workout session (build 16+). No coordinates, by design.
+    """One accepted location fix of a workout session (build 15+). No coordinates, by design.
 
     Line: '# event t=<s> name=gps distance=<cum m> speed=<m/s> accuracy=<m> altitudeDelta=<m>'
     t is on the CSV time axis; distance is cumulative since the workout start (sum of the distances

@@ -406,7 +406,7 @@ then Freedom), with one START:
   workout mode (30 MB / 40 min).
 Built so far (build 15): only the sensor rate, chosen once at START from the planned movements
 (200 Hz when the plan has a barbell / dumbbell / kettlebell movement, else 100 Hz); no switching
-inside a session, no analysis changes. GPS (build 16): on for the whole session when the plan has
+inside a session, no analysis changes. GPS (build 15): on for the whole session when the plan has
 a run, off otherwise; coordinates are not uploaded (the route goes to Apple Health only).
 Needs: lift pieces in the program (sets x reps x weight) and the single start screen; tested first
 on recordings, then in the gym, before it replaces the two modes.
