@@ -2,6 +2,14 @@
 
 Newest first. Paste the latest entry into "What to Test" for the build in App Store Connect.
 
+## Build 15
+
+- If the watch app closes or the watch restarts mid-workout, what was recorded is saved and sent to the phone.
+- Long recordings upload (compressed, nothing lost).
+- Turning the Crown just as a rest ends no longer skips a part.
+- Lifting no longer gets stuck on "Ending…".
+- Deleting your account removes every uploaded file.
+
 ## Build 14
 
 - Watch: with your wrist down the clocks show the seconds, not 1:--.
