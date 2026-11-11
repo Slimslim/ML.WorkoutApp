@@ -123,7 +123,7 @@ public enum WorkoutLibrary {
 ### Progress state machine
 
 ```swift
-public enum AdvanceSource: String, Codable { case crown, press, button, auto }
+public enum AdvanceSource: String, Codable { case crown, press, button, auto, edit }
 
 public enum WorkoutEventKind: String, Codable { case start, advance, undo, finish, unfinish, end }
 
@@ -308,9 +308,10 @@ at 1110, 1170, 1200 (the last one finishes).
   - Finished: a full-screen green fill with "DONE", the total time, and the Undo capsule.
   - Always-on (`isLuminanceReduced`, wrist down): the same main layout, dimmed (80 %), no
     NOW flash, no undo hint, no Crown arc. Every clock (segment time, rest countdown, total /
-    AMRAP time left, recovery) is a system timer text (`Text(timerInterval:)`) that keeps
-    ticking every second; pace, HR and the border update at the reduced always-on rate
-    (athlete feedback 2026-11-01: glance at it without raising the arm).
+    AMRAP time left, recovery) is plain text from the 1 s `TimelineView`, which a running
+    workout session refreshes every second wrist down; no `Text(timerInterval:)`, which
+    watchOS shows as "1:--" there (athlete feedback 2026-11-01 and 2026-11-05: read the
+    exact time without raising the arm).
 - **Page 2 (swipe):** End (with a confirmation: "End workout?" with [End] and [Keep going],
   Keep going is the default), Undo, Mark (Data mode only), a 12 pt data strip (samples,
   CSV MB, transfers pending).
@@ -411,7 +412,8 @@ original), the store reloads, and the written files are marked as uploaded so th
 back (a `.original.json` created this way does not overwrite the cloud's watch copy). A result
 with a phone change not yet uploaded (or uploading) is skipped until that upload is done: the
 phone's change wins. A cloud file that does not decode is reported once and skipped until it
-changes. Results deleted on the phone are not brought back. Keys this build does not know (e.g. `rx`) are
+changes or a new app build is installed (every build checks each file once). Events a correction
+adds carry `source: "edit"`. Results deleted on the phone are not brought back. Keys this build does not know (e.g. `rx`) are
 dropped from the phone's copy when it is written; the cloud copy keeps them.
 
 ## 5b. For-time caps: keep going past the cap (added 2026-11-03, W7)

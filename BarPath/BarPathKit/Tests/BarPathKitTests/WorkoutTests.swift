@@ -323,4 +323,12 @@ final class WorkoutTests: XCTestCase {
         let d = try JSONDecoder().decode(WorkoutDefinition.self, from: Data(json.utf8))
         XCTAssertNil(d.intervalSeconds)
     }
+
+    func testDistanceKeepsMilesAsMiles() {
+        XCTAssertEqual(SegmentTarget.distance(1609), "1 mile")
+        XCTAssertEqual(SegmentTarget.distance(3219), "2 miles")
+        XCTAssertEqual(SegmentTarget.distance(2414), "1.5 miles")
+        XCTAssertEqual([200.0, 400, 800, 1000, 1600].map { SegmentTarget.distance($0) },
+                       ["200 m", "400 m", "800 m", "1000 m", "1600 m"])
+    }
 }

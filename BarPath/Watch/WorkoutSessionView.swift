@@ -502,7 +502,7 @@ struct WorkoutMainPage: View {
                 .lineLimit(isLong ? 2 : 1)
                 .minimumScaleFactor(0.6)
             HStack(spacing: 4) {
-                totalText(now: now)
+                Text(totalLine(now: now))
                     .font(.system(size: 12, weight: .semibold, design: .rounded).monospacedDigit())
                     .foregroundColor(.secondary)
                     .lineLimit(1)
@@ -537,16 +537,10 @@ struct WorkoutMainPage: View {
             .minimumScaleFactor(0.5)
     }
 
-    /// Wrist down the clock is a system timer text: watchOS keeps it ticking every second in
-    /// always-on, while this view's own refresh (`now`) may come only once a minute.
+    /// Plain text from `now`, wrist down too: a running workout session refreshes it every
+    /// second, and a system timer text there hides the seconds ("1:--").
     private func timerValue(now: Date) -> Text {
         let p: WorkoutProgress = model.progress
-        if isLuminanceReduced, let start = p.segmentStarts.last {
-            if let clock = model.nextClockEvent(), !clock.isFinish {
-                return WorkoutMainPage.liveCountDown(from: start, to: clock.time)
-            }
-            return WorkoutMainPage.liveCountUp(from: start)
-        }
         let nowT: Double = now.timeIntervalSince1970
         var seconds: Double = p.segmentElapsed(now: nowT)
         if let clock = model.nextClockEvent(), !clock.isFinish {
@@ -555,29 +549,6 @@ struct WorkoutMainPage: View {
             seconds = max(0, clock.time - nowT).rounded(.up)
         }
         return Text(SessionModel.formatElapsed(seconds))
-    }
-
-    // MARK: Live clocks (always-on)
-
-    /// Upper bound of a live count-up clock's range (it stops there).
-    static let liveCountUpLimit: TimeInterval = 24 * 3600
-
-    /// Count-up clock ("12:34", "1:02:03") rendered by the system, live in always-on.
-    static func liveCountUp(from start: Double) -> Text {
-        let from: Date = Date(timeIntervalSince1970: start)
-        // Bounded (not `Date.distantFuture`): the timer text may size itself for the longest
-        // value in its range; 24 h keeps that to "23:59:59".
-        let range: ClosedRange<Date> = from...from.addingTimeInterval(WorkoutMainPage.liveCountUpLimit)
-        return Text(timerInterval: range, countsDown: false)
-    }
-
-    /// Countdown to `end` rendered by the system, live in always-on; stops at 0:00.
-    /// `start` is only the range's lower bound (clamped so the range is never inverted).
-    static func liveCountDown(from start: Double, to end: Double) -> Text {
-        let to: Date = Date(timeIntervalSince1970: end)
-        let from: Date = Date(timeIntervalSince1970: min(start, end))
-        let range: ClosedRange<Date> = from...to
-        return Text(timerInterval: range, countsDown: true)
     }
 
     /// One row under the timer: the key metric, then HR.
@@ -627,26 +598,6 @@ struct WorkoutMainPage: View {
             return WorkoutSessionModel.formatPace(pace)
         }
         return "–:––"
-    }
-
-    /// `totalLine` as a Text; wrist down the clock in it is a system timer (live in always-on).
-    private func totalText(now: Date) -> Text {
-        let p: WorkoutProgress = model.progress
-        guard isLuminanceReduced, let start = p.startTime else {
-            return Text(totalLine(now: now))
-        }
-        if let cap = p.capTime {
-            var prefix: String = ""
-            if let size = p.definition.roundSize, size > 1 {
-                prefix = "R\(p.currentIndex / size + 1) · "
-            }
-            let clock: Text = WorkoutMainPage.liveCountDown(from: start, to: cap)
-            return Text(verbatim: prefix) + clock + Text(verbatim: " left")
-        }
-        if let forTimeCap = p.forTimeCapTime, now.timeIntervalSince1970 > forTimeCap {
-            return WorkoutMainPage.liveCountUp(from: start) + Text(verbatim: " · over cap")
-        }
-        return WorkoutMainPage.liveCountUp(from: start)
     }
 
     /// Small line under the name: total race time; AMRAP: round and time left to the cap; for
@@ -754,7 +705,7 @@ struct WorkoutMainPage: View {
             .lineLimit(1)
             .minimumScaleFactor(0.6)
             if let elapsed = model.recoveryElapsed(now: now) {
-                compactRecoveryLine(elapsed: elapsed)
+                Text(compactRecoveryText(elapsed: elapsed))
                     .font(.system(size: 12, weight: .bold, design: .rounded).monospacedDigit())
                     .foregroundColor(ink.opacity(0.8))
                     .lineLimit(1)
@@ -828,7 +779,7 @@ struct WorkoutMainPage: View {
                 Text("RECOVERY")
                     .font(.system(size: 11, weight: .heavy, design: .rounded))
                     .foregroundColor(Color(white: 0.75))
-                recoveryClock(elapsed: elapsed)
+                Text(SessionModel.formatElapsed(elapsed))
                     .font(.system(size: 18, weight: .heavy, design: .rounded).monospacedDigit())
                     .foregroundColor(SegmentPalette.elapsed)
             }
@@ -856,26 +807,6 @@ struct WorkoutMainPage: View {
         .background(RoundedRectangle(cornerRadius: 12, style: .continuous)
             .fill(Color.black.opacity(isLuminanceReduced ? 0.6 : 0.85)))
         .opacity(isLuminanceReduced ? 0.85 : 1.0)
-    }
-
-    /// Wrist down a system timer text (live in always-on); else from `elapsed`.
-    private func recoveryClock(elapsed: Double) -> Text {
-        if isLuminanceReduced, let finish = model.progress.finishTime {
-            return WorkoutMainPage.liveCountUp(from: finish)
-        }
-        return Text(SessionModel.formatElapsed(elapsed))
-    }
-
-    /// `compactRecoveryText` as a Text; wrist down the clock in it is a system timer.
-    private func compactRecoveryLine(elapsed: Double) -> Text {
-        guard isLuminanceReduced, elapsed < WorkoutSessionModel.recoverySeconds else {
-            return Text(compactRecoveryText(elapsed: elapsed))
-        }
-        var tail: String = " · " + heartRateValue + " bpm"
-        if let drop = model.recoveryDrop {
-            tail += " " + SummaryFormat.signedNumber(-drop)
-        }
-        return Text(verbatim: "Recovery ") + recoveryClock(elapsed: elapsed) + Text(verbatim: tail)
     }
 
     /// One line for the cap done screen (the reps picker needs the room).

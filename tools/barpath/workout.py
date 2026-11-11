@@ -14,7 +14,7 @@ from .recording import format_iso8601, load_session_csv, parse_iso8601
 
 SEGMENT_KINDS = ("run", "station", "transition", "rest")
 TARGET_UNITS = ("meters", "reps", "calories", "seconds")
-ADVANCE_SOURCES = ("crown", "press", "button", "auto")
+ADVANCE_SOURCES = ("crown", "press", "button", "auto", "edit")
 EVENT_KINDS = ("start", "advance", "undo", "finish", "unfinish", "end")
 
 
@@ -24,6 +24,18 @@ def _number(v: float) -> str:
 
 # ---- definition -------------------------------------------------------------------------------
 
+def distance_text(meters: float) -> str:
+    """ "400 m", or "1 mile", "1.5 miles" for a whole quarter of a mile (distances are stored in
+    meters, so 1 mile is 1609 m; 400 m and 800 m stay in meters)."""
+    mile = 1609.344
+    quarters = float(int(meters / mile * 4 + 0.5))
+    if quarters >= 1 and abs(meters - quarters * mile / 4) <= 1.5:
+        miles = quarters / 4
+        text = str(int(miles)) if miles == int(miles) else str(miles)
+        return text + (" mile" if miles <= 1 else " miles")
+    return _number(meters) + " m"
+
+
 @dataclass
 class SegmentTarget:
     value: float
@@ -32,7 +44,7 @@ class SegmentTarget:
     @property
     def text(self) -> str:
         if self.unit == "meters":
-            return _number(self.value) + " m"
+            return distance_text(self.value)
         if self.unit == "reps":
             return _number(self.value) + " reps"
         if self.unit == "calories":
@@ -546,6 +558,7 @@ class SegmentResult:
     cadence: Optional[float] = None
     pace_seconds_per_km: Optional[float] = None
     heart_rate_min: Optional[float] = None
+    lifts: Optional[list] = None    # [[start, end], ...] of each lift, seconds since 1970
 
     _KEYS = (("heartRateAvg", "heart_rate_avg"), ("heartRateMax", "heart_rate_max"), ("steps", "steps"),
              ("distance", "distance"), ("cadence", "cadence"), ("paceSecondsPerKm", "pace_seconds_per_km"),
@@ -558,11 +571,14 @@ class SegmentResult:
             v = getattr(self, pk)
             if v is not None:
                 d[jk] = v
+        if self.lifts is not None:
+            d["lifts"] = self.lifts
         return d
 
     @classmethod
     def from_dict(cls, d: dict) -> "SegmentResult":
         kw = {pk: (None if d.get(jk) is None else float(d[jk])) for jk, pk in cls._KEYS}
+        kw["lifts"] = d.get("lifts")
         return cls(int(d["index"]), d["kind"], d["movement"], d["title"], float(d["start"]),
                    float(d["end"]), float(d["duration"]), **kw)
 

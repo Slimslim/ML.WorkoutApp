@@ -340,7 +340,8 @@ final class CloudAccount: ObservableObject {
             // A phone change not yet uploaded (or uploading) wins: check again after it is sent.
             guard let path = CloudAccount.relativePath(url), !busy.contains(path),
                   let version = CloudAccount.localVersion(url), uploaded[path] == version else { continue }
-            let stamp: String = object.updatedAt.map { String($0.timeIntervalSince1970) } ?? ""
+            // The build is part of the date: a file this build could not read is tried again by the next.
+            let stamp: String = object.updatedAt.map { CloudAccount.appBuild + ":" + String($0.timeIntervalSince1970) } ?? ""
             if !stamp.isEmpty && seen[object.name] == stamp { continue }
             let cloud: WorkoutResult
             do {
@@ -370,6 +371,8 @@ final class CloudAccount: ObservableObject {
         }
         DownloadManifest.save(seen, userId: userId)
     }
+
+    private static let appBuild: String = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
 
     /// Path relative to Documents ("Workouts/<id>.json"), as `LocalFile.path`.
     private static func relativePath(_ url: URL) -> String? {
@@ -545,7 +548,7 @@ private enum LocalFiles {
     }
 }
 
-/// Cloud workout files already checked for corrections (name → cloud updated time), per user:
+/// Cloud workout files already checked for corrections (name → build:cloud updated time), per user:
 /// Application Support/cloud-<user>-downloads.json.
 private enum DownloadManifest {
     private static func url(userId: UUID) -> URL {

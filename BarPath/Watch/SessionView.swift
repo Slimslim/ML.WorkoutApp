@@ -231,13 +231,7 @@ struct SessionView: View {
         return model.liftType.displayName + (model.useLoad ? " · " + LoadPickerView.format(model.loadLb) : "")
     }
 
-    /// Wrist down a system timer text: watchOS keeps it ticking in always-on, while `now`
-    /// may be refreshed only once a minute there.
     private func elapsedText(now: Date) -> Text {
-        if isLuminanceReduced, let start = model.sessionStartDate {
-            let range: ClosedRange<Date> = start...start.addingTimeInterval(WorkoutMainPage.liveCountUpLimit)
-            return Text(timerInterval: range, countsDown: false)
-        }
         return Text(elapsed(now: now))
     }
 

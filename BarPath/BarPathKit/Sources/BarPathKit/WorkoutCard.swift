@@ -116,7 +116,7 @@ public struct WorkoutCard: Equatable {
 
     public static func make(definition d: WorkoutDefinition) -> WorkoutCard {
         if d.id == freeWorkoutId {
-            return WorkoutCard(name: "Free Workout", nameIsFormat: false, typeTag: nil, blockTag: nil,
+            return WorkoutCard(name: d.name, nameIsFormat: false, typeTag: nil, blockTag: nil,
                                timeDomainLine: nil, repSchemeLine: nil,
                                lines: [Line(text: freeLine, load: nil)], capLine: nil,
                                summaryLine: freeLine)
@@ -319,7 +319,7 @@ enum CardText {
         case .calories:
             text = number(t.value) + " Cal " + movementName(s, plural: false)
         case .meters:
-            text = number(t.value) + " m " + movementName(s, plural: true)
+            text = SegmentTarget.distance(t.value) + " " + movementName(s, plural: true)
         case .seconds:
             text = clock(t.value) + " " + movementName(s, plural: false)
         }
@@ -430,8 +430,9 @@ struct CardShape {
         }
         kind = .scheme
         rounds = count
+        // Calories move to the movement line: "40-30-20-30-40" then "Cal Row".
         schemeLine = values.map { (v: Double) -> String in CardText.number(v) }.joined(separator: "-")
-            + CardText.unitSuffix(unit)
+            + (unit == .calories ? "" : CardText.unitSuffix(unit))
         for p in 0..<r {
             let x: WorkoutSegment = segs[p]
             if x.kind == .rest {
@@ -440,7 +441,8 @@ struct CardShape {
             }
             if varying.contains(p) {
                 schemeIndices.append(lines.count)
-                lines.append(CardText.line(x, withQuantity: false))
+                let line: WorkoutCard.Line = CardText.line(x, withQuantity: false)
+                lines.append(unit == .calories ? WorkoutCard.Line(text: "Cal " + line.text, load: line.load) : line)
             } else {
                 lines.append(CardText.line(x))
             }

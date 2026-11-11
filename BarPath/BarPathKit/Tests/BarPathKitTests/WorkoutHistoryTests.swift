@@ -117,4 +117,13 @@ final class WorkoutHistoryTests: XCTestCase {
         XCTAssertEqual(freedom.segments.prefix(2).map { WorkoutCard.segmentLine($0).full },
                        ["40 Cal Row", "7 Power Cleans @155 lb"])
     }
+
+    func testSameMovementsIgnoresTheName() {
+        var renamed = WorkoutLibrary.helen
+        renamed.id = "lib.x"
+        renamed.name = "3 Rounds For Time"
+        XCTAssertFalse(WorkoutHistory.isSameWorkout(renamed, WorkoutLibrary.helen))
+        XCTAssertTrue(WorkoutHistory.sameMovements(renamed, WorkoutLibrary.helen))
+        XCTAssertFalse(WorkoutHistory.sameMovements(WorkoutLibrary.amrap20, WorkoutLibrary.helen))
+    }
 }

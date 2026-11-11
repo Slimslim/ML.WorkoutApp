@@ -16,6 +16,16 @@ enum Modality {
         }
     }
 
+    var name: String {
+        switch self {
+        case .oly: return "Oly"
+        case .str: return "Strength"
+        case .gym: return "Gymnastics"
+        case .crd: return "Cardio"
+        case .cry: return "Carries"
+        }
+    }
+
     private static let byMovement: [String: Modality] = [
         "powerCleans": .oly, "powerCleanAndJerk": .oly,
         "run": .crd, "row": .crd, "skiErg": .crd,
