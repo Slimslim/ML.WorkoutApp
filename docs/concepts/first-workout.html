@@ -73,7 +73,13 @@ section{display:flex;flex-direction:column;gap:20px}
 .dots{display:flex;gap:5px}
 .dots i{width:22px;height:4px;border-radius:2px;background:#2A2D32}
 .dots i.on{background:var(--volt)}
-.arrow{position:absolute;right:4px;top:96px;display:flex;align-items:center;gap:4px;color:var(--volt);font:800 12px/1.1 var(--f-round);text-align:right}
+.edge{position:absolute;inset:0;width:204px;height:246px;pointer-events:none}
+.edge .arc{stroke-dasharray:var(--a,72) 100}
+@media (prefers-reduced-motion:no-preference){.edge .arc.play{animation:arc 3.2s cubic-bezier(.45,.1,.6,1) infinite}
+@keyframes arc{0%{stroke-dasharray:0 100;opacity:1}55%{stroke-dasharray:100 0;opacity:1}62%{stroke-dasharray:100 0;opacity:1}70%{opacity:0}100%{stroke-dasharray:0 100;opacity:0}}}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13.5px;color:var(--ink2)}
+.legend i{display:inline-block;width:22px;height:5px;border-radius:3px;vertical-align:middle;margin-right:6px}
+.arrow{position:absolute;right:12px;top:96px;display:flex;align-items:center;gap:4px;color:var(--volt);font:800 12px/1.1 var(--f-round);text-align:right}
 .arrow svg{flex:none}
 .perm{display:flex;flex-direction:column;gap:7px}
 .perm div{display:flex;gap:8px;align-items:flex-start}
@@ -116,6 +122,7 @@ section{display:flex;flex-direction:column;gap:20px}
 <section>
   <h2>W22 · Practice workout on the watch</h2>
   <p class="why"><b>Where it starts:</b> first launch of the watch app opens it; afterwards it is the first row of the workout list (<i>Practice · 1 min</i>). The phone's tester guide says "do the practice workout first". Heart rate below is example data.</p>
+  <div class="legend"><span><i style="background:#B8FF3C"></i>Crown turned forward: next part (CrownArcView)</span><span><i style="background:#FF7A1A"></i>Crown turned back: undo</span><span><i style="background:#4D8EFF"></i><i style="background:#FF7A1A;margin-left:-4px"></i>Progress border, one slice per part</span></div>
   <div class="flow" id="flow"></div>
 </section>
 
@@ -161,6 +168,9 @@ section{display:flex;flex-direction:column;gap:20px}
 <script>
 const watch=(inner,glow)=>'<div class="watchwrap"><div class="watch"><div class="band t"></div><div class="band b"></div><div class="case"><div class="bezel"><div class="screen">'+inner+'</div></div></div><div class="crown'+(glow?' glow':'')+'"></div><div class="sidebtn"></div></div></div>';
 const arrow='<div class="arrow"><span>Turn<br>the Crown</span><svg width="22" height="16" viewBox="0 0 22 16"><path d="M2 8h15M12 3l5 5-5 5" stroke="#B8FF3C" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
+const EDGE='M102 4 H159 A41 41 0 0 1 200 45 V201 A41 41 0 0 1 159 242 H45 A41 41 0 0 1 4 201 V45 A41 41 0 0 1 45 4 Z';
+// Progress border (2 parts: walk blue, part 2 orange) + the Crown arc, as RaceBorderView + CrownArcView.
+const edge=(cur,frac,arc)=>{const g=1.1,sl=[[0,50,'#4D8EFF'],[50,100,'#FF7A1A']];let s='<svg class="edge" viewBox="0 0 204 246" aria-hidden="true">';sl.forEach(([a,b,c],i)=>{a+=g/2;b-=g/2;s+='<path d="'+EDGE+'" pathLength="100" fill="none" stroke="#2E3238" stroke-width="4" stroke-dasharray="0 '+a+' '+(b-a)+' 100"/>';let to=i<cur?b:(i==cur?a+(b-a)*frac:a);if(to>a)s+='<path d="'+EDGE+'" pathLength="100" fill="none" stroke="'+c+'" stroke-opacity="'+(i<cur?.55:1)+'" stroke-width="4" stroke-dasharray="0 '+a+' '+(to-a)+' 100"/>'});if(arc)s+='<path class="arc '+(arc==='play'?'play':'')+'" d="'+EDGE+'" pathLength="100" fill="none" stroke="'+(arc==='back'?'#FF7A1A':'#B8FF3C')+'" stroke-width="5" stroke-linecap="round" style="--a:'+(arc==='back'?35:72)+'"'+(arc==='back'?' transform="translate(204 0) scale(-1 1)"':'')+'/>';return s+'</svg>'};
 const dots=n=>'<div class="dots">'+[1,2,3].map(i=>'<i class="'+(i<=n?'on':'')+'"></i>').join('')+'</div>';
 const step=(n,t,d,html,glow,cls)=>'<div class="step '+(cls||'')+'">'+watch(html,glow)+'<div class="cap"><span class="n">'+n+'</span><span class="t">'+t+'</span><span class="d">'+d+'</span></div></div>';
 
@@ -168,12 +178,15 @@ const S=[
  step('1 · Before START','Ask, with the reason',
   'Shown before the system prompts, so they come now, standing still, not mid-run. "Continue" opens the Health prompt, then Motion.',
   '<div class="s"><div class="top"><span class="tag">PRACTICE</span><span>1 min</span></div><div class="mid">Two permissions, so your workouts count:</div><div class="perm"><div class="h"><b>♥</b><span class="small">Heart rate · effort and recovery</span></div><div class="m"><b>↟</b><span class="small">Motion · steps and reps</span></div></div><div class="btn">Continue</div></div>'),
- step('2 · Part 1','Move, and see your heart rate',
-  'Real HR from the first seconds proves it works. The Crown is lit and pointed at: the one thing to learn.',
-  '<div class="s"><div class="top"><span class="tag">PART 1 OF 2</span><span>0:18</span></div>'+dots(1)+'<div class="big">Walk</div><div class="small">or march in place</div><div class="hr" style="margin-top:6px">112 <small>BPM</small></div><div class="small" style="margin-top:auto;color:var(--fg)">Done? <span style="color:var(--volt)">Turn the Crown</span></div></div>'+arrow,true),
- step('3 · Part 2','Again: turn the Crown',
-  'Same gesture, a second time, so it sticks. Copy reminds: one turn at the end of every movement.',
-  '<div class="s"><div class="top"><span class="tag">PART 2 OF 2</span><span>0:41</span></div>'+dots(2)+'<div class="big" style="color:var(--volt)">Nice.</div><div class="mid">In a workout you turn it after <i>every</i> run, station and set.</div><div class="small" style="margin-top:auto;color:var(--fg)">Once more to finish</div></div>'+arrow,true),
+ step('2 · Part 1','Turn: the edge lights up',
+  'Real HR from the first seconds. Turning the Crown draws the same volt line round the screen edge as in a workout; when it goes all the way round, the part changes. The border under it is the workout\'s progress: one slice per part.',
+  '<div class="s"><div class="top"><span class="tag">PART 1 OF 2</span><span>0:18</span></div>'+dots(1)+'<div class="big">Walk</div><div class="small">or march in place</div><div class="hr" style="margin-top:6px">112 <small>BPM</small></div><div class="small" style="margin-top:auto;color:var(--fg)">Done? <span style="color:var(--volt)">Turn the Crown</span></div></div>'+edge(0,.4,'play')+arrow,true),
+ step('3 · Part 2','Again, and see it move on',
+  'Part 1\'s slice is done (dimmed), part 2 is filling. Same gesture a second time so it sticks: one turn at the end of every movement.',
+  '<div class="s"><div class="top"><span class="tag">PART 2 OF 2</span><span>0:41</span></div>'+dots(2)+'<div class="big" style="color:var(--volt)">Nice.</div><div class="mid">In a workout you turn it after <i>every</i> run, station and set.</div><div class="small" style="margin-top:auto;color:var(--fg)">Once more to finish</div></div>'+edge(1,.35,'play')+arrow,true),
+ step('3b · Turned by mistake','Back undoes, in orange',
+  'Turning the Crown backward draws the line the other way in orange and goes back one part. Shown once, after part 2 starts, as a hint: "Wrong turn? Turn back."',
+  '<div class="s"><div class="top"><span class="tag">PART 2 OF 2</span><span>0:44</span></div>'+dots(2)+'<div class="big">Wrong turn?</div><div class="mid"><span style="color:var(--station)">Turn back</span> to undo.</div><div class="small" style="margin-top:auto">The line runs the other way.</div></div>'+edge(1,.4,'back'),false,'alt'),
  step('4 · Finish','Recovery, and how to leave',
   'The real thing records 3 min of recovery HR after the last movement. Swipe left → End anytime; recovery keeps recording in the background.',
   '<div class="s"><div class="top"><span class="tag">DONE</span><span>0:52</span></div>'+dots(3)+'<div class="mid">After a workout the watch records <span style="color:var(--hr)">3 min of recovery</span>.</div><div class="small">No need to wait: swipe left and tap <b style="color:var(--fg)">End</b>. Recovery keeps recording in the background.</div><div class="btn">Got it</div></div>'),
@@ -186,7 +199,7 @@ document.getElementById('refused').innerHTML=[
   '<div class="s"><div class="top"><span class="tag" style="color:var(--warn)">PRACTICE</span><span></span></div><div class="warnline">♥ Heart rate is off</div><div class="small">Workouts will have time and splits, but no heart rate, calories or recovery.</div><div class="small">Turn on: iPhone → Health → Sharing → BarPath.</div><div class="row" style="margin-top:auto"><div class="btn">Continue</div></div></div>','','alt'),
  step('2b · Part 1 without HR','No fake numbers',
   'Where HR would be: a dash and "off". Never a placeholder value.',
-  '<div class="s"><div class="top"><span class="tag">PART 1 OF 2</span><span>0:18</span></div>'+dots(1)+'<div class="big">Walk</div><div class="small">or march in place</div><div class="hr" style="margin-top:6px;color:var(--fg3)">— <small style="color:var(--warn)">HR OFF</small></div><div class="small" style="margin-top:auto;color:var(--fg)">Done? <span style="color:var(--volt)">Turn the Crown</span></div></div>'+arrow,true,'alt'),
+  '<div class="s"><div class="top"><span class="tag">PART 1 OF 2</span><span>0:18</span></div>'+dots(1)+'<div class="big">Walk</div><div class="small">or march in place</div><div class="hr" style="margin-top:6px;color:var(--fg3)">— <small style="color:var(--warn)">HR OFF</small></div><div class="small" style="margin-top:auto;color:var(--fg)">Done? <span style="color:var(--volt)">Turn the Crown</span></div></div>'+edge(0,.4,'play')+arrow,true,'alt'),
 ].join('');
 
 document.getElementById('watchbanner').innerHTML=watch('<div class="s"><div class="top"><span class="tag">TODAY</span><span>9:41</span></div><div class="warnbox"><div class="warnline">♥ Heart rate is off</div><div class="small">No HR or calories. iPhone → Health.</div></div><div class="big" style="margin-top:4px">AMRAP 15</div><div class="small">Row · wall balls</div><div class="btn">START</div></div>')+'<div class="cap"><span class="n">Watch · start screen</span><span class="t">Above START, never blocking it</span><span class="d">One line and where to fix it. START still works: a workout without HR is better than none.</span></div>';
