@@ -16,7 +16,7 @@
   "Athlete (2026-11-10): GHD 15, 10, 10, 5, then 2 and a cramp; finished with 8 sit-ups on the floor. AbMat 20, 20, 10. Runs fine.",
   "Every set and rep found in the motion matches the athlete's count: GHD and floor sit-ups from the wrist tilt (gz), AbMat sit-ups from gx, ~2.2-2.5 s per rep.",
   "The athlete said 80 AbMat sit-ups once; the sets (20 + 20 + 10) and the plan say 50, and the motion counts 50.",
-  "Run starts: first steps at >= 2.2 steps/s, 2 s and 4 s after the Crown (no walking out this time)."
+  "Run starts: first steps at >= 2.2 steps/s, 2 s and 4 s after the Crown. Run 2 started inside; the athlete turned right onto the road ~10 s after the Crown (turn visible at 626-627 s)."
  ],
  "segments": [
   {
@@ -275,7 +275,7 @@
    "source": "motion",
    "reps": 800,
    "unit": "meters",
-   "note": "start: pedometer >= 2.2 steps/s; ends at the finish Crown (875.4 s last fast steps); the watch measured 720 m from steps"
+   "note": "start: pedometer >= 2.2 steps/s (running inside, 4 s after the Crown); athlete: turned right onto the road ~10 s after the Crown, seen in the motion as a ~90 deg turn at 626-627 s; ends at the finish Crown (875.4 s last fast steps); the watch measured 720 m from steps"
   }
  ]
 }
