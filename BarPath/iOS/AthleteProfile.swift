@@ -6,6 +6,10 @@ import BarPathKit
 /// typed in Settings) and an optional manual max heart rate. Kept on this phone only: never in
 /// a result, an upload or a phone-watch message. The values live in UserDefaults; `revision`
 /// changes after each write so screens can recompute.
+///
+/// It also holds the details the athlete chooses to give for measuring lifts: weight unit, height,
+/// body weight and forearm length. Those go to `Documents/Profile/athlete.json` (uploaded with the
+/// training data); birth year and max heart rate never do.
 final class AthleteProfile: ObservableObject {
     static let shared = AthleteProfile()
 
@@ -15,6 +19,13 @@ final class AthleteProfile: ObservableObject {
     static let manualYearKey = "athlete.birthYearManual"
     /// Manual max heart rate (this key was read before but never written).
     static let maxHeartRateKey = "maxHeartRate"
+
+    /// Weight unit chosen in Settings (absent until chosen: the phone's region decides).
+    static let weightUnitKey = "athlete.weightUnit"
+    static let heightKey = "athlete.heightCm"
+    static let bodyWeightKey = "athlete.bodyWeightKg"
+    static let forearmKey = "athlete.forearmCm"
+    static let detailsUpdatedKey = "athlete.detailsUpdatedAt"
 
     @Published private(set) var revision: Int = 0
 
@@ -64,6 +75,118 @@ final class AthleteProfile: ObservableObject {
             UserDefaults.standard.removeObject(forKey: AthleteProfile.maxHeartRateKey)
         }
         revision += 1
+    }
+
+    // MARK: - Weight unit and body details
+
+    /// kg for a metric region, lb otherwise.
+    static var regionUnit: WeightUnit {
+        return WeightUnit.defaultUnit(metric: Locale.current.measurementSystem == .metric)
+    }
+
+    /// True once the athlete picked a unit in Settings.
+    var hasChosenWeightUnit: Bool {
+        return UserDefaults.standard.string(forKey: AthleteProfile.weightUnitKey) != nil
+    }
+
+    /// The unit for every lift load: the athlete's choice, else the region's.
+    var weightUnit: WeightUnit {
+        if let raw = UserDefaults.standard.string(forKey: AthleteProfile.weightUnitKey),
+           let unit = WeightUnit(rawValue: raw) {
+            return unit
+        }
+        return AthleteProfile.regionUnit
+    }
+
+    var heightCm: Double? { return optionalValue(AthleteProfile.heightKey) }
+    var bodyWeightKg: Double? { return optionalValue(AthleteProfile.bodyWeightKey) }
+    var forearmCm: Double? { return optionalValue(AthleteProfile.forearmKey) }
+
+    private func optionalValue(_ key: String) -> Double? {
+        let v: Double = UserDefaults.standard.double(forKey: key)
+        return v > 0 ? v : nil
+    }
+
+    func setWeightUnit(_ unit: WeightUnit) {
+        UserDefaults.standard.set(unit.rawValue, forKey: AthleteProfile.weightUnitKey)
+        detailsChanged()
+    }
+
+    func setHeightCm(_ cm: Double?) {
+        storeOptional(cm, key: AthleteProfile.heightKey)
+    }
+
+    func setBodyWeightKg(_ kg: Double?) {
+        storeOptional(kg, key: AthleteProfile.bodyWeightKey)
+    }
+
+    func setForearmCm(_ cm: Double?) {
+        storeOptional(cm, key: AthleteProfile.forearmKey)
+    }
+
+    private func storeOptional(_ value: Double?, key: String) {
+        if let v = value, v > 0 {
+            UserDefaults.standard.set(v, forKey: key)
+        } else {
+            UserDefaults.standard.removeObject(forKey: key)
+        }
+        detailsChanged()
+    }
+
+    private func detailsChanged() {
+        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: AthleteProfile.detailsUpdatedKey)
+        revision += 1
+        writeProfileFile()
+    }
+
+    // MARK: - Profile/athlete.json
+
+    /// What travels with the uploads. No birth year, no heart rate.
+    private struct ProfileFile: Codable {
+        var version: Int
+        var weightUnit: String
+        var heightCm: Double?
+        var bodyWeightKg: Double?
+        var forearmCm: Double?
+        var updatedAt: Date
+    }
+
+    static var profileFolderURL: URL {
+        return LiftFiles.documentsURL.appendingPathComponent("Profile", isDirectory: true)
+    }
+
+    static var profileFileURL: URL {
+        return profileFolderURL.appendingPathComponent("athlete.json")
+    }
+
+    /// Writes Documents/Profile/athlete.json when it is missing or differs from the current
+    /// values. Unchanged content is not rewritten, so it is not uploaded again.
+    func writeProfileFile() {
+        let defaults = UserDefaults.standard
+        var stamp: Double = defaults.double(forKey: AthleteProfile.detailsUpdatedKey)
+        if stamp <= 0 {
+            stamp = Date().timeIntervalSince1970
+            defaults.set(stamp, forKey: AthleteProfile.detailsUpdatedKey)
+        }
+        let file = ProfileFile(version: 1,
+                               weightUnit: weightUnit.rawValue,
+                               heightCm: heightCm,
+                               bodyWeightKg: bodyWeightKg,
+                               forearmCm: forearmCm,
+                               updatedAt: Date(timeIntervalSince1970: stamp))
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        encoder.dateEncodingStrategy = .iso8601
+        guard let data = try? encoder.encode(file) else { return }
+        let url: URL = AthleteProfile.profileFileURL
+        if let existing = try? Data(contentsOf: url), existing == data { return }
+        do {
+            try FileManager.default.createDirectory(at: AthleteProfile.profileFolderURL,
+                                                    withIntermediateDirectories: true)
+            try data.write(to: url, options: .atomic)
+        } catch {
+            NSLog("BarPath: could not write athlete.json: %@", error.localizedDescription)
+        }
     }
 
     /// The max heart rate in use for these results, nil when nothing is known yet.
