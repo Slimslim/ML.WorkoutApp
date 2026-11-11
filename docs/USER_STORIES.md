@@ -349,6 +349,17 @@ I don't find out afterwards that nothing was measured.
 right Settings page; the banner goes away as soon as access is on. (Kevin, 2026-11-10: no HR or
 steps recorded at all.)
 
+**W24. Timed work intervals: Tabata 20 / 10 (Now)**
+As an athlete doing a Tabata (8 x 20 s work, 10 s rest), I want the watch to switch from work to rest
+and back by itself on the clock, so its timer matches the gym's buzzer and the rest is recorded.
+*Done when:* a work segment with a seconds target ends by itself after that time (like a rest with a
+seconds target does today), with the same 3-2-1 countdown; a library Tabata is entered as 8 x
+(work 20 s, rest 10 s) and the watch shows 0:20 then 0:10, eight times, with no Crown turn; the
+result has one work and one rest segment per interval. Other work segments with a seconds target
+(e.g. "max reps in 1:00" inside a for-time workout) get the same rule, checked in the existing
+library first. (Owner, 2026-11-10: the Tabata press and row timers counted 30 s; the watch today only
+ends a work part on the interval boundary, so the 10 s rest was never shown.)
+
 ### Recording follows the plan (spans Lifting and Workouts; after the MVP)
 
 **W21. The watch records each part the way that part needs (Later)**

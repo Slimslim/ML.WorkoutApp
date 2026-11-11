@@ -1,0 +1,291 @@
+{
+ "version": 1,
+ "id": "2026-11-10-tabata-row",
+ "date": "2026-11-10",
+ "kind": "workout",
+ "name": "Tabata Bent-Over Row",
+ "format": "emom",
+ "rx": true,
+ "files": {
+  "csv": "Debug/session-50A98F44-68E6-4C1B-8D98-7AF884D75BC4.csv",
+  "result": "Workouts/50A98F44-68E6-4C1B-8D98-7AF884D75BC4.json"
+ },
+ "score": "88 reps (12, 11, 9, 10, 10, 9, 12, 15)",
+ "notes": [
+  "Tabata: 8 x (20 s work, 10 s rest), max reps, empty bar (45 lb). The watch row was entered as 'every 0:30' with no 20 s work mark (watch showed 30 s per interval); work/rest times here are the gym clock (20/10), taken as aligned with the watch START (first reps 0.8-1.6 s after each 30 s mark).",
+  "Every set: one segment per 20 s interval (source athlete = the gym clock), reps from the athlete; repTimes only where the motion count equals the athlete's.",
+  "Athlete (2026-11-10): 12, 11, 9, 10, 10, 9, 12, 15; the 15th 'right at the buzzer, probably 14'.",
+  "Motion: pull (vertical accel > 0.5 g) right after the bottom reversal (< -0.4 g within 0.6 s), arm hanging (gx < -0.85). Matches 6 of 8 sets. Set 1: a 13th, weaker pull peaks at 20.0 s (the buzzer); the athlete counted 12. Set 4: 11 pulls (the first two 0.9 s apart, probably getting set), athlete 10.",
+  "Set 8, 15th rep: a full-speed pull at 19.6-19.9 s, bar back down at 20.2 s, i.e. about 0.2 s before the 20 s mark on the watch clock. The offset between the watch START and the gym clock is not known to better than ~0.5 s, so it is on the buzzer; it was 0.2 s earlier and faster than set 1's uncounted pull. Labelled 15 as the athlete counted."
+ ],
+ "segments": [
+  {
+   "movement": "bentOverRows",
+   "round": 1,
+   "start": 0.0,
+   "end": 20.0,
+   "source": "athlete",
+   "reps": 12,
+   "unit": "reps",
+   "loadLb": 45,
+   "note": "motion counts 13 in the 20 s window, athlete 12: not verified"
+  },
+  {
+   "movement": "rest",
+   "start": 20.0,
+   "end": 30.0,
+   "source": "athlete"
+  },
+  {
+   "movement": "bentOverRows",
+   "round": 2,
+   "start": 30.0,
+   "end": 50.0,
+   "source": "athlete",
+   "reps": 11,
+   "unit": "reps",
+   "loadLb": 45,
+   "sets": [
+    {
+     "start": 30,
+     "end": 47.4,
+     "reps": 11,
+     "repTimes": [
+      30.13,
+      31.59,
+      33.06,
+      34.65,
+      36.23,
+      37.94,
+      39.69,
+      41.41,
+      43.24,
+      45.06,
+      46.83
+     ],
+     "signal": "vert",
+     "period": 1.67
+    }
+   ],
+   "note": "repTimes from motion, kept because the count matched the athlete's reps"
+  },
+  {
+   "movement": "rest",
+   "start": 50.0,
+   "end": 60.0,
+   "source": "athlete"
+  },
+  {
+   "movement": "bentOverRows",
+   "round": 3,
+   "start": 60.0,
+   "end": 80.0,
+   "source": "athlete",
+   "reps": 9,
+   "unit": "reps",
+   "loadLb": 45,
+   "sets": [
+    {
+     "start": 60,
+     "end": 73.7,
+     "reps": 9,
+     "repTimes": [
+      60.8,
+      62.24,
+      63.69,
+      65.12,
+      66.63,
+      68.21,
+      69.82,
+      71.49,
+      73.14
+     ],
+     "signal": "vert",
+     "period": 1.54
+    }
+   ],
+   "note": "repTimes from motion, kept because the count matched the athlete's reps"
+  },
+  {
+   "movement": "rest",
+   "start": 80.0,
+   "end": 90.0,
+   "source": "athlete"
+  },
+  {
+   "movement": "bentOverRows",
+   "round": 4,
+   "start": 90.0,
+   "end": 110.0,
+   "source": "athlete",
+   "reps": 10,
+   "unit": "reps",
+   "loadLb": 45,
+   "note": "motion counts 11 in the 20 s window, athlete 10: not verified"
+  },
+  {
+   "movement": "rest",
+   "start": 110.0,
+   "end": 120.0,
+   "source": "athlete"
+  },
+  {
+   "movement": "bentOverRows",
+   "round": 5,
+   "start": 120.0,
+   "end": 140.0,
+   "source": "athlete",
+   "reps": 10,
+   "unit": "reps",
+   "loadLb": 45,
+   "sets": [
+    {
+     "start": 120,
+     "end": 133.8,
+     "reps": 10,
+     "repTimes": [
+      120.9,
+      122.23,
+      123.53,
+      124.83,
+      126.1,
+      127.49,
+      128.9,
+      130.35,
+      131.8,
+      133.21
+     ],
+     "signal": "vert",
+     "period": 1.37
+    }
+   ],
+   "note": "repTimes from motion, kept because the count matched the athlete's reps"
+  },
+  {
+   "movement": "rest",
+   "start": 140.0,
+   "end": 150.0,
+   "source": "athlete"
+  },
+  {
+   "movement": "bentOverRows",
+   "round": 6,
+   "start": 150.0,
+   "end": 170.0,
+   "source": "athlete",
+   "reps": 9,
+   "unit": "reps",
+   "loadLb": 45,
+   "sets": [
+    {
+     "start": 150,
+     "end": 162.5,
+     "reps": 9,
+     "repTimes": [
+      150.91,
+      152.79,
+      154.05,
+      155.42,
+      156.74,
+      158.03,
+      159.31,
+      160.6,
+      161.9
+     ],
+     "signal": "vert",
+     "period": 1.37
+    }
+   ],
+   "note": "repTimes from motion, kept because the count matched the athlete's reps"
+  },
+  {
+   "movement": "rest",
+   "start": 170.0,
+   "end": 180.0,
+   "source": "athlete"
+  },
+  {
+   "movement": "bentOverRows",
+   "round": 7,
+   "start": 180.0,
+   "end": 200.0,
+   "source": "athlete",
+   "reps": 12,
+   "unit": "reps",
+   "loadLb": 45,
+   "sets": [
+    {
+     "start": 180.6,
+     "end": 196.6,
+     "reps": 12,
+     "repTimes": [
+      181.6,
+      182.85,
+      184.12,
+      185.36,
+      186.68,
+      187.99,
+      189.32,
+      190.62,
+      191.95,
+      193.28,
+      194.63,
+      195.98
+     ],
+     "signal": "vert",
+     "period": 1.31
+    }
+   ],
+   "note": "repTimes from motion, kept because the count matched the athlete's reps"
+  },
+  {
+   "movement": "rest",
+   "start": 200.0,
+   "end": 210.0,
+   "source": "athlete"
+  },
+  {
+   "movement": "bentOverRows",
+   "round": 8,
+   "start": 210.0,
+   "end": 230.0,
+   "source": "athlete",
+   "reps": 15,
+   "unit": "reps",
+   "loadLb": 45,
+   "sets": [
+    {
+     "start": 210.2,
+     "end": 230,
+     "reps": 15,
+     "repTimes": [
+      211.22,
+      213.16,
+      214.38,
+      215.59,
+      216.79,
+      218.05,
+      219.26,
+      220.52,
+      221.83,
+      223.15,
+      224.5,
+      225.86,
+      227.27,
+      228.57,
+      229.8
+     ],
+     "signal": "vert",
+     "period": 1.33
+    }
+   ],
+   "note": "repTimes from motion, kept because the count matched the athlete's reps"
+  },
+  {
+   "movement": "rest",
+   "start": 230.0,
+   "end": 240.0,
+   "source": "athlete"
+  }
+ ]
+}
