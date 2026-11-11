@@ -82,7 +82,13 @@ final class SessionModel: ObservableObject {
     /// Load in kilograms for the recording, or nil when not logging load.
     var currentLoad: Double? { useLoad ? loadLb * SessionModel.kgPerLb : nil }
 
-    private let workout: WorkoutManager
+    /// Replaced by a fresh manager if HealthKit never reports back after End (see `armEndTimeout`).
+    private var workout: WorkoutManager
+    /// How long End waits for HealthKit before going back to the start screen.
+    static let endTimeout: Double = 8.0
+    private var endTimeoutTask: Task<Void, Never>?
+    /// Managers replaced because they got stuck (kept alive so they can still finish).
+    private var retiredManagers: [WorkoutManager] = []
     private let recorder: MotionRecorder
     private let link: PhoneLink
     private var sessionId = UUID()
@@ -124,18 +130,7 @@ final class SessionModel: ObservableObject {
     }
 
     private func wireCallbacks() {
-        workout.onStateChange = { [weak self] state in
-            self?.workoutStateChanged(state)
-        }
-        workout.onHeartRate = { [weak self] bpm in
-            self?.heartRate = bpm
-        }
-        workout.onError = { [weak self] message in
-            self?.workoutFailed(message)
-        }
-        workout.onFinished = { [weak self] in
-            self?.workoutFinished()
-        }
+        wireWorkoutCallbacks()
 
         recorder.onDetectorStateChange = { [weak self] state in
             self?.detectorStateChanged(state)
@@ -160,6 +155,55 @@ final class SessionModel: ObservableObject {
         }
     }
 
+    private func wireWorkoutCallbacks() {
+        workout.onStateChange = { [weak self] state in
+            self?.workoutStateChanged(state)
+        }
+        workout.onHeartRate = { [weak self] bpm in
+            self?.heartRate = bpm
+        }
+        workout.onError = { [weak self] message in
+            self?.workoutFailed(message)
+        }
+        workout.onFinished = { [weak self] in
+            self?.workoutFinished()
+        }
+    }
+
+    /// Drops a WorkoutManager that is stuck (never reported back) and makes a fresh one.
+    private func replaceWorkoutManager() {
+        let old = workout
+        old.onStateChange = nil
+        old.onHeartRate = nil
+        old.onError = nil
+        old.onFinished = nil
+        // Ask it to end/save whatever it still holds; keep it alive so its HealthKit
+        // delegate callbacks (weak references) can still complete.
+        old.end()
+        retiredManagers.append(old)
+        if retiredManagers.count > 3 {
+            retiredManagers.removeFirst()
+        }
+        workout = WorkoutManager()
+        wireWorkoutCallbacks()
+        Log.workout.error("Replaced the HealthKit workout manager")
+    }
+
+    /// If HealthKit does not report back within `endTimeout`, go back to the start screen anyway.
+    /// The lifts are already saved: each one is written to the outbox and sent as it is
+    /// detected, and `stopRecording()` has flushed the last block and the session CSV.
+    private func armEndTimeout() {
+        endTimeoutTask?.cancel()
+        endTimeoutTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: UInt64(SessionModel.endTimeout * 1_000_000_000))
+            if Task.isCancelled { return }
+            guard let self = self, self.phase == .ending else { return }
+            Log.workout.error("HealthKit did not finish in time; going idle anyway")
+            self.replaceWorkoutManager()
+            self.workoutFinished()
+        }
+    }
+
     // MARK: - Actions
 
     func start() {
@@ -168,6 +212,10 @@ final class SessionModel: ObservableObject {
             return
         }
         guard phase == .idle else { return }
+        if workout.hasSession {
+            // Left over from a previous run that never finished: don't let it block us.
+            replaceWorkoutManager()
+        }
         errorMessage = nil
         lastSummary = nil
         pendingPhoneLift = nil
@@ -249,12 +297,14 @@ final class SessionModel: ObservableObject {
         switch phase {
         case .paused:
             phase = .ending
+            armEndTimeout()
             let duration = sessionStartDate.map { Date().timeIntervalSince($0) } ?? 0
             workout.saveWorkoutOnEnd = liftCount > 0 || duration >= 300
             workout.end()
         case .running, .starting:
             stopRecording()
             phase = .ending
+            armEndTimeout()
             // Only keep real sessions in Health/Fitness: at least one lift, or 5+ minutes.
             let duration = sessionStartDate.map { Date().timeIntervalSince($0) } ?? 0
             workout.saveWorkoutOnEnd = liftCount > 0 || duration >= 300
@@ -319,8 +369,10 @@ final class SessionModel: ObservableObject {
             if phase == .running || phase == .starting {
                 stopRecording()
                 phase = .ending
+                armEndTimeout()
             } else if phase == .paused {
                 phase = .ending
+                armEndTimeout()
             }
         default:
             break
@@ -338,6 +390,8 @@ final class SessionModel: ObservableObject {
     }
 
     private func workoutFinished() {
+        endTimeoutTask?.cancel()
+        endTimeoutTask = nil
         if phase == .running || phase == .starting {
             stopRecording()
         }
