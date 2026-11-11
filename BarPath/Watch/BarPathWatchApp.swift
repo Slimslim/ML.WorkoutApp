@@ -67,6 +67,7 @@ struct RootView: View {
                 .tabViewStyle(.page)
             }
         }
+        .workoutPractice()
         .onReceive(PhoneLink.shared.$phoneWorkout) { (definition: WorkoutDefinition?) in
             guard let definition = definition else { return }
             workoutModel.selectFromPhone(definition)
