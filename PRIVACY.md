@@ -41,7 +41,7 @@ analysis) can access your uploaded data.
 ## How long, and deleting it
 
 Your data is kept while your account exists. In the app, **Settings › Account › Delete account
-and uploaded data** (tap your initials on the Today tab to open Settings) deletes your account and every uploaded file at once. The files on your
+and uploaded data** (tap the person icon at the top of the Today tab to open Settings) deletes your account and every uploaded file at once. The files on your
 iPhone stay until you delete the app. You can also ask for deletion or a copy of your data
 by email.
 
