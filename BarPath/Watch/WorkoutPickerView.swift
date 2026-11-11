@@ -14,6 +14,7 @@ struct WorkoutPickerView: View {
         let columns: Int = 3
         let rows: Int = (defs.count + columns - 1) / columns
         return VStack(spacing: 5) {
+            practiceRow
             ForEach(0..<rows, id: \.self) { row in
                 HStack(spacing: 5) {
                     tile(defs, index: row * columns)
@@ -23,6 +24,26 @@ struct WorkoutPickerView: View {
             }
         }
         .padding(.horizontal, 2)
+    }
+
+    /// W22: the practice workout is the first row of the list (opens once this sheet is closed).
+    private var practiceRow: some View {
+        return Button {
+            onDone()
+            WorkoutPracticeLauncher.shared.open(afterSeconds: 0.7)
+        } label: {
+            Text("Practice · 1 min")
+                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                .foregroundColor(SegmentPalette.crownForward)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .frame(maxWidth: .infinity, minHeight: 28)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(white: 0.15))
+                )
+        }
+        .buttonStyle(.plain)
     }
 
     @ViewBuilder

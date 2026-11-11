@@ -340,6 +340,10 @@ permission prompts don't hit me mid-run and I know how to move to the next movem
    the practice.
 5. The practice saves no result, uploads nothing and adds nothing to Apple Fitness. A first-time
    tester does it in under 2 minutes without help.
+*Status:* built on branch `claude/funny-faraday-1adqio` (watch only, not run on a device yet). Differs
+from "Done when": it opens at launch until one practice is finished and is the first row of the
+workout picker (not in Settings); no timer; the heart-rate refusal is inferred (no sample 12 s after
+the session runs); the finish screen explains the recovery but does not record it.
 
 **W23. Tell me when heart rate or motion is off (Now)**
 As an athlete, I want the app to tell me before a workout if heart rate or motion access is off, so
