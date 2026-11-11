@@ -70,6 +70,13 @@ final class CrownAdvanceController: ObservableObject {
     }
 
     func crownChanged(to newValue: Double, model: WorkoutSessionModel) {
+        crownChanged(to: newValue,
+                     onAdvance: { _ = model.advance(source: .crown) },
+                     onUndo: { _ = model.undo(source: .crown) })
+    }
+
+    /// The gesture logic, independent of the model (the practice workout uses it too).
+    func crownChanged(to newValue: Double, onAdvance: () -> Void, onUndo: () -> Void) {
         let range = CrownAdvanceController.rangeMax - CrownAdvanceController.rangeMin
         var delta = newValue - lastValue
         lastValue = newValue
@@ -106,12 +113,12 @@ final class CrownAdvanceController: ObservableObject {
             crownLog.info("crown advance at acc \(self.accumulated, format: .fixed(precision: 3)) (threshold \(threshold, format: .fixed(precision: 3)))")
             finishGesture()
             lockedUntil = now.addingTimeInterval(CrownAdvanceController.lockout)
-            model.advance(source: .crown)
+            onAdvance()
         } else if accumulated <= -threshold {
             crownLog.info("crown undo at acc \(self.accumulated, format: .fixed(precision: 3)) (threshold \(threshold, format: .fixed(precision: 3)))")
             finishGesture()
             lockedUntil = now.addingTimeInterval(CrownAdvanceController.lockout)
-            model.undo(source: .crown)
+            onUndo()
         }
     }
 

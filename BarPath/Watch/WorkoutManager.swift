@@ -59,13 +59,8 @@ final class WorkoutManager: NSObject, ObservableObject {
         }
         startPending = true
         WorkoutManager.startRequests += 1
-        let share: Set<HKSampleType> = [HKObjectType.workoutType()]
-        let read: Set<HKObjectType> = [
-            HKQuantityType(.heartRate),
-            HKQuantityType(.activeEnergyBurned),
-            HKObjectType.workoutType()
-        ]
-        healthStore.requestAuthorization(toShare: share, read: read) { success, error in
+        let sets = authorizationSets()
+        healthStore.requestAuthorization(toShare: sets.share, read: sets.read) { success, error in
             if let error = error {
                 Log.workout.error("HealthKit authorization error: \(error.localizedDescription, privacy: .public)")
             }
@@ -73,6 +68,38 @@ final class WorkoutManager: NSObject, ObservableObject {
                 // `success` only means the request completed, not that it was granted.
                 // If sharing was denied, creating/starting the session reports the error.
                 self.beginSession()
+            }
+        }
+    }
+
+    /// The types every session of this app asks for (one place, so the practice asks for exactly
+    /// what a workout does).
+    private func authorizationSets() -> (share: Set<HKSampleType>, read: Set<HKObjectType>) {
+        let share: Set<HKSampleType> = [HKObjectType.workoutType()]
+        let read: Set<HKObjectType> = [
+            HKQuantityType(.heartRate),
+            HKQuantityType(.activeEnergyBurned),
+            HKObjectType.workoutType()
+        ]
+        return (share: share, read: read)
+    }
+
+    /// Asks for the same Health access `start()` does, without starting a session (the
+    /// practice workout asks before anything runs). `completion` runs on the main actor once
+    /// the question is answered, or at once when it was answered before or Health is
+    /// unavailable. It does not say whether access was granted.
+    func requestAuthorization(completion: @escaping @MainActor () -> Void) {
+        guard HKHealthStore.isHealthDataAvailable() else {
+            completion()
+            return
+        }
+        let sets = authorizationSets()
+        healthStore.requestAuthorization(toShare: sets.share, read: sets.read) { _, error in
+            if let error = error {
+                Log.workout.error("HealthKit authorization error: \(error.localizedDescription, privacy: .public)")
+            }
+            Task { @MainActor in
+                completion()
             }
         }
     }
@@ -144,7 +171,11 @@ final class WorkoutManager: NSObject, ObservableObject {
             Log.workout.info("Recovered session is a lifting session; left alone")
             return
         }
-        Log.workout.error("Recovered an active workout session from before the app died; saving it")
+        // Activity "other" is only ever the practice workout or a background recovery session;
+        // both are discarded, never saved to Health.
+        let discard: Bool = session.workoutConfiguration.activityType == .other
+        let verb: String = discard ? "discarding" : "saving"
+        Log.workout.error("Recovered an active workout session from before the app died; \(verb, privacy: .public) it")
         let builder: HKLiveWorkoutBuilder = session.associatedWorkoutBuilder()
         if session.state != .ended {
             session.end()
@@ -153,6 +184,11 @@ final class WorkoutManager: NSObject, ObservableObject {
         builder.endCollection(withEnd: endDate) { _, error in
             if let error = error {
                 Log.workout.error("Recovered endCollection failed: \(error.localizedDescription, privacy: .public)")
+            }
+            if discard {
+                builder.discardWorkout()
+                _ = session
+                return
             }
             builder.finishWorkout { _, error in
                 if let error = error {
