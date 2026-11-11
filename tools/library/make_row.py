@@ -22,6 +22,7 @@ import argparse
 import json
 import re
 import sys
+import uuid
 from datetime import date
 from pathlib import Path
 from typing import Optional
@@ -41,7 +42,7 @@ class LibraryError(ValueError):
     pass
 
 
-def validate_definition(d: dict) -> WorkoutDefinition:
+def validate_definition(d: dict, owner: Optional[str] = None) -> WorkoutDefinition:
     """The definition as the app will decode it; raises LibraryError when it would not decode
     the same way (or would not run sensibly)."""
     if not isinstance(d, dict):
@@ -69,6 +70,8 @@ def validate_definition(d: dict) -> WorkoutDefinition:
     if not ID_PATTERN.match(definition.id):
         raise LibraryError(f"id {definition.id!r} must look like lib.<program>.<yyyymmdd>.<slug> "
                            "(lowercase letters, digits, '-')")
+    if owner is not None:
+        check_owner_id(definition.id, owner)
     if not definition.name.strip() or not definition.short_name.strip():
         raise LibraryError("name and shortName must not be empty")
     if definition.format not in FORMATS:
@@ -124,11 +127,41 @@ def _sql_text(value) -> str:
 GYM_PATTERN = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 
 
+def parse_owner(owner) -> str:
+    """The owner's user id as a lowercase, hyphenated UUID; raises LibraryError otherwise."""
+    try:
+        return str(uuid.UUID(str(owner)))
+    except ValueError as e:
+        raise LibraryError(f"owner {owner!r} must be a user id (a UUID)") from e
+
+
+def owner_suffix(owner) -> str:
+    """'.u' + the first 8 hex characters of the owner id: makes ids unique per tester."""
+    return ".u" + parse_owner(owner).replace("-", "")[:8]
+
+
+def check_owner_id(definition_id: str, owner) -> None:
+    """A personal row's id must end with the owner's suffix (ids are global, testers can
+    share a program, date and slug)."""
+    suffix = owner_suffix(owner)
+    if not definition_id.endswith(suffix):
+        raise LibraryError(f"a personal workout (owner {parse_owner(owner)}) needs an id ending "
+                           f"with {suffix!r}, e.g. {definition_id + suffix!r} (id is {definition_id!r})")
+
+
 def make_row(definition: WorkoutDefinition, program, scheduled_on, published: bool = True,
-             gym: Optional[str] = None) -> str:
+             gym: Optional[str] = None, owner: Optional[str] = None) -> str:
     """`insert … on conflict (id) do update` for one workout. With `gym` (e.g. 'blue-republic',
     migration 20261110000000_gyms.sql) the row is that gym's programming, seen by its members;
-    without, the statement is unchanged (a public row: owner and gym_id stay null)."""
+    without, the statement is unchanged (a public row: owner and gym_id stay null). With `owner`
+    (a user id) the row is that user's personal workout: the id must end with the owner's
+    suffix, and the upsert only updates a row that already has the same owner, so one tester's
+    row is never overwritten by another's."""
+    if owner is not None:
+        if gym is not None:
+            raise LibraryError("a row has an owner or a gym, never both")
+        owner = parse_owner(owner)
+        check_owner_id(definition.id, owner)
     if gym is not None and not GYM_PATTERN.match(str(gym)):
         raise LibraryError(f"gym {gym!r} must be a slug like blue-republic")
     if scheduled_on is not None:
@@ -138,11 +171,20 @@ def make_row(definition: WorkoutDefinition, program, scheduled_on, published: bo
             raise LibraryError(f"scheduled_on {scheduled_on!r} is not YYYY-MM-DD") from e
     if program is not None and not str(program).strip():
         program = None
-    cols = "id, definition, program, scheduled_on, published" + (", gym_id" if gym else "")
+    cols = "id, definition, program, scheduled_on, published" + (", gym_id" if gym else "") + (", owner" if owner else "")
     vals = (f"{_sql_text(definition.id)}, {_sql_text(definition.to_json())}::jsonb, "
             f"{_sql_text(program)}, {_sql_text(scheduled_on)}"
             f"{'::date' if scheduled_on is not None else ''}, {'true' if published else 'false'}"
-            + (f", {_sql_text(gym)}" if gym else ""))
+            + (f", {_sql_text(gym)}" if gym else "")
+            + (f", {_sql_text(owner)}::uuid" if owner else ""))
+    if owner:
+        return (
+            f"insert into public.workout_library ({cols})\n"
+            f"values ({vals})\n"
+            "on conflict (id) do update set definition = excluded.definition,\n"
+            "  program = excluded.program, scheduled_on = excluded.scheduled_on,\n"
+            "  published = excluded.published\n"
+            "  where public.workout_library.owner = excluded.owner;\n")
     return (
         f"insert into public.workout_library ({cols})\n"
         f"values ({vals})\n"
@@ -153,14 +195,19 @@ def make_row(definition: WorkoutDefinition, program, scheduled_on, published: bo
 
 def load_file(path) -> tuple:
     """(definition dict, program, scheduled_on, published, gym) from a seed-style or bare JSON file."""
+    return load_file_with_owner(path)[:5]
+
+
+def load_file_with_owner(path) -> tuple:
+    """Like load_file, with the file's "owner" (or None) as a sixth item."""
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
     if isinstance(raw, dict) and "definition" in raw:
-        unknown = set(raw) - {"definition", "program", "scheduled_on", "published", "gym"}
+        unknown = set(raw) - {"definition", "program", "scheduled_on", "published", "gym", "owner"}
         if unknown:
             raise LibraryError(f"{path}: unknown keys {sorted(unknown)}")
         return (raw["definition"], raw.get("program"), raw.get("scheduled_on"),
-                bool(raw.get("published", True)), raw.get("gym"))
-    return raw, None, None, True, None
+                bool(raw.get("published", True)), raw.get("gym"), raw.get("owner"))
+    return raw, None, None, True, None, None
 
 
 def main(argv=None) -> int:
@@ -172,6 +219,8 @@ def main(argv=None) -> int:
     ap.add_argument("--date", help="scheduled_on, YYYY-MM-DD (overrides the file)")
     ap.add_argument("--unpublished", action="store_true", help="add it hidden (published = false)")
     ap.add_argument("--gym", help="gym id, e.g. blue-republic: the gym's programming (overrides the file)")
+    ap.add_argument("--owner", help="user id (UUID): that user's personal workout, seen only by them; "
+                    "the id must end with .u<first 8 hex of the user id> (overrides the file)")
     args = ap.parse_args(argv)
 
     items = []
@@ -182,9 +231,9 @@ def main(argv=None) -> int:
                 raise LibraryError(f"no built-in workout {args.builtin!r}")
             if not args.id:
                 raise LibraryError("--builtin needs --id lib.<program>.<yyyymmdd>.<slug>")
-            items.append(("--builtin " + args.builtin, builtin.to_dict(), None, None, True, None))
+            items.append(("--builtin " + args.builtin, builtin.to_dict(), None, None, True, None, None))
         for f in args.files:
-            items.append((f,) + load_file(f))
+            items.append((f,) + load_file_with_owner(f))
         if not items:
             ap.error("give JSON files or --builtin")
         if args.id and len(items) > 1:
@@ -192,11 +241,15 @@ def main(argv=None) -> int:
 
         out = ["-- Generated by tools/library/make_row.py. Paste into Supabase -> SQL editor -> Run.\n"]
         seen = set()
-        for source, d, program, day, published, gym in items:
+        for source, d, program, day, published, gym, file_owner in items:
+            owner = args.owner if args.owner is not None else file_owner
+            gym = args.gym if args.gym is not None else gym
             if args.id:
                 d = dict(d, id=args.id)
             try:
-                definition = validate_definition(d)
+                if owner is not None and gym is not None:
+                    raise LibraryError("a row has an owner or a gym, never both")
+                definition = validate_definition(d, owner)
             except LibraryError as e:
                 raise LibraryError(f"{source}: {e}") from e
             if definition.id in seen:
@@ -207,7 +260,7 @@ def main(argv=None) -> int:
                                 args.program if args.program is not None else program,
                                 args.date if args.date is not None else day,
                                 published and not args.unpublished,
-                                args.gym if args.gym is not None else gym))
+                                gym, owner))
     except LibraryError as e:
         print(f"make_row: {e}", file=sys.stderr)
         return 1

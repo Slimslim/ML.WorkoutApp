@@ -61,6 +61,15 @@ owner for now: `insert into public.gym_members (gym_id, user_id) values ('blue-r
 `"gym": "<slug>"` to the JSON or pass `--gym <slug>` to `tools/library/make_row.py`.
 Gym programming is the gym's work: it stays out of this repo (the database only).
 
+Personal rows during the beta: the owner enters each tester's program with `--owner <user id>`
+(or `"owner": "<user id>"` in the JSON). A row has an owner or a gym, never both. The upsert only
+updates a row that already has the same owner, so one tester can never overwrite another's:
+
+```
+python3 tools/library/make_row.py --builtin wod.helen --id lib.benchmark.20261110.helen.u1a2b3c4d \
+    --program Benchmark --date 2026-11-10 --owner 1a2b3c4d-5e6f-4a1b-8c2d-0123456789ab
+```
+
 ## Fields
 
 | Column | Meaning |
@@ -79,6 +88,11 @@ Gym programming is the gym's work: it stays out of this repo (the database only)
 `lib.<program>.<yyyymmdd>.<slug>`: lowercase letters, digits and `-`, e.g.
 `lib.mayhem.20261105.chipper`, `lib.pitfire.20261102.freedom`. Undated workouts may skip the
 date (`lib.benchmark.helen`).
+
+Personal rows (`owner` set) end with `.u<first 8 hex characters of the owner id, lowercase>`,
+e.g. `lib.mayhem.20261105.chipper.u1a2b3c4d`: ids are global, so two testers with the same
+program, date and slug must not share one. `make_row.py` refuses an owner row without that
+suffix and names the id it expects. The app never splits an id, so the extra segment is harmless.
 
 Ids must never be a built-in id (`hyrox.solo`, `wod.helen`, …): for a built-in id the watch
 always runs its own built-in version (`WorkoutSessionModel.selectedDefinition`), and the phone

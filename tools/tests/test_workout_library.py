@@ -140,3 +140,55 @@ def test_gym_rows_carry_the_gym_and_public_rows_stay_unchanged():
     assert "'blue-republic')" in gym and "gym_id = excluded.gym_id" in gym
     with pytest.raises(make_row.LibraryError, match="slug"):
         make_row.make_row(d, None, None, gym="Blue Republic")
+
+
+OWNER_A = "1a2b3c4d-0000-4000-8000-000000000001"
+OWNER_B = "9f8e7d6c-0000-4000-8000-000000000002"
+
+
+def owner_base(owner):
+    return dict(base(), id="lib.benchmark.20261110.helen" + make_row.owner_suffix(owner))
+
+
+def test_owner_rows_need_the_suffix_and_do_not_overwrite_other_owners():
+    assert make_row.owner_suffix(OWNER_A) == ".u1a2b3c4d"
+    assert make_row.owner_suffix(OWNER_A.upper()) == ".u1a2b3c4d"
+    with pytest.raises(make_row.LibraryError, match=r"lib\.benchmark\.20261110\.helen\.u1a2b3c4d"):
+        make_row.validate_definition(base(), OWNER_A)
+    with pytest.raises(make_row.LibraryError, match="ending"):
+        make_row.validate_definition(owner_base(OWNER_B), OWNER_A)
+    with pytest.raises(make_row.LibraryError, match="UUID"):
+        make_row.validate_definition(base(), "not-a-uuid")
+    d = make_row.validate_definition(owner_base(OWNER_A), OWNER_A)
+    sql = make_row.make_row(d, "Mayhem", "2026-11-10", owner=OWNER_A)
+    assert "(id, definition, program, scheduled_on, published, owner)" in sql
+    assert f"'{OWNER_A}'::uuid)" in sql
+    assert sql.rstrip().endswith("where public.workout_library.owner = excluded.owner;")
+    assert "gym_id" not in sql
+    ids = {make_row.validate_definition(owner_base(o), o).id for o in (OWNER_A, OWNER_B)}
+    assert len(ids) == 2
+
+
+def test_owner_and_gym_are_exclusive_and_public_sql_is_unchanged():
+    d = make_row.validate_definition(owner_base(OWNER_A), OWNER_A)
+    with pytest.raises(make_row.LibraryError, match="never both"):
+        make_row.make_row(d, None, None, gym="blue-republic", owner=OWNER_A)
+    public = make_row.make_row(make_row.validate_definition(base()), "Mayhem", "2026-11-10")
+    assert "owner" not in public and "where" not in public
+
+
+def test_owner_option_and_json_key(tmp_path, capsys):
+    args = ["--builtin", "wod.helen", "--id", "lib.benchmark.20261110.helen.u1a2b3c4d",
+            "--program", "Benchmark", "--date", "2026-11-10"]
+    assert make_row.main(args + ["--owner", OWNER_A]) == 0
+    assert "excluded.owner" in capsys.readouterr().out
+    assert make_row.main(args + ["--owner", OWNER_A, "--gym", "blue-republic"]) == 1
+    assert make_row.main(args[:2] + ["lib.benchmark.20261110.helen"] + args[4:] + ["--owner", OWNER_A]) == 1
+    capsys.readouterr()
+    f = tmp_path / "w.json"
+    f.write_text(json.dumps({"program": "Mayhem", "scheduled_on": "2026-11-10", "owner": OWNER_A,
+                             "definition": owner_base(OWNER_A)}))
+    assert make_row.main([str(f)]) == 0
+    assert f"'{OWNER_A}'::uuid" in capsys.readouterr().out
+    f.write_text(json.dumps({"owner": OWNER_A, "gym": "x-y", "definition": owner_base(OWNER_A)}))
+    assert make_row.main([str(f)]) == 1
