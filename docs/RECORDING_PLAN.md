@@ -21,9 +21,10 @@ questions, so the build starts from the same place.
   after `finishWorkout`, discarded with a discarded workout) and one CSV comment line each. **Map
   coordinates are never written to the app's files**: the route goes only to Apple Health; the CSV
   has distance, speed, accuracy and relative altitude. Recorded for comparison with the pedometer
-  only; the displayed distance and the result stay on the pedometer. Header `gps=on|off`. No
-  `location` in `WKBackgroundModes` (not a documented value; the workout session keeps the app
-  running) and `allowsBackgroundLocationUpdates` is set only if a `location` mode is declared.
+  only; the displayed distance and the result stay on the pedometer. Header `gps=on|off`. The
+  watch Info.plist declares `location` under `UIBackgroundModes` (as Apple requires for background
+  location; `WKBackgroundModes` keeps only `workout-processing`) and `allowsBackgroundLocationUpdates`
+  is set, before `startUpdatingLocation`, only when authorized and that mode is declared.
   Lifting mode is unchanged (already 200 Hz + 800 Hz).
   No 800 Hz accel in workout mode: the session CSV has no accel columns.
 - The CSV header records `sampleRate` (real nominal rate) and `planProfile`. The Python loader

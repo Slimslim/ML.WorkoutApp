@@ -30,6 +30,10 @@
 	<string>Rx Lab uses your location during workouts with a run to measure distance and pace. Your route is saved to Apple Health, not uploaded.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>Rx Lab records wrist motion during your lifts and workouts to reconstruct the bar path and count reps and steps.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
 	<key>WKApplication</key>
 	<true/>
 	<key>WKBackgroundModes</key>

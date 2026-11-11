@@ -70,9 +70,10 @@ final class WorkoutLocationRecorder: NSObject, CLLocationManagerDelegate {
         m.delegate = self
         m.desiredAccuracy = kCLLocationAccuracyBest
         m.activityType = .fitness
-        // Core Location terminates an app that sets this without the matching background mode,
-        // so it is set only when the Info.plist declares `location` (it does not today: the
-        // HealthKit workout session keeps the app running; see docs/RECORDING_PLAN.md).
+        // Apple: apps that receive location updates in the background must declare the
+        // `location` value under UIBackgroundModes in Info.plist; setting this property without it
+        // is a fatal error. So it is set only when that is declared, and (we are authorized, see
+        // the guard above) before `startUpdatingLocation`.
         if WorkoutLocationRecorder.declaresLocationBackgroundMode() {
             m.allowsBackgroundLocationUpdates = true
         }
@@ -104,7 +105,7 @@ final class WorkoutLocationRecorder: NSObject, CLLocationManagerDelegate {
     }
 
     private static func declaresLocationBackgroundMode() -> Bool {
-        for key in ["WKBackgroundModes", "UIBackgroundModes"] {
+        for key in ["UIBackgroundModes", "WKBackgroundModes"] {
             if let modes = Bundle.main.object(forInfoDictionaryKey: key) as? [String], modes.contains("location") {
                 return true
             }
