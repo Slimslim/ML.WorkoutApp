@@ -1,0 +1,545 @@
+{
+ "version": 1,
+ "id": "2026-11-08-sunyay",
+ "date": "2026-11-08",
+ "kind": "workout",
+ "name": "SunYay (AMRAP 40)",
+ "format": "amrap",
+ "rx": false,
+ "files": {
+  "csv": "Debug/session-8656C282-DD8D-466E-A669-0CAECD4E465B.csv",
+  "result": "Workouts/8656C282-DD8D-466E-A669-0CAECD4E465B.original.json"
+ },
+ "score": "5 rounds + 44 reps + 41 m",
+ "notes": [
+  "Per round: 12 ball slams, 12 dual DB thrusters (2 x 25 lb), 10 GHD sit-ups (instead of toes-to-bar), 10 dual DB lunges (2 x 50 lb held at the sides), 400 m run.",
+  "Scaled: GHD sit-ups instead of toes-to-bar. Ball weight not given.",
+  "Athlete (2026-11-08): thrusters, GHD sit-ups and lunges unbroken every round; ball slams with a few breaks.",
+  "Station boundaries are the Crown taps. 8 of 24 stations have motion sets with one time per rep (repTimes = the peak of each cycle in the named signal), kept only where the count equalled the known reps; the others are not verified.",
+  "Run starts: first 6 s at >= 2.2 steps/s after the Crown (5-28 s later: walking out), the time before is a transition. First session labelled after switch-v1 was frozen (2026-11-06)."
+ ],
+ "segments": [
+  {
+   "movement": "ballSlams",
+   "round": 1,
+   "start": 0,
+   "end": 40.0,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps",
+   "sets": [
+    {
+     "start": 1.3,
+     "end": 38.6,
+     "reps": 12,
+     "repTimes": [
+      2.82,
+      5.6,
+      8.49,
+      11.63,
+      15.01,
+      17.88,
+      20.79,
+      23.96,
+      27.25,
+      30.62,
+      34.13,
+      37.05
+     ],
+     "signal": "gx",
+     "period": 3.1
+    }
+   ],
+   "note": "sets and repTimes from motion, kept only because the count matched the athlete's reps"
+  },
+  {
+   "movement": "thrusters",
+   "round": 1,
+   "start": 40.0,
+   "end": 80.1,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps",
+   "loadLb": 50,
+   "note": "2 x 25 lb dumbbells; sets and repTimes from motion, kept only because the count matched the athlete's reps",
+   "sets": [
+    {
+     "start": 52.6,
+     "end": 78.2,
+     "reps": 12,
+     "repTimes": [
+      53.6,
+      56.31,
+      58.5,
+      60.66,
+      62.8,
+      64.92,
+      67.02,
+      69.15,
+      71.35,
+      73.62,
+      75.26,
+      77.15
+     ],
+     "signal": "vert",
+     "period": 2.17
+    }
+   ]
+  },
+  {
+   "movement": "ghdSitUps",
+   "round": 1,
+   "start": 80.1,
+   "end": 131.4,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps",
+   "sets": [
+    {
+     "start": 97.4,
+     "end": 121.8,
+     "reps": 10,
+     "repTimes": [
+      98.57,
+      101.24,
+      103.79,
+      106.28,
+      108.74,
+      111.16,
+      113.51,
+      115.85,
+      118.2,
+      120.56
+     ],
+     "signal": "gz",
+     "period": 2.43
+    }
+   ],
+   "note": "sets and repTimes from motion, kept only because the count matched the athlete's reps"
+  },
+  {
+   "movement": "lunges",
+   "round": 1,
+   "start": 131.4,
+   "end": 189.3,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps",
+   "loadLb": 100,
+   "note": "2 x 50 lb dumbbells; sets and repTimes from motion, kept only because the count matched the athlete's reps",
+   "sets": [
+    {
+     "start": 132.0,
+     "end": 142.9,
+     "reps": 10,
+     "repTimes": [
+      132.55,
+      134.11,
+      134.79,
+      135.87,
+      137.17,
+      138.17,
+      139.39,
+      140.51,
+      141.23,
+      142.35
+     ],
+     "signal": "vert",
+     "period": 1.1
+    }
+   ]
+  },
+  {
+   "movement": "transition",
+   "round": 1,
+   "start": 189.3,
+   "end": 194.3,
+   "source": "motion",
+   "note": "Crown turned, walking out before running"
+  },
+  {
+   "movement": "run",
+   "round": 1,
+   "start": 194.3,
+   "end": 353.5,
+   "source": "motion",
+   "unit": "meters",
+   "note": "400 m planned; pedometer 390 m; start = first 6 s at >= 2.2 steps/s (pedometer)"
+  },
+  {
+   "movement": "ballSlams",
+   "round": 2,
+   "start": 353.5,
+   "end": 411.5,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps",
+   "sets": [
+    {
+     "start": 366.2,
+     "end": 410.6,
+     "reps": 12,
+     "repTimes": [
+      368.04,
+      372.13,
+      376.71,
+      379.9,
+      383.75,
+      387.46,
+      390.9,
+      395.06,
+      398.09,
+      402.07,
+      405.52,
+      408.78
+     ],
+     "signal": "gx",
+     "period": 3.6
+    }
+   ],
+   "note": "sets and repTimes from motion, kept only because the count matched the athlete's reps"
+  },
+  {
+   "movement": "thrusters",
+   "round": 2,
+   "start": 411.5,
+   "end": 462.1,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps",
+   "loadLb": 50,
+   "note": "2 x 25 lb dumbbells"
+  },
+  {
+   "movement": "ghdSitUps",
+   "round": 2,
+   "start": 462.1,
+   "end": 524.1,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps",
+   "sets": [
+    {
+     "start": 492.7,
+     "end": 519.2,
+     "reps": 10,
+     "repTimes": [
+      493.97,
+      496.77,
+      499.5,
+      502.22,
+      504.94,
+      507.59,
+      510.2,
+      512.77,
+      515.28,
+      517.89
+     ],
+     "signal": "gz",
+     "period": 2.64
+    }
+   ],
+   "note": "sets and repTimes from motion, kept only because the count matched the athlete's reps"
+  },
+  {
+   "movement": "lunges",
+   "round": 2,
+   "start": 524.1,
+   "end": 577.0,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps",
+   "loadLb": 100,
+   "note": "2 x 50 lb dumbbells"
+  },
+  {
+   "movement": "transition",
+   "round": 2,
+   "start": 577.0,
+   "end": 587.5,
+   "source": "motion",
+   "note": "Crown turned, walking out before running"
+  },
+  {
+   "movement": "run",
+   "round": 2,
+   "start": 587.5,
+   "end": 750.8,
+   "source": "motion",
+   "unit": "meters",
+   "note": "400 m planned; pedometer 392 m; start = first 6 s at >= 2.2 steps/s (pedometer)"
+  },
+  {
+   "movement": "ballSlams",
+   "round": 3,
+   "start": 750.8,
+   "end": 815.1,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps"
+  },
+  {
+   "movement": "thrusters",
+   "round": 3,
+   "start": 815.1,
+   "end": 867.7,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps",
+   "loadLb": 50,
+   "note": "2 x 25 lb dumbbells"
+  },
+  {
+   "movement": "ghdSitUps",
+   "round": 3,
+   "start": 867.7,
+   "end": 929.6,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps",
+   "sets": [
+    {
+     "start": 899.8,
+     "end": 925.0,
+     "reps": 10,
+     "repTimes": [
+      901.06,
+      903.67,
+      906.24,
+      908.84,
+      911.38,
+      913.91,
+      916.44,
+      918.93,
+      921.34,
+      923.74
+     ],
+     "signal": "gz",
+     "period": 2.51
+    }
+   ],
+   "note": "sets and repTimes from motion, kept only because the count matched the athlete's reps"
+  },
+  {
+   "movement": "lunges",
+   "round": 3,
+   "start": 929.6,
+   "end": 994.9,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps",
+   "loadLb": 100,
+   "note": "2 x 50 lb dumbbells"
+  },
+  {
+   "movement": "transition",
+   "round": 3,
+   "start": 994.9,
+   "end": 1006.9,
+   "source": "motion",
+   "note": "Crown turned, walking out before running"
+  },
+  {
+   "movement": "run",
+   "round": 3,
+   "start": 1006.9,
+   "end": 1176.3,
+   "source": "motion",
+   "unit": "meters",
+   "note": "400 m planned; pedometer 411 m; start = first 6 s at >= 2.2 steps/s (pedometer)"
+  },
+  {
+   "movement": "ballSlams",
+   "round": 4,
+   "start": 1176.3,
+   "end": 1254.1,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps"
+  },
+  {
+   "movement": "thrusters",
+   "round": 4,
+   "start": 1254.1,
+   "end": 1316.2,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps",
+   "loadLb": 50,
+   "note": "2 x 25 lb dumbbells"
+  },
+  {
+   "movement": "ghdSitUps",
+   "round": 4,
+   "start": 1316.2,
+   "end": 1392.5,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps"
+  },
+  {
+   "movement": "lunges",
+   "round": 4,
+   "start": 1392.5,
+   "end": 1462.4,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps",
+   "loadLb": 100,
+   "note": "2 x 50 lb dumbbells"
+  },
+  {
+   "movement": "transition",
+   "round": 4,
+   "start": 1462.4,
+   "end": 1484.9,
+   "source": "motion",
+   "note": "Crown turned, walking out before running"
+  },
+  {
+   "movement": "run",
+   "round": 4,
+   "start": 1484.9,
+   "end": 1651.3,
+   "source": "motion",
+   "unit": "meters",
+   "note": "400 m planned; pedometer 403 m; start = first 6 s at >= 2.2 steps/s (pedometer)"
+  },
+  {
+   "movement": "ballSlams",
+   "round": 5,
+   "start": 1651.3,
+   "end": 1722.8,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps"
+  },
+  {
+   "movement": "thrusters",
+   "round": 5,
+   "start": 1722.8,
+   "end": 1792.1,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps",
+   "loadLb": 50,
+   "note": "2 x 25 lb dumbbells"
+  },
+  {
+   "movement": "ghdSitUps",
+   "round": 5,
+   "start": 1792.1,
+   "end": 1871.5,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps",
+   "sets": [
+    {
+     "start": 1839.1,
+     "end": 1865.3,
+     "reps": 10,
+     "repTimes": [
+      1840.37,
+      1843.13,
+      1845.87,
+      1848.51,
+      1851.13,
+      1853.75,
+      1856.37,
+      1858.96,
+      1861.49,
+      1864.04
+     ],
+     "signal": "gz",
+     "period": 2.62
+    }
+   ],
+   "note": "sets and repTimes from motion, kept only because the count matched the athlete's reps"
+  },
+  {
+   "movement": "lunges",
+   "round": 5,
+   "start": 1871.5,
+   "end": 1933.4,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps",
+   "loadLb": 100,
+   "note": "2 x 50 lb dumbbells"
+  },
+  {
+   "movement": "transition",
+   "round": 5,
+   "start": 1933.4,
+   "end": 1960.9,
+   "source": "motion",
+   "note": "Crown turned, walking out before running"
+  },
+  {
+   "movement": "run",
+   "round": 5,
+   "start": 1960.9,
+   "end": 2123.8,
+   "source": "motion",
+   "unit": "meters",
+   "note": "400 m planned; pedometer 399 m; start = first 6 s at >= 2.2 steps/s (pedometer)"
+  },
+  {
+   "movement": "ballSlams",
+   "round": 6,
+   "start": 2123.8,
+   "end": 2201.1,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps"
+  },
+  {
+   "movement": "thrusters",
+   "round": 6,
+   "start": 2201.1,
+   "end": 2271.2,
+   "source": "crown",
+   "reps": 12,
+   "unit": "reps",
+   "loadLb": 50,
+   "note": "2 x 25 lb dumbbells"
+  },
+  {
+   "movement": "ghdSitUps",
+   "round": 6,
+   "start": 2271.2,
+   "end": 2334.4,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps"
+  },
+  {
+   "movement": "lunges",
+   "round": 6,
+   "start": 2334.4,
+   "end": 2379.2,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps",
+   "loadLb": 100,
+   "note": "2 x 50 lb dumbbells"
+  },
+  {
+   "movement": "transition",
+   "round": 6,
+   "start": 2379.2,
+   "end": 2381.7,
+   "source": "motion",
+   "note": "Crown turned, walking out before running"
+  },
+  {
+   "movement": "run",
+   "round": 6,
+   "start": 2381.7,
+   "end": 2400.1,
+   "source": "motion",
+   "unit": "meters",
+   "note": "time cap 21 s into the run: 41 m (pedometer); start = first 6 s at >= 2.2 steps/s (pedometer)"
+  }
+ ]
+}

@@ -57,3 +57,29 @@ def test_validate_catches_bad_labels():
     errs = L.validate(d)
     assert any("sets add up to 9" in e for e in errs)
     assert any("starts before the previous segment ends" in e for e in errs)
+
+
+def test_rep_times_must_match_the_reps():
+    d = {"version": 1, "id": "x", "date": "2026-11-08", "name": "x", "kind": "workout",
+         "files": {"csv": "a.csv", "result": "a.json"},
+         "segments": [seg("thrusters", 0, 40, reps=3, sets=[dict(start=2, end=10, reps=3, repTimes=[3.0, 5.0])])]}
+    assert any("one time per rep" in e for e in L.validate(d))
+    d["segments"][0]["sets"][0]["repTimes"] = [3.0, 5.0, 7.0]
+    assert L.validate(d) == []
+
+
+def test_a_start_known_only_from_the_crown_is_not_truth():
+    d = {"segments": [dict(movement="ballSlams", start=0, end=40, source="crown"),
+                      dict(movement="thrusters", start=40, end=80, source="crown"),
+                      dict(movement="ghdSitUps", start=80, end=130, source="crown",
+                           sets=[dict(start=95, end=120, reps=10)]),
+                      dict(movement="run", start=135, end=300, source="motion")]}
+    assert [x["t"] for x in L.switches(d)] == [95.0, 135.0]
+    assert [x["t"] for x in L.switches(d, unverified=True)] == [40.0]
+
+
+def test_predictions_at_unconfirmed_starts_are_set_aside():
+    d = {"segments": [dict(movement="ballSlams", start=0, end=40, source="motion"),
+                      dict(movement="thrusters", start=40, end=80, source="crown")]}
+    assert L.unknown_windows(d) == [(40.0, 60.0)]
+    assert L.drop_unknown(d, [20.0, 45.0, 70.0]) == [20.0, 70.0]

@@ -30,7 +30,7 @@ def test_seed_files_validate():
     assert len(files) >= 2
     ids = set()
     for f in files:
-        d, program, day, published = make_row.load_file(f)
+        d, program, day, published, _gym = make_row.load_file(f)
         definition = make_row.validate_definition(d)
         assert definition.id.startswith("lib.")
         assert WorkoutLibrary.definition(definition.id) is None
@@ -42,7 +42,7 @@ def test_seed_files_validate():
 def test_seed_definitions():
     by_id = {}
     for f in seed_files():
-        d, _, _, _ = make_row.load_file(f)
+        d, _, _, _, _ = make_row.load_file(f)
         definition = make_row.validate_definition(d)
         by_id[definition.id] = definition
     freedom = by_id["lib.pitfire.20261102.freedom"]
@@ -129,3 +129,14 @@ def test_builtin_option(capsys):
     out = capsys.readouterr().out
     assert "'lib.benchmark.20261110.helen'" in out and "'Benchmark'" in out
     assert make_row.main(["--builtin", "wod.helen"]) == 1
+
+
+def test_gym_rows_carry_the_gym_and_public_rows_stay_unchanged():
+    d = make_row.validate_definition(base())
+    public = make_row.make_row(d, "Mayhem", "2026-11-10")
+    assert "gym_id" not in public
+    gym = make_row.make_row(d, "Mayhem", "2026-11-10", gym="blue-republic")
+    assert "(id, definition, program, scheduled_on, published, gym_id)" in gym
+    assert "'blue-republic')" in gym and "gym_id = excluded.gym_id" in gym
+    with pytest.raises(make_row.LibraryError, match="slug"):
+        make_row.make_row(d, None, None, gym="Blue Republic")

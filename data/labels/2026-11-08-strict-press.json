@@ -1,0 +1,155 @@
+{
+ "version": 1,
+ "id": "2026-11-08-strict-press",
+ "date": "2026-11-08",
+ "kind": "workout",
+ "name": "Strict Press 3 x 10",
+ "format": "forTime",
+ "files": {
+  "csv": "Debug/session-32EC8633-9B54-4E3F-AA42-578CA561DD92.csv",
+  "result": "Workouts/32EC8633-9B54-4E3F-AA42-578CA561DD92.json"
+ },
+ "score": "3 x 10 @ 65 / 75 / 75 lb",
+ "notes": [
+  "Athlete: 10 reps every set, 65 lb then 75 lb and 75 lb.",
+  "The Crown marks the end of each set (after racking); the start of a set is not marked. Set and rep times come from the motion and match the athlete's 10 reps in every set.",
+  "Recorded for training data (rep counting)."
+ ],
+ "segments": [
+  {
+   "movement": "rest",
+   "start": 0.0,
+   "end": 8.3,
+   "source": "motion",
+   "note": "setting up / resting (the start was not marked)"
+  },
+  {
+   "movement": "strictPress",
+   "start": 8.3,
+   "end": 36.3,
+   "reps": 10,
+   "unit": "reps",
+   "loadLb": 65,
+   "source": "motion",
+   "sets": [
+    {
+     "start": 8.3,
+     "end": 36.3,
+     "reps": 10,
+     "repTimes": [
+      9.71,
+      12.75,
+      15.75,
+      18.61,
+      21.41,
+      24.15,
+      26.81,
+      29.52,
+      32.36,
+      35.26
+     ],
+     "signal": "vert",
+     "period": 2.84
+    }
+   ],
+   "note": "rep = upward push of the wrist (vertical accel > 0.2 g, forearm vertical); first push dropped: taking the bar out of the rack"
+  },
+  {
+   "movement": "rest",
+   "start": 36.3,
+   "end": 46.7,
+   "source": "motion",
+   "note": "racking the bar, then the Crown (end of the set)"
+  },
+  {
+   "movement": "rest",
+   "start": 46.7,
+   "end": 132.5,
+   "source": "motion",
+   "note": "setting up / resting (the start was not marked)"
+  },
+  {
+   "movement": "strictPress",
+   "start": 132.5,
+   "end": 159.5,
+   "reps": 10,
+   "unit": "reps",
+   "loadLb": 75,
+   "source": "motion",
+   "sets": [
+    {
+     "start": 132.5,
+     "end": 159.5,
+     "reps": 10,
+     "repTimes": [
+      133.94,
+      136.63,
+      139.1,
+      141.62,
+      144.07,
+      146.94,
+      149.73,
+      152.66,
+      155.52,
+      158.54
+     ],
+     "signal": "vert",
+     "period": 2.79
+    }
+   ],
+   "note": "rep = upward push of the wrist (vertical accel > 0.2 g, forearm vertical)"
+  },
+  {
+   "movement": "rest",
+   "start": 159.5,
+   "end": 166.5,
+   "source": "motion",
+   "note": "racking the bar, then the Crown (end of the set)"
+  },
+  {
+   "movement": "rest",
+   "start": 166.5,
+   "end": 301.8,
+   "source": "motion",
+   "note": "setting up / resting (the start was not marked)"
+  },
+  {
+   "movement": "strictPress",
+   "start": 301.8,
+   "end": 327.4,
+   "reps": 10,
+   "unit": "reps",
+   "loadLb": 75,
+   "source": "motion",
+   "sets": [
+    {
+     "start": 301.8,
+     "end": 327.4,
+     "reps": 10,
+     "repTimes": [
+      303.04,
+      305.57,
+      307.87,
+      310.14,
+      312.36,
+      314.59,
+      317.42,
+      320.26,
+      323.22,
+      326.35
+     ],
+     "signal": "vert",
+     "period": 2.53
+    }
+   ],
+   "note": "rep = upward push of the wrist (vertical accel > 0.2 g, forearm vertical)"
+  },
+  {
+   "movement": "rest",
+   "start": 327.4,
+   "end": 335.4,
+   "source": "motion",
+   "note": "racking the bar, then the Crown (end of the set)"
+  }
+ ]
+}
