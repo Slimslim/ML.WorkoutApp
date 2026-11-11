@@ -520,10 +520,13 @@ private struct LocalFile {
 }
 
 private enum LocalFiles {
-    /// Every regular file under Documents/Lifts, Documents/Workouts and Documents/Debug.
+    /// Every regular file under Documents/Lifts, Documents/Workouts, Documents/Debug and
+    /// Documents/Profile (the athlete's unit and body details, kind "profile").
     static func all() -> [LocalFile] {
+        AthleteProfile.shared.writeProfileFile()
         let documents = LiftFiles.documentsURL.standardizedFileURL
-        let roots = [LiftFiles.liftsURL, WorkoutFiles.workoutsURL, LiftFiles.debugURL]
+        let roots = [LiftFiles.liftsURL, WorkoutFiles.workoutsURL, LiftFiles.debugURL,
+                     AthleteProfile.profileFolderURL]
         let keys: [URLResourceKey] = [.isRegularFileKey, .contentModificationDateKey, .fileSizeKey]
         var found: [LocalFile] = []
         for root in roots {

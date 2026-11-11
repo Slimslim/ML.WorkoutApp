@@ -42,14 +42,17 @@ final class SessionModel: ObservableObject {
             UserDefaults.standard.set(useLoad, forKey: Keys.useLoad)
         }
     }
-    /// Load entered on the watch, in pounds (lbs for now; a unit setting comes later).
-    /// Recordings still store kilograms (`loadKg`), converted in `currentLoad`.
-    @Published var loadLb: Double {
+    /// Load entered on the watch, always kept in kilograms: the one source of truth. The picker
+    /// shows it in `weightUnit` (kg or lb) and converts only when reading or writing a number
+    /// there, so changing the unit never changes the load. Recordings store the same kilograms.
+    @Published var loadKg: Double {
         didSet {
             recorder.loadKg = currentLoad
-            UserDefaults.standard.set(loadLb, forKey: Keys.loadLb)
+            UserDefaults.standard.set(loadKg, forKey: Keys.loadKg)
         }
     }
+    /// The unit the load is shown and picked in: the phone's choice, else the watch's region.
+    @Published private(set) var weightUnit: WeightUnit
     /// Full-session CSV. Defaults to ON for now (data collection phase).
     @Published var debugRecording: Bool {
         didSet { UserDefaults.standard.set(debugRecording, forKey: Keys.debugRecording) }
@@ -77,10 +80,38 @@ final class SessionModel: ObservableObject {
     @Published private(set) var repCount = 0
     @Published private(set) var lastSetReps: Int?
 
-    static let kgPerLb = 0.45359237
+    static let kgPerLb = WeightUnit.kgPerLb
 
     /// Load in kilograms for the recording, or nil when not logging load.
-    var currentLoad: Double? { useLoad ? loadLb * SessionModel.kgPerLb : nil }
+    var currentLoad: Double? { useLoad ? loadKg : nil }
+
+    /// The load as the picker shows it, in `weightUnit` (kg to 0.1, lb whole).
+    var loadDisplay: Double { return weightUnit.display(fromKilograms: loadKg) }
+
+    /// "60 kg", "62.5 kg", "135 lb".
+    var loadText: String { return weightUnit.format(kilograms: loadKg) }
+
+    /// Sets the load from a number in `weightUnit` (Digital Crown). Same number as shown: no change.
+    func setLoadDisplay(_ value: Double) {
+        if value == loadDisplay { return }
+        loadKg = weightUnit.kilograms(fromDisplay: value)
+    }
+
+    /// One tap of the − / + buttons: `direction` is -1 or +1 steps of the unit's step.
+    func stepLoad(_ direction: Double) {
+        loadKg = weightUnit.kilograms(adding: direction * weightUnit.step, toKilograms: loadKg)
+    }
+
+    private func applyWeightUnit(_ unit: WeightUnit) {
+        if unit == weightUnit { return }
+        weightUnit = unit
+        // Never chosen on this watch: the default load follows the unit (60 kg or 135 lb).
+        if UserDefaults.standard.object(forKey: Keys.loadKg) == nil
+            && UserDefaults.standard.object(forKey: Keys.loadLb) == nil {
+            loadKg = unit.kilograms(fromDisplay: unit.defaultLoad)
+            UserDefaults.standard.removeObject(forKey: Keys.loadKg)
+        }
+    }
 
     /// Replaced by a fresh manager if HealthKit never reports back after End (see `armEndTimeout`).
     private var workout: WorkoutManager
@@ -96,11 +127,14 @@ final class SessionModel: ObservableObject {
     private var csvId = UUID()
     private var lastHapticDate: Date?
     private var pendingPhoneLift: LiftSelection?
+    private var unitObserver: AnyCancellable?
 
     private enum Keys {
         static let liftType = "liftType"
         static let useLoad = "useLoad"
+        /// Older builds stored pounds here; read once if `loadKg` is not stored yet.
         static let loadLb = "loadLb"
+        static let loadKg = "loadKg.v1"
         static let debugRecording = "debugRecording.v1"
     }
 
@@ -113,20 +147,33 @@ final class SessionModel: ObservableObject {
         let storedType = defaults.string(forKey: Keys.liftType).flatMap { LiftType(rawValue: $0) }
         let initialType = storedType ?? .snatch
         let initialUseLoad = defaults.bool(forKey: Keys.useLoad)
-        let storedLoad = defaults.double(forKey: Keys.loadLb)
-        let initialLoad = storedLoad > 0 ? storedLoad : 135
+        let initialUnit = PhoneLink.shared.weightUnit
+        let storedKg = defaults.double(forKey: Keys.loadKg)
+        let storedLb = defaults.double(forKey: Keys.loadLb)
+        let initialLoad: Double
+        if storedKg > 0 {
+            initialLoad = storedKg
+        } else if storedLb > 0 {
+            initialLoad = WeightUnit.kilograms(fromPounds: storedLb)
+        } else {
+            initialLoad = initialUnit.kilograms(fromDisplay: initialUnit.defaultLoad)
+        }
         let initialDebug = defaults.object(forKey: Keys.debugRecording) == nil
             ? true
             : defaults.bool(forKey: Keys.debugRecording)
 
         liftType = initialType
         useLoad = initialUseLoad
-        loadLb = initialLoad
+        loadKg = initialLoad
+        weightUnit = initialUnit
         debugRecording = initialDebug
 
         recorder.liftType = initialType
-        recorder.loadKg = initialUseLoad ? initialLoad * SessionModel.kgPerLb : nil
+        recorder.loadKg = initialUseLoad ? initialLoad : nil
         wireCallbacks()
+        unitObserver = link.$weightUnit.sink { [weak self] (unit: WeightUnit) in
+            self?.applyWeightUnit(unit)
+        }
     }
 
     private func wireCallbacks() {
@@ -255,7 +302,8 @@ final class SessionModel: ObservableObject {
     private func apply(_ selection: LiftSelection) {
         liftType = selection.liftType
         if let lb = selection.loadLb {
-            loadLb = lb
+            // The phone sends kilograms as pounds (`loadLb`); 60 kg arrives as 60 kg.
+            loadKg = WeightUnit.kilograms(fromPounds: lb)
             useLoad = true
         } else {
             useLoad = false
@@ -496,7 +544,8 @@ final class SessionModel: ObservableObject {
             // Live set on the phone: reps so far in the set in progress (0 between sets).
             message["repCount"] = repCount
             if useLoad {
-                message["loadLb"] = loadLb
+                message["loadLb"] = WeightUnit.pounds(fromKilograms: loadKg)
+                message["loadKg"] = loadKg
             }
         }
         link.sendStatus(message)

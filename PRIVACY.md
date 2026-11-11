@@ -12,6 +12,8 @@ Selim Gawad, an individual developer. Contact: selim.gawad@gmail.com.
 - **Your training data:** the lifts, workouts and watch recordings the app saves. This
   includes wrist motion during lifts, workout splits and scores, and heart rate during
   workouts recorded on your Apple Watch.
+- **Body details you choose to enter:** height, body weight and forearm length (and the weight
+  unit you pick) are stored with your training data and used to measure your lifts.
 - **Your date of birth:** the app reads it from Apple Health to estimate your maximum heart
   rate and keeps it on your phone. It is not uploaded.
 

@@ -9,6 +9,7 @@ Newest first. Paste the latest entry into "What to Test" for the build in App St
 - Turning the Crown just as a rest ends no longer skips a part.
 - Lifting no longer gets stuck on "Ending…".
 - Deleting your account removes every uploaded file.
+- Weights in kg or lb, and your height and body details in Settings.
 
 ## Build 14
 

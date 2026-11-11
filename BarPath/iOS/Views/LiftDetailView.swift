@@ -3,6 +3,8 @@ import BarPathKit
 
 struct LiftDetailView: View {
     let liftId: UUID
+    /// Redraws the load when the weight unit changes in Settings.
+    @ObservedObject private var profile = AthleteProfile.shared
     @EnvironmentObject private var store: LiftStore
     @Environment(\.dismiss) private var dismiss
     @State private var compareWithPrevious = true

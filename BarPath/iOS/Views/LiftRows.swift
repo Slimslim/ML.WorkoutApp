@@ -13,6 +13,8 @@ struct SessionRoute: Hashable {
 /// Compact row: lift number, type, time, peak velocity, max height, confidence.
 struct LiftRow: View {
     let entry: LiftEntry
+    /// Redraws the load when the weight unit changes in Settings.
+    @ObservedObject private var profile = AthleteProfile.shared
 
     var body: some View {
         HStack(spacing: 12) {
@@ -73,6 +75,8 @@ struct LiftRow: View {
 /// "Lift 3 · Snatch · 80 kg" header used on the hero card and the detail screen.
 struct LiftTitle: View {
     let entry: LiftEntry
+    /// Redraws the load when the weight unit changes in Settings.
+    @ObservedObject private var profile = AthleteProfile.shared
     var showReceived: Bool = false
 
     var body: some View {

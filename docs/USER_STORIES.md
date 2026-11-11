@@ -384,6 +384,19 @@ year and no heart rate data, nothing is scored, as before.
 *Status:* built on branch `claude/funny-faraday-1adqio` (phone and one watch permission line; not
 run on a device yet).
 
+**W26. I lift in kg or lb, and the app knows my size (Now)**
+As a tester who lifts in kilograms, I want every lift load in my unit, and a place for my height and
+body details, because bar height only means something relative to the lifter.
+*Done when:* Settings > About you has Weights (kg / lb; until I choose, a metric region gives kg and
+anything else lb), and optional Height (cm, or ft and in for lb), Body weight and Forearm length
+(elbow crease to the wrist bone). Every lift load on the phone and the watch follows the unit: "62.5 kg",
+"100 kg", "135 lb". The watch picker starts at 60 kg in steps of 2.5, or 135 lb in steps of 5, keeps its
+own copy of the unit (works with the phone away) and takes the phone's choice. A load of 60 kg reads
+back as 60 kg and 135 lb as 135 lb; stored lift files stay in kilograms. Library workouts keep the
+unit they are written in. The unit and the three body details are written to Profile/athlete.json and
+uploaded with the recordings (kind "profile"); birth year and max heart rate stay on the phone.
+*Status:* built on branch `claude/funny-faraday-1adqio` (not run on a device yet).
+
 ### Recording follows the plan (spans Lifting and Workouts; after the MVP)
 
 **W21. The watch records each part the way that part needs (Later)**

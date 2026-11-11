@@ -58,10 +58,10 @@ enum Fmt {
         return String(format: "%.2f s", value)
     }
 
-    /// Recordings store kilograms; shown in lbs for now (unit setting comes later).
+    /// Recordings store kilograms; shown in the athlete's weight unit (Settings > About you).
     static func load(_ kg: Double?) -> String? {
         guard let kg = kg else { return nil }
-        return String(format: "%.0f lb", (kg / 0.45359237).rounded())
+        return AthleteProfile.shared.weightUnit.format(kilograms: kg)
     }
 
     static func duration(_ seconds: Double) -> String {

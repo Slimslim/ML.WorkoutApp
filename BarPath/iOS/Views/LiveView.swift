@@ -278,11 +278,13 @@ struct HeroLiftCard: View {
 /// The full rep table replaces it a few seconds after the set ends.
 struct LiveSetCard: View {
     let status: LiveSetStatus
+    /// Redraws the load when the weight unit changes in Settings.
+    @ObservedObject private var profile = AthleteProfile.shared
 
     private var title: String {
         var parts = ["Set \(status.setNumber)", status.liftName]
-        if let lb = status.loadLb {
-            parts.append(String(format: "%.0f lb", lb))
+        if let load = Fmt.load(status.loadKg) {
+            parts.append(load)
         }
         return parts.joined(separator: " · ")
     }

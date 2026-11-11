@@ -228,7 +228,7 @@ struct SessionView: View {
     // MARK: - Helpers
 
     private var setupLine: String {
-        return model.liftType.displayName + (model.useLoad ? " · " + LoadPickerView.format(model.loadLb) : "")
+        return model.liftType.displayName + (model.useLoad ? " · " + model.loadText : "")
     }
 
     private func elapsedText(now: Date) -> Text {
