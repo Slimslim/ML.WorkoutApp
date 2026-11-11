@@ -5,7 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from barpath.recording_profile import HIGH, STANDARD, profile_for, profile_for_segments, words
+from barpath.recording_profile import (HIGH, STANDARD, profile_for, profile_for_segments, uses_location,
+                                       uses_location_segments, words)
 from barpath.workout import WorkoutLibrary
 
 ROOT = Path(__file__).resolve().parent.parent.parent
@@ -50,3 +51,16 @@ def test_every_seed_is_pinned():
         assert mine == set(tuples(entries[f]["segments"])), f
         got = profile_for_segments((s["kind"], s["movement"], s["name"], "load" in s) for s in d["segments"])
         assert got == entries[f]["profile"] == HIGH
+
+
+@pytest.mark.parametrize("case", DATA["locationCases"], ids=lambda c: c["name"])
+def test_location_cases(case):
+    assert uses_location_segments(s["kind"] for s in case["segments"]) == case["gps"]
+
+
+def test_location_pins_built_ins():
+    pinned = {e["id"]: e["gps"] for e in DATA["locationLibrary"]}
+    assert set(pinned) == {d.id for d in WorkoutLibrary.known}
+    for d in WorkoutLibrary.known:
+        assert uses_location(d) == pinned[d.id], d.id
+    assert pinned["free.workout"] is False and pinned["hyrox.solo"] is True

@@ -63,6 +63,19 @@ public enum RecordingProfile: String {
         return hasLoad
     }
 
+    // MARK: Location (GPS)
+
+    /// Decided once at START for the whole session, from the planned workout only: GPS is on when
+    /// the plan has at least one segment of kind `.run`. Free Workout and plans without a run: off.
+    /// Independent of the rate rule above. Mirror of `uses_location` in the Python reference.
+    public static func usesLocation(for definition: WorkoutDefinition) -> Bool {
+        return usesLocation(kinds: definition.segments.map { (s: WorkoutSegment) -> SegmentKind in s.kind })
+    }
+
+    public static func usesLocation(kinds: [SegmentKind]) -> Bool {
+        return kinds.contains(.run)
+    }
+
     /// Lower-case ASCII words: boundaries at non-alphanumerics (and non-ASCII) and at a lower-case
     /// letter followed by an upper-case one.
     static func words(_ text: String) -> [String] {

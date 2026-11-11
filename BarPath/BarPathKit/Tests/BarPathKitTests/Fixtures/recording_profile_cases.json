@@ -1027,5 +1027,176 @@
    ],
    "profile": "high"
   }
+ ],
+ "locationCases": [
+  {
+   "name": "no segments",
+   "segments": [],
+   "gps": false
+  },
+  {
+   "name": "free workout (one station)",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "free",
+     "name": "Free Workout"
+    }
+   ],
+   "gps": false
+  },
+  {
+   "name": "station only",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "wallBalls",
+     "name": "Wall Balls"
+    }
+   ],
+   "gps": false
+  },
+  {
+   "name": "snatch EMOM, rest and transition",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "powerSnatch",
+     "name": "Power Snatch"
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "transition",
+     "movement": "transition",
+     "name": "Transition"
+    }
+   ],
+   "gps": false
+  },
+  {
+   "name": "treadmill-like station named run (kind station)",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "run",
+     "name": "Run"
+    }
+   ],
+   "gps": false
+  },
+  {
+   "name": "single run",
+   "segments": [
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run"
+    }
+   ],
+   "gps": true
+  },
+  {
+   "name": "run then stations",
+   "segments": [
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run"
+    },
+    {
+     "kind": "station",
+     "movement": "wallBalls",
+     "name": "Wall Balls"
+    }
+   ],
+   "gps": true
+  },
+  {
+   "name": "stations, run last",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpee",
+     "name": "Burpees"
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "400 m Run"
+    }
+   ],
+   "gps": true
+  },
+  {
+   "name": "run with barbell movements (rate stays high)",
+   "segments": [
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run"
+    },
+    {
+     "kind": "station",
+     "movement": "powerCleans",
+     "name": "Power Cleans"
+    }
+   ],
+   "gps": true
+  }
+ ],
+ "locationLibrary": [
+  {
+   "id": "hyrox.solo",
+   "gps": true
+  },
+  {
+   "id": "hyrox.doubles",
+   "gps": true
+  },
+  {
+   "id": "hyrox.half",
+   "gps": true
+  },
+  {
+   "id": "partner.wod1",
+   "gps": true
+  },
+  {
+   "id": "partner.wod2",
+   "gps": false
+  },
+  {
+   "id": "wod.amrap40",
+   "gps": false
+  },
+  {
+   "id": "wod.helen",
+   "gps": true
+  },
+  {
+   "id": "wod.rowThrusters",
+   "gps": false
+  },
+  {
+   "id": "free.workout",
+   "gps": false
+  },
+  {
+   "id": "wod.nightmareAmrap",
+   "gps": false
+  },
+  {
+   "id": "quick.test",
+   "gps": true
+  }
  ]
 }

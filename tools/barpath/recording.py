@@ -181,9 +181,45 @@ class SessionCSV:
     sample_rate: Optional[float] = None          # rate of .motion in Hz (after any resampling)
     source_rate: Optional[float] = None          # rate of the file (header sampleRate, else measured)
     plan_profile: Optional[str] = None           # header planProfile (build 15+): high | standard
+    gps: Optional[str] = None                    # header gps (build 16+): on | off (location updates started)
+
+    def gps_fixes(self) -> list:
+        """The '# event ... name=gps' lines of this file as GpsFix records."""
+        return parse_gps_events(self.events)
 
 
 _HEADER_RE = re.compile(r"(\w+)=([^,\s]+)")
+
+
+@dataclass
+class GpsFix:
+    """One accepted location fix of a workout session (build 16+). No coordinates, by design.
+
+    Line: '# event t=<s> name=gps distance=<cum m> speed=<m/s> accuracy=<m> altitudeDelta=<m>'
+    t is on the CSV time axis; distance is cumulative since the workout start (sum of the distances
+    between consecutive accepted fixes); speed is omitted by the watch when unknown (-> None);
+    accuracy is the horizontal accuracy; altitudeDelta is relative to the first fix."""
+    t: float
+    distance: float
+    speed: Optional[float]
+    accuracy: float
+    altitude_delta: float
+
+
+def parse_gps_events(events) -> list:
+    """GpsFix list from the events of `load_session_csv` (other events and malformed gps lines are
+    skipped), in file order."""
+    out = []
+    for e in events:
+        if e.get("name") != "gps":
+            continue
+        vals = {k: e.get(k) for k in ("t", "distance", "accuracy", "altitudeDelta")}
+        if not all(isinstance(v, float) for v in vals.values()):
+            continue
+        speed = e.get("speed")
+        out.append(GpsFix(vals["t"], vals["distance"], speed if isinstance(speed, float) else None,
+                          vals["accuracy"], vals["altitudeDelta"]))
+    return out
 
 
 def _num(x: str):
@@ -263,7 +299,8 @@ def load_session_csv(path, workout_hz: Optional[float] = WORKOUT_HZ) -> SessionC
             motion = decimate_motion(motion, factor)
             rate = rate / factor
     return SessionCSV(meta.get("sessionId"), start, meta.get("liftType"), motion,
-                      marks, events, meta.get("workout"), rate, source_rate, meta.get("planProfile"))
+                      marks, events, meta.get("workout"), rate, source_rate, meta.get("planProfile"),
+                      meta.get("gps"))
 
 
 def save_session_csv(path, motion: MotionSeries, session_id: str, start_date: datetime,

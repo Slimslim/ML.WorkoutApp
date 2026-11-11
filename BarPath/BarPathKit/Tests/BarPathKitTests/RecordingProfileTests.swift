@@ -57,6 +57,30 @@ final class RecordingProfileTests: XCTestCase {
         XCTAssertEqual(RecordingProfile.profile(for: WorkoutLibrary.free), .standard)
     }
 
+    func testSharedLocationCases() throws {
+        let cases = try XCTUnwrap(try fixture()["locationCases"] as? [[String: Any]])
+        XCTAssertGreaterThan(cases.count, 5)
+        for c in cases {
+            let name: String = c["name"] as? String ?? ""
+            let segs = try segments(try XCTUnwrap(c["segments"] as? [[String: Any]]))
+            let expected: Bool = (c["gps"] as? Bool) ?? false
+            XCTAssertEqual(RecordingProfile.usesLocation(for: definition(segs)), expected, name)
+        }
+    }
+
+    func testLocationPinsBuiltIns() throws {
+        let library = try XCTUnwrap(try fixture()["locationLibrary"] as? [[String: Any]])
+        var ids: Set<String> = []
+        for e in library {
+            let id: String = e["id"] as? String ?? ""
+            ids.insert(id)
+            let d = try XCTUnwrap(WorkoutLibrary.definition(id: id), id)
+            XCTAssertEqual(RecordingProfile.usesLocation(for: d), (e["gps"] as? Bool) ?? false, id)
+        }
+        XCTAssertEqual(ids, Set(WorkoutLibrary.known.map { (d: WorkoutDefinition) -> String in d.id }))
+        XCTAssertFalse(RecordingProfile.usesLocation(for: WorkoutLibrary.free))
+    }
+
     func testWordsAndRates() {
         XCTAssertEqual(RecordingProfile.words("powerCleanAndJerk"), ["power", "clean", "and", "jerk"])
         XCTAssertEqual(RecordingProfile.words("Bent-over row"), ["bent", "over", "row"])

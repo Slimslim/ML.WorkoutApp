@@ -101,3 +101,19 @@ def profile_for_segments(segments) -> str:
 
 def profile_for(definition) -> str:
     return profile_for_segments((s.kind, s.movement, s.name, s.load is not None) for s in definition.segments)
+
+
+# ---- Location (GPS) -----------------------------------------------------------------------
+# Decided once at START for the whole session, from the planned workout only: GPS is on when the
+# plan contains at least one segment of kind "run" (Free Workout and plans without a run: off).
+# Independent of the rate rule above.
+LOCATION_KINDS = ("run",)
+
+
+def uses_location_segments(kinds) -> bool:
+    """True when any segment kind (a string) is a run."""
+    return any(k in LOCATION_KINDS for k in kinds)
+
+
+def uses_location(definition) -> bool:
+    return uses_location_segments(s.kind for s in definition.segments)
