@@ -346,7 +346,12 @@ As an athlete, I want the app to tell me before a workout if heart rate or motio
 I don't find out afterwards that nothing was measured.
 *Done when:* the phone's Workouts tab and the watch start screen show "Heart rate is off" /
 "Motion is off" with what it costs (no HR, recovery, distance, reps) and a button that opens the
-right Settings page; the banner goes away as soon as access is on. (First tester, 2026-11-10: no HR or
+right Settings page; the banner goes away as soon as access is on. Heart rate: iOS does not tell
+an app whether reading heart rate was refused, so the rule is "the last session (or the practice)
+received no heart rate while the watch was worn"; it clears when a session receives heart rate. The
+phone can open the Health app but not this app's Sharing page, so the banner also says where to
+tap (Sharing → Apps → Rx Lab). Motion: the watch reports its Motion status to the phone (a new
+application-context key; shared `PhoneLink` files). (First tester, 2026-11-10: no HR or
 steps recorded at all.)
 
 **W24. A crash does not lose my workout (Now)**
