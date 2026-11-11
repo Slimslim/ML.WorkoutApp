@@ -82,19 +82,20 @@ final class WorkoutManager: NSObject, ObservableObject {
     /// what a workout does).
     private func authorizationSets() -> (share: Set<HKSampleType>, read: Set<HKObjectType>) {
         var share: Set<HKSampleType> = [HKObjectType.workoutType()]
-        // The route of a workout with a run goes to Health through the route builder; Apple's
-        // "Creating a workout route" asks for read and share access to the route type.
-        share.insert(HKSeriesType.workoutRoute())
         var read: Set<HKObjectType> = [
             HKQuantityType(.heartRate),
             HKQuantityType(.activeEnergyBurned),
             HKObjectType.workoutType()
         ]
-        // Date of birth, for the max heart rate estimate on the phone (asked in the same sheet).
-        if let birth = HKObjectType.characteristicType(forIdentifier: .dateOfBirth) {
-            read.insert(birth)
+        // The route of a workout with a run goes to Health through the route builder; Apple's
+        // "Creating a workout route" asks for read and share access to the route type. Asked only
+        // once Location is allowed, so an unanswered new type never makes Health show its sheet
+        // at START for someone who never allowed Location. (Date of birth is asked on the phone.)
+        let locationStatus: CLAuthorizationStatus = CLLocationManager().authorizationStatus
+        if locationStatus == .authorizedWhenInUse || locationStatus == .authorizedAlways {
+            share.insert(HKSeriesType.workoutRoute())
+            read.insert(HKSeriesType.workoutRoute())
         }
-        read.insert(HKSeriesType.workoutRoute())
         return (share: share, read: read)
     }
 
