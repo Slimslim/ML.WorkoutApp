@@ -103,18 +103,14 @@ final class CloudAccount: ObservableObject {
         lastError = nil
         await BackgroundUploads.shared.cancelAll()
         do {
-            let rows: [UploadPath] = try await client.from("uploads")
-                .select("path")
-                .eq("user_id", value: userId)
-                .execute()
-                .value
-            let paths = rows.map { $0.path }
-            var start = 0
-            while start < paths.count {
-                let batch = Array(paths[start..<min(start + 100, paths.count)])
-                _ = try await client.storage.from(CloudConfig.bucket).remove(paths: batch)
-                start += 100
-            }
+            let folder: String = userId.uuidString.lowercased()
+            // Files are found by listing the folder (also those without an `uploads` row), plus the
+            // rows' paths. A second listing catches an upload that finished during the first pass.
+            let known: [String] = try await uploadRowPaths(userId: userId)
+            let first: [String] = try await listObjects(folder: folder)
+            try await removeObjects(known + first)
+            let late: [String] = try await listObjects(folder: folder)
+            try await removeObjects(late)
             try await client.rpc("delete_user").execute()
             UploadManifest.clear(userId: userId)
             PendingRows.clear(userId: userId)
@@ -125,6 +121,62 @@ final class CloudAccount: ObservableObject {
             isSyncing = false
         } catch {
             lastError = "Could not delete the account: \(error.localizedDescription)"
+        }
+    }
+
+    /// Paths of all the user's `uploads` rows, read page by page (the API caps one answer).
+    private func uploadRowPaths(userId: UUID) async throws -> [String] {
+        guard let client else { return [] }
+        var paths: [String] = []
+        let pageSize: Int = 1000
+        while true {
+            let rows: [UploadPath] = try await client.from("uploads")
+                .select("path")
+                .eq("user_id", value: userId)
+                .order("path")
+                .range(from: paths.count, to: paths.count + pageSize - 1)
+                .execute()
+                .value
+            paths += rows.map { $0.path }
+            if rows.count < pageSize { break }
+        }
+        return paths
+    }
+
+    /// Every object under `folder` in the bucket, subfolders included, page by page.
+    /// A folder entry has no `id`; a file has one.
+    private func listObjects(folder: String) async throws -> [String] {
+        guard let client else { return [] }
+        let bucket = client.storage.from(CloudConfig.bucket)
+        let pageSize: Int = 100
+        var files: [String] = []
+        var pending: [String] = [folder]
+        while let current = pending.popLast() {
+            var offset: Int = 0
+            while true {
+                let page: [FileObject] = try await bucket.list(
+                    path: current,
+                    options: SearchOptions(limit: pageSize, offset: offset))   // sorted by name by default
+                for entry in page {
+                    let full: String = CloudPaths.join(folder: current, name: entry.name)
+                    if entry.id == nil {
+                        pending.append(full)
+                    } else {
+                        files.append(full)
+                    }
+                }
+                offset += page.count
+                if page.count < pageSize { break }
+            }
+        }
+        return files
+    }
+
+    /// Deletes objects in batches of 100 (a path that is already gone is not an error).
+    private func removeObjects(_ paths: [String]) async throws {
+        guard let client else { return }
+        for batch in CloudPaths.batches(paths, size: 100) {
+            _ = try await client.storage.from(CloudConfig.bucket).remove(paths: batch)
         }
     }
 
