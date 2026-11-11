@@ -124,6 +124,9 @@ final class WorkoutSessionModel: ObservableObject {
     @Published private(set) var heartRate: Double?
     /// Last advance/undo (wall clock), for the Undo capsule.
     @Published private(set) var lastChangeDate: Date?
+    /// Last change made by the clock itself (timed rest or interval ending, time cap). The view
+    /// starts the Crown lockout on it, so a turn in progress does not skip the next part.
+    @Published private(set) var lastAutoAdvanceDate: Date?
     @Published private(set) var errorMessage: String?
     @Published private(set) var lastSummary: String?
     @Published private(set) var healthKitRunning = false
@@ -439,6 +442,7 @@ final class WorkoutSessionModel: ObservableObject {
                                  description: "name=segment index=\(progress.currentIndex) kind=\(kind.rawValue) source=auto")
         }
         lastChangeDate = Date()
+        lastAutoAdvanceDate = Date()
         persistProgress()
         workoutLog.info("clock advance -> \(self.progress.currentIndex) finished \(self.progress.isFinished)")
         return true
@@ -690,6 +694,7 @@ final class WorkoutSessionModel: ObservableObject {
         recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
                              description: "name=finish index=\(progress.currentIndex) source=auto")
         lastChangeDate = Date()
+        lastAutoAdvanceDate = Date()
         persistProgress()
         workoutLog.info("time cap reached at segment \(self.progress.currentIndex)")
     }

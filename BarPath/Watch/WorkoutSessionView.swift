@@ -172,6 +172,11 @@ struct WorkoutSessionView: View {
                 .tabViewStyle(.page)
             }
         }
+        .onChange(of: model.lastAutoAdvanceDate) { _, _ in
+            // The clock advanced by itself: lock the Crown and drop any partial turn, so a turn
+            // under way at that moment does not advance a second time.
+            crown.noteAction()
+        }
         .sheet(isPresented: $confirmEnd) {
             WorkoutEndConfirmView(progressText: progressText) {
                 confirmEnd = false
