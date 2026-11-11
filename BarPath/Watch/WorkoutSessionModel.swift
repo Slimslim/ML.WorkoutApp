@@ -151,6 +151,8 @@ final class WorkoutSessionModel: ObservableObject {
     private let recorder: WorkoutMotionRecorder
     private let link: PhoneLink
     private var pedometer: CMPedometer?
+    /// GPS for plans with a run (build 16): decided at START, started in `beginRunning`.
+    private let locationRecorder = WorkoutLocationRecorder()
     private var workoutId = UUID()
     private var heartRates: [HeartRateSample] = []
     private var pedometerSamples: [PedometerSnapshot] = []
@@ -355,7 +357,8 @@ final class WorkoutSessionModel: ObservableObject {
             replaceWorkoutManager()
         }
         workout.activityType = WorkoutSessionModel.activityType(for: progress.definition.healthKitActivity)
-        workout.locationType = .indoor
+        // Outdoor only when the plan has a run (same decision as the GPS, made once at START).
+        workout.locationType = RecordingProfile.usesLocation(for: progress.definition) ? .outdoor : .indoor
         workout.start()
     }
 
@@ -608,12 +611,18 @@ final class WorkoutSessionModel: ObservableObject {
             play(progress.currentSegment?.kind == .run ? .start : .directionUp)
             return
         }
+        // GPS decided once for the whole session: only when the plan has a run. Started before
+        // the recorder so the CSV header can say whether it is on. Never blocks START.
+        var gpsOn = false
+        if RecordingProfile.usesLocation(for: progress.definition) {
+            gpsOn = startLocation(from: Date(timeIntervalSince1970: t))
+        }
         if dataMode {
             // Rate chosen once for the whole session: 200 Hz only if the plan has a barbell /
             // dumbbell / kettlebell movement (RecordingProfile) and HealthKit is running now.
             recorder.start(sessionId: workoutId, definitionId: progress.definition.id,
                            planned: RecordingProfile.profile(for: progress.definition),
-                           healthKitRunning: healthKitRunning)
+                           healthKitRunning: healthKitRunning, gpsOn: gpsOn)
             isRecordingCSV = true
         }
         let kind = progress.currentSegment?.kind ?? .station
@@ -829,6 +838,7 @@ final class WorkoutSessionModel: ObservableObject {
         if !isDemo && !progress.isStarted {
             WorkoutCheckpoint.clear()
         }
+        stopLocation()
         phase = .idle
         heartRate = nil
         healthKitRunning = false
@@ -1120,6 +1130,42 @@ final class WorkoutSessionModel: ObservableObject {
         model.stopBackgroundRecovery(reason: "lifting session", then: then)
     }
 
+    // MARK: - Location (GPS, plans with a run)
+
+    /// Starts location updates for this session. False (nothing started) without permission or
+    /// location; the workout is unaffected. Recorded only: nothing on screen or in the result
+    /// uses it yet.
+    private func startLocation(from date: Date) -> Bool {
+        locationRecorder.onFix = { [weak self] fix in
+            self?.locationFixReceived(fix)
+        }
+        locationRecorder.onRoute = { [weak self] locations in
+            self?.workout.insertRoute(locations)
+        }
+        return locationRecorder.start(from: date)
+    }
+
+    /// Every path that ends the session (End, ended by the watch, going idle) ends up here or in
+    /// `finalize`; stopping twice is harmless. The last route batch goes to the manager before
+    /// it finishes the workout.
+    private func stopLocation() {
+        locationRecorder.stop()
+        locationRecorder.onFix = nil
+        locationRecorder.onRoute = nil
+    }
+
+    /// Comment line: `# event t=<s> name=gps distance=<m> [speed=<m/s>] accuracy=<m> altitudeDelta=<m>`.
+    /// No coordinates, no absolute altitude.
+    private func locationFixReceived(_ fix: WorkoutLocationRecorder.Fix) {
+        guard phase == .running, !finalized else { return }
+        var description: String = String(format: "name=gps distance=%.1f", fix.distance)
+        if let speed = fix.speed {
+            description += String(format: " speed=%.2f", speed)
+        }
+        description += String(format: " accuracy=%.1f altitudeDelta=%.1f", fix.accuracy, fix.altitudeDelta)
+        recorder.appendEvent(atUptime: recorder.uptime(forEpoch: fix.t), description: description)
+    }
+
     // MARK: - Pedometer
 
     private func startPedometer(from date: Date) {
@@ -1239,6 +1285,7 @@ final class WorkoutSessionModel: ObservableObject {
         guard !finalized else { return }
         finalized = true
         stopPedometer()
+        stopLocation()
         let csvURL = recorder.stop()
         refreshCounters()
 

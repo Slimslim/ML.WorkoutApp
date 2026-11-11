@@ -30,6 +30,9 @@ final class DebugCSVWriter {
     /// Workout mode: the recording rule's verdict for the planned workout (`high` / `standard`),
     /// written to the header as `planProfile`. Omitted when nil.
     var planProfile: String?
+    /// Workout mode: whether location updates were started for the session, written to the header
+    /// as `gps=on|off`. Omitted when nil.
+    var gpsOn: Bool?
 
     /// Since-boot time of the first sample: CSV t = 0.
     private(set) var t0: Double?
@@ -163,9 +166,9 @@ final class DebugCSVWriter {
         return name.isEmpty ? "unknown" : name
     }
 
-    /// ", watchModel=..., watchOS=..., wrist=..., crown=..., appBuild=...[, sampleRate=...][, planProfile=...]".
+    /// ", watchModel=..., watchOS=..., wrist=..., crown=..., appBuild=...[, sampleRate=...][, planProfile=...][, gps=on|off]".
     /// Additive keys of format v1: older parsers ignore them.
-    static func deviceHeaderPairs(sampleRateHz: Int?, planProfile: String? = nil) -> String {
+    static func deviceHeaderPairs(sampleRateHz: Int?, planProfile: String? = nil, gpsOn: Bool? = nil) -> String {
         let device = WKInterfaceDevice.current()
         let wrist: String = device.wristLocation == .left ? "left" : "right"
         let crown: String = device.crownOrientation == .left ? "left" : "right"
@@ -181,6 +184,9 @@ final class DebugCSVWriter {
         if let profile = planProfile {
             pairs += ", planProfile=" + headerValue(profile)
         }
+        if let gps = gpsOn {
+            pairs += gps ? ", gps=on" : ", gps=off"
+        }
         return pairs
     }
 
@@ -192,7 +198,7 @@ final class DebugCSVWriter {
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         let tag: String = headerTag ?? "liftType=\(liftType.rawValue)"
         var header = "# barpath-session v1, sessionId=\(sessionId.uuidString), startDate=\(formatter.string(from: startDate)), \(tag)"
-        header += DebugCSVWriter.deviceHeaderPairs(sampleRateHz: sampleRateHz, planProfile: planProfile) + "\n"
+        header += DebugCSVWriter.deviceHeaderPairs(sampleRateHz: sampleRateHz, planProfile: planProfile, gpsOn: gpsOn) + "\n"
         header += "t,qw,qx,qy,qz,ax,ay,az,gx,gy,gz,rx,ry,rz\n"
         for comment in pendingComments {
             if let t0 = startTime {

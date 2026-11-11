@@ -2,9 +2,10 @@ import Foundation
 import Combine
 import HealthKit
 import CoreMotion
+import CoreLocation
 import WatchKit
 
-/// The W22 practice workout: asks for Health and Motion with the reason, then walks the tester
+/// The W22 practice workout: asks for Health, Motion and Location with the reason, then walks the tester
 /// through two "parts" with the Digital Crown. It leaves no trace: it saves no result, writes no
 /// file, sends nothing to the phone and its HealthKit workout is discarded.
 ///
@@ -67,6 +68,7 @@ final class WorkoutPracticeModel: ObservableObject {
 
     private let manager = WorkoutManager()
     private var pedometer: CMPedometer?
+    private var locationRequest: LocationPermissionRequest?
     private var motionOff: Bool = false
     private var heartRateNoticeShown: Bool = false
     private var hintShown: Bool = false
@@ -103,6 +105,7 @@ final class WorkoutPracticeModel: ObservableObject {
         safetyTask?.cancel()
         safetyTask = nil
         pedometer = nil
+        locationRequest = nil
         stage = .permissions
         heartRate = nil
         heartRateOff = false
@@ -117,7 +120,7 @@ final class WorkoutPracticeModel: ObservableObject {
 
     // MARK: - Permissions
 
-    /// "Continue": Health prompt, then the Motion prompt, then part 1. `blockedReason` is set
+    /// "Continue": Health prompt, then the Motion prompt, then Location, then part 1. `blockedReason` is set
     /// by the view when a workout, a lift or a recovery recording owns HealthKit.
     func continueFromPermissions(blockedReason: String?) {
         guard stage == .permissions else { return }
@@ -163,6 +166,23 @@ final class WorkoutPracticeModel: ObservableObject {
         pedometer = nil
         let status: CMAuthorizationStatus = CMPedometer.authorizationStatus()
         motionOff = status == .denied || status == .restricted
+        askLocation(generation: gen)
+    }
+
+    /// Third question: when-in-use location, for GPS on workouts with a run. A refusal needs no
+    /// screen (one log line); the practice goes on either way.
+    private func askLocation(generation gen: Int) {
+        guard gen == generation, stage == .requesting else { return }
+        let request = LocationPermissionRequest()
+        locationRequest = request
+        request.start { [weak self] in
+            self?.locationAnswered(generation: gen)
+        }
+    }
+
+    private func locationAnswered(generation gen: Int) {
+        guard gen == generation, stage == .requesting else { return }
+        locationRequest = nil
         stage = .part1
         partStart = Date()
         if motionOff {

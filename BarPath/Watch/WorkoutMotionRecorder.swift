@@ -63,10 +63,11 @@ final class WorkoutMotionRecorder {
     // MARK: - Start / stop
 
     /// `planned` is the rule's verdict for the workout (written to the header as `planProfile`);
-    /// `healthKitRunning` says whether the HealthKit workout session is running right now.
+    /// `healthKitRunning` says whether the HealthKit workout session is running right now;
+    /// `gpsOn` whether location updates were actually started (header `gps=on|off`).
     /// Never blocks: the sensors are started and the call returns.
     func start(sessionId: UUID, definitionId: String, planned: RecordingProfile = .standard,
-               healthKitRunning: Bool = false) {
+               healthKitRunning: Bool = false, gpsOn: Bool = false) {
         guard !isRunning else { return }
         isRunning = true
         bootDate = Date(timeIntervalSinceNow: -ProcessInfo.processInfo.systemUptime)
@@ -79,6 +80,7 @@ final class WorkoutMotionRecorder {
                                liftType: .other,
                                headerTag: "workout=" + WorkoutMotionRecorder.clean(definitionId))
         w.planProfile = planned.rawValue
+        w.gpsOn = gpsOn
         writer = w
         lastFileName = w.fileName
 

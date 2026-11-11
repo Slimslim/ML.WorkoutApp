@@ -192,16 +192,18 @@ struct WorkoutPracticeView: View {
     // 1 · Before START
 
     private var permissionsScreen: some View {
-        return VStack(alignment: .leading, spacing: 6) {
+        return VStack(alignment: .leading, spacing: 4) {
             topRow("PRACTICE", "1 min", volt)
-            Text("Two permissions, so your workouts count:")
+            Text("Three permissions:")
                 .font(rounded(14, .bold))
-                .lineLimit(3)
+                .lineLimit(2)
                 .minimumScaleFactor(0.8)
             permissionRow(symbol: "heart.fill", color: SegmentPalette.heartRate,
                           text: "Heart rate · effort and recovery")
             permissionRow(symbol: "figure.walk", color: SegmentPalette.run,
                           text: "Motion · steps and reps")
+            permissionRow(symbol: "location.fill", color: SegmentPalette.run,
+                          text: "Location · run distance and pace")
             Spacer(minLength: 0)
             voltButton("Continue", enabled: model.stage == .permissions) {
                 model.continueFromPermissions(blockedReason: blockedReason)
@@ -218,7 +220,7 @@ struct WorkoutPracticeView: View {
                 .frame(width: 18, height: 18)
                 .background(Circle().fill(color))
             Text(text)
-                .font(rounded(12, .semibold))
+                .font(rounded(11, .semibold))
                 .foregroundColor(.secondary)
                 .lineLimit(2)
                 .minimumScaleFactor(0.85)
