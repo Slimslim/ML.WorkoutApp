@@ -43,6 +43,10 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     @Published private(set) var phoneWorkout: WorkoutDefinition?
     /// Lift + load picked on the iPhone's Lifts tab (`liftSelection` in context / message).
     @Published private(set) var phoneLift: LiftSelection?
+    /// Weight unit for lift loads: the phone's choice (`weightUnit` in context / message), kept on
+    /// the watch so it works with the phone out of reach. Until the phone sends one, the watch's
+    /// own region decides.
+    @Published private(set) var weightUnit: WeightUnit = PhoneLink.storedWeightUnit()
 
     private struct QueuedFile {
         let url: URL
@@ -58,6 +62,15 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     /// re-delivered at launch doesn't override a later choice made on the watch.
     private static let phoneWorkoutSentAtKey = "phoneWorkoutSentAt.v1"
     private static let phoneLiftSentAtKey = "phoneLiftSentAt.v1"
+    /// UserDefaults key and application context key of the weight unit ("kg" or "lb").
+    static let weightUnitKey = "weightUnit"
+
+    static func storedWeightUnit() -> WeightUnit {
+        if let raw = UserDefaults.standard.string(forKey: weightUnitKey), let unit = WeightUnit(rawValue: raw) {
+            return unit
+        }
+        return WeightUnit.defaultUnit(metric: Locale.current.measurementSystem == .metric)
+    }
 
     /// Whether the last phone choice was a lift (Lifting page) rather than a workout.
     var lastPhoneChoiceWasLift: Bool {
@@ -133,6 +146,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         activated = true
         handleWorkoutSelection(session.receivedApplicationContext)
         handleLiftSelection(session.receivedApplicationContext)
+        handleWeightUnit(session.receivedApplicationContext)
         isReachable = session.isReachable
         let queued = queuedUntilActivated
         queuedUntilActivated = []
@@ -278,6 +292,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         DispatchQueue.main.async {
             self.handleWorkoutSelection(message)
             self.handleLiftSelection(message)
+            self.handleWeightUnit(message)
         }
     }
 
@@ -285,6 +300,18 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         DispatchQueue.main.async {
             self.handleWorkoutSelection(applicationContext)
             self.handleLiftSelection(applicationContext)
+            self.handleWeightUnit(applicationContext)
+        }
+    }
+
+    // MARK: - Weight unit from the phone (main queue)
+
+    private func handleWeightUnit(_ payload: [String: Any]) {
+        guard let raw = payload[PhoneLink.weightUnitKey] as? String,
+              let unit = WeightUnit(rawValue: raw) else { return }
+        UserDefaults.standard.set(raw, forKey: PhoneLink.weightUnitKey)
+        if unit != weightUnit {
+            weightUnit = unit
         }
     }
 
