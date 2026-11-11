@@ -39,6 +39,17 @@ phone (W19), round-by-round view (W18), run distance at the cap (W20), partner s
   show the two lifts.
 - Lifting area; the Lifting chat merges `main` after it lands.
 
+## Build (2): first workout and permissions (from the first tester)
+
+Kevin's first workout (2026-11-10): the heart-rate prompt came mid-run, he refused or dismissed it
+(no HR, no steps recorded) and he did not find the Crown, so the whole workout was one part.
+- **W22 Practice workout:** permissions asked before START with the reason, a 2-part practice with
+  real HR that teaches "turn the Crown", and the finish screen explaining the 3-min recovery and
+  "swipe left, End" (recovery keeps recording). Saves nothing.
+- **W23 Permission banner:** "Heart rate / Motion is off" on the phone and the watch, with a button to
+  Settings.
+- Watch and phone screens: mockups approved by the owner before code (Workouts + Navigation areas).
+
 ## Before inviting (checklist)
 
 1. **Feature freeze** on `main` once the press/bench PR is merged; only fixes after that.
@@ -51,7 +62,7 @@ phone (W19), round-by-round view (W18), run distance at the cap (W20), partner s
    40 min) and whether uploads wait for Wi-Fi; what happens with no signal in the gym.
 6. **Library:** move the owner's gym programming (Mayhem, Blue Republic, PitFIRE rows) from the shared
    library to the owner's private rows, so testers only see their own program and public benchmarks.
-7. **Tester guide** (one page, below) sent with the invite.
+7. **Tester guide** (one page, below) sent with the invite; testers do the practice workout first.
 
 ## Proposed dates
 
@@ -82,6 +93,7 @@ phone (W19), round-by-round view (W18), run distance at the cap (W20), partner s
 
 1. Install from the TestFlight link; open the app on the phone and **Sign in with Apple**; allow
    Health and Motion. The watch app installs itself (or from the Watch app on the phone).
+   Then do the **Practice workout** on the watch (1 minute) before your first real one.
 2. Send your week's program (screenshots) to the owner by Sunday; it shows up in **Workouts ->
    Choose -> Today** on the day.
 3. **Metcon:** pick it, **Send to watch**, START on the watch. **Turn the Crown when you finish each

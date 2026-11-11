@@ -324,6 +324,31 @@ the run's measured distance (pedometer, or GPS once runs use it) as the partial 
 "+ <m> m" on the watch done screen, the report and the done card; for a station the reps question
 stays as today. (SunYay 2026-11-08: the cap hit 21 s and 41 m into the run; 11 "reps" were entered.)
 
+### First workout (MVP, from the first tester: 2026-11-10)
+
+**W22. A practice workout before my first real one (Now)**
+As a new athlete, I want a 1-minute practice on the watch before my first workout, so the
+permission prompts don't hit me mid-run and I know how to move to the next movement and finish.
+*Done when:* on first launch (and from Settings later) "Practice workout" runs on the watch:
+1. Before START it asks for heart rate and motion, explaining why ("heart rate for your effort and
+   recovery, motion to count reps"); if refused, it says what will be missing and how to turn it on.
+2. Part 1 "Walk or march" shows the **real** heart rate within 10 s and an arrow to the Crown:
+   "**Turn the Crown** when you finish a movement". Turning it moves to part 2 with a haptic.
+3. Part 2 says "Again: turn the Crown"; turning it finishes the workout.
+4. The finish screen explains: "We record **3 min of recovery**. You can **swipe left and tap
+   End**; the recovery keeps recording in the background." Swiping left and tapping End completes
+   the practice.
+5. The practice saves no result, uploads nothing and adds nothing to Apple Fitness. A first-time
+   tester does it in under 2 minutes without help.
+
+**W23. Tell me when heart rate or motion is off (Now)**
+As an athlete, I want the app to tell me before a workout if heart rate or motion access is off, so
+I don't find out afterwards that nothing was measured.
+*Done when:* the phone's Workouts tab and the watch start screen show "Heart rate is off" /
+"Motion is off" with what it costs (no HR, recovery, distance, reps) and a button that opens the
+right Settings page; the banner goes away as soon as access is on. (Kevin, 2026-11-10: no HR or
+steps recorded at all.)
+
 ### Recording follows the plan (spans Lifting and Workouts; after the MVP)
 
 **W21. The watch records each part the way that part needs (Later)**
