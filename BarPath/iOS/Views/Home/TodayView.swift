@@ -65,6 +65,9 @@ struct TodayView: View {
                 effortDays = EffortDays.make(results)
                 scores = WorkoutLastScore.byResult(results)
             }
+            .onReceive(AthleteProfile.shared.$revision) { (_: Int) in
+                effortDays = EffortDays.make(workouts.results)
+            }
             .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged)) { _ in
                 followToday()
             }

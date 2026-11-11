@@ -66,6 +66,7 @@ struct LiveView: View {
             VStack(alignment: .leading, spacing: 16) {
                 WorkoutOverviewView(result: workout,
                                     previous: workoutStore.previousAttempt(before: workout),
+                                    maxHeartRate: AthleteProfile.shared.maxHeartRate(results: workoutStore.results)?.value,
                                     kicker: workoutKicker(workout),
                                     isNew: lastViewedWorkoutId != workout.id.uuidString)
                     .id(workout.id)

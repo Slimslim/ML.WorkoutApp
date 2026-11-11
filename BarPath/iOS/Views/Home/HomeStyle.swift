@@ -144,10 +144,17 @@ struct EffortRing: View {
 enum EffortDays {
     static func make(_ results: [WorkoutResult]) -> [String: WorkoutEffort.Day] {
         var out: [String: WorkoutEffort.Day] = [:]
-        for d in WorkoutEffort.days(results, calendar: gregorian) {
+        for d in list(results) {
             out[d.day] = d
         }
         return out
+    }
+
+    /// One entry per day, scored with the max heart rate in use (AthleteProfile).
+    static func list(_ results: [WorkoutResult]) -> [WorkoutEffort.Day] {
+        let profile: AthleteProfile = AthleteProfile.shared
+        return WorkoutEffort.days(results, calendar: gregorian, birthYear: profile.birthYear,
+                                  override: profile.manualMaxHeartRate, year: AthleteProfile.currentYear)
     }
 
     /// Day keys are gregorian whatever calendar the phone uses (LibraryDay).

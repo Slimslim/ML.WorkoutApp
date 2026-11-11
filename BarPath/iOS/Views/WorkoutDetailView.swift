@@ -6,6 +6,7 @@ struct WorkoutDetailView: View {
     let resultId: UUID
     @EnvironmentObject private var store: WorkoutStore
     @ObservedObject private var library = WorkoutLibraryStore.shared
+    @ObservedObject private var profile = AthleteProfile.shared
     @State private var fixingSplits = false
 
     var body: some View {
@@ -28,11 +29,12 @@ struct WorkoutDetailView: View {
                 WorkoutReportView(result: result, previous: store.previousAttempt(before: result),
                                   card: WorkoutCard.make(definition: resolved.definition),
                                   meta: WorkoutResultCard.reportMeta(result, program: resolved.program),
-                                  maxHeartRate: WorkoutEffort.highestHeartRate(store.results))
+                                  maxHeartRate: profile.maxHeartRate(results: store.results)?.value)
                     .id(result.id)
                 NavigationLink {
                     ScrollView {
                         WorkoutOverviewView(result: result, previous: store.previousAttempt(before: result),
+                                            maxHeartRate: profile.maxHeartRate(results: store.results)?.value,
                                             card: WorkoutCard.make(definition: resolved.definition),
                                             cardMeta: WorkoutResultCard.reportMeta(result, program: resolved.program))
                             .padding(16)
