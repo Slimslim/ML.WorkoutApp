@@ -50,6 +50,7 @@ final class WorkoutMotionRecorder {
                                bootDate: bootDate,
                                liftType: .other,
                                headerTag: "workout=" + WorkoutMotionRecorder.clean(definitionId))
+        w.sampleRateHz = Int((1.0 / WorkoutMotionRecorder.updateInterval).rounded())
         writer = w
         lastFileName = w.fileName
 

@@ -85,6 +85,7 @@ sample to `session-<sessionId>.csv` (written incrementally per batch, never held
 t,qw,qx,qy,qz,ax,ay,az,gx,gy,gz,rx,ry,rz
 0.000000,...
 ```
+The header line also carries device keys (additive, still `v1`; older files lack them and parsers ignore unknown keys): `watchModel` (hw.machine with the comma replaced by `_`, e.g. `Watch7_5`), `watchOS`, `wrist`, `crown` (`left`/`right`), `appBuild` (CFBundleVersion) and, when known, `sampleRate` (nominal Hz).
 Six decimals for t, five for the rest. Sent to the phone at session end via `transferFile`.
 No 800 Hz accel in the CSV (keeps size ≈ 20 MB per 10 min).
 

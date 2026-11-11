@@ -229,6 +229,28 @@ final class RecordingTests: XCTestCase {
         XCTAssertEqual(s1.rotationRate.z, -0.5)
     }
 
+    func testSessionCSVHeaderWithDeviceKeysAndOldHeader() throws {
+        let row = "0.000000,1.00000,0.00000,0.00000,0.00000,0.01000,0.02000,0.03000,-1.00000,0.00000,0.00000,0.10000,0.20000,0.30000\n"
+        let cols = "t,qw,qx,qy,qz,ax,ay,az,gx,gy,gz,rx,ry,rz\n"
+        let newText = "# barpath-session v1, sessionId=X, startDate=2026-10-25T18:03:11.250Z, workout=partner.wod1, "
+            + "watchModel=Watch7_5, watchOS=11.2, wrist=left, crown=right, appBuild=42, sampleRate=100\n"
+            + cols + row
+        let parsed = try SessionCSV.parse(newText)
+        XCTAssertEqual(parsed.header["workout"], "partner.wod1")
+        XCTAssertEqual(parsed.header["watchOS"], "11.2")
+        XCTAssertEqual(parsed.header["wrist"], "left")
+        XCTAssertEqual(parsed.header["crown"], "right")
+        XCTAssertEqual(parsed.header["appBuild"], "42")
+        XCTAssertEqual(parsed.header["sampleRate"], "100")
+        XCTAssertEqual(parsed.samples.count, 1)
+        // A file written before these keys existed still parses and simply lacks them.
+        let oldText = "# barpath-session v1, sessionId=X, startDate=2026-10-25T18:03:11.250Z, liftType=snatch\n" + cols + row
+        let old = try SessionCSV.parse(oldText)
+        XCTAssertEqual(old.header["liftType"], "snatch")
+        XCTAssertNil(old.header["watchModel"])
+        XCTAssertEqual(old.samples.count, 1)
+    }
+
     func testSessionCSVErrors() {
         XCTAssertThrowsError(try SessionCSV.parse("# only a comment\n"))
         XCTAssertThrowsError(try SessionCSV.parse("t,qw\n0,1\n"))
