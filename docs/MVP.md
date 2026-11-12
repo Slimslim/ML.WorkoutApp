@@ -54,6 +54,13 @@ Kevin's first workout (2026-11-10): the heart-rate prompt came mid-run, he refus
   Settings.
 - Watch and phone screens: mockups approved by the owner before code (Workouts + Navigation areas).
 
+## Build (3): upload without opening the app (W25)
+
+Testers end the workout and walk away (Kevin: Chad reached the cloud 2.5 h later, when he opened the
+app). The watch wakes the phone app at END and the phone uploads while locked. After #24 (compressed
+uploads) is merged; device test only (3 sessions, one of 60 min). If it is not ready by the invite,
+the tester guide keeps "open the phone app after the session".
+
 ## Before inviting (checklist)
 
 1. **Feature freeze** on `main` once the press/bench PR is merged; only fixes after that.
