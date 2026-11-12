@@ -349,7 +349,7 @@ I don't find out afterwards that nothing was measured.
 right Settings page; the banner goes away as soon as access is on. (Kevin, 2026-11-10: no HR or
 steps recorded at all.)
 
-**W24. Timed work intervals: Tabata 20 / 10 (Now)**
+**W27. Timed work intervals: Tabata 20 / 10 (Now)**
 As an athlete doing a Tabata (8 x 20 s work, 10 s rest), I want the watch to switch from work to rest
 and back by itself on the clock, so its timer matches the gym's buzzer and the rest is recorded.
 *Done when:* a work segment with a seconds target ends by itself after that time (like a rest with a
@@ -360,7 +360,7 @@ result has one work and one rest segment per interval. Other work segments with 
 library first. (Owner, 2026-11-10: the Tabata press and row timers counted 30 s; the watch today only
 ends a work part on the interval boundary, so the 10 s rest was never shown.)
 
-**W25. My workout uploads without opening the phone app (Now)**
+**W28. My workout uploads without opening the phone app (Now)**
 As an athlete who ends the workout on the watch and walks away (phone locked in the bag), I want the
 recording to reach the cloud by itself, so nothing waits on me opening the app.
 *Done when:* after END on the watch, with the phone locked and the app not opened, the result and the

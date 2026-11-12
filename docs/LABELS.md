@@ -216,5 +216,5 @@ arm held overhead 1.3-2.0 s (catch / hand on the bar); a failed snatch comes str
   counter should use the same rule.
 - **Bent-over row:** pull right after the bottom reversal; 6 of 8 sets match. Rounds 1, 4 and 8 are
   flagged for video (two at the buzzer, one while getting set).
-- Tabata timing: the watch row counted 30 s per interval (no timed work part yet: story W24); the
+- Tabata timing: the watch row counted 30 s per interval (no timed work part yet: story W27); the
   work/rest windows in the labels are the gym's 20 / 10 clock.

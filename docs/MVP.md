@@ -1,5 +1,7 @@
 # MVP: a stable build for 4-5 testers (2 weeks)
 
+> Build-by-build status (build 15 frozen, build 16 = the tester build): `docs/RELEASES.md`.
+
 **Goal:** 4-5 athletes use one stable TestFlight build with their own program for two weeks.
 We collect recordings (training data) and feedback. No new features during the test except the one
 listed under "Build".
@@ -45,6 +47,8 @@ phone (W19), round-by-round view (W18), run distance at the cap (W20), partner s
 
 ## Build (2): first workout and permissions (from the first tester)
 
+W22 (practice workout) is in build 15 (#24); W23 (banner) is planned for build 16.
+
 Kevin's first workout (2026-11-10): the heart-rate prompt came mid-run, he refused or dismissed it
 (no HR, no steps recorded) and he did not find the Crown, so the whole workout was one part.
 - **W22 Practice workout:** permissions asked before START with the reason, a 2-part practice with
@@ -54,7 +58,7 @@ Kevin's first workout (2026-11-10): the heart-rate prompt came mid-run, he refus
   Settings.
 - Watch and phone screens: mockups approved by the owner before code (Workouts + Navigation areas).
 
-## Build (3): upload without opening the app (W25)
+## Build (3): upload without opening the app (W28)
 
 Testers end the workout and walk away (Kevin: Chad reached the cloud 2.5 h later, when he opened the
 app). The watch wakes the phone app at END and the phone uploads while locked. After #24 (compressed
