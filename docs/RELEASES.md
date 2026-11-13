@@ -21,6 +21,8 @@ Blocked:
 
 ## Live board
 
+The team process (stand-up, planning, review, retro, the Scrum Master chat): `docs/SCRUM.md`.
+
 https://claude.ai/artifact/R1im1djQEebDWBRsYDT1zk (page `docs/roadmap.html`). Its shared database
 holds the **status**: each feature's status, who has it and "needs review"; the device-test and
 release checklists (each tick records who and when); the owner's decisions; the stand-up log. This
