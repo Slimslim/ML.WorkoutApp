@@ -15,25 +15,26 @@ In progress:
 - #24 (build 15): `claude/funny-faraday-1adqio`, frozen, device test nearly done.
 
 Blocked:
-- Build 16 (W28, W27, W23): **blocked on the merge of #24**. Then `claude/build-16` is cut from `main`.
+- Build 16 (W28, W27, W23): **blocked on the merge of #24**. Then `claude/release-16` is cut from `main`.
 
-## Live board
+## Tickets, board and releases (owner, 13 Nov: work like a tech company)
 
 The team process (stand-up, planning, review, retro, the Scrum Master chat): `docs/SCRUM.md`.
 
-https://claude.ai/artifact/R1im1djQEebDWBRsYDT1zk (page `docs/roadmap.html`). Its shared database
-holds the **status**: each feature's status, who has it and "needs review"; the device-test and
-release checklists (each tick records who and when); the owner's decisions; the stand-up log. This
-file holds the **plan**. A PR that adds, moves or drops a feature changes this file; status moves
-on the board, any time.
-
-Chats update the board with `ArtifactData` on that URL. Collections: `items` (`sid, title, area,
-build, status, who, claimed, note, review, pr, updatedAt`), `checks` (`group, text, done, at`),
-`decisions` (`title, detail, status open|decided, answer`), `standups` (`done, next, blocked, at`),
-`sprints`, `meta/plan`. Read first and pin `if_version`; never delete someone's stand-up or
-decision. Write when a status changes, a PR opens or merges (`pr`), something needs the owner
-(`review: true`, cleared once reviewed), and once at the end of a working session (a stand-up).
-Page code changes: edit `docs/roadmap.html` in a PR and republish to the same URL (the data stays).
+- **Tickets are GitHub issues** in this repo: one per story, bug, chore or experiment, with acceptance
+  criteria ("done when"). Labels: `story`, `bug`, `chore`, `experiment`, `epic`, `release`,
+  `area:workouts`, `area:lifting`, `needs-brief`, `needs-design`. The repo is public: no tester names
+  or personal data in issues (tester A, B, ...).
+- **Fix version = milestone** (`Build 15`, `Build 16`, `Build 17`): which release a ticket ships in.
+  Each release has a `release` ticket with its QA checklist.
+- **Board = GitHub Projects** (board view), columns **Backlog -> To Do -> In Progress -> In Review ->
+  QA -> Done**. In Review: PR open, CI and code review. QA: merged into the release branch, owner
+  testing on a device (UAT). Done: passed QA. PRs say `Closes #N` so the ticket closes when the work
+  reaches `main`.
+- **Release dashboard** (https://claude.ai/artifact/R1im1djQEebDWBRsYDT1zk, page `docs/roadmap.html`):
+  timeline and milestones, the owner's decisions and the stand-up log. Collections `decisions`,
+  `standups`, `sprints`, `checks`, `meta/plan` (read first, pin `if_version`, never delete a stand-up
+  or decision). Its old `items` collection is replaced by the issues.
 
 ## Rules
 
@@ -52,14 +53,16 @@ Page code changes: edit `docs/roadmap.html` in a PR and republish to the same UR
 | `with testers` | invites sent for that build |
 
 - **Claiming:** a row with a branch in `who` is claimed. A claim with no commits for 2 days is free
-  again. One chat per build branch; never several chats on the same file at once
+  again. One chat per release branch; never several chats on the same file at once
   (`WorkoutSessionModel.swift`, the PhoneLink files).
 - **WIP limit:** one build in `building` at a time. The next build's rows stay `ready` until the
   current build is merged.
+- **`main` is protected:** changes only through a PR with CI green (Python tests, BarPathKit tests +
+  app builds); no force push, no deletion. Only the owner merges into `main`.
 - **Builds come from `main` only.** The commit a TestFlight build is made from gets a git tag
   (`build-15`). (Builds 7-14 came from an unmerged branch; never again.)
-- **Build branch (owner, 13 Nov):** each build has one branch cut from `main` (`claude/build-16`;
-  build 15 is `claude/funny-faraday-1adqio`). Workers open PRs into it; the Scrum Master has each
+- **Release branch (owner, 13 Nov):** each build has one branch cut from `main` (`claude/release-16`;
+  build 15 is `claude/funny-faraday-1adqio`). Workers branch from it and open PRs into it; the Scrum Master has each
   reviewed by an independent reviewer and merges it into the build branch when CI is green and the
   review says merge, otherwise the findings go back to the worker. The owner device-tests the build
   branch and merges it into `main`; TestFlight is built from `main`.
@@ -106,7 +109,8 @@ Who gets it (owner, 13 Nov): after the GPS run, the friend tester group (heart-r
 For the Swiss testers. W28 uploads without opening the app, W27 Tabata timing, W23 banner (mockup
 approved 13 Nov). Battery line: moved to a later build (owner, 13 Nov). **No rep counting
 on the watch** (owner, 13 Nov: "not yet"): the press / bench lockout rule stays in Python and the
-labels. Branch `claude/build-16`, cut from `main` after #24 merges; one PR per story into it.
+labels. Release branch `claude/release-16`, cut from `main` after #24 merges; one PR per ticket into it
+(milestone `Build 16`: #30 W28, #31 W27, #32 W23).
 
 Order: W28 -> W27 -> W23. Dependencies:
 - **W28** needs #24's gzip staging and upload manifest; touches both PhoneLink files (#24 added a
