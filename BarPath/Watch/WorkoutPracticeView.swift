@@ -4,6 +4,18 @@ import WatchKit
 // The W22 practice workout screens (docs/concepts/first-workout.html, approved). Text is the
 // mockup's. No scrolling; long lines may shrink a little (minimumScaleFactor).
 
+// MARK: - Crown side
+
+/// Which side of the screen the Digital Crown is on, from the watch's orientation setting
+/// (Settings > General > Watch Orientation). With the Crown on the left watchOS turns the
+/// display, so the Crown sits by the screen's left edge. Only for hints that point at the
+/// Crown; Crown rotation handling does not depend on it.
+enum CrownSide {
+    static var isLeft: Bool {
+        return WKInterfaceDevice.current().crownOrientation == .left
+    }
+}
+
 // MARK: - Attaching it to the app root
 
 /// Adds the practice sheet to the root view and opens it at launch until one has been finished.
@@ -284,9 +296,15 @@ struct WorkoutPracticeView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
             HStack(alignment: .center, spacing: 4) {
-                heartRateView
-                Spacer(minLength: 2)
-                crownArrow
+                if CrownSide.isLeft {
+                    crownArrow
+                    Spacer(minLength: 2)
+                    heartRateView
+                } else {
+                    heartRateView
+                    Spacer(minLength: 2)
+                    crownArrow
+                }
             }
             .padding(.top, 4)
             Spacer(minLength: 0)
@@ -333,19 +351,40 @@ struct WorkoutPracticeView: View {
         }
     }
 
+    /// "Turn the Crown" with an arrow pointing at the Crown: on the trailing edge pointing
+    /// right, or on the leading edge pointing left when the Crown is on the left.
+    @ViewBuilder
     private var crownArrow: some View {
-        return HStack(spacing: 3) {
-            Text("Turn\nthe Crown")
-                .font(rounded(11, .heavy))
-                .foregroundColor(volt)
-                .multilineTextAlignment(.trailing)
-                .lineLimit(2)
-                .fixedSize()
-            Image(systemName: "arrow.right")
-                .font(.system(size: 13, weight: .heavy))
-                .foregroundColor(volt)
+        if CrownSide.isLeft {
+            HStack(spacing: 3) {
+                crownArrowIcon("arrow.left")
+                crownArrowText(.leading)
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Turn the Crown")
+        } else {
+            HStack(spacing: 3) {
+                crownArrowText(.trailing)
+                crownArrowIcon("arrow.right")
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Turn the Crown")
         }
-        .accessibilityLabel("Turn the Crown")
+    }
+
+    private func crownArrowText(_ alignment: TextAlignment) -> some View {
+        return Text("Turn\nthe Crown")
+            .font(rounded(11, .heavy))
+            .foregroundColor(volt)
+            .multilineTextAlignment(alignment)
+            .lineLimit(2)
+            .fixedSize()
+    }
+
+    private func crownArrowIcon(_ name: String) -> some View {
+        return Image(systemName: name)
+            .font(.system(size: 13, weight: .heavy))
+            .foregroundColor(volt)
     }
 
     private var doneLine: some View {
@@ -371,15 +410,26 @@ struct WorkoutPracticeView: View {
                 .minimumScaleFactor(0.8)
             Spacer(minLength: 0)
             HStack(alignment: .bottom, spacing: 4) {
-                Text("Once more to finish")
-                    .font(rounded(12, .semibold))
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.8)
-                Spacer(minLength: 2)
-                crownArrow
+                if CrownSide.isLeft {
+                    crownArrow
+                    Spacer(minLength: 2)
+                    onceMoreText
+                        .multilineTextAlignment(.trailing)
+                } else {
+                    onceMoreText
+                    Spacer(minLength: 2)
+                    crownArrow
+                }
             }
         }
         .padding(.horizontal, 12)
+    }
+
+    private var onceMoreText: some View {
+        return Text("Once more to finish")
+            .font(rounded(12, .semibold))
+            .lineLimit(2)
+            .minimumScaleFactor(0.8)
     }
 
     // 3b · Wrong turn hint
