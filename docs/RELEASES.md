@@ -36,7 +36,7 @@ Merging it brings `main` level with what testers run (it contains #19).
 | GPS for workouts with a run, route in Apple Health | W21 (part) | in build 15 |
 | Compressed uploads (gzip), 50 MB limit handled | fix | in build 15 |
 | Account deletion removes every file; Lifting "Ending..." timeout; analyzer crash fixes | fixes | in build 15 |
-| Device-test fix: practice "Turn the Crown" hint points at the Crown when it is on the left | fix | in PR (into #24) |
+| Device-test fix: practice "Turn the Crown" hint points at the Crown when it is on the left | fix | in PR [#27](https://github.com/Slimslim/ML.WorkoutApp/pull/27) (into #24) |
 
 ## Build 16: tester build (MVP, `docs/MVP.md`)
 
