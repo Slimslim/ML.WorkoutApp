@@ -397,6 +397,40 @@ unit they are written in. The unit and the three body details are written to Pro
 uploaded with the recordings (kind "profile"); birth year and max heart rate stay on the phone.
 *Status:* built on branch `claude/funny-faraday-1adqio` (not run on a device yet).
 
+**W27. Timed work intervals: Tabata 20 / 10 (Now)**
+As an athlete doing a Tabata (8 x 20 s work, 10 s rest), I want the watch to switch from work to rest
+and back by itself on the clock, so its timer matches the gym's buzzer and the rest is recorded.
+*Done when:* a work segment with a seconds target ends by itself after that time (like a rest with a
+seconds target does today), with the same 3-2-1 countdown; a library Tabata is entered as 8 x
+(work 20 s, rest 10 s) and the watch shows 0:20 then 0:10, eight times, with no Crown turn; the
+result has one work and one rest segment per interval. Other work segments with a seconds target
+(e.g. "max reps in 1:00" inside a for-time workout) get the same rule, checked in the existing
+library first. (Owner, 2026-11-10: the Tabata press and row timers counted 30 s; the watch today only
+ends a work part on the interval boundary, so the 10 s rest was never shown.)
+
+**W28. My workout uploads without opening the phone app (Now)**
+As an athlete who ends the workout on the watch and walks away (phone locked in the bag), I want the
+recording to reach the cloud by itself, so nothing waits on me opening the app.
+*Done when:* after END on the watch, with the phone locked and the app not opened, the result and the
+recording are in the cloud within 15 minutes (phone on Wi-Fi or cellular), checked on 3 sessions
+including one of 60 minutes; nothing is lost when it takes longer (it goes on the next wake or the
+next app open, as today). (A tester, 2026-11-11: Chad arrived 2.5 h after the end, only once the app was
+opened; he does not look at results on the phone.)
+How (to check on a device, background behaviour cannot be tested in CI):
+- **Wake the phone app:** at END, while the watch app is still in front, the watch sends one message
+  (new key, e.g. `type: "filesQueued"`); a watch message wakes the iPhone app in the background.
+  Shared files `Watch/PhoneLink.swift` and `iOS/PhoneLink.swift`: small separate commit.
+- **Receive and queue:** on that wake the phone activates WatchConnectivity (queued file transfers are
+  delivered), restores the sign-in and queues the uploads (background `URLSession`, already in place),
+  inside a background task long enough for the gzip copy (#24).
+- **Locked phone:** the sign-in must be readable after the first unlock (check the Supabase session
+  storage's keychain accessibility) and received files keep the default protection (readable after
+  first unlock, not `.complete`).
+- **Late uploads:** an access token lasts 1 h; an upload that starts later gets 401. A background app
+  refresh (`BGAppRefreshTask`) refreshes the token and re-queues what is left.
+- **Size:** the bucket takes 50 MB per file; a tester's 58-min Chad was 42 MB uncompressed, so a
+  70-min session would be refused without the compressed uploads of #24. Build after #24.
+
 ### Recording follows the plan (spans Lifting and Workouts; after the MVP)
 
 **W21. The watch records each part the way that part needs (Later)**

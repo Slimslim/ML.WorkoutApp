@@ -511,7 +511,29 @@
    "end": 2334.4,
    "source": "crown",
    "reps": 10,
-   "unit": "reps"
+   "unit": "reps",
+   "sets": [
+    {
+     "start": 2303.7,
+     "end": 2330.4,
+     "reps": 10,
+     "repTimes": [
+      2304.94,
+      2307.74,
+      2310.49,
+      2313.19,
+      2315.92,
+      2318.59,
+      2321.31,
+      2323.92,
+      2326.57,
+      2329.22
+     ],
+     "signal": "gz",
+     "period": 2.7
+    }
+   ],
+   "note": "sets and repTimes from motion, kept only because the count matched the athlete's reps (added 2026-11-10)"
   },
   {
    "movement": "lunges",

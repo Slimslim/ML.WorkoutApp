@@ -102,6 +102,8 @@ def validate(d: dict) -> List[str]:
                 total = sum(x.get("reps", 0) for x in s["sets"])
                 if total != s["reps"]:
                     errs.append(f"{ctx}: sets add up to {total}, segment says {s['reps']}")
+            if "flag" in s:
+                errs += _check_flag(s["flag"], ctx)
     else:
         sets = need("sets", list) or []
         for i, x in enumerate(sets):
@@ -113,6 +115,29 @@ def validate(d: dict) -> List[str]:
             if "loadLb" in x and not isinstance(x["loadLb"], (int, float)):
                 errs.append(f"{ctx}: 'loadLb' should be a number")
     return errs
+
+
+FLAG_CHECKS = ("video",)
+
+
+def _check_flag(f, ctx: str) -> List[str]:
+    """A flag: the motion and the athlete disagree; the athlete's count stays the label until a
+    check (video) settles it. {"motion": int, "athlete": int, "reason": str, "check": "video"}."""
+    if not isinstance(f, dict):
+        return [f"{ctx}: flag should be an object"]
+    errs = [f"{ctx}: flag needs '{k}' ({t.__name__})" for k, t in
+            (("motion", int), ("athlete", int), ("reason", str), ("check", str))
+            if not isinstance(f.get(k), t)]
+    if f.get("check") not in FLAG_CHECKS:
+        errs.append(f"{ctx}: flag check must be one of {FLAG_CHECKS}")
+    return errs
+
+
+def flags(d: dict) -> List[dict]:
+    """Every flagged segment: where the motion and the athlete disagree (to check on video)."""
+    return [dict(s["flag"], movement=s["movement"], round=s.get("round"),
+                 start=float(s["start"]), end=float(s["end"]))
+            for s in d.get("segments", []) if isinstance(s.get("flag"), dict)]
 
 
 # ---- what a detector is scored on ---------------------------------------------------------------

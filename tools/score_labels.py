@@ -151,13 +151,14 @@ def main() -> int:
     ap.add_argument("--tol", type=float, default=3.0, help="match window, seconds")
     ap.add_argument("--record", action="store_true", help="append the scores to data/eval/history.jsonl")
     args = ap.parse_args()
-    work, lifts, missing, records = [], [], [], []
+    work, lifts, missing, records, flagged = [], [], [], [], []
     for p in L.all_label_files():
         d = L.load(p)
         errs = L.validate(d)
         if errs:
             print(f"{p.name}: invalid label: {errs[0]}", file=sys.stderr)
             return 1
+        flagged += [(d["id"], f) for f in L.flags(d)]
         if not has_cache(d):
             missing.append(d["id"])
         elif d["kind"] == "workout":
@@ -178,6 +179,13 @@ def main() -> int:
         for r in lifts:
             print("| " + " | ".join(str(c) for c in r) + " |")
             records.append({"session": r[0], "detector": "count_reps", "set": r[1], "labelled": r[2], "counted": r[3]})
+        print()
+    if flagged:
+        print("### Flagged: motion and athlete disagree (athlete's count is the label until checked)\n")
+        print("| session | movement | round | athlete | motion | check | why |")
+        print("|---|---|---:|---:|---:|---|---|")
+        for sid, f in flagged:
+            print(f"| {sid} | {f['movement']} | {f.get('round') or ''} | {f['athlete']} | {f['motion']} | {f['check']} | {f['reason']} |")
         print()
     if missing:
         print("Not scored (recordings not in data/cache, run tools/fetch_sessions.py): " + ", ".join(missing))

@@ -73,6 +73,16 @@ athlete choosing a mode.
 
 - **GPS:** turned on just before a planned run (so the fix is ready when the athlete walks out),
   off for movements that stay in the gym. A route only when there was an outdoor run.
+- **Planned run distances are approximate** (owner, 2026-11-10). A gym's "800 m" is a lap of
+  the block (the owner's is a bit short), HYROX runs differ with station positions; only a track is
+  exact. So:
+  - show the distance the watch measured (GPS outdoors), so the athlete sees how far it was from
+    the planned distance; never stretch or round it to the plan;
+  - the end of a run is decided by the athlete's motion, not by reaching the planned distance:
+    slowing down / stopping near the expected distance (inside a margin), then the next planned
+    movement starting, ends the run;
+  - the margin is learned from labelled runs (2026-11-10: 718 m and 720 m by steps for the gym's
+    "800 m", indoor start included).
 - **Rest at a low rate** saves battery, but the eval needs the real start of the next set (the
   Crown marks the end of a movement, not the start). So the rate drops only after the set is clearly
   over, and comes back up on the first movement.
