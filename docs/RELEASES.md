@@ -120,7 +120,7 @@ session". Invites (proposed Fri 20 Nov) need #24 merged by about 14 Nov; otherwi
 
 ## Build 17: design review + workout import (owner decided 13 Nov)
 
-The brief `docs/BUILD_16.md` on #24 (to be renamed for build 17): UI/UX design review with the
+The brief `docs/BUILD_17.md`: UI/UX design review with the
 testers' feedback, "add a workout from a photo or text" (server function, movement table, import
 log). Provisional labels R1-R2, I1-I6, M1 until the owner approves the brief. Email sign-up must be
 closed before the import ships. Builds 18+ during the beta: fixes only.

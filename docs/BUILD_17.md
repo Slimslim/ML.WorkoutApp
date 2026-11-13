@@ -1,4 +1,4 @@
-# Build 16 brief: design review, tester feedback, add a workout from a photo or text
+# Build 17 brief: design review, tester feedback, add a workout from a photo or text
 
 Draft for the owner's approval (2026-11-11). Nothing here is built. No code starts until build 15
 has been tested by the owner and merged, and until the owner has approved this brief and the
@@ -7,13 +7,15 @@ mockups it asks for. Story labels (R1, I1...) are provisional; they get W/N numb
 
 ## Order of events
 
-1. **Build 15** (frozen, PR 24): owner tests, fixes only, merge, TestFlight. Then the owner's
-   friend, then testers in Switzerland. Their feedback is an input to build 16.
-2. **Build 16**, three parts:
+1. **Build 15** (frozen, PR 24): owner tests, fixes only, merge, TestFlight.
+2. **Build 16**: tester stability (uploads without opening the app, the "heart rate is off"
+   banner, Tabata timing, a battery line in every recording). Owner decision of 13 Nov; scope and
+   dates are in `docs/RELEASES.md`, not here.
+3. **Build 17** (this brief), three parts:
    - A. Design review of the phone screens, plus tester feedback (R1, R2).
    - B. Add a workout from a photo or text (I1-I6). The main piece.
    - C. The movement table that B needs, which also replaces three separate lists (M1).
-3. **Not in build 16:** tips before a workout, voice input, payment, a coach view, turnover time
+4. **Not in build 17:** tips before a workout, voice input, payment, a coach view, turnover time
    for Olympic lifts, rest equal to the round, switching recording settings inside a session.
 
 ## Why
@@ -30,16 +32,16 @@ mockups it asks for. Story labels (R1, I1...) are provisional; they get W/N numb
 
 **R1. A second pair of eyes on the phone screens.** As the owner, I want an independent UI/UX
 review of Today, Workouts, Log, Progress, Settings and the workout report against
-`docs/DESIGN_GUIDELINES.md`, so build 16 fixes what gets in a tester's way.
+`docs/DESIGN_GUIDELINES.md`, so build 17 fixes what gets in a tester's way.
 *Done when:* a written review exists with findings ranked by how much they block a tester, each
 with the screen, what is wrong and a proposed change; the owner has marked each "do", "later" or
 "no"; only the "do" items are built. The review uses real screenshots from the owner's phone
 (light and dark), not only the code.
 
-**R2. What testers told us.** As the owner, I want tester feedback from build 15 collected in one
+**R2. What testers told us.** As the owner, I want tester feedback from builds 15 and 16 collected in one
 list, so decisions rest on what people hit.
 *Done when:* TestFlight feedback, messages and the owner's notes are in one ranked list (problem,
-who, how often, proposed fix), and the top five are either in build 16 or explicitly deferred.
+who, how often, proposed fix), and the top five are either in build 17 or explicitly deferred.
 
 ## B. Add a workout from a photo or text
 
@@ -105,7 +107,7 @@ The AI must produce only what `WorkoutDefinition` can express
 | A weight per part, in lb or kg, single or a pair | Percentages of a max ("5 x 3 at 80%") without the athlete's number |
 | Solo, doubles, team label | Who does what in a partner workout |
 
-The right-hand column is expected to be common. The log (I6) decides which of them build 17 adds.
+The right-hand column is expected to be common. The log (I6) decides which of them come next.
 
 ### How it is built
 
@@ -198,7 +200,7 @@ place of its keyword list; display names come from it; label files use its ids.
 - Movement table: every alias maps to exactly one id; the recording-rate verdict of every current
   library workout is unchanged after the switch from keywords to the table.
 
-## What "done" means for build 16
+## What "done" means for build 17
 
 - A tester at a gym the owner has never seen adds their own workout from a photo, corrects one
   weight, sends it to the watch and tracks it, without help.
@@ -215,7 +217,7 @@ place of its keyword list; display names come from it; label files use its ids.
 4. The daily import limit per athlete during the beta (suggested: 10).
 5. Whether "save as a Free Workout with the text attached" is the right fallback for unsupported
    workouts.
-6. Which unsupported kinds, if any, must be supported in build 16 itself. Rest equal to the round
+6. Which unsupported kinds, if any, must be supported in build 17 itself. Rest equal to the round
    is the owner's own example and is small.
 
 ## Areas and shared files
