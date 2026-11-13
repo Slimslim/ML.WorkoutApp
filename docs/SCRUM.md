@@ -9,7 +9,7 @@ chats** build one feature each. Plan and rules: `docs/RELEASES.md`. Status: the 
 
 | Ceremony | When | Who | Output |
 |---|---|---|---|
-| Daily stand-up | every morning, scheduled | Scrum Master chat | one stand-up entry on the board + a short message to the owner |
+| Daily stand-up | every day at 6:52 pm Los Angeles (ready by 7 pm, after the owner's workout) | Scrum Master chat | one stand-up entry on the board + a short message to the owner |
 | Sprint planning | when a build is merged (next build starts) | owner + Scrum Master | the next build's rows set to `ready`, one worker per row |
 | Review (demo) | when a build is on TestFlight | owner | device-test checklist ticked on the board |
 | Retro | after each build's device test | Scrum Master proposes, owner agrees | one or two rule changes in `docs/RELEASES.md` |
@@ -22,9 +22,10 @@ chats** build one feature each. Plan and rules: `docs/RELEASES.md`. Status: the 
    than 2 days without commits (free them), cards needing the owner (`review: true`).
 3. **Post the stand-up** (done since yesterday, next, blocked) on the board, and send the owner a
    short message: what needs them today, at most five lines.
-4. **Start work** only on rows that are `ready`, in the current build, unclaimed, and allowed by
-   the WIP limit (one build in `building`; never two workers on the same files): start one worker
-   session per row with a brief (story id, files, done-when, "not tested" list, rules of
+4. **Propose work, start it after the owner's OK** (owner, 13 Nov: ask first, every time). Only rows
+   that are `ready`, in the current build, unclaimed, and allowed by
+   the WIP limit (one build in `building`; never two workers on the same files). In the stand-up,
+   propose the worker and its brief; once the owner says go, start one worker session per row with a brief (story id, files, done-when, "not tested" list, rules of
    CLAUDE.md), set `who` and `claimed` on the card.
 5. **Follow workers**: a worker that is stuck, off-scope or idle for a day is reported in the
    stand-up; the Scrum Master does not take over its branch.
@@ -41,5 +42,5 @@ chats** build one feature each. Plan and rules: `docs/RELEASES.md`. Status: the 
 
 ## Owner's part each day
 
-Read the morning message, answer the decisions, do the device tests when a build is on TestFlight,
+Read the evening message, answer the decisions, do the device tests when a build is on TestFlight,
 merge what is green and reviewed.
