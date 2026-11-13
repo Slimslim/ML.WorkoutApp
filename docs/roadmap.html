@@ -1,0 +1,270 @@
+<title>Rx Lab Roadmap</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: a sprint board. Each build is a sprint: timeline on top (dates to scale, "today"),
+   then the current sprint as status columns, then the next sprints and the backlog, then the
+   owner's decisions. Data block at the bottom of the file mirrors docs/RELEASES.md. */
+:root{
+  --page:#F6F7F9; --card:#FFFFFF; --ink:#1B1D21; --ink2:#5F6570; --line:#E3E6EA; --soft:#ECEEF1;
+  --accent:#D9692E; --accent-ink:#B4501C; --accent-bg:#FBEDE4;
+  --good:#2E8466; --good-bg:#E3F2EC; --warn:#A86A12; --warn-bg:#FBF0DC; --info:#2F5FB3; --info-bg:#E6EDF9;
+  --muted-bg:#EEF0F3; --shadow:rgba(20,22,26,.08);
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --page:#111316; --card:#1A1D21; --ink:#ECEEF1; --ink2:#A0A6B0; --line:#2B3036; --soft:#22262B;
+  --accent:#E57B42; --accent-ink:#F29A69; --accent-bg:#3A2418;
+  --good:#5BC29B; --good-bg:#16302A; --warn:#E3A84A; --warn-bg:#352812; --info:#7FA6EE; --info-bg:#1A2740;
+  --muted-bg:#24282E; --shadow:rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --page:#111316; --card:#1A1D21; --ink:#ECEEF1; --ink2:#A0A6B0; --line:#2B3036; --soft:#22262B;
+  --accent:#E57B42; --accent-ink:#F29A69; --accent-bg:#3A2418;
+  --good:#5BC29B; --good-bg:#16302A; --warn:#E3A84A; --warn-bg:#352812; --info:#7FA6EE; --info-bg:#1A2740;
+  --muted-bg:#24282E; --shadow:rgba(0,0,0,.35); color-scheme:dark}
+
+body{background:var(--page);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:36px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:.005em}
+h1{font-size:40px;line-height:1;font-weight:800}
+h2{font-size:26px;line-height:1.1;font-weight:700}
+h3{font-size:18px;font-weight:700}
+p{margin:0}
+.eyebrow{font:700 12px/1 var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--accent-ink)}
+.muted{color:var(--ink2)}
+header{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:flex-end;justify-content:space-between}
+header .l{display:flex;flex-direction:column;gap:8px;min-width:0;max-width:68ch}
+.stats{display:flex;flex-wrap:wrap;gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;min-width:118px}
+.stat b{font:700 24px/1 var(--f-display);font-variant-numeric:tabular-nums}
+.stat span{font-size:12.5px;color:var(--ink2)}
+.stat.hot b{color:var(--accent-ink)}
+section{display:flex;flex-direction:column;gap:14px}
+.sechead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+code{font-family:var(--f-mono);font-size:12.5px}
+a{color:var(--accent-ink)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* timeline */
+.tl-scroll{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:14px}
+.tl{position:relative;min-width:860px;padding:34px 18px 14px}
+.tl .axis{position:absolute;left:18px;right:18px;top:0;height:28px}
+.tl .tick{position:absolute;top:10px;font:500 11.5px/1 var(--f-body);color:var(--ink2);transform:translateX(-50%);white-space:nowrap;font-variant-numeric:tabular-nums}
+.tl .grid{position:absolute;top:28px;bottom:10px;width:1px;background:var(--soft)}
+.tl .today{position:absolute;top:22px;bottom:6px;width:2px;background:var(--accent);z-index:2}
+.tl .today::before{content:"Today";position:absolute;top:-16px;left:50%;transform:translateX(-50%);font:700 11px/1 var(--f-body);color:var(--accent-ink);background:var(--card);padding:0 4px}
+.tl .rows{position:relative;display:flex;flex-direction:column;gap:8px}
+.tl .row{position:relative;height:30px}
+.bar{position:absolute;top:0;height:30px;border-radius:7px;display:flex;align-items:center;gap:6px;padding:0 9px;font:600 13px/1 var(--f-body);white-space:nowrap;overflow:hidden;border:1px solid transparent}
+.bar small{font-weight:500;opacity:.85}
+.bar.done{background:var(--muted-bg);color:var(--ink2)}
+.bar.now{background:var(--accent-bg);color:var(--accent-ink);border-color:var(--accent)}
+.bar.next{background:var(--info-bg);color:var(--info)}
+.bar.test{background:var(--good-bg);color:var(--good)}
+.bar.milestone{background:transparent;color:var(--ink);padding:0;gap:6px;overflow:visible}
+.bar.milestone i{width:12px;height:12px;transform:rotate(45deg);background:var(--accent);border-radius:2px;flex:none}
+
+/* board */
+.board-scroll{overflow-x:auto;padding-bottom:4px}
+.board{display:grid;grid-template-columns:repeat(5,minmax(200px,1fr));gap:12px;min-width:1040px}
+.col{background:var(--soft);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.col h3{display:flex;justify-content:space-between;align-items:center;font-size:15px;padding:2px 4px 4px;text-transform:uppercase;letter-spacing:.06em}
+.col h3 span{font:600 12px/1 var(--f-body);color:var(--ink2);background:var(--card);border-radius:10px;padding:3px 8px;letter-spacing:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 11px;display:flex;flex-direction:column;gap:6px;box-shadow:0 1px 2px var(--shadow);min-width:0}
+.card .top{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.card .t{font-weight:600;line-height:1.3}
+.card .n{font-size:13px;color:var(--ink2);line-height:1.35}
+.id{font:500 11.5px/1 var(--f-mono);color:var(--ink2);background:var(--muted-bg);padding:3px 6px;border-radius:5px}
+.chip{font:600 11px/1 var(--f-body);padding:3px 7px;border-radius:20px;letter-spacing:.02em}
+.a-Workouts{background:var(--accent-bg);color:var(--accent-ink)}
+.a-Lifting{background:var(--info-bg);color:var(--info)}
+.a-Navigation{background:var(--good-bg);color:var(--good)}
+.a-All,.a-Data{background:var(--muted-bg);color:var(--ink2)}
+.flag{font:600 11px/1 var(--f-body);color:var(--warn);background:var(--warn-bg);padding:3px 7px;border-radius:20px}
+.emptycol{font-size:13px;color:var(--ink2);padding:6px 4px}
+
+/* sprints & backlog */
+.sprints{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.sprint{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.sprint .goal{color:var(--ink2);font-size:14px}
+.sprint.cur{border-color:var(--accent)}
+.list{display:flex;flex-direction:column;gap:0;margin:0;padding:0;list-style:none}
+.list li{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--soft);min-width:0}
+.list li:first-child{border-top:0}
+.list .t{min-width:0}
+.st{font:600 11px/1 var(--f-body);padding:4px 8px;border-radius:20px;white-space:nowrap}
+.s-story{background:var(--muted-bg);color:var(--ink2)}
+.s-proposed{background:var(--muted-bg);color:var(--ink2);border:1px dashed var(--ink2)}
+.s-design{background:var(--warn-bg);color:var(--warn)}
+.s-ready{background:var(--info-bg);color:var(--info)}
+.s-building,.s-inpr{background:var(--accent-bg);color:var(--accent-ink)}
+.s-inbuild{background:var(--good-bg);color:var(--good)}
+.s-tested{background:var(--good);color:var(--card)}
+.s-experiment{background:var(--muted-bg);color:var(--ink2);font-style:italic}
+
+/* decisions */
+.decisions{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.dec{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.dec b{font-weight:600}
+.dec span{font-size:13.5px;color:var(--ink2)}
+.how{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px 24px}
+.how div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.how b{font-family:var(--f-display);font-size:17px}
+.how span{font-size:13.5px;color:var(--ink2)}
+footer{font-size:13px;color:var(--ink2)}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="l">
+      <span class="eyebrow">Rx Lab · BarPath app · sprint board</span>
+      <h1>Rx Lab Roadmap</h1>
+      <p class="muted">One build is one sprint. Goal now: a stable build 16 for 4-5 testers, invites Fri 20 Nov. Mirrors <code>docs/RELEASES.md</code> on <code>main</code>, which every chat reads and updates in its PR.</p>
+    </div>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <section>
+    <div class="sechead"><h2>Timeline</h2><span class="muted">29 Oct - 10 Dec 2026, to scale</span></div>
+    <div class="tl-scroll"><div class="tl" id="tl"></div></div>
+  </section>
+
+  <section>
+    <div class="sechead"><h2>Sprint board: builds 15 and 16</h2><span class="muted">where every feature of the two current sprints is</span></div>
+    <div class="board-scroll"><div class="board" id="board"></div></div>
+  </section>
+
+  <section>
+    <div class="sechead"><h2>Sprints</h2></div>
+    <div class="sprints" id="sprints"></div>
+  </section>
+
+  <section>
+    <div class="sechead"><h2>Waiting on the owner</h2><span class="muted">decisions that unblock a sprint</span></div>
+    <div class="decisions" id="decisions"></div>
+  </section>
+
+  <section>
+    <div class="sechead"><h2>How we work</h2></div>
+    <div class="how">
+      <div><b>Story first</b><span>Every feature has an id in <code>docs/USER_STORIES.md</code> (W, L, N, S, T, P). New ids must be free on main and in open PRs.</span></div>
+      <div><b>Design, then build</b><span>Anything the athlete sees: mockups approved by the owner. Algorithms: Python reference, Swift port, parity test.</span></div>
+      <div><b>Done means device-tested</b><span>CI green, independent review, then the owner's checklist on a real watch and phone; gym test where accuracy matters.</span></div>
+      <div><b>Freeze, then fix</b><span>A sprint's build freezes when its PR says so. After that only fixes from the device test. Late items roll to the next build.</span></div>
+    </div>
+  </section>
+
+  <footer id="foot"></footer>
+</div>
+
+<script>
+/* ---- data: keep in step with docs/RELEASES.md ---- */
+const UPDATED = "2026-11-13";
+const TODAY = "2026-11-13";
+const TIMELINE = [
+  {label:"Builds 1-6", note:"bar path, workouts, cloud library", from:"2026-10-29", to:"2026-11-04", kind:"done"},
+  {label:"Builds 7-14", note:"results page (#19)", from:"2026-11-04", to:"2026-11-10", kind:"done"},
+  {label:"Build 15", note:"frozen, device test", from:"2026-11-10", to:"2026-11-17", kind:"now"},
+  {label:"Build 16", note:"tester build", from:"2026-11-13", to:"2026-11-19", kind:"next"},
+  {label:"Invites", from:"2026-11-20", kind:"milestone"},
+  {label:"Beta test", note:"4-5 testers, builds 17+ fixes only", from:"2026-11-23", to:"2026-12-06", kind:"test"},
+  {label:"Review", from:"2026-12-07", kind:"milestone"},
+];
+// status: proposed | story | design | ready | building | inpr | inbuild | tested | experiment
+const ITEMS = [
+  {id:"W24", t:"A crash does not lose the workout", area:"Workouts", build:15, status:"tested", n:"Recovered with splits and HR on 10 Nov."},
+  {id:"W22", t:"Practice workout on the watch", area:"Workouts", build:15, status:"inbuild", n:"Permissions before START, teaches the Crown."},
+  {id:"W25", t:"Max heart rate (age, measured, manual)", area:"Workouts", build:15, status:"inbuild"},
+  {id:"W21a", t:"Recording profile: 200 Hz with barbell movements", area:"Workouts", build:15, status:"inbuild", n:"Battery over 60 min not measured yet."},
+  {id:"W21b", t:"GPS for workouts with a run", area:"Workouts", build:15, status:"inbuild", n:"Wrist-down GPS not confirmed."},
+  {id:"fix", t:"Compressed uploads, 50 MB limit handled", area:"All", build:15, status:"inbuild"},
+  {id:"fix", t:"Account deletion, Lifting “Ending…”, analyzer crashes", area:"All", build:15, status:"inbuild"},
+  {id:"B15", t:"Fixes from the build 15 device test", area:"All", build:16, status:"proposed", n:"Waiting on the owner's test plan in #24."},
+  {id:"W28", t:"Upload without opening the phone app", area:"Workouts", build:16, status:"story", n:"2nd tester: Chad reached the cloud 2.5 h late. After #24.", hot:true},
+  {id:"W23", t:"Heart rate / Motion is off banner", area:"Workouts", build:16, status:"design", n:"Mockups in first-workout.html. Confirm approval.", hot:true},
+  {id:"L-press", t:"Strict press and bench reps at lockout", area:"Lifting", build:16, status:"ready", n:"Python rule: 56/56 Tabata presses. Bench check on a DB bench first."},
+  {id:"W27", t:"Tabata: timed work parts end by themselves", area:"Workouts", build:16, status:"story", n:"10 Nov timer showed 30 s."},
+  {id:"new", t:"Battery level in every recording", area:"Workouts", build:16, status:"proposed", n:"% per hour by profile and GPS, all testers. Owner to agree."},
+  {id:"W18", t:"Partitioned workout round by round", area:"Workouts", build:null, status:"story"},
+  {id:"W19", t:"Rx / Scaled saved with the result", area:"Workouts", build:null, status:"story"},
+  {id:"W20", t:"AMRAP ending on a run scores the distance", area:"Workouts", build:null, status:"story"},
+  {id:"W21", t:"Lift pieces in the program, one start screen", area:"Workouts", build:null, status:"story", n:"Needs design."},
+  {id:"W21", t:"Recording follows the plan per part, one Fitness workout", area:"Workouts", build:null, status:"story", n:"docs/RECORDING_PLAN.md"},
+  {id:"W26", t:"kg or lb, and the athlete's size", area:"Lifting", build:null, status:"story"},
+  {id:"ML-1", t:"Automatic movement switching (phase 1)", area:"Data", build:null, status:"experiment", n:"Must beat the Crown on held-out sessions."},
+  {id:"ML-3", t:"Rep counting in metcons (GHD, sit-ups, press first)", area:"Data", build:null, status:"experiment", n:"~380 rep times labelled; flags checked on video."},
+  {id:"W4/W5", t:"Weight per set in EMOMs; transition vs work time", area:"Workouts", build:null, status:"story"},
+];
+const SPRINTS = [
+  {name:"Build 15", dates:"frozen 11 Nov, owner device test", goal:"Pre-beta: nothing lost, permissions up front, better recordings.", build:15, pr:24},
+  {name:"Build 16", dates:"13-17 Nov build, 18-19 Nov owner test", goal:"Tester build: uploads by themselves, no silent missing HR, press and bench reps.", build:16, cur:true},
+  {name:"Builds 17+", dates:"23 Nov - 6 Dec", goal:"Fixes only during the beta: crashes, lost recordings, wrong numbers.", fixed:true},
+  {name:"After the beta", dates:"review Mon 7 Dec", goal:"The owner picks from this backlog with the testers' feedback.", build:null},
+];
+const DECISIONS = [
+  {t:"Run the build 15 test plan", d:"Practice workout, 200 Hz header, GPS run, battery after 60 min, account deletion. Unblocks build 16."},
+  {t:"W23 banner mockup: approved?", d:"Same page as the approved practice workout (docs/concepts/first-workout.html)."},
+  {t:"Battery logging in build 16?", d:"One line per minute in each recording; gives % per hour for every tester."},
+  {t:"Old open PRs", d:"#6 merge or close, #7 close, #15 rebase or close, #19 close when #24 merges."},
+  {t:"Bench check", d:"Record one dumbbell or barbell bench session in Lifting mode before the build goes to testers."},
+];
+
+/* ---- render ---- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const STATUS = {proposed:"Proposed", story:"Story", design:"Design", ready:"Ready", building:"Building", inpr:"In PR", inbuild:"In build", tested:"Device-tested", experiment:"Experiment"};
+const pill = s => `<span class="st s-${s}">${STATUS[s]}</span>`;
+
+// stats
+const b16 = ITEMS.filter(i => i.build === 16);
+const daysTo = (a, b) => Math.round((new Date(b) - new Date(a)) / 864e5);
+$("stats").innerHTML = [
+  ["hot", daysTo(TODAY, "2026-11-20"), "days to invites"],
+  ["", b16.length, "items in build 16"],
+  ["", b16.filter(i => ["ready","building","inpr","inbuild","tested"].includes(i.status)).length, "build 16 ready or further"],
+  ["", ITEMS.filter(i => i.build === null).length, "in the backlog"],
+].map(([c, b, s]) => `<div class="stat ${c}"><b>${b}</b><span>${s}</span></div>`).join("");
+
+// timeline (one linear scale)
+(function () {
+  const t0 = new Date("2026-10-29"), t1 = new Date("2026-12-10");
+  const pct = d => ((new Date(d) - t0) / (t1 - t0) * 100);
+  let ticks = "", grid = "";
+  for (let d = new Date(t0); d <= t1; d.setDate(d.getDate() + 7)) {
+    const p = pct(d);
+    ticks += `<span class="tick" style="left:${p}%">${d.toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</span>`;
+    grid += `<span class="grid" style="left:calc(18px + (100% - 36px) * ${p/100})"></span>`;
+  }
+  const rows = TIMELINE.map(r => {
+    const l = pct(r.from);
+    if (r.kind === "milestone")
+      return `<div class="row"><div class="bar milestone" style="left:calc(${l}% - 6px)"><i></i>${esc(r.label)} <small class="muted">${new Date(r.from).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</small></div></div>`;
+    const w = Math.max(pct(r.to) - l, 1.5);
+    return `<div class="row"><div class="bar ${r.kind}" style="left:${l}%;width:${w}%" title="${esc(r.label)}: ${r.from} to ${r.to}">${esc(r.label)}${r.note ? ` <small>${esc(r.note)}</small>` : ""}</div></div>`;
+  }).join("");
+  $("tl").innerHTML = `<div class="axis">${ticks}</div>${grid}<span class="today" style="left:calc(18px + (100% - 36px) * ${pct(TODAY)/100} - 1px)"></span><div class="rows">${rows}</div>`;
+})();
+
+// board: current sprints by status
+const COLS = [["To do",["proposed","story"]],["Design",["design"]],["Ready",["ready"]],["Building / in PR",["building","inpr"]],["In a build",["inbuild","tested"]]];
+const card = i => `<div class="card"><div class="top"><span class="id">${esc(i.id)}</span><span class="chip a-${i.area}">${esc(i.area)}</span><span class="chip a-All">Build ${i.build}</span>${i.hot ? '<span class="flag">tester problem</span>' : ""}</div><div class="t">${esc(i.t)}</div>${i.n ? `<div class="n">${esc(i.n)}</div>` : ""}${i.status === "tested" ? '<div class="n" style="color:var(--good);font-weight:600">Device-tested</div>' : ""}${i.status === "proposed" ? '<div class="n" style="font-style:italic">Proposed, not agreed</div>' : ""}</div>`;
+$("board").innerHTML = COLS.map(([name, ss]) => {
+  const xs = ITEMS.filter(i => i.build && ss.includes(i.status)).sort((a, b) => b.build - a.build);
+  return `<div class="col"><h3>${name}<span>${xs.length}</span></h3>${xs.map(card).join("") || '<div class="emptycol">Nothing here.</div>'}</div>`;
+}).join("");
+
+// sprints
+$("sprints").innerHTML = SPRINTS.map(s => {
+  const xs = s.fixed ? [] : ITEMS.filter(i => i.build === s.build);
+  const pr = s.pr ? ` · <a href="https://github.com/Slimslim/ML.WorkoutApp/pull/${s.pr}" target="_blank" rel="noopener">#${s.pr}</a>` : "";
+  return `<div class="sprint ${s.cur ? "cur" : ""}"><div><span class="eyebrow">${esc(s.dates)}${pr}</span></div><h3 style="font-size:22px">${esc(s.name)}</h3><p class="goal">${esc(s.goal)}</p>${xs.length ? `<ul class="list">${xs.map(i => `<li><span class="id">${esc(i.id)}</span><span class="t">${esc(i.t)}</span>${pill(i.status)}</li>`).join("")}</ul>` : ""}</div>`;
+}).join("");
+
+$("decisions").innerHTML = DECISIONS.map(d => `<div class="dec"><b>${esc(d.t)}</b><span>${esc(d.d)}</span></div>`).join("");
+$("foot").innerHTML = `Updated ${UPDATED} from <code>docs/RELEASES.md</code> on main. Source of this page: <code>docs/roadmap.html</code> in the repo (Slimslim/ML.WorkoutApp).`;
+</script>

@@ -4,6 +4,12 @@ The one list of features by build. **Every chat reads this before starting a fea
 in the same PR** (status, build, PR link). Stories and "done when" live in `docs/USER_STORIES.md`;
 this file only says *when* and *where they are*. Owner decides what goes in a build.
 
+**Board (sprint view of this file):** https://claude.ai/artifact/R1im1djQEebDWBRsYDT1zk, built from
+`docs/roadmap.html`. When you change a row here, change the same item in that file's data block
+(`ITEMS`, `TIMELINE`, `DECISIONS`, `UPDATED`) in the same PR, and republish it to that URL (Artifact
+tool, publish with `url` and `file_path: docs/roadmap.html`; read it first). This file stays the source
+of truth; the board is its picture.
+
 ## How to use it
 
 - A feature is a story id (W28, N3, L1, ...). No id yet = write the story first.
@@ -49,6 +55,8 @@ merged (most items change the same files). Anything not ready by Tue 17 Nov move
 | Heart rate / Motion is off banner | W23 | Workouts + Navigation | design (mockups in `docs/concepts/first-workout.html`, confirm approval) | 2nd tester recorded two workouts with no HR or steps |
 | Strict press and bench press reps, counted at lockout | MVP build 1 (L-) | Lifting | ready (Python lockout rule matches 56/56 Tabata presses) | MVP scope; bench checked on a dumbbell bench session first |
 | Tabata: timed work parts end by themselves | W27 | Workouts | story | small change; the gym programs Tabatas (10 Nov timer showed 30 s) |
+
+| Battery level in every recording (one line per minute) | new | Workouts + Lifting | proposed (owner to agree) | % per hour by profile and GPS for every tester |
 
 Fallbacks: if W28 is not device-tested in time, the tester guide keeps "open the phone app after
 the session"; if bench miscounts, bench ships without rep counting.
