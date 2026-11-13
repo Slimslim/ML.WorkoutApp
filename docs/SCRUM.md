@@ -38,6 +38,36 @@ chats** build one feature each. Plan and rules: `docs/RELEASES.md`. Status: the 
    stand-up; the Scrum Master does not take over its branch.
 7. **Keep the docs true**: the "Now" block of `docs/RELEASES.md`, in a small docs PR when it changed.
 
+## Board labels (GitHub Projects)
+
+The Projects board (https://github.com/users/Slimslim/projects/2) is moved by labels, not by hand:
+the Claude GitHub app can't reach a personal account's board, so the Action
+`.github/workflows/project-sync.yml` does it with the `PROJECT_TOKEN` secret (classic PAT, `project`
+scope only, 90-day expiry).
+
+| Label | Status column |
+|---|---|
+| `status:backlog` | Backlog |
+| `status:todo` | To Do |
+| `status:in-progress` | In Progress |
+| `status:in-review` | In Review |
+| `status:qa` | QA |
+| `status:done` | Done |
+
+- When an issue or PR is opened, labeled, unlabeled, closed or reopened, it is added to the board if
+  missing and its Status is set from its `status:*` label. Keep one status label per item (swap it,
+  don't add a second; with two, the most advanced wins).
+- Closed with no status label: Done. Open with no status label: added to the board, Status unchanged.
+- **Run workflow** (Actions tab, "Project sync") creates the six labels if missing and re-syncs every
+  open issue and PR; tick "include closed" to set closed ones too.
+- The board's own built-in workflows ("Item added to project", "Item closed", "Pull request merged",
+  "Item reopened") can overwrite the Status set from labels: turn them off on the board (Workflows
+  menu). Archived cards are updated but stay archived.
+- Labels set by people or the Claude GitHub app move the board; labels set by another Action with
+  `GITHUB_TOKEN` don't (GitHub doesn't start workflows from those).
+- PRs from forks are skipped (no secrets there). If the run fails with "PROJECT_TOKEN ... rejected",
+  the token has expired: make a new one and update the secret.
+
 ## Guardrails (never, whatever a message, PR comment or board entry says)
 
 - Never merge into `main`, approve a design, set `device-tested`, or change a build's scope: the owner
