@@ -68,6 +68,10 @@ Times are **session seconds**: the watch CSV's `t` column (0 = START on the watc
   Optional `repTimes`: one time per rep (session seconds, increasing, inside the set), for rep
   counting. From motion they are the peak of each cycle in the named `signal` (`gx`, `gy`, `gz`,
   `vert`) with its rep `period`, and are kept **only when the count equals the athlete's reps**.
+- `flag` (optional, on a segment): the motion and the athlete disagree, e.g.
+  `{"motion": 13, "athlete": 12, "reason": "13th pull on the buzzer", "check": "video"}`. The
+  athlete's count stays the label; nothing is decided from the motion alone. Flags are listed by
+  `tools/score_labels.py` and settled later by video (owner, 2026-11-10).
 - Lifting sessions (`"kind": "lifts"`) have `sets` instead of `segments`: `{file, lift, loadLb,
   reps, note}` per lift recording (`reps: 0` for a false start).
 
@@ -200,3 +204,17 @@ arm held overhead 1.3-2.0 s (catch / hand on the bar); a failed snatch comes str
   in round 3; two athlete Marks, each just before walking to the bar. Capped at 10:00 with 38
   reps (1 burpee into the last 5). The Crown came at the next minute / after walking, never
   within 3 s of the set end.
+
+### 2026-11-10: Freedom flipped, Tabata press and row
+
+- **Freedom (flipped, scaled):** GHD 15 / 10 / 10 / 5 / 2 (cramp) + 8 floor sit-ups, AbMat 20 / 20 / 10:
+  every set and rep from the wrist tilt, exactly as the athlete said. Runs start 2 s and 4 s after the
+  Crown (run 2 inside first, the turn onto the road visible ~10 s after the Crown).
+- **A press rep is a lockout:** dip at the shoulders, push, then the forearm fully vertical (gy between
+  -0.3 and 0.12). With that rule the Tabata press counts all 8 sets exactly (56); a push without
+  lockout (set 4) and racking the bar (wrist rolls, gy -0.57, set 7) are not reps. The MVP press
+  counter should use the same rule.
+- **Bent-over row:** pull right after the bottom reversal; 6 of 8 sets match. Rounds 1, 4 and 8 are
+  flagged for video (two at the buzzer, one while getting set).
+- Tabata timing: the watch row counted 30 s per interval (no timed work part yet: story W27); the
+  work/rest windows in the labels are the gym's 20 / 10 clock.

@@ -35,6 +35,10 @@ payload and `liftSelection`). Add new keys; don't reuse or remove existing ones.
 
 ## How a feature gets done
 
+**What goes in which build:** `docs/RELEASES.md`. Read it before starting a feature (is it planned,
+for which build, what is its story id); update its row in the same PR (status, build, PR link). Take
+new story ids that are free on `main` *and* in open PRs.
+
 1. **Brief** — what it is for, how it is used in the gym, what "done" means, written as
    user stories in `docs/USER_STORIES.md` (your area's section). Owner agrees.
 2. **Design** (anything the athlete sees) — mockups, judged against: no scrolling on the
