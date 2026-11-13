@@ -31,6 +31,7 @@ chats** build one feature each. Plan and rules: `docs/RELEASES.md`. Status: the 
    build branch, start an independent reviewer (it gets the diff, not the worker's conclusions). CI
    green and review "merge": merge into the build branch, update the board. Review "fix first": send
    the findings to the worker, then review again; after two rounds still not clean, ask the owner.
+   Once the PR is merged, archive the worker's session (owner, 13 Nov: no pile of idle agents).
    Each recorded workout to review goes to a read-only review agent too (data quality, bugs, test-data
    value); the Scrum Master keeps only the summary.
 6. **Follow workers**: a worker that is stuck, off-scope or idle for a day is reported in the
