@@ -414,7 +414,7 @@ recording to reach the cloud by itself, so nothing waits on me opening the app.
 *Done when:* after END on the watch, with the phone locked and the app not opened, the result and the
 recording are in the cloud within 15 minutes (phone on Wi-Fi or cellular), checked on 3 sessions
 including one of 60 minutes; nothing is lost when it takes longer (it goes on the next wake or the
-next app open, as today). (A tester, 2026-11-11: Chad arrived 2.5 h after the end, only once the app was
+next app open, as today). (a tester, 2026-11-11: Chad arrived 2.5 h after the end, only once the app was
 opened; he does not look at results on the phone.)
 How (to check on a device, background behaviour cannot be tested in CI):
 - **Wake the phone app:** at END, while the watch app is still in front, the watch sends one message

@@ -6,7 +6,7 @@
 We collect recordings (training data) and feedback. No new features during the test except the one
 listed under "Build".
 
-Owner decisions (2026-11-10): strict press and bench press rep counting are in; the testers'
+Owner decisions (2026-11-10, revised 13 Nov: no rep counting on the watch yet): the testers'
 programs are entered by Claude from their screenshots; dates below are proposals.
 
 ## What testers get (exists today)
@@ -29,7 +29,7 @@ Automatic movement switching (offline experiment only), the start mark by double
 the program and the single start screen, recording that follows the plan (W21), Rx/Scaled on the
 phone (W19), round-by-round view (W18), run distance at the cap (W20), partner splits, supersets.
 
-## Build (the only new code): strict press and bench press reps
+## Not in the MVP build: strict press and bench press reps (owner, 13 Nov: no rep counting on the watch yet)
 
 - `LiftType` gets `strictPress` and `benchPress`, both `countsReps` (shared file
   `BarPathKit/Sources/BarPathKit/Models.swift`: small separate commit, called out in the PR).
@@ -49,8 +49,8 @@ phone (W19), round-by-round view (W18), run distance at the cap (W20), partner s
 
 W22 (practice workout) is in build 15 (#24); W23 (banner) is planned for build 16.
 
-The first tester's first workout (2026-11-10): the heart-rate prompt came mid-run and was refused or
-dismissed (no HR, no steps recorded), and the Crown was never found, so the whole workout was one part.
+A tester's first workout (2026-11-10): the heart-rate prompt came mid-run, he refused or dismissed it
+(no HR, no steps recorded) and he did not find the Crown, so the whole workout was one part.
 - **W22 Practice workout:** permissions asked before START with the reason, a 2-part practice with
   real HR that teaches "turn the Crown", and the finish screen explaining the 3-min recovery and
   "swipe left, End" (recovery keeps recording). Saves nothing.
@@ -79,15 +79,10 @@ the tester guide keeps "open the phone app after the session".
    library to the owner's private rows, so testers only see their own program and public benchmarks.
 7. **Tester guide** (one page, below) sent with the invite; testers do the practice workout first.
 
-## Proposed dates
+## Dates
 
-| When | What |
-|---|---|
-| Tue 10 - Thu 12 Nov | Press/bench PR, bench check on Thursday's session, merge, new build |
-| Fri 13 - Thu 19 Nov | Owner uses the tester build (checklist 3-5), fixes |
-| Fri 20 Nov | Final build, library cleanup, invites sent with the guide |
-| Mon 23 Nov - Sun 6 Dec | Test: two weeks with their programs |
-| Mon 7 Dec | Review: feedback, data, what goes into the next build |
+In `docs/RELEASES.md` (the only place with dates and build scope). Build 16 is the tester build
+(stability, no rep counting); the design review and workout import are build 17.
 
 ## During the test
 
