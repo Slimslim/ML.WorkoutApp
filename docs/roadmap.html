@@ -4,14 +4,15 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
 <style>
-/* Layout: a sprint board. Each build is a sprint: timeline on top (dates to scale, "today"),
-   then the current sprint as status columns, then the next sprints and the backlog, then the
-   owner's decisions. Data block at the bottom of the file mirrors docs/RELEASES.md. */
+/* Layout: a live sprint board. Each build is a sprint. Top: stand-up summary (what needs review,
+   what moved). Then timeline, board by status, checklists, decisions, stand-up log.
+   All records live in the artifact's db (items, checks, sprints, decisions, standups, meta);
+   docs/RELEASES.md in the repo holds the plan and the rules. */
 :root{
   --page:#F6F7F9; --card:#FFFFFF; --ink:#1B1D21; --ink2:#5F6570; --line:#E3E6EA; --soft:#ECEEF1;
   --accent:#D9692E; --accent-ink:#B4501C; --accent-bg:#FBEDE4;
   --good:#2E8466; --good-bg:#E3F2EC; --warn:#A86A12; --warn-bg:#FBF0DC; --info:#2F5FB3; --info-bg:#E6EDF9;
-  --muted-bg:#EEF0F3; --shadow:rgba(20,22,26,.08);
+  --muted-bg:#EEF0F3; --shadow:rgba(20,22,26,.08); --on-solid:#FFFFFF;
   --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
   --f-body:"Barlow",system-ui,-apple-system,sans-serif;
   --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
@@ -20,12 +21,12 @@
   --page:#111316; --card:#1A1D21; --ink:#ECEEF1; --ink2:#A0A6B0; --line:#2B3036; --soft:#22262B;
   --accent:#E57B42; --accent-ink:#F29A69; --accent-bg:#3A2418;
   --good:#5BC29B; --good-bg:#16302A; --warn:#E3A84A; --warn-bg:#352812; --info:#7FA6EE; --info-bg:#1A2740;
-  --muted-bg:#24282E; --shadow:rgba(0,0,0,.35); color-scheme:dark}}
+  --muted-bg:#24282E; --shadow:rgba(0,0,0,.35); --on-solid:#111316; color-scheme:dark}}
 :root[data-theme="dark"]{
   --page:#111316; --card:#1A1D21; --ink:#ECEEF1; --ink2:#A0A6B0; --line:#2B3036; --soft:#22262B;
   --accent:#E57B42; --accent-ink:#F29A69; --accent-bg:#3A2418;
   --good:#5BC29B; --good-bg:#16302A; --warn:#E3A84A; --warn-bg:#352812; --info:#7FA6EE; --info-bg:#1A2740;
-  --muted-bg:#24282E; --shadow:rgba(0,0,0,.35); color-scheme:dark}
+  --muted-bg:#24282E; --shadow:rgba(0,0,0,.35); --on-solid:#111316; color-scheme:dark}
 
 body{background:var(--page);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px}
@@ -37,6 +38,11 @@ h3{font-size:18px;font-weight:700}
 p{margin:0}
 .eyebrow{font:700 12px/1 var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--accent-ink)}
 .muted{color:var(--ink2)}
+code{font-family:var(--f-mono);font-size:12.5px}
+a{color:var(--accent-ink)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button,select,textarea,input{font:inherit;color:inherit}
+button{cursor:pointer}
 header{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:flex-end;justify-content:space-between}
 header .l{display:flex;flex-direction:column;gap:8px;min-width:0;max-width:68ch}
 .stats{display:flex;flex-wrap:wrap;gap:10px}
@@ -46,9 +52,20 @@ header .l{display:flex;flex-direction:column;gap:8px;min-width:0;max-width:68ch}
 .stat.hot b{color:var(--accent-ink)}
 section{display:flex;flex-direction:column;gap:14px}
 .sechead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
-code{font-family:var(--f-mono);font-size:12.5px}
-a{color:var(--accent-ink)}
-a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.banner{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 14px;font-weight:600}
+.empty{background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:22px;color:var(--ink2)}
+
+/* stand-up summary */
+.today{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.panel.attn{border-color:var(--accent)}
+.panel h3{font-size:17px;display:flex;justify-content:space-between;gap:8px}
+.panel h3 span{font:600 12px/1 var(--f-body);color:var(--ink2);background:var(--muted-bg);border-radius:10px;padding:4px 8px}
+.rowlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.rowlist li{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--soft);min-width:0}
+.rowlist li:first-child{border-top:0}
+.rowlist .t{flex:1;min-width:0}
+.rowlist .when{font-size:12px;color:var(--ink2);white-space:nowrap}
 
 /* timeline */
 .tl-scroll{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:14px}
@@ -56,215 +73,371 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-off
 .tl .axis{position:absolute;left:18px;right:18px;top:0;height:28px}
 .tl .tick{position:absolute;top:10px;font:500 11.5px/1 var(--f-body);color:var(--ink2);transform:translateX(-50%);white-space:nowrap;font-variant-numeric:tabular-nums}
 .tl .grid{position:absolute;top:28px;bottom:10px;width:1px;background:var(--soft)}
-.tl .today{position:absolute;top:22px;bottom:6px;width:2px;background:var(--accent);z-index:2}
-.tl .today::before{content:"Today";position:absolute;top:-16px;left:50%;transform:translateX(-50%);font:700 11px/1 var(--f-body);color:var(--accent-ink);background:var(--card);padding:0 4px}
+.tl .now{position:absolute;top:22px;bottom:6px;width:2px;background:var(--accent);z-index:2}
+.tl .now::before{content:"Today";position:absolute;top:-16px;left:50%;transform:translateX(-50%);font:700 11px/1 var(--f-body);color:var(--accent-ink);background:var(--card);padding:0 4px}
 .tl .rows{position:relative;display:flex;flex-direction:column;gap:8px}
 .tl .row{position:relative;height:30px}
 .bar{position:absolute;top:0;height:30px;border-radius:7px;display:flex;align-items:center;gap:6px;padding:0 9px;font:600 13px/1 var(--f-body);white-space:nowrap;overflow:hidden;border:1px solid transparent}
 .bar small{font-weight:500;opacity:.85}
 .bar.done{background:var(--muted-bg);color:var(--ink2)}
-.bar.now{background:var(--accent-bg);color:var(--accent-ink);border-color:var(--accent)}
+.bar.current{background:var(--accent-bg);color:var(--accent-ink);border-color:var(--accent)}
 .bar.next{background:var(--info-bg);color:var(--info)}
 .bar.test{background:var(--good-bg);color:var(--good)}
-.bar.milestone{background:transparent;color:var(--ink);padding:0;gap:6px;overflow:visible}
+.bar.milestone{background:transparent;color:var(--ink);padding:0;overflow:visible}
 .bar.milestone i{width:12px;height:12px;transform:rotate(45deg);background:var(--accent);border-radius:2px;flex:none}
 
 /* board */
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.fbtn{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:6px 12px;font-size:13.5px;font-weight:600;color:var(--ink2)}
+.fbtn[aria-pressed="true"]{background:var(--ink);color:var(--page);border-color:var(--ink)}
 .board-scroll{overflow-x:auto;padding-bottom:4px}
-.board{display:grid;grid-template-columns:repeat(5,minmax(200px,1fr));gap:12px;min-width:1040px}
+.board{display:grid;grid-template-columns:repeat(5,minmax(210px,1fr));gap:12px;min-width:1080px}
 .col{background:var(--soft);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
 .col h3{display:flex;justify-content:space-between;align-items:center;font-size:15px;padding:2px 4px 4px;text-transform:uppercase;letter-spacing:.06em}
 .col h3 span{font:600 12px/1 var(--f-body);color:var(--ink2);background:var(--card);border-radius:10px;padding:3px 8px;letter-spacing:0}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 11px;display:flex;flex-direction:column;gap:6px;box-shadow:0 1px 2px var(--shadow);min-width:0}
-.card .top{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 11px;display:flex;flex-direction:column;gap:7px;box-shadow:0 1px 2px var(--shadow);min-width:0}
+.card.rev{border-color:var(--warn);box-shadow:inset 3px 0 0 var(--warn)}
+.card .top{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
 .card .t{font-weight:600;line-height:1.3}
 .card .n{font-size:13px;color:var(--ink2);line-height:1.35}
+.card .ctl{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.card select{border:1px solid var(--line);background:var(--page);border-radius:7px;padding:4px 6px;font-size:12.5px;max-width:100%}
+.card .by{font-size:11.5px;color:var(--ink2)}
+.revbtn{border:1px solid var(--line);background:var(--page);border-radius:7px;padding:4px 8px;font-size:12px;font-weight:600;color:var(--ink2)}
+.revbtn[aria-pressed="true"]{background:var(--warn-bg);color:var(--warn);border-color:var(--warn)}
 .id{font:500 11.5px/1 var(--f-mono);color:var(--ink2);background:var(--muted-bg);padding:3px 6px;border-radius:5px}
-.chip{font:600 11px/1 var(--f-body);padding:3px 7px;border-radius:20px;letter-spacing:.02em}
+.chip{font:600 11px/1 var(--f-body);padding:3px 7px;border-radius:20px}
 .a-Workouts{background:var(--accent-bg);color:var(--accent-ink)}
 .a-Lifting{background:var(--info-bg);color:var(--info)}
 .a-Navigation{background:var(--good-bg);color:var(--good)}
-.a-All,.a-Data{background:var(--muted-bg);color:var(--ink2)}
+.a-All,.a-Data,.chip.b{background:var(--muted-bg);color:var(--ink2)}
 .flag{font:600 11px/1 var(--f-body);color:var(--warn);background:var(--warn-bg);padding:3px 7px;border-radius:20px}
-.emptycol{font-size:13px;color:var(--ink2);padding:6px 4px}
-
-/* sprints & backlog */
-.sprints{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
-.sprint{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
-.sprint .goal{color:var(--ink2);font-size:14px}
-.sprint.cur{border-color:var(--accent)}
-.list{display:flex;flex-direction:column;gap:0;margin:0;padding:0;list-style:none}
-.list li{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--soft);min-width:0}
-.list li:first-child{border-top:0}
-.list .t{min-width:0}
 .st{font:600 11px/1 var(--f-body);padding:4px 8px;border-radius:20px;white-space:nowrap}
-.s-story{background:var(--muted-bg);color:var(--ink2)}
 .s-proposed{background:var(--muted-bg);color:var(--ink2);border:1px dashed var(--ink2)}
+.s-story{background:var(--muted-bg);color:var(--ink2)}
 .s-design{background:var(--warn-bg);color:var(--warn)}
 .s-ready{background:var(--info-bg);color:var(--info)}
 .s-building,.s-inpr{background:var(--accent-bg);color:var(--accent-ink)}
 .s-inbuild{background:var(--good-bg);color:var(--good)}
-.s-tested{background:var(--good);color:var(--card)}
+.s-tested,.s-testers{background:var(--good);color:var(--on-solid)}
 .s-experiment{background:var(--muted-bg);color:var(--ink2);font-style:italic}
+.s-dropped{background:var(--muted-bg);color:var(--ink2);text-decoration:line-through}
+.emptycol{font-size:13px;color:var(--ink2);padding:6px 4px}
+
+/* backlog list */
+.list{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px 14px}
+.list .li{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--soft);min-width:0}
+.list .li:first-child{border-top:0}
+.list .li .t{min-width:0}
+.list .li .n{font-size:13px;color:var(--ink2)}
+
+/* checklists */
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+.check{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--soft)}
+.check:first-of-type{border-top:0}
+.check input{width:18px;height:18px;margin-top:2px;accent-color:var(--good);flex:none}
+.check label{flex:1;min-width:0;cursor:pointer}
+.check.done label .x{color:var(--ink2);text-decoration:line-through}
+.check .by{display:block;font-size:12px;color:var(--good)}
+.progress{height:6px;background:var(--soft);border-radius:4px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--good)}
 
 /* decisions */
-.decisions{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
-.dec{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.decisions{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.dec{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.dec.decided{border-left-color:var(--good)}
 .dec b{font-weight:600}
-.dec span{font-size:13.5px;color:var(--ink2)}
+.dec .d{font-size:13.5px;color:var(--ink2)}
+.dec .ans{font-size:13.5px;background:var(--good-bg);color:var(--good);border-radius:8px;padding:6px 8px}
+.dec form{display:flex;gap:6px;flex-wrap:wrap}
+.dec input{flex:1;min-width:140px;border:1px solid var(--line);background:var(--page);border-radius:8px;padding:6px 8px}
+.btn{border:0;background:var(--ink);color:var(--page);border-radius:8px;padding:7px 12px;font-weight:600;font-size:13.5px}
+.btn.ghost{background:var(--muted-bg);color:var(--ink)}
+
+/* stand-up */
+.su{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:14px}
+@media (max-width:820px){.su{grid-template-columns:1fr}}
+.su form{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.su label{font-weight:600;font-size:13.5px;display:flex;flex-direction:column;gap:4px}
+.su textarea{border:1px solid var(--line);background:var(--page);border-radius:8px;padding:8px;min-height:56px;resize:vertical;font-size:14px}
+.su .log{display:flex;flex-direction:column;gap:10px}
+.entry{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.entry .h{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--ink2)}
+.entry .h b{color:var(--ink)}
+.entry dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:14px}
+.entry dt{font-weight:600;color:var(--ink2)}
+.entry dd{margin:0;white-space:pre-wrap;min-width:0}
 .how{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px 24px}
 .how div{display:flex;flex-direction:column;gap:4px;min-width:0}
 .how b{font-family:var(--f-display);font-size:17px}
 .how span{font-size:13.5px;color:var(--ink2)}
 footer{font-size:13px;color:var(--ink2)}
+.toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--page);padding:8px 14px;border-radius:10px;font-weight:600;font-size:14px;z-index:20}
 </style>
 
 <div class="wrap">
   <header>
     <div class="l">
-      <span class="eyebrow">Rx Lab · BarPath app · sprint board</span>
+      <span class="eyebrow">Rx Lab · BarPath app · live sprint board</span>
       <h1>Rx Lab Roadmap</h1>
-      <p class="muted">One build is one sprint. Goal now: a stable build 16 for 4-5 testers, invites Fri 20 Nov. Mirrors <code>docs/RELEASES.md</code> on <code>main</code>, which every chat reads and updates in its PR.</p>
+      <p class="muted">One build is one sprint. Tick what is done, flag what needs review, post the stand-up. Everyone with access sees the same board live; the chats update it too. Plan and rules: <code>docs/RELEASES.md</code> on main.</p>
     </div>
     <div class="stats" id="stats"></div>
   </header>
 
-  <section>
-    <div class="sechead"><h2>Timeline</h2><span class="muted">29 Oct - 10 Dec 2026, to scale</span></div>
-    <div class="tl-scroll"><div class="tl" id="tl"></div></div>
-  </section>
+  <div id="note" class="banner" hidden></div>
+  <div id="loading" class="empty">Loading the board. Items, checklists, decisions and stand-ups appear here once the shared data answers.</div>
 
-  <section>
-    <div class="sechead"><h2>Sprint board: builds 15 and 16</h2><span class="muted">where every feature of the two current sprints is</span></div>
-    <div class="board-scroll"><div class="board" id="board"></div></div>
-  </section>
+  <div id="app" hidden>
+    <div class="wrap" style="gap:36px">
+      <section>
+        <div class="sechead"><h2>Stand-up</h2><span class="muted">what needs eyes today</span></div>
+        <div class="today" id="today"></div>
+      </section>
 
-  <section>
-    <div class="sechead"><h2>Sprints</h2></div>
-    <div class="sprints" id="sprints"></div>
-  </section>
+      <section>
+        <div class="sechead"><h2>Timeline</h2><span class="muted">to scale</span></div>
+        <div class="tl-scroll"><div class="tl" id="tl"></div></div>
+      </section>
 
-  <section>
-    <div class="sechead"><h2>Waiting on the owner</h2><span class="muted">decisions that unblock a sprint</span></div>
-    <div class="decisions" id="decisions"></div>
-  </section>
+      <section>
+        <div class="sechead"><h2>Board</h2><span class="muted">builds in progress; change a status from the card</span></div>
+        <div class="filters" id="filters"></div>
+        <div class="board-scroll"><div class="board" id="board"></div></div>
+      </section>
 
-  <section>
-    <div class="sechead"><h2>How we work</h2></div>
-    <div class="how">
-      <div><b>Story first</b><span>Every feature has an id in <code>docs/USER_STORIES.md</code> (W, L, N, S, T, P). New ids must be free on main and in open PRs.</span></div>
-      <div><b>Design, then build</b><span>Anything the athlete sees: mockups approved by the owner. Algorithms: Python reference, Swift port, parity test.</span></div>
-      <div><b>Done means device-tested</b><span>CI green, independent review, then the owner's checklist on a real watch and phone; gym test where accuracy matters.</span></div>
-      <div><b>Freeze, then fix</b><span>A sprint's build freezes when its PR says so. After that only fixes from the device test. Late items roll to the next build.</span></div>
+      <section>
+        <div class="sechead"><h2>Checklists</h2><span class="muted">device tests and release steps; each tick records who and when</span></div>
+        <div class="checks" id="checks"></div>
+      </section>
+
+      <section>
+        <div class="sechead"><h2>Decisions</h2><span class="muted">the owner answers; the answer stays on the card</span></div>
+        <div class="decisions" id="decisions"></div>
+      </section>
+
+      <section>
+        <div class="sechead"><h2>Stand-up log</h2><span class="muted">done · next · blocked</span></div>
+        <div class="su">
+          <form id="suform" autocomplete="off">
+            <label for="su-done">Done since last stand-up<textarea id="su-done" placeholder="Merged #25. Labelled Tabata press and row."></textarea></label>
+            <label for="su-next">Next<textarea id="su-next" placeholder="Build 15 device test: practice workout, GPS run."></textarea></label>
+            <label for="su-blocked">Blocked by<textarea id="su-blocked" placeholder="Nothing / waiting on #24"></textarea></label>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn" type="submit" id="su-post">Post stand-up</button><span class="muted" id="su-hint" style="font-size:13px"></span></div>
+          </form>
+          <div class="log" id="log"></div>
+        </div>
+      </section>
+
+      <section>
+        <div class="sechead"><h2>Backlog</h2><span class="muted">after the beta; the owner picks at the 7 Dec review</span></div>
+        <div class="list" id="backlog"></div>
+      </section>
+
+      <section>
+        <div class="sechead"><h2>How we work</h2></div>
+        <div class="how">
+          <div><b>Story first</b><span>Every feature has an id in <code>docs/USER_STORIES.md</code>. New ids must be free on main and in open PRs.</span></div>
+          <div><b>Status moves forward</b><span>Proposed, Story, Design, Ready, Building, In PR, In build, Device-tested, With testers. Whoever moves it says so in the stand-up.</span></div>
+          <div><b>Needs review</b><span>Flag a card when someone has to look before it moves on: a mockup, a PR, a test result. Clear it when reviewed.</span></div>
+          <div><b>Done means device-tested</b><span>CI green, independent review, then the owner's checklist on a real watch and phone. A build freezes when its PR says so.</span></div>
+        </div>
+      </section>
     </div>
-  </section>
+  </div>
 
-  <footer id="foot"></footer>
+  <footer id="foot">Data lives in this page's shared store; chats read and write it with the artifact tools. The plan of record is <code>docs/RELEASES.md</code> in Slimslim/ML.WorkoutApp.</footer>
 </div>
 
 <script>
-/* ---- data: keep in step with docs/RELEASES.md ---- */
-const UPDATED = "2026-11-13";
-const TODAY = "2026-11-13";
-const TIMELINE = [
-  {label:"Builds 1-6", note:"bar path, workouts, cloud library", from:"2026-10-29", to:"2026-11-04", kind:"done"},
-  {label:"Builds 7-14", note:"results page (#19)", from:"2026-11-04", to:"2026-11-10", kind:"done"},
-  {label:"Build 15", note:"frozen, device test", from:"2026-11-10", to:"2026-11-17", kind:"now"},
-  {label:"Build 16", note:"tester build", from:"2026-11-13", to:"2026-11-19", kind:"next"},
-  {label:"Invites", from:"2026-11-20", kind:"milestone"},
-  {label:"Beta test", note:"4-5 testers, builds 17+ fixes only", from:"2026-11-23", to:"2026-12-06", kind:"test"},
-  {label:"Review", from:"2026-12-07", kind:"milestone"},
-];
-// status: proposed | story | design | ready | building | inpr | inbuild | tested | experiment
-const ITEMS = [
-  {id:"W24", t:"A crash does not lose the workout", area:"Workouts", build:15, status:"tested", n:"Recovered with splits and HR on 10 Nov."},
-  {id:"W22", t:"Practice workout on the watch", area:"Workouts", build:15, status:"inbuild", n:"Permissions before START, teaches the Crown."},
-  {id:"W25", t:"Max heart rate (age, measured, manual)", area:"Workouts", build:15, status:"inbuild"},
-  {id:"W21a", t:"Recording profile: 200 Hz with barbell movements", area:"Workouts", build:15, status:"inbuild", n:"Battery over 60 min not measured yet."},
-  {id:"W21b", t:"GPS for workouts with a run", area:"Workouts", build:15, status:"inbuild", n:"Wrist-down GPS not confirmed."},
-  {id:"fix", t:"Compressed uploads, 50 MB limit handled", area:"All", build:15, status:"inbuild"},
-  {id:"fix", t:"Account deletion, Lifting “Ending…”, analyzer crashes", area:"All", build:15, status:"inbuild"},
-  {id:"B15", t:"Fixes from the build 15 device test", area:"All", build:16, status:"proposed", n:"Waiting on the owner's test plan in #24."},
-  {id:"W28", t:"Upload without opening the phone app", area:"Workouts", build:16, status:"story", n:"2nd tester: Chad reached the cloud 2.5 h late. After #24.", hot:true},
-  {id:"W23", t:"Heart rate / Motion is off banner", area:"Workouts", build:16, status:"design", n:"Mockups in first-workout.html. Confirm approval.", hot:true},
-  {id:"L-press", t:"Strict press and bench reps at lockout", area:"Lifting", build:16, status:"ready", n:"Python rule: 56/56 Tabata presses. Bench check on a DB bench first."},
-  {id:"W27", t:"Tabata: timed work parts end by themselves", area:"Workouts", build:16, status:"story", n:"10 Nov timer showed 30 s."},
-  {id:"new", t:"Battery level in every recording", area:"Workouts", build:16, status:"proposed", n:"% per hour by profile and GPS, all testers. Owner to agree."},
-  {id:"W18", t:"Partitioned workout round by round", area:"Workouts", build:null, status:"story"},
-  {id:"W19", t:"Rx / Scaled saved with the result", area:"Workouts", build:null, status:"story"},
-  {id:"W20", t:"AMRAP ending on a run scores the distance", area:"Workouts", build:null, status:"story"},
-  {id:"W21", t:"Lift pieces in the program, one start screen", area:"Workouts", build:null, status:"story", n:"Needs design."},
-  {id:"W21", t:"Recording follows the plan per part, one Fitness workout", area:"Workouts", build:null, status:"story", n:"docs/RECORDING_PLAN.md"},
-  {id:"W26", t:"kg or lb, and the athlete's size", area:"Lifting", build:null, status:"story"},
-  {id:"ML-1", t:"Automatic movement switching (phase 1)", area:"Data", build:null, status:"experiment", n:"Must beat the Crown on held-out sessions."},
-  {id:"ML-3", t:"Rep counting in metcons (GHD, sit-ups, press first)", area:"Data", build:null, status:"experiment", n:"~380 rep times labelled; flags checked on video."},
-  {id:"W4/W5", t:"Weight per set in EMOMs; transition vs work time", area:"Workouts", build:null, status:"story"},
-];
-const SPRINTS = [
-  {name:"Build 15", dates:"frozen 11 Nov, owner device test", goal:"Pre-beta: nothing lost, permissions up front, better recordings.", build:15, pr:24},
-  {name:"Build 16", dates:"13-17 Nov build, 18-19 Nov owner test", goal:"Tester build: uploads by themselves, no silent missing HR, press and bench reps.", build:16, cur:true},
-  {name:"Builds 17+", dates:"23 Nov - 6 Dec", goal:"Fixes only during the beta: crashes, lost recordings, wrong numbers.", fixed:true},
-  {name:"After the beta", dates:"review Mon 7 Dec", goal:"The owner picks from this backlog with the testers' feedback.", build:null},
-];
-const DECISIONS = [
-  {t:"Run the build 15 test plan", d:"Practice workout, 200 Hz header, GPS run, battery after 60 min, account deletion. Unblocks build 16."},
-  {t:"W23 banner mockup: approved?", d:"Same page as the approved practice workout (docs/concepts/first-workout.html)."},
-  {t:"Battery logging in build 16?", d:"One line per minute in each recording; gives % per hour for every tester."},
-  {t:"Old open PRs", d:"#6 merge or close, #7 close, #15 rebase or close, #19 close when #24 merges."},
-  {t:"Bench check", d:"Record one dumbbell or barbell bench session in Lifting mode before the build goes to testers."},
-];
-
-/* ---- render ---- */
-const $ = id => document.getElementById(id);
-const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const STATUS = {proposed:"Proposed", story:"Story", design:"Design", ready:"Ready", building:"Building", inpr:"In PR", inbuild:"In build", tested:"Device-tested", experiment:"Experiment"};
-const pill = s => `<span class="st s-${s}">${STATUS[s]}</span>`;
-
-// stats
-const b16 = ITEMS.filter(i => i.build === 16);
-const daysTo = (a, b) => Math.round((new Date(b) - new Date(a)) / 864e5);
-$("stats").innerHTML = [
-  ["hot", daysTo(TODAY, "2026-11-20"), "days to invites"],
-  ["", b16.length, "items in build 16"],
-  ["", b16.filter(i => ["ready","building","inpr","inbuild","tested"].includes(i.status)).length, "build 16 ready or further"],
-  ["", ITEMS.filter(i => i.build === null).length, "in the backlog"],
-].map(([c, b, s]) => `<div class="stat ${c}"><b>${b}</b><span>${s}</span></div>`).join("");
-
-// timeline (one linear scale)
 (function () {
-  const t0 = new Date("2026-10-29"), t1 = new Date("2026-12-10");
-  const pct = d => ((new Date(d) - t0) / (t1 - t0) * 100);
-  let ticks = "", grid = "";
-  for (let d = new Date(t0); d <= t1; d.setDate(d.getDate() + 7)) {
-    const p = pct(d);
-    ticks += `<span class="tick" style="left:${p}%">${d.toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</span>`;
-    grid += `<span class="grid" style="left:calc(18px + (100% - 36px) * ${p/100})"></span>`;
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const STATUS = [["proposed","Proposed"],["story","Story"],["design","Design"],["ready","Ready"],["building","Building"],["inpr","In PR"],["inbuild","In build"],["tested","Device-tested"],["testers","With testers"],["experiment","Experiment"],["dropped","Dropped"]];
+  const SL = Object.fromEntries(STATUS);
+  const COLS = [["To do",["proposed","story"]],["Design",["design"]],["Ready",["ready"]],["Building / in PR",["building","inpr"]],["In a build",["inbuild","tested","testers"]]];
+  const S = {items:null, checks:null, sprints:null, decisions:null, standups:null, meta:null};
+  let db = null, user = null, me = null, canWrite = true, filter = "all";
+
+  const fmtDay = d => new Date(d).toLocaleDateString("en-GB",{day:"numeric",month:"short"});
+  const ago = iso => { if (!iso) return ""; const m = Math.round((Date.now() - new Date(iso)) / 60000);
+    if (m < 1) return "just now"; if (m < 60) return m + " min ago"; const h = Math.round(m/60); if (h < 36) return h + " h ago";
+    return fmtDay(iso); };
+  const who = id => id ? `<span data-uid="${esc(id)}">someone</span>` : "a chat";
+  const toast = t => { const el = document.createElement("div"); el.className = "toast"; el.textContent = t; document.body.appendChild(el); setTimeout(() => el.remove(), 1800); };
+  const note = t => { const n = $("note"); n.textContent = t || ""; n.hidden = !t; };
+
+  async function names() {
+    if (!user) return;
+    const els = [...document.querySelectorAll("[data-uid]")];
+    const ids = [...new Set(els.map(e => e.dataset.uid))];
+    if (!ids.length) return;
+    const ps = await user.profiles(ids);
+    els.forEach(e => { const p = ps[e.dataset.uid]; e.textContent = (p && p.isMe) ? "you" : ((p && p.name) || "someone"); });
   }
-  const rows = TIMELINE.map(r => {
-    const l = pct(r.from);
-    if (r.kind === "milestone")
-      return `<div class="row"><div class="bar milestone" style="left:calc(${l}% - 6px)"><i></i>${esc(r.label)} <small class="muted">${new Date(r.from).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</small></div></div>`;
-    const w = Math.max(pct(r.to) - l, 1.5);
-    return `<div class="row"><div class="bar ${r.kind}" style="left:${l}%;width:${w}%" title="${esc(r.label)}: ${r.from} to ${r.to}">${esc(r.label)}${r.note ? ` <small>${esc(r.note)}</small>` : ""}</div></div>`;
-  }).join("");
-  $("tl").innerHTML = `<div class="axis">${ticks}</div>${grid}<span class="today" style="left:calc(18px + (100% - 36px) * ${pct(TODAY)/100} - 1px)"></span><div class="rows">${rows}</div>`;
+
+  const ready = () => Object.values(S).every(v => v !== null);
+  function render() {
+    if (!ready()) return;
+    $("loading").hidden = true; $("app").hidden = false;
+    const items = S.items, open = items.filter(i => i.build != null && !["dropped"].includes(i.status));
+    const meta = S.meta || {};
+    const invites = meta.invites || "2026-11-20";
+    const days = Math.max(0, Math.ceil((new Date(invites) - new Date(new Date().toDateString())) / 864e5));
+    const curBuild = meta.currentBuild || 16;
+    const cur = items.filter(i => i.build === curBuild);
+    const reviews = items.filter(i => i.review);
+    const openChecks = S.checks.filter(c => !c.done);
+    const openDec = S.decisions.filter(d => d.status !== "decided");
+    $("stats").innerHTML = [
+      ["hot", days, "days to invites"],
+      ["", cur.filter(i => ["ready","building","inpr","inbuild","tested","testers"].includes(i.status)).length + "/" + cur.length, "build " + curBuild + " ready or further"],
+      [reviews.length ? "hot" : "", reviews.length, "need review"],
+      ["", openChecks.length, "checks open"],
+      ["", openDec.length, "decisions open"],
+    ].map(([c,b,s]) => `<div class="stat ${c}"><b>${b}</b><span>${s}</span></div>`).join("");
+
+    // stand-up summary
+    const since = Date.now() - 36 * 3600e3;
+    const moved = items.filter(i => i.updatedAt && new Date(i.updatedAt) > since).concat(S.checks.filter(c => c.done && c.at && new Date(c.at) > since).map(c => ({sid:"check", title:c.text, status:"done", updatedAt:c.at, updatedBy:c.by})))
+      .sort((a,b) => (b.updatedAt||"").localeCompare(a.updatedAt||"")).slice(0, 8);
+    const blocked = S.standups.slice(0, 5).filter(s => (s.blocked||"").trim() && !/^(nothing|none|-|no)\.?$/i.test(s.blocked.trim()));
+    $("today").innerHTML =
+      panel("Needs review", reviews.length, reviews.length ? reviews.map(i => `<li><span class="id">${esc(i.sid)}</span><span class="t">${esc(i.title)}</span>${pill(i.status)}</li>`).join("") : '<li class="muted">Nothing flagged.</li>', reviews.length > 0) +
+      panel("Waiting on the owner", openDec.length, openDec.length ? openDec.slice(0,6).map(d => `<li><span class="t">${esc(d.title)}</span></li>`).join("") : '<li class="muted">No open decisions.</li>', openDec.length > 0) +
+      panel("Moved in the last 36 h", moved.length, moved.length ? moved.map(i => `<li><span class="t">${i.sid === "check" ? "Ticked: " : `<span class="id">${esc(i.sid)}</span> `}${esc(i.title)}</span><span class="when">${who(i.updatedBy)} · ${ago(i.updatedAt)}</span></li>`).join("") : '<li class="muted">Nothing moved yet.</li>') +
+      (blocked.length ? panel("Blocked", blocked.length, blocked.map(s => `<li><span class="t">${esc(s.blocked)}</span><span class="when">${who(s.by)} · ${ago(s.at)}</span></li>`).join(""), true) : "");
+
+    timeline(); board(); checks(); decisions(); log(); backlog();
+    names();
+  }
+  const pill = s => `<span class="st s-${esc(s)}">${esc(SL[s] || s)}</span>`;
+  const panel = (t, n, body, attn) => `<div class="panel ${attn ? "attn" : ""}"><h3>${esc(t)}<span>${n}</span></h3><ul class="rowlist">${body}</ul></div>`;
+
+  function timeline() {
+    const sp = S.sprints.slice().sort((a,b) => (a.order||0) - (b.order||0));
+    if (!sp.length) { $("tl").innerHTML = '<div class="emptycol">No sprints yet.</div>'; return; }
+    const dates = sp.flatMap(s => [s.from, s.to || s.from]).map(d => new Date(d));
+    const t0 = new Date(Math.min(...dates)); t0.setDate(t0.getDate() - 1);
+    const t1 = new Date(Math.max(...dates)); t1.setDate(t1.getDate() + 4);
+    const pct = d => ((new Date(d) - t0) / (t1 - t0) * 100);
+    let ticks = "", grid = "";
+    for (let d = new Date(t0); d <= t1; d.setDate(d.getDate() + 7)) {
+      const p = pct(d);
+      ticks += `<span class="tick" style="left:${p}%">${fmtDay(d)}</span>`;
+      grid += `<span class="grid" style="left:calc(18px + (100% - 36px) * ${p/100})"></span>`;
+    }
+    const rows = sp.map(r => {
+      const l = pct(r.from);
+      if (r.kind === "milestone") return `<div class="row"><div class="bar milestone" style="left:calc(${l}% - 6px)"><i></i>${esc(r.label)} <small class="muted">${fmtDay(r.from)}</small></div></div>`;
+      const w = Math.max(pct(r.to) - l, 1.5);
+      return `<div class="row"><div class="bar ${esc(r.kind)}" style="left:${l}%;width:${w}%" title="${esc(r.label)}: ${esc(r.from)} to ${esc(r.to)}">${esc(r.label)}${r.note ? ` <small>${esc(r.note)}</small>` : ""}</div></div>`;
+    }).join("");
+    const now = pct(new Date());
+    $("tl").innerHTML = `<div class="axis">${ticks}</div>${grid}${now >= 0 && now <= 100 ? `<span class="now" style="left:calc(18px + (100% - 36px) * ${now/100} - 1px)"></span>` : ""}<div class="rows">${rows}</div>`;
+  }
+
+  function board() {
+    const builds = [...new Set(S.items.filter(i => i.build != null).map(i => i.build))].sort((a,b) => a-b);
+    $("filters").innerHTML = [["all","All builds"], ...builds.map(b => [String(b), "Build " + b]), ["review","Needs review"]]
+      .map(([k,t]) => `<button class="fbtn" type="button" data-filter="${k}" aria-pressed="${filter === k}">${t}</button>`).join("");
+    const shown = S.items.filter(i => i.build != null && i.status !== "dropped" && (filter === "all" || (filter === "review" ? i.review : String(i.build) === filter)));
+    $("board").innerHTML = COLS.map(([name, ss]) => {
+      const xs = shown.filter(i => ss.includes(i.status)).sort((a,b) => (b.build - a.build) || ((a.order||0) - (b.order||0)));
+      return `<div class="col"><h3>${name}<span>${xs.length}</span></h3>${xs.map(card).join("") || '<div class="emptycol">Nothing here.</div>'}</div>`;
+    }).join("");
+  }
+  function card(i) {
+    const opts = STATUS.map(([k,t]) => `<option value="${k}"${k === i.status ? " selected" : ""}>${t}</option>`).join("");
+    return `<div class="card ${i.review ? "rev" : ""}"><div class="top"><span class="id">${esc(i.sid)}</span><span class="chip a-${esc(i.area)}">${esc(i.area)}</span><span class="chip b">Build ${esc(i.build)}</span>${i.hot ? '<span class="flag">tester problem</span>' : ""}</div>
+      <div class="t">${esc(i.title)}</div>${i.note ? `<div class="n">${esc(i.note)}</div>` : ""}${i.pr ? `<div class="n"><a href="https://github.com/Slimslim/ML.WorkoutApp/pull/${esc(i.pr)}" target="_blank" rel="noopener">PR #${esc(i.pr)}</a></div>` : ""}
+      <div class="ctl">${canWrite ? `<select aria-label="Status of ${esc(i.sid)}" data-status="${esc(i._id)}">${opts}</select><button type="button" class="revbtn" data-review="${esc(i._id)}" aria-pressed="${!!i.review}">${i.review ? "Needs review" : "Flag for review"}</button>` : pill(i.status) + (i.review ? ' <span class="flag">needs review</span>' : "")}</div>
+      ${i.updatedAt ? `<div class="by">${who(i.updatedBy)} · ${ago(i.updatedAt)}</div>` : ""}</div>`;
+  }
+
+  function checks() {
+    const groups = {};
+    S.checks.slice().sort((a,b) => (a.order||0) - (b.order||0)).forEach(c => (groups[c.group || "Other"] ||= []).push(c));
+    const keys = Object.keys(groups);
+    $("checks").innerHTML = keys.length ? keys.map(g => {
+      const cs = groups[g], d = cs.filter(c => c.done).length;
+      return `<div class="panel"><h3>${esc(g)}<span>${d}/${cs.length}</span></h3><div class="progress"><i style="width:${cs.length ? d/cs.length*100 : 0}%"></i></div>${cs.map(c =>
+        `<div class="check ${c.done ? "done" : ""}"><input type="checkbox" id="ck-${esc(c._id)}" data-check="${esc(c._id)}"${c.done ? " checked" : ""}${canWrite ? "" : " disabled"}><label for="ck-${esc(c._id)}"><span class="x">${esc(c.text)}</span>${c.done && c.at ? `<span class="by">Done by ${who(c.by)} · ${ago(c.at)}</span>` : ""}</label></div>`).join("")}</div>`;
+    }).join("") : '<div class="empty">No checklists yet.</div>';
+  }
+
+  function decisions() {
+    const ds = S.decisions.slice().sort((a,b) => ((a.status === "decided") - (b.status === "decided")) || ((a.order||0) - (b.order||0)));
+    $("decisions").innerHTML = ds.length ? ds.map(d => `<div class="dec ${d.status === "decided" ? "decided" : ""}"><b>${esc(d.title)}</b><span class="d">${esc(d.detail)}</span>
+      ${d.status === "decided" ? `<div class="ans">${esc(d.answer || "Decided")}<br><small>${who(d.by)} · ${ago(d.at)}</small></div>` :
+      (canWrite ? `<form data-decide="${esc(d._id)}"><input id="dec-${esc(d._id)}" aria-label="Answer" placeholder="Answer, e.g. yes, in build 16"><button class="btn" type="submit">Decide</button></form>` : '<span class="muted" style="font-size:13px">Open</span>')}</div>`).join("") : '<div class="empty">No decisions logged.</div>';
+  }
+
+  function log() {
+    $("log").innerHTML = S.standups.length ? S.standups.slice(0, 12).map(s => `<div class="entry"><div class="h"><span><b>${who(s.by)}</b></span><span>${s.at ? new Date(s.at).toLocaleString("en-GB",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}) : ""}</span></div>
+      <dl>${s.done ? `<dt>Done</dt><dd>${esc(s.done)}</dd>` : ""}${s.next ? `<dt>Next</dt><dd>${esc(s.next)}</dd>` : ""}${s.blocked ? `<dt>Blocked</dt><dd>${esc(s.blocked)}</dd>` : ""}</dl></div>`).join("")
+      : '<div class="empty">No stand-ups yet. Post the first one with the form.</div>';
+    $("su-hint").textContent = canWrite ? "" : "You can read the board; posting needs Contributor access or higher.";
+    $("su-post").disabled = !canWrite;
+  }
+
+  function backlog() {
+    const xs = S.items.filter(i => i.build == null && i.status !== "dropped").sort((a,b) => (a.order||0) - (b.order||0));
+    $("backlog").innerHTML = xs.length ? xs.map(i => `<div class="li"><span class="id">${esc(i.sid)}</span><span class="t">${esc(i.title)}${i.note ? `<div class="n">${esc(i.note)}</div>` : ""}</span>${pill(i.status)}</div>`).join("") : '<div class="li muted">Backlog is empty.</div>';
+  }
+
+  // ---- writes (one per user action) ----
+  const stamp = () => ({updatedAt: new Date().toISOString(), updatedBy: me});
+  async function write(fn, ok) {
+    try { await fn(); if (ok) toast(ok); }
+    catch (e) {
+      if (e && e.code === "invalid_argument") { canWrite = false; render(); note("This view can read the board but not change it."); }
+      else note("Could not save: " + ((e && e.message) || "try again"));
+    }
+  }
+  document.addEventListener("change", e => {
+    const t = e.target;
+    if (t.dataset.status && db) write(() => db.doc("items/" + t.dataset.status).update({status: t.value, ...stamp()}), "Status saved");
+    if (t.dataset.check && db) write(() => db.doc("checks/" + t.dataset.check).update(t.checked ? {done: true, by: me, at: new Date().toISOString()} : {done: false, by: null, at: null}), t.checked ? "Ticked" : "Unticked");
+  });
+  document.addEventListener("click", e => {
+    const f = e.target.closest("[data-filter]"); if (f) { filter = f.dataset.filter; board(); names(); return; }
+    const r = e.target.closest("[data-review]");
+    if (r && db) { const it = S.items.find(i => i._id === r.dataset.review); write(() => db.doc("items/" + r.dataset.review).update({review: !(it && it.review), ...stamp()}), it && it.review ? "Review cleared" : "Flagged for review"); }
+  });
+  document.addEventListener("submit", e => {
+    const f = e.target; e.preventDefault();
+    if (f.id === "suform") {
+      const v = id => $(id).value.trim();
+      if (!v("su-done") && !v("su-next") && !v("su-blocked")) { note("Write at least one line before posting."); return; }
+      if (!db) return;
+      write(async () => { await db.collection("standups").add({done: v("su-done"), next: v("su-next"), blocked: v("su-blocked"), by: me, at: new Date().toISOString()}); ["su-done","su-next","su-blocked"].forEach(id => $(id).value = ""); note(""); }, "Stand-up posted");
+    }
+    if (f.dataset.decide && db) {
+      const ans = f.querySelector("input").value.trim(); if (!ans) return;
+      write(() => db.doc("decisions/" + f.dataset.decide).update({status: "decided", answer: ans, by: me, at: new Date().toISOString()}), "Decision saved");
+    }
+  });
+
+  // ---- data ----
+  async function start() {
+    if (!window.claude || !window.claude.use) { $("loading").textContent = "Open this page on claude.ai to see the live board."; return; }
+    [db, user] = await Promise.all([claude.use("db"), claude.use("user")]);
+    if (!db) { $("loading").textContent = "The shared board is not available in this view. Sign in to claude.ai and open the link again."; return; }
+    if (user) { me = await user.id(); const c = await user.can("data.write"); if (c === false) canWrite = false; }
+    const timer = setTimeout(() => { if (!ready()) $("loading").textContent = "The board's data cannot be reached yet. It appears here as soon as the store answers."; }, 10000);
+    const sub = (name, q, map) => q.onSnapshot(snap => {
+      S[name] = map ? map(snap) : snap.docs.map(d => ({_id: d.id, ...d.data()}));
+      if (!snap.metadata.fromCache && ready()) clearTimeout(timer);
+      render();
+    }, err => { note("Live updates stopped (" + err.code + "). Reload the page to reconnect."); });
+    sub("items", db.collection("items"));
+    sub("checks", db.collection("checks"));
+    sub("sprints", db.collection("sprints"));
+    sub("decisions", db.collection("decisions"));
+    sub("standups", db.collection("standups").orderBy("at", "desc").limit(30));
+    db.doc("meta/plan").onSnapshot(d => { S.meta = d.exists ? d.data() : {}; render(); }, () => {});
+  }
+  start();
 })();
-
-// board: current sprints by status
-const COLS = [["To do",["proposed","story"]],["Design",["design"]],["Ready",["ready"]],["Building / in PR",["building","inpr"]],["In a build",["inbuild","tested"]]];
-const card = i => `<div class="card"><div class="top"><span class="id">${esc(i.id)}</span><span class="chip a-${i.area}">${esc(i.area)}</span><span class="chip a-All">Build ${i.build}</span>${i.hot ? '<span class="flag">tester problem</span>' : ""}</div><div class="t">${esc(i.t)}</div>${i.n ? `<div class="n">${esc(i.n)}</div>` : ""}${i.status === "tested" ? '<div class="n" style="color:var(--good);font-weight:600">Device-tested</div>' : ""}${i.status === "proposed" ? '<div class="n" style="font-style:italic">Proposed, not agreed</div>' : ""}</div>`;
-$("board").innerHTML = COLS.map(([name, ss]) => {
-  const xs = ITEMS.filter(i => i.build && ss.includes(i.status)).sort((a, b) => b.build - a.build);
-  return `<div class="col"><h3>${name}<span>${xs.length}</span></h3>${xs.map(card).join("") || '<div class="emptycol">Nothing here.</div>'}</div>`;
-}).join("");
-
-// sprints
-$("sprints").innerHTML = SPRINTS.map(s => {
-  const xs = s.fixed ? [] : ITEMS.filter(i => i.build === s.build);
-  const pr = s.pr ? ` · <a href="https://github.com/Slimslim/ML.WorkoutApp/pull/${s.pr}" target="_blank" rel="noopener">#${s.pr}</a>` : "";
-  return `<div class="sprint ${s.cur ? "cur" : ""}"><div><span class="eyebrow">${esc(s.dates)}${pr}</span></div><h3 style="font-size:22px">${esc(s.name)}</h3><p class="goal">${esc(s.goal)}</p>${xs.length ? `<ul class="list">${xs.map(i => `<li><span class="id">${esc(i.id)}</span><span class="t">${esc(i.t)}</span>${pill(i.status)}</li>`).join("")}</ul>` : ""}</div>`;
-}).join("");
-
-$("decisions").innerHTML = DECISIONS.map(d => `<div class="dec"><b>${esc(d.t)}</b><span>${esc(d.d)}</span></div>`).join("");
-$("foot").innerHTML = `Updated ${UPDATED} from <code>docs/RELEASES.md</code> on main. Source of this page: <code>docs/roadmap.html</code> in the repo (Slimslim/ML.WorkoutApp).`;
 </script>

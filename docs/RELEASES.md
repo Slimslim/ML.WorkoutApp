@@ -4,11 +4,26 @@ The one list of features by build. **Every chat reads this before starting a fea
 in the same PR** (status, build, PR link). Stories and "done when" live in `docs/USER_STORIES.md`;
 this file only says *when* and *where they are*. Owner decides what goes in a build.
 
-**Board (sprint view of this file):** https://claude.ai/artifact/R1im1djQEebDWBRsYDT1zk, built from
-`docs/roadmap.html`. When you change a row here, change the same item in that file's data block
-(`ITEMS`, `TIMELINE`, `DECISIONS`, `UPDATED`) in the same PR, and republish it to that URL (Artifact
-tool, publish with `url` and `file_path: docs/roadmap.html`; read it first). This file stays the source
-of truth; the board is its picture.
+**Live board:** https://claude.ai/artifact/R1im1djQEebDWBRsYDT1zk (page source `docs/roadmap.html`).
+It keeps the day-to-day state in its shared database: each feature's status and "needs review" flag,
+the device-test and release checklists (each tick records who and when), the owner's decisions and
+the stand-up log. Everyone the owner shares it with sees the same board live.
+
+- **This file is the plan** (what is in which build, the rules). **The board is the status.** When a
+  PR changes scope (adds, moves or drops a feature), update both in that PR.
+- **Chats update the board** with the artifact tools: `ArtifactData` on that URL, collections
+  `items` (doc per feature: `sid, title, area, build, status, note, review, pr, updatedAt`),
+  `checks` (`group, text, done, at`), `decisions` (`title, detail, status open|decided, answer`),
+  `standups` (`done, next, blocked, at`), `sprints` (timeline) and `meta/plan`. Read before writing
+  (pin `if_version`); never delete someone's stand-up or decision.
+- **When to write:** a status changes (story -> ready -> building -> in PR -> in build ->
+  device-tested); a PR opens or merges (set `pr`); something needs the owner's eyes (set
+  `review: true`, clear it once reviewed); end of a working session (one stand-up: done, next,
+  blocked).
+- **Stand-up:** the owner opens the board; the top panels show what needs review, open decisions,
+  what moved in the last 36 h and what is blocked.
+- Page changes: edit `docs/roadmap.html` in a PR and republish to the same URL (Artifact tool,
+  `url` + `file_path`, read it first). The data survives republishes.
 
 ## How to use it
 
