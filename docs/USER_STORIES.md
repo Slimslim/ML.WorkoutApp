@@ -346,7 +346,7 @@ As an athlete, I want the app to tell me before a workout if heart rate or motio
 I don't find out afterwards that nothing was measured.
 *Done when:* the phone's Workouts tab and the watch start screen show "Heart rate is off" /
 "Motion is off" with what it costs (no HR, recovery, distance, reps) and a button that opens the
-right Settings page; the banner goes away as soon as access is on. (Kevin, 2026-11-10: no HR or
+right Settings page; the banner goes away as soon as access is on. (a tester, 2026-11-10: no HR or
 steps recorded at all.)
 
 **W27. Timed work intervals: Tabata 20 / 10 (Now)**
@@ -366,7 +366,7 @@ recording to reach the cloud by itself, so nothing waits on me opening the app.
 *Done when:* after END on the watch, with the phone locked and the app not opened, the result and the
 recording are in the cloud within 15 minutes (phone on Wi-Fi or cellular), checked on 3 sessions
 including one of 60 minutes; nothing is lost when it takes longer (it goes on the next wake or the
-next app open, as today). (Kevin, 2026-11-11: Chad arrived 2.5 h after the end, only once the app was
+next app open, as today). (a tester, 2026-11-11: Chad arrived 2.5 h after the end, only once the app was
 opened; he does not look at results on the phone.)
 How (to check on a device, background behaviour cannot be tested in CI):
 - **Wake the phone app:** at END, while the watch app is still in front, the watch sends one message
@@ -380,7 +380,7 @@ How (to check on a device, background behaviour cannot be tested in CI):
   first unlock, not `.complete`).
 - **Late uploads:** an access token lasts 1 h; an upload that starts later gets 401. A background app
   refresh (`BGAppRefreshTask`) refreshes the token and re-queues what is left.
-- **Size:** the bucket takes 50 MB per file; Kevin's 58-min Chad was 42 MB uncompressed, so a
+- **Size:** the bucket takes 50 MB per file; a tester's 58-min Chad was 42 MB uncompressed, so a
   70-min session would be refused without the compressed uploads of #24. Build after #24.
 
 ### Recording follows the plan (spans Lifting and Workouts; after the MVP)

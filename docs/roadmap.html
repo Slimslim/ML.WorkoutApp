@@ -238,7 +238,8 @@ footer{font-size:13px;color:var(--ink2)}
         <div class="sechead"><h2>How we work</h2></div>
         <div class="how">
           <div><b>Story first</b><span>Every feature has an id in <code>docs/USER_STORIES.md</code>. New ids must be free on main and in open PRs.</span></div>
-          <div><b>Status moves forward</b><span>Proposed, Story, Design, Ready, Building, In PR, In build, Device-tested, With testers. Whoever moves it says so in the stand-up.</span></div>
+          <div><b>Status moves forward</b><span>In PR = CI green, reviewed, "not tested" list. In build = on TestFlight, built from main. Device-tested = the owner ticked the checklist (only the owner sets it).</span></div>
+          <div><b>Claim, then build</b><span>A card with a branch is claimed; no commits for 2 days frees it. One build in Building at a time; builds come from main and get a tag.</span></div>
           <div><b>Needs review</b><span>Flag a card when someone has to look before it moves on: a mockup, a PR, a test result. Clear it when reviewed.</span></div>
           <div><b>Done means device-tested</b><span>CI green, independent review, then the owner's checklist on a real watch and phone. A build freezes when its PR says so.</span></div>
         </div>
@@ -350,7 +351,7 @@ footer{font-size:13px;color:var(--ink2)}
   function card(i) {
     const opts = STATUS.map(([k,t]) => `<option value="${k}"${k === i.status ? " selected" : ""}>${t}</option>`).join("");
     return `<div class="card ${i.review ? "rev" : ""}"><div class="top"><span class="id">${esc(i.sid)}</span><span class="chip a-${esc(i.area)}">${esc(i.area)}</span><span class="chip b">Build ${esc(i.build)}</span>${i.hot ? '<span class="flag">tester problem</span>' : ""}</div>
-      <div class="t">${esc(i.title)}</div>${i.note ? `<div class="n">${esc(i.note)}</div>` : ""}${i.pr ? `<div class="n"><a href="https://github.com/Slimslim/ML.WorkoutApp/pull/${esc(i.pr)}" target="_blank" rel="noopener">PR #${esc(i.pr)}</a></div>` : ""}
+      <div class="t">${esc(i.title)}</div>${i.note ? `<div class="n">${esc(i.note)}</div>` : ""}${(i.pr || i.who) ? `<div class="n">${i.pr ? `<a href="https://github.com/Slimslim/ML.WorkoutApp/pull/${esc(i.pr)}" target="_blank" rel="noopener">PR #${esc(i.pr)}</a>` : ""}${i.who ? `${i.pr ? " · " : ""}<code>${esc(i.who)}</code>${i.claimed ? " since " + esc(fmtDay(i.claimed)) : ""}` : ""}</div>` : ""}
       <div class="ctl">${canWrite ? `<select aria-label="Status of ${esc(i.sid)}" data-status="${esc(i._id)}">${opts}</select><button type="button" class="revbtn" data-review="${esc(i._id)}" aria-pressed="${!!i.review}">${i.review ? "Needs review" : "Flag for review"}</button>` : pill(i.status) + (i.review ? ' <span class="flag">needs review</span>' : "")}</div>
       ${i.updatedAt ? `<div class="by">${who(i.updatedBy)} · ${ago(i.updatedAt)}</div>` : ""}</div>`;
   }
