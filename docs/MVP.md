@@ -6,7 +6,7 @@
 We collect recordings (training data) and feedback. No new features during the test except the one
 listed under "Build".
 
-Owner decisions (2026-11-10): strict press and bench press rep counting are in; the testers'
+Owner decisions (2026-11-10, revised 13 Nov: no rep counting on the watch yet): the testers'
 programs are entered by Claude from their screenshots; dates below are proposals.
 
 ## What testers get (exists today)
@@ -29,7 +29,7 @@ Automatic movement switching (offline experiment only), the start mark by double
 the program and the single start screen, recording that follows the plan (W21), Rx/Scaled on the
 phone (W19), round-by-round view (W18), run distance at the cap (W20), partner splits, supersets.
 
-## Build (1): strict press and bench press reps (owner to confirm: "no rep counting yet", 11 Nov)
+## Not in the MVP build: strict press and bench press reps (owner, 13 Nov: no rep counting on the watch yet)
 
 - `LiftType` gets `strictPress` and `benchPress`, both `countsReps` (shared file
   `BarPathKit/Sources/BarPathKit/Models.swift`: small separate commit, called out in the PR).
@@ -81,8 +81,8 @@ the tester guide keeps "open the phone app after the session".
 
 ## Dates
 
-In `docs/RELEASES.md` (the only place with dates and build scope). Build 16's scope is waiting on
-the owner: rep counting on the watch may move out of the MVP.
+In `docs/RELEASES.md` (the only place with dates and build scope). Build 16 is the tester build
+(stability, no rep counting); the design review and workout import are build 17.
 
 ## During the test
 

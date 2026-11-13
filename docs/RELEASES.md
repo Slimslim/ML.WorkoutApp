@@ -7,9 +7,6 @@ only its own rows, never another chat's; keep one row per line (fewer merge conf
 ## Now (read this at the stand-up)
 
 Waiting on the owner:
-- **Build 16 scope** (two versions exist, see "Build 16"): tester stability (W28, W23, W27, battery
-  line) or the design review + workout import brief (`docs/BUILD_16.md` on #24). And: rep counting
-  on the watch now, or not yet?
 - **Build 15 device test** (#24 test plan; only the crash test is done) -> then #24 out of draft.
 - W23 banner mockup: approved, or approve it separately from the practice workout (W22)?
 - Old PRs #6, #7, #15, #19: merge or close.
@@ -96,18 +93,11 @@ yet. It contains #19 (builds 7-14), so merging it brings `main` level with what 
 
 Exceptions after the freeze (owner OK): four device-test fixes; W26 kg / About you.
 
-## Build 16: scope to be confirmed by the owner
+## Build 16: tester stability (owner decided 13 Nov)
 
-Two versions were agreed with two different chats on 11-13 Nov:
-- **A. Tester stability** (this file until now): W28 uploads without opening the app, W23 banner,
-  W27 Tabata timing, battery line, press and bench reps at lockout.
-- **B. Design review + workout import** (`docs/BUILD_16.md` on #24): UI/UX review, tester feedback,
-  "add a workout from a photo or text" (server function, movement table, import log). The owner also
-  said on 11 Nov: no rep counting yet, record at a high rate for training data.
-
-Manager review's proposal (13 Nov): build 16 = A without rep counting; B becomes build 17 (so build 17
-is not "fixes only"). Press / bench lockout stays in Python and the labels, not on the watch, until
-the owner says otherwise.
+W28 uploads without opening the app, W23 banner, W27 Tabata timing, battery line. **No rep counting
+on the watch** (owner, 13 Nov: "not yet"): the press / bench lockout rule stays in Python and the
+labels. Owner of the build branch: the chat that claims W28 first, after #24 merges.
 
 Order once #24 is merged (one PR each, or one chat owns the build branch): W28 -> W27 -> W23 ->
 battery line. Dependencies:
@@ -125,10 +115,12 @@ battery line. Dependencies:
 Fallback: if W28 is not device-tested in time, the tester guide keeps "open the phone app after the
 session". Invites (proposed Fri 20 Nov) need #24 merged by about 14 Nov; otherwise the dates move.
 
-## Build 17+
+## Build 17: design review + workout import (owner decided 13 Nov)
 
-Depends on the build 16 decision: either the design review + import brief (B), or fixes only during
-the beta (crashes, lost recordings, wrong numbers). Library and program rows are data, not builds.
+The brief `docs/BUILD_16.md` on #24 (to be renamed for build 17): UI/UX design review with the
+testers' feedback, "add a workout from a photo or text" (server function, movement table, import
+log). Provisional labels R1-R2, I1-I6, M1 until the owner approves the brief. Email sign-up must be
+closed before the import ships. Builds 18+ during the beta: fixes only.
 
 ## Backlog (after the beta; owner picks at the review)
 
@@ -139,7 +131,7 @@ the beta (crashes, lost recordings, wrong numbers). Library and program rows are
 | AMRAP ending on a run scores the distance | W20 | story | |
 | Lift pieces in the program, recorded as lifts, one start screen | W21 | story | needs design |
 | Recording switches per part of the plan (rates, GPS, rest), one Fitness workout | W21 | story | after lift pieces; `docs/RECORDING_PLAN.md` |
-| Strict press and bench reps on the watch, counted at lockout | MVP | ready (Python) | owner: not yet |
+| Strict press and bench reps on the watch, counted at lockout | MVP | ready (Python) | owner, 13 Nov: not yet |
 | Automatic movement switching on the watch (phase 1) | - | experiment | switch-v1 must beat the Crown on held-out sessions first (`docs/LABELS.md`) |
 | Rep counting in metcons (GHD / sit-ups / press first) | - | experiment | training data in `data/labels/`; flagged reps checked on video |
 | Weight per set in EMOMs, transition vs work time | W4, W5 | story | |
