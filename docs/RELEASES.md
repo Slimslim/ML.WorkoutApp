@@ -59,6 +59,9 @@ The team process (stand-up, planning, review, retro, the Scrum Master chat): `do
   current build is merged.
 - **`main` is protected:** changes only through a PR with CI green (Python tests, BarPathKit tests +
   app builds); no force push, no deletion. Only the owner merges into `main`.
+- **Hotfix:** a crash in a build testers have goes on a short branch from that build's tag
+  (`claude/hotfix-16-<name>` from `build-16`), PR into `main` (review + CI), shipped as the next build
+  number; merge `main` into the open release branch afterwards.
 - **Builds come from `main` only.** The commit a TestFlight build is made from gets a git tag
   (`build-15`). (Builds 7-14 came from an unmerged branch; never again.)
 - **Release branch (owner, 13 Nov):** each build has one branch cut from `main` (`claude/release-16`;
