@@ -261,6 +261,8 @@ struct RaceBorderSliceView: View {
 /// Crown-turn arc: on the border line, on top of it (no dimming, no inset). Clockwise from
 /// 12 o'clock in volt to advance, anticlockwise in orange to undo. Disappears when the
 /// gesture resets (~1 s after the Crown stops). Full screen: give it `.ignoresSafeArea()`.
+/// It follows the race border's direction (clockwise = forward), not the Crown's side, so it
+/// stays the same with the Crown on the left (WKInterfaceDevice.crownOrientation).
 struct CrownArcView: View {
     let fraction: Double
     let isBackward: Bool
