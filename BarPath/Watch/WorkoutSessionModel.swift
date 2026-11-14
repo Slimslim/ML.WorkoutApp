@@ -155,6 +155,8 @@ final class WorkoutSessionModel: ObservableObject {
     private let locationRecorder = WorkoutLocationRecorder()
     private var workoutId = UUID()
     private var heartRates: [HeartRateSample] = []
+    /// W23: any heart-rate sample since START (also before the session reports running).
+    private var sawHeartRate = false
     private var pedometerSamples: [PedometerSnapshot] = []
     private var finalized = false
     private var startTimeoutTask: Task<Void, Never>?
@@ -378,6 +380,7 @@ final class WorkoutSessionModel: ObservableObject {
         workoutId = UUID()
         progress = WorkoutProgress(definition: definition)
         heartRates = []
+        sawHeartRate = false
         pedometerSamples = []
         latestPedometer = nil
         heartRate = nil
@@ -872,6 +875,11 @@ final class WorkoutSessionModel: ObservableObject {
 
     private func heartRateReceived(_ bpm: Double) {
         if isDemo { return }
+        // W23: any sample means heart-rate access is on (clears the start screen banner).
+        if !sawHeartRate {
+            sawHeartRate = true
+            UserDefaults.standard.set(true, forKey: SensorAccess.receivedHeartRateKey)
+        }
         heartRate = bpm
         guard phase == .running, !finalized else { return }
         let t = Date().timeIntervalSince1970
@@ -1308,6 +1316,11 @@ final class WorkoutSessionModel: ObservableObject {
                                 recordedCSV: recordedCSV, endT: endT)
         lastResultInput = input
         let result: WorkoutResult = WorkoutSessionModel.makeResult(input, recordingEndT: endT)
+        // W23: a workout of 2 min or more with no heart rate turns the start screen banner on.
+        if let received = SensorAccess.receivedHeartRate(sampleCount: sawHeartRate ? max(1, hr.count) : hr.count,
+                                                         sessionSeconds: result.totalSeconds) {
+            UserDefaults.standard.set(received, forKey: SensorAccess.receivedHeartRateKey)
+        }
 
         let summary = "\(result.definition.shortName) · \(SessionModel.formatElapsed(result.totalSeconds))"
         lastSummary = summary
