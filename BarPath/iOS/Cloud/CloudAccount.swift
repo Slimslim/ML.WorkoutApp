@@ -286,6 +286,9 @@ final class CloudAccount: ObservableObject {
                                     bytes: bytes,
                                     modified: file.modified,
                                     stagedFile: stagedName)
+                if await uploadNowIfBackground(job, file: uploadURL, contentType: contentType, token: token) {
+                    continue
+                }
                 BackgroundUploads.shared.enqueue(job, file: uploadURL,
                                                  contentType: contentType, accessToken: token)
             }
@@ -303,7 +306,7 @@ final class CloudAccount: ObservableObject {
         guard let client else { return }
         // Launched in the background: the auth listener may not have restored the session yet.
         var waited: Int = 0
-        while isRestoring && waited < 100 {
+        while isRestoring && waited < 100 && !Task.isCancelled {
             try? await Task.sleep(nanoseconds: 100_000_000)
             waited += 1
         }
@@ -316,11 +319,34 @@ final class CloudAccount: ObservableObject {
         await sync()
         // A sync already running took this request over (`syncAgain`): wait for it to finish.
         waited = 0
-        while isQueueing && waited < 600 {
+        while isQueueing && waited < 600 && !Task.isCancelled {
             try? await Task.sleep(nanoseconds: 100_000_000)
             waited += 1
         }
         BackgroundSync.schedule(waiting: pendingCount)
+    }
+
+    /// Largest file sent directly during a background wake; bigger ones go to the background session.
+    private static let directUploadMaxBytes: Int = 20_000_000
+
+    /// In the background, iOS starts background-session uploads at its own discretion (it may wait
+    /// for Wi-Fi and power). So while the app is awake in the background (watch wake, refresh),
+    /// files are sent right away with a normal request, while time remains. Returns true when the
+    /// upload ended (uploaded or refused for good); false to hand the file to the background session.
+    private func uploadNowIfBackground(_ job: UploadJob, file: URL, contentType: String, token: String) async -> Bool {
+        let app = UIApplication.shared
+        guard app.applicationState == .background,
+              job.bytes <= CloudAccount.directUploadMaxBytes,
+              app.backgroundTimeRemaining > 12,
+              !Task.isCancelled else { return false }
+        let result: (UploadOutcome, String?) = await BackgroundUploads.uploadDirect(
+            job, file: file, contentType: contentType, accessToken: token, timeout: 10)
+        if result.0 == .retryLater {
+            // Timed out or no network: the background session keeps trying (staged copy kept).
+            return false
+        }
+        await uploadFinished(job, outcome: result.0, failure: result.1)
+        return true
     }
 
     /// Pull to refresh in the Log: one sync now (downloads corrections, queues uploads).
@@ -446,7 +472,9 @@ final class CloudAccount: ObservableObject {
             lastError = "Upload failed for \(job.path): \(failure ?? "sign-in refused")"
             // The token expired while the upload waited: queue it again now with a fresh one
             // (a few times per file version), else at the next background refresh.
-            if job.userId == userId && authRetries.take(retryKey) {
+            // `userId` is still nil when iOS relaunched the app for these events and the saved
+            // sign-in is not restored yet; `syncAndWait` waits for it and checks the user.
+            if (userId == nil || job.userId == userId) && authRetries.take(retryKey) {
                 BackgroundSync.run("token refresh")
             } else {
                 BackgroundSync.schedule(waiting: 1)

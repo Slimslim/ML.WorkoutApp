@@ -6,7 +6,8 @@ public enum UploadOutcome: Equatable {
     case uploaded
     /// The server can never take this file version (over the bucket's size limit): stop trying.
     case tooLarge
-    /// The access token was refused (expired or invalid): get a fresh token and queue it again now.
+    /// The access token was refused (HTTP 401, or a 400/403 whose message is about the JWT or
+    /// token): get a fresh token and queue it again now.
     case authRejected
     /// Anything else (network, server error): try again at the next sync or background refresh.
     case retryLater
@@ -20,11 +21,12 @@ public enum UploadOutcome: Equatable {
         if failed { return .retryLater }
         if (200..<300).contains(status) { return .uploaded }
         if isTooLarge(status: status, body: body) { return .tooLarge }
-        if status == 401 || status == 403 { return .authRejected }
-        if status == 400 {
+        if status == 401 { return .authRejected }
+        if status == 400 || status == 403 {
+            // Only a token problem: a row-level-security refusal also says "403" / "Unauthorized"
+            // but a fresh token would not help.
             let text: String = (String(data: body, encoding: .utf8) ?? "").lowercased()
-            if text.contains("jwt") || text.contains("unauthorized") || text.contains("invalid token")
-                || text.contains("\"403\"") || text.contains("\"401\"") {
+            if text.contains("jwt") || text.contains("token") {
                 return .authRejected
             }
         }

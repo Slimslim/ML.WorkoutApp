@@ -116,19 +116,45 @@ final class BackgroundUploads: NSObject, URLSessionDataDelegate {
     }
 
     func enqueue(_ job: UploadJob, file: URL, contentType: String, accessToken: String) {
+        guard let request = Self.makeRequest(job, contentType: contentType, accessToken: accessToken),
+              let description = try? String(data: JSONEncoder().encode(job), encoding: .utf8) else { return }
+        let task = session.uploadTask(with: request, fromFile: file)
+        task.taskDescription = description
+        task.resume()
+    }
+
+    /// Sends one file now with a normal request (not the background session), for a background
+    /// wake where the background session would wait (W28). The caller records the outcome.
+    static func uploadDirect(_ job: UploadJob, file: URL, contentType: String, accessToken: String,
+                             timeout: TimeInterval) async -> (UploadOutcome, String?) {
+        guard let request = makeRequest(job, contentType: contentType, accessToken: accessToken) else {
+            return (.retryLater, "bad upload address")
+        }
+        var timed: URLRequest = request
+        timed.timeoutInterval = timeout
+        do {
+            let (body, response) = try await URLSession.shared.upload(for: timed, fromFile: file)
+            let status: Int = (response as? HTTPURLResponse)?.statusCode ?? 0
+            let outcome: UploadOutcome = UploadOutcome.classify(status: status, body: body.prefix(2048), failed: false)
+            return (outcome, outcome == .uploaded ? nil : "HTTP \(status)")
+        } catch {
+            return (.retryLater, error.localizedDescription)
+        }
+    }
+
+    private static func makeRequest(_ job: UploadJob, contentType: String, accessToken: String) -> URLRequest? {
         let encoded = job.objectPath
             .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? job.objectPath
-        guard let url = URL(string: "\(CloudConfig.url)/storage/v1/object/\(CloudConfig.bucket)/\(encoded)"),
-              let description = try? String(data: JSONEncoder().encode(job), encoding: .utf8) else { return }
+        guard let url = URL(string: "\(CloudConfig.url)/storage/v1/object/\(CloudConfig.bucket)/\(encoded)") else {
+            return nil
+        }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue(CloudConfig.anonKey, forHTTPHeaderField: "apikey")
         request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         request.setValue(contentType, forHTTPHeaderField: "Content-Type")
         request.setValue("true", forHTTPHeaderField: "x-upsert")
-        let task = session.uploadTask(with: request, fromFile: file)
-        task.taskDescription = description
-        task.resume()
+        return request
     }
 
     func cancelAll() async {

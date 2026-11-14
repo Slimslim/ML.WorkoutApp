@@ -25,9 +25,15 @@ final class UploadRetryTests: XCTestCase {
 
     func testExpiredTokenIsAuthRejected() {
         XCTAssertEqual(UploadOutcome.classify(status: 401, body: Data(), failed: false), .authRejected)
-        XCTAssertEqual(UploadOutcome.classify(status: 403, body: Data(), failed: false), .authRejected)
         let jwt = #"{"statusCode":"403","error":"Unauthorized","message":"jwt expired"}"#
         XCTAssertEqual(UploadOutcome.classify(status: 400, body: body(jwt), failed: false), .authRejected)
+    }
+
+    func testRowLevelSecurityRefusalIsNotAnAuthRetry() {
+        let rls = #"{"statusCode":"403","error":"Unauthorized","message":"new row violates row-level security policy"}"#
+        XCTAssertEqual(UploadOutcome.classify(status: 400, body: body(rls), failed: false), .retryLater)
+        XCTAssertEqual(UploadOutcome.classify(status: 403, body: body(rls), failed: false), .retryLater)
+        XCTAssertEqual(UploadOutcome.classify(status: 403, body: Data(), failed: false), .retryLater)
     }
 
     func testOtherErrorsAreRetriedLater() {
