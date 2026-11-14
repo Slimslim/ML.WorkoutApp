@@ -124,6 +124,8 @@ structure compiles to.
   rounds are only ever added at the end);
 - an outer `repeat`'s `vary` may name a part inside an inner `repeat`; the value then holds for every
   inner round of that outer round (a ladder across sets: 3 × 12, rest, 3 × 10, rest, 3 × 8);
+- `vary` may also name an inner `repeat`, giving its `times` per round ("round 1: complex × 1,
+  round 2: × 2, ..."); `override` `set` may change `times` too;
 - `listRounds` (how many rounds the flat list holds) is filled in by the compiler, not by the author.
 
 ### 3.3 Schema sketch
@@ -318,6 +320,35 @@ It took 62 pieces covering every family and every odd case, and checked them wit
 - In this program, strength sets are 32 % of pieces and untimed "for quality" rounds 21 %; Tabata is
   under 1 % and death-by never appears. Both run on the same blocks with no clock.
 
+### 3.6 Several scales, one workout
+
+Owner requirement (14 Nov): the same workout at different scales is **one card with the scales**,
+not 2-3 workouts in the day. A second real corpus checked it: a class gym where the owner's testers
+train (19 months, 1,723 entries; the gym's text stays in the owner's private storage). It has up to
+4 scales a day (Rx, a harder competitor scale, Level 2, sometimes Level 1). Of 376 Rx/Level-2 pairs,
+267 change only numbers, but 108 change movements (chest-to-bar → pull-ups), the round count or the
+distance. So a scale is a whole alternative structure, not a load patch:
+
+```jsonc
+"scales": [
+  { "id": "rx", "label": "Rx",      "structure": { ... } },
+  { "id": "l2", "label": "Level 2", "structure": { ... } }
+]
+```
+
+- One workout id; `structure` alone = one scale. The largest pair seen is about 6 KB, well inside 16 KB.
+- The athlete picks the scale at START (default: the last one used at that gym); the result stores
+  the scale id. This is the storage for "Rx / scaled" in section 5.
+- The card shows the scale chips and only the parts that differ. Card design goes to the Workouts and
+  Navigation chats, mockups to the owner first.
+- All 34 structures encoded from 17 recent class workouts (every scale) pass the rules: E3MOM at % of
+  1RM, 1:00 windows with buy-in then max calories, a growing chipper, "4 rounds each for time,
+  start every 7:00", 21-15-9 with cap, AMRAP +2 ladder, buy-in + AMRAP cycles that restart, fixed-start
+  segments, partner chipper with synchronized burpees.
+- Import rules from this corpus: a class piece split into several entries ("0:00-24:00" and
+  "on the 26:00", times scales) is merged into one workout; in a partner workout, parts with no `who`
+  default to "each does all", and the import asks.
+
 ## 4. The timeline engine
 
 ### 4.1 Shape
@@ -401,7 +432,7 @@ re-guessed to say where you were.
 
 Per step the result records: round, window, start, end, ended by (athlete / clock / cap / end of
 workout), target, reps done (for cut and `max` steps), load used. Per workout: Rx / scaled /
-substitution (on the same workout id; a scaled version is not a new library row).
+substitution (on the same workout id; a scaled version is not a new library row, see 3.6).
 
 Score types: `time`, `roundsReps`, `totalReps`, `lowestReps`, `load`, `perPiece` (metric time,
 distance or reps; show sum, avg, best or slowest), `distance`, `calories`, `none`. Options:
@@ -777,7 +808,7 @@ relays of 3-4 athletes.
 
 | # | Decision | Recommendation |
 |---|---|---|
-| D1 | Adopt this structure (5 blocks + declared score) as the one format for the library, the import and results. | **Yes.** |
+| D1 | Adopt this structure (5 blocks + declared score, several scales per workout as in 3.6) as the one format for the library, the import and results. | **Yes.** |
 | D2 | Crown in clocked workouts (4.2.7): forward = "I finished this part" (on a `max` part: "I stopped"); ignored in a clocked rest; never moves a clock; undo never crosses a bell; 3 s grace after a bell; 4 s lockout inside windows. | **Yes.** Answers the open question in #31. |
 | D3 | Reps when the clock ends a part: asked on the done screen and the phone in build 16, also in rests ≥ 20 s from build 17; untouched = empty, never 0; never blocks the clock. | **Yes.** |
 | D4 | Build 16 with the small engine slice (freeze 27 Nov, go/no-go 30 Nov, ships switched off if not ready), or build 16 now without W27 and the engine in build 17. | **The small slice in build 16.** Hyrox is untouched either way. |
@@ -900,6 +931,8 @@ cannot (about 1 % of the program: `resume` later, two kept as notes). What chang
   (scheduled interruptions, which the owner wants).
 - Kept as a `note`: penalties on breaking, until rep counting can detect breaks.
 - 27 synthetic fixtures (benchmarks + invented look-alikes) approved by the owner for the engine PR.
+- A second corpus (a class gym, 1,723 entries) passed in full (34 structures) and brought the owner's
+  "one card, several scales" requirement: `scales` (3.6), `vary` on an inner repeat's count.
 - Days are multi-part: the build-17 import splits a day into pieces.
 
 ## Appendix B: today's special cases
