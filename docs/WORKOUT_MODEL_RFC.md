@@ -140,7 +140,7 @@ structure compiles to.
               "target": { "value": 15, "valueF": 12, "unit": "calories" }   // M/F standard, picked at START
                       | { "max": true, "unit": "reps" } | { "value": 45, "unit": "seconds" },
               "load": { "value": 95, "valueF": 65, "unit": "lb", "count": 1 }
-                    | { "percent": 83, "of": "snatch" },                    // % of the athlete's 1RM
+                    | { "percent": 83 },                                    // % of 1RM of this movement ("of" to name another lift)
               "height": { "value": 24, "valueF": 20, "unit": "in" },        // box, target
               "who": "me" | "partner" | "together" | "shared",
               "note": "free text the engine does not run" } }               // "note" is allowed on any node
@@ -295,6 +295,9 @@ It took 62 pieces covering every family and every odd case, and checked them wit
   - a lift on a fixed schedule interrupting a piece for time ("every 3:00, 10 bench") → out of
     scope, kept as a `note`;
   - a penalty on breaking ("every break, run 200 m") → out of scope, kept as a `note`.
+- **Re-run on the revised draft:** 56 clean, 2 awkward, 4 cannot (about 1 % of the program). The
+  last two awkward cases are fixed above (`show: sum` for timed segments scored by total time; mixed
+  metrics split by the import). The 4 left are the `resume` and `note` cases listed above.
 - **Days are multi-part** (median 5 pieces: warm-up, strength, accessory, metcon, cash-out). The
   engine runs one piece at a time; the build-17 import must split a day into pieces.
 - In this program, strength sets are 32 % of pieces and untimed "for quality" rounds 21 %; Tabata is
@@ -386,13 +389,14 @@ workout), target, reps done (for cut and `max` steps), load used. Per workout: R
 substitution (on the same workout id; a scaled version is not a new library row).
 
 Score types: `time`, `roundsReps`, `totalReps`, `lowestReps`, `load`, `perPiece` (metric time,
-distance or reps; show avg, best or slowest), `distance`, `calories`, `none`. Options:
+distance or reps; show sum, avg, best or slowest), `distance`, `calories`, `none`. Options:
 - `show`: a second line (Tabata's lowest round).
 - `includeRest`: whether rests inside a for-time clock count in the time (default yes: it is the clock time).
 - `atCap` / `atCut`: the score when a bell stops the work before it is done (`totalReps`, ranked below
   every finisher). `atCut` covers a buy-in window not finished before the bell.
 - `combine`: `sum` or `perPiece` when one entry has several scored pieces (two AMRAPs, AMRAP cycles
-  that restart). A sum of rounds + reps is the sum of total reps.
+  that restart). A sum of rounds + reps is the sum of total reps. An entry whose pieces are scored in different
+  metrics (run time + max reps + row time) is split by the import into separate workouts.
 
 Men's/women's standards, % loads and the machine choice are resolved at START and stored in the result.
 
@@ -863,11 +867,13 @@ designer) from the Scrum Master were used as extra input; they agreed on the roo
 ### Test on a real program (after the critique round)
 
 A separate session encoded 62 pieces of a real 17-week program (section 3.5): 33 clean, 24 awkward,
-5 could not be written. What changed:
+5 could not be written; after the changes below, a re-run gave 56 clean, 2 awkward (then fixed), 4
+cannot (about 1 % of the program: `resume` later, two kept as notes). What changed:
 - Added to the schema: men's/women's standards (`valueF`), `seconds` targets, load on a group,
   % of 1RM, heights and ft/in, machine choice, `note` on any node, `"until": "athlete"` for "build to
   a max", `vary` across nested repeats, rest ratio measured over the round.
-- Added to scoring: `perPiece` (time, distance or reps), `includeRest`, `atCut`, `combine`.
+- Added to scoring: `perPiece` (time, distance or reps; sum, avg, best, slowest), `includeRest`,
+  `atCut`, `combine`; mixed-metric entries are split by the import.
 - Planned, not now: `repeat.resume` (AMRAP cycles that continue across rests).
 - Out of scope, kept as a `note`: a lift on a fixed schedule interrupting a piece for time, penalties.
 - Days are multi-part: the build-17 import splits a day into pieces.
