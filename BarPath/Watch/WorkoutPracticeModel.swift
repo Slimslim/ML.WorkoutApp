@@ -4,6 +4,7 @@ import HealthKit
 import CoreMotion
 import CoreLocation
 import WatchKit
+import BarPathKit
 
 /// The W22 practice workout: asks for Health, Motion and Location with the reason, then walks the tester
 /// through two "parts" with the Digital Crown. It leaves no trace: it saves no result, writes no
@@ -35,9 +36,9 @@ final class WorkoutPracticeModel: ObservableObject {
 
     /// Set when "Got it" is tapped; the practice opens by itself at launch until then.
     static let finishedKey: String = "practiceWorkout.finished.v1"
-    /// Whether the last practice (later also workout) session received any heart rate. The
-    /// banner task (W23) reads it.
-    static let receivedHeartRateKey: String = "lastSessionReceivedHeartRate.v1"
+    // W23: the practice writes `SensorAccess.receivedHeartRateKey` with the same rule as a
+    // workout: true at the first sample, false only when a session of 2 min or more got none.
+    // A shorter practice (the usual case) leaves the previous answer.
 
     /// No heart-rate sample this long after the session is running: heart rate is off.
     static let heartRateCheckSeconds: Double = 20.0
@@ -81,6 +82,8 @@ final class WorkoutPracticeModel: ObservableObject {
     private var heartRateTask: Task<Void, Never>?
     private var hintTask: Task<Void, Never>?
     private var safetyTask: Task<Void, Never>?
+    /// When the HealthKit session was started (W23: how long it ran without heart rate).
+    private var sessionStartedAt: Date?
 
     var isSessionStage: Bool {
         return stage == .part1 || stage == .part2
@@ -123,6 +126,7 @@ final class WorkoutPracticeModel: ObservableObject {
         motionOff = false
         heartRateNoticeShown = false
         hintShown = false
+        sessionStartedAt = nil
     }
 
     // MARK: - Permissions
@@ -249,6 +253,7 @@ final class WorkoutPracticeModel: ObservableObject {
             self?.sessionFailed(message, generation: gen)
         }
         manager.onFinished = nil
+        sessionStartedAt = Date()
         manager.start()
         scheduleHeartRateCheck(after: WorkoutPracticeModel.sessionStartGraceSeconds, generation: gen)
         safetyTask?.cancel()
@@ -276,7 +281,7 @@ final class WorkoutPracticeModel: ObservableObject {
         }
         heartRateTask?.cancel()
         heartRateTask = nil
-        UserDefaults.standard.set(true, forKey: WorkoutPracticeModel.receivedHeartRateKey)
+        UserDefaults.standard.set(true, forKey: SensorAccess.receivedHeartRateKey)
     }
 
     private func sessionFailed(_ message: String, generation gen: Int) {
@@ -300,7 +305,6 @@ final class WorkoutPracticeModel: ObservableObject {
     private func heartRateMissing() {
         guard heartRate == nil else { return }
         heartRateOff = true
-        UserDefaults.standard.set(false, forKey: WorkoutPracticeModel.receivedHeartRateKey)
         showHeartRateNoticeIfDue()
     }
 
@@ -318,6 +322,13 @@ final class WorkoutPracticeModel: ObservableObject {
 
     /// Ends the HealthKit session and discards the workout. Never saves.
     private func endSession() {
+        if let started = sessionStartedAt {
+            sessionStartedAt = nil
+            let seconds: Double = Date().timeIntervalSince(started)
+            if let received = SensorAccess.receivedHeartRate(sampleCount: heartRate == nil ? 0 : 1, sessionSeconds: seconds) {
+                UserDefaults.standard.set(received, forKey: SensorAccess.receivedHeartRateKey)
+            }
+        }
         heartRateTask?.cancel()
         heartRateTask = nil
         safetyTask?.cancel()

@@ -94,6 +94,9 @@ struct WorkoutStartView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
                 }
+            } else if sensorBanner != nil {
+                // W23: the banner takes this line's place so 41 mm still fits without scrolling.
+                EmptyView()
             } else if let summary = model.lastSummary {
                 Text("Last: " + summary + " · " + transferText)
                     .font(.caption2)

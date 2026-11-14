@@ -29,7 +29,8 @@ final class SensorAccessTests: XCTestCase {
         XCTAssertNil(SensorAccess.receivedHeartRate(sampleCount: 0, sessionSeconds: 119.9))
     }
 
-    func testKeyMatchesPractice() {
+    /// The one constant both the practice and the workout write; stored on watches, so it must not change.
+    func testKeyIsStable() {
         XCTAssertEqual(SensorAccess.receivedHeartRateKey, "lastSessionReceivedHeartRate.v1")
     }
 

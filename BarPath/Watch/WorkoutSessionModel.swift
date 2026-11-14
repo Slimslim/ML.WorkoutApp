@@ -1387,6 +1387,12 @@ final class WorkoutSessionModel: ObservableObject {
                                 partialReps: recovered.isFinished ? checkpoint.partialReps : nil,
                                 recordedCSV: checkpoint.recordedCSV, endT: endT)
         let result: WorkoutResult = WorkoutSessionModel.makeResult(input, recordingEndT: endT)
+        // W23: same rule as a normal end, so the watch flag agrees with the phone, which reads
+        // this recovered result.
+        if let received = SensorAccess.receivedHeartRate(sampleCount: checkpoint.heartRates.count,
+                                                         sessionSeconds: result.totalSeconds) {
+            UserDefaults.standard.set(received, forKey: SensorAccess.receivedHeartRateKey)
+        }
         if writeAndSend(result, fileName: fileName) {
             let summary = "\(result.definition.shortName) · \(SessionModel.formatElapsed(result.totalSeconds)) · saved after interruption"
             lastSummary = summary

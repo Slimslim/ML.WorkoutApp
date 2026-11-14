@@ -5,7 +5,8 @@ import Foundation
 /// iOS never tells an app whether reading heart rate was refused, so heart rate follows what the
 /// last session saw: any heart-rate sample means access is on; a session of at least
 /// `minimumSessionSeconds` with none means it is off; a shorter session says nothing (the previous
-/// answer stands). Motion's authorization status is readable, so the caller passes it in.
+/// answer stands). The watch practice and workouts and the phone (from received results) all use
+/// this rule. Motion's authorization status is readable, so the caller passes it in.
 public enum SensorBanner: Equatable {
     case heartRate
     case motion
