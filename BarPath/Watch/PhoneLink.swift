@@ -142,6 +142,8 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         session.transferFile(file.url, metadata: file.metadata)
         Log.link.info("transferFile \(file.url.lastPathComponent, privacy: .public)")
         refreshPendingCount()
+        // Wake the phone app now too: an activated session on the phone receives the transfer
+        // as soon as it lands, instead of waiting for the next launch.
         wakePhone()
     }
 

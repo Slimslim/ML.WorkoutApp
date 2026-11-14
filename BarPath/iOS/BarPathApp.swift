@@ -67,7 +67,7 @@ struct BarPathApp: App {
                         cloud.syncSoon()
                     } else if phase == .background {
                         // Files still waiting: ask iOS to wake the app later to finish (W28).
-                        BackgroundSync.schedule(waiting: cloud.pendingCount)
+                        BackgroundSync.schedule(waiting: max(cloud.pendingCount, cloud.isSyncing ? 1 : 0))
                     }
                 }
         }
