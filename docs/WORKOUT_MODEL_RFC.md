@@ -367,6 +367,17 @@ distance. So a scale is a whole alternative structure, not a load patch:
   as a personal row linked to the workout id, never written into the gym's row. The result stores the
   full structure that ran, so a custom result is always readable and compared only with the same
   scale.
+- **Editing "Mine"** (owner, 14 Nov): reorder movements within a round, change a number, nudge the
+  whole scale easier or harder in one step, and **swap a movement** (can't run → row or bike). A swap
+  proposes the equivalent amount from a **movement-equivalence table** (e.g. a run distance → row metres,
+  bike metres or calories) and records it on the part: `"swappedFrom": {"movement": "run", "value": 400,
+  "unit": "meters"}`, so the result shows what was replaced. The table lives on the server next to the
+  build-17 movement table, so it can be corrected without an app update. Its source is an owner
+  decision: public conversion charts exist, but a brand's table should not be copied into this public
+  repo without checking its terms.
+- **Recommended scale (later, once there is data):** from the athlete's past results on similar
+  workouts, the card can suggest a scale ("Suggested: Rx, you finished Level 2 with time to spare the
+  last 4 times") or warn ("Rx may cap you at about 15:40"). It never changes the scale by itself.
 - All 34 structures encoded from 17 recent class workouts (every scale) pass the rules: E3MOM at % of
   1RM, 1:00 windows with buy-in then max calories, a growing chipper, "4 rounds each for time,
   start every 7:00", 21-15-9 with cap, AMRAP +2 ladder, buy-in + AMRAP cycles that restart, fixed-start
