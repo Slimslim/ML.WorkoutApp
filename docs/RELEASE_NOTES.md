@@ -9,7 +9,18 @@ Newest first. Paste the latest entry into "What to Test" for the build in App St
 - Turning the Crown just as a rest ends no longer skips a part.
 - Lifting no longer gets stuck on "Ending…".
 - Deleting your account removes every uploaded file.
+- A one-minute practice workout on the watch: it asks for Health, Motion and Location before
+  anything starts and teaches the Crown turn.
+- Max heart rate starts from your age and follows your workouts; you can set your own in Settings.
+- Workouts with a run use GPS; your route is saved in Apple Health.
+- Workouts with a barbell, dumbbell or kettlebell movement record motion at a higher rate.
 - Weights in kg or lb, and your height and body details in Settings.
+
+Known issues:
+- Tabata and other timed work parts do not end by themselves yet: turn the Crown.
+- Apple Fitness shows no map for a workout that mixes a run with other movements. The route is in
+  Apple Health.
+- The app's run distance still comes from steps, not GPS.
 
 ## Build 14
 
