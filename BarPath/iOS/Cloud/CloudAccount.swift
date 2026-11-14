@@ -492,10 +492,13 @@ final class CloudAccount: ObservableObject {
             // (a few times per file version), else at the next background refresh.
             // `userId` is still nil when iOS relaunched the app for these events and the saved
             // sign-in is not restored yet; `syncAndWait` waits for it and checks the user.
+            var failures: UploadFailureLog = CloudAccount.loadFailures()
+            failures.recordFailure(retryKey)
+            CloudAccount.saveFailures(failures)
             if (userId == nil || job.userId == userId) && authRetries.take(retryKey) {
                 forceTokenRefresh = true
                 BackgroundSync.run("token refresh")
-            } else {
+            } else if failures.keepsRefreshing(retryKey) {
                 BackgroundSync.schedule(waiting: 1)
             }
         case .retryLater:

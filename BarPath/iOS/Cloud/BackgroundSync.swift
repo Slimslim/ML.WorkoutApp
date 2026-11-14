@@ -34,8 +34,9 @@ enum BackgroundSync {
                 await waitForFiles(awaitingFiles, arrivedBefore: arrivedBefore)
             }
             await CloudAccount.shared.syncAndWait()
-            if inBackground && FileArrivals.count - arrivedBefore < awaitingFiles {
-                // Files still on their way: ask for a refresh to pick them up.
+            if inBackground && awaitingFiles > 0 {
+                // More files may still be on their way (the watch's count can be short, and a
+                // file landing while suspended waits for the next wake): ask for a refresh.
                 schedule(waiting: 1)
             }
             activity.end()
