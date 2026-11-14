@@ -281,6 +281,25 @@ A hard cap ("CAP + reps", the workout stops) is the same with `"late": "end"`.
 `{"score":{"type":"perPiece","metric":"time","show":"avg"}, "body":[{"repeat":{"times":5,"body":[{"part":{"movement":"row","target":{"value":250,"unit":"meters"}}},{"rest":{"seconds":60}}]}}]}`.
 The rest follows a part you end, so it starts when you finish (rule 4.2.2).
 
+**Rest as long as the round took** (owner's example, 14 Nov: 3 rounds of ski, step-overs and
+alternating DB snatches; after each round, rest exactly as long as that round took; no rest after
+the last round):
+```json
+{"score":{"type":"time","show":"perRound"},"body":[
+ {"repeat":{"times":3,"body":[
+   {"group":{"id":"round","label":"round","body":[
+     {"part":{"movement":"skiErg","target":{"value":15,"unit":"calories"}}},
+     {"part":{"movement":"stepOvers","target":{"value":12,"unit":"reps"}}},
+     {"part":{"movement":"alternatingDumbbellSnatch","target":{"value":16,"unit":"reps"}}}]}},
+   {"rest":{"id":"r","ratio":1}}],
+  "override":[{"rounds":["last"],"id":"r","omit":true}]}}]}
+```
+What the watch does: round 1 runs as today (you end each part with the Crown). The Crown turn that
+ends the snatches ends the round, say at 2:35. The rest is now a clocked rest of exactly 2:35: the big
+number counts **down** from 2:35 with `LEFT`, the Crown is ignored, 3-2-1 and GO at 0:00, and round 2
+starts by itself. If round 2 takes 3:00, the next rest is 3:00. After round 3 the workout is done. The
+round time is measured from the round's first part to the Crown turn that ends its last part.
+
 ### 3.5 Tested on a real program
 
 A separate session encoded a real competition program the owner follows (17 weeks, 4 tracks,
@@ -719,6 +738,7 @@ with the case count, so a missing case fails instead of skipping (today a missin
 | AMRAP with buy-in and cash-out | buy-in reps in the total; cash-out runs after the AMRAP |
 | For time, cap, partial | cap announced, position stored, `CAP + reps` if not finished |
 | Work-based intervals | rest from the actual finish; time per piece |
+| Rest = round time (1:1) | each rest equals the round before it (2:35, 3:00); counts down; no rest after the last round; a late Crown turn lengthens the round and the rest by the same amount |
 | Build to a max | open attempts ended by "done with this block"; score best load |
 | Time-target part in an EMOM | a 45 s part ends on the clock with no extra `timed` |
 | Hyrox 8 × 1 km | identical to `legacy.result.json`, step by step |
