@@ -58,6 +58,14 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     private var retryCounts: [String: Int] = [:]
     private var activated = false
     private static let maxRetries = 3
+    /// Upload wake for the phone (W28): owed after a file is queued or delivered, sent as soon as
+    /// the phone is reachable, at most once per `wakeInterval` (a later one carries the news).
+    private var wakeOwed = false
+    private var wakeScheduled = false
+    private var lastWakeAt: Date = .distantPast
+    private static let wakeInterval: TimeInterval = 5
+    /// Message `type` of the upload wake (message only, never in the application context).
+    static let filesQueuedType = "filesQueued"
     /// `sentAt` of the last applied phone workout, persisted so an old application context
     /// re-delivered at launch doesn't override a later choice made on the watch.
     private static let phoneWorkoutSentAtKey = "phoneWorkoutSentAt.v1"
@@ -134,6 +142,52 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         session.transferFile(file.url, metadata: file.metadata)
         Log.link.info("transferFile \(file.url.lastPathComponent, privacy: .public)")
         refreshPendingCount()
+        // Wake the phone app now too: an activated session on the phone receives the transfer
+        // as soon as it lands, instead of waiting for the next launch.
+        wakePhone()
+    }
+
+    /// Tells the phone app files are on their way or arrived (W28). A watch message wakes the
+    /// iPhone app in the background even when it is closed and the phone is locked; it then
+    /// uploads to the cloud without being opened. Needs the phone reachable (watch app in front or
+    /// in a workout); otherwise it goes out when the phone becomes reachable.
+    private func wakePhone() {
+        wakeOwed = true
+        // On the next main-queue turn: END queues the result and the recording in separate
+        // main-queue blocks, so the wake goes out after both with `pending` counting both.
+        DispatchQueue.main.async {
+            self.sendWakeIfPossible()
+        }
+    }
+
+    private func sendWakeIfPossible() {
+        guard wakeOwed, !wakeScheduled else { return }
+        let session = WCSession.default
+        guard activated, session.activationState == .activated, session.isReachable else { return }
+        let elapsed: TimeInterval = Date().timeIntervalSince(lastWakeAt)
+        if elapsed < PhoneLink.wakeInterval {
+            wakeScheduled = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + (PhoneLink.wakeInterval - elapsed)) {
+                self.wakeScheduled = false
+                self.sendWakeIfPossible()
+            }
+            return
+        }
+        wakeOwed = false
+        lastWakeAt = Date()
+        let message: [String: Any] = [
+            "type": PhoneLink.filesQueuedType,
+            "pending": pendingTransfers,
+            "sentAt": Date().timeIntervalSince1970
+        ]
+        session.sendMessage(message, replyHandler: nil) { error in
+            Log.link.info("filesQueued message failed: \(error.localizedDescription, privacy: .public)")
+            DispatchQueue.main.async {
+                // Try again at the next file event or when the phone is reachable again.
+                self.wakeOwed = true
+            }
+        }
+        Log.link.info("filesQueued sent (pending \(self.pendingTransfers))")
     }
 
     private func refreshPendingCount() {
@@ -258,6 +312,10 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
             }
         }
         refreshPendingCount()
+        if error == nil {
+            // The file is on the phone now: wake the app so it uploads it.
+            wakePhone()
+        }
     }
 
     // MARK: - WCSessionDelegate (watchOS)
@@ -279,6 +337,9 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         let reachable = session.isReachable
         DispatchQueue.main.async {
             self.isReachable = reachable
+            if reachable {
+                self.sendWakeIfPossible()
+            }
         }
     }
 

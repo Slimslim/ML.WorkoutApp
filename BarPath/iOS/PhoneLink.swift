@@ -310,29 +310,35 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
                 // Synchronous move: the system deletes `source` when this method returns.
                 let destination = try WorkoutFiles.storeIncomingResult(from: source,
                                                                        metadataId: metadata["id"] as? String)
+                BackgroundUploads.keepReadableWhenLocked(destination)
                 notifyReceived()
+                BackgroundSync.noteFileReceived()
                 Task { @MainActor in
                     WorkoutStore.shared.ingest(at: destination)
-                    CloudAccount.shared.syncSoon()
                 }
+                BackgroundSync.run("file received")
             } else if isMarks || isSessionCSV {
                 // Synchronous move: the system deletes `source` when this method returns.
-                _ = try LiftFiles.storeIncomingDebugFile(from: source,
-                                                         isMarks: isMarks,
-                                                         metadataSessionId: metadata["sessionId"] as? String)
+                let destination = try LiftFiles.storeIncomingDebugFile(from: source,
+                                                                       isMarks: isMarks,
+                                                                       metadataSessionId: metadata["sessionId"] as? String)
+                BackgroundUploads.keepReadableWhenLocked(destination)
                 notifyReceived()
+                BackgroundSync.noteFileReceived()
                 Task { @MainActor in
                     LiftStore.shared.reloadDebugFiles()
-                    CloudAccount.shared.syncSoon()
                 }
+                BackgroundSync.run("file received")
             } else {
                 let destination = try LiftFiles.storeIncomingLift(from: source,
                                                                   metadataId: metadata["id"] as? String)
+                BackgroundUploads.keepReadableWhenLocked(destination)
                 notifyReceived()
+                BackgroundSync.noteFileReceived()
                 Task { @MainActor in
                     LiftStore.shared.ingestLift(at: destination)
-                    CloudAccount.shared.syncSoon()
                 }
+                BackgroundSync.run("file received")
             }
         } catch {
             let text = "Could not store \(source.lastPathComponent): \(error.localizedDescription)"
@@ -363,8 +369,19 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         }
     }
 
-    /// Optional live status from the watch (`["type": "status", ...]`), shown as plain text.
+    /// Message `type` the watch sends at END and after each delivered file (W28). A watch message
+    /// wakes this app in the background; it then uploads what it has with the phone locked.
+    /// Message only, never in the application context.
+    static let filesQueuedType = "filesQueued"
+
+    /// Optional live status from the watch (`["type": "status", ...]`), shown as plain text, and
+    /// the upload wake (`["type": "filesQueued", "pending": Int, "sentAt": Double]`).
     private func handleMessage(_ message: [String: Any]) {
+        if (message["type"] as? String) == PhoneLink.filesQueuedType {
+            let pending: Int = (message["pending"] as? NSNumber)?.intValue ?? 0
+            BackgroundSync.run("watch wake", awaitingFiles: pending)
+            return
+        }
         guard (message["type"] as? String) == "status" else { return }
         let parts = message.keys.sorted().compactMap { key -> String? in
             if key == "type" { return nil }
