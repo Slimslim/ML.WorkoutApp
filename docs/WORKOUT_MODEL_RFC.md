@@ -98,6 +98,12 @@ shallow.
 count and `"until": "athlete"`. The athlete ends the block with "done with this block" (page 2), and
 the score is usually the best load.
 
+**Scheduled interruptions** (owner, 14 Nov; build 17 or later): "2 km row; every 4:00 from 0:00,
+15 air squats". `interrupt` on a part, group or `timed` rings a start-anchored bell every `every`
+seconds (3-2-1-GO). The main work pauses where it was, the athlete does the interrupt body and ends
+it with the Crown, then the main work resumes. The score is the final time; the result records how
+many interruptions were done and their reps.
+
 The **score** is declared once at the top (section 5).
 
 ### 3.2 Where it lives
@@ -153,6 +159,9 @@ structure compiles to.
               "body": [ ... ] } }
 { "timed":  { "id": "w", "seconds": 180, "early": "wait" | "next",
               "late": "cut" | "end" | "continue", "body": [ ... ] } }
+
+// Later (build 17+): on a part, group or timed, a scheduled interruption
+"interrupt": { "every": 240, "startAt": 0, "body": [ ... ] }
 ```
 
 ### 3.4 Examples
@@ -292,12 +301,18 @@ It took 62 pieces covering every family and every odd case, and checked them wit
   - an AMRAP split by rests that **continues** where you left off (the program says "continue" or
     "restart" explicitly) → `repeat.resume`, build 17 or later;
   - windows of different lengths with a ladder that continues across them → `resume` + `override`;
-  - a lift on a fixed schedule interrupting a piece for time ("every 3:00, 10 bench") → out of
-    scope, kept as a `note`;
+  - a lift on a fixed schedule interrupting a piece for time ("every 3:00, 10 bench") → the owner
+    wants it: `interrupt` (3.1), build 17 or later;
   - a penalty on breaking ("every break, run 200 m") → out of scope, kept as a `note`.
 - **Re-run on the revised draft:** 56 clean, 2 awkward, 4 cannot (about 1 % of the program). The
   last two awkward cases are fixed above (`show: sum` for timed segments scored by total time; mixed
-  metrics split by the import). The 4 left are the `resume` and `note` cases listed above.
+  metrics scored `none`). Of the 4 left, `resume` (2) and `interrupt` (1) are planned; the break
+  penalty stays a `note` until rep counting can detect breaks.
+- **Owner's input on these shapes (14 Nov, via the corpus session; to confirm in this review):**
+  scheduled interruptions are wanted (above); % sets should pre-fill each set's load from the
+  athlete's PR × % (needs PRs stored in the app); a complex uses one bar and one load (`load` on
+  `group`); in an alternating EMOM with time parts, the bell moves you on if you haven't finished
+  (`early: wait, late: cut`).
 - **Days are multi-part** (median 5 pieces: warm-up, strength, accessory, metcon, cash-out). The
   engine runs one piece at a time; the build-17 import must split a day into pieces.
 - In this program, strength sets are 32 % of pieces and untimed "for quality" rounds 21 %; Tabata is
@@ -396,7 +411,8 @@ distance or reps; show sum, avg, best or slowest), `distance`, `calories`, `none
   every finisher). `atCut` covers a buy-in window not finished before the bell.
 - `combine`: `sum` or `perPiece` when one entry has several scored pieces (two AMRAPs, AMRAP cycles
   that restart). A sum of rounds + reps is the sum of total reps. An entry whose pieces are scored in different
-  metrics (run time + max reps + row time) is split by the import into separate workouts.
+  metrics (run time + max reps + row time) is mostly training with no time to beat (owner): score
+  `none`, with the per-step facts recorded. Power output later.
 
 Men's/women's standards, % loads and the machine choice are resolved at START and stored in the result.
 
@@ -676,6 +692,12 @@ with the case count, so a missing case fails instead of skipping (today a missin
 | Time-target part in an EMOM | a 45 s part ends on the clock with no extra `timed` |
 | Hyrox 8 × 1 km | identical to `legacy.result.json`, step by step |
 
+**27 synthetic fixtures** approved by the owner (8 public benchmarks: Fran, Helen, Cindy, Chelsea,
+Death by pull-ups, Tabata Something Else, Fight Gone Bad, Grace; and 19 invented look-alikes, one per
+odd shape of the real program) are ready in the owner's storage, each with its structure and expected
+score and record. They are safe for the repo and go in with the engine PR. 24 of 27 pass the rules
+today; the 3 others need `resume` or `interrupt`.
+
 The 62 encodings of the real program (3.5) stay in the owner's private storage and are re-run by
 the corpus session against each draft of the schema; generic look-alikes of its odd shapes go into
 the fixtures above.
@@ -874,8 +896,10 @@ cannot (about 1 % of the program: `resume` later, two kept as notes). What chang
   a max", `vary` across nested repeats, rest ratio measured over the round.
 - Added to scoring: `perPiece` (time, distance or reps; sum, avg, best, slowest), `includeRest`,
   `atCut`, `combine`; mixed-metric entries are split by the import.
-- Planned, not now: `repeat.resume` (AMRAP cycles that continue across rests).
-- Out of scope, kept as a `note`: a lift on a fixed schedule interrupting a piece for time, penalties.
+- Planned, not now: `repeat.resume` (AMRAP cycles that continue across rests) and `interrupt`
+  (scheduled interruptions, which the owner wants).
+- Kept as a `note`: penalties on breaking, until rep counting can detect breaks.
+- 27 synthetic fixtures (benchmarks + invented look-alikes) approved by the owner for the engine PR.
 - Days are multi-part: the build-17 import splits a day into pieces.
 
 ## Appendix B: today's special cases
