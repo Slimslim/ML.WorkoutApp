@@ -7,12 +7,12 @@
  "files": {
   "lifts": "Lifts/A273CD1C-855D-4C53-BA81-0E9CFB80F713/",
   "recordings": [
-   "Debug/session-19200BD1-789E-43DD-A1A9-9DA402F75766.csv.gz",
-   "Debug/session-1F07FDC3-8107-4E27-99F5-27258CAA7E72.csv.gz",
-   "Debug/session-4B274871-919B-442F-BE4E-E08E3AF26179.csv.gz",
-   "Debug/session-6C3277E9-6C89-405B-A7EC-71913E220987.csv.gz",
-   "Debug/session-6F1E8A0D-9E17-4473-9D7C-35B0B1F18132.csv.gz",
-   "Debug/session-C5FDCE07-1E29-4A4A-B534-CE97753373B3.csv.gz"
+   "Debug/session-19200BD1-789E-43DD-A1A9-9DA402F75766.csv",
+   "Debug/session-1F07FDC3-8107-4E27-99F5-27258CAA7E72.csv",
+   "Debug/session-4B274871-919B-442F-BE4E-E08E3AF26179.csv",
+   "Debug/session-6C3277E9-6C89-405B-A7EC-71913E220987.csv",
+   "Debug/session-6F1E8A0D-9E17-4473-9D7C-35B0B1F18132.csv",
+   "Debug/session-C5FDCE07-1E29-4A4A-B534-CE97753373B3.csv"
   ]
  },
  "notes": [
@@ -24,7 +24,7 @@
  ],
  "sets": [
   {
-   "file": "Debug/session-6F1E8A0D-9E17-4473-9D7C-35B0B1F18132.csv.gz",
+   "file": "Debug/session-6F1E8A0D-9E17-4473-9D7C-35B0B1F18132.csv",
    "lift": "hangPowerClean",
    "reps": 2,
    "style": "2 reps without dropping the bar (empty bar, slow warm-up rep 2); each rep: stand tall, lower to just above the knees, pull, power catch",
@@ -41,7 +41,7 @@
    "note": "video: pick-up 1116, standing 1149, hang 1200, catch 1233; hang 1351, stand 1368, hang 1425, catch 1463; bar on the floor 1555. Watch logged one lift (45 lb)."
   },
   {
-   "file": "Debug/session-C5FDCE07-1E29-4A4A-B534-CE97753373B3.csv.gz",
+   "file": "Debug/session-C5FDCE07-1E29-4A4A-B534-CE97753373B3.csv",
    "lift": "hangPowerClean",
    "reps": 4,
    "style": "4 reps without dropping the bar; each rep: stand tall, lower to just above the knees, pull, power catch",
@@ -62,7 +62,7 @@
    "loadLb": 95
   },
   {
-   "file": "Debug/session-4B274871-919B-442F-BE4E-E08E3AF26179.csv.gz",
+   "file": "Debug/session-4B274871-919B-442F-BE4E-E08E3AF26179.csv",
    "lift": "hangPowerClean",
    "reps": 2,
    "style": "2 reps without dropping the bar; each rep: stand tall, lower to just above the knees, pull, power catch",
@@ -79,7 +79,7 @@
    "loadLb": 115
   },
   {
-   "file": "Debug/session-1F07FDC3-8107-4E27-99F5-27258CAA7E72.csv.gz",
+   "file": "Debug/session-1F07FDC3-8107-4E27-99F5-27258CAA7E72.csv",
    "lift": "hangPowerClean",
    "reps": 2,
    "style": "2 singles; each rep: stand tall, lower to just above the knees, pull, power catch",
@@ -96,7 +96,7 @@
    "loadLb": 135
   },
   {
-   "file": "Debug/session-1F07FDC3-8107-4E27-99F5-27258CAA7E72.csv.gz",
+   "file": "Debug/session-1F07FDC3-8107-4E27-99F5-27258CAA7E72.csv",
    "lift": "hangPowerClean",
    "reps": 2,
    "style": "2 reps without dropping the bar; each rep: stand tall, lower to just above the knees, pull, power catch",
@@ -113,7 +113,7 @@
    "loadLb": 135
   },
   {
-   "file": "Debug/session-19200BD1-789E-43DD-A1A9-9DA402F75766.csv.gz",
+   "file": "Debug/session-19200BD1-789E-43DD-A1A9-9DA402F75766.csv",
    "lift": "hangPowerClean",
    "reps": 3,
    "style": "3 singles; each rep: stand tall, lower to just above the knees, pull, power catch",
@@ -132,7 +132,7 @@
    "loadLb": 155
   },
   {
-   "file": "Debug/session-6C3277E9-6C89-405B-A7EC-71913E220987.csv.gz",
+   "file": "Debug/session-6C3277E9-6C89-405B-A7EC-71913E220987.csv",
    "lift": "hangPowerClean",
    "reps": 2,
    "style": "2 singles; each rep: stand tall, lower to just above the knees, pull, power catch",
@@ -149,7 +149,7 @@
    "loadLb": 185
   },
   {
-   "file": "Debug/session-6C3277E9-6C89-405B-A7EC-71913E220987.csv.gz",
+   "file": "Debug/session-6C3277E9-6C89-405B-A7EC-71913E220987.csv",
    "lift": "hangPowerClean",
    "reps": 2,
    "style": "2 reps without dropping the bar; each rep: stand tall, lower to just above the knees, pull, power catch",

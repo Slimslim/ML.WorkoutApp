@@ -218,3 +218,25 @@ arm held overhead 1.3-2.0 s (catch / hand on the bar); a failed snatch comes str
   flagged for video (two at the buzzer, one while getting set).
 - Tabata timing: the watch row counted 30 s per interval (no timed work part yet: story W27); the
   work/rest windows in the labels are the gym's 20 / 10 clock.
+
+### Hang power clean warm-up (2026-11-14): first session labelled from video
+
+19 hang power cleans, 45-185 lb, Lifting mode at 200 Hz; every catch frame from the athlete's
+video (30 fps) matches a forearm flip to the front rack in the watch motion within 1-10 frames
+(label `2026-11-14-clean-warmup`, rep times = rack onset in each recording).
+
+| Detector (match window 0.5 s) | Reps found | False |
+|---|---|---|
+| Lifting mode (the watch's logged lifts) | 5 / 19 | 1 (a window with no catch) |
+| catch-rule (`barpath.catches`: forearm into the rack >= 0.5 s) | **19 / 19** | 3 (plates, looking at the watch) |
+
+Lifting mode needs a still moment before each lift: after the first hang rep the bar never rests,
+and the heavy singles were set up without one. The catch rule was written on this session, so its
+score here is not a test; the next clean session (and other wrists: `sign`) is.
+
+Peak vertical speed per rep (the watch's own analyzer, started from the still point at the hang
+just before each pull): 45 lb 2.25; 95 lb 2.22 / 2.40 / 2.61 / 2.33; 115 lb 2.17 / 2.15;
+135 lb 1.98 / 2.00 / 1.99 / 2.48 / 2.02 (+1 failed estimate, 0.79); 155 lb 1.84 / 1.90 / 1.78;
+185 lb 1.77 / 1.80 m/s (low confidence). Typical: 2.37 at 95, 2.16 at 115, 2.00 at 135, 1.84 at 155,
+1.79 at 185 lb, falling with load as expected. Bar height from the same analysis is not reported:
+it depends on where the start point falls and is not checked against the video.

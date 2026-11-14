@@ -22,7 +22,10 @@ Detectors:
              ("after round 1" rows) so the three compare like with like.
 --record appends this run's scores to data/eval/history.jsonl (commit, date, every number), so
 each new detector version can be compared with the previous ones (docs/LABELS.md, "Eval").
-Lifting sessions: barpath.reps.count_reps against the labelled reps of each set.
+Lifting sessions: barpath.reps.count_reps against the labelled reps of each set. Sets labelled
+from video on a whole session recording (`file` is a .csv, `repTimes` = catch times) are scored
+per rep instead: catch-rule (barpath.catches) and lifting-mode (the watch's own logged lifts: a rep
+is found when its catch lies inside a liftStarted..liftEnded window), match window 0.5 s.
 
 Fetch the recordings first: tools/fetch_sessions.py. Labels without recordings are listed and
 skipped.
@@ -125,6 +128,33 @@ def median_abs(errors):
     return round(statistics.median(abs(e) for e in errors), 2) if errors else None
 
 
+def score_catches(d: dict) -> list:
+    """Per-rep scores for sets labelled from video on whole session CSVs (catch times)."""
+    from barpath import recording
+    from barpath.catches import detect_catches, match
+    truth: dict = {}
+    for x in d["sets"]:
+        truth.setdefault(x["file"], []).extend(x.get("repTimes", []))
+    tot = {"catch-rule": [0, 0, 0], "lifting-mode": [0, 0, 0]}
+    for f, reps in truth.items():
+        S = recording.load_session_csv(L.CACHE_DIR / d["id"] / Path(f).name)
+        found = detect_catches(S.motion.t, S.motion.gravity)
+        wins = [(float(e["homing"]), float(e["end"])) for e in S.events if e["name"] == "liftEnded"]
+        inside = lambda c: any(h - 0.5 <= c <= e + 0.5 for h, e in wins)
+        m_rule = match(reps, found, tol=0.5)
+        hits = sum(1 for c in reps if inside(c))
+        m_lift = {"hits": hits, "misses": len(reps) - hits,
+                  "false": sum(1 for h, e in wins if not any(h - 0.5 <= c <= e + 0.5 for c in reps))}
+        for k, m in (("catch-rule", m_rule), ("lifting-mode", m_lift)):
+            tot[k] = [tot[k][0] + m["hits"], tot[k][1] + m["misses"], tot[k][2] + m["false"]]
+    n = sum(len(v) for v in truth.values())
+    return [(d["id"], k, n, v[0], v[2]) for k, v in tot.items()]
+
+
+def is_video_reps(d: dict) -> bool:
+    return d["kind"] == "lifts" and all(x["file"].endswith(".csv") and "repTimes" in x for x in d["sets"])
+
+
 def score_lifts(d: dict) -> list:
     import numpy as np
     from barpath.reps import count_reps
@@ -151,7 +181,7 @@ def main() -> int:
     ap.add_argument("--tol", type=float, default=3.0, help="match window, seconds")
     ap.add_argument("--record", action="store_true", help="append the scores to data/eval/history.jsonl")
     args = ap.parse_args()
-    work, lifts, missing, records, flagged = [], [], [], [], []
+    work, lifts, reps, missing, records, flagged = [], [], [], [], [], []
     for p in L.all_label_files():
         d = L.load(p)
         errs = L.validate(d)
@@ -163,6 +193,8 @@ def main() -> int:
             missing.append(d["id"])
         elif d["kind"] == "workout":
             work += score_workout(d, args.tol, records)
+        elif is_video_reps(d):
+            reps += score_catches(d)
         else:
             lifts += score_lifts(d)
     if work:
@@ -179,6 +211,14 @@ def main() -> int:
         for r in lifts:
             print("| " + " | ".join(str(c) for c in r) + " |")
             records.append({"session": r[0], "detector": "count_reps", "set": r[1], "labelled": r[2], "counted": r[3]})
+        print()
+    if reps:
+        print("### Lifting reps labelled from video (match window 0.5 s)\n")
+        print("| session | detector | labelled reps | found | false |")
+        print("|---|---|---:|---:|---:|")
+        for r in reps:
+            print("| " + " | ".join(str(c) for c in r) + " |")
+            records.append({"session": r[0], "detector": r[1], "labelled": r[2], "found": r[3], "false": r[4]})
         print()
     if flagged:
         print("### Flagged: motion and athlete disagree (athlete's count is the label until checked)\n")
