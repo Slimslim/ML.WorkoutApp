@@ -7,7 +7,38 @@ struct LiftChooserView: View {
     @EnvironmentObject private var link: PhoneLink
     @AppStorage("liftChooser.liftType") private var liftRaw: String = LiftType.snatch.rawValue
     @AppStorage("liftChooser.useLoad") private var useLoad: Bool = true
-    @AppStorage("liftChooser.loadLb") private var loadLb: Double = 135
+    /// The load is kept in kilograms (-1 = not chosen yet); shown and stepped in the weight unit.
+    @AppStorage("liftChooser.loadKg") private var loadKgStored: Double = -1
+    /// Pounds stored by older builds, read until a kilogram value is chosen.
+    @AppStorage("liftChooser.loadLb") private var legacyLoadLb: Double = 0
+    @ObservedObject private var profile = AthleteProfile.shared
+
+    private var unit: WeightUnit {
+        return profile.weightUnit
+    }
+
+    private var loadKg: Double {
+        if loadKgStored >= 0 { return loadKgStored }
+        if legacyLoadLb > 0 { return WeightUnit.kilograms(fromPounds: legacyLoadLb) }
+        return unit.kilograms(fromDisplay: unit.defaultLoad)
+    }
+
+    private var stepValues: [Double] {
+        return unit == .kg ? [-20.0, -5.0, -2.5, 2.5, 5.0, 20.0] : [-45.0, -10.0, -5.0, 5.0, 10.0, 45.0]
+    }
+
+    /// "Snatch · 62.5 kg" in the weight unit (the selection carries pounds on the wire).
+    private var sentSummary: String {
+        guard let sent = link.sentLift else { return "Not sent yet" }
+        guard let lb = sent.loadLb else { return sent.liftType.displayName }
+        return sent.liftType.displayName + " \u{00B7} " + unit.format(kilograms: WeightUnit.kilograms(fromPounds: lb))
+    }
+
+    private func stepLabel(_ step: Double) -> String {
+        let size: Double = abs(step)
+        let number: String = size == size.rounded() ? String(format: "%.0f", size) : String(format: "%.1f", size)
+        return (step > 0 ? "+" : "\u{2212}") + number
+    }
 
     private var liftType: LiftType {
         return LiftType(rawValue: liftRaw) ?? .snatch
@@ -42,7 +73,7 @@ struct LiftChooserView: View {
                 Section {
                     Button {
                         link.sendLift(LiftSelection(liftType: liftType,
-                                                    loadLb: useLoad ? loadLb : nil,
+                                                    loadLb: useLoad ? WeightUnit.pounds(fromKilograms: loadKg) : nil,
                                                     sentAt: Date().timeIntervalSince1970))
                     } label: {
                         Label("Send to watch", systemImage: "applewatch")
@@ -55,7 +86,7 @@ struct LiftChooserView: View {
                             .foregroundStyle(Color.orange)
                     }
                 } footer: {
-                    Text("Opens BarPath on the watch with this lift and load set. Press START there. During a session it is used at your next Change on the watch.")
+                    Text("Opens Rx Lab on the watch with this lift and load set. Press START there. During a session it is used at your next Change on the watch.")
                 }
             }
             .navigationTitle("Lifts")
@@ -76,7 +107,7 @@ struct LiftChooserView: View {
                 Text("Next lift on watch")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Text(link.sentLift?.summary ?? "Not sent yet")
+                Text(sentSummary)
                     .font(.headline)
             }
         }
@@ -100,16 +131,16 @@ struct LiftChooserView: View {
 
     private var loadEditor: some View {
         VStack(spacing: 10) {
-            Text(String(format: "%.0f lb", loadLb))
+            Text(unit.format(kilograms: loadKg))
                 .font(.system(size: 34, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .frame(maxWidth: .infinity)
             HStack(spacing: 8) {
-                ForEach([-45.0, -10.0, -5.0, 5.0, 10.0, 45.0], id: \.self) { step in
+                ForEach(stepValues, id: \.self) { step in
                     Button {
-                        loadLb = min(900, max(0, loadLb + step))
+                        loadKgStored = unit.kilograms(adding: step, toKilograms: loadKg)
                     } label: {
-                        Text(step > 0 ? String(format: "+%.0f", step) : String(format: "−%.0f", -step))
+                        Text(stepLabel(step))
                             .font(.subheadline.weight(.semibold))
                             .frame(maxWidth: .infinity, minHeight: 36)
                     }

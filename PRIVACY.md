@@ -1,6 +1,6 @@
 # Rx Lab privacy policy
 
-_Last updated: 2 November 2026. Applies to the Rx Lab test version (TestFlight)._
+_Last updated: 11 November 2026. Applies to the Rx Lab test version (TestFlight)._
 
 Rx Lab is an iPhone and Apple Watch app that measures workouts and lifts. It is made by
 Selim Gawad, an individual developer. Contact: selim.gawad@gmail.com.
@@ -12,15 +12,29 @@ Selim Gawad, an individual developer. Contact: selim.gawad@gmail.com.
 - **Your training data:** the lifts, workouts and watch recordings the app saves. This
   includes wrist motion during lifts, workout splits and scores, and heart rate during
   workouts recorded on your Apple Watch.
+- **Body details you choose to enter:** height, body weight and forearm length (and the weight
+  unit you pick) are stored with your training data and used to measure your lifts.
+- **Your date of birth:** the app reads it from Apple Health to estimate your maximum heart
+  rate and keeps it on your phone. It is not uploaded.
 
-Rx Lab does not collect your location, contacts, photos or advertising identifiers. It
-contains no ads and no third-party analytics.
+During workouts that include a run, your Apple Watch uses your location to measure distance
+and pace. Your route is saved to Apple Health on your devices. The recording that is uploaded
+contains distance, speed and accuracy, but no coordinates (no latitude or longitude).
+
+Rx Lab does not collect your contacts, photos or advertising identifiers. It contains no ads
+and no third-party analytics.
 
 ## Why
 
 - To store your training data safely and show it back to you.
 - To improve Rx Lab: during the test phase the developer looks at uploaded recordings to
-  improve lift and rep detection and the other measurements.
+  improve lift and rep detection and the other measurements. The developer uses an AI
+  assistant (Claude, made by Anthropic) to help read recordings, correct results and build
+  these measurements; it works on the developer's behalf and only for this purpose.
+- With your agreement only, notes about one of your sessions (what you did and when: movements,
+  times, rep counts, weights) may be kept in the project's public code repository to test the
+  measurements. They never carry your name, email or account ID, and your recordings
+  themselves are never published.
 
 Your data is never sold, never used for advertising and never shared with data brokers.
 Heart rate and other Apple Health data are only used for the purposes above.
@@ -28,13 +42,14 @@ Heart rate and other Apple Health data are only used for the purposes above.
 ## Where it is stored
 
 Data is stored with Supabase, our database and file-storage provider, in its European
-(Frankfurt) region. A copy also stays on your iPhone. Only you and the developer can access
-your uploaded data.
+(Frankfurt) region. A copy also stays on your iPhone. Only you, the developer and the
+tools the developer uses to work on it (Supabase for storage, the AI assistant named above for
+analysis) can access your uploaded data.
 
 ## How long, and deleting it
 
-Your data is kept while your account exists. In the app, **Debug › Account › Delete account
-and uploaded data** deletes your account and every uploaded file at once. The files on your
+Your data is kept while your account exists. In the app, **Settings › Account › Delete account
+and uploaded data** (tap the person icon at the top of the Today tab to open Settings) deletes your account and every uploaded file at once. The files on your
 iPhone stay until you delete the app. You can also ask for deletion or a copy of your data
 by email.
 

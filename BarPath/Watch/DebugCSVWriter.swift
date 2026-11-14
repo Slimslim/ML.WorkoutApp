@@ -1,4 +1,5 @@
 import Foundation
+import WatchKit
 import BarPathKit
 
 /// Full-session debug recording (spec §2.1).
@@ -23,6 +24,15 @@ final class DebugCSVWriter {
     private let recordingURL: URL
     private var handle: FileHandle?
     private var failed = false
+    /// Nominal device-motion rate of this session in Hz, written to the header as `sampleRate`.
+    /// Set by the recorder once it knows the mode (before the first sample); omitted when nil.
+    var sampleRateHz: Int?
+    /// Workout mode: the recording rule's verdict for the planned workout (`high` / `standard`),
+    /// written to the header as `planProfile`. Omitted when nil.
+    var planProfile: String?
+    /// Workout mode: whether location updates were started for the session, written to the header
+    /// as `gps=on|off`. Omitted when nil.
+    var gpsOn: Bool?
 
     /// Since-boot time of the first sample: CSV t = 0.
     private(set) var t0: Double?
@@ -129,6 +139,57 @@ final class DebugCSVWriter {
         }
     }
 
+    // MARK: - Header metadata
+
+    /// Makes a header value safe for the `key=value, key=value` header: no ", ", "=", commas,
+    /// whitespace or newlines. Empty becomes "unknown".
+    static func headerValue(_ raw: String) -> String {
+        var out = ""
+        for ch in raw {
+            if ch == "," || ch == "=" || ch == " " || ch == "\t" || ch == "\n" || ch == "\r" {
+                out.append("_")
+            } else {
+                out.append(ch)
+            }
+        }
+        return out.isEmpty ? "unknown" : out
+    }
+
+    /// Hardware identifier such as "Watch7,5" (sysctl hw.machine), or "unknown".
+    static func hardwareIdentifier() -> String {
+        var size: Int = 0
+        guard sysctlbyname("hw.machine", nil, &size, nil, 0) == 0, size > 0 else { return "unknown" }
+        var buffer = [CChar](repeating: 0, count: size)
+        guard sysctlbyname("hw.machine", &buffer, &size, nil, 0) == 0 else { return "unknown" }
+        let bytes: [UInt8] = buffer.prefix(while: { $0 != 0 }).map { UInt8(bitPattern: $0) }
+        let name = String(decoding: bytes, as: UTF8.self)
+        return name.isEmpty ? "unknown" : name
+    }
+
+    /// ", watchModel=..., watchOS=..., wrist=..., crown=..., appBuild=...[, sampleRate=...][, planProfile=...][, gps=on|off]".
+    /// Additive keys of format v1: older parsers ignore them.
+    static func deviceHeaderPairs(sampleRateHz: Int?, planProfile: String? = nil, gpsOn: Bool? = nil) -> String {
+        let device = WKInterfaceDevice.current()
+        let wrist: String = device.wristLocation == .left ? "left" : "right"
+        let crown: String = device.crownOrientation == .left ? "left" : "right"
+        let build: String = (Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String) ?? "unknown"
+        var pairs = ", watchModel=" + headerValue(hardwareIdentifier())
+        pairs += ", watchOS=" + headerValue(device.systemVersion)
+        pairs += ", wrist=" + wrist
+        pairs += ", crown=" + crown
+        pairs += ", appBuild=" + headerValue(build)
+        if let hz = sampleRateHz {
+            pairs += ", sampleRate=\(hz)"
+        }
+        if let profile = planProfile {
+            pairs += ", planProfile=" + headerValue(profile)
+        }
+        if let gps = gpsOn {
+            pairs += gps ? ", gps=on" : ", gps=off"
+        }
+        return pairs
+    }
+
     // MARK: - Private
 
     private func open(startTime: Double?, startDate: Date) {
@@ -136,7 +197,8 @@ final class DebugCSVWriter {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         let tag: String = headerTag ?? "liftType=\(liftType.rawValue)"
-        var header = "# barpath-session v1, sessionId=\(sessionId.uuidString), startDate=\(formatter.string(from: startDate)), \(tag)\n"
+        var header = "# barpath-session v1, sessionId=\(sessionId.uuidString), startDate=\(formatter.string(from: startDate)), \(tag)"
+        header += DebugCSVWriter.deviceHeaderPairs(sampleRateHz: sampleRateHz, planProfile: planProfile, gpsOn: gpsOn) + "\n"
         header += "t,qw,qx,qy,qz,ax,ay,az,gx,gy,gz,rx,ry,rz\n"
         for comment in pendingComments {
             if let t0 = startTime {

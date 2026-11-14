@@ -7,6 +7,10 @@ import Supabase
 ///
 /// The files on the phone stay the source of truth; the cloud is a copy. A file is uploaded
 /// again when its size or modification date changes (e.g. after "Fix splits").
+///
+/// Motion recordings (.csv) are big text files: a gzip copy is staged in Caches and uploaded
+/// as "<path>.csv.gz"; the manifest still records the local .csv. A file the server refuses for
+/// its size (bucket limit 50 MB) is remembered as skipped and not queued again until it changes.
 @MainActor
 final class CloudAccount: ObservableObject {
     static let shared = CloudAccount()
@@ -23,6 +27,10 @@ final class CloudAccount: ObservableObject {
     let client: SupabaseClient?
     private var isQueueing = false
     private var syncAgain = false
+    private var stagingCleaned = false
+
+    /// Bucket limit per file (see supabase/migrations/20261102000000_uploads.sql).
+    private static let maxUploadBytes: Int = 52_428_800
 
     var isSignedIn: Bool { return userId != nil }
 
@@ -95,27 +103,80 @@ final class CloudAccount: ObservableObject {
         lastError = nil
         await BackgroundUploads.shared.cancelAll()
         do {
-            let rows: [UploadPath] = try await client.from("uploads")
-                .select("path")
-                .eq("user_id", value: userId)
-                .execute()
-                .value
-            let paths = rows.map { $0.path }
-            var start = 0
-            while start < paths.count {
-                let batch = Array(paths[start..<min(start + 100, paths.count)])
-                _ = try await client.storage.from(CloudConfig.bucket).remove(paths: batch)
-                start += 100
-            }
+            let folder: String = userId.uuidString.lowercased()
+            // Files are found by listing the folder (also those without an `uploads` row), plus the
+            // rows' paths. A second listing catches an upload that finished during the first pass.
+            let known: [String] = try await uploadRowPaths(userId: userId)
+            let first: [String] = try await listObjects(folder: folder)
+            try await removeObjects(known + first)
+            let late: [String] = try await listObjects(folder: folder)
+            try await removeObjects(late)
             try await client.rpc("delete_user").execute()
             UploadManifest.clear(userId: userId)
             PendingRows.clear(userId: userId)
             DownloadManifest.clear(userId: userId)
+            SkippedFiles.clear(userId: userId)
             try? await client.auth.signOut()
             apply(nil)
             isSyncing = false
         } catch {
             lastError = "Could not delete the account: \(error.localizedDescription)"
+        }
+    }
+
+    /// Paths of all the user's `uploads` rows, read page by page (the API caps one answer).
+    private func uploadRowPaths(userId: UUID) async throws -> [String] {
+        guard let client else { return [] }
+        var paths: [String] = []
+        let pageSize: Int = 1000
+        while true {
+            let rows: [UploadPath] = try await client.from("uploads")
+                .select("path")
+                .eq("user_id", value: userId)
+                .order("path")
+                .range(from: paths.count, to: paths.count + pageSize - 1)
+                .execute()
+                .value
+            paths += rows.map { $0.path }
+            if rows.count < pageSize { break }
+        }
+        return paths
+    }
+
+    /// Every object under `folder` in the bucket, subfolders included, page by page.
+    /// A folder entry has no `id`; a file has one.
+    private func listObjects(folder: String) async throws -> [String] {
+        guard let client else { return [] }
+        let bucket = client.storage.from(CloudConfig.bucket)
+        let pageSize: Int = 100
+        var files: [String] = []
+        var pending: [String] = [folder]
+        while let current = pending.popLast() {
+            var offset: Int = 0
+            while true {
+                let page: [FileObject] = try await bucket.list(
+                    path: current,
+                    options: SearchOptions(limit: pageSize, offset: offset))   // sorted by name by default
+                for entry in page {
+                    let full: String = CloudPaths.join(folder: current, name: entry.name)
+                    if entry.id == nil {
+                        pending.append(full)
+                    } else {
+                        files.append(full)
+                    }
+                }
+                offset += page.count
+                if page.count < pageSize { break }
+            }
+        }
+        return files
+    }
+
+    /// Deletes objects in batches of 100 (a path that is already gone is not an error).
+    private func removeObjects(_ paths: [String]) async throws {
+        guard let client else { return }
+        for batch in CloudPaths.batches(paths, size: 100) {
+            _ = try await client.storage.from(CloudConfig.bucket).remove(paths: batch)
         }
     }
 
@@ -145,8 +206,22 @@ final class CloudAccount: ObservableObject {
             syncAgain = false
             await writePendingRows(userId: userId)
             await downloadCorrections(userId: userId)
+            if !stagingCleaned {
+                stagingCleaned = true
+                await BackgroundUploads.shared.cleanStaging()
+            }
             let manifest = UploadManifest.load(userId: userId)
-            let files = LocalFiles.all().filter { manifest[$0.path] != $0.version }
+            let everything: [LocalFile] = LocalFiles.all()
+            // Forget skipped versions that no longer exist (the file changed or was removed).
+            var skipped: [String: String] = SkippedFiles.load(userId: userId)
+            let currentVersions: [String: String] = Dictionary(everything.map { ($0.path, $0.version) },
+                                                               uniquingKeysWith: { first, _ in first })
+            let stillSkipped: [String: String] = skipped.filter { currentVersions[$0.key] == $0.value }
+            if stillSkipped.count != skipped.count {
+                skipped = stillSkipped
+                SkippedFiles.save(skipped, userId: userId)
+            }
+            let files = everything.filter { manifest[$0.path] != $0.version && skipped[$0.path] != $0.version }
             pendingCount = files.count
             guard !files.isEmpty else {
                 isSyncing = false
@@ -166,15 +241,50 @@ final class CloudAccount: ObservableObject {
             lastError = nil
             isSyncing = true
             for file in files where !busy.contains(file.path) {
+                var objectPath: String = userId.uuidString.lowercased() + "/" + file.path
+                var uploadURL: URL = file.url
+                var contentType: String = file.contentType
+                var bytes: Int = Int(file.size)
+                var stagedName: String? = nil
+                if file.url.pathExtension.lowercased() == "csv" {
+                    let source: URL = file.url
+                    let staged: StagedFile? = await Task.detached(priority: .utility) { () -> StagedFile? in
+                        return try? BackgroundUploads.stageGzip(of: source)
+                    }.value
+                    guard let staged else {
+                        lastError = "Upload failed for \(file.path): could not compress it"
+                        continue
+                    }
+                    if self.userId != userId {
+                        BackgroundUploads.removeStaged(staged.name)
+                        return
+                    }
+                    objectPath += ".gz"
+                    uploadURL = staged.url
+                    contentType = "application/gzip"
+                    bytes = staged.size
+                    stagedName = staged.name
+                }
+                if bytes > CloudAccount.maxUploadBytes {
+                    // Even compressed it can never upload: remember it and stop trying.
+                    BackgroundUploads.removeStaged(stagedName)
+                    noteTooLarge(file.path, version: file.version, userId: userId)
+                    continue
+                }
                 let job = UploadJob(userId: userId,
                                     path: file.path,
                                     version: file.version,
-                                    objectPath: userId.uuidString.lowercased() + "/" + file.path,
+                                    objectPath: objectPath,
                                     kind: file.kind,
-                                    bytes: Int(file.size),
-                                    modified: file.modified)
-                BackgroundUploads.shared.enqueue(job, file: file.url,
-                                                 contentType: file.contentType, accessToken: token)
+                                    bytes: bytes,
+                                    modified: file.modified,
+                                    stagedFile: stagedName)
+                BackgroundUploads.shared.enqueue(job, file: uploadURL,
+                                                 contentType: contentType, accessToken: token)
+            }
+            if await BackgroundUploads.shared.inFlight().isEmpty {
+                // Everything left was skipped: no upload will report back.
+                isSyncing = false
             }
         } while syncAgain
     }
@@ -230,7 +340,8 @@ final class CloudAccount: ObservableObject {
             // A phone change not yet uploaded (or uploading) wins: check again after it is sent.
             guard let path = CloudAccount.relativePath(url), !busy.contains(path),
                   let version = CloudAccount.localVersion(url), uploaded[path] == version else { continue }
-            let stamp: String = object.updatedAt.map { String($0.timeIntervalSince1970) } ?? ""
+            // The build is part of the date: a file this build could not read is tried again by the next.
+            let stamp: String = object.updatedAt.map { CloudAccount.appBuild + ":" + String($0.timeIntervalSince1970) } ?? ""
             if !stamp.isEmpty && seen[object.name] == stamp { continue }
             let cloud: WorkoutResult
             do {
@@ -261,6 +372,8 @@ final class CloudAccount: ObservableObject {
         DownloadManifest.save(seen, userId: userId)
     }
 
+    private static let appBuild: String = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
+
     /// Path relative to Documents ("Workouts/<id>.json"), as `LocalFile.path`.
     private static func relativePath(_ url: URL) -> String? {
         let documents = LiftFiles.documentsURL.standardizedFileURL.path
@@ -289,8 +402,11 @@ final class CloudAccount: ObservableObject {
     }
 
     /// Called for each file iOS finished sending (also after a background relaunch).
-    func uploadFinished(_ job: UploadJob, failure: String?) async {
-        if let failure {
+    func uploadFinished(_ job: UploadJob, failure: String?, tooLarge: Bool = false) async {
+        BackgroundUploads.removeStaged(job.stagedFile)
+        if tooLarge {
+            noteTooLarge(job.path, version: job.version, userId: job.userId)
+        } else if let failure {
             lastError = "Upload failed for \(job.path): \(failure)"
         } else {
             var manifest = UploadManifest.load(userId: job.userId)
@@ -310,6 +426,17 @@ final class CloudAccount: ObservableObject {
             isSyncing = false
             if lastError == nil { lastSync = Date() }
         }
+    }
+
+    /// Remembers a file version the server can never take, and says so in `lastError`
+    /// (cleared by the next sync, which no longer queues the file).
+    private func noteTooLarge(_ path: String, version: String, userId: UUID) {
+        var skipped: [String: String] = SkippedFiles.load(userId: userId)
+        skipped[path] = version
+        SkippedFiles.save(skipped, userId: userId)
+        if userId == self.userId { pendingCount = max(0, pendingCount - 1) }
+        lastError = skipped.count == 1 ? "1 file too large to upload"
+                                       : "\(skipped.count) files too large to upload"
     }
 
     /// Writes the `uploads` rows of files already in Storage. A row that fails (e.g. no network
@@ -393,10 +520,13 @@ private struct LocalFile {
 }
 
 private enum LocalFiles {
-    /// Every regular file under Documents/Lifts, Documents/Workouts and Documents/Debug.
+    /// Every regular file under Documents/Lifts, Documents/Workouts, Documents/Debug and
+    /// Documents/Profile (the athlete's unit and body details, kind "profile").
     static func all() -> [LocalFile] {
+        AthleteProfile.shared.writeProfileFile()
         let documents = LiftFiles.documentsURL.standardizedFileURL
-        let roots = [LiftFiles.liftsURL, WorkoutFiles.workoutsURL, LiftFiles.debugURL]
+        let roots = [LiftFiles.liftsURL, WorkoutFiles.workoutsURL, LiftFiles.debugURL,
+                     AthleteProfile.profileFolderURL]
         let keys: [URLResourceKey] = [.isRegularFileKey, .contentModificationDateKey, .fileSizeKey]
         var found: [LocalFile] = []
         for root in roots {
@@ -421,7 +551,7 @@ private enum LocalFiles {
     }
 }
 
-/// Cloud workout files already checked for corrections (name → cloud updated time), per user:
+/// Cloud workout files already checked for corrections (name → build:cloud updated time), per user:
 /// Application Support/cloud-<user>-downloads.json.
 private enum DownloadManifest {
     private static func url(userId: UUID) -> URL {
@@ -438,6 +568,34 @@ private enum DownloadManifest {
 
     static func save(_ map: [String: String], userId: UUID) {
         if let data = try? JSONEncoder().encode(map) {
+            try? data.write(to: url(userId: userId), options: .atomic)
+        }
+    }
+
+    static func clear(userId: UUID) {
+        try? FileManager.default.removeItem(at: url(userId: userId))
+    }
+}
+
+/// File versions the server refused for their size (path → version, same key as the upload
+/// manifest), per user: Application Support/cloud-<user>-skipped.json. Not queued again.
+private enum SkippedFiles {
+    private static func url(userId: UUID) -> URL {
+        let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        try? FileManager.default.createDirectory(at: support, withIntermediateDirectories: true)
+        return support.appendingPathComponent("cloud-\(userId.uuidString.lowercased())-skipped.json")
+    }
+
+    static func load(userId: UUID) -> [String: String] {
+        guard let data = try? Data(contentsOf: url(userId: userId)),
+              let map = try? JSONDecoder().decode([String: String].self, from: data) else { return [:] }
+        return map
+    }
+
+    static func save(_ map: [String: String], userId: UUID) {
+        if map.isEmpty {
+            clear(userId: userId)
+        } else if let data = try? JSONEncoder().encode(map) {
             try? data.write(to: url(userId: userId), options: .atomic)
         }
     }

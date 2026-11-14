@@ -209,4 +209,47 @@ final class AnalyzerTests: XCTestCase {
         XCTAssertEqual(axis.norm, 1, accuracy: 1e-9)
         XCTAssertLessThan(axis.y, -0.9)          // points to where the biggest excursion is
     }
+
+    // MARK: - Unusual input must not trap
+
+    /// sim_snatch.json with accel and rotation rate zeroed from `from` (to `to`): a still hold
+    /// that starts right after the pull (before the forearm turns over) and runs on.
+    private func fixtureWithStillHold(from: Double, to: Double?) throws -> LiftRecording {
+        var rec = try LiftRecording.decode(from: try fixtureData("sim_snatch", "json"))
+        for i in 0..<rec.motion.t.count where rec.motion.t[i] >= from && (to == nil || rec.motion.t[i] < (to ?? 0.0)) {
+            rec.motion.ax[i] = 0.0; rec.motion.ay[i] = 0.0; rec.motion.az[i] = 0.0
+            rec.motion.rx[i] = 0.0; rec.motion.ry[i] = 0.0; rec.motion.rz[i] = 0.0
+        }
+        return rec
+    }
+
+    /// Same input as tools/tests/test_analyzer.py::test_still_hold_spanning_the_turnover_does_not_crash
+    /// (pull starts at 1.5 s, final hold ends at 6.45 s).
+    func testStillHoldSpanningTheTurnoverIsLowConfidence() throws {
+        let rec = try fixtureWithStillHold(from: 2.4, to: 6.55)
+        let a = try LiftAnalyzer.analyze(rec, config: .wristReference)
+        XCTAssertEqual(a.confidence, .low)
+        XCTAssertTrue(a.notes.contains(LiftAnalyzer.noteAnchorOverlap), "\(a.notes)")
+        XCTAssertGreaterThan(a.endIndex, a.homingIndex)
+    }
+
+    /// Same input as test_last_anchor_released_at_final_sample_does_not_crash (end-only
+    /// pseudo anchor for a clean, last still hold running to the final sample).
+    func testLastAnchorReleasedAtFinalSampleDoesNotTrap() throws {
+        var rec = try fixtureWithStillHold(from: 2.4, to: nil)
+        rec.liftType = .clean
+        var config = AnalyzerConfig.wristReference
+        config.pseudoAnchorMode = .auto
+        let a = try LiftAnalyzer.analyze(rec, config: config)
+        XCTAssertLessThanOrEqual(a.endIndex, rec.motion.t.count - 1)
+        XCTAssertFalse(a.notes.contains(LiftAnalyzer.notePseudoAnchor), "\(a.notes)")
+    }
+
+    func testEmptyAndVeryShortRecordingsThrow() {
+        let empty = SignalBuilder().recording()
+        XCTAssertThrowsError(try LiftAnalyzer.analyze(empty, config: .wristReference))
+        var b = SignalBuilder(attitude: hangingArm)
+        b.hold(0.01)
+        XCTAssertThrowsError(try LiftAnalyzer.analyze(b.recording(), config: .wristReference))
+    }
 }

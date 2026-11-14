@@ -340,14 +340,62 @@ permission prompts don't hit me mid-run and I know how to move to the next movem
    the practice.
 5. The practice saves no result, uploads nothing and adds nothing to Apple Fitness. A first-time
    tester does it in under 2 minutes without help.
+*Status:* built on branch `claude/funny-faraday-1adqio` (watch only, not run on a device yet). Differs
+from "Done when": it opens at launch until one practice is finished and is the first row of the
+workout picker (not in Settings); no timer; the heart-rate refusal is inferred (no sample 12 s after
+the session runs); the finish screen explains the recovery but does not record it.
 
 **W23. Tell me when heart rate or motion is off (Now)**
 As an athlete, I want the app to tell me before a workout if heart rate or motion access is off, so
 I don't find out afterwards that nothing was measured.
 *Done when:* the phone's Workouts tab and the watch start screen show "Heart rate is off" /
 "Motion is off" with what it costs (no HR, recovery, distance, reps) and a button that opens the
-right Settings page; the banner goes away as soon as access is on. (a tester, 2026-11-10: no HR or
+right Settings page; the banner goes away as soon as access is on. Heart rate: iOS does not tell
+an app whether reading heart rate was refused, so the rule is "the last session (or the practice)
+received no heart rate while the watch was worn"; it clears when a session receives heart rate. The
+phone can open the Health app but not this app's Sharing page, so the banner also says where to
+tap (Sharing → Apps → Rx Lab). Motion: the watch reports its Motion status to the phone (a new
+application-context key; shared `PhoneLink` files). (First tester, 2026-11-10: no HR or
 steps recorded at all.)
+
+**W24. A crash does not lose my workout (Now)**
+As an athlete, I want a workout that was cut off (app crash, memory kill, reboot, dead battery)
+to still show up on my phone, so a 40-minute effort is not gone because of a watch hiccup.
+*Done when:* while a workout runs, the watch saves a checkpoint (splits, heart rate, steps, reps
+entered, whether a recording was started) at every split and about every 15 s. When the app is
+opened again, a checkpoint left behind is sent to the phone as a normal result that ends at the
+last checkpoint, with no finish time unless I had already finished; the start screen line reads
+"<name> · 12:34 · saved after interruption". The debug recording from that session is sent with
+it, and an active Health workout left over is ended and saved. A normal End leaves no checkpoint.
+It does not resume the running workout, and time after the last checkpoint is not recorded.
+
+**W25. My heart rate zones start from my age (Now)**
+As a new athlete, I want Effort to make sense from my first workout, so an easy session is not
+scored as all zone 5 and one sensor spike does not skew every later score.
+*Done when:* max heart rate is the manual value if I set one (100-230), else the larger of
+208 - 0.7 × age (from my Health birth date, or a birth year typed in Settings) and the highest
+heart rate I held for at least two 5-s points in my results (old results without a series count
+their stored max). It never goes down by itself. Effort, zones and the heart rate chart agree on it
+everywhere. Settings > Heart rate shows the birth year ("From Health", or a field when Health has
+none) and the max in use with where it comes from (Estimated from age, From your workouts, Set by
+you), with a field to set my own and a way to clear it. The watch's one Health sheet also asks for
+date of birth. Both stay on the phone: no upload, no result field, no watch message. With no birth
+year and no heart rate data, nothing is scored, as before.
+*Status:* built on branch `claude/funny-faraday-1adqio` (phone and one watch permission line; not
+run on a device yet).
+
+**W26. I lift in kg or lb, and the app knows my size (Now)**
+As a tester who lifts in kilograms, I want every lift load in my unit, and a place for my height and
+body details, because bar height only means something relative to the lifter.
+*Done when:* Settings > About you has Weights (kg / lb; until I choose, a metric region gives kg and
+anything else lb), and optional Height (cm, or ft and in for lb), Body weight and Forearm length
+(elbow crease to the wrist bone). Every lift load on the phone and the watch follows the unit: "62.5 kg",
+"100 kg", "135 lb". The watch picker starts at 60 kg in steps of 2.5, or 135 lb in steps of 5, keeps its
+own copy of the unit (works with the phone away) and takes the phone's choice. A load of 60 kg reads
+back as 60 kg and 135 lb as 135 lb; stored lift files stay in kilograms. Library workouts keep the
+unit they are written in. The unit and the three body details are written to Profile/athlete.json and
+uploaded with the recordings (kind "profile"); birth year and max heart rate stay on the phone.
+*Status:* built on branch `claude/funny-faraday-1adqio` (not run on a device yet).
 
 **W27. Timed work intervals: Tabata 20 / 10 (Now)**
 As an athlete doing a Tabata (8 x 20 s work, 10 s rest), I want the watch to switch from work to rest
@@ -403,6 +451,10 @@ then Freedom), with one START:
   continuous across the whole session.
 - Battery and upload size per hour are measured on a 60-min session and are no worse than today's
   workout mode (30 MB / 40 min).
+Built so far (build 15): only the sensor rate, chosen once at START from the planned movements
+(200 Hz when the plan has a barbell / dumbbell / kettlebell movement, else 100 Hz); no switching
+inside a session, no analysis changes. GPS (build 15): on for the whole session when the plan has
+a run, off otherwise; coordinates are not uploaded (the route goes to Apple Health only).
 Needs: lift pieces in the program (sets x reps x weight) and the single start screen; tested first
 on recordings, then in the gym, before it replaces the two modes.
 
@@ -445,7 +497,7 @@ existing lift chooser and the Workouts tab. The next workout on the watch and it
 **N6. Effort from what the watch measured (Now)**
 As an athlete, I want one number for how much I did, based on measured heart rate.
 *Done when:* Effort is minutes × heart rate zone from start to finish, added per local day, with max
-heart rate the highest ever recorded. Days with no heart rate data (lifting sessions today) show a
+heart rate as in W25. Days with no heart rate data (lifting sessions today) show a
 dash, not 0. Python reference, Swift port and parity test. Weight lifted is left out of the beta: the
 app doesn't know the loads actually lifted yet.
 

@@ -205,6 +205,7 @@ public enum LiftAnalyzer {
     public static let notePseudoAnchor: String = "No still hold at the finish: end estimated at the calmest point before the drop"
     public static let noteForwardEstimated: String = "Forward direction estimated"
     public static let noteHomingFromWatch: String = "Homing taken from the watch estimate"
+    public static let noteAnchorOverlap: String = "Still hold overlaps the lift: path unreliable"
 
     /// Inclusive range of sample indices where the forward isStill mask is true.
     struct StillRun {
@@ -440,6 +441,29 @@ public enum LiftAnalyzer {
                         notes.append(notePseudoAnchor)
                     }
                 }
+            }
+        }
+
+        // 4c. An anchor that starts before the previous one has released (a still run that began
+        // before the forearm turned over and outlasts the pseudo-anchor) would give a negative
+        // segment: drop it and mark the result low confidence.
+        var anchorsOk: [Anchor] = []
+        var sPrev = h0
+        for a in anchors where a.start >= sPrev {
+            anchorsOk.append(a)
+            sPrev = a.release
+        }
+        let anchorsOverlap = anchorsOk.count != anchors.count
+        if anchorsOverlap {
+            anchors = anchorsOk
+            notes.append(noteAnchorOverlap)
+        }
+        // An end-only pseudo anchor integrates one sample past the last anchor's release; with
+        // the release at the final sample there is nothing to integrate: that anchor is the end.
+        if pseudoEnd != nil, let lastAnchor = anchors.last, lastAnchor.release + 1 > n - 1 {
+            pseudoEnd = nil
+            if let k = notes.firstIndex(of: notePseudoAnchor) {
+                notes.remove(at: k)
             }
         }
 
@@ -731,7 +755,7 @@ public enum LiftAnalyzer {
         if mode == .gravityOnly && confidence == .high {
             confidence = .medium
         }
-        if noAnchor {
+        if noAnchor || anchorsOverlap {
             confidence = .low
         }
         if notes.contains(noteLateral) && confidence == .high {

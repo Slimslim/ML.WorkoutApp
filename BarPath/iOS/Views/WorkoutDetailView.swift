@@ -1,12 +1,12 @@
 import SwiftUI
 import BarPathKit
 
-/// The report of one workout: the done workout card with its score line on top, then heart
-/// rate, recovery, story, splits, the share buttons and Fix splits.
+/// The report of one workout, then every split, the share buttons and Fix splits.
 struct WorkoutDetailView: View {
     let resultId: UUID
     @EnvironmentObject private var store: WorkoutStore
     @ObservedObject private var library = WorkoutLibraryStore.shared
+    @ObservedObject private var profile = AthleteProfile.shared
     @State private var fixingSplits = false
 
     var body: some View {
@@ -25,11 +25,36 @@ struct WorkoutDetailView: View {
         let resolved: (definition: WorkoutDefinition, program: String?) =
             WorkoutResultCard.resolve(result, library: library.workouts)
         return ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                WorkoutOverviewView(result: result, previous: store.previousAttempt(before: result),
-                                    card: WorkoutCard.make(definition: resolved.definition),
-                                    cardMeta: WorkoutResultCard.reportMeta(result, program: resolved.program))
+            VStack(alignment: .leading, spacing: 12) {
+                WorkoutReportView(result: result, previous: store.previousAttempt(before: result),
+                                  card: WorkoutCard.make(definition: resolved.definition),
+                                  meta: WorkoutResultCard.reportMeta(result, program: resolved.program),
+                                  maxHeartRate: profile.maxHeartRate(results: store.results)?.value)
                     .id(result.id)
+                NavigationLink {
+                    ScrollView {
+                        WorkoutOverviewView(result: result, previous: store.previousAttempt(before: result),
+                                            maxHeartRate: profile.maxHeartRate(results: store.results)?.value,
+                                            card: WorkoutCard.make(definition: resolved.definition),
+                                            cardMeta: WorkoutResultCard.reportMeta(result, program: resolved.program))
+                            .padding(16)
+                    }
+                    .background(Theme.pageBackground)
+                    .navigationTitle("Every split")
+                    .navigationBarTitleDisplayMode(.inline)
+                } label: {
+                    HStack {
+                        Text("Every split")
+                            .font(.subheadline.weight(.semibold))
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .card()
                 WorkoutShareCard(result: result)
                 Button {
                     fixingSplits = true

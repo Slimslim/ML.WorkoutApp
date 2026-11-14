@@ -128,9 +128,11 @@ final class MotionRecorder {
 
         if CMBatchedSensorManager.isDeviceMotionSupported {
             mode = .batched
+            csvWriter?.sampleRateHz = 200
             startBatched()
         } else if fallbackManager.isDeviceMotionAvailable {
             mode = .fallback100Hz
+            csvWriter?.sampleRateHz = 100
             startFallback()
         } else {
             mode = .unavailable

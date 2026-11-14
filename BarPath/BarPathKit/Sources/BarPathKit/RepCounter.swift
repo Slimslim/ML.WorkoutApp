@@ -84,7 +84,10 @@ public enum RepCounter {
         for i in 1..<n {
             dts.append(t[i] - t[i - 1])
         }
-        let fs = 1.0 / median(dts)
+        let dtMed = median(dts)
+        // Duplicate / unusable timestamps: no sample rate, no reps (Int(inf) would trap).
+        guard dtMed.isFinite, dtMed >= 1e-6 else { return out }
+        let fs = 1.0 / dtMed
 
         var aUp = [Double](repeating: 0.0, count: n)
         var gx = [Double](repeating: 0.0, count: n)

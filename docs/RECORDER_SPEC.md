@@ -28,7 +28,6 @@ tools/                           Python reference implementation + simulator + p
   tests/                         pytest
   plot_lift.py                   CLI: plot an exported recording
   make_fixtures.py               writes Swift test fixtures
-legacy/                          old 2024 Python ML code (untouched, moved)
 docs/
 ```
 
@@ -86,8 +85,16 @@ sample to `session-<sessionId>.csv` (written incrementally per batch, never held
 t,qw,qx,qy,qz,ax,ay,az,gx,gy,gz,rx,ry,rz
 0.000000,...
 ```
+The header line also carries device keys (additive, still `v1`; older files lack them and parsers ignore unknown keys): `watchModel` (hw.machine with the comma replaced by `_`, e.g. `Watch7_5`), `watchOS`, `wrist`, `crown` (`left`/`right`), `appBuild` (CFBundleVersion) and, when known, `sampleRate` (nominal Hz).
 Six decimals for t, five for the rest. Sent to the phone at session end via `transferFile`.
 No 800 Hz accel in the CSV (keeps size ≈ 20 MB per 10 min).
+
+**Cloud upload.** The phone uploads recordings as standard gzip files, `<user id>/<path>.csv.gz`
+(about 2.6x smaller; the local `.csv` stays as it is). Recordings uploaded by earlier builds are
+plain `.csv` objects and stay that way; `tools/fetch_sessions.py` reads both. The bucket accepts
+at most 50 MB per file: a file that is still too large after compression, or that the server
+refuses for its size, is remembered per version and not retried (the app shows "1 file too large
+to upload" once); it is tried again only if the file changes.
 
 ---
 

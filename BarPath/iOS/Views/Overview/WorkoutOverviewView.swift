@@ -25,11 +25,10 @@ struct WorkoutOverviewView: View {
 
     /// - kicker: line above the title; nil shows the workout date.
     /// - card: when set, the done card replaces the HeroCard (kicker and isNew are then unused).
-    init(result: WorkoutResult, previous: WorkoutResult?, kicker: String? = nil, isNew: Bool = false,
-         card: WorkoutCard? = nil, cardMeta: String? = nil) {
-        let stored: Double = UserDefaults.standard.double(forKey: "maxHeartRate")
-        let maxHR: Double? = stored > 0 ? stored : nil
-        self.summary = WorkoutSummary.make(result: result, previous: previous, maxHeartRate: maxHR)
+    /// - maxHeartRate: the max in use (`AthleteProfile.maxHeartRate`); nil estimates the zones.
+    init(result: WorkoutResult, previous: WorkoutResult?, maxHeartRate: Double?, kicker: String? = nil,
+         isNew: Bool = false, card: WorkoutCard? = nil, cardMeta: String? = nil) {
+        self.summary = WorkoutSummary.make(result: result, previous: previous, maxHeartRate: maxHeartRate)
         self.kicker = kicker ?? OverviewFormat.dayAndTime(result.startDate).uppercased()
         self.isNew = isNew
         self.recovery = result.heartRateRecovery

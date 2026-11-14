@@ -42,14 +42,17 @@ final class SessionModel: ObservableObject {
             UserDefaults.standard.set(useLoad, forKey: Keys.useLoad)
         }
     }
-    /// Load entered on the watch, in pounds (lbs for now; a unit setting comes later).
-    /// Recordings still store kilograms (`loadKg`), converted in `currentLoad`.
-    @Published var loadLb: Double {
+    /// Load entered on the watch, always kept in kilograms: the one source of truth. The picker
+    /// shows it in `weightUnit` (kg or lb) and converts only when reading or writing a number
+    /// there, so changing the unit never changes the load. Recordings store the same kilograms.
+    @Published var loadKg: Double {
         didSet {
             recorder.loadKg = currentLoad
-            UserDefaults.standard.set(loadLb, forKey: Keys.loadLb)
+            UserDefaults.standard.set(loadKg, forKey: Keys.loadKg)
         }
     }
+    /// The unit the load is shown and picked in: the phone's choice, else the watch's region.
+    @Published private(set) var weightUnit: WeightUnit
     /// Full-session CSV. Defaults to ON for now (data collection phase).
     @Published var debugRecording: Bool {
         didSet { UserDefaults.standard.set(debugRecording, forKey: Keys.debugRecording) }
@@ -77,12 +80,46 @@ final class SessionModel: ObservableObject {
     @Published private(set) var repCount = 0
     @Published private(set) var lastSetReps: Int?
 
-    static let kgPerLb = 0.45359237
+    static let kgPerLb = WeightUnit.kgPerLb
 
     /// Load in kilograms for the recording, or nil when not logging load.
-    var currentLoad: Double? { useLoad ? loadLb * SessionModel.kgPerLb : nil }
+    var currentLoad: Double? { useLoad ? loadKg : nil }
 
-    private let workout: WorkoutManager
+    /// The load as the picker shows it, in `weightUnit` (kg to 0.1, lb whole).
+    var loadDisplay: Double { return weightUnit.display(fromKilograms: loadKg) }
+
+    /// "60 kg", "62.5 kg", "135 lb".
+    var loadText: String { return weightUnit.format(kilograms: loadKg) }
+
+    /// Sets the load from a number in `weightUnit` (Digital Crown). Same number as shown: no change.
+    func setLoadDisplay(_ value: Double) {
+        if value == loadDisplay { return }
+        loadKg = weightUnit.kilograms(fromDisplay: value)
+    }
+
+    /// One tap of the − / + buttons: `direction` is -1 or +1 steps of the unit's step.
+    func stepLoad(_ direction: Double) {
+        loadKg = weightUnit.kilograms(adding: direction * weightUnit.step, toKilograms: loadKg)
+    }
+
+    private func applyWeightUnit(_ unit: WeightUnit) {
+        if unit == weightUnit { return }
+        weightUnit = unit
+        // Never chosen on this watch: the default load follows the unit (60 kg or 135 lb).
+        if UserDefaults.standard.object(forKey: Keys.loadKg) == nil
+            && UserDefaults.standard.object(forKey: Keys.loadLb) == nil {
+            loadKg = unit.kilograms(fromDisplay: unit.defaultLoad)
+            UserDefaults.standard.removeObject(forKey: Keys.loadKg)
+        }
+    }
+
+    /// Replaced by a fresh manager if HealthKit never reports back after End (see `armEndTimeout`).
+    private var workout: WorkoutManager
+    /// How long End waits for HealthKit before going back to the start screen.
+    static let endTimeout: Double = 8.0
+    private var endTimeoutTask: Task<Void, Never>?
+    /// Managers replaced because they got stuck (kept alive so they can still finish).
+    private var retiredManagers: [WorkoutManager] = []
     private let recorder: MotionRecorder
     private let link: PhoneLink
     private var sessionId = UUID()
@@ -90,11 +127,14 @@ final class SessionModel: ObservableObject {
     private var csvId = UUID()
     private var lastHapticDate: Date?
     private var pendingPhoneLift: LiftSelection?
+    private var unitObserver: AnyCancellable?
 
     private enum Keys {
         static let liftType = "liftType"
         static let useLoad = "useLoad"
+        /// Older builds stored pounds here; read once if `loadKg` is not stored yet.
         static let loadLb = "loadLb"
+        static let loadKg = "loadKg.v1"
         static let debugRecording = "debugRecording.v1"
     }
 
@@ -107,35 +147,37 @@ final class SessionModel: ObservableObject {
         let storedType = defaults.string(forKey: Keys.liftType).flatMap { LiftType(rawValue: $0) }
         let initialType = storedType ?? .snatch
         let initialUseLoad = defaults.bool(forKey: Keys.useLoad)
-        let storedLoad = defaults.double(forKey: Keys.loadLb)
-        let initialLoad = storedLoad > 0 ? storedLoad : 135
+        let initialUnit = PhoneLink.shared.weightUnit
+        let storedKg = defaults.double(forKey: Keys.loadKg)
+        let storedLb = defaults.double(forKey: Keys.loadLb)
+        let initialLoad: Double
+        if storedKg > 0 {
+            initialLoad = storedKg
+        } else if storedLb > 0 {
+            initialLoad = WeightUnit.kilograms(fromPounds: storedLb)
+        } else {
+            initialLoad = initialUnit.kilograms(fromDisplay: initialUnit.defaultLoad)
+        }
         let initialDebug = defaults.object(forKey: Keys.debugRecording) == nil
             ? true
             : defaults.bool(forKey: Keys.debugRecording)
 
         liftType = initialType
         useLoad = initialUseLoad
-        loadLb = initialLoad
+        loadKg = initialLoad
+        weightUnit = initialUnit
         debugRecording = initialDebug
 
         recorder.liftType = initialType
-        recorder.loadKg = initialUseLoad ? initialLoad * SessionModel.kgPerLb : nil
+        recorder.loadKg = initialUseLoad ? initialLoad : nil
         wireCallbacks()
+        unitObserver = link.$weightUnit.sink { [weak self] (unit: WeightUnit) in
+            self?.applyWeightUnit(unit)
+        }
     }
 
     private func wireCallbacks() {
-        workout.onStateChange = { [weak self] state in
-            self?.workoutStateChanged(state)
-        }
-        workout.onHeartRate = { [weak self] bpm in
-            self?.heartRate = bpm
-        }
-        workout.onError = { [weak self] message in
-            self?.workoutFailed(message)
-        }
-        workout.onFinished = { [weak self] in
-            self?.workoutFinished()
-        }
+        wireWorkoutCallbacks()
 
         recorder.onDetectorStateChange = { [weak self] state in
             self?.detectorStateChanged(state)
@@ -160,6 +202,55 @@ final class SessionModel: ObservableObject {
         }
     }
 
+    private func wireWorkoutCallbacks() {
+        workout.onStateChange = { [weak self] state in
+            self?.workoutStateChanged(state)
+        }
+        workout.onHeartRate = { [weak self] bpm in
+            self?.heartRate = bpm
+        }
+        workout.onError = { [weak self] message in
+            self?.workoutFailed(message)
+        }
+        workout.onFinished = { [weak self] in
+            self?.workoutFinished()
+        }
+    }
+
+    /// Drops a WorkoutManager that is stuck (never reported back) and makes a fresh one.
+    private func replaceWorkoutManager() {
+        let old = workout
+        old.onStateChange = nil
+        old.onHeartRate = nil
+        old.onError = nil
+        old.onFinished = nil
+        // Ask it to end/save whatever it still holds; keep it alive so its HealthKit
+        // delegate callbacks (weak references) can still complete.
+        old.end()
+        retiredManagers.append(old)
+        if retiredManagers.count > 3 {
+            retiredManagers.removeFirst()
+        }
+        workout = WorkoutManager()
+        wireWorkoutCallbacks()
+        Log.workout.error("Replaced the HealthKit workout manager")
+    }
+
+    /// If HealthKit does not report back within `endTimeout`, go back to the start screen anyway.
+    /// The lifts are already saved: each one is written to the outbox and sent as it is
+    /// detected, and `stopRecording()` has flushed the last block and the session CSV.
+    private func armEndTimeout() {
+        endTimeoutTask?.cancel()
+        endTimeoutTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: UInt64(SessionModel.endTimeout * 1_000_000_000))
+            if Task.isCancelled { return }
+            guard let self = self, self.phase == .ending else { return }
+            Log.workout.error("HealthKit did not finish in time; going idle anyway")
+            self.replaceWorkoutManager()
+            self.workoutFinished()
+        }
+    }
+
     // MARK: - Actions
 
     func start() {
@@ -168,6 +259,10 @@ final class SessionModel: ObservableObject {
             return
         }
         guard phase == .idle else { return }
+        if workout.hasSession {
+            // Left over from a previous run that never finished: don't let it block us.
+            replaceWorkoutManager()
+        }
         errorMessage = nil
         lastSummary = nil
         pendingPhoneLift = nil
@@ -207,7 +302,8 @@ final class SessionModel: ObservableObject {
     private func apply(_ selection: LiftSelection) {
         liftType = selection.liftType
         if let lb = selection.loadLb {
-            loadLb = lb
+            // The phone sends kilograms as pounds (`loadLb`); 60 kg arrives as 60 kg.
+            loadKg = WeightUnit.kilograms(fromPounds: lb)
             useLoad = true
         } else {
             useLoad = false
@@ -249,12 +345,14 @@ final class SessionModel: ObservableObject {
         switch phase {
         case .paused:
             phase = .ending
+            armEndTimeout()
             let duration = sessionStartDate.map { Date().timeIntervalSince($0) } ?? 0
             workout.saveWorkoutOnEnd = liftCount > 0 || duration >= 300
             workout.end()
         case .running, .starting:
             stopRecording()
             phase = .ending
+            armEndTimeout()
             // Only keep real sessions in Health/Fitness: at least one lift, or 5+ minutes.
             let duration = sessionStartDate.map { Date().timeIntervalSince($0) } ?? 0
             workout.saveWorkoutOnEnd = liftCount > 0 || duration >= 300
@@ -319,8 +417,10 @@ final class SessionModel: ObservableObject {
             if phase == .running || phase == .starting {
                 stopRecording()
                 phase = .ending
+                armEndTimeout()
             } else if phase == .paused {
                 phase = .ending
+                armEndTimeout()
             }
         default:
             break
@@ -338,6 +438,8 @@ final class SessionModel: ObservableObject {
     }
 
     private func workoutFinished() {
+        endTimeoutTask?.cancel()
+        endTimeoutTask = nil
         if phase == .running || phase == .starting {
             stopRecording()
         }
@@ -442,7 +544,8 @@ final class SessionModel: ObservableObject {
             // Live set on the phone: reps so far in the set in progress (0 between sets).
             message["repCount"] = repCount
             if useLoad {
-                message["loadLb"] = loadLb
+                message["loadLb"] = WeightUnit.pounds(fromKilograms: loadKg)
+                message["loadKg"] = loadKg
             }
         }
         link.sendStatus(message)

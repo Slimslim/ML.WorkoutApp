@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import HealthKit
+import CoreLocation
 
 /// Owns the HKWorkoutSession + HKLiveWorkoutBuilder.
 ///
@@ -17,6 +18,11 @@ final class WorkoutManager: NSObject, ObservableObject {
     private var session: HKWorkoutSession?
     private var builder: HKLiveWorkoutBuilder?
     private var isFinishing = false
+    /// Route of a workout with GPS (workout mode, plans with a run). Created from the live
+    /// builder on the first `insertRoute`, so a session without GPS never has one. Finished with
+    /// the workout, or discarded with it.
+    private var routeBuilder: HKWorkoutRouteBuilder?
+    private var routeLocationCount = 0
     /// `start()` was called and its session isn't created yet (authorization pending);
     /// `end()` before then cancels it, so no session comes up after the caller moved on.
     private var startPending = false
@@ -38,6 +44,11 @@ final class WorkoutManager: NSObject, ObservableObject {
         super.init()
     }
 
+    /// Number of times any manager in this process was asked to start a session. The launch
+    /// recovery below only acts while this is still 0, so it can never end a session started
+    /// in this run.
+    private static var startRequests = 0
+
     var hasSession: Bool { session != nil }
 
     // MARK: - Start
@@ -53,13 +64,9 @@ final class WorkoutManager: NSObject, ObservableObject {
             return
         }
         startPending = true
-        let share: Set<HKSampleType> = [HKObjectType.workoutType()]
-        let read: Set<HKObjectType> = [
-            HKQuantityType(.heartRate),
-            HKQuantityType(.activeEnergyBurned),
-            HKObjectType.workoutType()
-        ]
-        healthStore.requestAuthorization(toShare: share, read: read) { success, error in
+        WorkoutManager.startRequests += 1
+        let sets = authorizationSets()
+        healthStore.requestAuthorization(toShare: sets.share, read: sets.read) { success, error in
             if let error = error {
                 Log.workout.error("HealthKit authorization error: \(error.localizedDescription, privacy: .public)")
             }
@@ -67,6 +74,47 @@ final class WorkoutManager: NSObject, ObservableObject {
                 // `success` only means the request completed, not that it was granted.
                 // If sharing was denied, creating/starting the session reports the error.
                 self.beginSession()
+            }
+        }
+    }
+
+    /// The types every session of this app asks for (one place, so the practice asks for exactly
+    /// what a workout does).
+    private func authorizationSets() -> (share: Set<HKSampleType>, read: Set<HKObjectType>) {
+        var share: Set<HKSampleType> = [HKObjectType.workoutType()]
+        var read: Set<HKObjectType> = [
+            HKQuantityType(.heartRate),
+            HKQuantityType(.activeEnergyBurned),
+            HKObjectType.workoutType()
+        ]
+        // The route of a workout with a run goes to Health through the route builder; Apple's
+        // "Creating a workout route" asks for read and share access to the route type. Asked only
+        // once Location is allowed, so an unanswered new type never makes Health show its sheet
+        // at START for someone who never allowed Location. (Date of birth is asked on the phone.)
+        let locationStatus: CLAuthorizationStatus = CLLocationManager().authorizationStatus
+        if locationStatus == .authorizedWhenInUse || locationStatus == .authorizedAlways {
+            share.insert(HKSeriesType.workoutRoute())
+            read.insert(HKSeriesType.workoutRoute())
+        }
+        return (share: share, read: read)
+    }
+
+    /// Asks for the same Health access `start()` does, without starting a session (the
+    /// practice workout asks before anything runs). `completion` runs on the main actor once
+    /// the question is answered, or at once when it was answered before or Health is
+    /// unavailable. It does not say whether access was granted.
+    func requestAuthorization(completion: @escaping @MainActor () -> Void) {
+        guard HKHealthStore.isHealthDataAvailable() else {
+            completion()
+            return
+        }
+        let sets = authorizationSets()
+        healthStore.requestAuthorization(toShare: sets.share, read: sets.read) { _, error in
+            if let error = error {
+                Log.workout.error("HealthKit authorization error: \(error.localizedDescription, privacy: .public)")
+            }
+            Task { @MainActor in
+                completion()
             }
         }
     }
@@ -94,6 +142,8 @@ final class WorkoutManager: NSObject, ObservableObject {
         session = newSession
         builder = newBuilder
         isFinishing = false
+        routeBuilder = nil
+        routeLocationCount = 0
 
         let start = Date()
         startDate = start
@@ -103,6 +153,89 @@ final class WorkoutManager: NSObject, ObservableObject {
                 Log.workout.error("beginCollection failed: \(error.localizedDescription, privacy: .public)")
             } else {
                 Log.workout.info("beginCollection ok: \(success)")
+            }
+        }
+    }
+
+    // MARK: - Route
+
+    /// Adds accepted GPS fixes to the workout's route (Health only; no app file gets them).
+    /// Does nothing without a running session or once the workout is being finished.
+    func insertRoute(_ locations: [CLLocation]) {
+        guard !locations.isEmpty, !isFinishing, let live = builder else { return }
+        if routeBuilder == nil {
+            routeBuilder = live.seriesBuilder(for: HKSeriesType.workoutRoute()) as? HKWorkoutRouteBuilder
+            if routeBuilder == nil {
+                Log.workout.error("No route builder available; route not saved")
+            }
+        }
+        guard let route = routeBuilder else { return }
+        routeLocationCount += locations.count
+        route.insertRouteData(locations) { _, error in
+            if let error = error {
+                Log.workout.error("Route insert failed: \(error.localizedDescription, privacy: .public)")
+            }
+        }
+    }
+
+    // MARK: - Recovery after the app died
+
+    /// Called once at launch by the workout model. If the app died mid-workout the system may
+    /// still hold an active HKWorkoutSession for it: end it and save the Health workout (end
+    /// collection now, then finishWorkout). Fire and forget; errors are only logged. A lifting
+    /// session (traditional strength) is left alone, and nothing happens if a session was
+    /// already requested in this run.
+    nonisolated static func recoverInterruptedSession() {
+        guard HKHealthStore.isHealthDataAvailable() else { return }
+        let store = HKHealthStore()
+        store.recoverActiveWorkoutSession { session, error in
+            if let error = error {
+                Log.workout.error("recoverActiveWorkoutSession failed: \(error.localizedDescription, privacy: .public)")
+                return
+            }
+            guard let session = session else { return }
+            Task { @MainActor in
+                finishRecovered(session)
+            }
+        }
+    }
+
+    private static func finishRecovered(_ session: HKWorkoutSession) {
+        if startRequests > 0 {
+            Log.workout.info("Recovered session ignored: a session was already requested in this run")
+            return
+        }
+        if session.workoutConfiguration.activityType == .traditionalStrengthTraining {
+            Log.workout.info("Recovered session is a lifting session; left alone")
+            return
+        }
+        // Activity "other" is only ever the practice workout or a background recovery session;
+        // both are discarded, never saved to Health.
+        let discard: Bool = session.workoutConfiguration.activityType == .other
+        let verb: String = discard ? "discarding" : "saving"
+        Log.workout.error("Recovered an active workout session from before the app died; \(verb, privacy: .public) it")
+        let builder: HKLiveWorkoutBuilder = session.associatedWorkoutBuilder()
+        if session.state != .ended {
+            session.end()
+        }
+        let endDate = Date()
+        builder.endCollection(withEnd: endDate) { _, error in
+            if let error = error {
+                Log.workout.error("Recovered endCollection failed: \(error.localizedDescription, privacy: .public)")
+            }
+            if discard {
+                builder.discardWorkout()
+                _ = session
+                return
+            }
+            builder.finishWorkout { _, error in
+                if let error = error {
+                    Log.workout.error("Recovered finishWorkout failed: \(error.localizedDescription, privacy: .public)")
+                } else {
+                    Log.workout.info("Recovered workout saved")
+                }
+                // Keeps the session alive until the workout is saved.
+                _ = session
             }
         }
     }
@@ -139,26 +272,52 @@ final class WorkoutManager: NSObject, ObservableObject {
             return
         }
         let save = saveWorkoutOnEnd   // read on the main actor, before the background callback
+        let route: HKWorkoutRouteBuilder? = routeLocationCount > 0 ? routeBuilder : nil
+        if route == nil {
+            routeBuilder?.discard()   // a builder that never got a fix
+        }
         builder.endCollection(withEnd: endDate) { _, error in
             if let error = error {
                 Log.workout.error("endCollection failed: \(error.localizedDescription, privacy: .public)")
             }
             if !save {
                 builder.discardWorkout()
+                route?.discard()
                 Log.workout.info("Workout discarded (too short / no lifts)")
                 Task { @MainActor in
                     self.cleanup()
                 }
                 return
             }
-            builder.finishWorkout { _, error in
+            builder.finishWorkout { workout, error in
                 if let error = error {
                     Log.workout.error("finishWorkout failed: \(error.localizedDescription, privacy: .public)")
                 } else {
                     Log.workout.info("Workout saved")
                 }
-                Task { @MainActor in
-                    self.cleanup()
+                guard let route = route else {
+                    Task { @MainActor in
+                        self.cleanup()
+                    }
+                    return
+                }
+                guard let workout = workout else {
+                    route.discard()
+                    Task { @MainActor in
+                        self.cleanup()
+                    }
+                    return
+                }
+                // Same Fitness workout: the route is attached to the workout just saved.
+                route.finishRoute(with: workout, metadata: nil) { _, routeError in
+                    if let routeError = routeError {
+                        Log.workout.error("finishRoute failed: \(routeError.localizedDescription, privacy: .public)")
+                    } else {
+                        Log.workout.info("Route saved")
+                    }
+                    Task { @MainActor in
+                        self.cleanup()
+                    }
                 }
             }
         }
@@ -169,6 +328,8 @@ final class WorkoutManager: NSObject, ObservableObject {
         builder?.delegate = nil
         session = nil
         builder = nil
+        routeBuilder = nil
+        routeLocationCount = 0
         startDate = nil
         isFinishing = false
         saveWorkoutOnEnd = true

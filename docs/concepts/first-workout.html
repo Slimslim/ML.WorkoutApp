@@ -148,7 +148,7 @@ section{display:flex;flex-direction:column;gap:20px}
         <div class="pcard"><span class="k">Choose</span><span class="v">Library, benchmarks, Free Workout</span></div>
         <div class="tabbar"><span>Today</span><span class="on">Workouts</span><span>+</span><span>Log</span><span>Progress</span></div>
       </div></div>
-      <div class="cap"><span class="n">Phone · Workouts tab</span><span class="t">Top of the tab, above Today</span><span class="d">Button opens Health → Sharing → BarPath (the app cannot switch it on itself). Motion off: "Motion is off · no steps, no rep data" → Settings.</span></div>
+      <div class="cap"><span class="n">Phone · Workouts tab</span><span class="t">Top of the tab, above Today</span><span class="d">Button opens Health → Sharing → Rx Lab (the app cannot switch it on itself). Motion off: "Motion is off · no steps, no rep data" → Settings.</span></div>
     </div>
     <div class="step" id="watchbanner"></div>
   </div>
@@ -196,7 +196,7 @@ document.getElementById('flow').innerHTML=S.join('');
 document.getElementById('refused').innerHTML=[
  step('1b · Heart rate refused','Say what is lost, offer the fix',
   'Shown right after the refusal. Practice continues either way; the banner (W23) stays until it is on.',
-  '<div class="s"><div class="top"><span class="tag" style="color:var(--warn)">PRACTICE</span><span></span></div><div class="warnline">♥ Heart rate is off</div><div class="small">Workouts will have time and splits, but no heart rate, calories or recovery.</div><div class="small">Turn on: iPhone → Health → Sharing → BarPath.</div><div class="row" style="margin-top:auto"><div class="btn">Continue</div></div></div>','','alt'),
+  '<div class="s"><div class="top"><span class="tag" style="color:var(--warn)">PRACTICE</span><span></span></div><div class="warnline">♥ Heart rate is off</div><div class="small">Workouts will have time and splits, but no heart rate, calories or recovery.</div><div class="small">Turn on: iPhone → Health → Sharing → Rx Lab.</div><div class="row" style="margin-top:auto"><div class="btn">Continue</div></div></div>','','alt'),
  step('2b · Part 1 without HR','No fake numbers',
   'Where HR would be: a dash and "off". Never a placeholder value.',
   '<div class="s"><div class="top"><span class="tag">PART 1 OF 2</span><span>0:18</span></div>'+dots(1)+'<div class="big">Walk</div><div class="small">or march in place</div><div class="hr" style="margin-top:6px;color:var(--fg3)">— <small style="color:var(--warn)">HR OFF</small></div><div class="small" style="margin-top:auto;color:var(--fg)">Done? <span style="color:var(--volt)">Turn the Crown</span></div></div>'+edge(0,.4,'play')+arrow,true,'alt'),

@@ -57,6 +57,7 @@ struct BarPathApp: App {
                 .onAppear {
                     store.loadIfNeeded()
                     workoutStore.loadIfNeeded()
+                    AthleteProfile.shared.refreshFromHealth()
                 }
                 .onChange(of: scenePhase) { _, phase in
                     if phase == .active {

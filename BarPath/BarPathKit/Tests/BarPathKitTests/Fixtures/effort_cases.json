@@ -109,5 +109,206 @@
   "finish": 1025.0,
   "maxHeartRate": 200.0,
   "effort": 1.25
+ },
+ {
+  "kind": "effectiveMax",
+  "name": "effective: age only",
+  "year": 2026,
+  "birthYear": 1991,
+  "override": null,
+  "results": [],
+  "value": 183.5,
+  "source": "age"
+ },
+ {
+  "kind": "effectiveMax",
+  "name": "effective: a sustained peak above the estimate",
+  "year": 2026,
+  "birthYear": 1991,
+  "override": null,
+  "results": [
+   {
+    "bpm": [
+     150.0,
+     160.0,
+     191.0,
+     191.0,
+     160.0
+    ]
+   }
+  ],
+  "value": 191.0,
+  "source": "workouts"
+ },
+ {
+  "kind": "effectiveMax",
+  "name": "effective: a lower workout never lowers the estimate",
+  "year": 2026,
+  "birthYear": 1991,
+  "override": null,
+  "results": [
+   {
+    "bpm": [
+     120.0,
+     130.0,
+     130.0,
+     120.0
+    ]
+   }
+  ],
+  "value": 183.5,
+  "source": "age"
+ },
+ {
+  "kind": "effectiveMax",
+  "name": "effective: a single spike does not count",
+  "year": 2026,
+  "birthYear": null,
+  "override": null,
+  "results": [
+   {
+    "bpm": [
+     178.0,
+     178.0,
+     210.0,
+     178.0,
+     178.0,
+     178.0
+    ]
+   }
+  ],
+  "value": 178.0,
+  "source": "workouts"
+ },
+ {
+  "kind": "effectiveMax",
+  "name": "effective: gaps break a pair",
+  "year": 2026,
+  "birthYear": null,
+  "override": null,
+  "results": [
+   {
+    "bpm": [
+     170.0,
+     null,
+     190.0,
+     null,
+     170.0,
+     171.0
+    ]
+   }
+  ],
+  "value": 170.0,
+  "source": "workouts"
+ },
+ {
+  "kind": "effectiveMax",
+  "name": "effective: a series ignores its stored max",
+  "year": 2026,
+  "birthYear": null,
+  "override": null,
+  "results": [
+   {
+    "bpm": [
+     150.0,
+     150.0
+    ],
+    "max": 205.0
+   }
+  ],
+  "value": 150.0,
+  "source": "workouts"
+ },
+ {
+  "kind": "effectiveMax",
+  "name": "effective: old result with only a stored max",
+  "year": 2026,
+  "birthYear": null,
+  "override": null,
+  "results": [
+   {
+    "bpm": null,
+    "max": 181.0
+   }
+  ],
+  "value": 181.0,
+  "source": "workouts"
+ },
+ {
+  "kind": "effectiveMax",
+  "name": "effective: manual wins",
+  "year": 2026,
+  "birthYear": 1991,
+  "override": 195.0,
+  "results": [
+   {
+    "bpm": [
+     190.0,
+     190.0
+    ]
+   }
+  ],
+  "value": 195.0,
+  "source": "manual"
+ },
+ {
+  "kind": "effectiveMax",
+  "name": "effective: override out of range is ignored",
+  "year": 2026,
+  "birthYear": 1991,
+  "override": 240.0,
+  "results": [],
+  "value": 183.5,
+  "source": "age"
+ },
+ {
+  "kind": "effectiveMax",
+  "name": "effective: override lower bound",
+  "year": 2026,
+  "birthYear": null,
+  "override": 100.0,
+  "results": [],
+  "value": 100.0,
+  "source": "manual"
+ },
+ {
+  "kind": "effectiveMax",
+  "name": "effective: birth year in the future is ignored",
+  "year": 2026,
+  "birthYear": 2030,
+  "override": null,
+  "results": [],
+  "value": null,
+  "source": null
+ },
+ {
+  "kind": "effectiveMax",
+  "name": "effective: age over 100 is ignored",
+  "year": 2026,
+  "birthYear": 1920,
+  "override": null,
+  "results": [],
+  "value": null,
+  "source": null
+ },
+ {
+  "kind": "effectiveMax",
+  "name": "effective: this year's birth year",
+  "year": 2026,
+  "birthYear": 2026,
+  "override": null,
+  "results": [],
+  "value": 208.0,
+  "source": "age"
+ },
+ {
+  "kind": "effectiveMax",
+  "name": "effective: nothing known",
+  "year": 2026,
+  "birthYear": null,
+  "override": null,
+  "results": [],
+  "value": null,
+  "source": null
  }
 ]

@@ -109,7 +109,9 @@ In `docs/RELEASES.md` (the only place with dates and build scope). Build 16 is t
 3. **Metcon:** pick it, **Send to watch**, START on the watch. **Turn the Crown when you finish each
    movement** (each run, each station, each set). Nothing else to do.
 4. **Barbell lifts** (deadlift, press, bench, snatch, clean): use **Lifting** on the watch, pick the
-   lift and the weight, START. Reps are counted; tap **Change** to change the weight between sets,
+   lift and the weight, START. Reps are counted for deadlift, press and bench; snatch and clean give
+   bar speed and height per lift, so **stand still for a second before each pull**. Tap **Change** to
+   change the weight between sets,
    **End** only at the end.
 5. After the session: open the phone app (it uploads), then send a short message: what you really
    did (reps, weights, how you broke sets, Rx or scaled).

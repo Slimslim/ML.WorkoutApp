@@ -23,6 +23,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
+from .workout import distance_text
 from .workout import Movement, WorkoutDefinition, WorkoutLibrary, WorkoutSegment, _number
 
 # Fixed vocabulary of the type tag (HEADER_STUDY.md decision 3). Only some are produced from
@@ -166,7 +167,7 @@ class WorkoutCard:
     @classmethod
     def make(cls, d: WorkoutDefinition) -> "WorkoutCard":
         if d.id == FREE_WORKOUT_ID:
-            return cls("Free Workout", False, None, None, None, None, [CardLine(FREE_LINE)], None, FREE_LINE)
+            return cls(d.name, False, None, None, None, None, [CardLine(FREE_LINE)], None, FREE_LINE)
 
         shape = _Shape.detect(d)
         type_tag = _type_tag(d, shape)
@@ -229,7 +230,7 @@ def movement_line(seg: WorkoutSegment, with_quantity: bool = True) -> CardLine:
     elif t.unit == "calories":
         text = _number(t.value) + " Cal " + _movement_name(seg, False)
     elif t.unit == "meters":
-        text = _number(t.value) + " m " + _movement_name(seg, True)
+        text = distance_text(t.value) + " " + _movement_name(seg, True)
     else:
         text = clock(t.value) + " " + _movement_name(seg, False)
     return CardLine(text, load)
@@ -308,7 +309,9 @@ class _Shape:
                 return False
         self.kind = "scheme"
         self.rounds = rounds
-        self.scheme_line = "-".join(_number(t.value) for t in first) + _unit_suffix(first[0].unit)
+        # Calories move to the movement line: "40-30-20-30-40" then "Cal Row".
+        cal = first[0].unit == "calories"
+        self.scheme_line = "-".join(_number(t.value) for t in first) + ("" if cal else _unit_suffix(first[0].unit))
         for p in range(r):
             x = segs[p]
             if x.kind == "rest":
@@ -317,7 +320,8 @@ class _Shape:
                 continue
             if p in varying:
                 self.scheme_indices.append(len(self.lines))
-                self.lines.append(movement_line(x, with_quantity=False))
+                line = movement_line(x, with_quantity=False)
+                self.lines.append(CardLine("Cal " + line.text, line.load) if cal else line)
             else:
                 self.lines.append(movement_line(x))
         return True

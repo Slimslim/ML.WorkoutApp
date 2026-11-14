@@ -51,7 +51,7 @@ struct StartView: View {
                     LoadPickerView()
                 } label: {
                     SetupTile(label: "LOAD",
-                              value: model.useLoad ? LoadPickerView.format(model.loadLb) : "No load")
+                              value: model.useLoad ? model.loadText : "No load")
                 }
                 .buttonStyle(.plain)
 
@@ -162,44 +162,55 @@ struct LiftTypePickerView: View {
     }
 }
 
-/// Load in lbs: tap −5 / +5, or turn the Digital Crown (5 lb steps).
+/// Load in the athlete's unit (kg: 2.5 steps, lb: 5 steps): tap − / + or turn the Digital Crown.
 struct LoadPickerView: View {
     @EnvironmentObject var model: SessionModel
     @FocusState private var crownFocused: Bool
+
+    /// The load in the unit shown; the model keeps kilograms.
+    private var crownValue: Binding<Double> {
+        return Binding<Double>(get: { model.loadDisplay },
+                               set: { (value: Double) in model.setLoadDisplay(value) })
+    }
+
+    private var stepText: String {
+        let step: Double = model.weightUnit.step
+        return step == step.rounded() ? String(format: "%.0f", step) : String(format: "%.1f", step)
+    }
 
     var body: some View {
         VStack(spacing: 8) {
             Toggle("Log load", isOn: $model.useLoad)
                 .font(.footnote)
 
-            Text(LoadPickerView.format(model.loadLb))
+            Text(model.loadText)
                 .font(.system(size: 34, weight: .bold, design: .rounded))
                 .foregroundColor(model.useLoad ? Color.primary : Color.secondary)
                 .frame(maxWidth: .infinity, minHeight: 50)
                 .focusable(true)
                 .focused($crownFocused)
-                .digitalCrownRotation($model.loadLb,
+                .digitalCrownRotation(crownValue,
                                       from: 0,
-                                      through: 900,
-                                      by: 5,
+                                      through: model.weightUnit.maxLoad,
+                                      by: model.weightUnit.step,
                                       sensitivity: .low,
                                       isContinuous: false,
                                       isHapticFeedbackEnabled: true)
 
             HStack(spacing: 8) {
                 Button {
-                    model.loadLb = max(0, model.loadLb - 5)
+                    model.stepLoad(-1)
                     model.useLoad = true
                 } label: {
-                    Text("−5")
+                    Text("\u{2212}" + stepText)
                         .font(.headline)
                         .frame(maxWidth: .infinity, minHeight: 44)
                 }
                 Button {
-                    model.loadLb = min(900, model.loadLb + 5)
+                    model.stepLoad(1)
                     model.useLoad = true
                 } label: {
-                    Text("+5")
+                    Text("+" + stepText)
                         .font(.headline)
                         .frame(maxWidth: .infinity, minHeight: 44)
                 }
@@ -210,14 +221,10 @@ struct LoadPickerView: View {
         .onAppear {
             crownFocused = true
         }
-        .onChange(of: model.loadLb) { _, _ in
+        .onChange(of: model.loadKg) { _, _ in
             if !model.useLoad {
                 model.useLoad = true
             }
         }
-    }
-
-    static func format(_ lb: Double) -> String {
-        return String(format: "%.0f lb", lb.rounded())
     }
 }

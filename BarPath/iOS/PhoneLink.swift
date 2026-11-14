@@ -9,7 +9,8 @@ struct LiveSetStatus: Equatable {
     let setNumber: Int
     let repCount: Int
     let liftName: String
-    let loadLb: Double?
+    /// Load of the set in kilograms (from `loadKg`, else the older `loadLb` key).
+    let loadKg: Double?
 
     /// Nil unless the watch is running a strength block with at least one rep in this set.
     init?(message: [String: Any]) {
@@ -19,7 +20,13 @@ struct LiveSetStatus: Equatable {
         setNumber = ((message["liftCount"] as? NSNumber)?.intValue ?? 0) + 1
         let raw = message["liftType"] as? String
         liftName = raw.flatMap { LiftType(rawValue: $0)?.displayName } ?? "Set"
-        loadLb = (message["loadLb"] as? NSNumber)?.doubleValue
+        if let kg = (message["loadKg"] as? NSNumber)?.doubleValue {
+            loadKg = kg
+        } else if let lb = (message["loadLb"] as? NSNumber)?.doubleValue {
+            loadKg = WeightUnit.kilograms(fromPounds: lb)
+        } else {
+            loadKg = nil
+        }
     }
 }
 
@@ -55,6 +62,11 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     @Published private(set) var sendLiftError: String?
 
     private let healthStore = HKHealthStore()
+    private var profileObserver: AnyCancellable?
+
+    /// Application context key for the weight unit: "kg" or "lb". Added next to `liftSelection` and
+    /// the workout selection; the context is one shared dictionary, so every send keeps the others.
+    static let weightUnitKey = "weightUnit"
 
     private static let sentWorkoutIdKey = "sentWorkoutId.v1"
 
@@ -69,6 +81,36 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         let session = WCSession.default
         session.delegate = self
         session.activate()
+        // Send the weight unit again whenever Settings changes it.
+        profileObserver = AthleteProfile.shared.$revision
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] (_: Int) in
+                self?.sendWeightUnit()
+            }
+    }
+
+    /// Puts the weight unit in the application context (kept with the other keys) and, when the
+    /// watch is reachable, sends it as a message too. Does nothing when it is already in the
+    /// context. The watch keeps its own copy, so it works with the phone out of reach.
+    func sendWeightUnit() {
+        guard WCSession.isSupported() else { return }
+        let session = WCSession.default
+        guard session.activationState == .activated, session.isPaired, session.isWatchAppInstalled else { return }
+        let raw: String = AthleteProfile.shared.weightUnit.rawValue
+        var context = session.applicationContext
+        if (context[PhoneLink.weightUnitKey] as? String) == raw { return }
+        context[PhoneLink.weightUnitKey] = raw
+        do {
+            try session.updateApplicationContext(context)
+        } catch {
+            NSLog("BarPath: could not send the weight unit: %@", error.localizedDescription)
+            return
+        }
+        if session.isReachable {
+            session.sendMessage([PhoneLink.weightUnitKey: raw], replyHandler: nil) { error in
+                NSLog("BarPath: weight unit message failed (context still queued): %@", error.localizedDescription)
+            }
+        }
     }
 
     /// Opens BarPath on the paired watch (it comes to the foreground on the start screen).
@@ -108,7 +150,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
             return
         }
         guard session.isWatchAppInstalled else {
-            sendWorkoutError = "BarPath isn't installed on the watch."
+            sendWorkoutError = "Rx Lab isn't installed on the watch."
             return
         }
         let data: Data
@@ -128,6 +170,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         if let lift = session.applicationContext[LiftSelection.contextKey] {
             payload[LiftSelection.contextKey] = lift
         }
+        payload[PhoneLink.weightUnitKey] = AthleteProfile.shared.weightUnit.rawValue
         do {
             try session.updateApplicationContext(payload)
         } catch {
@@ -160,7 +203,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
             return
         }
         guard session.isWatchAppInstalled else {
-            sendLiftError = "BarPath isn't installed on the watch."
+            sendLiftError = "Rx Lab isn't installed on the watch."
             return
         }
         var context = session.applicationContext
@@ -221,6 +264,11 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
             }
         }
         publishState(session)
+        if activationState == .activated {
+            DispatchQueue.main.async {
+                self.sendWeightUnit()
+            }
+        }
     }
 
     func sessionDidBecomeInactive(_ session: WCSession) {
@@ -235,6 +283,9 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
 
     func sessionWatchStateDidChange(_ session: WCSession) {
         publishState(session)
+        DispatchQueue.main.async {
+            self.sendWeightUnit()
+        }
     }
 
     func sessionReachabilityDidChange(_ session: WCSession) {

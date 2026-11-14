@@ -162,4 +162,19 @@ final class RepCounterTests: XCTestCase {
         XCTAssertEqual(r.live, Array(1...25))
         XCTAssertLessThan(r.firstStart ?? 99, 8.0)
     }
+
+    /// Duplicate timestamps make the sample rate infinite: no reps, and no trap on Int(inf).
+    func testUnusableTimestampsGiveZeroReps() {
+        var samples: [MotionSample] = []
+        for _ in 0..<400 {
+            samples.append(MotionSample(t: 5.0,
+                                        attitude: Quat.identity,
+                                        userAccel: Vec3(0.1, 0.0, 0.0),
+                                        gravity: Vec3(-1.0, 0.0, 0.0),
+                                        rotationRate: Vec3.zero))
+        }
+        let a = RepCounter.count(MotionSeries(samples))
+        XCTAssertEqual(a.count, 0)
+        XCTAssertTrue(a.reps.isEmpty)
+    }
 }

@@ -408,6 +408,7 @@ public struct WorkoutSummary: Equatable {
                     case .press: press += 1
                     case .button: button += 1
                     case .auto: auto += 1
+                    case .edit: break
                     }
                 }
             case .undo, .unfinish:

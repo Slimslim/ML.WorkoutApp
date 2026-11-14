@@ -9,7 +9,7 @@ import BarPathKit
 /// One pedometer update (cumulative since the workout start, CMPedometer semantics).
 /// Top-level (not nested in the @MainActor model) so the pedometer's background handler
 /// can build it.
-struct PedometerSnapshot: Equatable {
+struct PedometerSnapshot: Codable, Equatable {
     var t: Double                   // seconds since 1970 (data.endDate)
     var steps: Double
     var distance: Double?           // meters
@@ -66,6 +66,8 @@ final class WorkoutSessionModel: ObservableObject {
     /// currentPace / currentCadence older than this are not shown (the athlete stopped).
     static let liveMetricMaxAge: Double = 10.0
     static let noHealthMessage = "No Health session (HR off)"
+    /// The crash checkpoint is refreshed at least this often while a workout runs.
+    static let checkpointInterval: Double = 15.0
 
     private enum Keys {
         static let progress = "workoutProgress.v1"
@@ -122,6 +124,9 @@ final class WorkoutSessionModel: ObservableObject {
     @Published private(set) var heartRate: Double?
     /// Last advance/undo (wall clock), for the Undo capsule.
     @Published private(set) var lastChangeDate: Date?
+    /// Last change made by the clock itself (timed rest or interval ending, time cap). The view
+    /// starts the Crown lockout on it, so a turn in progress does not skip the next part.
+    @Published private(set) var lastAutoAdvanceDate: Date?
     @Published private(set) var errorMessage: String?
     @Published private(set) var lastSummary: String?
     @Published private(set) var healthKitRunning = false
@@ -146,6 +151,8 @@ final class WorkoutSessionModel: ObservableObject {
     private let recorder: WorkoutMotionRecorder
     private let link: PhoneLink
     private var pedometer: CMPedometer?
+    /// GPS for plans with a run (build 15): decided at START, started in `beginRunning`.
+    private let locationRecorder = WorkoutLocationRecorder()
     private var workoutId = UUID()
     private var heartRates: [HeartRateSample] = []
     private var pedometerSamples: [PedometerSnapshot] = []
@@ -159,6 +166,8 @@ final class WorkoutSessionModel: ObservableObject {
     /// again (keyed by that segment's start time); same for a passed AMRAP cap.
     private var autoSuppressedStart: Double?
     private var capSuppressed = false
+    /// systemUptime of the last crash checkpoint (see `saveCheckpoint`).
+    private var lastCheckpointUptime: Double = 0
     private var endTimeoutTask: Task<Void, Never>?
     /// Managers replaced because they got stuck (kept alive so they can still finish).
     private var retiredManagers: [WorkoutManager] = []
@@ -263,6 +272,10 @@ final class WorkoutSessionModel: ObservableObject {
             self?.errorMessage = message
         }
         WorkoutSessionModel.current = self
+        // A workout the app died in the middle of is saved as incomplete; a Health session
+        // that is still active is ended and saved.
+        recoverInterruptedWorkout()
+        WorkoutManager.recoverInterruptedSession()
     }
 
     // MARK: - HealthKit manager
@@ -316,6 +329,9 @@ final class WorkoutSessionModel: ObservableObject {
 
     func start() {
         guard phase == .idle else { return }
+        // Retries a recovery whose result could not be written at launch, before the new
+        // workout's checkpoint replaces it.
+        recoverInterruptedWorkout()
         resetForStart(definition: selectedDefinition, demo: false)
         // A background recovery (W6) holds a HealthKit session and only one can run: it is
         // stopped (its update sent) first; HealthKit starts once it has ended, at most ~1 s.
@@ -341,7 +357,8 @@ final class WorkoutSessionModel: ObservableObject {
             replaceWorkoutManager()
         }
         workout.activityType = WorkoutSessionModel.activityType(for: progress.definition.healthKitActivity)
-        workout.locationType = .indoor
+        // Outdoor only when the plan has a run (same decision as the GPS, made once at START).
+        workout.locationType = RecordingProfile.usesLocation(for: progress.definition) ? .outdoor : .indoor
         workout.start()
     }
 
@@ -428,6 +445,7 @@ final class WorkoutSessionModel: ObservableObject {
                                  description: "name=segment index=\(progress.currentIndex) kind=\(kind.rawValue) source=auto")
         }
         lastChangeDate = Date()
+        lastAutoAdvanceDate = Date()
         persistProgress()
         workoutLog.info("clock advance -> \(self.progress.currentIndex) finished \(self.progress.isFinished)")
         return true
@@ -524,6 +542,7 @@ final class WorkoutSessionModel: ObservableObject {
         recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
                              description: "name=\(name) reps=\(value)")
         play(.click)
+        saveCheckpoint()
         workoutLog.info("partial reps saved: \(value)")
     }
 
@@ -592,8 +611,18 @@ final class WorkoutSessionModel: ObservableObject {
             play(progress.currentSegment?.kind == .run ? .start : .directionUp)
             return
         }
+        // GPS decided once for the whole session: only when the plan has a run. Started before
+        // the recorder so the CSV header can say whether it is on. Never blocks START.
+        var gpsOn = false
+        if RecordingProfile.usesLocation(for: progress.definition) {
+            gpsOn = startLocation(from: Date(timeIntervalSince1970: t))
+        }
         if dataMode {
-            recorder.start(sessionId: workoutId, definitionId: progress.definition.id)
+            // Rate chosen once for the whole session: 200 Hz only if the plan has a barbell /
+            // dumbbell / kettlebell movement (RecordingProfile) and HealthKit is running now.
+            recorder.start(sessionId: workoutId, definitionId: progress.definition.id,
+                           planned: RecordingProfile.profile(for: progress.definition),
+                           healthKitRunning: healthKitRunning, gpsOn: gpsOn)
             isRecordingCSV = true
         }
         let kind = progress.currentSegment?.kind ?? .station
@@ -639,6 +668,9 @@ final class WorkoutSessionModel: ObservableObject {
     }
 
     private func clockTick() {
+        if ProcessInfo.processInfo.systemUptime - lastCheckpointUptime >= WorkoutSessionModel.checkpointInterval {
+            saveCheckpoint()
+        }
         updateRecovery(now: Date().timeIntervalSince1970)
         checkForTimeCap(now: Date().timeIntervalSince1970)
         guard let event = nextClockEvent() else {
@@ -675,6 +707,7 @@ final class WorkoutSessionModel: ObservableObject {
         recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
                              description: "name=finish index=\(progress.currentIndex) source=auto")
         lastChangeDate = Date()
+        lastAutoAdvanceDate = Date()
         persistProgress()
         workoutLog.info("time cap reached at segment \(self.progress.currentIndex)")
     }
@@ -800,6 +833,12 @@ final class WorkoutSessionModel: ObservableObject {
         clockTask = nil
         demoTask?.cancel()
         demoTask = nil
+        // Nothing was started: no checkpoint is needed. (A started workout's checkpoint is
+        // cleared once its result is written; a demo never has one.)
+        if !isDemo && !progress.isStarted {
+            WorkoutCheckpoint.clear()
+        }
+        stopLocation()
         phase = .idle
         heartRate = nil
         healthKitRunning = false
@@ -1091,6 +1130,42 @@ final class WorkoutSessionModel: ObservableObject {
         model.stopBackgroundRecovery(reason: "lifting session", then: then)
     }
 
+    // MARK: - Location (GPS, plans with a run)
+
+    /// Starts location updates for this session. False (nothing started) without permission or
+    /// location; the workout is unaffected. Recorded only: nothing on screen or in the result
+    /// uses it yet.
+    private func startLocation(from date: Date) -> Bool {
+        locationRecorder.onFix = { [weak self] fix in
+            self?.locationFixReceived(fix)
+        }
+        locationRecorder.onRoute = { [weak self] locations in
+            self?.workout.insertRoute(locations)
+        }
+        return locationRecorder.start(from: date)
+    }
+
+    /// Every path that ends the session (End, ended by the watch, going idle) ends up here or in
+    /// `finalize`; stopping twice is harmless. The last route batch goes to the manager before
+    /// it finishes the workout.
+    private func stopLocation() {
+        locationRecorder.stop()
+        locationRecorder.onFix = nil
+        locationRecorder.onRoute = nil
+    }
+
+    /// Comment line: `# event t=<s> name=gps distance=<m> [speed=<m/s>] accuracy=<m> altitudeDelta=<m>`.
+    /// No coordinates, no absolute altitude.
+    private func locationFixReceived(_ fix: WorkoutLocationRecorder.Fix) {
+        guard phase == .running, !finalized else { return }
+        var description: String = String(format: "name=gps distance=%.1f", fix.distance)
+        if let speed = fix.speed {
+            description += String(format: " speed=%.2f", speed)
+        }
+        description += String(format: " accuracy=%.1f altitudeDelta=%.1f", fix.accuracy, fix.altitudeDelta)
+        recorder.appendEvent(atUptime: recorder.uptime(forEpoch: fix.t), description: description)
+    }
+
     // MARK: - Pedometer
 
     private func startPedometer(from date: Date) {
@@ -1210,6 +1285,7 @@ final class WorkoutSessionModel: ObservableObject {
         guard !finalized else { return }
         finalized = true
         stopPedometer()
+        stopLocation()
         let csvURL = recorder.stop()
         refreshCounters()
 
@@ -1237,10 +1313,73 @@ final class WorkoutSessionModel: ObservableObject {
         lastSummary = summary
         UserDefaults.standard.set(summary, forKey: Keys.lastSummary)
 
-        if !writeAndSend(result, fileName: "workout-\(workoutId.uuidString).json") {
+        if writeAndSend(result, fileName: "workout-\(workoutId.uuidString).json") {
+            WorkoutCheckpoint.clear()
+        } else {
             let failed = "\(summary) · not saved"
             lastSummary = failed
             UserDefaults.standard.set(failed, forKey: Keys.lastSummary)
+        }
+    }
+
+    // MARK: - Crash checkpoint
+
+    /// Writes the crash checkpoint (file, off the main thread). Called with every
+    /// `persistProgress()` and about every `checkpointInterval` from the clock, so the HR
+    /// series and `savedAt` stay fresh. Never for the screen demo, and not once End has begun
+    /// (the result itself is the record from then on).
+    private func saveCheckpoint() {
+        guard !isDemo, !finalized, progress.isStarted else { return }
+        lastCheckpointUptime = ProcessInfo.processInfo.systemUptime
+        let hr: [TimedValue] = heartRates.map { (s: HeartRateSample) -> TimedValue in
+            TimedValue(t: s.t, value: s.bpm)
+        }
+        let checkpoint = WorkoutCheckpoint(workoutId: workoutId,
+                                           progress: progress,
+                                           heartRates: hr,
+                                           pedometer: pedometerSamples,
+                                           partialReps: partialReps,
+                                           recordedCSV: isRecordingCSV,
+                                           savedAt: Date().timeIntervalSince1970)
+        WorkoutCheckpoint.save(checkpoint)
+    }
+
+    /// At launch: a checkpoint left behind means the app died mid-workout. Its result is
+    /// built like an early End at `savedAt` (no finish time unless the athlete had finished),
+    /// written as `workout-<id>.json` and queued for the phone, then the checkpoint is
+    /// deleted. If the file cannot be written the checkpoint stays for the next launch.
+    /// The debug CSV (`session-<id>.csv`) is moved to the outbox by `PhoneLink.activate()`.
+    private func recoverInterruptedWorkout() {
+        guard phase == .idle, !isDemo else { return }
+        guard let checkpoint = WorkoutCheckpoint.load() else { return }
+        guard checkpoint.progress.isStarted else {
+            WorkoutCheckpoint.clear()
+            return
+        }
+        let fileName = "workout-\(checkpoint.workoutId.uuidString).json"
+        let outboxFile: URL = WatchFiles.outbox.appendingPathComponent(fileName)
+        if FileManager.default.fileExists(atPath: outboxFile.path) {
+            // The normal End got as far as writing the full result: keep that one.
+            workoutLog.info("Checkpoint ignored: result \(fileName, privacy: .public) already written")
+            WorkoutCheckpoint.clear()
+            return
+        }
+        var recovered: WorkoutProgress = checkpoint.progress
+        let startT: Double = recovered.startTime ?? checkpoint.savedAt
+        let endT: Double = max(checkpoint.savedAt, startT)
+        recovered.recordEnd(at: endT)
+        let input = ResultInput(id: checkpoint.workoutId, progress: recovered,
+                                heartRates: checkpoint.heartRates,
+                                pedometer: checkpoint.pedometer,
+                                partialReps: recovered.isFinished ? checkpoint.partialReps : nil,
+                                recordedCSV: checkpoint.recordedCSV, endT: endT)
+        let result: WorkoutResult = WorkoutSessionModel.makeResult(input, recordingEndT: endT)
+        if writeAndSend(result, fileName: fileName) {
+            let summary = "\(result.definition.shortName) · \(SessionModel.formatElapsed(result.totalSeconds)) · saved after interruption"
+            lastSummary = summary
+            UserDefaults.standard.set(summary, forKey: Keys.lastSummary)
+            WorkoutCheckpoint.clear()
+            workoutLog.info("Recovered an interrupted workout: \(result.segments.count) segments")
         }
     }
 
@@ -1324,6 +1463,7 @@ final class WorkoutSessionModel: ObservableObject {
 
     private func persistProgress() {
         if isDemo { return }
+        saveCheckpoint()
         do {
             let data = try JSONEncoder().encode(progress)
             UserDefaults.standard.set(data, forKey: Keys.progress)

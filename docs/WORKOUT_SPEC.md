@@ -123,7 +123,7 @@ public enum WorkoutLibrary {
 ### Progress state machine
 
 ```swift
-public enum AdvanceSource: String, Codable { case crown, press, button, auto }
+public enum AdvanceSource: String, Codable { case crown, press, button, auto, edit }
 
 public enum WorkoutEventKind: String, Codable { case start, advance, undo, finish, unfinish, end }
 
@@ -257,7 +257,16 @@ at 1110, 1170, 1200 (the last one finishes).
   `PhoneLink.sessionCSVMetadata`, so the phone files it under Debug unchanged.
 - Header line: `# barpath-session v1, sessionId=<workoutId>, startDate=<ISO8601>, workout=<definitionId>`
   (instead of `liftType=`). Same columns: `t,qw,qx,qy,qz,ax,ay,az,gx,gy,gz,rx,ry,rz`.
-- Device motion at **100 Hz** from `CMMotionManager` (no 800 Hz accel, no lift detector).
+- Device motion, rate chosen **once at START** for the whole session (build 15). **200 Hz** through
+  `CMBatchedSensorManager` when the planned workout's `RecordingProfile` is `.high` (it contains a
+  barbell / dumbbell / kettlebell strength or Olympic movement; locomotion, machines and metcon
+  stations such as step-ups, runs, rucks, ergs, wall balls and burpees stay standard even with a
+  load), the HealthKit session is running and the watch supports it. Otherwise **100 Hz** from
+  `CMMotionManager`, unchanged. The high-rate path falls back to 100 Hz when HealthKit is not
+  running at START (no Health access, or the start timed out) or when the batched stream delivers
+  nothing within 2.5 s. No 800 Hz accel (the session CSV has no accel columns), no lift detector.
+  The header carries the real `sampleRate=<100|200>` and the rule's verdict `planProfile=<high|standard>`.
+  The Python loader (`load_session_csv`) decimates workout files to 100 Hz, so the detectors are unchanged.
 - Comment lines (key=value with no spaces in values, so `tools/barpath/recording.py` parses
   them as events):
   - `# event t=<s> name=segment index=<i> kind=<run|station> source=<start|crown|press|button|auto>`
@@ -265,6 +274,17 @@ at 1110, 1170, 1200 (the last one finishes).
   - `# event t=<s> name=finish index=<last>` and `name=unfinish`
   - `# event t=<s> name=hr bpm=<value>`
   - `# event t=<s> name=pedometer steps=<cum> distance=<cum m or -1> cadence=<spm or -1> pace=<s/km or -1>`
+  - `# event t=<s> name=gps distance=<cum m> speed=<m/s> accuracy=<m> altitudeDelta=<m>` (build 15,
+    only in sessions whose header says `gps=on`, i.e. the plan has a run): one line per accepted
+    location fix (horizontal accuracy 0-30 m, timestamp after the start). `distance` = meters since
+    the first accepted fix (sum of the distances between consecutive accepted fixes); `speed` =
+    `CLLocation.speed`, the key is omitted when negative (unknown); `accuracy` = horizontal accuracy;
+    `altitudeDelta` = altitude change since the first fix (relative). **No latitude, longitude,
+    absolute altitude or course.** Example:
+    `# event t=412.350000 name=gps distance=1043.2 speed=3.41 accuracy=4.8 altitudeDelta=-1.6`.
+    Parsed by `barpath.recording.parse_gps_events` / `SessionCSV.gps_fixes()`. Recorded for comparison
+    with the pedometer; the displayed distance and the result still use the pedometer. The route goes
+    to Apple Health only (route builder of the live builder, `finishRoute` after `finishWorkout`).
   - `# mark t=<s> n=<k> label=mark` (Mark button on the controls page)
 - With Data mode off: no CSV. The pedometer, HR and result still work.
 
@@ -282,7 +302,12 @@ at 1110, 1170, 1200 (the last one finishes).
   `PhoneLink.metadata(forFileNamed:)` must map `workout-<uuid>.json` to that metadata (check
   it **before** the lift `.json` rule).
 - After every event, persist `progress` (JSON) to `UserDefaults` key `workoutProgress.v1`.
-  Crash recovery comes later; this keeps the splits.
+  Crash recovery (W24): a checkpoint file (`WorkoutCheckpoint`, Application Support) holds the
+  progress, HR, pedometer samples, partial reps and `savedAt`; it is rewritten at every split and
+  about every 15 s, and deleted once the result is written at End. At the next launch a leftover
+  checkpoint becomes a result ending at `savedAt` (no finish time unless finished), is sent as
+  `workout-<id>.json`, and the start screen reads "… · saved after interruption". The workout is
+  not resumed; an active HealthKit session is ended and saved.
 
 ### Screens (no scrolling; SF Rounded)
 
@@ -303,9 +328,10 @@ at 1110, 1170, 1200 (the last one finishes).
   - Finished: a full-screen green fill with "DONE", the total time, and the Undo capsule.
   - Always-on (`isLuminanceReduced`, wrist down): the same main layout, dimmed (80 %), no
     NOW flash, no undo hint, no Crown arc. Every clock (segment time, rest countdown, total /
-    AMRAP time left, recovery) is a system timer text (`Text(timerInterval:)`) that keeps
-    ticking every second; pace, HR and the border update at the reduced always-on rate
-    (athlete feedback 2026-11-01: glance at it without raising the arm).
+    AMRAP time left, recovery) is plain text from the 1 s `TimelineView`, which a running
+    workout session refreshes every second wrist down; no `Text(timerInterval:)`, which
+    watchOS shows as "1:--" there (athlete feedback 2026-11-01 and 2026-11-05: read the
+    exact time without raising the arm).
 - **Page 2 (swipe):** End (with a confirmation: "End workout?" with [End] and [Keep going],
   Keep going is the default), Undo, Mark (Data mode only), a 12 pt data strip (samples,
   CSV MB, transfers pending).
@@ -406,7 +432,8 @@ original), the store reloads, and the written files are marked as uploaded so th
 back (a `.original.json` created this way does not overwrite the cloud's watch copy). A result
 with a phone change not yet uploaded (or uploading) is skipped until that upload is done: the
 phone's change wins. A cloud file that does not decode is reported once and skipped until it
-changes. Results deleted on the phone are not brought back. Keys this build does not know (e.g. `rx`) are
+changes or a new app build is installed (every build checks each file once). Events a correction
+adds carry `source: "edit"`. Results deleted on the phone are not brought back. Keys this build does not know (e.g. `rx`) are
 dropped from the phone's copy when it is written; the cloud copy keeps them.
 
 ## 5b. For-time caps: keep going past the cap (added 2026-11-03, W7)

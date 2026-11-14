@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from barpath.effort import (day_totals, highest_heart_rate, result_effort, series_effort,
-                            weight_lifted_kg, zone)
+from barpath.effort import (day_totals, effective_max_heart_rate, highest_heart_rate, result_effort, series_effort,
+                            sustained_heart_rate, weight_lifted_kg, zone)
 from barpath.workout import (HeartRateSeries, SegmentLoad, SegmentResult, SegmentTarget,
                              WorkoutDefinition, WorkoutResult, WorkoutSegment)
 
@@ -38,7 +38,12 @@ def test_zones():
     assert zone(150.0, 0.0) == 0
 
 
-@pytest.mark.parametrize("case", json.loads(FIXTURE.read_text()), ids=lambda c: c["name"])
+CASES = json.loads(FIXTURE.read_text())
+EFFORT_CASES = [c for c in CASES if "kind" not in c]
+MAX_CASES = [c for c in CASES if c.get("kind") == "effectiveMax"]
+
+
+@pytest.mark.parametrize("case", EFFORT_CASES, ids=lambda c: c["name"])
 def test_parity_fixture(case):
     series = HeartRateSeries.from_dict(case["series"])
     assert series_effort(series, case["finish"], case["maxHeartRate"]) == case["effort"]
@@ -89,3 +94,55 @@ def test_days_group_by_local_day_and_keep_missing_heart_rate():
     assert days[0]["effort"] == 10.0
     assert days[0]["minutes"] == 20.0
     assert days[1]["effort"] is None
+
+
+def _fixture_results(items):
+    out = []
+    for item in items:
+        r = result([], [])
+        if item["bpm"] is not None:
+            r.heart_rate_series = HeartRateSeries(start=0.0, interval=5.0, bpm=item["bpm"])
+        r.heart_rate_max = item.get("max")
+        out.append(r)
+    return out
+
+
+@pytest.mark.parametrize("case", MAX_CASES, ids=lambda c: c["name"])
+def test_effective_max_parity_fixture(case):
+    got = effective_max_heart_rate(_fixture_results(case["results"]), case["birthYear"],
+                                   case["override"], case["year"])
+    if case["value"] is None:
+        assert got is None
+    else:
+        assert got == (case["value"], case["source"])
+
+
+def test_effective_max_fixture_has_cases():
+    assert len(EFFORT_CASES) == 6
+    assert len(MAX_CASES) == 14
+
+
+def test_sustained_ignores_a_lone_spike_and_needs_two_points():
+    spike = result([], [], series=HeartRateSeries(start=0.0, interval=5.0, bpm=[178.0, 210.0, 178.0]))
+    assert sustained_heart_rate([spike]) == 178.0
+    one = result([], [], series=HeartRateSeries(start=0.0, interval=5.0, bpm=[190.0]))
+    assert sustained_heart_rate([one]) is None
+    assert sustained_heart_rate([]) is None
+
+
+def test_age_estimate_is_the_floor_and_more_data_only_raises_it():
+    low = result([], [], series=HeartRateSeries(start=0.0, interval=5.0, bpm=[120.0, 120.0]))
+    high = result([], [], series=HeartRateSeries(start=0.0, interval=5.0, bpm=[191.0, 191.0]))
+    assert effective_max_heart_rate([], 1991, None, 2026) == (183.5, "age")
+    assert effective_max_heart_rate([low], 1991, None, 2026) == (183.5, "age")
+    assert effective_max_heart_rate([low, high], 1991, None, 2026) == (191.0, "workouts")
+
+
+def test_day_totals_use_the_effective_max():
+    hr = HeartRateSeries(start=datetime(2026, 11, 3, 1, 0, tzinfo=timezone.utc).timestamp(),
+                         interval=60.0, bpm=[150.0, 150.0])
+    r = result([], [], series=hr)
+    # sustained 150 is its own max: zone 5 for both minutes.
+    assert day_totals([r], timezone.utc)[0]["effort"] == 10.0
+    # a 30-year-old: max 187, 150 is 80%: zone 4.
+    assert day_totals([r], timezone.utc, birth_year=1996, year=2026)[0]["effort"] == 8.0

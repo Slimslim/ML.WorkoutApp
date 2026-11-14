@@ -7,12 +7,13 @@ only its own rows, never another chat's; keep one row per line (fewer merge conf
 ## Now (read this at the stand-up)
 
 Waiting on the owner:
-- **Build 15 device test, 13 Nov:** practice, short workout, 200 Hz, settings, Lifting passed. Left:
-  GPS run (14 Nov) and the re-check of the Crown-side fix (#27, merged into #24). Battery: later.
-  Then #24 out of draft and merged; TestFlight build 15 from `main` goes to the friend testers.
+- **Build 15:** the device test passed on 13 Nov (release ticket #29), including the outdoor GPS run.
+  #24 is ready for review. Left for the owner: merge #24, make TestFlight build 15 from `main`, tag
+  `build-15`, close #19, send the invites. Deferred: battery over 60 min, account deletion on a
+  throwaway account.
 
 In progress:
-- #24 (build 15): `claude/funny-faraday-1adqio`, frozen, device test nearly done.
+- #24 (build 15): `claude/funny-faraday-1adqio`, device-tested 13 Nov, ready to merge.
 
 Blocked:
 - Build 16 (W28, W27, W23): **blocked on the merge of #24**. Then `claude/release-16` is cut from `main`.
@@ -84,20 +85,33 @@ The team process (stand-up, planning, review, retro, the Scrum Master chat): `do
 
 ## Build 15: pre-beta (owner: #24, branch `claude/funny-faraday-1adqio`; frozen 11 Nov)
 
-[#24](https://github.com/Slimslim/ML.WorkoutApp/pull/24) is a **draft**; build 15 is not on TestFlight
-yet. It contains #19 (builds 7-14), so merging it brings `main` level with what testers run.
+[#24](https://github.com/Slimslim/ML.WorkoutApp/pull/24) is ready for review; the owner's device test
+passed on 13 Nov (release ticket [#29](https://github.com/Slimslim/ML.WorkoutApp/issues/29)). Build 15
+is not on TestFlight until #24 is merged and the build is made from `main`. It contains #19 (builds
+7-14), so merging it brings `main` level with what testers run.
+
+Known issues shipped with build 15:
+- Tabata and timed work parts do not end on the clock; a Crown turn is needed
+  ([#31](https://github.com/Slimslim/ML.WorkoutApp/issues/31), build 16).
+- Apple Fitness shows no route map for a mixed workout with a run; the route is in Apple Health
+  ([#51](https://github.com/Slimslim/ML.WorkoutApp/issues/51)).
+- Raw GPS distance in the recording is not filtered. It is not shown anywhere; run distance and the
+  score use the pedometer ([#50](https://github.com/Slimslim/ML.WorkoutApp/issues/50)).
+
+Not device-tested: battery over a 60-minute session; account deletion on a throwaway account.
 
 | Feature | Story | Status |
 |---|---|---|
-| A crash does not lose the workout | W24 | in PR; device-tested 10 Nov on an earlier commit |
-| Practice workout: asks Health, Motion, Location (then Health again for routes), teaches the Crown | W22 | in PR |
-| Max heart rate (age / measured / manual) | W25 | in PR |
-| kg or lb, and "About you" in Settings (height, body weight, forearm length; uploaded as `profile`) | W26 | in PR |
-| Recording profile, per workout at START: 200 Hz with barbell / DB / KB movements; step-ups, runs, carries, sleds, machines stay 100 Hz (also with a vest). 200 Hz reaches the 50 MB limit at ~87 min after gzip | W21 (part) | in PR |
-| GPS for workouts with a run: route to Apple Health only; the upload has distance, speed, accuracy, never coordinates. Watch background location mode added (wrist-down GPS unproven) | W21 (part) | in PR |
+| A crash does not lose the workout | W24 | device-tested 13 Nov (#29) |
+| Practice workout: asks Health, Motion, Location (then Health again for routes), teaches the Crown | W22 | device-tested 13 Nov (#29) |
+| Max heart rate (age / measured / manual) | W25 | device-tested 13 Nov (#29), Settings only |
+| kg or lb, and "About you" in Settings (height, body weight, forearm length; uploaded as `profile`) | W26 | device-tested 13 Nov (#29) |
+| Recording profile, per workout at START: 200 Hz with barbell / DB / KB movements; step-ups, runs, carries, sleds, machines stay 100 Hz (also with a vest). 200 Hz reaches the 50 MB limit at ~87 min after gzip | W21 (part) | device-tested 13 Nov (#29) |
+| GPS for workouts with a run: route to Apple Health only; the upload has distance, speed, accuracy, never coordinates. Watch background location mode added; wrist-down run recorded 1 Hz fixes with no gaps | W21 (part) | device-tested 13 Nov (#29); known issues #50, #51 |
 | Every recording's header: watch model, watchOS, wrist, crown side, app build, sampleRate, planProfile, gps | - | in PR |
-| Compressed uploads (gzip), files too large are not retried forever | fix | in PR |
+| Compressed uploads (gzip), files too large are not retried forever | fix | device-tested 13 Nov (#29), short workout upload |
 | Account deletion removes every file; Lifting "Ending..." timeout; analyzer crash fixes; Crown lockout after an automatic advance; personal library rows (`make_row.py --owner`); PRIVACY.md; "Rx Lab" in athlete-facing text; `legacy/` removed | fixes | in PR |
+| Device-test fix: practice "Turn the Crown" hint points at the Crown when it is on the left | fix | in PR ([#27](https://github.com/Slimslim/ML.WorkoutApp/pull/27), merged into #24 on 13 Nov) |
 
 Exceptions after the freeze (owner OK): four device-test fixes; W26 kg / About you; Crown hint on the
 Crown's side ([#27](https://github.com/Slimslim/ML.WorkoutApp/pull/27), owner device test 13 Nov).
@@ -133,7 +147,7 @@ planning: race on build 16, no risky change to the workout code in the week befo
 
 ## Build 17: design review + workout import (owner decided 13 Nov)
 
-The brief `docs/BUILD_16.md` on #24 (to be renamed for build 17): UI/UX design review with the
+The brief `docs/BUILD_17.md`: UI/UX design review with the
 testers' feedback, "add a workout from a photo or text" (server function, movement table, import
 log). Provisional labels R1-R2, I1-I6, M1 until the owner approves the brief. Email sign-up must be
 closed before the import ships. Builds 18+ during the beta: fixes only.

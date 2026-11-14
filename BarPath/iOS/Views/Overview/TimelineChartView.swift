@@ -9,6 +9,8 @@ struct TimelineChartView: View {
     let hoverTime: Double?
     let onTouch: (Double) -> Void
     let onStep: (Int) -> Void
+    /// Band colour instead of the run / station colours (the report uses modalities).
+    var bandColor: ((WorkoutSummary.Band) -> Color)? = nil
 
     var body: some View {
         GeometryReader { (geo: GeometryProxy) in
@@ -19,7 +21,7 @@ struct TimelineChartView: View {
 
     private func chart(width: CGFloat) -> some View {
         let drawing: TimelineDrawing = TimelineDrawing(timeline: timeline, selection: selection,
-                                                       hoverTime: hoverTime)
+                                                       hoverTime: hoverTime, bandColor: bandColor)
         return Canvas { (context: inout GraphicsContext, size: CGSize) in
             drawing.draw(&context, size)
         }
@@ -131,6 +133,7 @@ struct TimelineDrawing {
     let timeline: WorkoutSummary.Timeline
     let selection: ClosedRange<Int>?
     let hoverTime: Double?
+    var bandColor: ((WorkoutSummary.Band) -> Color)? = nil
 
     static let topY: CGFloat = 18
     static let bottomY: CGFloat = 150
@@ -141,10 +144,12 @@ struct TimelineDrawing {
     private let low: Double
     private let high: Double
 
-    init(timeline: WorkoutSummary.Timeline, selection: ClosedRange<Int>?, hoverTime: Double?) {
+    init(timeline: WorkoutSummary.Timeline, selection: ClosedRange<Int>?, hoverTime: Double?,
+         bandColor: ((WorkoutSummary.Band) -> Color)? = nil) {
         self.timeline = timeline
         self.selection = selection
         self.hoverTime = hoverTime
+        self.bandColor = bandColor
         var lo: Double = 60
         var hi: Double = 200
         var lowest: Double? = timeline.heartRateLow
@@ -206,10 +211,10 @@ struct TimelineDrawing {
         for b in timeline.bands {
             let x0: CGFloat = xOf(b.start, width)
             let bw: CGFloat = Swift.max(0.5, xOf(b.end, width) - x0 - 1)
-            context.fill(Path(CGRect(x: x0, y: top, width: bw, height: height)),
-                         with: .color(Theme.ovBand(b.kind)))
-            context.fill(Path(CGRect(x: x0, y: top, width: bw, height: 3)),
-                         with: .color(Theme.ovSolid(b.kind)))
+            let solid: Color = bandColor?(b) ?? Theme.ovSolid(b.kind)
+            let pale: Color = bandColor == nil ? Theme.ovBand(b.kind) : solid.opacity(0.12)
+            context.fill(Path(CGRect(x: x0, y: top, width: bw, height: height)), with: .color(pale))
+            context.fill(Path(CGRect(x: x0, y: top, width: bw, height: 3)), with: .color(solid))
             let needed: CGFloat = CGFloat(b.shortLabel.count) * 5.4 + 2
             if bw >= needed {
                 text(&context, b.shortLabel, CGPoint(x: x0 + bw / 2, y: 12), UnitPoint.center,
@@ -227,7 +232,7 @@ struct TimelineDrawing {
                 line.move(to: CGPoint(x: 0, y: y))
                 line.addLine(to: CGPoint(x: width, y: y))
                 context.stroke(line, with: .color(Theme.ovGrid), lineWidth: 1)
-                text(&context, String(Int(h)), CGPoint(x: width - 2, y: y - 3), UnitPoint.bottomTrailing,
+                text(&context, String(Int(h)), CGPoint(x: 2, y: y - 2), UnitPoint.bottomLeading,
                      size: 10, weight: .regular, color: Theme.ovFg2)
             }
             h += 20

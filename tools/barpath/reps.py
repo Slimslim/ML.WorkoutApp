@@ -88,8 +88,11 @@ def count_reps(t, user_accel, gravity, cfg: RepConfig = RepConfig()) -> RepAnaly
     out = RepAnalysis()
     if len(t) < 50:
         return out
+    dt_med = float(np.median(np.diff(t)))
+    if not (dt_med > 0 and np.isfinite(dt_med) and dt_med >= 1e-6):
+        return out          # duplicate / unusable timestamps: no sample rate, no reps
     v, ghat = vertical_velocity(t, user_accel, gravity, cfg)
-    fs = 1.0 / float(np.median(np.diff(t)))
+    fs = 1.0 / dt_med
     min_gap = int(round(cfg.minRepInterval * fs))
     cand = [i for i in range(1, len(v) - 1)
             if v[i] >= cfg.minPeakVelocity and v[i] >= v[i - 1] and v[i] > v[i + 1]]

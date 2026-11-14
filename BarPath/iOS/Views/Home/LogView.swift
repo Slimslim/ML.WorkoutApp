@@ -81,6 +81,9 @@ struct LogView: View {
                 effortDays = EffortDays.make(results)
                 scores = WorkoutLastScore.byResult(results)
             }
+            .onReceive(AthleteProfile.shared.$revision) { (_: Int) in
+                effortDays = EffortDays.make(workouts.results)
+            }
             .confirmationDialog("Delete this workout?",
                                 isPresented: isDeletingResult,
                                 titleVisibility: .visible,

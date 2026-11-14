@@ -66,7 +66,10 @@ struct ProgressTabView: View {
             }
             .navigationTitle("Progress")
             .onReceive(workouts.$results) { (results: [WorkoutResult]) in
-                days = WorkoutEffort.days(results, calendar: EffortDays.gregorian)
+                days = EffortDays.list(results)
+            }
+            .onReceive(AthleteProfile.shared.$revision) { (_: Int) in
+                days = EffortDays.list(workouts.results)
             }
         }
     }

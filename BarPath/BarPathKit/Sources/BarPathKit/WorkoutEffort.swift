@@ -4,8 +4,9 @@ import Foundation
 /// mirrored in tools/barpath/effort.py (parity: Fixtures/effort_cases.json).
 ///
 /// Effort is Edwards TRIMP: minutes in each heart rate zone × the zone number (1-5), from the
-/// start to the finish. Zones are shares of max heart rate, and max heart rate is the highest
-/// value recorded in the athlete's results (series or stored max).
+/// start to the finish. Zones are shares of max heart rate; the max in use is
+/// `effectiveMaxHeartRate` (manual value, else the larger of the age estimate and the highest
+/// sustained value in the athlete's results).
 public enum WorkoutEffort {
     /// Lower bound of zones 1-5, as a share of max heart rate.
     public static let zoneFloors: [Double] = [0.5, 0.6, 0.7, 0.8, 0.9]
@@ -45,6 +46,77 @@ public enum WorkoutEffort {
         return best
     }
 
+    /// Where the max heart rate in use comes from.
+    public enum MaxSource: String, Equatable {
+        case manual, age, workouts
+    }
+
+    /// The max heart rate in use and where it comes from.
+    public struct MaxHeartRate: Equatable {
+        public let value: Double
+        public let source: MaxSource
+
+        public init(value: Double, source: MaxSource) {
+            self.value = value
+            self.source = source
+        }
+    }
+
+    /// The highest heart rate the athlete held, not a spike. A series holds a value every 5 s; a
+    /// value counts only if the neighbouring point reaches it too, so the result is the best over
+    /// pairs of neighbouring readings of min(a, b) (held for at least ~5 s). A lone optical-sensor
+    /// spike counts as its higher neighbour. Results with a series use only the series (their
+    /// `heartRateMax` is one sample); results without one (old results) count their stored max.
+    /// Nil when there is no data.
+    public static func sustainedHeartRate(_ results: [WorkoutResult]) -> Double? {
+        var best: Double? = nil
+        for r in results {
+            if let series = r.heartRateSeries {
+                let values: [Double?] = series.bpm
+                if values.count < 2 { continue }
+                for k in 0..<(values.count - 1) {
+                    guard let a = values[k], let b = values[k + 1] else { continue }
+                    let low: Double = Swift.min(a, b)
+                    if let current = best {
+                        if low > current { best = low }
+                    } else {
+                        best = low
+                    }
+                }
+            } else if let m = r.heartRateMax {
+                if let current = best {
+                    if m > current { best = m }
+                } else {
+                    best = m
+                }
+            }
+        }
+        return best
+    }
+
+    /// Max heart rate in use, or nil when there is no override, no usable birth year and no heart
+    /// rate data. A manual value (100-230) wins; else the larger of Tanaka 208 - 0.7 * age (birth
+    /// year not after `year`, age at most 100) and `sustainedHeartRate`. Adding results can only
+    /// raise the observed part, so new data never lowers the value.
+    public static func effectiveMaxHeartRate(results: [WorkoutResult], birthYear: Int?,
+                                             override: Double?, year: Int) -> MaxHeartRate? {
+        if let o = override, o >= 100.0, o <= 230.0 {
+            return MaxHeartRate(value: o, source: MaxSource.manual)
+        }
+        var estimate: Double? = nil
+        if let b = birthYear, b <= year, year - b <= 100 {
+            estimate = 208.0 - 0.7 * Double(year - b)
+        }
+        let observed: Double? = sustainedHeartRate(results)
+        if let o = observed, estimate == nil || o > (estimate ?? 0) {
+            return MaxHeartRate(value: o, source: MaxSource.workouts)
+        }
+        if let e = estimate {
+            return MaxHeartRate(value: e, source: MaxSource.age)
+        }
+        return nil
+    }
+
     /// One local day of results.
     public struct Day: Equatable {
         /// "yyyy-MM-dd" in the calendar's time zone.
@@ -56,8 +128,10 @@ public enum WorkoutEffort {
     }
 
     /// One entry per local day, oldest first.
-    public static func days(_ results: [WorkoutResult], calendar: Calendar) -> [Day] {
-        let maxHeartRate: Double? = highestHeartRate(results)
+    public static func days(_ results: [WorkoutResult], calendar: Calendar, birthYear: Int? = nil,
+                            override: Double? = nil, year: Int = 0) -> [Day] {
+        let maxHeartRate: Double? = effectiveMaxHeartRate(results: results, birthYear: birthYear,
+                                                          override: override, year: year)?.value
         var byDay: [String: Day] = [:]
         for r in results {
             let c: DateComponents = calendar.dateComponents([.year, .month, .day], from: r.startDate)
