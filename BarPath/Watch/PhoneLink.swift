@@ -153,7 +153,11 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     /// in a workout); otherwise it goes out when the phone becomes reachable.
     private func wakePhone() {
         wakeOwed = true
-        sendWakeIfPossible()
+        // On the next main-queue turn: END queues the result and the recording in separate
+        // main-queue blocks, so the wake goes out after both with `pending` counting both.
+        DispatchQueue.main.async {
+            self.sendWakeIfPossible()
+        }
     }
 
     private func sendWakeIfPossible() {
