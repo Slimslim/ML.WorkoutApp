@@ -372,11 +372,23 @@ distance. So a scale is a whole alternative structure, not a load patch:
   proposes the equivalent amount from a **movement-equivalence table** (e.g. a run distance → row metres,
   bike metres or calories) and records it on the part: `"swappedFrom": {"movement": "run", "value": 400,
   "unit": "meters"}`, so the result shows what was replaced. The table lives on the server next to the
-  build-17 movement table, so it can be corrected without an app update. Its source is an owner
-  decision: public conversion charts exist, but a brand's table should not be copied into this public
-  repo without checking its terms.
+  build-17 movement table, so it can be corrected without an app update.
+- **What a public scaling guide looks like** (the owner shared one, 14 Nov; read, not copied). It has
+  three kinds of rule, and each fits a small table:
+  1. *Cardio conversions* are plain ratios per machine, with a men's and a women's factor: a run
+     distance becomes row, ski or bike-erg metres, or calories on an air bike, and calories convert
+     between machines the same way. A handful of numbers, then rounding.
+  2. *Movement substitutions* are a list per movement, each with a rep ratio (e.g. one hard skill rep =
+     a few strict reps of an easier movement; kipping pull-ups → more ring rows).
+  3. *Principles*: keep the stimulus and the **time domain**, then cut reps, then load.
+  So the server keeps `movement_equivalents` rows `{from, to, unit from → unit to, factorM, factorF,
+  round to}` and `movement_substitutions` rows `{from, to, repRatio, note}`. We write our own rows; the
+  ratios can be checked against public guides, but no brand's document is copied into this repo.
+- **Stimulus**: a workout may declare its intended time domain, `"stimulus": {"minutes": [8, 12]}`. That is
+  what the guide's key question ("can I finish in the Rx time domain?") needs, and what the recommended
+  scale below compares your predicted time against.
 - **Recommended scale (later, once there is data):** from the athlete's past results on similar
-  workouts, the card can suggest a scale ("Suggested: Rx, you finished Level 2 with time to spare the
+  workouts and the workout's `stimulus`, the card can suggest a scale ("Suggested: Rx, you finished Level 2 with time to spare the
   last 4 times") or warn ("Rx may cap you at about 15:40"). It never changes the scale by itself.
 - All 34 structures encoded from 17 recent class workouts (every scale) pass the rules: E3MOM at % of
   1RM, 1:00 windows with buy-in then max calories, a growing chipper, "4 rounds each for time,
