@@ -12,6 +12,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         // delivered into a ready store.
         LiftStore.shared.loadIfNeeded()
         WorkoutStore.shared.loadIfNeeded()
+        // Background refresh for uploads left over (W28): must be registered during launch.
+        BackgroundSync.register()
         PhoneLink.shared.activate()
         CloudAccount.shared.start()
         // Reconnect to uploads iOS kept running while the app was not.
@@ -63,6 +65,9 @@ struct BarPathApp: App {
                     if phase == .active {
                         openWatchAppSoon()
                         cloud.syncSoon()
+                    } else if phase == .background {
+                        // Files still waiting: ask iOS to wake the app later to finish (W28).
+                        BackgroundSync.schedule(waiting: cloud.pendingCount)
                     }
                 }
         }
