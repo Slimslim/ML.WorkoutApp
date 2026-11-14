@@ -73,6 +73,37 @@ public struct UploadRetryBudget: Equatable {
     }
 }
 
+/// Failed background attempts per file version (`UploadRetryBudget.key`). A version that keeps
+/// failing (e.g. a refusal no fresh token fixes) stops asking iOS for background refreshes after
+/// `maxFailures`; it is still tried at every sync (app open, watch wake), and a changed file starts
+/// again at zero. The app saves `counts` between launches.
+public struct UploadFailureLog: Equatable {
+    public static let maxFailures: Int = 8
+    public private(set) var counts: [String: Int]
+
+    public init(counts: [String: Int] = [:]) {
+        self.counts = counts
+    }
+
+    public mutating func recordFailure(_ key: String) {
+        counts[key] = (counts[key] ?? 0) + 1
+    }
+
+    public mutating func recordSuccess(_ key: String) {
+        counts[key] = nil
+    }
+
+    /// Whether this version is still worth a background refresh.
+    public func keepsRefreshing(_ key: String) -> Bool {
+        return (counts[key] ?? 0) < UploadFailureLog.maxFailures
+    }
+
+    /// Drops entries for versions no longer waiting (uploaded elsewhere, changed or deleted).
+    public mutating func keepOnly(_ keys: Set<String>) {
+        counts = counts.filter { keys.contains($0.key) }
+    }
+}
+
 /// When the phone should next run a background refresh (BGAppRefreshTask) to finish uploads.
 public enum UploadRefreshPlan {
     /// iOS will not run an app refresh sooner than this anyway; asking earlier wastes the request.

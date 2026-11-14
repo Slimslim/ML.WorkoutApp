@@ -130,10 +130,15 @@ final class BackgroundUploads: NSObject, URLSessionDataDelegate {
         guard let request = makeRequest(job, contentType: contentType, accessToken: accessToken) else {
             return (.retryLater, "bad upload address")
         }
-        var timed: URLRequest = request
-        timed.timeoutInterval = timeout
+        // A total limit (resource timeout), not an idle one: the upload must end inside the
+        // background time; on timeout the caller hands the file to the background session.
+        let config = URLSessionConfiguration.ephemeral
+        config.timeoutIntervalForRequest = timeout
+        config.timeoutIntervalForResource = timeout
+        let session = URLSession(configuration: config)
+        defer { session.finishTasksAndInvalidate() }
         do {
-            let (body, response) = try await URLSession.shared.upload(for: timed, fromFile: file)
+            let (body, response) = try await session.upload(for: request, fromFile: file)
             let status: Int = (response as? HTTPURLResponse)?.statusCode ?? 0
             let outcome: UploadOutcome = UploadOutcome.classify(status: status, body: body.prefix(2048), failed: false)
             return (outcome, outcome == .uploaded ? nil : "HTTP \(status)")

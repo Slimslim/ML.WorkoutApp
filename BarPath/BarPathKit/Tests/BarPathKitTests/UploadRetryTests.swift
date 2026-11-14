@@ -54,6 +54,20 @@ final class UploadRetryTests: XCTestCase {
         XCTAssertTrue(budget.take(a))
     }
 
+    func testFailureLogGivesUpRefreshingAfterMax() {
+        var log = UploadFailureLog()
+        let a = UploadRetryBudget.key(path: "Debug/s.csv", version: "1-1")
+        for _ in 0..<(UploadFailureLog.maxFailures - 1) { log.recordFailure(a) }
+        XCTAssertTrue(log.keepsRefreshing(a))
+        log.recordFailure(a)
+        XCTAssertFalse(log.keepsRefreshing(a))
+        log.recordSuccess(a)
+        XCTAssertTrue(log.keepsRefreshing(a))
+        log.recordFailure(a)
+        log.keepOnly([])
+        XCTAssertEqual(log.counts, [:])
+    }
+
     func testRefreshOnlyWhenSomethingIsWaiting() {
         let now = Date(timeIntervalSince1970: 1_000)
         XCTAssertNil(UploadRefreshPlan.nextRefresh(waiting: 0, now: now))
