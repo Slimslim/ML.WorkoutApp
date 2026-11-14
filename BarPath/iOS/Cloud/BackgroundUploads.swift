@@ -68,8 +68,23 @@ final class BackgroundUploads: NSObject, URLSessionDataDelegate {
         let gz: Data = Gzip.wrap(deflated: deflated, of: data)
         let name: String = UUID().uuidString + ".csv.gz"
         let url: URL = stagingURL.appendingPathComponent(name)
-        try gz.write(to: url, options: .atomic)
+        // Readable after the first unlock: the background upload reads it with the phone locked.
+        try gz.write(to: url, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
         return StagedFile(url: url, name: name, size: gz.count)
+    }
+
+    /// Makes a file readable while the phone is locked (after the first unlock since boot), so a
+    /// background sync can stage and upload it. Files moved in from WatchConnectivity keep the
+    /// protection they had in its inbox; this sets the app's usual class explicitly.
+    static func keepReadableWhenLocked(_ url: URL) {
+        do {
+            try FileManager.default.setAttributes(
+                [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication],
+                ofItemAtPath: url.path)
+        } catch {
+            NSLog("BarPath: could not set file protection on %@: %@",
+                  url.lastPathComponent, error.localizedDescription)
+        }
     }
 
     static func removeStaged(_ name: String?) {
@@ -145,29 +160,18 @@ final class BackgroundUploads: NSObject, URLSessionDataDelegate {
             return
         }
         let status = (task.response as? HTTPURLResponse)?.statusCode ?? 0
+        let outcome: UploadOutcome = UploadOutcome.classify(status: status, body: body, failed: error != nil)
         let failure: String?
-        var tooLarge = false
         if let error {
             failure = error.localizedDescription
-        } else if !(200..<300).contains(status) {
+        } else if outcome != .uploaded {
             failure = "HTTP \(status)"
-            tooLarge = Self.isTooLarge(status: status, body: body)
         } else {
             failure = nil
         }
         Task { @MainActor in
-            await CloudAccount.shared.uploadFinished(job, failure: failure, tooLarge: tooLarge)
+            await CloudAccount.shared.uploadFinished(job, outcome: outcome, failure: failure)
         }
-    }
-
-    /// The server refused the file for its size: HTTP 413, or the storage API's 400 whose
-    /// message says the object exceeded the maximum allowed size. A 400 without a readable body
-    /// is not treated as "too large" (it keeps being retried).
-    static func isTooLarge(status: Int, body: Data) -> Bool {
-        if status == 413 { return true }
-        guard status == 400 else { return false }
-        let text: String = (String(data: body, encoding: .utf8) ?? "").lowercased()
-        return text.contains("exceed") && text.contains("maximum")
     }
 
     func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
