@@ -61,7 +61,7 @@ A workout's `structure` is a small tree. Each node is one of five kinds:
 | Block | What it is | Who ends it |
 |---|---|---|
 | `part` | One movement with a target: `21 cal`, `15 reps`, `1000 m`, or `max` (as many as you can). Optional load and partner split (`who`). | The athlete (Crown). A clock can end it too. |
-| `rest` | A rest: `seconds` (on the clock), `ratio` (1:1 = as long as the work before it), or nothing ("as needed", the athlete ends it). | Clock or athlete. |
+| `rest` | A rest: `seconds` (on the clock), `ratio` (1:1 = as long as the round or group it follows took), or nothing ("as needed", the athlete ends it). | Clock or athlete. |
 | `group` | Several blocks in order (a round, a buy-in, a chipper). | When its last block ends. |
 | `repeat` | Its body N times, or until a clock stops it. Targets can change per round (21-15-9, 3-6-9-..., Hyrox's 8 stations). Given rounds can be changed (the last window is 4:00). | After N rounds, or by a clock. |
 | `timed` | A clock around its body: a window, an EMOM minute, Tabata's 20 s, an AMRAP, a time cap. Says what happens if you finish early and if time runs out. | The clock (or the athlete, see `early`). |
@@ -90,6 +90,14 @@ Crown turn on a `max` part means "I stopped": the automatic rest starts and its 
 `max` part outside any clock (partner: "one runs 200 m, the other does max reps") is ended by the
 Crown.
 
+**Parts with a time target** (side plank 1:00, a 45 s recovery run inside an EMOM minute) are
+ended by the clock without a `timed` around them: target unit `seconds`. This keeps nesting
+shallow.
+
+**Open-ended work the athlete closes** ("build to a heavy 3", "5-3-then max"): a `repeat` with no
+count and `"until": "athlete"`. The athlete ends the block with "done with this block" (page 2), and
+the score is usually the best load.
+
 The **score** is declared once at the top (section 5).
 
 ### 3.2 Where it lives
@@ -105,8 +113,11 @@ structure compiles to.
 - nesting at most 3 `timed`/`repeat` levels; at most 400 compiled steps; whole definition under 16 KB
   (checked when the phone sends too, because imports can be any size);
 - `max` and `who` only on `part`; part ids unique;
-- a `repeat` with no count must sit inside (or contain) a `timed` with `late: end`, must be the last
-  thing in its window, and can't use `override "last"` (so rounds are only ever added at the end);
+- a `repeat` with no count must either sit inside (or contain) a `timed` with `late: end`, or say
+  `"until": "athlete"`; it must be the last thing in its window and can't use `override "last"` (so
+  rounds are only ever added at the end);
+- an outer `repeat`'s `vary` may name a part inside an inner `repeat`; the value then holds for every
+  inner round of that outer round (a ladder across sets: 3 × 12, rest, 3 × 10, rest, 3 × 8);
 - `listRounds` (how many rounds the flat list holds) is filled in by the compiler, not by the author.
 
 ### 3.3 Schema sketch
@@ -125,12 +136,18 @@ structure compiles to.
 
 // A node has exactly one of these keys:
 { "part":   { "id": "sq", "kind": "station", "movement": "airSquats", "name": "Air Squats",
-              "target": { "value": 21, "unit": "reps" }  |  { "max": true, "unit": "reps" },
-              "load": { "value": 50, "unit": "lb", "count": 2 },
-              "who": "me" | "partner" | "together" | "shared" } }
+              // or "movement": { "choice": ["row", "bike", "skiErg"] }, picked at START
+              "target": { "value": 15, "valueF": 12, "unit": "calories" }   // M/F standard, picked at START
+                      | { "max": true, "unit": "reps" } | { "value": 45, "unit": "seconds" },
+              "load": { "value": 95, "valueF": 65, "unit": "lb", "count": 1 }
+                    | { "percent": 83, "of": "snatch" },                    // % of the athlete's 1RM
+              "height": { "value": 24, "valueF": 20, "unit": "in" },        // box, target
+              "who": "me" | "partner" | "together" | "shared",
+              "note": "free text the engine does not run" } }               // "note" is allowed on any node
 { "rest":   { "id": "r", "seconds": 60 }  |  { "ratio": 1 }  |  {} }
-{ "group":  { "id": "g", "label": "round", "body": [ ... ] } }
-{ "repeat": { "id": "rp", "times": 8,                              // null = until a clock stops it
+{ "group":  { "id": "g", "label": "round", "load": { ... }, "body": [ ... ] } }   // load of a lift complex
+{ "repeat": { "id": "rp", "times": 8,                              // null = until a clock (or "until": "athlete")
+              "resume": "<repeat id>",                             // later: carry on where that repeat stopped
               "vary": { "<part id>": [21, 15, 9] | { "from": 3, "step": 3 } | [ {patch}, ... ] },
               "override": [ { "rounds": [4] | ["last"], "id": "<id>", "set": {patch} | "omit": true } ],
               "body": [ ... ] } }
@@ -250,8 +267,38 @@ cap, keep going as today):
 A hard cap ("CAP + reps", the workout stops) is the same with `"late": "end"`.
 
 **Work-based intervals** (5 × 250 m row, rest 1:00 from when you finish; scored per piece):
-`{"score":{"type":"pieceTime","show":"avg"}, "body":[{"repeat":{"times":5,"body":[{"part":{"movement":"row","target":{"value":250,"unit":"meters"}}},{"rest":{"seconds":60}}]}}]}`.
+`{"score":{"type":"perPiece","metric":"time","show":"avg"}, "body":[{"repeat":{"times":5,"body":[{"part":{"movement":"row","target":{"value":250,"unit":"meters"}}},{"rest":{"seconds":60}}]}}]}`.
 The rest follows a part you end, so it starts when you finish (rule 4.2.2).
+
+### 3.5 Tested on a real program
+
+A separate session encoded a real competition program the owner follows (17 weeks, 4 tracks,
+1,315 workout pieces; kept in the owner's private storage, never in the repo) into this structure.
+It took 62 pieces covering every family and every odd case, and checked them with the 3.2 rules.
+
+- **33 clean:** EMOMs (also alternating 2-4 stations and "1 lift every minute"), Tabata and custom
+  work/rest, buy-in + max windows (the 3-3-3-4 family, also 3 × 3:00 then 4:00), station rotation on
+  a running clock, AMRAPs and AMRAP ladders, a run buy-in then an AMRAP in the time left, 21-15-9,
+  ladders with two different steps, chipper + cap, rounds for time, each round for time + rest,
+  repeat efforts with a 14-value list, max-rep sets, steady cardio, partner synchro.
+- **24 awkward, now fixed in this draft:** men's/women's standards (in 20 % of pieces: `valueF`),
+  rest inside a for-time clock (11 %: `score.includeRest`), time-target parts (5 %: unit `seconds`),
+  load on a lift complex (`load` on `group`), load as % of 1RM, per-piece distance (`perPiece`),
+  several scored pieces in one entry (`score.combine`), the athlete choosing the machine, rest ratio
+  measured over the round, box heights and ft/in, `vary` across nested repeats, a buy-in window
+  scored on its max part (`atCut`).
+- **5 shapes could not be written** (about 2 % of pieces):
+  - "build to a max" with open attempts (1 % of pieces) → fixed: `"until": "athlete"`;
+  - an AMRAP split by rests that **continues** where you left off (the program says "continue" or
+    "restart" explicitly) → `repeat.resume`, build 17 or later;
+  - windows of different lengths with a ladder that continues across them → `resume` + `override`;
+  - a lift on a fixed schedule interrupting a piece for time ("every 3:00, 10 bench") → out of
+    scope, kept as a `note`;
+  - a penalty on breaking ("every break, run 200 m") → out of scope, kept as a `note`.
+- **Days are multi-part** (median 5 pieces: warm-up, strength, accessory, metcon, cash-out). The
+  engine runs one piece at a time; the build-17 import must split a day into pieces.
+- In this program, strength sets are 32 % of pieces and untimed "for quality" rounds 21 %; Tabata is
+  under 1 % and death-by never appears. Both run on the same blocks with no clock.
 
 ## 4. The timeline engine
 
@@ -272,9 +319,10 @@ decisions. The Crown lockouts and grace live in `reduce`, not in the view, so th
 
 ### 4.2 Rules
 
-1. **Who ends a step is declared.** The athlete ends a `part` (except `max` inside a clock) and a
-   `rest` with no seconds. The clock ends a clocked `rest`, the automatic rest after an early
-   finish, a `max` part inside a clock, and any step cut by a bell.
+1. **Who ends a step is declared.** The athlete ends a `part` (except `max` inside a clock and a
+   `seconds` target) and a `rest` with no seconds. The clock ends a clocked or ratio `rest`, the
+   automatic rest after an early finish, a `max` part inside a clock, a part with a `seconds` target,
+   and any step cut by a bell.
 2. **Anchoring.** A step starts at the *planned* end of the step before it if the clock ended that
    step, and at its *actual* end if the athlete ended it. A `timed` window ends at its own start plus
    its seconds.
@@ -337,8 +385,16 @@ Per step the result records: round, window, start, end, ended by (athlete / cloc
 workout), target, reps done (for cut and `max` steps), load used. Per workout: Rx / scaled /
 substitution (on the same workout id; a scaled version is not a new library row).
 
-Score types: `time`, `roundsReps`, `totalReps`, `lowestReps`, `load`, `pieceTime` (avg, best,
-slowest), `distance`, `calories`, `none`. `show` picks a second line (e.g. Tabata's lowest round).
+Score types: `time`, `roundsReps`, `totalReps`, `lowestReps`, `load`, `perPiece` (metric time,
+distance or reps; show avg, best or slowest), `distance`, `calories`, `none`. Options:
+- `show`: a second line (Tabata's lowest round).
+- `includeRest`: whether rests inside a for-time clock count in the time (default yes: it is the clock time).
+- `atCap` / `atCut`: the score when a bell stops the work before it is done (`totalReps`, ranked below
+  every finisher). `atCut` covers a buy-in window not finished before the bell.
+- `combine`: `sum` or `perPiece` when one entry has several scored pieces (two AMRAPs, AMRAP cycles
+  that restart). A sum of rounds + reps is the sum of total reps.
+
+Men's/women's standards, % loads and the machine choice are resolved at START and stored in the result.
 
 | Format | Score | Shown with |
 |---|---|---|
@@ -348,7 +404,7 @@ slowest), `distance`, `calories`, `none`. `show` picks a second line (e.g. Tabat
 | EMOM / every X | `8/8`, or `load` if the parts carry a load | per window: done or partial, rest left |
 | Windows (3-3-3-4) | `Bench 31` (sum of the `max` part) | per window: parts done, partial (12/15), max reps |
 | Tabata | `96` | lowest round, 8 numbers |
-| Work-based intervals | `avg 0:58` per piece | each piece |
+| Work-based intervals, repeat efforts | `avg 0:58` per piece, or metres per piece | each piece |
 | Strength sets | heaviest load × reps | load per set |
 | Death by | `10 + 6` | minute reached |
 | Hyrox | `1:12:34` | every run and station (Roxzone later), unchanged |
@@ -612,7 +668,13 @@ with the case count, so a missing case fails instead of skipping (today a missin
 | AMRAP with buy-in and cash-out | buy-in reps in the total; cash-out runs after the AMRAP |
 | For time, cap, partial | cap announced, position stored, `CAP + reps` if not finished |
 | Work-based intervals | rest from the actual finish; time per piece |
+| Build to a max | open attempts ended by "done with this block"; score best load |
+| Time-target part in an EMOM | a 45 s part ends on the clock with no extra `timed` |
 | Hyrox 8 × 1 km | identical to `legacy.result.json`, step by step |
+
+The 62 encodings of the real program (3.5) stay in the owner's private storage and are re-run by
+the corpus session against each draft of the schema; generic look-alikes of its odd shapes go into
+the fixtures above.
 
 The 13 Nov Crown times not quoted in the issues are taken from the build-15 recording's event lines
 (no motion data in the repo) and marked synthetic until then.
@@ -737,7 +799,7 @@ designer) from the Scrum Master were used as extra input; they agreed on the roo
   get ready counts from GO; the 3-3-3-4 example's score type → all added.
 
 **Coach**
-- No score type for work-based intervals or strength sets → `pieceTime`, `load`, load per step.
+- No score type for work-based intervals or strength sets → `perPiece`, `load`, load per step.
 - A capped for-time score must rank below every finisher → `CAP + total reps`, position as context.
 - `late: end` ended the whole workout, breaking a cash-out after an AMRAP → it closes its window and
   the unbounded repeat around it; what follows still runs.
@@ -798,6 +860,18 @@ designer) from the Scrum Master were used as extra input; they agreed on the roo
 - "Hyrox identical to build 15" had nothing to compare against → `legacy.result.json` from today's
   Python `WorkoutProgress`.
 
+### Test on a real program (after the critique round)
+
+A separate session encoded 62 pieces of a real 17-week program (section 3.5): 33 clean, 24 awkward,
+5 could not be written. What changed:
+- Added to the schema: men's/women's standards (`valueF`), `seconds` targets, load on a group,
+  % of 1RM, heights and ft/in, machine choice, `note` on any node, `"until": "athlete"` for "build to
+  a max", `vary` across nested repeats, rest ratio measured over the round.
+- Added to scoring: `perPiece` (time, distance or reps), `includeRest`, `atCut`, `combine`.
+- Planned, not now: `repeat.resume` (AMRAP cycles that continue across rests).
+- Out of scope, kept as a `note`: a lift on a fixed schedule interrupting a piece for time, penalties.
+- Days are multi-part: the build-17 import splits a day into pieces.
+
 ## Appendix B: today's special cases
 
 The architect's audit lists 61 places, each with file and line (kept in the review notes, outside the
@@ -821,5 +895,6 @@ for time (with or without cap), rounds for time (with ladders and pyramids), AMR
 strength sets for load, timed intervals (Tabata, work/rest, windows like 3-3-3-4), distance or calorie
 intervals with rest, and a partner split on any of these. The coach's catalogue of 31 formats
 (including death-by, buy-in/cash-out, fight-gone-bad style, team relay, Hyrox doubles and relay,
-compromised running) maps onto the same five blocks. Not yet: relays of 3-4 athletes with named legs,
+compromised running) maps onto the same five blocks, and so does a real 17-week program, except
+a few rare shapes kept as notes (section 3.5). Not yet: relays of 3-4 athletes with named legs,
 and anything that needs pause or a multi-part day.
