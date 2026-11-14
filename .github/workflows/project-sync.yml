@@ -1,0 +1,229 @@
+# Keeps the Projects board (https://github.com/users/Slimslim/projects/2) in sync from labels.
+# Labels status:backlog|todo|in-progress|in-review|qa|done set the board's Status column.
+# How it is used: docs/SCRUM.md, "Board labels". Issue #47.
+#
+# Tokens:
+# - GITHUB_TOKEN (permissions below) reads the repo: issues, PRs, labels.
+# - PROJECT_TOKEN (repo secret, classic PAT with the `project` scope only) talks to the board, in the
+#   last step only (that step makes no repo reads).
+# Nothing from an issue or PR (title, labels, body) is put into a shell command or into a script's
+# source: the scripts read the event payload as data.
+
+name: Project sync
+
+on:
+  issues:
+    types: [opened, labeled, unlabeled, closed, reopened]
+  pull_request:
+    types: [opened, labeled, unlabeled, closed, reopened]
+  workflow_dispatch:
+    inputs:
+      include_closed:
+        description: "Also set closed issues and PRs (no status label: Done)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+concurrency:
+  # One run at a time per item, in event order (a quick label change must not be overtaken).
+  group: project-sync-${{ github.event.issue.number || github.event.pull_request.number || 'all' }}
+  cancel-in-progress: false
+
+env:
+  PROJECT_OWNER: Slimslim
+  PROJECT_NUMBER: "2"
+  STATUS_FIELD: Status
+
+jobs:
+  labels:
+    name: Create status labels
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Create the six status:* labels if missing
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        with:
+          script: |
+            const labels = [
+              ['status:backlog', 'ededed', 'Board: Backlog'],
+              ['status:todo', 'c5def5', 'Board: To Do'],
+              ['status:in-progress', 'fbca04', 'Board: In Progress'],
+              ['status:in-review', '1d76db', 'Board: In Review'],
+              ['status:qa', 'd876e3', 'Board: QA'],
+              ['status:done', '0e8a16', 'Board: Done'],
+            ];
+            for (const [name, color, description] of labels) {
+              try {
+                await github.rest.issues.getLabel({ ...context.repo, name });
+                core.info(`exists: ${name}`);
+              } catch (e) {
+                if (e.status !== 404) throw e;
+                await github.rest.issues.createLabel({ ...context.repo, name, color, description });
+                core.info(`created: ${name}`);
+              }
+            }
+
+  sync:
+    name: Sync board status
+    runs-on: ubuntu-latest
+    # Fork PRs get no secrets; the board is only for this repo's own branches.
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Check PROJECT_TOKEN is set
+        env:
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+        run: |
+          if [ -z "$PROJECT_TOKEN" ]; then
+            echo "::error::Repository secret PROJECT_TOKEN is missing. Add a classic PAT with the 'project' scope under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
+      - name: Collect items (GITHUB_TOKEN, read only)
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        env:
+          INCLUDE_CLOSED: ${{ inputs.include_closed }}
+          ITEMS_FILE: ${{ runner.temp }}/items.json
+        with:
+          script: |
+            const fs = require('fs');
+            const pick = (kind, x) => ({
+              kind, number: x.number, nodeId: x.node_id, state: x.state,
+              labels: (x.labels || []).map(l => (typeof l === 'string' ? l : l.name)),
+            });
+            const items = [];
+            if (context.eventName === 'issues') {
+              items.push(pick('issue', context.payload.issue));
+            } else if (context.eventName === 'pull_request') {
+              items.push(pick('PR', context.payload.pull_request));
+            } else {
+              // workflow_dispatch: every open issue and PR (and closed ones if asked).
+              const states = process.env.INCLUDE_CLOSED === 'true' ? ['open', 'closed'] : ['open'];
+              for (const state of states) {
+                const issues = await github.paginate(github.rest.issues.listForRepo, { ...context.repo, state, per_page: 100 });
+                // PRs also show up as issues; take them from the pulls list with their own node id.
+                items.push(...issues.filter(i => !i.pull_request).map(i => pick('issue', i)));
+                const pulls = await github.paginate(github.rest.pulls.list, { ...context.repo, state, per_page: 100 });
+                items.push(...pulls.map(p => pick('PR', p)));
+              }
+            }
+            fs.writeFileSync(process.env.ITEMS_FILE, JSON.stringify(items));
+            core.info(`${items.length} item(s) to sync`);
+
+      - name: Sync to the board (PROJECT_TOKEN)
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        env:
+          ITEMS_FILE: ${{ runner.temp }}/items.json
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          # Here `github` is authenticated with PROJECT_TOKEN and is used for the board only.
+          script: |
+            const fs = require('fs');
+            const items = JSON.parse(fs.readFileSync(process.env.ITEMS_FILE, 'utf8'));
+            const LABEL_TO_STATUS = {
+              'status:backlog': 'Backlog',
+              'status:todo': 'To Do',
+              'status:in-progress': 'In Progress',
+              'status:in-review': 'In Review',
+              'status:qa': 'QA',
+              'status:done': 'Done',
+            };
+            const ORDER = Object.values(LABEL_TO_STATUS);
+            const owner = process.env.PROJECT_OWNER;
+            const number = parseInt(process.env.PROJECT_NUMBER, 10);
+            const fieldName = process.env.STATUS_FIELD;
+            const REJECTED = 'PROJECT_TOKEN was rejected (401): it has expired or was revoked. Create a new classic PAT with the "project" scope and update the secret.';
+
+            async function gql(query, vars) {
+              try {
+                return await github.graphql(query, vars);
+              } catch (e) {
+                const status = e.status || (e.response && e.response.status);
+                if (status === 401) throw new Error(REJECTED);
+                const msgs = (e.errors || []).map(x => x.message).join('; ');
+                throw new Error(`GraphQL error${status ? ` (${status})` : ''}: ${msgs || e.message}`);
+              }
+            }
+
+            // Look up the project, its Status field and options by name (no hard-coded ids).
+            const res = await gql(`
+              query($owner: String!, $number: Int!, $field: String!) {
+                user(login: $owner) {
+                  projectV2(number: $number) {
+                    id
+                    title
+                    field(name: $field) {
+                      ... on ProjectV2SingleSelectField { id name options { id name } }
+                    }
+                  }
+                }
+              }`, { owner, number, field: fieldName });
+            const proj = res.user && res.user.projectV2;
+            if (!proj) {
+              throw new Error(`Project ${owner}/#${number} not found, or PROJECT_TOKEN cannot see it (it needs the "project" scope).`);
+            }
+            if (!proj.field || !proj.field.options) {
+              throw new Error(`Project "${proj.title}" has no single-select field named "${fieldName}".`);
+            }
+            // Match option names loosely ("Todo" = "To Do", "in-review" = "In Review").
+            const norm = s => String(s).toLowerCase().replace(/[\s_-]/g, '');
+            const have = proj.field.options.map(o => o.name).join(', ');
+            const optionId = {};
+            for (const status of ORDER) {
+              const opt = proj.field.options.find(o => norm(o.name) === norm(status));
+              if (opt) optionId[status] = opt.id;
+              else core.warning(`Status option "${status}" not found on the board (it has: ${have}).`);
+            }
+
+            // Status wanted for an item: its status:* label (most advanced if several),
+            // else Done when closed, else null (leave Status as it is).
+            function wantedStatus(item) {
+              const found = item.labels.map(n => LABEL_TO_STATUS[String(n).toLowerCase()]).filter(Boolean);
+              if (found.length > 1) core.warning(`${item.kind} #${item.number}: several status labels; using the most advanced`);
+              if (found.length) return found.sort((a, b) => ORDER.indexOf(a) - ORDER.indexOf(b)).pop();
+              return item.state === 'closed' ? 'Done' : null;
+            }
+
+            async function syncItem(item) {
+              // Adding is idempotent: an item already on the board comes back with its id.
+              const add = await gql(`
+                mutation($project: ID!, $content: ID!) {
+                  addProjectV2ItemById(input: { projectId: $project, contentId: $content }) { item { id } }
+                }`, { project: proj.id, content: item.nodeId });
+              const itemId = add.addProjectV2ItemById.item.id;
+              const status = wantedStatus(item);
+              if (!status) {
+                core.info(`${item.kind} #${item.number}: on the board, no status label, Status unchanged`);
+                return;
+              }
+              if (!optionId[status]) throw new Error(`no "${status}" option in the board's ${fieldName} field (it has: ${have})`);
+              await gql(`
+                mutation($project: ID!, $item: ID!, $field: ID!, $option: String!) {
+                  updateProjectV2ItemFieldValue(input: {
+                    projectId: $project, itemId: $item, fieldId: $field,
+                    value: { singleSelectOptionId: $option }
+                  }) { projectV2Item { id } }
+                }`, { project: proj.id, item: itemId, field: proj.field.id, option: optionId[status] });
+              core.info(`${item.kind} #${item.number}: Status = ${status}`);
+            }
+
+            const failed = [];
+            for (const item of items) {
+              try {
+                await syncItem(item);
+              } catch (e) {
+                // A dead token fails every item the same way: stop at once.
+                if (e.message === REJECTED) throw e;
+                core.error(`${item.kind} #${item.number}: ${e.message}`);
+                failed.push(`#${item.number}`);
+              }
+            }
+            if (failed.length) core.setFailed(`could not sync: ${failed.join(', ')}`);
+            else core.info(`synced ${items.length} item(s)`);

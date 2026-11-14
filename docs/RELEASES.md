@@ -7,35 +7,34 @@ only its own rows, never another chat's; keep one row per line (fewer merge conf
 ## Now (read this at the stand-up)
 
 Waiting on the owner:
-- **Build 15 device test** (#24 test plan; only the crash test is done) -> then #24 out of draft.
-- W23 banner mockup: approved, or approve it separately from the practice workout (W22)?
-- Old PRs #6, #7, #15, #19: merge or close.
+- **Build 15 device test, 13 Nov:** practice, short workout, 200 Hz, settings, Lifting passed. Left:
+  GPS run (14 Nov) and the re-check of the Crown-side fix (#27, merged into #24). Battery: later.
+  Then #24 out of draft and merged; TestFlight build 15 from `main` goes to the friend testers.
 
 In progress:
-- #24 (build 15): `claude/funny-faraday-1adqio`, frozen, waiting on the device test.
-- #26 (this plan and the live board): `claude/amazing-fermi-2lev62`.
+- #24 (build 15): `claude/funny-faraday-1adqio`, frozen, device test nearly done.
 
 Blocked:
-- Everything in build 16 that touches the watch or upload code (W28, W27, W23, battery): **blocked on
-  the owner's device test and the merge of #24**.
+- Build 16 (W28, W27, W23): **blocked on the merge of #24**. Then `claude/release-16` is cut from `main`.
 
-## Live board
+## Tickets, board and releases (owner, 13 Nov: work like a tech company)
 
 The team process (stand-up, planning, review, retro, the Scrum Master chat): `docs/SCRUM.md`.
 
-https://claude.ai/artifact/R1im1djQEebDWBRsYDT1zk (page `docs/roadmap.html`). Its shared database
-holds the **status**: each feature's status, who has it and "needs review"; the device-test and
-release checklists (each tick records who and when); the owner's decisions; the stand-up log. This
-file holds the **plan**. A PR that adds, moves or drops a feature changes this file; status moves
-on the board, any time.
-
-Chats update the board with `ArtifactData` on that URL. Collections: `items` (`sid, title, area,
-build, status, who, claimed, note, review, pr, updatedAt`), `checks` (`group, text, done, at`),
-`decisions` (`title, detail, status open|decided, answer`), `standups` (`done, next, blocked, at`),
-`sprints`, `meta/plan`. Read first and pin `if_version`; never delete someone's stand-up or
-decision. Write when a status changes, a PR opens or merges (`pr`), something needs the owner
-(`review: true`, cleared once reviewed), and once at the end of a working session (a stand-up).
-Page code changes: edit `docs/roadmap.html` in a PR and republish to the same URL (the data stays).
+- **Tickets are GitHub issues** in this repo: one per story, bug, chore or experiment, with acceptance
+  criteria ("done when"). Labels: `story`, `bug`, `chore`, `experiment`, `epic`, `release`,
+  `area:workouts`, `area:lifting`, `needs-brief`, `needs-design`. The repo is public: no tester names
+  or personal data in issues (tester A, B, ...).
+- **Fix version = milestone** (`Build 15`, `Build 16`, `Build 17`): which release a ticket ships in.
+  Each release has a `release` ticket with its QA checklist.
+- **Board = GitHub Projects** (board view), columns **Backlog -> To Do -> In Progress -> In Review ->
+  QA -> Done**. In Review: PR open, CI and code review. QA: merged into the release branch, owner
+  testing on a device (UAT). Done: passed QA. PRs say `Closes #N` so the ticket closes when the work
+  reaches `main`.
+- **Release dashboard** (https://claude.ai/artifact/R1im1djQEebDWBRsYDT1zk, page `docs/roadmap.html`):
+  timeline and milestones, the owner's decisions and the stand-up log. Collections `decisions`,
+  `standups`, `sprints`, `checks`, `meta/plan` (read first, pin `if_version`, never delete a stand-up
+  or decision). Its old `items` collection is replaced by the issues.
 
 ## Rules
 
@@ -54,12 +53,19 @@ Page code changes: edit `docs/roadmap.html` in a PR and republish to the same UR
 | `with testers` | invites sent for that build |
 
 - **Claiming:** a row with a branch in `who` is claimed. A claim with no commits for 2 days is free
-  again. One chat per build branch; never several chats on the same file at once
+  again. One chat per release branch; never several chats on the same file at once
   (`WorkoutSessionModel.swift`, the PhoneLink files).
 - **WIP limit:** one build in `building` at a time. The next build's rows stay `ready` until the
   current build is merged.
+- **`main` is protected:** changes only through a PR with CI green (Python tests, BarPathKit tests +
+  app builds); no force push, no deletion. Only the owner merges into `main`.
 - **Builds come from `main` only.** The commit a TestFlight build is made from gets a git tag
   (`build-15`). (Builds 7-14 came from an unmerged branch; never again.)
+- **Release branch (owner, 13 Nov):** each build has one branch cut from `main` (`claude/release-16`;
+  build 15 is `claude/funny-faraday-1adqio`). Workers branch from it and open PRs into it; the Scrum Master has each
+  reviewed by an independent reviewer and merges it into the build branch when CI is green and the
+  review says merge, otherwise the findings go back to the worker. The owner device-tests the build
+  branch and merges it into `main`; TestFlight is built from `main`.
 - **Build numbers:** `CURRENT_PROJECT_VERSION` in `BarPath/project.yml` (shared file), set once by
   the PR that owns the build (named in the build's heading). Never reuse a number.
 - **Freeze:** a build freezes when its PR says so; after that only fixes from the owner's device
@@ -94,29 +100,37 @@ yet. It contains #19 (builds 7-14), so merging it brings `main` level with what 
 | Account deletion removes every file; Lifting "Ending..." timeout; analyzer crash fixes; Crown lockout after an automatic advance; personal library rows (`make_row.py --owner`); PRIVACY.md; "Rx Lab" in athlete-facing text; `legacy/` removed | fixes | in PR |
 | Device-test fix: practice "Turn the Crown" hint points at the Crown when it is on the left | fix | in PR ([#27](https://github.com/Slimslim/ML.WorkoutApp/pull/27), merged into #24 on 13 Nov) |
 
-Exceptions after the freeze (owner OK): four device-test fixes; W26 kg / About you.
+Exceptions after the freeze (owner OK): four device-test fixes; W26 kg / About you; Crown hint on the
+Crown's side ([#27](https://github.com/Slimslim/ML.WorkoutApp/pull/27), owner device test 13 Nov).
+
+Who gets it (owner, 13 Nov): after the GPS run, the friend tester group (heart-rate graphs).
 
 ## Build 16: tester stability (owner decided 13 Nov)
 
-W28 uploads without opening the app, W23 banner, W27 Tabata timing, battery line. **No rep counting
+For the Swiss testers. W28 uploads without opening the app, W27 Tabata timing, W23 banner (mockup
+approved 13 Nov). Battery line: moved to a later build (owner, 13 Nov). **No rep counting
 on the watch** (owner, 13 Nov: "not yet"): the press / bench lockout rule stays in Python and the
-labels. Owner of the build branch: the chat that claims W28 first, after #24 merges.
+labels. Release branch `claude/release-16`, cut from `main` after #24 merges; one PR per ticket into it
+(milestone `Build 16`: #30 W28, #31 W27, #32 W23).
 
-Order once #24 is merged (one PR each, or one chat owns the build branch): W28 -> W27 -> W23 ->
-battery line. Dependencies:
+Order: W28 -> W27 -> W23. Dependencies:
 - **W28** needs #24's gzip staging and upload manifest; touches both PhoneLink files (#24 added a
   `weightUnit` application-context key). Check on a locked phone: staged gzip copies in Caches are
   readable, and the Supabase session is readable after first unlock.
 - **W27** touches `WorkoutSessionModel.clockAdvance`, which #24 changed (checkpoint every 15 s,
-  Crown lockout after an automatic advance).
+  Crown lockout after an automatic advance). Owner, 13 Nov: 8 x (20 s work + 10 s rest) on the clock,
+  3-2-1 at the end of each work, 3-2-1 GO at the end of each rest. Also decide what a Crown turn does
+  in a clocked workout (today it jumps a round and the clock never gives it back:
+  `WorkoutProgress.swift`).
 - **W23** needs a rule change before it is built: iOS does not say whether heart-rate read access was
   refused, so the banner follows "the last session received no heart rate" (`lastSessionReceivedHeartRate.v1`,
-  written by the practice today; the real workout must write it too). Mockup approval: ask the owner.
-- **Battery line:** `WKInterfaceDevice` battery monitoring on, an event line per minute in the session
-  CSV and `batteryStart` in the header (additive keys).
+  written by the practice today; the real workout must write it too). Mockup approved 13 Nov.
 
 Fallback: if W28 is not device-tested in time, the tester guide keeps "open the phone app after the
 session". Invites (proposed Fri 20 Nov) need #24 merged by about 14 Nov; otherwise the dates move.
+
+**Hyrox race, Sat 5 Dec (owner's milestone):** the owner races with the app. Proposal for sprint
+planning: race on build 16, no risky change to the workout code in the week before.
 
 ## Build 17: design review + workout import (owner decided 13 Nov)
 
@@ -138,6 +152,9 @@ closed before the import ships. Builds 18+ during the beta: fixes only.
 | Automatic movement switching on the watch (phase 1) | - | experiment | switch-v1 must beat the Crown on held-out sessions first (`docs/LABELS.md`) |
 | Rep counting in metcons (GHD / sit-ups / press first) | - | experiment | training data in `data/labels/`; flagged reps checked on video |
 | Weight per set in EMOMs, transition vs work time | W4, W5 | story | |
+| Battery level line in every recording | - | story | owner, 13 Nov: later, if testers report battery issues |
+| Library aliases (old results stay linked) + "For Time" cards | - | proposed | from closed #15, branch kept; needs a free story id |
+| Strength sets in a workout get bar path / bar speed; Lifting mode merges into the normal recording | W21 | story | owner, 13 Nov: free lifting only records, classify later; Olympic live "last lift" view is a side feature |
 
 ## Data and server state (not code)
 
@@ -148,9 +165,9 @@ closed before the import ships. Builds 18+ during the beta: fixes only.
 
 ## Open PRs not in a build
 
-| PR | What | Decision needed |
+| PR | What | Decision |
 |---|---|---|
-| [#6](https://github.com/Slimslim/ML.WorkoutApp/pull/6) | Docs: approved watch design screenshots | merge or close |
-| [#7](https://github.com/Slimslim/ML.WorkoutApp/pull/7) | Old class workouts, builds 2-3 | close (superseded) |
-| [#15](https://github.com/Slimslim/ML.WorkoutApp/pull/15) | Library aliases keep old results linked; "For Time" cards | merge `main` into it after #24 lands, or close |
 | [#19](https://github.com/Slimslim/ML.WorkoutApp/pull/19) | Results page, builds 7-14 | close when #24 merges (contained in it) |
+
+Closed 13 Nov (owner asked the Scrum Master to decide; branches kept): #6 (stale screenshots), #7
+(class workouts now in the cloud library), #15 (not in builds 15-17; moved to the backlog).
