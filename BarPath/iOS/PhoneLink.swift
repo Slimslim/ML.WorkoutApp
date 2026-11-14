@@ -312,6 +312,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
                                                                        metadataId: metadata["id"] as? String)
                 BackgroundUploads.keepReadableWhenLocked(destination)
                 notifyReceived()
+                BackgroundSync.noteFileReceived()
                 Task { @MainActor in
                     WorkoutStore.shared.ingest(at: destination)
                 }
@@ -323,6 +324,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
                                                                        metadataSessionId: metadata["sessionId"] as? String)
                 BackgroundUploads.keepReadableWhenLocked(destination)
                 notifyReceived()
+                BackgroundSync.noteFileReceived()
                 Task { @MainActor in
                     LiftStore.shared.reloadDebugFiles()
                 }
@@ -332,6 +334,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
                                                                   metadataId: metadata["id"] as? String)
                 BackgroundUploads.keepReadableWhenLocked(destination)
                 notifyReceived()
+                BackgroundSync.noteFileReceived()
                 Task { @MainActor in
                     LiftStore.shared.ingestLift(at: destination)
                 }
@@ -375,7 +378,8 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     /// the upload wake (`["type": "filesQueued", "pending": Int, "sentAt": Double]`).
     private func handleMessage(_ message: [String: Any]) {
         if (message["type"] as? String) == PhoneLink.filesQueuedType {
-            BackgroundSync.run("watch wake")
+            let pending: Int = (message["pending"] as? NSNumber)?.intValue ?? 0
+            BackgroundSync.run("watch wake", awaitingFiles: pending)
             return
         }
         guard (message["type"] as? String) == "status" else { return }
