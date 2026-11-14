@@ -11,6 +11,7 @@
    "Debug/session-1F07FDC3-8107-4E27-99F5-27258CAA7E72.csv.gz",
    "Debug/session-4B274871-919B-442F-BE4E-E08E3AF26179.csv.gz",
    "Debug/session-6C3277E9-6C89-405B-A7EC-71913E220987.csv.gz",
+   "Debug/session-6F1E8A0D-9E17-4473-9D7C-35B0B1F18132.csv.gz",
    "Debug/session-C5FDCE07-1E29-4A4A-B534-CE97753373B3.csv.gz"
   ]
  },
@@ -18,10 +19,27 @@
   "Lifting mode, build 15, 200 Hz. Truth from the athlete's video (30 fps; video 0:00 = 16:18:58.5 UTC, i.e. frame = (UTC - 16:18:58.5) x 30). Every catch frame the athlete gave matches a forearm flip to the front rack in the watch motion within 1-10 frames.",
   "Athlete (14 Nov): all hang power cleans, none from the floor. Bar deadlifted to standing first, then each rep from just above the knees, every catch in a power position (the 185s too, low but power).",
   "repTimes = session seconds of the rack onset (forearm from hanging to front rack) in the named recording; catchFrames = the athlete's video frame of the catch.",
-  "Not labelled: a 45 lb warm-up at about 16:19:40 and 16:19:47 UTC (two rack onsets, recording 6F1E8A0D; watch logged one lift); rack-like wrist moves at frames ~4018, 4132 and 9100 (handling plates, looking at the watch).",
-  "Lifting-mode detection: of 17 labelled reps, the watch logged 4 as lifts (95 x2, 115 x1, 155 x1) plus one window with no catch in it. It needs a still moment before each lift, so hang reps after the first and heavy singles set up differently are missed. Watch weight was not updated for 135 and 185."
+  "Lifting-mode detection: of 19 labelled reps, the watch logged 5 as lifts (45 x1, 95 x2, 115 x1, 155 x1) plus one window with no catch in it. It needs a still moment before each lift, so hang reps after the first and heavy singles set up differently are missed. Watch weight was not updated for 135 and 185.",
+  "Not labelled: rack-like wrist moves at frames ~4018, 4132 and 9100 (handling plates, looking at the watch)."
  ],
  "sets": [
+  {
+   "file": "Debug/session-6F1E8A0D-9E17-4473-9D7C-35B0B1F18132.csv.gz",
+   "lift": "hangPowerClean",
+   "reps": 2,
+   "style": "2 reps without dropping the bar (empty bar, slow warm-up rep 2); each rep: stand tall, lower to just above the knees, pull, power catch",
+   "catchFrames": [
+    1233,
+    1463
+   ],
+   "repTimes": [
+    6.11,
+    13.83
+   ],
+   "loadLb": 45,
+   "source": "video",
+   "note": "video: pick-up 1116, standing 1149, hang 1200, catch 1233; hang 1351, stand 1368, hang 1425, catch 1463; bar on the floor 1555. Watch logged one lift (45 lb)."
+  },
   {
    "file": "Debug/session-C5FDCE07-1E29-4A4A-B534-CE97753373B3.csv.gz",
    "lift": "hangPowerClean",
@@ -73,8 +91,9 @@
     7.65,
     17.2
    ],
-   "note": "weight not stated (between 115 and 135). Watch logged neither.",
-   "source": "video"
+   "note": "135 lb confirmed by the athlete. Watch logged neither.",
+   "source": "video",
+   "loadLb": 135
   },
   {
    "file": "Debug/session-1F07FDC3-8107-4E27-99F5-27258CAA7E72.csv.gz",
