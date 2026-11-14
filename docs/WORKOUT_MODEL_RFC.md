@@ -360,6 +360,13 @@ distance. So a scale is a whole alternative structure, not a load patch:
   the scale id. This is the storage for "Rx / scaled" in section 5.
 - The card shows the scale chips and only the parts that differ. Card design goes to the Workouts and
   Navigation chats, mockups to the owner first.
+- **Custom scale** (owner, 14 Nov): the athlete can make their own scale and edit it freely (any number,
+  swap a movement, change the rounds or the cap). It starts as a copy of a posted scale and is stored
+  as one more entry, `{ "id": "custom", "label": "Mine", "basedOn": "l2", "structure": {...} }`,
+  checked by the same validator. It belongs to the athlete, not the gym's row: kept on the phone and
+  as a personal row linked to the workout id, never written into the gym's row. The result stores the
+  full structure that ran, so a custom result is always readable and compared only with the same
+  scale.
 - All 34 structures encoded from 17 recent class workouts (every scale) pass the rules: E3MOM at % of
   1RM, 1:00 windows with buy-in then max calories, a growing chipper, "4 rounds each for time,
   start every 7:00", 21-15-9 with cap, AMRAP +2 ladder, buy-in + AMRAP cycles that restart, fixed-start
