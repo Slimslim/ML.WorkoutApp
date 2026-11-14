@@ -285,7 +285,7 @@ The rest follows a part you end, so it starts when you finish (rule 4.2.2).
 alternating DB snatches; after each round, rest exactly as long as that round took; no rest after
 the last round):
 ```json
-{"score":{"type":"time","show":"perRound"},"body":[
+{"score":{"type":"time"},"body":[
  {"repeat":{"times":3,"body":[
    {"group":{"id":"round","label":"round","body":[
      {"part":{"movement":"skiErg","target":{"value":15,"unit":"calories"}}},
