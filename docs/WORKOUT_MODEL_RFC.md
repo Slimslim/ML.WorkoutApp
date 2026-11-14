@@ -839,6 +839,25 @@ is to ship build 16 now with W28 and W23 only, and move the engine to build 17.
 Pause, resume after a crash, multi-part class days, Roxzone parts, live view on the phone, `who` for
 relays of 3-4 athletes.
 
+### Checked against the tickets of 14 Nov
+
+The structure and the plan above still hold. What the new tickets change:
+- **Build 16** already has W28 (#57) and W23 (#56) merged on `claude/release-16`. The engine slice
+  (W27) is the only build-16 item left from this RFC. W28 did not change `sendWorkout`, so the
+  context-copy fix in section 8 is still needed.
+- **Partner gym (#60):** about 70 % of its recent class workouts already run on today's app. Of the
+  rest, timed windows with buy-in + max and "each round for time, start every N" are start-anchored
+  windows, so they run in the build-16 slice; AMRAP cycles and % sets come with build 17.
+- **One card, several scales (#61):** this is section 3.6 (`scales`, custom "Mine", swaps). Build 17,
+  after the owner approves the mockups (canvas "Scales on one card", rounds 3-4).
+- **Screen adapts to the movement (#62, #63):** no schema change. The engine always knows the current
+  step's `movement` and `kind`, so the watch can pick the main number (pace, RPM, reps) from it.
+- **Run pace pre-race (#66):** this is a layout change to the Hyrox run screen, not part of the engine.
+  If it goes in before 5 Dec, it resets race gate G5 like any change to the workout code.
+- **Programming sync (#64) and scaling advice (#65):** a sync brings in whole days with all scales and
+  the coach's notes; they map onto `scales`, `note` and `stimulus`, checked by the same validator as
+  the photo/text import. The advice reads `stimulus` and the athlete's history (section 3.6).
+
 ## 12. Risks
 
 | Risk | Mitigation |
