@@ -450,6 +450,16 @@ needed. (Owner, 14 Nov partner cleans, from the video: on the bar 45 / 41 / 43 /
 resting 56% / 62% / 74% / 82% of the round; heart rate while resting stayed as high as on the bar,
 it lags the effort by several seconds.) Needs a design (phone report) and catch counting on the watch.
 
+**W31. A workout in parts, each with its own time cap and a rest between (Later)**
+As an athlete whose class has "Part 1 (30 min cap), 8 min rest, Part 2 (20 min)", I want one START
+for the whole thing, so each part stops at its own cap or when I finish it, the rest counts down by
+itself, and Part 2 starts after it.
+*Done when:* a library workout can hold parts, each with its own format and cap; finishing Part 1
+early or hitting its cap both start the rest (8:00 counting down, no Crown turn); Part 2 starts when
+the rest ends; the report shows each part's score separately; Apple Fitness gets one workout.
+(Owner, 15 Nov: Sunday's class; entered for now as two library rows, Part 1 and Part 2, with the
+rest as the first one's recovery.)
+
 ### Recording follows the plan (spans Lifting and Workouts; after the MVP)
 
 **W21. The watch records each part the way that part needs (Later)**
