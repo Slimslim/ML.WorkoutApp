@@ -350,10 +350,16 @@ distance. So a scale is a whole alternative structure, not a load patch:
 
 ```jsonc
 "scales": [
-  { "id": "rx", "label": "Rx",      "structure": { ... } },
-  { "id": "l2", "label": "Level 2", "structure": { ... } }
+  { "id": "rx", "label": "Rx",      "short": "Rx", "rank": 3, "structure": { ... } },
+  { "id": "l2", "label": "Level 2", "short": "L2", "rank": 2, "structure": { ... } }
 ]
 ```
+
+- Level names belong to the programme, not the app: an Open-style workout has Foundations · Scaled ·
+  Rx, a class gym Level 1 · Level 2 · Rx · Competitor, others named tracks. So `label` is free text,
+  `short` (at most 5 characters) is what tight places show (the watch, a picker's neighbours), and
+  `rank` orders the scales from easiest to hardest, so "harder / easier" and the picker's order never
+  depend on the names.
 
 - One workout id; `structure` alone = one scale. The largest pair seen is about 6 KB, well inside 16 KB.
 - The athlete picks the scale at START (default: the last one used at that gym); the result stores
