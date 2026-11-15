@@ -431,6 +431,25 @@ How (to check on a device, background behaviour cannot be tested in CI):
 - **Size:** the bucket takes 50 MB per file; a tester's 58-min Chad was 42 MB uncompressed, so a
   70-min session would be refused without the compressed uploads of #24. Build after #24.
 
+**W29. Show me where we are in a shared movement (Later)**
+As an athlete in a partner workout, I want the watch to show how many of the shared reps are done
+and how many rounds are left, so we don't lose count when we are exhausted.
+*Done when:* during a shared station the watch shows the team's count toward the target (e.g. 22 /
+30) from my catches plus my partner's turns, and "round 3 of 4" at every switch. (Owner, 14 Nov:
+his team did 40 cleans in round 3 instead of 30 and nearly stopped before round 4; the other team
+did 30. Needs catch counting (data/labels/2026-11-14-*) and a way to count the partner's reps:
+the partner's watch, or the time the athlete is off the bar.)
+
+**W30. My work and rest inside a shared movement (Later)**
+As an athlete sharing reps with a partner, I want the report to split each shared station into my
+turns on the bar and my rest while my partner works, with heart rate for both, so I see how the
+pacing changed through the workout.
+*Done when:* the phone report shows, per shared station, my turns (reps and time on the bar) and my
+rest between them, and the share of time resting per round; found from my catches, no Crown turns
+needed. (Owner, 14 Nov partner cleans, from the video: on the bar 45 / 41 / 43 / 27 s per round,
+resting 56% / 62% / 74% / 82% of the round; heart rate while resting stayed as high as on the bar,
+it lags the effort by several seconds.) Needs a design (phone report) and catch counting on the watch.
+
 ### Recording follows the plan (spans Lifting and Workouts; after the MVP)
 
 **W21. The watch records each part the way that part needs (Later)**
