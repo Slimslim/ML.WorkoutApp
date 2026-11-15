@@ -72,6 +72,8 @@ Times are **session seconds**: the watch CSV's `t` column (0 = START on the watc
   `{"motion": 13, "athlete": 12, "reason": "13th pull on the buzzer", "check": "video"}`. The
   athlete's count stays the label; nothing is decided from the motion alone. Flags are listed by
   `tools/score_labels.py` and settled later by video (owner, 2026-11-10).
+- `training: false` (optional, on a segment): keep the segment for timing but do not use its reps
+  as training data (the athlete is not sure of the count and it cannot be checked).
 - Lifting sessions (`"kind": "lifts"`) have `sets` instead of `segments`: `{file, lift, loadLb,
   reps, note}` per lift recording (`reps: 0` for a false start).
 
@@ -254,3 +256,11 @@ the same video: `2026-11-14-partner-hpc-burpees-tester-b` (rounds 1-2, with his 
 - The athlete's Crown splits were right within 1 s except one (round 1 burpees marked 6.7 s early,
   before the partner's last set ended). A 39 s rest after round 3 (they thought the workout was over)
   is labelled as rest. Round 3 was 40 shared reps by the athlete's count against 30 in the plan.
+
+### Squats vs lunges from the wrist (2026-11-15, Sunday Part 2)
+
+Done back to back without racking the bar. Squats are up-down: horizontal movement is 0.14-0.24 of
+the vertical. Lunges step forward and back: 0.57-0.73 of the vertical, 80-83% of it on one line.
+The difference holds in all 4 rounds and does not depend on speed, so it is the feature to use to
+tell them apart. Squat reps are clear (vertical descents every 2.6-2.8 s; rounds 3-4 = 10 each).
+Lunge reps are not countable yet from forward-back bursts (10 in round 2, 3-6 in the others).
