@@ -10,9 +10,9 @@
   "result": "Workouts/2E4F6E53-B298-4D16-9520-A60068BC3429.json"
  },
  "notes": [
-  "Partner workout, 4 rounds of 30 shared hang power cleans + 15 synchro bar-facing burpees; the athlete did 3 x 5 cleans per round, the partner the other 15. Weight not given yet.",
+  "Partner workout, 4 rounds of 30 shared hang power cleans + 15 synchro bar-facing burpees; the athlete did 3 x 5 cleans per round, the partner the other 15. Bar 135 lb (athlete).",
   "Truth from the athlete's video (second video of the day, 30 fps, frame 0 = video start; coach 'go' at frame 335 = 11.2 s). Video seconds = watch session seconds + 11.06 (fitted on 30 catches, all within 0.3 s; START pressed on 'go').",
-  "Rounds 3-4 not labelled yet. A second athlete (tester B) wore a watch in the same video; his recording is synced (video s = his session s + 79.86, the two watch clocks agree within 0.01 s) and kept out of the repo until he agrees.",
+  "Rounds 3-4 not labelled yet. A second athlete (tester B) wore a watch in the same video; his recording is synced (video s = his session s + 79.86, the two watch clocks agree within 0.01 s) and labelled separately (2026-11-14-partner-hpc-burpees-tester-b), with his OK.",
   "Watch Crown splits vs video: round 1 burpees start 96.2 s on the watch, 102.9 s on the video (Crown turned before the partner's last set ended); the other three boundaries agree within 1 s."
  ],
  "segments": [
@@ -68,7 +68,8 @@
      "period": 3.27
     }
    ],
-   "note": "shared 30 with the partner: athlete 3 x 5, partner 3 x 5 in between; catch times from the video (30 fps) matched to the forearm rack onset"
+   "note": "shared 30 with the partner: athlete 3 x 5, partner 3 x 5 in between; catch times from the video (30 fps) matched to the forearm rack onset",
+   "loadLb": 135
   },
   {
    "movement": "burpees",
@@ -132,7 +133,8 @@
      "period": 2.91
     }
    ],
-   "note": "shared 30: athlete 3 x 5"
+   "note": "shared 30: athlete 3 x 5",
+   "loadLb": 135
   },
   {
    "movement": "burpees",

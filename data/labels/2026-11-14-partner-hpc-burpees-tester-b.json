@@ -1,0 +1,151 @@
+{
+ "version": 1,
+ "id": "2026-11-14-partner-hpc-burpees-tester-b",
+ "date": "2026-11-14",
+ "kind": "workout",
+ "athlete": "tester-b",
+ "name": "Partner: hang power cleans + synchro burpees, tester B (rounds 1-2 of 4, partial)",
+ "format": "forTime",
+ "files": {
+  "csv": "Debug/session-530A13DE-D610-4F2E-80FC-AE9504397D88.csv",
+  "result": "Workouts/530A13DE-D610-4F2E-80FC-AE9504397D88.json"
+ },
+ "notes": [
+  "Tester B's own recording (paths relative to his storage folder), used with his OK. Watch on the left wrist, Crown on the right: the front rack reads gx about -0.85 (catches: barpath.catches with sign=-1, hold 0.3 s).",
+  "Truth from the owner's video (same video as 2026-11-14-partner-hpc-burpees): video seconds = his session seconds + 79.86, fitted on his catches and equal to the two watch clocks' difference within 0.01 s. He is in the background of the video, so a few catch frames are approximate; 4 of 23 catches have no forearm rack within 0.5 s and keep the video time.",
+  "Bar 105 lb (owner's estimate)."
+ ],
+ "segments": [
+  {
+   "movement": "hangPowerCleans",
+   "round": 1,
+   "start": 0.0,
+   "end": 74.44,
+   "source": "athlete",
+   "reps": 8,
+   "unit": "reps",
+   "loadLb": 105,
+   "sets": [
+    {
+     "start": 9.28,
+     "end": 14.9,
+     "reps": 3,
+     "repTimes": [
+      10.08,
+      11.86,
+      14.1
+     ],
+     "signal": "gx",
+     "period": 2.01
+    },
+    {
+     "start": 35.04,
+     "end": 40.62,
+     "reps": 3,
+     "repTimes": [
+      36.71,
+      38.23,
+      39.82
+     ],
+     "signal": "gx",
+     "period": 1.55
+    },
+    {
+     "start": 65.24,
+     "end": 68.4,
+     "reps": 2,
+     "repTimes": [
+      66.34,
+      67.6
+     ],
+     "signal": "gx",
+     "period": 1.26
+    }
+   ],
+   "note": "shared 30 with his partner. Watch START came 69 s after 'go': his first two sets (3 + 3 reps, video frames 1012-1117 and 1789-1859) happened before it and are not in this recording. Last set: 2 reps seen (the 3rd may be hidden; the motion shows one clear catch there)."
+  },
+  {
+   "movement": "burpees",
+   "round": 1,
+   "start": 74.44,
+   "end": 140.47,
+   "source": "athlete",
+   "reps": 15,
+   "unit": "reps",
+   "note": "synchro bar-facing burpees; start = chest to the ground (video), end = done (video). His double Crown turn came at the end, so the watch shows a 2 s burpee part."
+  },
+  {
+   "movement": "hangPowerCleans",
+   "round": 2,
+   "start": 140.47,
+   "end": 294.65,
+   "source": "athlete",
+   "reps": 15,
+   "unit": "reps",
+   "loadLb": 105,
+   "sets": [
+    {
+     "start": 147.81,
+     "end": 153.27,
+     "reps": 3,
+     "repTimes": [
+      148.67,
+      150.62,
+      152.47
+     ],
+     "signal": "gx",
+     "period": 1.9
+    },
+    {
+     "start": 181.97,
+     "end": 188.57,
+     "reps": 3,
+     "repTimes": [
+      183.57,
+      185.57,
+      187.77
+     ],
+     "signal": "gx",
+     "period": 2.1
+    },
+    {
+     "start": 213.34,
+     "end": 219.51,
+     "reps": 3,
+     "repTimes": [
+      214.71,
+      216.55,
+      218.71
+     ],
+     "signal": "gx",
+     "period": 2.0
+    },
+    {
+     "start": 252.01,
+     "end": 257.82,
+     "reps": 3,
+     "repTimes": [
+      253.3,
+      255.1,
+      257.02
+     ],
+     "signal": "gx",
+     "period": 1.86
+    },
+    {
+     "start": 289.54,
+     "end": 294.65,
+     "reps": 3,
+     "repTimes": [
+      290.34,
+      292.47,
+      293.85
+     ],
+     "signal": "gx",
+     "period": 1.76
+    }
+   ],
+   "note": "5 sets of 3; round 2 burpees not labelled yet"
+  }
+ ]
+}
