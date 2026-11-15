@@ -279,6 +279,9 @@ what I am really doing.
 *Done when:* the workout preview has Scale; I can change the load, reps or rep scheme and swap a
 movement; the changed version is saved as my copy and sent to the watch, the original stays as it
 was, and the result is recorded as Scaled with what I did.
+Also **reorder**: I can move a station up or down (or swap two) before sending, when the gym splits
+the class to share equipment; reordering alone is not Scaled. (Tester B, 15 Nov: pull-ups before the
+ski and wall balls before the row, entered by hand as his private copy.)
 
 **W16. Correct a result after the workout (Now)**
 As an athlete, I want to fix the weights or reps of a finished workout.
