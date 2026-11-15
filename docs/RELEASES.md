@@ -56,6 +56,10 @@ The team process (stand-up, planning, review, retro, the Scrum Master chat): `do
 - **Claiming:** a row with a branch in `who` is claimed. A claim with no commits for 2 days is free
   again. One chat per release branch; never several chats on the same file at once
   (`WorkoutSessionModel.swift`, the PhoneLink files).
+- **One "go" per build (process v2, `docs/SCRUM.md`):** Product writes the build's milestone, tickets
+  and its row here; the owner approves and says "go, build N"; Delivery then starts that build's
+  tickets two at a time without asking per ticket. Anything outside the approved build still needs the
+  owner's OK. Piloted on 2 tickets of build 17.
 - **WIP limit:** one build in `building` at a time. The next build's rows stay `ready` until the
   current build is merged.
 - **`main` is protected:** changes only through a PR with CI green (Python tests, BarPathKit tests +
