@@ -140,6 +140,13 @@ Order: W28 -> W27 -> W23. Dependencies:
   3-2-1 at the end of each work, 3-2-1 GO at the end of each rest. Also decide what a Crown turn does
   in a clocked workout (today it jumps a round and the clock never gives it back:
   `WorkoutProgress.swift`).
+- **W29** (#36, owner 15 Nov: "go, W29 in build 16", after the battery report #69): every workout
+  recording says how it was made. CSV header: battery at start, charging, Low Power Mode, thermal
+  state, units, heart-rate zone source, phone model / iOS / build (sent by the phone in the new
+  application-context key `phoneDevice`); battery line once a minute, thermal and Low Power Mode
+  changes, end line with `batteryEnd`, reason and duration. `tools/recording_info.py` prints battery
+  %/h. Recording only, no screen change. Status: in review (branch `claude/w29-recording-metadata`).
+  Not device-tested yet.
 - **W23** needs a rule change before it is built: iOS does not say whether heart-rate read access was
   refused, so the banner follows "the last session received no heart rate" (`lastSessionReceivedHeartRate.v1`,
   written by the practice today; the real workout must write it too). Mockup approved 13 Nov.
