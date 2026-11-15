@@ -431,6 +431,38 @@ How (to check on a device, background behaviour cannot be tested in CI):
 - **Size:** the bucket takes 50 MB per file; a tester's 58-min Chad was 42 MB uncompressed, so a
   70-min session would be refused without the compressed uploads of #24. Build after #24.
 
+**W29. Every recording says how it was made (Now)**
+As the owner, I want every workout recording to carry the battery level, the devices, the app builds
+and the settings it ran with, so that when a tester reports a problem (battery drain, Crown side) I
+can see the cause in the data without asking them.
+*Done when:* a recording's header has battery % and charging state at start, Low Power Mode and the
+thermal state, and the file has a battery line once a minute, a thermal line when it changes, battery
+% at the end and the end reason (athlete, time cap, crash recovered, app killed); the upload carries
+the iPhone model, iOS version and phone app build and the settings in use (units, heart-rate zone
+source); new keys only, old recordings still parse; `tools/barpath` prints battery % per hour; no name,
+email or extra health data. (Owner, 15 Nov: 3-4 more testers on build 16; a tester reported battery
+drain on build 15, #69. Ticket #36.)
+
+**W30. Add a workout from a photo or text (Now)**
+As an athlete visiting another gym, I want to photograph the whiteboard or paste the text, check it
+and run it on my watch, so I don't build it by hand.
+*Done when:* the photo or text becomes a v2 workout (`docs/WORKOUT_MODEL_RFC.md` 7.5) with its raw
+text, fidelity and the reasons on the confirm screen; the athlete fixes and saves it and it appears
+under Workouts; a clear message when it cannot be set up; every attempt logged; the photo is not kept;
+imports stay private; email sign-up closed first. Brief: `docs/BUILD_17.md` (I1-I6, M1). Ticket #72.
+
+**W31. Pick a scale and the result remembers it (Now)**
+As an athlete, I want to pick Rx, Competitor, Level 2 or Level 1 on one workout card and have the
+watch run that scale, so my result says which version I did.
+*Done when:* a workout with several scales runs the chosen one; the result stores the scale; history
+shows it next to the score. Card design #61, built after the owner approves it. Ticket #73.
+
+**W32. The score reads the way the workout is scored (Later in build 17)**
+As an athlete, I want the headline, card and history to show each format's score (RFC decision D6),
+and a per-window table for EMOMs and intervals, so I read my result the way the gym does.
+*Done when:* every D6 preset shows right on fixtures of each format; the table matches the approved
+mockup. Ticket #74.
+
 ### Recording follows the plan (spans Lifting and Workouts; after the MVP)
 
 **W21. The watch records each part the way that part needs (Later)**

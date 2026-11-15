@@ -6,17 +6,18 @@ only its own rows, never another chat's; keep one row per line (fewer merge conf
 
 ## Now (read this at the stand-up)
 
+Shipped: **build 15** (tag `build-15`, 14 Nov), on TestFlight for the friend testers.
+
+In QA (milestone `Build 16`, due 19 Nov): W28 (#30), W23 (#32) on `claude/release-16`.
+
 Waiting on the owner:
-- **Build 15:** the device test passed on 13 Nov (release ticket #29), including the outdoor GPS run.
-  #24 is ready for review. Left for the owner: merge #24, make TestFlight build 15 from `main`, tag
-  `build-15`, close #19, send the invites. Deferred: battery over 60 min, account deletion on a
-  throwaway account.
+- **W29 (#36) in build 16:** owner asked on 15 Nov; Delivery confirms it fits before the invites.
+- **Other build 16 additions:** owner wants a few more (15 Nov); list to come. Candidates: #66
+  (run pace readable), #53, #52, #34.
+- **"go, build 17"** on the plan below (milestone `Build 17`, due 3 Dec).
 
-In progress:
-- #24 (build 15): `claude/funny-faraday-1adqio`, device-tested 13 Nov, ready to merge.
-
-Blocked:
-- Build 16 (W28, W27, W23): **blocked on the merge of #24**. Then `claude/release-16` is cut from `main`.
+Decided 15 Nov: workout-structure RFC approved and merged (#58, `docs/WORKOUT_MODEL_RFC.md`); the
+engine ships in build 17 (D4); W27 moved to build 17. The owner races on build 16 on Sat 5 Dec.
 
 ## Tickets, board and releases (owner, 13 Nov: work like a tech company)
 
@@ -90,16 +91,15 @@ The team process (stand-up, planning, review, retro, the Scrum Master chat): `do
 | 1-6 | 29 Oct - 4 Nov | Bar path, deadlift reps, Hyrox workouts ([#1](https://github.com/Slimslim/ML.WorkoutApp/pull/1)); TestFlight, Sign in with Apple, uploads ([#4](https://github.com/Slimslim/ML.WorkoutApp/pull/4)); every-minute auto-advance, time cap, recovery, Free Workout ([#8](https://github.com/Slimslim/ML.WorkoutApp/pull/8)); cloud library W8-W10 ([#9](https://github.com/Slimslim/ML.WorkoutApp/pull/9)); workout cards W11-W14 ([#11](https://github.com/Slimslim/ML.WorkoutApp/pull/11)); beta navigation N1-N11 ([#14](https://github.com/Slimslim/ML.WorkoutApp/pull/14)); fixes ([#16](https://github.com/Slimslim/ML.WorkoutApp/pull/16), [#17](https://github.com/Slimslim/ML.WorkoutApp/pull/17)) |
 | 7-14 | 4-10 Nov | Built from `claude/results-report` ([#19](https://github.com/Slimslim/ML.WorkoutApp/pull/19), never merged): results page, avatar menu, version in Settings. Cloud corrections W17 ([#20](https://github.com/Slimslim/ML.WorkoutApp/pull/20)) was merged to `main`; which of builds 7-14 contained it is unknown |
 
-## Build 15: pre-beta (owner: #24, branch `claude/funny-faraday-1adqio`; frozen 11 Nov)
+## Build 15: pre-beta (shipped 14 Nov, tag `build-15`; #24 merged)
 
-[#24](https://github.com/Slimslim/ML.WorkoutApp/pull/24) is ready for review; the owner's device test
-passed on 13 Nov (release ticket [#29](https://github.com/Slimslim/ML.WorkoutApp/issues/29)). Build 15
-is not on TestFlight until #24 is merged and the build is made from `main`. It contains #19 (builds
-7-14), so merging it brings `main` level with what testers run.
+Device test passed on 13 Nov (release ticket [#29](https://github.com/Slimslim/ML.WorkoutApp/issues/29)).
+Built from `main` after [#24](https://github.com/Slimslim/ML.WorkoutApp/pull/24) merged (it contains #19,
+builds 7-14).
 
 Known issues shipped with build 15:
 - Tabata and timed work parts do not end on the clock; a Crown turn is needed
-  ([#31](https://github.com/Slimslim/ML.WorkoutApp/issues/31), build 16).
+  ([#31](https://github.com/Slimslim/ML.WorkoutApp/issues/31), build 17).
 - Apple Fitness shows no route map for a mixed workout with a run; the route is in Apple Health
   ([#51](https://github.com/Slimslim/ML.WorkoutApp/issues/51)).
 - Raw GPS distance in the recording is not filtered. It is not shown anywhere; run distance and the
@@ -125,39 +125,53 @@ Crown's side ([#27](https://github.com/Slimslim/ML.WorkoutApp/pull/27), owner de
 
 Who gets it (owner, 13 Nov): after the GPS run, the friend tester group (heart-rate graphs).
 
-## Build 16: tester stability (owner decided 13 Nov)
+## Build 16: tester stability and the race build (owner decided 13 Nov; changed 15 Nov)
 
-For the Swiss testers. W28 uploads without opening the app, W27 Tabata timing, W23 banner (mockup
-approved 13 Nov). Battery line: moved to a later build (owner, 13 Nov). **No rep counting
-on the watch** (owner, 13 Nov: "not yet"): the press / bench lockout rule stays in Python and the
-labels. Release branch `claude/release-16`, cut from `main` after #24 merges; one PR per ticket into it
-(milestone `Build 16`: #30 W28, #31 W27, #32 W23).
+For the Swiss testers and 3-4 new testers, and the build the owner races on (Sat 5 Dec). Release
+branch `claude/release-16`; one PR per ticket into it. **Nothing from the workout-structure RFC**
+(D4): the race runs on build 15's workout code. **No rep counting on the watch** (owner, 13 Nov).
 
-Order: W28 -> W27 -> W23. Dependencies:
-- **W28** needs #24's gzip staging and upload manifest; touches both PhoneLink files (#24 added a
-  `weightUnit` application-context key). Check on a locked phone: staged gzip copies in Caches are
+| Feature | Story | Ticket | Status |
+|---|---|---|---|
+| Workout uploads without opening the phone app | W28 | #30 | QA |
+| Tell me when heart rate or motion is off (banner) | W23 | #32 | QA |
+| Every recording says how it was made (battery, devices, settings) | W29 | #36 | owner asked 15 Nov; Delivery confirms fit |
+| Tabata 20/10 on the clock | W27 | #31 | moved to build 17 (15 Nov) |
+
+More additions: the owner is choosing (15 Nov). Rule for each one: small, and no change to the clock,
+the Crown or the workout flow. Candidates: run pace readable mid-run (#66, a layout change), Crown-right
+analysis (#53), capped score without roundSize (#52), last second of 200 Hz lost (#34).
+
+Notes kept from 13 Nov:
+- **W28** touches both PhoneLink files. Check on a locked phone: staged gzip copies in Caches are
   readable, and the Supabase session is readable after first unlock.
-- **W27** touches `WorkoutSessionModel.clockAdvance`, which #24 changed (checkpoint every 15 s,
-  Crown lockout after an automatic advance). Owner, 13 Nov: 8 x (20 s work + 10 s rest) on the clock,
-  3-2-1 at the end of each work, 3-2-1 GO at the end of each rest. Also decide what a Crown turn does
-  in a clocked workout (today it jumps a round and the clock never gives it back:
-  `WorkoutProgress.swift`).
-- **W23** needs a rule change before it is built: iOS does not say whether heart-rate read access was
-  refused, so the banner follows "the last session received no heart rate" (`lastSessionReceivedHeartRate.v1`,
-  written by the practice today; the real workout must write it too). Mockup approved 13 Nov.
+- **W23** follows "the last session received no heart rate" (`lastSessionReceivedHeartRate.v1`); the
+  real workout writes it too.
+- Fallback: if W28 is not device-tested in time, the tester guide keeps "open the phone app after the
+  session".
 
-Fallback: if W28 is not device-tested in time, the tester guide keeps "open the phone app after the
-session". Invites (proposed Fri 20 Nov) need #24 merged by about 14 Nov; otherwise the dates move.
+**Hyrox race, Sat 5 Dec:** race on build 16; no risky change to the workout code in the week before.
 
-**Hyrox race, Sat 5 Dec (owner's milestone):** the owner races with the app. Proposal for sprint
-planning: race on build 16, no risky change to the workout code in the week before.
+## Build 17: the workout engine + workout import (proposed 15 Nov, waiting for "go, build 17")
 
-## Build 17: design review + workout import (owner decided 13 Nov)
+Due 3 Dec. Proposed freeze ~30 Nov so the owner's device test is not race week. Plan from
+`docs/WORKOUT_MODEL_RFC.md` section 11 and `docs/BUILD_17.md`. Order = priority; the cut line is under
+row 6. **Pilot tickets for process v2:** #70 and #59.
 
-The brief `docs/BUILD_17.md`: UI/UX design review with the
-testers' feedback, "add a workout from a photo or text" (server function, movement table, import
-log). Provisional labels R1-R2, I1-I6, M1 until the owner approves the brief. Email sign-up must be
-closed before the import ships. Builds 18+ during the beta: fixes only.
+| # | Feature | Story | Ticket | Status |
+|---|---|---|---|---|
+| 1 | Backend groundwork: drafts table, v2 table with one writer, schema checks, custom scales, revisions, paging | chore | #70 (pilot) | proposed |
+| 2 | Class-programming workouts in the seed folder | chore | #59 (pilot) | proposed |
+| 3 | Schema, validator, compiler; engine (plan, reduce, replay); watch session on the engine; PhoneLink context fix; "Update the app / Run as stopwatch". Tabata on the clock | W27 | #31 | proposed |
+| 4 | Migrate the 29 published workouts (owner signs off with `--diff-live`) | chore | #71 | proposed |
+| 5 | Add a workout from a photo or text, in the v2 structure (email sign-up closed first) | W30 | #72 | proposed, needs design |
+| 6 | Design build 17: UI/UX review (R1, R2), watch signals (D7), cards and confirm screen | - | #75 | proposed |
+| -- | *cut line* | | | |
+| 7 | Pick a scale and the result remembers it (card #61 after mockups) | W31 | #73 | proposed, needs design |
+| 8 | Score presets and the per-window results table | W32 | #74 | proposed, first to slip |
+
+If something slips: builds 18+ are fixes only during the beta, so a slipped item waits for after the
+beta unless the owner allows it in build 18. Epic: #44.
 
 ## Backlog (after the beta; owner picks at the review)
 
@@ -172,7 +186,6 @@ closed before the import ships. Builds 18+ during the beta: fixes only.
 | Automatic movement switching on the watch (phase 1) | - | experiment | switch-v1 must beat the Crown on held-out sessions first (`docs/LABELS.md`) |
 | Rep counting in metcons (GHD / sit-ups / press first) | - | experiment | training data in `data/labels/`; flagged reps checked on video |
 | Weight per set in EMOMs, transition vs work time | W4, W5 | story | |
-| Battery level line in every recording | - | story | owner, 13 Nov: later, if testers report battery issues |
 | Library aliases (old results stay linked) + "For Time" cards | - | proposed | from closed #15, branch kept; needs a free story id |
 | Strength sets in a workout get bar path / bar speed; Lifting mode merges into the normal recording | W21 | story | owner, 13 Nov: free lifting only records, classify later; Olympic live "last lift" view is a side feature |
 
