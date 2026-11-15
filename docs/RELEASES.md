@@ -9,9 +9,9 @@ only its own rows, never another chat's; keep one row per line (fewer merge conf
 Shipped: **build 15** (tag `build-15`, 14 Nov), on TestFlight for the friend testers.
 
 In QA (milestone `Build 16`, due 19 Nov): W28 (#30), W23 (#32) on `claude/release-16`.
+Building: W29 (#36), owner "go, W29 in build 16" (15 Nov).
 
 Waiting on the owner:
-- **W29 (#36) in build 16:** owner asked on 15 Nov; Delivery confirms it fits before the invites.
 - **Other build 16 additions:** owner wants a few more (15 Nov); list to come. Candidates: #66
   (run pace readable), #53, #52, #34.
 - **"go, build 17"** on the plan below (milestone `Build 17`, due 3 Dec).
@@ -135,7 +135,7 @@ branch `claude/release-16`; one PR per ticket into it. **Nothing from the workou
 |---|---|---|---|
 | Workout uploads without opening the phone app | W28 | #30 | QA |
 | Tell me when heart rate or motion is off (banner) | W23 | #32 | QA |
-| Every recording says how it was made (battery, devices, settings) | W29 | #36 | owner asked 15 Nov; Delivery confirms fit |
+| Every recording says how it was made (battery, devices, settings) | W29 | #36 | building (owner: "go, W29 in build 16", 15 Nov) |
 | Tabata 20/10 on the clock | W27 | #31 | moved to build 17 (15 Nov) |
 
 More additions: the owner is choosing (15 Nov). Rule for each one: small, and no change to the clock,
