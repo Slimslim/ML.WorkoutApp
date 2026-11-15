@@ -6,7 +6,7 @@ import WatchConnectivity
 ///
 /// Header keys (additive to format v1, after the existing device keys):
 ///   `batteryStart=<0-100>`, `charging=yes|no`, `lowPower=on|off`,
-///   `thermal=nominal|fair|serious|critical`, `units=kg|lb`, `hrZoneSource=custom|age|none`,
+///   `thermal=nominal|fair|serious|critical`, `units=kg|lb`, `hrZoneSource=custom|age|workouts`,
 ///   `phoneModel=`, `phoneOS=`, `phoneBuild=` (as the phone last sent them in the application
 ///   context key `phoneDevice`; "unknown" when it never did).
 /// Event lines (`# event t=<s> ...`):

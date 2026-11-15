@@ -197,7 +197,7 @@ class SessionCSV:
 #
 # Header keys (all optional, additive to format v1): batteryStart (0-100), charging (yes|no),
 # lowPower (on|off), thermal (nominal|fair|serious|critical), units (kg|lb), hrZoneSource
-# (custom|age|none, as last sent by the phone), phoneModel, phoneOS, phoneBuild (last sent by the
+# (custom|age|workouts, as last sent by the phone), phoneModel, phoneOS, phoneBuild (last sent by the
 # phone, "unknown" when the phone never sent them).
 # Events: 'name=battery level=<0-100> charging=yes|no' once a minute, 'name=thermal state=<s>' and
 # 'name=lowPower state=on|off' on a change, and one last line
@@ -218,6 +218,7 @@ class RecordingInfo:
     phone_build: Optional[str] = None
     end_reason: Optional[str] = None
     duration: Optional[float] = None             # seconds, from the end line
+    end_t: Optional[float] = None                # CSV t of the end line
     battery: list = field(default_factory=list)  # [(t, level)] from the per-minute lines
 
     def battery_per_hour(self) -> Optional[float]:
@@ -226,8 +227,11 @@ class RecordingInfo:
         pts = list(self.battery)
         if self.battery_start is not None:
             pts.insert(0, (0.0, self.battery_start))
-        if self.battery_end is not None and self.duration is not None:
-            pts.append((self.duration, self.battery_end))
+        if self.battery_end is not None:
+            # On the CSV time axis like the start (t=0) and the minute lines.
+            t_end = self.end_t if self.end_t is not None else self.duration
+            if t_end is not None:
+                pts.append((t_end, self.battery_end))
         if len(pts) < 2:
             return None
         (t0, b0), (t1, b1) = pts[0], pts[-1]
@@ -263,6 +267,7 @@ def recording_info(header: dict, events: list) -> RecordingInfo:
             info.end_reason = e.get("reason")
             info.battery_end = _float_or_none(e.get("batteryEnd"))
             info.duration = _float_or_none(e.get("duration"))
+            info.end_t = _float_or_none(e.get("t"))
     return info
 
 

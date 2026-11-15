@@ -290,6 +290,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         publishState(session)
         DispatchQueue.main.async {
             self.sendWeightUnit()
+            PhoneDeviceInfo.send()
         }
     }
 
