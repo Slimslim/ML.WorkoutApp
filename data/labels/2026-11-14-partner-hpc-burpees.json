@@ -3,7 +3,7 @@
  "id": "2026-11-14-partner-hpc-burpees",
  "date": "2026-11-14",
  "kind": "workout",
- "name": "Partner: hang power cleans + synchro burpees (rounds 1-3 of 4, partial)",
+ "name": "Partner: hang power cleans + synchro burpees (4 rounds)",
  "format": "forTime",
  "files": {
   "csv": "Debug/session-2E4F6E53-B298-4D16-9520-A60068BC3429.csv",
@@ -221,6 +221,150 @@
     }
    ],
    "note": "athlete 5 + 2 + 3 + 3 + 4 = 17; partner 5 + 5 + 1 + 1 + 3 + 4 + 4 = 23; 40 shared in this round by the athlete's count (the plan says 30). End = the athlete's Crown turn (video frame 16293), which matches the watch split (532.3 s)."
+  },
+  {
+   "movement": "burpees",
+   "round": 3,
+   "start": 532.04,
+   "end": 601.77,
+   "source": "athlete",
+   "reps": 15,
+   "unit": "reps",
+   "note": "synchro bar-facing burpees; start = the athlete's Crown turn (video 16293), end = done (video 18385), which matches the watch split (601.7 s)"
+  },
+  {
+   "movement": "rest",
+   "start": 601.77,
+   "end": 640.57,
+   "source": "athlete",
+   "note": "they believed the workout had 3 rounds; on the floor, then realised a 4th round was left; the partner picks up the bar at video 19549"
+  },
+  {
+   "movement": "hangPowerCleans",
+   "round": 4,
+   "start": 640.57,
+   "end": 791.91,
+   "source": "athlete",
+   "reps": 13,
+   "unit": "reps",
+   "loadLb": 135,
+   "sets": [
+    {
+     "start": 656.64,
+     "end": 661.29,
+     "reps": 2,
+     "repTimes": [
+      657.87,
+      660.29
+     ],
+     "signal": "gx",
+     "period": 2.42
+    },
+    {
+     "start": 672.91,
+     "end": 675.07,
+     "reps": 1,
+     "repTimes": [
+      674.07
+     ],
+     "signal": "gx"
+    },
+    {
+     "start": 678.37,
+     "end": 680.53,
+     "reps": 1,
+     "repTimes": [
+      679.53
+     ],
+     "signal": "gx"
+    },
+    {
+     "start": 700.17,
+     "end": 702.49,
+     "reps": 1,
+     "repTimes": [
+      701.49
+     ],
+     "signal": "gx"
+    },
+    {
+     "start": 706.83,
+     "end": 708.63,
+     "reps": 1,
+     "repTimes": [
+      707.63
+     ],
+     "signal": "gx"
+    },
+    {
+     "start": 728.14,
+     "end": 729.94,
+     "reps": 1,
+     "repTimes": [
+      728.94
+     ],
+     "signal": "gx"
+    },
+    {
+     "start": 733.92,
+     "end": 735.72,
+     "reps": 1,
+     "repTimes": [
+      734.72
+     ],
+     "signal": "gx"
+    },
+    {
+     "start": 747.26,
+     "end": 749.06,
+     "reps": 1,
+     "repTimes": [
+      748.06
+     ],
+     "signal": "gx"
+    },
+    {
+     "start": 763.65,
+     "end": 765.45,
+     "reps": 1,
+     "repTimes": [
+      764.45
+     ],
+     "signal": "gx"
+    },
+    {
+     "start": 769.65,
+     "end": 771.45,
+     "reps": 1,
+     "repTimes": [
+      770.45
+     ],
+     "signal": "gx"
+    },
+    {
+     "start": 786.65,
+     "end": 791.05,
+     "reps": 2,
+     "repTimes": [
+      787.45,
+      790.05
+     ],
+     "signal": "gx",
+     "period": 2.6
+    }
+   ],
+   "note": "athlete 2 + 1 + 1 + singles = 13, alternating with the partner (3, 1, 2, 2, ...); cleans done at video 24089 (the watch split, 792.9 s, agrees within 1 s)"
+  },
+  {
+   "movement": "burpees",
+   "round": 4,
+   "start": 791.91,
+   "end": 866.51,
+   "source": "athlete",
+   "reps": 15,
+   "unit": "reps",
+   "note": "synchro bar-facing burpees, slow; end = done (video 26327)"
   }
- ]
+ ],
+ "score": "14:26 from 'go' to the last burpee (video)"
 }

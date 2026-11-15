@@ -240,3 +240,16 @@ just before each pull): 45 lb 2.25; 95 lb 2.22 / 2.40 / 2.61 / 2.33; 115 lb 2.17
 185 lb 1.77 / 1.80 m/s (low confidence). Typical: 2.37 at 95, 2.16 at 115, 2.00 at 135, 1.84 at 155,
 1.79 at 185 lb, falling with load as expected. Bar height from the same analysis is not reported:
 it depends on where the start point falls and is not checked against the video.
+
+### Partner hang power cleans + synchro burpees (2026-11-14), from video
+
+4 rounds; the athlete did 15 / 15 / 17 / 13 cleans at 135 lb (60 reps) alternating with his partner,
+then 15 synchro burpees per round (label `2026-11-14-partner-hpc-burpees`). Video synced to the
+watch on the catches (offset 11.06 s; START pressed on "go"). A second athlete's recording from
+the same video: `2026-11-14-partner-hpc-burpees-tester-b` (rounds 1-2, with his OK).
+- **catch-rule, first test on a session it was not written on:** 60 / 60 of the athlete's catches
+  (all within 0.21-0.34 s of the video), 6 false (5 while the partner was on the bar, 1 in the rest).
+  Tester B (Crown on the right, `sign=-1`, short holds): 19 / 23, many false; not tuned.
+- The athlete's Crown splits were right within 1 s except one (round 1 burpees marked 6.7 s early,
+  before the partner's last set ended). A 39 s rest after round 3 (they thought the workout was over)
+  is labelled as rest. Round 3 was 40 shared reps by the athlete's count against 30 in the plan.
