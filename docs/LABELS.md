@@ -249,7 +249,8 @@ watch on the catches (offset 11.06 s; START pressed on "go"). A second athlete's
 the same video: `2026-11-14-partner-hpc-burpees-tester-b` (rounds 1-2, with his OK).
 - **catch-rule, first test on a session it was not written on:** 60 / 60 of the athlete's catches
   (all within 0.21-0.34 s of the video), 6 false (5 while the partner was on the bar, 1 in the rest).
-  Tester B (Crown on the right, `sign=-1`, short holds): 19 / 23, many false; not tuned.
+  Tester B (Crown on the right, `sign=-1`, short holds, all 4 rounds): 43 / 53 found, 50 false;
+  not tuned for that orientation yet. His team did 30 shared per round (as planned).
 - The athlete's Crown splits were right within 1 s except one (round 1 burpees marked 6.7 s early,
   before the partner's last set ended). A 39 s rest after round 3 (they thought the workout was over)
   is labelled as rest. Round 3 was 40 shared reps by the athlete's count against 30 in the plan.
