@@ -1,6 +1,7 @@
 # RFC: one workout structure for every format
 
-Status: **for the owner's review** (spike #55). Nothing here is built. Date: 14 Nov 2026.
+Status: **for the owner's review** (spike #55). Nothing here is built. Date: 14 Nov 2026. Red team review
+and proposed amendments: section 14 (15 Nov).
 
 For the owner: read section 1 (problem), section 3.1 (the five blocks), section 11 (what ships when)
 and section 13 (your decisions). The rest is detail for the team.
@@ -891,6 +892,415 @@ The structure and the plan above still hold. What the new tickets change:
 | D6 | Default scores: Tabata = total (lowest shown); windows = sum of the `max` part; capped for time = `CAP + total reps` (position as context), keep going as today; EMOM with loads = heaviest load; intervals = time per piece. Each workout can override. | **Yes.** |
 | D7 | New watch signals, answer each: (a) a REST haptic different from GO; (b) the countdown white with `LEFT`, count-up stays yellow; (c) 10 s get ready, windows counted from GO; (d) a buzz at 10 s left in windows ≥ 1:00. | **(b) in build 16; (a), (c), (d) in build 17**, all as mockups first, tuned in the gym. |
 | D8 | Backend after the race: `definition_v2` as the source of truth, revision history, server validation (enable `pg_jsonschema` on the project). Only the empty column before the race. | **Yes.** |
+
+## 14. Red team review (15 Nov): amendments
+
+The owner asked a few engineers to challenge this structure, so it survives any future workout. Four
+reviewers worked independently, each with the RFC and the code but not the others' conclusions:
+
+- schema evolution and backend;
+- watch runtime;
+- a "format breaker" (coach and engineer);
+- a data engineer who built a throwaway prototype of the schema, the validator and a parser, and ran
+  it over every draft in the library.
+
+Then each one challenged the other three. This section is the result. Nothing in sections 1-13 has
+been edited yet: the amendments below are proposals for the owner, to be folded into the RFC once
+the owner agrees.
+
+**Overall: the structure holds; it needs change, not a redesign.** The five blocks, the
+`early`/`late` window rules, the declared score and the plan/reduce/replay engine all stood up to
+real data and to invented hard cases. What failed:
+
+- versioning (old apps would silently run new workouts the wrong way);
+- a dozen loose rules that two programmers would implement differently;
+- a few missing units and fields that real programming uses every week;
+- the build-16 timing.
+
+### 14.1 Verdict per area
+
+| Area | Verdict | In one line |
+|---|---|---|
+| Schema evolution and backend | **Needs change** | The "lenient decode → run the old keys" fallback contradicts "bump `schemaVersion` → refuse", and both miss a new key inside a known node. Needs a feature list, a fidelity flag, one writer per row, and the drafts out of the library table. |
+| Watch runtime | **Needs change** (2 blockers) | In build 16 the clock starts when HealthKit is ready, not at START (0-5 s late). Removing today's post-bell lockout lets a turn begun before GO complete the new part. Nine further rules (clock source, nested bells, `late: end`, ratio rest, step ids, crash replay) must be exact before any Swift is written. |
+| Formats | **Needs change** | 72 invented shapes: 30 clean, 26 awkward, 16 impossible (5 of them impossible by design). Weighted by real data, most gaps are rare; the ones that matter are listed in 14.3 C. |
+| Real data (the hard test) | **Holds, needs change** | About 77 % of 3,038 real scales encode faithfully today, about 99 % at least approximately, about 1.2 % not at all. Four small additions take it to about 94 %. |
+| Build-16 plan (D4) | **Needs change** | Three of four reviewers recommend the alternative: the engine moves to build 17. |
+
+### 14.2 The coverage test on real data
+
+**What was tested.** All 2,518 unpublished draft rows, which hold 3,038 scales. 1,315 come from the
+owner's paid program and 1,723 from the partner gym's class programming. The data was read only;
+nothing was copied into the repo.
+
+A prototype was written in the session's scratch space and not committed. It has three parts:
+
+- a validator with every rule in 3.2;
+- a compiler to steps;
+- a best-effort parser from each scale's raw text, helped by the earlier classifier.
+
+Resume and interrupt were counted as *not available*.
+
+| | Scales | Clean | Awkward | Impossible | Parser failed |
+|---|---|---|---|---|---|
+| All | 3,038 | 79.4 % | 18.5 % | 1.1 % | 1.0 % |
+| Owner's program | 1,315 | 85.5 % | 11.9 % | 1.1 % | 1.5 % |
+| Partner gym | 1,723 | 74.8 % | 23.5 % | 1.0 % | 0.6 % |
+
+**Hand check.** 152 scales were read by hand: a random 80, a fresh random 40 after the parser fixes,
+and 32 targeted non-clean cases. The parser was wrong on about 5 % of scales even on this regular
+export. A photo or free-text import will do worse.
+
+**Sample-corrected estimate:**
+
+- clean about 77 % (range about 68-80 %);
+- awkward about 22 %, of which 3-4 points come from the source text itself being ambiguous;
+- impossible about 1.2 %, falling to about 0.5 % once `resume` and `interrupt` ship.
+
+The partner gym is only 75 % clean. Section 3.6 ("passed in full") is optimistic.
+
+**Clean rate by format:**
+
+| Clean rate | Formats |
+|---|---|
+| 87-98 % | repeat efforts, station rotation, intervals, max tests, strength sets |
+| 77-83 % | untimed quality work, rounds for time, EMOM, each round for time |
+| 71-73 % | chippers, AMRAPs |
+| About half | AMRAP ladders, steady distance |
+| 15 % | AMRAP cycles split by rests |
+
+**Top reasons a scale was not clean** (number of scales):
+
+| Reason | Scales | Fix |
+|---|---|---|
+| Distance in feet (plus yards 9, miles 4) | 223 | C1 |
+| Partner split not stated (the "each does all" default is wrong for most partner chippers) | 104 | C3 |
+| Distance per rep (N shuttles of a fixed length) | 90 | C2 |
+| Part with no target (skill, mobility) | 61 | C5 |
+| Lift complex: each rep would become its own Crown step | 42 | C4 |
+| Set constraints with no field (same load every set, "N or more" reps, per side) | 26 | C6 |
+| Score not stated for fixed-start segments | 19 | C8 |
+| Open machine choice; tempo only in the movement name | 17 + 17 | C7, C9 |
+| "One set per window, or all sets in each window?" (the source is ambiguous) | 11 | B |
+| Needs `resume` / `interrupt` (planned) | 11 + 8 | E11 |
+| % of 1RM on a complex: of which lift? | 8 | C10 |
+| Truly impossible by design: a penalty on each break, stopping at a cumulative rep total, a target equal to an earlier window's result | 7 + 6 + 6 | B (raw text only) |
+
+**Held up well:**
+
+- men's/women's number pairs (41 % of scales);
+- % of the lift itself;
+- rest inside a for-time piece;
+- buy-in then max in the time left (up to 12 pieces);
+- running-clock rotation;
+- death-by, Tabata and 1:1 rest;
+- build to a max;
+- AMRAP cycles that restart.
+
+**Facts measured:**
+
+- **Size.** One scale's structure: median 0.5 KB, p95 1.8 KB, max 5.0 KB. Whole row with all
+  scales: p95 7.5 KB.
+  - 5 rows break 16 KB (up to 23.9 KB), all because of the compiled old flat list. With the old
+    keys left out, none break it.
+- **Steps.** Median 12, p95 60, max 241.
+  - At about 100 bytes per compiled segment, 400 steps is about 40 KB, so the 400-step and 16 KB
+    limits contradict each other.
+- **Nesting.** 40 scales reach depth 3; none go deeper.
+- **Scales on one card.** Of 520 scale pairs, 394 change numbers only, 124 change movements and 2
+  change rounds or the clock. A scale must be a whole structure, as 3.6 says.
+- **Men's and women's standards.** No scale has men and women doing different movements.
+- **Multi-piece entries.** 124 (4 %), all of which fit one body with `combine`.
+
+**The 10 hardest real shapes** (paraphrased):
+
+1. AMRAP cycles split by rests, with the count continuing across cycles.
+2. The same with a buy-in in each cycle (`resume` does not say what the buy-in does).
+3. Unequal windows with a ladder continuing across them, under a cap.
+4. Windows repeated until a cumulative max-rep total is reached, under a cap, with a longer last
+   window.
+5. The next window's target equals the count reached in the previous one.
+6. A long machine piece with a lift every N minutes (interrupt).
+7. A penalty movement on every break.
+8. A pyramid chipper that grows each round.
+9. "Until failure" over an explicit rising list of windows.
+10. Per-round loads given in a separate men's/women's legend.
+
+### 14.3 Amendments
+
+**Severity:**
+
+- **B** = blocker, before the owner approves D1.
+- **M** = must-fix, before the schema is frozen for the build-17 import.
+- **S** = should-fix.
+
+#### A. Versioning and extension (B)
+
+1. **`schemaVersion` is a major version.**
+   - Absent = 1 (today's rows).
+   - `0` = a draft, never runnable by any app.
+   - `2` = this RFC.
+   - It is bumped only for a change that old readers would misread even with `requires` (below).
+2. **`requires: [feature, ...]` at the root**, computed by the compiler and never typed by hand. It is
+   the union over all scales.
+   - Any field or node with a timing or score meaning that is not in the frozen v2 list gets a
+     feature name, for example `resume`, `interrupt`, `slots`, `distancePerRep`.
+   - A reader refuses a workout naming a feature it doesn't know. The phone checks before Send; the
+     watch checks before START.
+   - The list is saved in the checkpoint, and crash recovery refuses an unknown feature.
+   - This replaces "any new timing field bumps `schemaVersion`" (7.2), which would lock build 16 out
+     of every later workout.
+3. **Two kinds of field.**
+   - *Engine fields* change timing or the score. They are in the frozen v2 list or named in
+     `requires`.
+   - *Descriptive fields* are `note`, `rawText`, tempo, RPE, `x-*` keys and labels. They never cause
+     a refusal, and every reader passes them through unchanged.
+   - Unknown values of cosmetic enums decode as "unknown" instead of failing the whole document.
+     `score.type` and `late` are engine fields, not cosmetic.
+4. **No silent fallback.** Section 8's rule ("if a build-16 watch can't read `structure`, run the old
+   keys") is replaced. The old keys are a lossy compile, so they run only when the compiler marked
+   the scale `fidelity: "exact"` (B2).
+   - Otherwise the watch says "Update the app to run this workout", and offers **"Run as
+     stopwatch"**.
+   - A stopwatch run is athlete-paced: one part per line of the raw text, a `late: continue` cap if
+     one is known, no automatic rests, no reps question, and the score typed in by hand.
+   - The same rule covers an unknown node type: it falls back to an athlete-paced part showing the
+     raw text, never to a guess.
+5. **Raw pass-through.** The phone and the watch decode rows into the typed model and re-encode them
+   (`iOS/WorkoutLibraryStore.swift` ~174, `iOS/PhoneLink.swift` ~158), and so does the definition
+   embedded in a result. Each of these permanently drops any key the build doesn't know. Every hop
+   must keep the original JSON and send it on unchanged. A round-trip golden test proves it.
+6. **An unknown key inside a known node** (for example `resume` on a `repeat` read by build 16)
+   decodes silently in Swift today. A1-A5 handle it: the compiler lists it in `requires`, so the
+   reader refuses it.
+
+#### B. Raw text and fidelity (B for the import)
+
+1. **`rawText` is mandatory** on every scale that was imported, synced or drafted. It is optional
+   only for workouts written by hand in the repo.
+   - It stays on the phone and in the result; the watch gets only a "has notes" flag.
+   - It does not count against the watch's 16 KB.
+   - The card can always show what the coach wrote.
+2. **`fidelity: "exact" | "approx" | "textOnly"` per scale**, plus `approx: [reasons]` (for example
+   `"partnerSplitGuessed"`, `"scoreGuessed"`, `"conditionIgnored"`).
+   - The confirm screen of the import shows the reasons.
+   - Shapes that are impossible by design are stored as `textOnly` and run as a stopwatch (A4):
+     penalties on breaks, cumulative-total stops, targets taken from an earlier result.
+   - The backend's proposed `legacy: "exact"` flag is the same field.
+
+#### C. Schema gaps found in real data (M, in the frozen v2 list)
+
+The scale counts below come from 14.2.
+
+1. **Distance units `ft`, `yd`, `mi`** (236 scales). They live only inside `structure`. The old keys
+   get metres, so no case is added to an old enum (section 8).
+2. **Distance per rep** (90): `"target": {"value": 10, "unit": "reps", "each": {"value": 25, "unit": "ft"}}`.
+3. **Partner split** (104).
+   - In a team workout, every part must carry `who`. There is no silent default; the import asks.
+   - The names for 3-4 athlete slots are reserved in the feature list (`slots`). No fields are
+     added until someone designs them, so no half-designed meaning gets frozen.
+4. **A complex counts as one step** (42): `group` gets `"asStep": true`. One Crown turn ends the whole
+   set, and the `load` on the group applies. This also stops the 4 s lockout from silently dropping
+   real turns on 1-rep parts.
+5. **`target` is optional** (61). No target means the athlete ends the part and nothing is asked.
+6. **Set constraints** (26), descriptive only:
+   - `perSide: true`, where reps are per side and the step count is unchanged;
+   - `sameLoad: true`;
+   - `minReps`.
+7. **Open machine choice** (17): `"movement": {"choice": "anyCardio"}` as well as a list.
+8. **Score fixes.**
+   - Score types are a closed list of presets, not an expression language. An unknown preset shows
+     the per-step facts, never a guessed number.
+   - Add:
+     - `better: "higher" | "lower"`;
+     - `windowsCompleted` (EMOM `8/8`, already in 5's table but missing from the types);
+     - `longestHold`;
+     - `maxHeight`.
+   - Define:
+     - **Piece.** A piece in `perPiece` is one round of the repeat named by `of` (default: the
+       outermost repeat).
+     - **Cut piece.** A cut piece scores what was done, flagged.
+     - **`load`.** `load` = the heaviest set completed, with its reps.
+     - **`totalReps`.** `totalReps` counts only reps and calories of the parts named in
+       `score.parts`. Metres never count unless named.
+9. **Tempo** (17): a descriptive `tempo: "3-1-1-0"` on a part. It is shown, not timed.
+10. **% of a named lift** (8): `"load": {"percent": 75, "of": "backSquat", "basis": "1RM" | "3RM" | "TM"}`.
+
+#### D. Rules two programmers would implement differently (M)
+
+1. **`late: end` names what it stops.**
+   - It may stop only an unbounded repeat directly inside or directly around its window.
+   - If there are two candidates, it must say `"stops": "<repeat id>"`.
+   - Under a counted repeat it is refused; that case is `cut`. Without this rule, a "death-by, at
+     most 20 minutes" written with `times: 20` keeps going after the missed minute.
+2. **Ratio rest** = ratio × the actual duration of the previous *sibling* node, in whole seconds. That
+   node is a group, a part or a window's actual work time; it is never the window length. In the
+   data, all 15 ratio rests mean the whole previous round, which this rule gives when the round is a
+   group.
+3. **`vary` lists.**
+   - On a counted repeat, the list length must equal `times`.
+   - On an unbounded repeat, a list needs `"then": "repeatLast" | "stop"`.
+   - A bare number changes `value` and scales `valueF` in the same ratio, rounded. Give
+     `{"value", "valueF"}` pairs to set both.
+4. **Part ids are required.** Step ids are stable: `<repeat id>.<round>.<part id>`. Extra AMRAP
+   rounds are appended and marked `extra`, so step numbers never move and old readers keep working.
+5. **The default `late` for a "time cap" is `continue`** (today's behaviour). The import must say so
+   on the confirm screen.
+6. **`listRounds` rule** (compiler, stored, compiler version stamped):
+   - enough rounds to fill the window at 10 s per part;
+   - then capped so that the watch payload (default scale's structure + old keys) fits 16 KB.
+   - The 400-step limit becomes "≤ 400 steps in the plan". The engine adds rounds itself, so only
+     the payload is limited.
+7. **Old keys are compiled from the default scale only**, and the root `structure` always equals the
+   default scale.
+
+#### E. Watch runtime (B for E1-E2, M for the rest)
+
+1. **The clock starts at the START tap**, or at GO once get-ready exists. It never starts when HealthKit
+   becomes ready: today `beginRunning()` (`Watch/WorkoutSessionModel.swift` ~600) runs up to about
+   5 s later. The delay is logged but never moves a bell.
+2. **A lockout at every bell.**
+   - A Crown turn is stamped when the view receives it, not when the model handles it.
+   - A turn that began before the latest bell, or arrives less than 2 s after it, is ignored with
+     the hint.
+   - Grace (4.2.7) applies only to a turn that began *before* the bell.
+   - The 4 s window lockout counts from the later of the last accepted turn and the last bell.
+3. **Clock source.**
+   - Boundaries use a monotonic clock that keeps counting while the watch sleeps, not `Date()`.
+     Otherwise a time correction mid-Tabata makes one rest 7 s and every later bell early.
+   - Wall time is used only for results and display.
+   - All plan times are integer milliseconds, in both languages.
+4. **Each bell names what it is counted from** (the workout start, or the end of an athlete-ended
+   step).
+   - An undo is refused once a bell counted from that turn is running or has rung.
+   - Routing's "start-anchored" means every bell counts from the start.
+   - Optional `startAt` on a `timed` fixes a window to the start even after an athlete-ended buy-in.
+5. **Nested clocks.**
+   - `late: continue` closes nothing.
+   - At equal times, the outer bell applies first.
+   - Section 4.2.4 is reworded to say this.
+6. **Crash replay.**
+   - Replay runs only up to the last checkpoint time, never "catches up" to the relaunch. A crash at
+     3:25 of an EMOM must not invent 17 cut minutes.
+   - The checkpoint stores the compiled plan, not just its hash.
+   - A canonical plan (integer ms, `40` never `40.0`) is hashed by both Python and Swift, so real
+     recordings check parity.
+7. **Late Crown events** are applied in time order during catch-up. A turn more than 5 s late is
+   ignored.
+8. **Reps after a bell (D3).**
+   - A `max` part that was skipped counts 0. A cut part left untouched stays "not entered".
+   - Steps re-labelled by "I was further" get no times.
+   - The done screen asks at most 3 questions, in a set order, and shows the score with a `?` until
+     the rest are entered on the phone.
+   - Phone edits are applied after replay, not as events.
+9. **Crown table additions.**
+   - A part with a `seconds` target ignores the Crown.
+   - A clocked rest *outside* any window keeps today's behaviour.
+   - "I stopped" on a `max` part in an `early: next` window goes to the next step, since that window
+     has no automatic rest.
+10. **3-2-1 timing.** The loop wakes at least every 200 ms (today's rate) in the last 3 s before a
+    bell. The TIME haptic (about 2 s) must not overlap a following 3-2-1.
+11. **Write the rules for `interrupt`, `resume` and pause before they appear in the schema sketch.**
+    - `interrupt` is forbidden inside `early: wait` windows.
+    - Engine time = time minus pauses.
+    - `resume` says what a buy-in in a resumed cycle does.
+12. **Race isolation**, if any engine work reaches a race build:
+    - a separate session model, view and checkpoint file;
+    - an engine switch kept on the watch (a switch in the phone↔watch context would be wiped by
+      every `sendWorkout`);
+    - a CI check that the Hyrox-path files are unchanged.
+
+#### F. Backend (M, after the race)
+
+1. **Drafts leave `workout_library`.**
+   - The 2,518 drafts (the owner's paid program and the partner gym's text) sit today in the
+     production library table. Only `published = false` hides them, and they would fail the
+     validation trigger.
+   - They move to an owner-only `workout_drafts` table.
+2. **One table, not two columns, for v2.**
+   - Replace the `definition_v2` column with a v2 table (or view) that only builds able to refuse
+     read.
+   - A v2 row is copied into the legacy table, compiled, only when every scale is
+     `fidelity: "exact"`.
+   - `make_row.py` and the import write v2; a server function writes the legacy copy. One writer per
+     row, so the two can never drift.
+   - Today `make_row.py` ~176-182 upserts only `definition`, so `definition_v2` would go stale after
+     any re-upload.
+   - This also replaces D5's NULLing: build 15 simply never gets rows it would run wrong.
+3. **The database checks the schema only** (`pg_jsonschema`). There is no compiler in SQL. A CI check
+   confirms that the schema copy in the migration equals the repo file. Be strict on write and
+   lenient on read.
+4. **Custom "Mine" scales** go in `workout_custom_scales` (user-only RLS, `based_on_revision`), not as
+   library rows. Today `id` is the global key and the library fetch would list Mine as another
+   workout.
+5. **Revisions.**
+   - The revision is bumped only when the definition changes.
+   - The history table has the same RLS as the row.
+   - An undo writes a new revision; it never decrements one.
+   - Scale ids are stable.
+6. **Personal writes check the id suffix**, so a user can't take a future gym id.
+7. **The library fetch pages.** Supabase returns at most 1,000 rows by default, so a programming sync
+   would silently truncate it.
+8. **Migration tests on production rows run as a private job**, never in the public CI (test 4,
+   gate G2).
+9. **Result merge.**
+   - It is keyed by step id, not by array index.
+   - It keeps the newer embedded definition.
+   - It compares numbers by value (Python `40.0` = Swift `40`) and treats absent and null as equal.
+
+#### Considered and not taken
+
+- An open score expression language (weights, tie-break formulas). Four implementations would
+  drift. The presets plus `better` cover all but a handful of real scales.
+- Athlete-slot fields and staggered rotation now. 0 real scales use them, so only the name is
+  reserved (C3).
+- "Accumulate a hold" (0 real scales; it would need a second meaning for the Crown).
+- Geometric `vary` and "add load until failure" (0 real scales).
+- Conditions: stop at a total, a target from an earlier result, a penalty on a break (19 scales,
+  0.6 %). These are `textOnly` (B2) and stay out of the engine.
+
+### 14.4 Versioning policy (one page)
+
+1. Writers are strict and readers are lenient only about descriptive fields.
+2. Anything with a timing or score meaning is either in the frozen v2 list or named in `requires`.
+3. Unknown feature → refuse with "Update the app" and offer "Run as stopwatch". Never run the old keys
+   unless `fidelity` is `exact`.
+4. Never add a case to an enum an old build decodes strictly. New units and kinds live inside
+   `structure` and are compiled to old values.
+5. Every hop (database → phone → watch → result → cloud correction) passes unknown keys through
+   unchanged. A golden round-trip test enforces this.
+6. `schemaVersion` changes only for a break that `requires` cannot express. That should be never.
+7. One writer per row. The revision is the identity. A rollback is a new revision.
+
+### 14.5 What changes in the owner's decisions (section 13)
+
+| # | Change? | New recommendation |
+|---|---|---|
+| D1 | **Amend** | Yes to the structure, on condition of A (versioning), B (raw text, fidelity), C1-C5 and D. |
+| D2 | **Amend** | As written, plus E2 (lockout at every bell; grace only for a turn begun before the bell), E9 (seconds parts ignore the Crown; rests outside windows as today). |
+| D3 | **Amend** | As written, plus E8: a skipped `max` = 0, at most 3 done-screen questions with `?` on the score, and distance, calories or time asked when the score needs them. |
+| D4 | **Change** | **Build 16 now with W28 and W23 only; the engine in build 17.** The Crown rules aren't right on paper yet and need gym tuning; there are 8 days between freeze and race; and the slice touches the Hyrox session model. Build 16 may carry the `requires` check and the raw pass-through only if the golden round-trip test passes before 20 Nov. Otherwise it carries nothing from this RFC. |
+| D5 | **Change** | No NULLing of `definition`. Build 15 never receives rows it would run wrong (F2). |
+| D6 | **Amend** | Defaults stay, as presets, plus `windowsCompleted` (8/8), `better`, and C8's definitions of a piece, a load score and what counts in totals. |
+| D7 | Small change | (b), (a), (c) and (d) move together to build 17. Starting the clock at START (E1) is required whenever the engine ships. |
+| D8 | **Change** | F1-F9: drafts and custom scales in their own tables, a v2 table instead of a second column, schema-only checks in the database, revision rules, the id-suffix check and paging. |
+
+### 14.6 Facts in this RFC that are wrong
+
+- The library has **29** published rows (20 gym, 9 personal), not 25, plus 2,518 unpublished drafts
+  that already use `schemaVersion: 0` and a `scales` array.
+- Migration (7.3):
+  - None of the 29 has a station with a `seconds` target.
+  - The 3 "AMRAP ladders" have the same targets every round. They need review because of
+    `listRounds`, not because of a ladder guess.
+  - Two EMOMs that work today (every 60 s and every 90 s) would move to the new engine once
+    upgraded, so they need review too.
+  - Which 3-3-3-4 variant a row is can only be read from its cap. The owner must check it.
+  - One personal row has parts with no target (C5).
+  - 3 personal ids lack the user suffix.
+- "Largest pair about 6 KB" (3.6): the full corpus has a 14.2 KB structure (3 scales) and rows up to
+  23.9 KB with old keys.
+- The 400-step limit and the 16 KB budget contradict each other (14.3 D6).
 
 ---
 
