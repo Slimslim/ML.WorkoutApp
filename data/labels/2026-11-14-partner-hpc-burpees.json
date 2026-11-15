@@ -3,7 +3,7 @@
  "id": "2026-11-14-partner-hpc-burpees",
  "date": "2026-11-14",
  "kind": "workout",
- "name": "Partner: hang power cleans + synchro burpees (rounds 1-2 of 4)",
+ "name": "Partner: hang power cleans + synchro burpees (rounds 1-3 of 4, partial)",
  "format": "forTime",
  "files": {
   "csv": "Debug/session-2E4F6E53-B298-4D16-9520-A60068BC3429.csv",
@@ -13,7 +13,8 @@
   "Partner workout, 4 rounds of 30 shared hang power cleans + 15 synchro bar-facing burpees; the athlete did 3 x 5 cleans per round, the partner the other 15. Bar 135 lb (athlete).",
   "Truth from the athlete's video (second video of the day, 30 fps, frame 0 = video start; coach 'go' at frame 335 = 11.2 s). Video seconds = watch session seconds + 11.06 (fitted on 30 catches, all within 0.3 s; START pressed on 'go').",
   "Rounds 3-4 not labelled yet. A second athlete (tester B) wore a watch in the same video; his recording is synced (video s = his session s + 79.86, the two watch clocks agree within 0.01 s) and labelled separately (2026-11-14-partner-hpc-burpees-tester-b), with his OK.",
-  "Watch Crown splits vs video: round 1 burpees start 96.2 s on the watch, 102.9 s on the video (Crown turned before the partner's last set ended); the other three boundaries agree within 1 s."
+  "Watch Crown splits vs video: round 1 burpees start 96.2 s on the watch, 102.9 s on the video (Crown turned before the partner's last set ended); the other three boundaries agree within 1 s.",
+  "Round 3: 40 shared cleans by the athlete's recount (plan in the library: 30 per round). Not settled: check the whiteboard."
  ],
  "segments": [
   {
@@ -145,6 +146,81 @@
    "reps": 15,
    "unit": "reps",
    "note": "synchro bar-facing burpees; start = about to go down (video 8864, chest at 9003), end = done (video)"
+  },
+  {
+   "movement": "hangPowerCleans",
+   "round": 3,
+   "start": 367.01,
+   "end": 532.04,
+   "source": "athlete",
+   "reps": 17,
+   "unit": "reps",
+   "loadLb": 135,
+   "sets": [
+    {
+     "start": 388.44,
+     "end": 401.08,
+     "reps": 5,
+     "repTimes": [
+      389.84,
+      392.53,
+      395.05,
+      397.53,
+      400.08
+     ],
+     "signal": "gx",
+     "period": 2.56
+    },
+    {
+     "start": 419.81,
+     "end": 425.11,
+     "reps": 2,
+     "repTimes": [
+      421.28,
+      424.11
+     ],
+     "signal": "gx",
+     "period": 2.83
+    },
+    {
+     "start": 440.47,
+     "end": 447.94,
+     "reps": 3,
+     "repTimes": [
+      441.91,
+      444.46,
+      446.94
+     ],
+     "signal": "gx",
+     "period": 2.51
+    },
+    {
+     "start": 464.94,
+     "end": 472.27,
+     "reps": 3,
+     "repTimes": [
+      466.22,
+      468.77,
+      471.27
+     ],
+     "signal": "gx",
+     "period": 2.52
+    },
+    {
+     "start": 498.81,
+     "end": 509.1,
+     "reps": 4,
+     "repTimes": [
+      500.34,
+      503.02,
+      505.64,
+      508.1
+     ],
+     "signal": "gx",
+     "period": 2.59
+    }
+   ],
+   "note": "athlete 5 + 2 + 3 + 3 + 4 = 17; partner 5 + 5 + 1 + 1 + 3 + 4 + 4 = 23; 40 shared in this round by the athlete's count (the plan says 30). End = the athlete's Crown turn (video frame 16293), which matches the watch split (532.3 s)."
   }
  ]
 }
