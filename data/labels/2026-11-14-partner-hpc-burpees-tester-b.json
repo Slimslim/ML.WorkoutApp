@@ -8,7 +8,7 @@
  "format": "forTime",
  "files": {
   "csv": "Debug/session-530A13DE-D610-4F2E-80FC-AE9504397D88.csv",
-  "result": "Workouts/530A13DE-D610-4F2E-80FC-AE9504397D88.json"
+  "result": "Workouts/530A13DE-D610-4F2E-80FC-AE9504397D88.original.json"
  },
  "notes": [
   "Tester B's own recording (paths relative to his storage folder), used with his OK. Watch on the left wrist, Crown on the right: the front rack reads gx about -0.85 (catches: barpath.catches with sign=-1, hold 0.3 s).",
