@@ -86,6 +86,8 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] (_: Int) in
                 self?.sendWeightUnit()
+                // W29: the heart-rate zone source may have changed.
+                PhoneDeviceInfo.send()
             }
     }
 
@@ -171,6 +173,8 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
             payload[LiftSelection.contextKey] = lift
         }
         payload[PhoneLink.weightUnitKey] = AthleteProfile.shared.weightUnit.rawValue
+        // W29: phone model / iOS / build for the watch's recording header (new key, kept here).
+        payload[PhoneDeviceInfo.contextKey] = PhoneDeviceInfo.dictionary()
         do {
             try session.updateApplicationContext(payload)
         } catch {
@@ -267,6 +271,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         if activationState == .activated {
             DispatchQueue.main.async {
                 self.sendWeightUnit()
+                PhoneDeviceInfo.send()
             }
         }
     }
@@ -285,6 +290,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         publishState(session)
         DispatchQueue.main.async {
             self.sendWeightUnit()
+            PhoneDeviceInfo.send()
         }
     }
 

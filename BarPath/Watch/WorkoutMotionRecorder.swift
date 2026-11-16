@@ -64,10 +64,11 @@ final class WorkoutMotionRecorder {
 
     /// `planned` is the rule's verdict for the workout (written to the header as `planProfile`);
     /// `healthKitRunning` says whether the HealthKit workout session is running right now;
-    /// `gpsOn` whether location updates were actually started (header `gps=on|off`).
+    /// `gpsOn` whether location updates were actually started (header `gps=on|off`);
+    /// `extraHeader` more ", key=value" header pairs (W29: battery, power, settings, phone).
     /// Never blocks: the sensors are started and the call returns.
     func start(sessionId: UUID, definitionId: String, planned: RecordingProfile = .standard,
-               healthKitRunning: Bool = false, gpsOn: Bool = false) {
+               healthKitRunning: Bool = false, gpsOn: Bool = false, extraHeader: String = "") {
         guard !isRunning else { return }
         isRunning = true
         bootDate = Date(timeIntervalSinceNow: -ProcessInfo.processInfo.systemUptime)
@@ -81,6 +82,7 @@ final class WorkoutMotionRecorder {
                                headerTag: "workout=" + WorkoutMotionRecorder.clean(definitionId))
         w.planProfile = planned.rawValue
         w.gpsOn = gpsOn
+        w.extraHeaderPairs = extraHeader
         writer = w
         lastFileName = w.fileName
 
