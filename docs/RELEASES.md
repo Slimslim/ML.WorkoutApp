@@ -145,7 +145,7 @@ Order: W28 -> W27 -> W23. Dependencies:
   state, units, heart-rate zone source, phone model / iOS / build (sent by the phone in the new
   application-context key `phoneDevice`); battery line once a minute, thermal and Low Power Mode
   changes, end line with `batteryEnd`, reason and duration. `tools/recording_info.py` prints battery
-  %/h. Recording only, no screen change. Status: in review (branch `claude/w29-recording-metadata`).
+  %/h. Recording only, no screen change. Status: in review (branch `claude/w29-recording-metadata`, [#77](https://github.com/Slimslim/ML.WorkoutApp/pull/77)), build 16.
   Not device-tested yet.
 - **W23** needs a rule change before it is built: iOS does not say whether heart-rate read access was
   refused, so the banner follows "the last session received no heart rate" (`lastSessionReceivedHeartRate.v1`,

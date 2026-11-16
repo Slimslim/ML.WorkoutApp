@@ -88,6 +88,8 @@ def test_cut_off_recording_has_no_end_reason(tmp_path):
     assert info.end_reason is None and info.battery_end is None
     # start 90 at t=0, last line 78 at 360 s
     assert info.battery_per_hour() == pytest.approx(12 / 0.1)
+    # the CLI shows the last battery reading, so a flat battery is told from a crash
+    assert "last battery 78% at 360 s" in recording_info.report(p)
 
 
 def test_unknown_battery_is_skipped(tmp_path):

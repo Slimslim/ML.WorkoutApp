@@ -31,7 +31,13 @@ def report(path) -> str:
     for e in s.events:
         if e.get("name") in ("thermal", "lowPower"):
             events.setdefault(e["name"], []).append(f"{_v(e.get('t'))}s:{_v(e.get('state'))}")
-    end = info.end_reason if info.end_reason is not None else "missing (app stopped: crash or killed)"
+    if info.end_reason is not None:
+        end = info.end_reason
+    else:
+        end = "missing (app stopped: crash, killed, battery ran out or write failed)"
+        if info.battery:
+            t, level = info.battery[-1]
+            end += f"; last battery {level:g}% at {t:g} s"
     lines = [
         os.path.basename(str(path)),
         f"  watch      {_v(h.get('watchModel'))}, watchOS {_v(h.get('watchOS'))}, app build {_v(h.get('appBuild'))}",
