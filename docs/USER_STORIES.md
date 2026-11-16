@@ -463,6 +463,12 @@ and a per-window table for EMOMs and intervals, so I read my result the way the 
 *Done when:* every D6 preset shows right on fixtures of each format; the table matches the approved
 mockup. Ticket #74.
 
+**W33. Team rep count in a shared movement (proposed)**
+**W34. My own work and rest in a shared movement (proposed)**
+**W35. A workout in parts, each with its own cap (proposed)**
+Ids reserved 16 Nov for three stories on the release dashboard (renamed from its w29-w31, which
+clashed with W29-W31 here). The full text and "done when" are written here once the owner agrees them.
+
 ### Recording follows the plan (spans Lifting and Workouts; after the MVP)
 
 **W21. The watch records each part the way that part needs (Later)**
