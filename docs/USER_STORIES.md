@@ -463,18 +463,17 @@ the rest ends; the report shows each part's score separately; Apple Fitness gets
 (Owner, 15 Nov: Sunday's class; entered for now as two library rows, Part 1 and Part 2, with the
 rest as the first one's recovery.)
 
-**W36. Rower, SkiErg and bike numbers from the machine's monitor (Later)**
-As an athlete on a Concept2 rower, SkiErg or BikeErg, I want the watch to take the machine's own
-numbers (distance, pace, watts, calories, stroke rate, drag factor) for that part of the workout,
-so my splits and calories are exact and comparable, without typing them in.
-*Done when:* during a rower / ski / bike part the watch (or phone) connects to the PM5 monitor over
-Bluetooth, records its distance, pace, watts, calories, stroke rate and drag factor in the result,
-and shows them in the report; if no monitor is found, the part is recorded as today. Also: a short
-"set the damper" hint before a row part with the gym's target drag factor. (Owner, 16 Nov: rowed at
-drag factor 119 and suggested recording it. The PM5 measures the flywheel itself, so its pace and
-calories are right at any drag factor; drag factor matters for comparing efforts and for the feel.
-To check before building: watchOS Core Bluetooth to the PM5 from a third-party app, and whether
-Apple's GymKit pairing gets in the way.)
+**W36. Rower and SkiErg pace from the wrist (Later)**
+As an athlete on a Concept2 rower or SkiErg, I want the watch to show my strokes, stroke rate and an
+estimated pace for each row / ski part, so I see how hard I went without pairing anything to the
+machine.
+*Done when:* every row / ski part has stroke count and stroke rate (exact) and an estimated pace and
+distance shown with its uncertainty; the estimate is checked against the monitor's numbers on
+held-out sessions and is only shown once its error is small enough to be useful (target to be set
+from the data). No Bluetooth link to the machine in the app (owner, 17 Nov: pairing at a shared
+rower is friction and fails). Training data: photos of the monitor at the end of each piece, and a
+few dedicated sessions recorded with Concept2's ErgData app (per-stroke pace, watts, stroke rate,
+drag factor) next to the watch. Record the drag factor with every row (owner rows at 119).
 
 ### Recording follows the plan (spans Lifting and Workouts; after the MVP)
 
