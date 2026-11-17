@@ -1,0 +1,142 @@
+{
+ "version": 1,
+ "id": "2026-11-16-row-hspu-lunges",
+ "date": "2026-11-16",
+ "kind": "workout",
+ "name": "4 RFT: 500 m row, 10 strict HSPU, 20 DB goblet step-back lunges (50 lb)",
+ "format": "forTime",
+ "rx": true,
+ "files": {
+  "csv": "Debug/session-1AC0F487-7556-49DC-B48B-3D8FEEEBCF86.csv",
+  "result": "Workouts/1AC0F487-7556-49DC-B48B-3D8FEEEBCF86.json"
+ },
+ "score": "16:25 (cap 17:00)",
+ "notes": [
+  "Monday's class workout, done Monday evening (recorded 03:11 UTC 17 Nov) after the back squats. Row drag factor 119.",
+  "Splits are the athlete's Crown turns (not checked against motion).",
+  "Lunge vs squat feature holds with a dumbbell held at the chest: horizontal/vertical 0.73-0.86 in all 4 rounds (barbell lunges 15 Nov: 0.57-0.73; squats 0.14-0.24).",
+  "Recorded at 100 Hz (planProfile=standard): DB goblet lunges with a load did not trigger the high-rate profile."
+ ],
+ "segments": [
+  {
+   "movement": "row",
+   "round": 1,
+   "start": 0.0,
+   "end": 131.26,
+   "source": "crown",
+   "reps": 500,
+   "unit": "meters",
+   "note": "Concept2 row, drag factor 119 (athlete)"
+  },
+  {
+   "movement": "handstandPushUps",
+   "round": 1,
+   "start": 131.26,
+   "end": 163.94,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps"
+  },
+  {
+   "movement": "lunges",
+   "round": 1,
+   "start": 163.94,
+   "end": 229.79,
+   "source": "crown",
+   "reps": 20,
+   "unit": "reps",
+   "loadLb": 50,
+   "note": "DB goblet step-back alternating lunges; no rep times (body dips over-count: 28-31 for 20)"
+  },
+  {
+   "movement": "row",
+   "round": 2,
+   "start": 229.79,
+   "end": 377.47,
+   "source": "crown",
+   "reps": 500,
+   "unit": "meters",
+   "note": "Concept2 row, drag factor 119 (athlete)"
+  },
+  {
+   "movement": "handstandPushUps",
+   "round": 2,
+   "start": 377.47,
+   "end": 416.43,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps"
+  },
+  {
+   "movement": "lunges",
+   "round": 2,
+   "start": 416.43,
+   "end": 485.5,
+   "source": "crown",
+   "reps": 20,
+   "unit": "reps",
+   "loadLb": 50,
+   "note": "DB goblet step-back alternating lunges; no rep times (body dips over-count: 28-31 for 20)"
+  },
+  {
+   "movement": "row",
+   "round": 3,
+   "start": 485.5,
+   "end": 632.46,
+   "source": "crown",
+   "reps": 500,
+   "unit": "meters",
+   "note": "Concept2 row, drag factor 119 (athlete)"
+  },
+  {
+   "movement": "handstandPushUps",
+   "round": 3,
+   "start": 632.46,
+   "end": 673.77,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps"
+  },
+  {
+   "movement": "lunges",
+   "round": 3,
+   "start": 673.77,
+   "end": 749.25,
+   "source": "crown",
+   "reps": 20,
+   "unit": "reps",
+   "loadLb": 50,
+   "note": "DB goblet step-back alternating lunges; no rep times (body dips over-count: 28-31 for 20)"
+  },
+  {
+   "movement": "row",
+   "round": 4,
+   "start": 749.25,
+   "end": 896.56,
+   "source": "crown",
+   "reps": 500,
+   "unit": "meters",
+   "note": "Concept2 row, drag factor 119 (athlete)"
+  },
+  {
+   "movement": "handstandPushUps",
+   "round": 4,
+   "start": 896.56,
+   "end": 929.19,
+   "source": "crown",
+   "reps": 10,
+   "unit": "reps"
+  },
+  {
+   "movement": "lunges",
+   "round": 4,
+   "start": 929.19,
+   "end": 985.92,
+   "source": "crown",
+   "reps": 20,
+   "unit": "reps",
+   "loadLb": 50,
+   "note": "DB goblet step-back alternating lunges; no rep times (body dips over-count: 28-31 for 20)"
+  }
+ ]
+}
