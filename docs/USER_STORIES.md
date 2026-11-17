@@ -434,7 +434,7 @@ How (to check on a device, background behaviour cannot be tested in CI):
 - **Size:** the bucket takes 50 MB per file; a tester's 58-min Chad was 42 MB uncompressed, so a
   70-min session would be refused without the compressed uploads of #24. Build after #24.
 
-**W29. Show me where we are in a shared movement (Later)**
+**W33. Show me where we are in a shared movement (Later)**
 As an athlete in a partner workout, I want the watch to show how many of the shared reps are done
 and how many rounds are left, so we don't lose count when we are exhausted.
 *Done when:* during a shared station the watch shows the team's count toward the target (e.g. 22 /
@@ -443,7 +443,7 @@ his team did 40 cleans in round 3 instead of 30 and nearly stopped before round 
 did 30. Needs catch counting (data/labels/2026-11-14-*) and a way to count the partner's reps:
 the partner's watch, or the time the athlete is off the bar.)
 
-**W30. My work and rest inside a shared movement (Later)**
+**W34. My work and rest inside a shared movement (Later)**
 As an athlete sharing reps with a partner, I want the report to split each shared station into my
 turns on the bar and my rest while my partner works, with heart rate for both, so I see how the
 pacing changed through the workout.
@@ -453,7 +453,7 @@ needed. (Owner, 14 Nov partner cleans, from the video: on the bar 45 / 41 / 43 /
 resting 56% / 62% / 74% / 82% of the round; heart rate while resting stayed as high as on the bar,
 it lags the effort by several seconds.) Needs a design (phone report) and catch counting on the watch.
 
-**W31. A workout in parts, each with its own time cap and a rest between (Later)**
+**W35. A workout in parts, each with its own time cap and a rest between (Later)**
 As an athlete whose class has "Part 1 (30 min cap), 8 min rest, Part 2 (20 min)", I want one START
 for the whole thing, so each part stops at its own cap or when I finish it, the rest counts down by
 itself, and Part 2 starts after it.
@@ -462,6 +462,19 @@ early or hitting its cap both start the rest (8:00 counting down, no Crown turn)
 the rest ends; the report shows each part's score separately; Apple Fitness gets one workout.
 (Owner, 15 Nov: Sunday's class; entered for now as two library rows, Part 1 and Part 2, with the
 rest as the first one's recovery.)
+
+**W36. Rower, SkiErg and bike numbers from the machine's monitor (Later)**
+As an athlete on a Concept2 rower, SkiErg or BikeErg, I want the watch to take the machine's own
+numbers (distance, pace, watts, calories, stroke rate, drag factor) for that part of the workout,
+so my splits and calories are exact and comparable, without typing them in.
+*Done when:* during a rower / ski / bike part the watch (or phone) connects to the PM5 monitor over
+Bluetooth, records its distance, pace, watts, calories, stroke rate and drag factor in the result,
+and shows them in the report; if no monitor is found, the part is recorded as today. Also: a short
+"set the damper" hint before a row part with the gym's target drag factor. (Owner, 16 Nov: rowed at
+drag factor 119 and suggested recording it. The PM5 measures the flywheel itself, so its pace and
+calories are right at any drag factor; drag factor matters for comparing efforts and for the feel.
+To check before building: watchOS Core Bluetooth to the PM5 from a third-party app, and whether
+Apple's GymKit pairing gets in the way.)
 
 ### Recording follows the plan (spans Lifting and Workouts; after the MVP)
 

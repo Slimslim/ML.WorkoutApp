@@ -3,9 +3,9 @@
  "id": "2026-11-16-row-hspu-lunges",
  "date": "2026-11-16",
  "kind": "workout",
- "name": "4 RFT: 500 m row, 10 strict HSPU, 20 DB goblet step-back lunges (50 lb)",
+ "name": "4 RFT: 500 m row, 10 seated DB presses (30 lb, scaled from strict HSPU), 20 DB goblet reverse lunges (50 lb)",
  "format": "forTime",
- "rx": true,
+ "rx": false,
  "files": {
   "csv": "Debug/session-1AC0F487-7556-49DC-B48B-3D8FEEEBCF86.csv",
   "result": "Workouts/1AC0F487-7556-49DC-B48B-3D8FEEEBCF86.json"
@@ -13,7 +13,8 @@
  "score": "16:25 (cap 17:00)",
  "notes": [
   "Monday's class workout, done Monday evening (recorded 03:11 UTC 17 Nov) after the back squats. Row drag factor 119.",
-  "Splits are the athlete's Crown turns (not checked against motion).",
+  "Scaled: strict HSPU -> seated DB press 30 lb (athlete).",
+  "Splits are the athlete's Crown turns (not checked against motion). Each part includes the short rest / walk before the next station (athlete: out of breath between stations).",
   "Lunge vs squat feature holds with a dumbbell held at the chest: horizontal/vertical 0.73-0.86 in all 4 rounds (barbell lunges 15 Nov: 0.57-0.73; squats 0.14-0.24).",
   "Recorded at 100 Hz (planProfile=standard): DB goblet lunges with a load did not trigger the high-rate profile."
  ],
@@ -29,13 +30,15 @@
    "note": "Concept2 row, drag factor 119 (athlete)"
   },
   {
-   "movement": "handstandPushUps",
+   "movement": "seatedDumbbellPresses",
    "round": 1,
    "start": 131.26,
    "end": 163.94,
    "source": "crown",
    "reps": 10,
-   "unit": "reps"
+   "unit": "reps",
+   "loadLb": 30,
+   "note": "scaled: seated dumbbell presses with a 30 lb dumbbell instead of strict handstand push-ups"
   },
   {
    "movement": "lunges",
@@ -46,7 +49,7 @@
    "reps": 20,
    "unit": "reps",
    "loadLb": 50,
-   "note": "DB goblet step-back alternating lunges; no rep times (body dips over-count: 28-31 for 20)"
+   "note": "DB goblet (dumbbell held by its head at the chest) alternating reverse lunges, unbroken; no rep times (body dips over-count: 28-31 for 20)"
   },
   {
    "movement": "row",
@@ -59,13 +62,15 @@
    "note": "Concept2 row, drag factor 119 (athlete)"
   },
   {
-   "movement": "handstandPushUps",
+   "movement": "seatedDumbbellPresses",
    "round": 2,
    "start": 377.47,
    "end": 416.43,
    "source": "crown",
    "reps": 10,
-   "unit": "reps"
+   "unit": "reps",
+   "loadLb": 30,
+   "note": "scaled: seated dumbbell presses with a 30 lb dumbbell instead of strict handstand push-ups"
   },
   {
    "movement": "lunges",
@@ -76,7 +81,7 @@
    "reps": 20,
    "unit": "reps",
    "loadLb": 50,
-   "note": "DB goblet step-back alternating lunges; no rep times (body dips over-count: 28-31 for 20)"
+   "note": "DB goblet (dumbbell held by its head at the chest) alternating reverse lunges, unbroken; no rep times (body dips over-count: 28-31 for 20)"
   },
   {
    "movement": "row",
@@ -89,13 +94,15 @@
    "note": "Concept2 row, drag factor 119 (athlete)"
   },
   {
-   "movement": "handstandPushUps",
+   "movement": "seatedDumbbellPresses",
    "round": 3,
    "start": 632.46,
    "end": 673.77,
    "source": "crown",
    "reps": 10,
-   "unit": "reps"
+   "unit": "reps",
+   "loadLb": 30,
+   "note": "scaled: seated dumbbell presses with a 30 lb dumbbell instead of strict handstand push-ups"
   },
   {
    "movement": "lunges",
@@ -106,7 +113,7 @@
    "reps": 20,
    "unit": "reps",
    "loadLb": 50,
-   "note": "DB goblet step-back alternating lunges; no rep times (body dips over-count: 28-31 for 20)"
+   "note": "DB goblet (dumbbell held by its head at the chest) alternating reverse lunges, unbroken; no rep times (body dips over-count: 28-31 for 20). Round 3: one goblet squat first (the athlete forgot the movement), then the 20 lunges; the squat is not clearly separable from picking up the dumbbell in the motion"
   },
   {
    "movement": "row",
@@ -119,13 +126,15 @@
    "note": "Concept2 row, drag factor 119 (athlete)"
   },
   {
-   "movement": "handstandPushUps",
+   "movement": "seatedDumbbellPresses",
    "round": 4,
    "start": 896.56,
    "end": 929.19,
    "source": "crown",
    "reps": 10,
-   "unit": "reps"
+   "unit": "reps",
+   "loadLb": 30,
+   "note": "scaled: seated dumbbell presses with a 30 lb dumbbell instead of strict handstand push-ups"
   },
   {
    "movement": "lunges",
@@ -136,7 +145,7 @@
    "reps": 20,
    "unit": "reps",
    "loadLb": 50,
-   "note": "DB goblet step-back alternating lunges; no rep times (body dips over-count: 28-31 for 20)"
+   "note": "DB goblet (dumbbell held by its head at the chest) alternating reverse lunges, unbroken; no rep times (body dips over-count: 28-31 for 20)"
   }
  ]
 }
