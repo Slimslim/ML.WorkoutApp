@@ -11,12 +11,12 @@ def part(title, score, kind="METCON", order="1"):
     return {"title": title, "scoreType": score, "workoutType": kind, "sortOrder": order, "description": "<p>x</p>"}
 
 
-def test_keeps_only_the_scored_class_workout():
+def test_keeps_the_class_workout_and_the_strength_piece():
     day = {"partDtos": [part("WARM UP", "NO_SCORE"), part("Announcement", "FOR_COMMENT"),
                         part("Back Squat ", "FOR_WEIGHT", "STRENGTH"), part("WORKOUT", "FOR_TIME"),
                         part("Barbara", "FOR_TIME"), part("OPTIONAL ACCESSORY", "FOR_COMPLETION"),
                         part("OPTIONAL COOL DOWN", "FOR_TIME")]}
-    assert [p["title"] for p in pw.main_parts(day)] == ["WORKOUT", "Barbara"]
+    assert [p["title"] for p in pw.main_parts(day)] == ["Back Squat ", "WORKOUT", "Barbara"]
 
 
 def test_text_strips_html():

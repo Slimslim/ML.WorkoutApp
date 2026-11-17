@@ -3,8 +3,9 @@
 
     python3 tools/library/pushpress_week.py 11/23/2026          # the week containing that date
 
-Only the class's scored workout is kept: warm-up, cool-down, optional accessory, GOWOD activation,
-announcements, coach videos and strength pieces are skipped (owner, 17 Nov). Days still in DRAFT
+Only the CrossFit class (class type 101805) is read: PitFIRE and the gym's other classes are other
+class types and never fetched. Kept: the class workout and the strength piece (owner, 17 Nov).
+Skipped: warm-up, cool-down, optional accessory, GOWOD activation, announcements, coach videos. Days still in DRAFT
 are listed but marked. The text is then turned into library rows by hand (docs/WORKOUT_LIBRARY.md),
 with the gym id (`--gym blue-republic`).
 
@@ -21,7 +22,7 @@ URL = ("https://trainapi.pushpress.com/workout/workoutOfDay/week/v1"
        "?classTypeId={cls}&date={date}&programEntityType=WORKOUT_PROGRAM")
 CROSSFIT_CLASS = 101805
 SKIP = re.compile(r"warm ?up|cool ?down|accessory|gowod|announcement|coach video|if you are new", re.I)
-KEEP_SCORES = {"FOR_TIME", "FOR_ROUNDS_REPS", "FOR_REPS", "FOR_CALORIES", "FOR_DISTANCE"}
+KEEP_SCORES = {"FOR_TIME", "FOR_ROUNDS_REPS", "FOR_REPS", "FOR_CALORIES", "FOR_DISTANCE", "FOR_WEIGHT"}
 
 
 def text(desc: str) -> str:
@@ -30,10 +31,10 @@ def text(desc: str) -> str:
 
 
 def main_parts(day: dict) -> list:
-    """The class's scored workout parts of one day."""
+    """The class's workout and strength parts of one day."""
     return [p for p in sorted(day.get("partDtos") or [], key=lambda p: p.get("sortOrder") or "")
             if not SKIP.search(p.get("title") or "") and p.get("scoreType") in KEEP_SCORES
-            and p.get("workoutType") == "METCON"]
+            and p.get("workoutType") in ("METCON", "STRENGTH")]
 
 
 def fetch(date: str, cls: int = CROSSFIT_CLASS) -> list:
