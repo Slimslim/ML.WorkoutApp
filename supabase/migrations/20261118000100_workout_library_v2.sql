@@ -25,6 +25,9 @@ set local lock_timeout = '5s';
 create extension if not exists pg_jsonschema with schema extensions;
 
 -- The JSON Schema (copy of schemas/workout-definition.v2.schema.json, keep them equal).
+-- Replacing this function with a STRICTER schema later: first check every existing row against the
+-- new schema in a data migration (or move the check into a trigger). A row that no longer matches
+-- fails every later update and a pg_dump restore, because the CHECK is evaluated again.
 create function public.workout_definition_v2_schema() returns json
 language sql immutable parallel safe set search_path = '' as $fn$
 select $schema$
