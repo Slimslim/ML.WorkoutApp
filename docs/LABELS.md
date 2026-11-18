@@ -372,3 +372,11 @@ rounds; capped at 42:00 in round 5 at 14 pull-ups (label `2026-11-18-barbara`; c
   the athlete's taps, with or without the taps as hints. Other workouts unchanged.
 - Kipping pull-ups are a good first rep-counting candidate: a steady 2 s rhythm, a clean swing
   signal in every set, and the sets are the hangs.
+- Sit-ups and air squats from the motion (athlete's memory checked, 2026-11-18). Sit-ups: the
+  forearm tilts with the torso (main axis of the gravity change), one clear cycle per rep at
+  2.4-2.8 s: 40 / 40 / 20 + 20 / 20 + 20 (the athlete remembered 20 + 20 in round 2: no pause over
+  3 s there). Air squats with the arm hanging: count the upward SPEED (vertical acceleration
+  integrated), one peak per squat; the acceleration itself gives two peaks per slow squat (96 and
+  87 for 50). 50 / 31 + 12 + 7 / 52 / 52 (athlete 50: the speed counter adds 2 at 2.2 s/rep).
+  With these starts known, the block finder: first rep within 5 s 11 / 12 (median 1.6 s), last rep
+  11 / 12 (median 1.7 s; the athlete's Crown 12 / 12, median 2.2 s), 99% of the working time.
