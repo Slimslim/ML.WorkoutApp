@@ -153,8 +153,12 @@ final class WorkoutSessionModel: ObservableObject {
     private var pedometer: CMPedometer?
     /// GPS for plans with a run (build 15): decided at START, started in `beginRunning`.
     private let locationRecorder = WorkoutLocationRecorder()
+    /// W29: battery, power, settings and phone in the CSV header, battery once a minute, end line.
+    private let recordingInfo = WorkoutRecordingInfo()
     private var workoutId = UUID()
     private var heartRates: [HeartRateSample] = []
+    /// W23: any heart-rate sample since START (also before the session reports running).
+    private var sawHeartRate = false
     private var pedometerSamples: [PedometerSnapshot] = []
     private var finalized = false
     private var startTimeoutTask: Task<Void, Never>?
@@ -378,6 +382,7 @@ final class WorkoutSessionModel: ObservableObject {
         workoutId = UUID()
         progress = WorkoutProgress(definition: definition)
         heartRates = []
+        sawHeartRate = false
         pedometerSamples = []
         latestPedometer = nil
         heartRate = nil
@@ -576,7 +581,7 @@ final class WorkoutSessionModel: ObservableObject {
                 recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
                                      description: "name=backgroundRecovery")
             }
-            endNow()
+            endNow(reason: isFinishedByCap ? "cap" : "athlete", backgroundRecovery: until != nil)
             if let until = until, let input = lastResultInput {
                 pendingRecovery = BackgroundRecovery(input: input, until: until)
             }
@@ -585,11 +590,11 @@ final class WorkoutSessionModel: ObservableObject {
         }
     }
 
-    /// Finalizes (result + CSV) and ends HealthKit.
-    private func endNow() {
+    /// Finalizes (result + CSV) and ends HealthKit. `reason` goes to the CSV end line (W29).
+    private func endNow(reason: String, backgroundRecovery: Bool) {
         startTimeoutTask?.cancel()
         startTimeoutTask = nil
-        finalize()
+        finalize(reason: reason, backgroundRecovery: backgroundRecovery)
         phase = .ending
         armEndTimeout()
         workout.end()     // calls onFinished right away if there is no HK session
@@ -620,9 +625,11 @@ final class WorkoutSessionModel: ObservableObject {
         if dataMode {
             // Rate chosen once for the whole session: 200 Hz only if the plan has a barbell /
             // dumbbell / kettlebell movement (RecordingProfile) and HealthKit is running now.
+            // W29: battery monitoring on for the session; header pairs read now.
+            let infoHeader: String = recordingInfo.begin()
             recorder.start(sessionId: workoutId, definitionId: progress.definition.id,
                            planned: RecordingProfile.profile(for: progress.definition),
-                           healthKitRunning: healthKitRunning, gpsOn: gpsOn)
+                           healthKitRunning: healthKitRunning, gpsOn: gpsOn, extraHeader: infoHeader)
             isRecordingCSV = true
         }
         let kind = progress.currentSegment?.kind ?? .station
@@ -673,6 +680,12 @@ final class WorkoutSessionModel: ObservableObject {
         }
         updateRecovery(now: Date().timeIntervalSince1970)
         checkForTimeCap(now: Date().timeIntervalSince1970)
+        if recordingInfo.isActive {
+            let uptime: Double = ProcessInfo.processInfo.systemUptime
+            for line in recordingInfo.tick(uptime: uptime) {
+                recorder.appendEvent(atUptime: uptime, description: line)
+            }
+        }
         guard let event = nextClockEvent() else {
             countdownTarget = nil
             return
@@ -781,7 +794,7 @@ final class WorkoutSessionModel: ObservableObject {
                 startTimeoutTask?.cancel()
                 startTimeoutTask = nil
                 errorMessage = "Workout ended by watch"
-                finalize()
+                finalize(reason: "system", backgroundRecovery: false)
                 phase = .ending
                 armEndTimeout()
                 // WorkoutManager saves the builder itself on .ended and then calls onFinished.
@@ -839,6 +852,7 @@ final class WorkoutSessionModel: ObservableObject {
             WorkoutCheckpoint.clear()
         }
         stopLocation()
+        recordingInfo.stop()
         phase = .idle
         heartRate = nil
         healthKitRunning = false
@@ -872,6 +886,11 @@ final class WorkoutSessionModel: ObservableObject {
 
     private func heartRateReceived(_ bpm: Double) {
         if isDemo { return }
+        // W23: any sample means heart-rate access is on (clears the start screen banner).
+        if !sawHeartRate {
+            sawHeartRate = true
+            UserDefaults.standard.set(true, forKey: SensorAccess.receivedHeartRateKey)
+        }
         heartRate = bpm
         guard phase == .running, !finalized else { return }
         let t = Date().timeIntervalSince1970
@@ -1278,14 +1297,23 @@ final class WorkoutSessionModel: ObservableObject {
     // MARK: - End / result
 
     /// Stops sensors, closes the CSV, builds/writes/sends the result, then the CSV.
-    /// Runs once per workout.
-    private func finalize() {
+    /// Runs once per workout. `reason` (athlete, cap, system) and `backgroundRecovery` go to the
+    /// CSV's end line (W29); a CSV without one was cut off (crash or app killed).
+    private func finalize(reason: String, backgroundRecovery: Bool) {
         // Belt and braces: a demo never writes, sends or summarizes anything.
         guard !isDemo else { return }
         guard !finalized else { return }
         finalized = true
         stopPedometer()
         stopLocation()
+        if recordingInfo.isActive {
+            let now: Double = Date().timeIntervalSince1970
+            let duration: Double = now - (progress.startTime ?? now)
+            recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
+                                 description: recordingInfo.endLine(reason: reason, duration: duration,
+                                                                    backgroundRecovery: backgroundRecovery))
+            recordingInfo.stop()
+        }
         let csvURL = recorder.stop()
         refreshCounters()
 
@@ -1308,6 +1336,11 @@ final class WorkoutSessionModel: ObservableObject {
                                 recordedCSV: recordedCSV, endT: endT)
         lastResultInput = input
         let result: WorkoutResult = WorkoutSessionModel.makeResult(input, recordingEndT: endT)
+        // W23: a workout of 2 min or more with no heart rate turns the start screen banner on.
+        if let received = SensorAccess.receivedHeartRate(sampleCount: sawHeartRate ? max(1, hr.count) : hr.count,
+                                                         sessionSeconds: result.totalSeconds) {
+            UserDefaults.standard.set(received, forKey: SensorAccess.receivedHeartRateKey)
+        }
 
         let summary = "\(result.definition.shortName) · \(SessionModel.formatElapsed(result.totalSeconds))"
         lastSummary = summary
@@ -1374,6 +1407,12 @@ final class WorkoutSessionModel: ObservableObject {
                                 partialReps: recovered.isFinished ? checkpoint.partialReps : nil,
                                 recordedCSV: checkpoint.recordedCSV, endT: endT)
         let result: WorkoutResult = WorkoutSessionModel.makeResult(input, recordingEndT: endT)
+        // W23: same rule as a normal end, so the watch flag agrees with the phone, which reads
+        // this recovered result.
+        if let received = SensorAccess.receivedHeartRate(sampleCount: checkpoint.heartRates.count,
+                                                         sessionSeconds: result.totalSeconds) {
+            UserDefaults.standard.set(received, forKey: SensorAccess.receivedHeartRateKey)
+        }
         if writeAndSend(result, fileName: fileName) {
             let summary = "\(result.definition.shortName) · \(SessionModel.formatElapsed(result.totalSeconds)) · saved after interruption"
             lastSummary = summary

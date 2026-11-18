@@ -2,6 +2,22 @@
 
 Newest first. Paste the latest entry into "What to Test" for the build in App Store Connect.
 
+## Build 16
+
+- Workouts upload by themselves after END: no need to open the phone app. The phone can stay
+  locked in your bag; anything that cannot go straight away goes later, nothing is lost.
+- If Heart rate or Motion is off, the watch start screen says so, and the phone Workouts tab shows a
+  banner with a button to Health. The heart-rate banner clears after your next workout.
+- Each workout recording notes the battery, Low Power Mode, your settings and the phone model,
+  so problems testers report can be tracked down. No name, email or location is added.
+
+Known issues:
+- Tabata and other timed work parts do not end by themselves yet: turn the Crown.
+- Apple Fitness shows no map for a workout that mixes a run with other movements. The route is in
+  Apple Health.
+- The app's run distance still comes from steps, not GPS.
+- Motion off shows on the watch only, not on the phone.
+
 ## Build 15
 
 - If the watch app closes or the watch restarts mid-workout, what was recorded is saved and sent to the phone.

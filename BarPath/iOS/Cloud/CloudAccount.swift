@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 import BarPathKit
 import Supabase
 
@@ -28,6 +29,13 @@ final class CloudAccount: ObservableObject {
     private var isQueueing = false
     private var syncAgain = false
     private var stagingCleaned = false
+    /// Immediate re-queues after a refused token, per file version (W28).
+    private var authRetries = UploadRetryBudget()
+    /// The next sync gets a new access token even if the current one looks valid (after a refusal).
+    private var forceTokenRefresh = false
+    /// Files waiting that are still worth a background refresh (see `UploadFailureLog`).
+    private var refreshWaiting = 0
+    private static let failureLogKey = "uploadFailures.v1"
 
     /// Bucket limit per file (see supabase/migrations/20261102000000_uploads.sql).
     private static let maxUploadBytes: Int = 52_428_800
@@ -205,7 +213,11 @@ final class CloudAccount: ObservableObject {
         repeat {
             syncAgain = false
             await writePendingRows(userId: userId)
-            await downloadCorrections(userId: userId)
+            // In the background the few seconds iOS gives go to the uploads; corrections from
+            // the cloud are checked at the next app open.
+            if UIApplication.shared.applicationState != .background {
+                await downloadCorrections(userId: userId)
+            }
             if !stagingCleaned {
                 stagingCleaned = true
                 await BackgroundUploads.shared.cleanStaging()
@@ -223,6 +235,11 @@ final class CloudAccount: ObservableObject {
             }
             let files = everything.filter { manifest[$0.path] != $0.version && skipped[$0.path] != $0.version }
             pendingCount = files.count
+            var failures: UploadFailureLog = CloudAccount.loadFailures()
+            let waitingKeys = Set(files.map { UploadRetryBudget.key(path: $0.path, version: $0.version) })
+            failures.keepOnly(waitingKeys)
+            CloudAccount.saveFailures(failures)
+            refreshWaiting = waitingKeys.filter { failures.keepsRefreshing($0) }.count
             guard !files.isEmpty else {
                 isSyncing = false
                 if lastError == nil { lastSync = Date() }
@@ -230,7 +247,14 @@ final class CloudAccount: ObservableObject {
             }
             let token: String
             do {
-                token = try await client.auth.session.accessToken
+                if forceTokenRefresh {
+                    // The server refused the last token: the client may still think it is valid
+                    // (clock skew), so ask for a new one.
+                    forceTokenRefresh = false
+                    token = try await client.auth.refreshSession().accessToken
+                } else {
+                    token = try await client.auth.session.accessToken
+                }
             } catch {
                 lastError = "Upload paused: \(error.localizedDescription)"
                 return
@@ -279,6 +303,9 @@ final class CloudAccount: ObservableObject {
                                     bytes: bytes,
                                     modified: file.modified,
                                     stagedFile: stagedName)
+                if await uploadNowIfBackground(job, file: uploadURL, contentType: contentType, token: token) {
+                    continue
+                }
                 BackgroundUploads.shared.enqueue(job, file: uploadURL,
                                                  contentType: contentType, accessToken: token)
             }
@@ -287,6 +314,57 @@ final class CloudAccount: ObservableObject {
                 isSyncing = false
             }
         } while syncAgain
+    }
+
+    /// One sync for a background wake (watch message, received file, app refresh): waits for the
+    /// saved sign-in to be restored, queues everything, and returns once the files are handed to
+    /// the background URLSession. Then asks for a background refresh if anything is left.
+    func syncAndWait() async {
+        guard let client else { return }
+        // Launched in the background: the auth listener may not have restored the session yet.
+        var waited: Int = 0
+        while isRestoring && waited < 100 && !Task.isCancelled {
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            waited += 1
+        }
+        // Restored as signed out while the keychain was not readable yet (before the first
+        // unlock since boot): read it again now.
+        if userId == nil, let session = client.auth.currentSession {
+            apply(session)
+        }
+        guard isSignedIn else { return }
+        await sync()
+        // A sync already running took this request over (`syncAgain`): wait for it to finish.
+        waited = 0
+        while isQueueing && waited < 600 && !Task.isCancelled {
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            waited += 1
+        }
+        BackgroundSync.schedule(waiting: refreshWaiting)
+    }
+
+    /// Largest file sent directly during a background wake; bigger ones go to the background session.
+    private static let directUploadMaxBytes: Int = 5_000_000
+
+    /// In the background, iOS starts background-session uploads at its own discretion (it may wait
+    /// for Wi-Fi and power). So while the app is awake in the background (watch wake, refresh),
+    /// files are sent right away with a normal request, while time remains. Returns true when the
+    /// upload ended (uploaded or refused for good); false to hand the file to the background session.
+    private func uploadNowIfBackground(_ job: UploadJob, file: URL, contentType: String, token: String) async -> Bool {
+        let app = UIApplication.shared
+        guard app.applicationState == .background,
+              job.bytes <= CloudAccount.directUploadMaxBytes,
+              app.backgroundTimeRemaining > 15,
+              !Task.isCancelled else { return false }
+        let result: (UploadOutcome, String?) = await BackgroundUploads.uploadDirect(
+            job, file: file, contentType: contentType, accessToken: token,
+            timeout: min(20, app.backgroundTimeRemaining - 8))
+        if result.0 == .retryLater {
+            // Timed out or no network: the background session keeps trying (staged copy kept).
+            return false
+        }
+        await uploadFinished(job, outcome: result.0, failure: result.1)
+        return true
     }
 
     /// Pull to refresh in the Log: one sync now (downloads corrections, queues uploads).
@@ -402,13 +480,40 @@ final class CloudAccount: ObservableObject {
     }
 
     /// Called for each file iOS finished sending (also after a background relaunch).
-    func uploadFinished(_ job: UploadJob, failure: String?, tooLarge: Bool = false) async {
+    func uploadFinished(_ job: UploadJob, outcome: UploadOutcome, failure: String?) async {
         BackgroundUploads.removeStaged(job.stagedFile)
-        if tooLarge {
+        let retryKey: String = UploadRetryBudget.key(path: job.path, version: job.version)
+        switch outcome {
+        case .tooLarge:
             noteTooLarge(job.path, version: job.version, userId: job.userId)
-        } else if let failure {
-            lastError = "Upload failed for \(job.path): \(failure)"
-        } else {
+        case .authRejected:
+            lastError = "Upload failed for \(job.path): \(failure ?? "sign-in refused")"
+            // The token expired while the upload waited: queue it again now with a fresh one
+            // (a few times per file version), else at the next background refresh.
+            // `userId` is still nil when iOS relaunched the app for these events and the saved
+            // sign-in is not restored yet; `syncAndWait` waits for it and checks the user.
+            var failures: UploadFailureLog = CloudAccount.loadFailures()
+            failures.recordFailure(retryKey)
+            CloudAccount.saveFailures(failures)
+            if (userId == nil || job.userId == userId) && authRetries.take(retryKey) {
+                forceTokenRefresh = true
+                BackgroundSync.run("token refresh")
+            } else if failures.keepsRefreshing(retryKey) {
+                BackgroundSync.schedule(waiting: 1)
+            }
+        case .retryLater:
+            lastError = "Upload failed for \(job.path): \(failure ?? "unknown error")"
+            var failures: UploadFailureLog = CloudAccount.loadFailures()
+            failures.recordFailure(retryKey)
+            CloudAccount.saveFailures(failures)
+            if failures.keepsRefreshing(retryKey) {
+                BackgroundSync.schedule(waiting: 1)
+            }
+        case .uploaded:
+            authRetries.reset(retryKey)
+            var failures: UploadFailureLog = CloudAccount.loadFailures()
+            failures.recordSuccess(retryKey)
+            CloudAccount.saveFailures(failures)
             var manifest = UploadManifest.load(userId: job.userId)
             manifest[job.path] = job.version
             UploadManifest.save(manifest, userId: job.userId)
@@ -425,6 +530,19 @@ final class CloudAccount: ObservableObject {
         if await BackgroundUploads.shared.inFlight().isEmpty {
             isSyncing = false
             if lastError == nil { lastSync = Date() }
+        }
+    }
+
+    private static func loadFailures() -> UploadFailureLog {
+        let raw = UserDefaults.standard.dictionary(forKey: failureLogKey) as? [String: Int] ?? [:]
+        return UploadFailureLog(counts: raw)
+    }
+
+    private static func saveFailures(_ log: UploadFailureLog) {
+        if log.counts.isEmpty {
+            UserDefaults.standard.removeObject(forKey: failureLogKey)
+        } else {
+            UserDefaults.standard.set(log.counts, forKey: failureLogKey)
         }
     }
 

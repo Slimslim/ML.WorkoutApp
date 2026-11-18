@@ -33,6 +33,9 @@ final class DebugCSVWriter {
     /// Workout mode: whether location updates were started for the session, written to the header
     /// as `gps=on|off`. Omitted when nil.
     var gpsOn: Bool?
+    /// Workout mode (W29): more ", key=value" pairs appended to the header after the device keys
+    /// (battery, power, settings, phone). Empty for lifting.
+    var extraHeaderPairs: String = ""
 
     /// Since-boot time of the first sample: CSV t = 0.
     private(set) var t0: Double?
@@ -198,7 +201,8 @@ final class DebugCSVWriter {
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         let tag: String = headerTag ?? "liftType=\(liftType.rawValue)"
         var header = "# barpath-session v1, sessionId=\(sessionId.uuidString), startDate=\(formatter.string(from: startDate)), \(tag)"
-        header += DebugCSVWriter.deviceHeaderPairs(sampleRateHz: sampleRateHz, planProfile: planProfile, gpsOn: gpsOn) + "\n"
+        header += DebugCSVWriter.deviceHeaderPairs(sampleRateHz: sampleRateHz, planProfile: planProfile, gpsOn: gpsOn)
+        header += extraHeaderPairs + "\n"
         header += "t,qw,qx,qy,qz,ax,ay,az,gx,gy,gz,rx,ry,rz\n"
         for comment in pendingComments {
             if let t0 = startTime {
