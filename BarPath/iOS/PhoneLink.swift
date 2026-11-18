@@ -174,7 +174,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         }
         payload[PhoneLink.weightUnitKey] = AthleteProfile.shared.weightUnit.rawValue
         // W29: phone model / iOS / build for the watch's recording header (new key, kept here).
-        payload[PhoneDeviceInfo.contextKey] = PhoneDeviceInfo.dictionary()
+        payload[PhoneDeviceContext.key] = PhoneDeviceInfo.dictionary()
         do {
             try session.updateApplicationContext(payload)
         } catch {

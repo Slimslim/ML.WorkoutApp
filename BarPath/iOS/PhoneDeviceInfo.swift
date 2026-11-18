@@ -9,9 +9,6 @@ import BarPathKit
 /// phone and phone build it went with (a watch/phone build mismatch is visible).
 /// Nothing personal: no name, no birth year, no heart rate values.
 enum PhoneDeviceInfo {
-    /// Application context key (read by the watch's `WorkoutRecordingInfo`).
-    static let contextKey = PhoneDeviceContext.key
-
     /// ["model": "iPhone16,1", "os": "18.1", "build": "16", "hrZoneSource": "custom|age|workouts"].
     /// Call on the main thread.
     static func dictionary() -> [String: String] {
@@ -47,7 +44,7 @@ enum PhoneDeviceInfo {
 
     /// Puts `phoneDevice` in the application context, keeping every other key. Call on the main
     /// thread. `force` sends even when the phone's copy already has the same values: pass true on
-    /// activation and watch-state changes, because the phone's `applicationContext` outlives
+    /// activation, watch-state changes and when the app becomes active (#82), because the phone's `applicationContext` outlives
     /// launches and watch app reinstalls while the watch's received copy does not (#79).
     static func send(force: Bool = false) {
         guard WCSession.isSupported() else { return }
