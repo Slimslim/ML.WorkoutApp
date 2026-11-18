@@ -137,11 +137,21 @@ Order: W28 -> W27 -> W23. Dependencies:
 - **W28** needs #24's gzip staging and upload manifest; touches both PhoneLink files (#24 added a
   `weightUnit` application-context key). Check on a locked phone: staged gzip copies in Caches are
   readable, and the Supabase session is readable after first unlock.
+  Status: in review (branch `claude/w28-background-upload`, #30): watch `filesQueued` wake message,
+  background sync on the phone, token retry, background app refresh. Not device-tested yet.
 - **W27** touches `WorkoutSessionModel.clockAdvance`, which #24 changed (checkpoint every 15 s,
   Crown lockout after an automatic advance). Owner, 13 Nov: 8 x (20 s work + 10 s rest) on the clock,
   3-2-1 at the end of each work, 3-2-1 GO at the end of each rest. Also decide what a Crown turn does
   in a clocked workout (today it jumps a round and the clock never gives it back:
   `WorkoutProgress.swift`).
+- **W29** (#36, owner 15 Nov: "go, W29 in build 16", after the battery report #69): every workout
+  recording says how it was made. CSV header: battery at start, charging, Low Power Mode, thermal
+  state, units, heart-rate zone source, phone model / iOS / build (sent by the phone in the new
+  application-context key `phoneDevice`); battery line once a minute, thermal and Low Power Mode
+  changes, end line with `batteryEnd`, reason and duration. `tools/recording_info.py` prints battery
+  %/h. Recording only, no screen change. Status: in review (branch `claude/w29-recording-metadata`, [#77](https://github.com/Slimslim/ML.WorkoutApp/pull/77)), build 16.
+  Not device-tested yet. Bug #79 (device test: phone fields always `unknown`): the phone skipped
+  re-sending `phoneDevice` after a watch app reinstall; fix in review on `claude/w29-phone-device-fix`.
 - **W23** needs a rule change before it is built: iOS does not say whether heart-rate read access was
   refused, so the banner follows "the last session received no heart rate" (`lastSessionReceivedHeartRate.v1`,
   written by the practice today; the real workout must write it too). Mockup approved 13 Nov.

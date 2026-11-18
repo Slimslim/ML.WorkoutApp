@@ -182,10 +182,93 @@ class SessionCSV:
     source_rate: Optional[float] = None          # rate of the file (header sampleRate, else measured)
     plan_profile: Optional[str] = None           # header planProfile (build 15+): high | standard
     gps: Optional[str] = None                    # header gps (build 15+): on | off (location updates started)
+    header: dict = field(default_factory=dict)   # every header key=value as written (W29 keys included)
 
     def gps_fixes(self) -> list:
         """The '# event ... name=gps' lines of this file as GpsFix records."""
         return parse_gps_events(self.events)
+
+    def recording_info(self) -> "RecordingInfo":
+        """How the recording was made (W29, build 16+); fields are None for older files."""
+        return recording_info(self.header, self.events)
+
+
+# ---- How the recording was made (W29, build 16+) ---------------------------------------------
+#
+# Header keys (all optional, additive to format v1): batteryStart (0-100), charging (yes|no),
+# lowPower (on|off), thermal (nominal|fair|serious|critical), units (kg|lb), hrZoneSource
+# (custom|age|workouts, as last sent by the phone), phoneModel, phoneOS, phoneBuild (last sent by the
+# phone, "unknown" when the phone never sent them).
+# Events: 'name=battery level=<0-100> charging=yes|no' once a minute, 'name=thermal state=<s>' and
+# 'name=lowPower state=on|off' on a change, and one last line
+# 'name=end reason=<r> batteryEnd=<0-100> duration=<s> [backgroundRecovery=yes]'.
+# A file without the end line was cut off (the app died: crash or killed); its end_reason is None.
+
+@dataclass
+class RecordingInfo:
+    battery_start: Optional[float] = None
+    battery_end: Optional[float] = None
+    charging: Optional[str] = None
+    low_power: Optional[str] = None
+    thermal: Optional[str] = None
+    units: Optional[str] = None
+    hr_zone_source: Optional[str] = None
+    phone_model: Optional[str] = None
+    phone_os: Optional[str] = None
+    phone_build: Optional[str] = None
+    end_reason: Optional[str] = None
+    duration: Optional[float] = None             # seconds, from the end line
+    end_t: Optional[float] = None                # CSV t of the end line
+    battery: list = field(default_factory=list)  # [(t, level)] from the per-minute lines
+
+    def battery_per_hour(self) -> Optional[float]:
+        """Battery drop in % per hour (positive = drain), from the first and last battery reading
+        (start, minute lines, end). None when under 5 minutes apart or no readings."""
+        pts = list(self.battery)
+        if self.battery_start is not None:
+            pts.insert(0, (0.0, self.battery_start))
+        if self.battery_end is not None:
+            # On the CSV time axis like the start (t=0) and the minute lines.
+            t_end = self.end_t if self.end_t is not None else self.duration
+            if t_end is not None:
+                pts.append((t_end, self.battery_end))
+        if len(pts) < 2:
+            return None
+        (t0, b0), (t1, b1) = pts[0], pts[-1]
+        if t1 - t0 < 300:
+            return None
+        return (b0 - b1) / ((t1 - t0) / 3600.0)
+
+
+def _float_or_none(v) -> Optional[float]:
+    x = _num(v) if isinstance(v, str) else v
+    return float(x) if isinstance(x, (int, float)) else None
+
+
+def recording_info(header: dict, events: list) -> RecordingInfo:
+    info = RecordingInfo(
+        battery_start=_float_or_none(header.get("batteryStart")),
+        charging=header.get("charging"),
+        low_power=header.get("lowPower"),
+        thermal=header.get("thermal"),
+        units=header.get("units"),
+        hr_zone_source=header.get("hrZoneSource"),
+        phone_model=header.get("phoneModel"),
+        phone_os=header.get("phoneOS"),
+        phone_build=header.get("phoneBuild"),
+    )
+    for e in events:
+        name = e.get("name")
+        if name == "battery":
+            t, level = e.get("t"), _float_or_none(e.get("level"))
+            if isinstance(t, float) and level is not None:
+                info.battery.append((t, level))
+        elif name == "end":
+            info.end_reason = e.get("reason")
+            info.battery_end = _float_or_none(e.get("batteryEnd"))
+            info.duration = _float_or_none(e.get("duration"))
+            info.end_t = _float_or_none(e.get("t"))
+    return info
 
 
 _HEADER_RE = re.compile(r"(\w+)=([^,\s]+)")
@@ -300,7 +383,7 @@ def load_session_csv(path, workout_hz: Optional[float] = WORKOUT_HZ) -> SessionC
             rate = rate / factor
     return SessionCSV(meta.get("sessionId"), start, meta.get("liftType"), motion,
                       marks, events, meta.get("workout"), rate, source_rate, meta.get("planProfile"),
-                      meta.get("gps"))
+                      meta.get("gps"), dict(meta))
 
 
 def save_session_csv(path, motion: MotionSeries, session_id: str, start_date: datetime,

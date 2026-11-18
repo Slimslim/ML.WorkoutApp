@@ -68,12 +68,22 @@ struct WorkoutChooserView: View {
     @State private var lastScores: [String: String] = [:]
     @State private var query: String = ""
     @State private var searching: Bool = false
+    /// W23: "Heart rate is off" / "Motion is off" at the top (WorkoutSensorBannerView).
+    @State private var sensorBanner: SensorBanner?
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         List {
             let today: [LibraryWorkout] = filteredToday
             let groups: [LibraryGroup] = filteredGroups
             let builtIns: [WorkoutGroup] = filteredBuiltIns
+            if !isSearching, let banner = sensorBanner {
+                Section {
+                    WorkoutSensorBannerView(banner: banner)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        .listRowBackground(Color.clear)
+                }
+            }
             if !isSearching {
                 Section {
                     NextWorkoutBar()
@@ -138,6 +148,13 @@ struct WorkoutChooserView: View {
         }
         .onReceive(store.$results) { (results: [WorkoutResult]) in
             lastScores = WorkoutLastScore.byDefinition(allDefinitions(library.workouts), results: results)
+            sensorBanner = WorkoutSensorBannerView.current(results: results)
+        }
+        .onChange(of: scenePhase) { _, phase in
+            // Back from Health or Settings: Motion may be on now.
+            if phase == .active {
+                sensorBanner = WorkoutSensorBannerView.current(results: store.results)
+            }
         }
         .onReceive(library.$workouts) { (workouts: [LibraryWorkout]) in
             lastScores = WorkoutLastScore.byDefinition(allDefinitions(workouts), results: store.results)

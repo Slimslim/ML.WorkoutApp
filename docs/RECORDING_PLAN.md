@@ -34,6 +34,24 @@ questions, so the build starts from the same place.
   ~17 MB/h at 100 Hz. A compressed 200 Hz recording reaches the 50 MB upload limit at about 85-90
   minutes; at 100 Hz after about 2 h 50 min. Battery at 200 Hz over a long session is not measured.
 
+## Built in build 16: how the recording was made (W29, #36)
+
+Workout CSVs only (lifting files unchanged). New header keys, after the existing ones:
+`batteryStart` (0-100), `charging` (yes|no), `lowPower` (on|off), `thermal`
+(nominal|fair|serious|critical), `units` (kg|lb), `hrZoneSource` (custom|age|workouts),
+`phoneModel`, `phoneOS`, `phoneBuild` (what the phone last put in the application-context key
+`phoneDevice`; `unknown` when it never did). New event lines: `name=battery level= charging=` once a
+minute, `name=thermal state=` and `name=lowPower state=` on a change, and a last line
+`name=end reason=athlete|cap|system batteryEnd= duration=[ backgroundRecovery=yes]`. A file without
+the end line was cut off (app died, battery ran out, or the writer failed; recovered by
+`PhoneLink.activate`): the last battery line tells a flat battery from a crash. The practice writes no CSV.
+`reason=cap` means an AMRAP finished by the clock; a for-time workout that runs past its cap and is
+then ended reads `athlete` (its `name=capReached` event shows the cap). `hrZoneSource=workouts` means no
+manual max HR and no birth year: zones from the highest recorded heart rate, or the default when
+there is none yet.
+Battery monitoring is on only while the CSV records; the checks run on the session's existing clock
+(no timer or sensor of its own). `tools/recording_info.py` prints it all, with the drain in %/h.
+
 ## The problem
 
 Today the athlete picks a mode up front and the whole session is recorded one way:
