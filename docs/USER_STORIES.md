@@ -494,6 +494,26 @@ AMRAP, rounds) and the scale (W31); the result is recomputed from the recording 
 replay; the original recording and the original plan are kept and can be restored; the edit is
 saved as the athlete's private copy, never in the library. Built together with W31. Ticket #86.
 
+**W43. Build or change a workout on my phone and send it to the watch (Now)**
+As an athlete whose WOD isn't in the app, or was changed at the last minute (the class started at
+different stations), I want to create or edit it on my phone and send it to the watch, so I can start
+on time with the right plan.
+*Done when:*
+- Formats: For Time, AMRAP, EMOM / every N min, rounds for time, each with an optional time cap.
+- Rep schemes: fixed reps, 21-15-9, ascending and descending ladders (start, step, end).
+- Movements picked from the movement table (M1) with search; each line takes reps, load (kg/lb),
+  distance, calories or height, whichever that movement uses.
+- Drag to reorder, edit any number, duplicate a workout from the library and change it.
+- Save (private to me) and "Send to watch"; the watch shows it on its start screen.
+- The builder writes the v2 structure of `docs/WORKOUT_MODEL_RFC.md` and only offers the formats
+  above; every saved workout passes the validator.
+- A tester builds a 20-min AMRAP of 3 movements with loads and sends it to the watch in **under 60 s**
+  (timed on a device, 3 tries, median).
+- Never in the library or the repo; a change never touches a recording already made.
+*Later:* swaps with scale equivalents (run -> row), multi-part days, partner workouts, photo import
+(W30) into the builder. W40 (quick edit before start) is covered on the phone by W43; the watch side
+stays Later. W39 (correct afterwards) opens this same editor on a finished result. Ticket #89.
+
 **W40. Quick edit before I start (Later)**
 As an athlete, I want to change reps, a load or the order on the watch or phone just before START,
 so the plan matches today's whiteboard. *Done when:* written with its design.

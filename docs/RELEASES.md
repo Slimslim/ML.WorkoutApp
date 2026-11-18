@@ -11,7 +11,7 @@ hotfix for the Motion purpose string, 17 Nov). Open after 16: #82 (W29 phone inf
 
 Waiting on the owner:
 - **"go, build 17"** on the plan below (milestone `Build 17`, due 3 Dec), including the 18 Nov
-  one-in-one-out proposal (W37, W38, W39 in; W32 and the several-scales card out).
+  one-in-one-out proposal (W37, W38, W39, W43 builder in; W32, the several-scales card and W30 import out).
 
 Decided: workout-structure RFC approved and merged 15 Nov (#58); the engine ships in build 17 (D4).
 The owner races on build 16 on Sat 5 Dec. Principle (owner, 18 Nov): **record first, fix later**; a
@@ -175,15 +175,16 @@ Order = priority. **Pilot tickets for process v2:** #70 and #59.
 | 4 | Start countdown per workout: none / 3 s / 10 s (on the engine's get ready) | W38 | #85 | S | proposed (18 Nov, in) |
 | 5 | A note with my workout: text, dictation, one whiteboard photo, private; PRIVACY.md line | W37 | #84 | S | proposed (18 Nov, in) |
 | 6 | Migrate the 29 published workouts (owner signs off with `--diff-live`) | chore | #71 | M | proposed |
-| 7 | Start anyway, correct afterwards on the phone (order, format, scale; replay), with scales in the engine and result (plain picker) | W39 + W31 | #86, #73 | M | proposed (18 Nov, in) |
-| 8 | Add a workout from a photo or text, in the v2 structure (email sign-up closed first) | W30 | #72 | L | proposed; **first to slip** |
-| 9 | Design build 17: UI/UX review (R1, R2), watch signals (D7), note, countdown, edit and confirm screens | - | #75 | M | proposed |
+| 7 | Start anyway, correct afterwards on the phone (the W43 editor on a finished result; replay), with scales in the engine and result (plain picker) | W39 + W31 | #86, #73 | M | proposed (18 Nov, in); after W43 |
+| 8 | Workout builder: create or change a workout on the phone (For Time, AMRAP, EMOM, rounds, cap; 21-15-9 and ladders; movement table; drag to reorder) and send it to the watch; 20-min AMRAP in under 60 s | W43 | #89 | L | proposed (18 Nov, in) |
+| 9 | Design build 17: UI/UX review (R1, R2), watch signals (D7), workout editor (W43, W39), note, countdown | - | #75 | M | proposed |
 
-**Moved out (18 Nov, one in, one out):** W32 score presets and per-window table (#74) -> after the
-beta; the several-scales card design (#61) -> after the beta (W31 uses a plain picker, and W39 lets the
-scale be fixed afterwards). If the engine runs late, W30 import slips next: the W37 photos keep
-collecting its test set meanwhile. Builds 18+ are fixes only during the beta, so a slipped item waits
-for after the beta unless the owner allows it in build 18. Epic: #44.
+**Moved out (18 Nov, one in, one out):** W32 score presets and per-window table (#74) and the
+several-scales card design (#61) -> after the beta, for W37, W38, W39. **W30 photo/text import (#72)**
+-> after the beta, for the W43 builder (owner lists photo import under the builder's "Later"; the import
+will fill the builder, and W37 photos keep collecting its test set). If the engine runs late, W39 slips
+next. Builds 18+ are fixes only during the beta, so a slipped item waits for after the beta unless the
+owner allows it in build 18. Epic: #44.
 
 ## Backlog (after the beta; owner picks at the review)
 
@@ -200,6 +201,7 @@ for after the beta unless the owner allows it in build 18. Epic: #44.
 | Weight per set in EMOMs, transition vs work time | W4, W5 | story | |
 | Score presets and the per-window results table | W32 | story | moved out of build 17 (18 Nov), #74 |
 | One card with several scales (design) | - | story | moved out of build 17 (18 Nov), #61 |
+| Add a workout from a photo or text (into the builder) | W30 | story | moved out of build 17 for W43 (18 Nov), #72 |
 | Quick edit before start; log a lift with a rest timer; phone as gym clock | W40, W41, W42 | story | owner notes 18 Nov, #87 |
 | Library aliases (old results stay linked) + "For Time" cards | - | proposed | from closed #15, branch kept; needs a free story id |
 | Strength sets in a workout get bar path / bar speed; Lifting mode merges into the normal recording | W21 | story | owner, 13 Nov: free lifting only records, classify later; Olympic live "last lift" view is a side feature |
