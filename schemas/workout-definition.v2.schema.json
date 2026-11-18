@@ -1,0 +1,259 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Workout definition, schemaVersion 2 (docs/WORKOUT_MODEL_RFC.md 3.3, 3.6, 14.3)",
+  "description": "Checked by the database (pg_jsonschema, migration 20261118000100) and by tools/library/make_row.py. Strict about the old keys and the engine fields; open (additionalProperties) everywhere else, so descriptive and future fields (note, rawText, tempo, x-*, resume, interrupt) pass through unchanged (RFC 3.2, 14.4). Rules the schema cannot express (nesting depth, step count, vary lengths, the compiled old keys) belong to the validator and compiler (RFC section 11, build 17 item 2).",
+  "type": "object",
+  "required": ["schemaVersion", "id", "name", "shortName", "format", "team", "healthKitActivity", "segments", "structure"],
+  "properties": {
+    "schemaVersion": { "const": 2 },
+    "id": { "type": "string", "pattern": "^lib\\.[a-z0-9-]+(\\.[a-z0-9-]+)+$", "maxLength": 200 },
+    "name": { "$ref": "#/definitions/text" },
+    "shortName": { "$ref": "#/definitions/text" },
+    "format": { "enum": ["forTime", "amrap", "emom"] },
+    "team": { "enum": ["solo", "doubles", "team"] },
+    "healthKitActivity": { "type": "string", "minLength": 1 },
+    "segments": { "type": "array", "items": { "$ref": "#/definitions/segment" } },
+    "timeCapSeconds": { "type": "number", "exclusiveMinimum": 0 },
+    "intervalSeconds": { "type": "number", "exclusiveMinimum": 0 },
+    "roundSize": { "type": "integer", "minimum": 1 },
+    "requires": {
+      "type": "array", "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-zA-Z][a-zA-Z0-9]*$" }
+    },
+    "structure": { "$ref": "#/definitions/structure" },
+    "scales": { "type": "array", "minItems": 1, "maxItems": 8, "items": { "$ref": "#/definitions/scale" } },
+    "rawText": { "type": "string" },
+    "fidelity": { "$ref": "#/definitions/fidelity" },
+    "approx": { "$ref": "#/definitions/approx" },
+    "stimulus": { "type": "object" }
+  },
+  "anyOf": [
+    { "required": ["scales"] },
+    { "required": ["fidelity"] }
+  ],
+  "definitions": {
+    "text": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "nodeId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,39}$" },
+    "fidelity": { "enum": ["exact", "approx", "textOnly"] },
+    "approx": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "positive": { "type": "number", "exclusiveMinimum": 0 },
+
+    "segment": {
+      "type": "object",
+      "required": ["kind", "movement", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "enum": ["run", "station", "transition", "rest"] },
+        "movement": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "target": {
+          "type": "object", "required": ["value", "unit"], "additionalProperties": false,
+          "properties": {
+            "value": { "$ref": "#/definitions/positive" },
+            "unit": { "enum": ["meters", "reps", "calories", "seconds"] }
+          }
+        },
+        "load": {
+          "type": "object", "required": ["value", "unit"], "additionalProperties": false,
+          "properties": {
+            "value": { "$ref": "#/definitions/positive" },
+            "unit": { "enum": ["lb", "kg"] },
+            "count": { "type": "integer", "minimum": 1 }
+          }
+        }
+      }
+    },
+
+    "scale": {
+      "type": "object",
+      "required": ["id", "label", "rank", "fidelity", "structure"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,31}$" },
+        "label": { "$ref": "#/definitions/text" },
+        "short": { "type": "string", "minLength": 1, "maxLength": 5 },
+        "rank": { "type": "integer" },
+        "fidelity": { "$ref": "#/definitions/fidelity" },
+        "approx": { "$ref": "#/definitions/approx" },
+        "rawText": { "type": "string" },
+        "basedOn": { "type": "string" },
+        "structure": { "$ref": "#/definitions/structure" }
+      }
+    },
+
+    "customScale": {
+      "allOf": [
+        { "$ref": "#/definitions/scale" },
+        {
+          "required": ["basedOn"],
+          "properties": { "id": { "const": "custom" }, "basedOn": { "type": "string", "minLength": 1 } }
+        }
+      ]
+    },
+
+    "structure": {
+      "type": "object",
+      "required": ["body"],
+      "properties": {
+        "score": { "$ref": "#/definitions/score" },
+        "body": { "$ref": "#/definitions/body" }
+      }
+    },
+
+    "score": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "type": "string", "minLength": 1 },
+        "better": { "enum": ["higher", "lower"] },
+        "parts": { "type": "array", "items": { "$ref": "#/definitions/nodeId" } },
+        "of": { "$ref": "#/definitions/nodeId" }
+      }
+    },
+
+    "body": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/node" } },
+
+    "node": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 1,
+      "oneOf": [
+        { "required": ["part"], "properties": { "part": { "$ref": "#/definitions/part" } } },
+        { "required": ["rest"], "properties": { "rest": { "$ref": "#/definitions/rest" } } },
+        { "required": ["group"], "properties": { "group": { "$ref": "#/definitions/group" } } },
+        { "required": ["repeat"], "properties": { "repeat": { "$ref": "#/definitions/repeat" } } },
+        { "required": ["timed"], "properties": { "timed": { "$ref": "#/definitions/timed" } } }
+      ]
+    },
+
+    "amount": {
+      "type": "object",
+      "properties": {
+        "value": { "$ref": "#/definitions/positive" },
+        "valueF": { "$ref": "#/definitions/positive" }
+      }
+    },
+
+    "part": {
+      "type": "object",
+      "required": ["id", "movement"],
+      "properties": {
+        "id": { "$ref": "#/definitions/nodeId" },
+        "kind": { "type": "string", "minLength": 1 },
+        "name": { "type": "string" },
+        "movement": {
+          "oneOf": [
+            { "type": "string", "minLength": 1 },
+            {
+              "type": "object", "required": ["choice"],
+              "properties": {
+                "choice": {
+                  "oneOf": [
+                    { "type": "string", "minLength": 1 },
+                    { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "target": {
+          "allOf": [
+            { "$ref": "#/definitions/amount" },
+            {
+              "type": "object",
+              "required": ["unit"],
+              "properties": {
+                "unit": { "enum": ["meters", "reps", "calories", "seconds", "ft", "yd", "mi"] },
+                "max": { "const": true },
+                "each": {
+                  "type": "object", "required": ["value", "unit"],
+                  "properties": { "value": { "$ref": "#/definitions/positive" }, "unit": { "type": "string", "minLength": 1 } }
+                }
+              },
+              "anyOf": [ { "required": ["value"] }, { "required": ["max"] } ]
+            }
+          ]
+        },
+        "load": {
+          "type": "object",
+          "anyOf": [
+            {
+              "required": ["value", "unit"],
+              "properties": {
+                "value": { "$ref": "#/definitions/positive" },
+                "valueF": { "$ref": "#/definitions/positive" },
+                "unit": { "enum": ["lb", "kg"] },
+                "count": { "type": "integer", "minimum": 1 }
+              }
+            },
+            {
+              "required": ["percent"],
+              "properties": {
+                "percent": { "$ref": "#/definitions/positive" },
+                "of": { "type": "string", "minLength": 1 },
+                "basis": { "enum": ["1RM", "3RM", "TM"] }
+              }
+            }
+          ]
+        },
+        "height": { "allOf": [ { "$ref": "#/definitions/amount" }, { "type": "object", "required": ["value", "unit"] } ] },
+        "who": { "enum": ["me", "partner", "together", "shared"] },
+        "tempo": { "type": "string" },
+        "note": { "type": "string" }
+      }
+    },
+
+    "rest": {
+      "type": "object",
+      "properties": {
+        "id": { "$ref": "#/definitions/nodeId" },
+        "seconds": { "$ref": "#/definitions/positive" },
+        "ratio": { "$ref": "#/definitions/positive" },
+        "note": { "type": "string" }
+      },
+      "not": { "required": ["seconds", "ratio"] }
+    },
+
+    "group": {
+      "type": "object",
+      "required": ["id", "body"],
+      "properties": {
+        "id": { "$ref": "#/definitions/nodeId" },
+        "label": { "type": "string" },
+        "asStep": { "type": "boolean" },
+        "body": { "$ref": "#/definitions/body" },
+        "note": { "type": "string" }
+      }
+    },
+
+    "repeat": {
+      "type": "object",
+      "required": ["id", "body"],
+      "properties": {
+        "id": { "$ref": "#/definitions/nodeId" },
+        "times": { "type": ["integer", "null"], "minimum": 1 },
+        "until": { "const": "athlete" },
+        "then": { "enum": ["repeatLast", "stop"] },
+        "vary": { "type": "object" },
+        "override": { "type": "array", "items": { "type": "object" } },
+        "body": { "$ref": "#/definitions/body" },
+        "note": { "type": "string" }
+      }
+    },
+
+    "timed": {
+      "type": "object",
+      "required": ["id", "seconds", "early", "late", "body"],
+      "properties": {
+        "id": { "$ref": "#/definitions/nodeId" },
+        "seconds": { "$ref": "#/definitions/positive" },
+        "early": { "enum": ["wait", "next"] },
+        "late": { "enum": ["cut", "end", "continue"] },
+        "stops": { "$ref": "#/definitions/nodeId" },
+        "startAt": { "type": "number", "minimum": 0 },
+        "body": { "$ref": "#/definitions/body" },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}

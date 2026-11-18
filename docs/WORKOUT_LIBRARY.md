@@ -117,3 +117,70 @@ library is for the owner's own testing. When users can add workouts (the AI pars
 workouts are **private rows** (`owner` = their user id, readable only by them, already allowed by
 the select policy) and never copied into the shared library or into this repo. Only
 benchmark/public workouts (Helen, HYROX, Murph…) belong in the shared library.
+
+## Build 17: drafts table and the v2 library (#70)
+
+Migrations `20261118000000_workout_drafts.sql` and `20261118000100_workout_library_v2.sql`
+(docs/WORKOUT_MODEL_RFC.md 7.2 and 14.3 F). Nothing changes for builds 15/16: they read
+`workout_library` as before.
+
+| Table | Holds | Read by | Written by |
+|---|---|---|---|
+| `workout_drafts` | drafts (schemaVersion 0, imports, synced programming before it is published); the 2,518 unpublished library rows moved here | the project owner (`project_admins`); a user only their own drafts | service role only (for now) |
+| `workout_library_v2` | schemaVersion 2 workouts (`schemas/workout-definition.v2.schema.json`) | same rule as `workout_library` (public / gym members / owner) | `make_row.py`, the import; users only their personal rows (id suffix checked) |
+| `workout_library_v2_revisions` | every revision of a v2 definition | whoever can read the workout | the database |
+| `workout_library` | the 29 legacy rows + the **legacy copies** of v2 rows | builds 15/16 and later | the database for v2 ids (legacy copy); otherwise as before |
+| `workout_custom_scales` | an athlete's own "Mine" scale per workout (`based_on_revision`) | that user | that user |
+
+- **One writer.** `make_row.py` writes a `"schemaVersion": 2` file to `workout_library_v2` only.
+  The database copies the old keys (`id`, `name`, `shortName`, `format`, `team`,
+  `healthKitActivity`, `segments`, `timeCapSeconds`, `intervalSeconds`, `roundSize`) into
+  `workout_library` **only when the row is published and every scale is `fidelity: "exact"`**,
+  and removes the copy otherwise. A direct write to a copy is refused; to hide or change a v2
+  workout, change its v2 row. A v2 row can't take the id of one of the 29 legacy rows (their
+  migration is build 17 item 5).
+- **Schema checks in the database.** `pg_jsonschema` refuses a v2 row that fails the schema (and
+  rows over 64 KB). The schema is open outside the engine fields, so unknown keys (`resume`,
+  `interrupt`, `x-*`, `note`) are stored unchanged. A schema change = edit the repo file + a new
+  migration that replaces `public.workout_definition_v2_schema()`; a test fails while they differ.
+- **Revisions.** `revision` goes up only when `definition` changes. To roll back, write an old
+  definition again (it becomes a new revision):
+  `update public.workout_library_v2 v set definition = r.definition from public.workout_library_v2_revisions r where v.id = '<id>' and r.workout_id = v.id and r.revision = <n>;`
+- **Paging.** The API returns at most 1,000 rows. Page with
+  `rpc/workout_library_v2_page` (`after_id` = last id of the previous page, `page_size` ≤ 1000),
+  or `order=id&id=gt.<last id>&limit=…` on the table.
+- **Drafts never go to the library:** `workout_library` refuses `schemaVersion: 0`.
+- Tests: `tools/tests/test_workout_library_v2.py` (make_row, schema copy) and
+  `supabase/tests/run.sh` (the migrations on a throwaway `supabase/postgres` database: RLS,
+  schema refusal, legacy copy, revisions, paging, the 29 rows untouched, rollback). CI runs both.
+
+### Applying it (Data chat, after the PR is merged)
+
+Never from CI. In the dashboard SQL editor (or the Supabase MCP), in this order:
+
+1. **Before (read only):**
+   ```sql
+   select published, count(*) from public.workout_library group by 1;          -- expect true 29, false 2518
+   select count(*) from public.workout_library where published and definition ->> 'schemaVersion' = '0';  -- expect 0
+   select md5(string_agg(t::text, '|' order by t.id)) from public.workout_library t where published;      -- note it
+   select name, installed_version from pg_available_extensions where name = 'pg_jsonschema';             -- available
+   ```
+2. **Apply** `20261118000000_workout_drafts.sql`, then `20261118000100_workout_library_v2.sql`,
+   each as one run (each file is all-or-nothing; the first checks itself and raises if the move
+   is incomplete or a published row changed). Then add the owner, without committing the id:
+   `insert into public.project_admins (user_id) values ('<owner user id>');`
+3. **After (read only):**
+   ```sql
+   select count(*) from public.workout_drafts;                                     -- 2518
+   select published, count(*) from public.workout_library group by 1;              -- true 29 only
+   select md5(string_agg(t::text, '|' order by t.id)) from public.workout_library t where published;  -- same as before
+   select count(*) from public.workout_library_v2;                                 -- 0
+   select extensions.jsonb_matches_schema(public.workout_definition_v2_schema(), '{}'::jsonb);  -- false
+   ```
+   As a tester (or with the "impersonate" role in the dashboard): `workout_drafts` returns 0
+   rows; as the owner, 2518. On a build-15/16 phone: Workouts → Choose shows the same list as
+   before.
+4. **Rollback** (only if a check fails): `supabase/rollback/20261118_backend_v2_rollback.sql`,
+   one run. It removes the v2 tables and legacy copies and puts the drafts back with
+   `published = false` and their timestamps; it refuses if `workout_drafts` holds rows that did
+   not come from the library.

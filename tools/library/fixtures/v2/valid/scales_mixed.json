@@ -1,0 +1,241 @@
+{
+  "program": "Test",
+  "scheduled_on": "2026-11-18",
+  "published": true,
+  "gym": "test-gym",
+  "definition": {
+    "schemaVersion": 2,
+    "id": "lib.test.20261118.mixed",
+    "name": "3 Rounds: Row and Burpees",
+    "shortName": "Row Burpees",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+      {
+        "kind": "station",
+        "movement": "row",
+        "name": "Row",
+        "target": {
+          "value": 15,
+          "unit": "calories"
+        }
+      },
+      {
+        "kind": "station",
+        "movement": "burpees",
+        "name": "Burpees",
+        "target": {
+          "value": 10,
+          "unit": "reps"
+        }
+      },
+      {
+        "kind": "station",
+        "movement": "row",
+        "name": "Row",
+        "target": {
+          "value": 15,
+          "unit": "calories"
+        }
+      },
+      {
+        "kind": "station",
+        "movement": "burpees",
+        "name": "Burpees",
+        "target": {
+          "value": 10,
+          "unit": "reps"
+        }
+      },
+      {
+        "kind": "station",
+        "movement": "row",
+        "name": "Row",
+        "target": {
+          "value": 15,
+          "unit": "calories"
+        }
+      },
+      {
+        "kind": "station",
+        "movement": "burpees",
+        "name": "Burpees",
+        "target": {
+          "value": 10,
+          "unit": "reps"
+        }
+      }
+    ],
+    "timeCapSeconds": 600.0,
+    "roundSize": 2,
+    "structure": {
+      "score": {
+        "type": "time",
+        "better": "lower"
+      },
+      "body": [
+        {
+          "timed": {
+            "id": "cap",
+            "seconds": 600,
+            "early": "next",
+            "late": "continue",
+            "body": [
+              {
+                "repeat": {
+                  "id": "rp",
+                  "times": 3,
+                  "body": [
+                    {
+                      "part": {
+                        "id": "row",
+                        "movement": "row",
+                        "name": "Row",
+                        "target": {
+                          "value": 15,
+                          "valueF": 12,
+                          "unit": "calories"
+                        }
+                      }
+                    },
+                    {
+                      "part": {
+                        "id": "bp",
+                        "movement": "burpees",
+                        "name": "Burpees",
+                        "target": {
+                          "value": 10,
+                          "unit": "reps"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "scales": [
+      {
+        "id": "rx",
+        "label": "Rx",
+        "short": "Rx",
+        "rank": 2,
+        "fidelity": "exact",
+        "rawText": "3 rounds: 15 cal row, 10 burpees",
+        "structure": {
+          "score": {
+            "type": "time",
+            "better": "lower"
+          },
+          "body": [
+            {
+              "timed": {
+                "id": "cap",
+                "seconds": 600,
+                "early": "next",
+                "late": "continue",
+                "body": [
+                  {
+                    "repeat": {
+                      "id": "rp",
+                      "times": 3,
+                      "body": [
+                        {
+                          "part": {
+                            "id": "row",
+                            "movement": "row",
+                            "name": "Row",
+                            "target": {
+                              "value": 15,
+                              "valueF": 12,
+                              "unit": "calories"
+                            }
+                          }
+                        },
+                        {
+                          "part": {
+                            "id": "bp",
+                            "movement": "burpees",
+                            "name": "Burpees",
+                            "target": {
+                              "value": 10,
+                              "unit": "reps"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "l1",
+        "label": "Level 1",
+        "short": "L1",
+        "rank": 1,
+        "fidelity": "approx",
+        "approx": [
+          "partnerSplitGuessed"
+        ],
+        "rawText": "3 rounds w/ partner",
+        "structure": {
+          "score": {
+            "type": "time",
+            "better": "lower"
+          },
+          "body": [
+            {
+              "timed": {
+                "id": "cap",
+                "seconds": 600,
+                "early": "next",
+                "late": "continue",
+                "body": [
+                  {
+                    "repeat": {
+                      "id": "rp",
+                      "times": 3,
+                      "body": [
+                        {
+                          "part": {
+                            "id": "row",
+                            "movement": "row",
+                            "name": "Row",
+                            "target": {
+                              "value": 10,
+                              "valueF": 8,
+                              "unit": "calories"
+                            }
+                          }
+                        },
+                        {
+                          "part": {
+                            "id": "bp",
+                            "movement": "burpees",
+                            "name": "Burpees",
+                            "target": {
+                              "value": 10,
+                              "unit": "reps"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
