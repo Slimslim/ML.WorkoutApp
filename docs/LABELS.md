@@ -71,7 +71,8 @@ Times are **session seconds**: the watch CSV's `t` column (0 = START on the watc
 - `flag` (optional, on a segment): the motion and the athlete disagree, e.g.
   `{"motion": 13, "athlete": 12, "reason": "13th pull on the buzzer", "check": "video"}`. The
   athlete's count stays the label; nothing is decided from the motion alone. Flags are listed by
-  `tools/score_labels.py` and settled later by video (owner, 2026-11-10).
+  `tools/score_labels.py` and settled later by video (owner, 2026-11-10), or by asking the athlete
+  again when there is no video (`"check": "athlete"`).
 - `training: false` (optional, on a segment): keep the segment for timing but do not use its reps
   as training data (the athlete is not sure of the count and it cannot be checked).
 - Lifting sessions (`"kind": "lifts"`) have `sets` instead of `segments`: `{file, lift, loadLb,

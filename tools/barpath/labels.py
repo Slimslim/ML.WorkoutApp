@@ -117,7 +117,7 @@ def validate(d: dict) -> List[str]:
     return errs
 
 
-FLAG_CHECKS = ("video",)
+FLAG_CHECKS = ("video", "athlete")   # settled by video, or by asking the athlete again
 
 
 def _check_flag(f, ctx: str) -> List[str]:
