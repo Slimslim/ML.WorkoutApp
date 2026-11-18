@@ -271,7 +271,8 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         if activationState == .activated {
             DispatchQueue.main.async {
                 self.sendWeightUnit()
-                PhoneDeviceInfo.send()
+                // #79: always re-send once per launch; the watch may have lost its copy.
+                PhoneDeviceInfo.send(force: true)
             }
         }
     }
@@ -290,7 +291,8 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         publishState(session)
         DispatchQueue.main.async {
             self.sendWeightUnit()
-            PhoneDeviceInfo.send()
+            // #79: the watch app may just have been (re)installed with an empty context.
+            PhoneDeviceInfo.send(force: true)
         }
     }
 

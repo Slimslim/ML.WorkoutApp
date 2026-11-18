@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 import WatchConnectivity
+import BarPathKit
 
 /// W29: the phone's model, iOS version, app build and heart-rate zone source, sent to the watch
 /// in the application context under `phoneDevice` (a new key; the other keys are kept). The
@@ -9,7 +10,7 @@ import WatchConnectivity
 /// Nothing personal: no name, no birth year, no heart rate values.
 enum PhoneDeviceInfo {
     /// Application context key (read by the watch's `WorkoutRecordingInfo`).
-    static let contextKey = "phoneDevice"
+    static let contextKey = PhoneDeviceContext.key
 
     /// ["model": "iPhone16,1", "os": "18.1", "build": "16", "hrZoneSource": "custom|age|workouts"].
     /// Call on the main thread.
@@ -44,16 +45,18 @@ enum PhoneDeviceInfo {
         return name.isEmpty ? "unknown" : name
     }
 
-    /// Puts `phoneDevice` in the application context, keeping every other key. Does nothing when
-    /// the context already has the same values. Call on the main thread.
-    static func send() {
+    /// Puts `phoneDevice` in the application context, keeping every other key. Call on the main
+    /// thread. `force` sends even when the phone's copy already has the same values: pass true on
+    /// activation and watch-state changes, because the phone's `applicationContext` outlives
+    /// launches and watch app reinstalls while the watch's received copy does not (#79).
+    static func send(force: Bool = false) {
         guard WCSession.isSupported() else { return }
         let session = WCSession.default
         guard session.activationState == .activated, session.isPaired, session.isWatchAppInstalled else { return }
-        let info: [String: String] = dictionary()
-        var context: [String: Any] = session.applicationContext
-        if let current = context[contextKey] as? [String: String], current == info { return }
-        context[contextKey] = info
+        guard let context = PhoneDeviceContext.merged(context: session.applicationContext,
+                                                      info: dictionary(),
+                                                      now: Date(),
+                                                      force: force) else { return }
         do {
             try session.updateApplicationContext(context)
         } catch {
