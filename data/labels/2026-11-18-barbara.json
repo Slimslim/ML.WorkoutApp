@@ -61,7 +61,8 @@
    "end": 194.61,
    "source": "crown",
    "reps": 30,
-   "unit": "reps"
+   "unit": "reps",
+   "note": "athlete: many small sets (5s, 3s, 2s, 1s), not remembered; not counted from motion"
   },
   {
    "movement": "sitUps",
@@ -242,7 +243,8 @@
    "end": 782.75,
    "source": "crown",
    "reps": 30,
-   "unit": "reps"
+   "unit": "reps",
+   "note": "athlete: many small sets (5s, 3s, 2s, 1s), not remembered; not counted from motion"
   },
   {
    "movement": "sitUps",
@@ -439,7 +441,8 @@
    "end": 1408.12,
    "source": "crown",
    "reps": 30,
-   "unit": "reps"
+   "unit": "reps",
+   "note": "athlete: many small sets (5s, 3s, 2s, 1s), not remembered; not counted from motion"
   },
   {
    "movement": "sitUps",
@@ -577,7 +580,8 @@
    "end": 2069.14,
    "source": "crown",
    "reps": 30,
-   "unit": "reps"
+   "unit": "reps",
+   "note": "athlete: many small sets (5s, 3s, 2s, 1s), not remembered; not counted from motion"
   },
   {
    "movement": "sitUps",
