@@ -1,0 +1,129 @@
+{
+ "version": 1,
+ "id": "2026-11-15-sunday-part1-tester-b",
+ "date": "2026-11-15",
+ "kind": "workout",
+ "athlete": "tester-b",
+ "name": "Sunday Part 1 (tester B's order): 1 km run, 50 strict pull-ups, 800 m run, 500 m ski, 600 m run, 50 wall balls, 400 m run, 500 m row",
+ "format": "forTime",
+ "files": {
+  "csv": "Debug/session-B112C2EA-7401-403F-9E87-3E686D45C1C5.csv",
+  "result": "Workouts/B112C2EA-7401-403F-9E87-3E686D45C1C5.original.json"
+ },
+ "score": "27:08 (cap 30:00)",
+ "notes": [
+  "Tester B's recording, used with his OK; paths relative to his storage folder. Watch on the left wrist, Crown on the right (arm overhead = gravity x < -0.7).",
+  "Every boundary is from the motion, with two signals agreeing: steps (runs, GPS distance per run) and forearm rhythm (ski 1.29 s, row 1.82 s strokes), or arm overhead (pull-up hangs, wall ball throws). His Crown turns mostly mark the START of the next movement; he forgot them after the pull-ups and caught up with 3 turns in 6 s at the end of the ski (941.6 s).",
+  "Rep counts not asked; no rep times. The cloud result was corrected with these boundaries (walks counted in the part walked to), original kept as .original.json."
+ ],
+ "segments": [
+  {
+   "movement": "run",
+   "start": 0.0,
+   "end": 287.0,
+   "source": "motion",
+   "reps": 1000,
+   "unit": "meters",
+   "note": "steps stop at 287 s; GPS 1048 m"
+  },
+  {
+   "movement": "transition",
+   "start": 287.0,
+   "end": 331.2,
+   "source": "motion",
+   "note": "walk to the pull-up bar (his Crown turn came at 328 s, on reaching the bar)"
+  },
+  {
+   "movement": "pullUps",
+   "start": 331.2,
+   "end": 523.4,
+   "source": "motion",
+   "note": "strict pull-ups: 42 arm-overhead bouts 331-523 s (rep count not asked)"
+  },
+  {
+   "movement": "transition",
+   "start": 523.4,
+   "end": 529.0,
+   "source": "motion"
+  },
+  {
+   "movement": "run",
+   "start": 529.0,
+   "end": 782.0,
+   "source": "motion",
+   "reps": 800,
+   "unit": "meters",
+   "note": "GPS 861 m"
+  },
+  {
+   "movement": "transition",
+   "start": 782.0,
+   "end": 801.0,
+   "source": "motion",
+   "note": "to the SkiErg"
+  },
+  {
+   "movement": "skiErg",
+   "start": 801.0,
+   "end": 942.0,
+   "source": "motion",
+   "reps": 500,
+   "unit": "meters",
+   "note": "~110 strokes, one every 1.29 s; ends 0.4 s from his Crown turn (941.6 s)"
+  },
+  {
+   "movement": "transition",
+   "start": 942.0,
+   "end": 948.0,
+   "source": "motion"
+  },
+  {
+   "movement": "run",
+   "start": 948.0,
+   "end": 1167.0,
+   "source": "motion",
+   "reps": 600,
+   "unit": "meters",
+   "note": "GPS 704 m"
+  },
+  {
+   "movement": "wallBalls",
+   "start": 1167.0,
+   "end": 1300.0,
+   "source": "motion",
+   "note": "10 throwing sets 1168-1300 s (rep count not asked)"
+  },
+  {
+   "movement": "transition",
+   "start": 1300.0,
+   "end": 1325.0,
+   "source": "motion",
+   "note": "rest before the run"
+  },
+  {
+   "movement": "run",
+   "start": 1325.0,
+   "end": 1458.0,
+   "source": "motion",
+   "reps": 400,
+   "unit": "meters",
+   "note": "GPS 423 m"
+  },
+  {
+   "movement": "transition",
+   "start": 1458.0,
+   "end": 1483.0,
+   "source": "motion",
+   "note": "onto the rower (his Crown turn 1475.5 s)"
+  },
+  {
+   "movement": "row",
+   "start": 1483.0,
+   "end": 1616.0,
+   "source": "motion",
+   "reps": 500,
+   "unit": "meters",
+   "note": "~73 strokes, one every 1.82 s; his Finish at 1628.7 s"
+  }
+ ]
+}
