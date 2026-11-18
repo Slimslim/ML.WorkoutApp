@@ -191,8 +191,11 @@ class Expansion:
         self.choices = choices or {}
         self._ids = {}
         n = 0
-        for kind, c, _, _, _ in iter_nodes(structure.get("body")):
+        self._unknown = {}
+        for kind, c, _, i, body in iter_nodes(structure.get("body")):
             if c is None:
+                n += 1
+                self._unknown[id(body[i])] = "_unknown%d" % n
                 continue
             if isinstance(c.get("id"), str):
                 self._ids[id(c)] = c["id"]
@@ -271,7 +274,7 @@ class Expansion:
             if c is None:
                 # An unknown node falls back to an athlete-paced part showing its text, never a
                 # guess (RFC 14.3 A4).
-                nid = "_unknown%d" % i
+                nid = self._unknown.get(id(w), "_unknown")
                 text = (w.get("rawText") or w.get("note")) if isinstance(w, dict) else None
                 items.append(("part", {"movement": "part", "name": text or "Unknown block",
                                        "unknown": True}, nid))
@@ -631,27 +634,53 @@ def reduce(state: State, event: dict) -> tuple:
     return st, effects
 
 
+def _effect_key(e: dict) -> tuple:
+    """What an effect says, without its time: a late event can move an effect in time (an "I
+    stopped" ask at 19.9 s instead of the bell's at 20 s) without making it new."""
+    return (e["kind"], e.get("step"), e.get("n"), e.get("reason"))
+
+
+def _timeline(p: Plan, log: list, t: int, now: int, extra: Optional[dict] = None) -> tuple:
+    """(state, effects from t to now) for `log`, optionally with `extra` applied at t. Everything
+    up to t is caught up first and its effects discarded: they already played live."""
+    st = replay(p, [e for e in log if int(e["t"]) <= t], until=t)
+    out = []
+    if extra is not None:
+        st, eff = reduce(st, extra)
+        out.extend(eff)
+    for e in [e for e in log if int(e["t"]) > t]:
+        st, eff = reduce(st, e)
+        out.extend(eff)
+    st, eff = reduce(st, {"kind": "tick", "t": now})
+    out.extend(eff)
+    return st, out
+
+
 def _late(st: State, event: dict) -> tuple:
-    """A late event within 5 s is applied in time order: rebuild from the log. Its own effects
-    are returned (hint, ask, grace, done...), with only the current state's haptic (§4.2.4)."""
+    """A late event within 5 s is applied in time order: rebuild from the log. Only what the new
+    timeline adds to what already played is returned (the event's own hint, ask, grace, done...),
+    with at most the current state's haptic, and only if the step changed (§4.2.4)."""
     t = int(event["t"])
-    before = [e for e in st.log if int(e["t"]) <= t]
-    after = [e for e in st.log if int(e["t"]) > t]
-    rebuilt = replay(st.plan, before)
-    rebuilt, own = reduce(rebuilt, event)
-    later = []
-    for e in after:
-        rebuilt, eff = reduce(rebuilt, e)
-        later.extend(eff)
-    rebuilt, eff = reduce(rebuilt, {"kind": "tick", "t": st.now})
-    later.extend(eff)
+    _, played = _timeline(st.plan, st.log, t, st.now)
+    rebuilt, fresh = _timeline(st.plan, st.log, t, st.now, event)
     rebuilt.ignored = st.ignored + [x for x in rebuilt.ignored if x not in st.ignored]
-    effects = [e for e in own if e["kind"] not in HAPTICS and e["kind"] != "countdown"]
-    haptics = [e for e in own + later if e["kind"] in HAPTICS]
-    if haptics:
+    remaining = {}
+    for e in played:
+        k = _effect_key(e)
+        remaining[k] = remaining.get(k, 0) + 1
+    new = []
+    for e in fresh:
+        k = _effect_key(e)
+        if remaining.get(k, 0) > 0:
+            remaining[k] -= 1
+            continue
+        new.append(e)
+    effects = [e for e in new if e["kind"] not in HAPTICS and e["kind"] != "countdown"]
+    before = st.current.id if st.current else None
+    after = rebuilt.current.id if rebuilt.current else None
+    haptics = [e for e in new if e["kind"] in HAPTICS]
+    if haptics and (before != after or rebuilt.done != st.done):
         effects.append(haptics[-1])
-    if rebuilt.done and not st.done and not any(e["kind"] == "done" for e in effects):
-        effects.append({"kind": "done", "t": rebuilt.done_t})
     return rebuilt, effects
 
 
@@ -839,13 +868,15 @@ def _apply_bell(st: State, b: int, kind: str, key, effects: list):
         ws["open"] = False
         _advance(st, b, effects, by_clock=True)
         return
-    if w.late == "end" and st.plan.score.get("type") == "time" and st.cap is None:
+    planned_end = s.seconds_target is not None and st.due == b
+    if w.late == "end" and w.stops is None and st.plan.score.get("type") == "time" \
+            and st.cap is None and not (planned_end and _last_in_window(st, key)):
         # A hard cap: the workout's time is CAP + reps, ranked below every finisher (RFC 3.4, D6).
         st.cap = {"step": s.id, "t": b, "window": key, "reps": None, "hard": True}
         effects.append({"kind": "cap", "t": b, "step": s.id})
     if s.kind == "rest":
         _finish(st, idx, b, "clock", "done")
-    elif s.seconds_target is not None and st.due == b:
+    elif planned_end:
         _finish(st, idx, b, "clock", "done")        # a seconds part ending on the bell: as planned
     elif s.is_max:
         _finish(st, idx, b, "clock", "done")        # the bell is a max part's planned ending
@@ -875,6 +906,11 @@ def _apply_bell(st: State, b: int, kind: str, key, effects: list):
         if other["open"] and (wk == key or key in st.windows[wk].ancestors):
             other["open"] = False
     _advance(st, b, effects, by_clock=True)
+
+
+def _last_in_window(st: State, key: str) -> bool:
+    nxt = _next_index(st)
+    return nxt is None or key not in st.steps[nxt].windows
 
 
 def _ignore(st: State, t: int, reason: str, effects: list, action: str = "crown"):

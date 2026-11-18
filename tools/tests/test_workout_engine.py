@@ -487,3 +487,76 @@ def test_plan_hash_is_canonical_and_stable():
     assert p.hash != P("windows3334").hash
     d = p.to_dict()
     assert d["planner"] == we.PLANNER_VERSION and len(d["steps"]) == 16
+
+
+def test_a_late_crown_at_the_bell_does_not_replay_what_already_played():
+    # Tabata: ticks to 20.5 s, then a Crown stamped 20.2 s (the bell/Crown race on the watch).
+    st, _ = we.run(P("tabata"), events(until=20500))
+    st, eff = we.reduce(st, {"kind": "crown", "t": 20200})
+    assert eff == [{"kind": "hint", "t": 20200, "reason": "bell"}]
+    # Hard cap: ticks to 300.5 s, then a Crown stamped 300.2 s, after the workout ended.
+    st, _ = we.run(P("hardCap"), events(crowns=[100 * S, 200 * S], until=300500))
+    st, eff = we.reduce(st, {"kind": "crown", "t": 300200})
+    assert eff == [{"kind": "hint", "t": 300200, "reason": "done"}]
+
+
+@pytest.mark.parametrize("name", ["tabata", "windows3334", "emom", "amrapLadder", "forTimeCap", "hardCap",
+                                  "deathBy", "intervals", "ratioRest", "hyrox", "amrapBuyCash"])
+def test_late_delivery_never_duplicates_an_effect(name):
+    p = P(name)
+    counted = ("go", "rest", "time", "ask", "done", "cap", "grace")
+    for seed in range(20):
+        rng = random.Random(1000 + seed)
+        horizon = 900 * S
+        tick = rng.choice([200, 1000])
+        crowns = sorted(rng.sample(range(500, horizon, 100), rng.randint(5, 60)))
+        on_time = events(crowns, until=horizon, tick=tick)
+        # Each Crown delivered after the next tick (up to 1 s + 0.9 s late, under the 5 s limit).
+        late = []
+        pending = []
+        for e in on_time:
+            if e["kind"] == "crown":
+                pending.append(e)
+                continue
+            late.append(e)
+            if e["kind"] == "tick":
+                keep = []
+                for c in pending:
+                    (late if e["t"] - c["t"] >= rng.choice([0, 100, 900]) else keep).append(c)
+                pending = keep
+        late.extend(pending)
+        st_on, eff_on = we.run(p, on_time)
+        st_late, eff_late = we.run(p, late)
+        assert we.facts(st_late) == we.facts(st_on), seed
+        # No duplicates: an effect (kind, step) is never emitted more often than on time, except
+        # once when it already played live before the late Crown arrived (a bell's buzz can't be
+        # taken back).
+        def counts(eff):
+            out = {}
+            for e in eff:
+                if e["kind"] in counted:
+                    k = (e["kind"], e.get("step"))
+                    out[k] = out.get(k, 0) + 1
+            return out
+        c_on, c_late = counts(eff_on), counts(eff_late)
+        for k, n in c_late.items():
+            assert n <= max(c_on.get(k, 0), 1), (seed, k, n, c_on.get(k, 0))
+
+
+def test_an_amrap_then_a_cash_out_scored_on_time_is_not_a_cap():
+    doc = {"schemaVersion": 2, "structure": {"score": {"type": "time"}, "body": [
+        {"timed": {"id": "amrap", "seconds": 60, "early": "next", "late": "end", "body": [
+            {"repeat": {"id": "rp", "times": None, "body": [
+                {"part": {"id": "a", "movement": "burpees", "target": {"value": 5, "unit": "reps"}}}]}}]}},
+        {"part": {"id": "row", "movement": "row", "target": {"value": 500, "unit": "meters"}}}]}}
+    p = we.plan(ws.compile_definition(doc))
+    st, _ = we.run(p, events(crowns=[20 * S, 40 * S, 150 * S], until=150 * S, tick=1000))
+    assert st.cap is None
+    assert we.score(st)["text"] == "2:30"
+
+
+def test_unknown_node_ids_are_unique_across_groups():
+    doc = {"schemaVersion": 2, "structure": {"score": {"type": "none"}, "body": [
+        {"future": {}}, {"group": {"id": "g", "body": [{"future": {}}]}}]}}
+    ids = [s.id for s in we.plan(doc).steps]
+    assert len(ids) == 2 and len(set(ids)) == 2
