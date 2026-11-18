@@ -19,6 +19,9 @@
 -- the migration of those rows (build 17 item 5).
 -- Rollback: supabase/rollback/20261118_backend_v2_rollback.sql.
 
+-- Run as one transaction. Never queue behind a long reader of workout_library: fail fast, retry.
+set local lock_timeout = '5s';
+
 create extension if not exists pg_jsonschema with schema extensions;
 
 -- The JSON Schema (copy of schemas/workout-definition.v2.schema.json, keep them equal).
@@ -918,6 +921,13 @@ end;
 $$;
 create trigger workout_library_guard_v2 before insert or update on public.workout_library
   for each row execute function public.workout_library_guard_v2();
+
+-- Helpers are not API endpoints either (Supabase grants execute on new functions by default).
+revoke execute on function public.workout_definition_v2_schema(), public.workout_custom_scale_schema(),
+  public.workout_v2_legacy_definition(jsonb) from public, anon;
+-- (The schema checks run as the writing user, so signed-in users keep execute on them.)
+grant execute on function public.workout_definition_v2_schema(), public.workout_custom_scale_schema(),
+  public.workout_v2_legacy_definition(jsonb) to authenticated, service_role;
 
 -- The trigger functions are not API endpoints.
 revoke execute on function public.workout_v2_before_write(), public.workout_v2_after_write(),

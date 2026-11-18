@@ -15,14 +15,25 @@
 -- (or delete those two rows from supabase_migrations.schema_migrations).
 begin;
 
-create temp table rollback_published_before on commit drop as
-  select md5(coalesce(string_agg(t::text, '|' order by t.id), '')) as h
-  from public.workout_library t
-  where t.published and not exists (select 1 from public.workout_library_v2 v where v.id = t.id);
+-- Works whether both migrations were applied or only the first (the second failed): the v2 part
+-- is skipped when its tables don't exist.
+create temp table rollback_published_before (h text) on commit drop;
+do $$
+begin
+  if to_regclass('public.workout_library_v2') is not null then
+    execute $q$insert into rollback_published_before
+      select md5(coalesce(string_agg(t::text, '|' order by t.id), '')) from public.workout_library t
+      where t.published and not exists (select 1 from public.workout_library_v2 v where v.id = t.id)$q$;
+  else
+    insert into rollback_published_before
+      select md5(coalesce(string_agg(t::text, '|' order by t.id), '')) from public.workout_library t where t.published;
+  end if;
+end;
+$$;
 
 do $$
 begin
-  if exists (select 1 from public.workout_drafts where source <> 'library') then
+  if exists (select 1 from public.workout_drafts where source <> 'library' or moved_at is null) then
     raise exception 'rollback: workout_drafts holds rows that did not come from the library; export them and decide first';
   end if;
   if exists (select 1 from public.workout_drafts d join public.workout_library l using (id)) then
@@ -32,26 +43,32 @@ begin
 end;
 $$;
 
--- 1. v2 (reverse of 20261118000100)
-delete from public.workout_library l using public.workout_library_v2 v where l.id = v.id;
-drop trigger workout_library_guard_v2 on public.workout_library;
-drop function public.workout_library_guard_v2();
-drop table public.workout_custom_scales;
-drop function public.workout_library_v2_page(text, integer);
-drop table public.workout_library_v2_revisions;
-drop table public.workout_library_v2;
-drop function public.workout_v2_before_write();
-drop function public.workout_v2_after_write();
-drop function public.workout_v2_legacy_definition(jsonb);
-drop function public.workout_custom_scale_schema();
-drop function public.workout_definition_v2_schema();
+-- 1. v2 (reverse of 20261118000100), only if it was applied
+do $$
+begin
+  if to_regclass('public.workout_library_v2') is not null then
+    delete from public.workout_library l using public.workout_library_v2 v where l.id = v.id;
+  end if;
+end;
+$$;
+drop trigger if exists workout_library_guard_v2 on public.workout_library;
+drop function if exists public.workout_library_guard_v2();
+drop table if exists public.workout_custom_scales;
+drop function if exists public.workout_library_v2_page(text, integer);
+drop table if exists public.workout_library_v2_revisions;
+drop table if exists public.workout_library_v2;
+drop function if exists public.workout_v2_before_write();
+drop function if exists public.workout_v2_after_write();
+drop function if exists public.workout_v2_legacy_definition(jsonb);
+drop function if exists public.workout_custom_scale_schema();
+drop function if exists public.workout_definition_v2_schema();
 -- pg_jsonschema stays installed (harmless; other objects may use it).
 
 -- The legacy write policies as the gyms migration made them.
-drop policy "Users add their own workouts" on public.workout_library;
+drop policy if exists "Users add their own workouts" on public.workout_library;
 create policy "Users add their own workouts" on public.workout_library
   for insert to authenticated with check (owner = (select auth.uid()) and gym_id is null);
-drop policy "Users change their own workouts" on public.workout_library;
+drop policy if exists "Users change their own workouts" on public.workout_library;
 create policy "Users change their own workouts" on public.workout_library
   for update to authenticated
   using (owner = (select auth.uid()))

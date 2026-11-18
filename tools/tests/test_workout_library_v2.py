@@ -107,7 +107,7 @@ def test_one_inexact_scale_means_no_copy():
 
 @needs_jsonschema
 def test_v2_rows_go_to_the_v2_table_only(capsys):
-    assert make_row.main([str(p) for p in valid_files()]) == 0
+    assert make_row.main(["--trust-old-keys"] + [str(p) for p in valid_files()]) == 0
     out = capsys.readouterr().out
     assert out.count("insert into public.workout_library_v2 ") == len(valid_files())
     assert "insert into public.workout_library " not in out
@@ -190,3 +190,18 @@ def test_custom_scale_shape_of_the_rfc_is_valid():
     assert not list(v.iter_errors(mine))
     assert list(v.iter_errors(dict(mine, id="rx")))
     assert list(v.iter_errors({k: x for k, x in mine.items() if k != "basedOn"}))
+
+
+@needs_jsonschema
+def test_published_exact_v2_row_needs_trust_old_keys(capsys):
+    path = str(FIXTURES / "valid" / "exact_emom.json")
+    assert make_row.main([path]) == 1
+    assert "--trust-old-keys" in capsys.readouterr().err
+    assert make_row.main(["--unpublished", path]) == 0          # no copy: no flag needed
+    assert make_row.main([str(FIXTURES / "valid" / "text_only.json")]) == 0
+
+
+def test_v2_upsert_that_writes_nothing_is_an_error():
+    d = definition_of(FIXTURES / "valid" / "exact_emom.json")
+    sql = make_row.make_row_v2(d, None, None)
+    assert sql.startswith("do $mr$") and "if not found then raise exception" in sql

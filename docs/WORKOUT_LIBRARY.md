@@ -153,7 +153,17 @@ Migrations `20261118000000_workout_drafts.sql` and `20261118000100_workout_libra
   and 2 (v2 rows go to `workout_library_v2`). Personal rows written with a user's token now need
   the id suffix there too (no one can take an id the owner or a draft uses).
 - `make_row.py` keeps a v2 row's gym when re-run without `--gym` (as for flat rows); a user can
-  still read, change and delete their own unpublished v2 rows.
+  still read, change and delete their own unpublished v2 rows. Its v2 upsert raises when it would
+  write nothing (the id belongs to another owner or audience) instead of reporting success.
+- **Until the compiler exists (build 17 item 2), "exact" is the author's word.** `make_row.py`
+  refuses a published, exact v2 row (its old keys go to builds 15/16) unless `--trust-old-keys`
+  is given, after the old keys were checked against the structure by hand.
+- **Changing the schema later:** the CHECK calls `workout_definition_v2_schema()`. A stricter
+  schema must come with a data migration that checks every existing row first; otherwise those
+  rows fail every later update and a `pg_dump` restore.
+- Notes for the migration of the 29 rows (item 5): the 3 personal ids without the suffix can no
+  longer be changed with a user token (the owner's service role still can). Deleting the owner's
+  account deletes their drafts (`on delete cascade`), now the only copy: back them up first.
 - Tests: `tools/tests/test_workout_library_v2.py` (make_row, schema copy) and
   `supabase/tests/run.sh` (the migrations on a throwaway `supabase/postgres` database: RLS,
   schema refusal, legacy copy, revisions, paging, the 29 rows untouched, rollback). CI runs both.
@@ -170,14 +180,23 @@ Never from CI. In the dashboard SQL editor (or the Supabase MCP), in this order:
    select name, installed_version from pg_available_extensions where name = 'pg_jsonschema';             -- available
    select n.nspname from pg_extension e join pg_namespace n on n.oid = e.extnamespace where e.extname = 'pg_jsonschema';  -- none or 'extensions' (the migration calls extensions.jsonb_matches_schema)
    select count(*) from public.workout_library where coalesce(definition ->> 'schemaVersion', '1') not in ('1', '0');  -- 0
+   select count(distinct owner) from public.workout_library where not published and owner is not null;  -- 1 (the owner)
+   select to_regclass('public.workout_drafts'), to_regclass('public.workout_library_v2'), to_regclass('public.project_admins');  -- all null
    ```
+   Also export `select * from public.workout_library` to the owner's private storage (never the
+   repo) as a backup.
 2. **Apply** `20261118000000_workout_drafts.sql`, then `20261118000100_workout_library_v2.sql`,
-   each as one run (each file is all-or-nothing; the first checks itself and raises if the move
-   is incomplete or a published row changed). Then add the owner, without committing the id:
+   each as one transaction: the SQL editor, `apply_migration`, `supabase db push` or `psql -1 -f`,
+   **never plain `psql -f`**. The first checks itself and raises if the move is incomplete or a
+   published row changed; its NOTICE says `moved 2518 drafts; published rows unchanged`. Both set
+   `lock_timeout = 5s`: on a lock timeout, just run the file again. If the second file fails, the
+   first stays applied and the apps are unaffected: fix the cause (usually `pg_jsonschema`) and
+   run the second file again. Then add the owner, without committing the id:
    `insert into public.project_admins (user_id) values ('<owner user id>');`
 3. **After (read only):**
    ```sql
-   select count(*) from public.workout_drafts;                                     -- 2518
+   select count(*), count(*) filter (where source = 'library' and moved_at is not null) from public.workout_drafts;  -- 2518, 2518
+   select count(*) from public.project_admins;                                     -- 1
    select published, count(*) from public.workout_library group by 1;              -- true 29 only
    select md5(string_agg(t::text, '|' order by t.id)) from public.workout_library t where published;  -- same as before
    select count(*) from public.workout_library_v2;                                 -- 0
@@ -186,8 +205,9 @@ Never from CI. In the dashboard SQL editor (or the Supabase MCP), in this order:
    As a tester (or with the "impersonate" role in the dashboard): `workout_drafts` returns 0
    rows; as the owner, 2518. On a build-15/16 phone: Workouts → Choose shows the same list as
    before.
-4. **Rollback** (only if a check fails): `supabase/rollback/20261118_backend_v2_rollback.sql`,
-   one run. It removes the v2 tables and legacy copies and puts the drafts back with
+4. **Rollback** (only if a check fails, or a build-15/16 phone shows a different list):
+   `supabase/rollback/20261118_backend_v2_rollback.sql`, one run. It also works when only the
+   first file was applied. It removes the v2 tables and legacy copies and puts the drafts back with
    `published = false` and their timestamps; it refuses if `workout_drafts` holds rows that did
    not come from the library, or a draft id is now used in the library, and it checks the
    published rows are unchanged. Then mark the two versions reverted in the migration history if

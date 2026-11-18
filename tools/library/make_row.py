@@ -284,7 +284,10 @@ def make_row_v2(d: dict, program, scheduled_on, published: bool = True,
             f"{_sql_text(scheduled_on)}{'::date' if scheduled_on is not None else ''}, "
             f"{'true' if published else 'false'}, {_sql_text(gym)}, "
             f"{_sql_text(owner)}{'::uuid' if owner else ''}")
-    sql = ("insert into public.workout_library_v2 (id, definition, program, scheduled_on, published, gym_id, owner)\n"
+    if "$mr$" in text:
+        raise LibraryError("definition must not contain the text $mr$")
+    sql = ("do $mr$\nbegin\n"
+           "insert into public.workout_library_v2 (id, definition, program, scheduled_on, published, gym_id, owner)\n"
            f"values ({vals})\n"
            "on conflict (id) do update set definition = excluded.definition,\n"
            "  program = excluded.program, scheduled_on = excluded.scheduled_on,\n"
@@ -293,7 +296,10 @@ def make_row_v2(d: dict, program, scheduled_on, published: bool = True,
         sql += "\n  where public.workout_library_v2.owner = excluded.owner"
     else:
         sql += "\n  where public.workout_library_v2.owner is null"
-    return sql + ";\n"
+    # An upsert the WHERE skips writes nothing and reports success: make that an error.
+    return (sql + ";\n"
+            f"if not found then raise exception 'make_row: % was not written: the id belongs to another owner or audience', {_sql_text(d['id'])}; end if;\n"
+            "end\n$mr$;\n")
 
 
 def load_file(path) -> tuple:
@@ -322,6 +328,9 @@ def main(argv=None) -> int:
     ap.add_argument("--date", help="scheduled_on, YYYY-MM-DD (overrides the file)")
     ap.add_argument("--unpublished", action="store_true", help="add it hidden (published = false)")
     ap.add_argument("--gym", help="gym id, e.g. blue-republic: the gym's programming (overrides the file)")
+    ap.add_argument("--trust-old-keys", action="store_true",
+                    help="allow a published, exact v2 row (its old keys are copied to builds 15/16). Until the "
+                         "compiler checks them (build 17 item 2), check the old keys against the structure by hand first")
     ap.add_argument("--owner", help="user id (UUID): that user's personal workout, seen only by them; "
                     "the id must end with .u<first 8 hex of the user id> (overrides the file)")
     args = ap.parse_args(argv)
@@ -359,6 +368,10 @@ def main(argv=None) -> int:
                     validate_v2(d, owner)
                     the_id, name = d["id"], d["name"]
                     copy = "legacy copy for builds 15/16" if legacy_copy(d) is not None else "no legacy copy (not exact)"
+                    if published and legacy_copy(d) is not None and not args.trust_old_keys:
+                        raise LibraryError("a published, exact v2 row is copied to builds 15/16, and nothing "
+                                           "checks its old keys against the structure yet (build 17 item 2): "
+                                           "check them by hand, then pass --trust-old-keys")
                     row = make_row_v2(d, program, day, published, gym, owner)
                 else:
                     definition = validate_definition(d, owner)

@@ -33,15 +33,29 @@ for f in supabase/migrations/*.sql; do
   case "$f" in
     *_uploads.sql) echo "skip $f (Storage tables come from the Storage service, not this image)"; continue;;
   esac
-  echo "migrate $f"; psql_run -f "$f"
+  echo "migrate $f"; psql_run -1 -f "$f"
 done
 
 echo "seed"; psql_run -f supabase/tests/10_seed_production_like.sql
 
+# The rollback also works when only the first new migration was applied (the second failed),
+# and refuses while workout_drafts holds a draft that was not moved from the library.
+FIRST_NEW=$(ls supabase/migrations/*.sql | awk -F/ '{print $NF}' | awk -F_ -v n="$NEW_FROM" '$1 >= n' | head -1)
+echo "migrate supabase/migrations/$FIRST_NEW (alone)"; psql_run -1 -f "supabase/migrations/$FIRST_NEW"
+psql_run -c "insert into public.workout_drafts (id, definition) values ('lib.manual.20261118.x', '{\"id\": \"lib.manual.20261118.x\"}')"
+if out=$(psql_run -f supabase/rollback/20261118_backend_v2_rollback.sql 2>&1); then
+  echo "FAILED: rollback ran with a draft that did not come from the library" >&2; exit 1
+fi
+echo "$out" | grep -q "did not come from the library" || { echo "FAILED: rollback refused for another reason: $out" >&2; exit 1; }
+echo "ok - rollback refuses while a non-library draft exists"
+psql_run -c "delete from public.workout_drafts where id = 'lib.manual.20261118.x'"
+echo "rollback (first migration only)"; psql_run -f supabase/rollback/20261118_backend_v2_rollback.sql
+echo "tests: after rollback (first migration only)"; psql_run -f supabase/tests/40_after_rollback.sql
+
 for f in supabase/migrations/*.sql; do
   ts=$(basename "$f" | cut -d_ -f1)
   [ "$ts" -ge "$NEW_FROM" ] || continue
-  echo "migrate $f"; psql_run -f "$f"
+  echo "migrate $f"; psql_run -1 -f "$f"
 done
 
 echo "tests: drafts"; psql_run -f supabase/tests/20_drafts_moved.sql
@@ -58,9 +72,9 @@ for f in tools/library/fixtures/v2/valid/*.json tools/library/fixtures/v2/invali
 done
 
 echo "make_row: v2 fixtures"
-python3 tools/library/make_row.py tools/library/fixtures/v2/valid/*.json | psql_run
+python3 tools/library/make_row.py --trust-old-keys tools/library/fixtures/v2/valid/*.json | psql_run
 echo "make_row: the same SQL again (an update of existing rows, exact ones with copies)"
-python3 tools/library/make_row.py tools/library/fixtures/v2/valid/*.json | psql_run
+python3 tools/library/make_row.py --trust-old-keys tools/library/fixtures/v2/valid/*.json | psql_run
 
 echo "tests: v2"; psql_run -f supabase/tests/30_v2.sql
 

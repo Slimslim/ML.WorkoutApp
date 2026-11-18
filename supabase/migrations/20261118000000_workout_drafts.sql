@@ -7,6 +7,10 @@
 -- apps of builds 15/16 read `workout_library` exactly as before and never saw these rows.
 --
 -- Rollback: supabase/rollback/20261118_backend_v2_rollback.sql.
+-- Run as one transaction (SQL editor, apply_migration, `supabase db push` or `psql -1 -f`).
+
+-- Never queue behind a long reader of a table every phone reads: fail fast and retry instead.
+set local lock_timeout = '5s';
 
 -- Project admins: the user ids that count as "the owner" for owner-only tables. Filled once by
 -- hand (dashboard / service role), never from the repo (no ids in the public repo):
@@ -34,7 +38,7 @@ create table public.workout_drafts (
   scheduled_on date,
   owner uuid references auth.users (id) on delete cascade,     -- whose draft (null = the owner's gym/program work)
   gym_id text references public.gyms (id) on delete restrict,  -- the gym it was programmed for
-  source text not null default 'library',  -- 'library' = moved here on 18 Nov; later 'import', 'sync'
+  source text not null default 'manual',   -- 'library' = moved here on 18 Nov (set explicitly); later 'import', 'sync'
   moved_at timestamptz,                  -- set for rows moved out of workout_library
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
