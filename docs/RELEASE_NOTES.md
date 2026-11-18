@@ -2,6 +2,12 @@
 
 Newest first. Paste the latest entry into "What to Test" for the build in App Store Connect.
 
+## Build 16.1
+
+Same as build 16, plus:
+- The iPhone app now has the Motion purpose string Apple requires (App Store Connect rejected
+  build 16 without it). Nothing else changes.
+
 ## Build 16
 
 - Workouts upload by themselves after END: no need to open the phone app. The phone can stay
