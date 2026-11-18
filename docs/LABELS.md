@@ -285,3 +285,42 @@ yet, and the attitude cannot be mirrored.
   31 false.** The frame changed tester B's numbers little (switch-v1 learns from his own round 1, so
   it was already per-athlete; onset on his Sunday Part 1 went 2 / 7 -> 3 / 7). What the frame buys is
   the next step: one model trained on everyone's labelled stations instead of round 1 alone.
+
+### Movement blocks after the workout (2026-11-18, `barpath.pattern_blocks`, experimental)
+
+The owner's idea: every movement repeats a pattern; looked at after the workout, the session is a
+chain of pattern blocks in the plan's order, pauses inside a block are rests, the time between two
+patterns is the transition. Nothing is trained (each workout teaches itself: one pattern per
+movement, shared by its rounds), so it fits how little data we have. Input: motion + the movements
+in the order done (plan + score) + the Crown taps as hints by position (the k-th tap = the switch
+into movement k; a soft pull, never required). Output per movement: first and last second of
+pattern and the rests inside. Scored by `tools/score_pattern_blocks.py`.
+
+What it took on the 3 development workouts (AMRAP 20, SunYay, Freedom):
+- A minimum of 5 s of pattern per movement and several starting splits (one share of time per
+  movement, the same each round): without them the chain locks in one movement off.
+- The pause pattern learned once from the calmest 15% of seconds and kept: re-estimated, it
+  swallowed the low-effort step-ups and shifted every block.
+- The last movement may be cut short (the AMRAP's 1-calorie bike).
+- The Crown taps as anchors: on motion alone the AMRAP's boundaries are right but named one movement
+  off (the order bike / step-ups / wall balls repeats, so starting the cycle 6 s in fits as well).
+  SunYay and Freedom need no anchor (same scores with --no-crown).
+
+| workout | time in the right movement | first rep within 5 s (where known) | last rep within 5 s: blocks / Crown |
+|---|---:|---|---|
+| AMRAP 20 (dev) | 90% | 5 / 7 | 3 / 6 / 6 / 6 |
+| SunYay (dev) | 89% | 11 / 14 | 7 / 9 / 6 / 9 |
+| Freedom (dev) | 96% | 3 / 5 | 2 / 5 / 3 / 5 |
+| Freedom flipped | 100% | 4 / 4 | 3 / 3 / 2 / 3 |
+| tester B, Sunday Part 1 | 100% | 6 / 7 (median 0.5 s) | - |
+| partner cleans (owner / tester B) | 97% / 96% | 2 / 7, 4 / 7 | 0 / 4, 1 / 4 (Crown 2 / 4, 0 / 4) |
+| row, HSPU, lunges | 78% | - | - |
+| Sunday Part 2 (squats + lunges, bar not racked) | 65% | 3 / 7 | 0 / 2 |
+| November challenge (25 x 2 pull-ups + 4 push-ups, 2 taps) | 52% | 1 / 50 | - |
+
+Held-out rows (all below the first three) ran with no change. Where it fails: walking after a
+movement is counted as that movement (wall balls end 6-24 s late, lunges swallow the walk out to the
+run); the wait before a movement done in small sets looks like the rests inside it (Freedom's
+snatches start 28-35 s early); squats and lunges back to back look alike; pieces of 6-10 s
+(November challenge) are below its 4 s window: switch-v1's hang / planted-hand signals stay the tool
+there (47 / 47). Next: a walking state between blocks (steps without the run's pace).
