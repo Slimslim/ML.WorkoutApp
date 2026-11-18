@@ -1,6 +1,7 @@
 import Foundation
 import WatchKit
 import WatchConnectivity
+import BarPathKit
 
 /// W29: every workout recording says how it was made (battery, power, settings, phone).
 ///
@@ -25,8 +26,9 @@ import WatchConnectivity
 final class WorkoutRecordingInfo {
     /// Seconds between battery lines.
     static let batteryInterval: Double = 60.0
-    /// Application context key the phone puts its model / iOS / build under (W29).
-    static let phoneDeviceContextKey = "phoneDevice"
+    /// Application context key the phone puts its model / iOS / build under (W29); the same
+    /// constant the phone writes with (#82).
+    static let phoneDeviceContextKey = PhoneDeviceContext.key
 
     private(set) var isActive = false
     private var lastBatteryUptime: Double = 0

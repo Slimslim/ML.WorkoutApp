@@ -152,6 +152,8 @@ Order: W28 -> W27 -> W23. Dependencies:
   %/h. Recording only, no screen change. Status: in review (branch `claude/w29-recording-metadata`, [#77](https://github.com/Slimslim/ML.WorkoutApp/pull/77)), build 16.
   Not device-tested yet. Bug #79 (device test: phone fields always `unknown`): the phone skipped
   re-sending `phoneDevice` after a watch app reinstall; fix in review on `claude/w29-phone-device-fix`.
+  Follow-up [#82](https://github.com/Slimslim/ML.WorkoutApp/issues/82) (reinstall while the phone app is
+  suspended): build 17, the phone also re-sends when it becomes active; in review on `claude/b17-phone-active`.
 - **W23** needs a rule change before it is built: iOS does not say whether heart-rate read access was
   refused, so the banner follows "the last session received no heart rate" (`lastSessionReceivedHeartRate.v1`,
   written by the practice today; the real workout must write it too). Mockup approved 13 Nov.
