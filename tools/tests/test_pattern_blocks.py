@@ -45,3 +45,16 @@ def test_crown_hint_by_position_is_accepted():
     parts = [("A", 30), ("rest", 5), ("B", 30), ("rest", 5), ("A", 30)]
     bl = blocks(synthetic(parts, 1), ["A", "B", "A"], cfg=Config(restarts=3), hints=[36.0, 71.0])
     assert abs(bl[1].start - 35) <= 3 and abs(bl[2].start - 70) <= 3
+
+
+def test_walking_is_steps_at_walking_cadence_with_soft_impacts():
+    from barpath.pattern_blocks import walking_seconds
+    times = np.arange(6.0)
+    F = np.zeros((6, 11))
+    F[:, 10] = [0.0, 1.6, 1.8, 2.8, 1.7, 1.5]      # steps/s
+    F[:, 2] = [0.2, 0.7, 0.8, 2.6, 2.3, 0.6]       # g, 90th percentile impact
+    # still / walk / walk / run / arm swings with hard impacts (wall balls) / walk
+    assert list(walking_seconds(times, F)) == [False, True, True, False, False, True]
+    # with Crown taps: only near a tap (box step-ups look like walking)
+    assert list(walking_seconds(times, F, hints=[1.0], cfg=Config(walk_near_hint=1.5))) == \
+        [False, True, True, False, False, False]

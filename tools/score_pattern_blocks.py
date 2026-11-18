@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Score barpath.pattern_blocks (movement blocks found after the workout) against the labels.
 
-    python3 tools/score_pattern_blocks.py                 # the 3 test workouts
+    python3 tools/score_pattern_blocks.py                 # every labelled workout with movements in order
     python3 tools/score_pattern_blocks.py <label id> ...  # others
     python3 tools/score_pattern_blocks.py -v              # every movement, one line each
 
@@ -11,8 +11,9 @@ Crown taps as hints (--no-crown: motion only); never the label's times. Per move
          motion / told by the athlete); the Crown only marks the END of a movement.
   end    its last rep (end of the last labelled set), else the Crown tap that ended it (approximate:
          the athlete may tap a few seconds after the last rep).
-  time   share of the labelled time of every movement that the detector gives to that movement
-         (work or a pause inside it): the overall picture.
+  time   share of the known working time (labelled sets; whole segments only where the start came
+         from motion or the athlete) that the detector gives to the right movement. A segment
+         known only from Crown taps also holds the walk over and the set-up, so it is left out.
 The Crown's own taps are shown on the same ends for comparison.
 """
 from __future__ import annotations
@@ -29,7 +30,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from barpath import labels as L  # noqa: E402
 from barpath import pattern_blocks as PB  # noqa: E402
 
-TESTS = ["2026-11-05-amrap20", "2026-11-08-sunyay", "2026-11-09-freedom-snatch-burpee-c2b"]
+TESTS = ["2026-11-05-amrap20", "2026-11-08-sunyay", "2026-11-09-freedom-snatch-burpee-c2b",
+         "2026-11-10-freedom-flipped", "2026-11-14-partner-hpc-burpees",
+         "2026-11-14-partner-hpc-burpees-tester-b", "2026-11-15-sunday-part1-tester-b",
+         "2026-11-15-sunday-part2", "2026-11-16-row-hspu-lunges", "2026-11-04-november-challenge"]
 TOL = 5.0
 
 
@@ -42,7 +46,9 @@ def truth(d: dict):
         sets = s.get("sets") or []
         start = sets[0]["start"] if sets else (s["start"] if s.get("source") != "crown" else None)
         end = sets[-1]["end"] if sets else s["end"]
-        out.append({"movement": s["movement"], "round": s.get("round"), "seg": (s["start"], s["end"]),
+        work = ([(x["start"], x["end"]) for x in sets] if sets else
+                [(s["start"], s["end"])] if s.get("source") != "crown" else [])
+        out.append({"movement": s["movement"], "round": s.get("round"), "seg": (s["start"], s["end"]), "work": work,
                     "start": start, "end": end, "end_kind": "set" if sets else "crown", "crown": s["end"]})
     return out
 
@@ -72,13 +78,15 @@ def score(lid: str, verbose: bool = False, cfg: PB.Config = PB.Config(), use_cro
     tt = np.arange(0.0, max(x["seg"][1] for x in tr), 1.0)
     lab = np.full(len(tt), -1)
     for k, x in enumerate(tr):
-        lab[(tt >= x["seg"][0]) & (tt < x["seg"][1])] = k
+        # known working time only (see the module doc)
+        for a0, a1 in x["work"]:
+            lab[(tt >= a0) & (tt < a1)] = k
     pred = np.full(len(tt), -1)
     for k, b in enumerate(bl):
         nxt = bl[k + 1].start if k + 1 < len(bl) else tt[-1] + 1
         pred[(tt >= b.start) & (tt < nxt)] = k
     m = lab >= 0
-    share = float((pred[m] == lab[m]).mean())
+    share = float((pred[m] == lab[m]).mean()) if m.any() else float("nan")
     # boundaries whatever their names: block starts against known starts
     starts_any = [min((b.start for b in bl[1:]), key=lambda v: abs(v - x["start"])) - x["start"]
                   for x in tr[1:] if x["start"] is not None]
@@ -98,18 +106,19 @@ def main() -> int:
     ap.add_argument("ids", nargs="*", default=TESTS)
     ap.add_argument("-v", action="store_true")
     ap.add_argument("--no-crown", action="store_true", help="motion only, no Crown taps as hints")
+    ap.add_argument("--no-walking", action="store_true", help="transitions are standing only")
     a = ap.parse_args()
     rows = []
     for lid in a.ids:
         if a.v:
             print(lid)
-        rows.append(score(lid, a.v, use_crown=not a.no_crown))
+        rows.append(score(lid, a.v, PB.Config(walking=not a.no_walking), use_crown=not a.no_crown))
     print(f"\n| workout | movements | starts within {TOL:g} s | ends within {TOL:g} s | "
-          f"ends at a labelled last rep: blocks / Crown | time in the right movement | starts, any name |")
+          f"ends at a labelled last rep: blocks / Crown | known working time in the right movement | starts, any name |")
     print("|---|---:|---|---|---|---:|---|")
     for r in rows:
         print(f"| {r['id']} | {r['movements']} | {fmt(r['starts'])} | {fmt(r['ends'])} | "
-              f"{fmt(r['ends_set'])} / {fmt(r['crown_set'])} | {100 * r['share']:.0f}% | {fmt(r['any'])} |")
+              f"{fmt(r['ends_set'])} / {fmt(r['crown_set'])} | {'-' if r['share'] != r['share'] else f"{100 * r['share']:.0f}%"} | {fmt(r['any'])} |")
     return 0
 
 

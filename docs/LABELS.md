@@ -324,3 +324,35 @@ run); the wait before a movement done in small sets looks like the rests inside 
 snatches start 28-35 s early); squats and lunges back to back look alike; pieces of 6-10 s
 (November challenge) are below its 4 s window: switch-v1's hang / planted-hand signals stay the tool
 there (47 / 47). Next: a walking state between blocks (steps without the run's pace).
+
+#### Walking is a transition (2026-11-18)
+
+The watch tells walking from running clearly: runs 2.5-3.2 steps/s with 2.4-3.0 g impacts (90th
+percentile of |userAccel|), walking between stations about 1-2 steps/s at 0.6-0.9 g. Arm swings
+at stations (wall balls, ball slams, ski) also count steps but hit 2-3 g. So the pause after a
+movement is now standing still OR walking (`Config.walking`), and a planned run stays a movement.
+Box step-ups look like walking (1.3 steps/s, 0.8 g): walking is learned only from step-like seconds
+near Crown taps, and the transition INTO a stepping movement (step-ups, lunges, carries) is
+standing only, or it eats the first steps. One more starting guess: the athlete's own Crown splits
+(the AMRAP's right answer explained the data better but the random starts missed it).
+
+The "time" score now counts only known working time (labelled sets, or segments whose start came
+from motion / the athlete): a Crown-only segment also holds the walk over and the set-up, which the
+detector now rightly calls transition (SunYay round 2: tap 353.5 s, first slam 366.2 s).
+
+| workout | first rep within 5 s: standing only -> + walking | last rep within 5 s (Crown) | known working time |
+|---|---|---|---|
+| AMRAP 20 | 2 / 7 -> 6 / 7 (median 0.8 s) | 2 / 6 -> 5 / 6 (6 / 6) | 96% -> 96% |
+| SunYay | 11 / 14 -> 13 / 14 | 7 / 9 -> 8 / 9 (6 / 9) | 96% -> 98% |
+| Freedom | 3 / 5 -> 3 / 5 | 2 / 5 -> 3 / 5 (3 / 5) | 100% |
+| Freedom flipped | 4 / 4 | 3 / 3 (2 / 3) | 100% |
+| partner cleans (owner / tester B) | 2 / 7, 4 / 7 | 0 / 4, 1 / 4 (2 / 4, 0 / 4) | 95-96% |
+| tester B, Sunday Part 1 | 6 / 7 -> 5 / 7 | - | 100% -> 99% |
+| row, HSPU, lunges | - (Crown-only) | ends vs the Crown 2 / 11 -> 9 / 11 | - |
+| Sunday Part 2 | 3 / 7 | 0 / 2 (2 / 2) | 49% |
+| November challenge | 1 / 50 -> 2 / 50 | - | 3-4% |
+
+Tester B's one lost start: the walk after his third run went to the run (ends 13 s late) and his wall
+balls start 16 s late, but their end went from 25 s late to 1.5 s; that start is the uncertain one
+(throws before his rhythm, already flagged). Still open: Sunday Part 2 (squats and lunges back to
+back, bar not racked) and pieces under ~10 s (November challenge: switch-v1 stays the tool).

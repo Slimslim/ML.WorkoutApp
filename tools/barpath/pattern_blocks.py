@@ -23,6 +23,13 @@ fit one movement off (right boundaries, wrong names). `hints` (the athlete's Cro
 the k-th tap = the switch into movement k) anchor it: that switch is cheaper near its tap, never
 required, so a late tap only loses its pull (a forgotten one shifts the later hints: to handle).
 
+Walking is part of the transition (owner, 2026-11-18): the pause after a movement is standing
+still or walking, whichever fits the second. Walking = steps at 1-2.3 per second with soft impacts
+(90th percentile of |userAccel| < 1.3 g); running is 2.5-3.2 steps/s with 2.4-3 g, and a planned run
+stays a movement. Box step-ups and lunges look like walking, so the transition INTO a stepping
+movement is standing only (walking there would eat the first steps), and walking is learned from
+step-like seconds near the other Crown taps, where transitions happen.
+
 Experimental (not on the watch, not in the app): scored by tools/score_pattern_blocks.py.
 """
 from __future__ import annotations
@@ -32,7 +39,11 @@ from typing import List, Optional, Sequence
 
 import numpy as np
 
+import re
+
 FS = 100.0
+# movements that are themselves steps: walking next to them is not a transition
+STEPPING = re.compile(r"step|lunge|carry|walk|sled|ruck|farmer", re.I)
 HOP = 1.0        # s between feature vectors
 WINDOW = 4.0     # s of motion per feature vector
 
@@ -46,6 +57,10 @@ class Config:
     seed: int = 0
     calm_pct: float = 15.0       # % of the calmest seconds (by effort) that define a pause
     min_work: float = 5.0
+    walk_steps: tuple = (1.0, 2.3)   # steps/s of walking; running is 2.5-3.2 with 2.4-3 g impacts
+    walk_impact: float = 1.3     # g, 90th percentile of |userAccel| below which steps are walking
+    walk_near_hint: float = 20.0  # s: walking is learned from step-like seconds this close to a tap
+    walking: bool = True         # walking is part of the transition, not of a movement (a run stays a movement)
     hint_bonus: float = 15.0     # switch made cheaper near a Crown tap (a hint, never required)
     hint_sigma: float = 15.0     # s        # s of pattern before a movement can pause or end
     var_floor: float = 0.05      # in units of the whole workout's variance (features are z-scored)
@@ -59,6 +74,7 @@ class Block:
     end: float                   # last second of pattern
     work: float                  # seconds of pattern inside (pauses removed)
     pauses: List[tuple]          # rests inside the movement: [(start, end)]
+    walk_after: float = 0.0      # s of walking between this block's end and the next block's start
 
 
 def features(motion, steps=None, hop: float = HOP, window: float = WINDOW):
@@ -115,6 +131,12 @@ def align(times, F, order: Sequence[str], cfg: Config = Config(), hints: Sequenc
     mu, sd = np.nanmean(F, 0), np.nanstd(F, 0) + 1e-9
     Z = (F - mu) / sd
     low = Z[:, 0] < np.percentile(Z[:, 0], 20)
+    walk = None
+    if cfg.walking:
+        # learn walking only near taps between two movements that are not steps themselves
+        clean = [h if (h is not None and not STEPPING.search(order[k])) else None
+                 for k, h in enumerate(hints[: K - 1], start=1)]
+        walk = walking_seconds(times, F, cfg, clean if any(c is not None for c in clean) else ())
     # hints[k - 1]: when the athlete marked the switch into movement k (the k-th Crown tap). The
     # order repeats, so a hint has to say WHICH switch it is, not only when
     bonus = np.zeros((T, K))
@@ -123,20 +145,39 @@ def align(times, F, order: Sequence[str], cfg: Config = Config(), hints: Sequenc
             bonus[:, k] = cfg.hint_bonus * np.exp(-0.5 * ((times - h) / cfg.hint_sigma) ** 2)
     rng = np.random.default_rng(cfg.seed)
     best, best_cost = None, np.inf
-    for r in range(cfg.restarts):
-        # one share of time per movement, repeated every round it appears in
-        moves = sorted(set(order))
-        share = np.ones(len(moves)) if r == 0 else rng.dirichlet(np.ones(len(moves)))
-        w = np.array([share[moves.index(m)] for m in order])
-        edges = np.r_[0, np.cumsum(w) / w.sum()] * T
-        state = np.clip(np.searchsorted(edges, np.arange(T), side="right") - 1, 0, K - 1) * 2 + low
-        state, cost = _em(Z, state, order, cfg, bonus)
+    taps = list(hints[: K - 1])
+    from_taps = len(taps) == K - 1 and all(h is not None for h in taps) and all(np.diff(taps) > 0)
+    for r in range(cfg.restarts + int(from_taps)):
+        if from_taps and r == cfg.restarts:
+            # one more start: the athlete's own Crown splits (the motion then moves them)
+            state = np.searchsorted(np.array(taps), times, side="right") * 2 + low
+        else:
+            # one share of time per movement, repeated every round it appears in
+            moves = sorted(set(order))
+            share = np.ones(len(moves)) if r == 0 else rng.dirichlet(np.ones(len(moves)))
+            w = np.array([share[moves.index(m)] for m in order])
+            edges = np.r_[0, np.cumsum(w) / w.sum()] * T
+            state = np.clip(np.searchsorted(edges, np.arange(T), side="right") - 1, 0, K - 1) * 2 + low
+        state, cost = _em(Z, state, order, cfg, bonus, walk)
         if cost < best_cost:
             best, best_cost = state, cost
     return best
 
 
-def _em(Z, state, order, cfg, bonus=None):
+def walking_seconds(times, F, cfg: Config = Config(), hints: Sequence[Optional[float]] = ()):
+    """Seconds that look like walking: steps at walking cadence with soft impacts (running has
+    more steps and much harder impacts). Box step-ups look the same, so with Crown taps only the
+    step-like seconds near a tap (where transitions happen) are kept."""
+    steps, impact = F[:, 10], F[:, 2]
+    walk = (steps >= cfg.walk_steps[0]) & (steps < cfg.walk_steps[1]) & (impact < cfg.walk_impact)
+    taps = [h for h in hints if h is not None]
+    if taps:
+        near = np.min(np.abs(times[:, None] - np.array(taps)[None, :]), 1) <= cfg.walk_near_hint
+        walk &= near
+    return walk
+
+
+def _em(Z, state, order, cfg, bonus=None, walk=None):
     T, K = len(Z), len(order)
     moves = sorted(set(order))
     mid = {m: i for i, m in enumerate(moves)}
@@ -156,10 +197,18 @@ def _em(Z, state, order, cfg, bonus=None):
             X = Z[sel] if sel.sum() >= 3 else Z
             mean, var = X.mean(0), np.maximum(X.var(0), cfg.var_floor)
             nll[:, i] = 0.5 * (((Z - mean) ** 2) / var + np.log(var)).sum(1)
+        gap = nll[:, len(moves)]
+        if walk is not None and walk.sum() >= 5:
+            # a transition is standing still OR walking: the gap takes whichever fits the second
+            X = Z[walk]
+            mean, var = X.mean(0), np.maximum(X.var(0), cfg.var_floor)
+            gap = np.minimum(gap, 0.5 * (((Z - mean) ** 2) / var + np.log(var)).sum(1))
         emis = np.empty((T, 2 * K))
         for k, m in enumerate(order):
             emis[:, 2 * k] = nll[:, mid[m]]
-            emis[:, 2 * k + 1] = nll[:, len(moves)]
+            nxt = order[k + 1] if k + 1 < K else ""
+            stepping = bool(STEPPING.search(nxt))     # walking there would eat the steps' start
+            emis[:, 2 * k + 1] = nll[:, len(moves)] if stepping else gap
         new, cost = _viterbi(emis, K, cfg, bonus)
         if np.array_equal(new, state):
             break
@@ -229,6 +278,7 @@ def blocks(motion, order: Sequence[str], steps=None, cfg: Config = Config(),
     at the end of the previous one)."""
     times, F = features(motion, steps)
     state = align(times, F, order, cfg, hints)
+    walking = walking_seconds(times, F, cfg)
     out: List[Block] = []
     for k, m in enumerate(order):
         w = times[state == 2 * k]
@@ -239,6 +289,8 @@ def blocks(motion, order: Sequence[str], steps=None, cfg: Config = Config(),
         start, end = float(w[0] - HOP / 2), float(w[-1] + HOP / 2)
         inside = (times > start) & (times < end) & (state == 2 * k + 1)
         out.append(Block(m, k, start, end, len(w) * HOP, _runs(times, inside)))
+    for a, b in zip(out, out[1:]):
+        a.walk_after = float(((times > a.end) & (times < b.start) & walking).sum() * HOP)
     return out
 
 
