@@ -59,6 +59,8 @@ done
 
 echo "make_row: v2 fixtures"
 python3 tools/library/make_row.py tools/library/fixtures/v2/valid/*.json | psql_run
+echo "make_row: the same SQL again (an update of existing rows, exact ones with copies)"
+python3 tools/library/make_row.py tools/library/fixtures/v2/valid/*.json | psql_run
 
 echo "tests: v2"; psql_run -f supabase/tests/30_v2.sql
 

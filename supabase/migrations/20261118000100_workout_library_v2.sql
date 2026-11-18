@@ -30,153 +30,447 @@ select $schema$
   "title": "Workout definition, schemaVersion 2 (docs/WORKOUT_MODEL_RFC.md 3.3, 3.6, 14.3)",
   "description": "Checked by the database (pg_jsonschema, migration 20261118000100) and by tools/library/make_row.py. Strict about the old keys and the engine fields; open (additionalProperties) everywhere else, so descriptive and future fields (note, rawText, tempo, x-*, resume, interrupt) pass through unchanged (RFC 3.2, 14.4). Rules the schema cannot express (nesting depth, step count, vary lengths, the compiled old keys) belong to the validator and compiler (RFC section 11, build 17 item 2).",
   "type": "object",
-  "required": ["schemaVersion", "id", "name", "shortName", "format", "team", "healthKitActivity", "segments", "structure"],
+  "required": [
+    "schemaVersion",
+    "id",
+    "name",
+    "shortName",
+    "format",
+    "team",
+    "healthKitActivity",
+    "segments",
+    "structure"
+  ],
   "properties": {
-    "schemaVersion": { "const": 2 },
-    "id": { "type": "string", "pattern": "^lib\\.[a-z0-9-]+(\\.[a-z0-9-]+)+$", "maxLength": 200 },
-    "name": { "$ref": "#/definitions/text" },
-    "shortName": { "$ref": "#/definitions/text" },
-    "format": { "enum": ["forTime", "amrap", "emom"] },
-    "team": { "enum": ["solo", "doubles", "team"] },
-    "healthKitActivity": { "type": "string", "minLength": 1 },
-    "segments": { "type": "array", "items": { "$ref": "#/definitions/segment" } },
-    "timeCapSeconds": { "type": "number", "exclusiveMinimum": 0 },
-    "intervalSeconds": { "type": "number", "exclusiveMinimum": 0 },
-    "roundSize": { "type": "integer", "minimum": 1 },
-    "requires": {
-      "type": "array", "uniqueItems": true,
-      "items": { "type": "string", "pattern": "^[a-zA-Z][a-zA-Z0-9]*$" }
+    "schemaVersion": {
+      "const": 2
     },
-    "structure": { "$ref": "#/definitions/structure" },
-    "scales": { "type": "array", "minItems": 1, "maxItems": 8, "items": { "$ref": "#/definitions/scale" } },
-    "rawText": { "type": "string" },
-    "fidelity": { "$ref": "#/definitions/fidelity" },
-    "approx": { "$ref": "#/definitions/approx" },
-    "stimulus": { "type": "object" }
+    "id": {
+      "type": "string",
+      "pattern": "^lib\\.[a-z0-9-]+(\\.[a-z0-9-]+)+$",
+      "maxLength": 200
+    },
+    "name": {
+      "$ref": "#/definitions/text"
+    },
+    "shortName": {
+      "$ref": "#/definitions/text"
+    },
+    "format": {
+      "enum": [
+        "forTime",
+        "amrap",
+        "emom"
+      ]
+    },
+    "team": {
+      "enum": [
+        "solo",
+        "doubles",
+        "team"
+      ]
+    },
+    "healthKitActivity": {
+      "type": "string",
+      "minLength": 1
+    },
+    "segments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/segment"
+      },
+      "minItems": 1
+    },
+    "timeCapSeconds": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "intervalSeconds": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "roundSize": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "requires": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z][a-zA-Z0-9]*$"
+      }
+    },
+    "structure": {
+      "$ref": "#/definitions/structure"
+    },
+    "scales": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "items": {
+        "$ref": "#/definitions/scale"
+      }
+    },
+    "rawText": {
+      "type": "string"
+    },
+    "fidelity": {
+      "$ref": "#/definitions/fidelity"
+    },
+    "approx": {
+      "$ref": "#/definitions/approx"
+    },
+    "stimulus": {
+      "type": "object"
+    }
   },
   "anyOf": [
-    { "required": ["scales"] },
-    { "required": ["fidelity"] }
+    {
+      "required": [
+        "scales"
+      ]
+    },
+    {
+      "required": [
+        "fidelity"
+      ]
+    }
   ],
   "definitions": {
-    "text": { "type": "string", "minLength": 1, "pattern": "\\S" },
-    "nodeId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,39}$" },
-    "fidelity": { "enum": ["exact", "approx", "textOnly"] },
-    "approx": { "type": "array", "items": { "type": "string", "minLength": 1 } },
-    "positive": { "type": "number", "exclusiveMinimum": 0 },
-
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "nodeId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,39}$"
+    },
+    "fidelity": {
+      "enum": [
+        "exact",
+        "approx",
+        "textOnly"
+      ]
+    },
+    "approx": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "positive": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
     "segment": {
       "type": "object",
-      "required": ["kind", "movement", "name"],
+      "required": [
+        "kind",
+        "movement",
+        "name"
+      ],
       "additionalProperties": false,
       "properties": {
-        "kind": { "enum": ["run", "station", "transition", "rest"] },
-        "movement": { "type": "string", "minLength": 1 },
-        "name": { "type": "string", "minLength": 1 },
+        "kind": {
+          "enum": [
+            "run",
+            "station",
+            "transition",
+            "rest"
+          ]
+        },
+        "movement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
         "target": {
-          "type": "object", "required": ["value", "unit"], "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "value",
+            "unit"
+          ],
+          "additionalProperties": false,
           "properties": {
-            "value": { "$ref": "#/definitions/positive" },
-            "unit": { "enum": ["meters", "reps", "calories", "seconds"] }
+            "value": {
+              "$ref": "#/definitions/positive"
+            },
+            "unit": {
+              "enum": [
+                "meters",
+                "reps",
+                "calories",
+                "seconds"
+              ]
+            }
           }
         },
         "load": {
-          "type": "object", "required": ["value", "unit"], "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "value",
+            "unit",
+            "count"
+          ],
+          "additionalProperties": false,
           "properties": {
-            "value": { "$ref": "#/definitions/positive" },
-            "unit": { "enum": ["lb", "kg"] },
-            "count": { "type": "integer", "minimum": 1 }
+            "value": {
+              "$ref": "#/definitions/positive"
+            },
+            "unit": {
+              "enum": [
+                "lb",
+                "kg"
+              ]
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 1
+            }
           }
         }
       }
     },
-
-    "scale": {
+    "scaleFields": {
       "type": "object",
-      "required": ["id", "label", "rank", "fidelity", "structure"],
       "properties": {
-        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,31}$" },
-        "label": { "$ref": "#/definitions/text" },
-        "short": { "type": "string", "minLength": 1, "maxLength": 5 },
-        "rank": { "type": "integer" },
-        "fidelity": { "$ref": "#/definitions/fidelity" },
-        "approx": { "$ref": "#/definitions/approx" },
-        "rawText": { "type": "string" },
-        "basedOn": { "type": "string" },
-        "structure": { "$ref": "#/definitions/structure" }
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{0,31}$"
+        },
+        "label": {
+          "$ref": "#/definitions/text"
+        },
+        "short": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 5
+        },
+        "rank": {
+          "type": "integer"
+        },
+        "fidelity": {
+          "$ref": "#/definitions/fidelity"
+        },
+        "approx": {
+          "$ref": "#/definitions/approx"
+        },
+        "rawText": {
+          "type": "string"
+        },
+        "basedOn": {
+          "type": "string"
+        },
+        "structure": {
+          "$ref": "#/definitions/structure"
+        }
       }
     },
-
-    "customScale": {
+    "scale": {
       "allOf": [
-        { "$ref": "#/definitions/scale" },
         {
-          "required": ["basedOn"],
-          "properties": { "id": { "const": "custom" }, "basedOn": { "type": "string", "minLength": 1 } }
+          "$ref": "#/definitions/scaleFields"
+        },
+        {
+          "required": [
+            "id",
+            "label",
+            "rank",
+            "fidelity",
+            "structure"
+          ]
         }
       ]
     },
-
+    "customScale": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/scaleFields"
+        },
+        {
+          "required": [
+            "id",
+            "label",
+            "basedOn",
+            "structure"
+          ],
+          "properties": {
+            "id": {
+              "const": "custom"
+            },
+            "basedOn": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      ]
+    },
     "structure": {
       "type": "object",
-      "required": ["body"],
+      "required": [
+        "body"
+      ],
       "properties": {
-        "score": { "$ref": "#/definitions/score" },
-        "body": { "$ref": "#/definitions/body" }
+        "score": {
+          "$ref": "#/definitions/score"
+        },
+        "body": {
+          "$ref": "#/definitions/body"
+        }
       }
     },
-
     "score": {
       "type": "object",
-      "required": ["type"],
+      "required": [
+        "type"
+      ],
       "properties": {
-        "type": { "type": "string", "minLength": 1 },
-        "better": { "enum": ["higher", "lower"] },
-        "parts": { "type": "array", "items": { "$ref": "#/definitions/nodeId" } },
-        "of": { "$ref": "#/definitions/nodeId" }
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "better": {
+          "enum": [
+            "higher",
+            "lower"
+          ]
+        },
+        "parts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/nodeId"
+          }
+        },
+        "of": {
+          "$ref": "#/definitions/nodeId"
+        }
       }
     },
-
-    "body": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/node" } },
-
+    "body": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/node"
+      }
+    },
     "node": {
       "type": "object",
       "minProperties": 1,
       "maxProperties": 1,
       "oneOf": [
-        { "required": ["part"], "properties": { "part": { "$ref": "#/definitions/part" } } },
-        { "required": ["rest"], "properties": { "rest": { "$ref": "#/definitions/rest" } } },
-        { "required": ["group"], "properties": { "group": { "$ref": "#/definitions/group" } } },
-        { "required": ["repeat"], "properties": { "repeat": { "$ref": "#/definitions/repeat" } } },
-        { "required": ["timed"], "properties": { "timed": { "$ref": "#/definitions/timed" } } }
+        {
+          "required": [
+            "part"
+          ],
+          "properties": {
+            "part": {
+              "$ref": "#/definitions/part"
+            }
+          }
+        },
+        {
+          "required": [
+            "rest"
+          ],
+          "properties": {
+            "rest": {
+              "$ref": "#/definitions/rest"
+            }
+          }
+        },
+        {
+          "required": [
+            "group"
+          ],
+          "properties": {
+            "group": {
+              "$ref": "#/definitions/group"
+            }
+          }
+        },
+        {
+          "required": [
+            "repeat"
+          ],
+          "properties": {
+            "repeat": {
+              "$ref": "#/definitions/repeat"
+            }
+          }
+        },
+        {
+          "required": [
+            "timed"
+          ],
+          "properties": {
+            "timed": {
+              "$ref": "#/definitions/timed"
+            }
+          }
+        }
       ]
     },
-
     "amount": {
       "type": "object",
       "properties": {
-        "value": { "$ref": "#/definitions/positive" },
-        "valueF": { "$ref": "#/definitions/positive" }
+        "value": {
+          "$ref": "#/definitions/positive"
+        },
+        "valueF": {
+          "$ref": "#/definitions/positive"
+        }
       }
     },
-
     "part": {
       "type": "object",
-      "required": ["id", "movement"],
+      "required": [
+        "id",
+        "movement"
+      ],
       "properties": {
-        "id": { "$ref": "#/definitions/nodeId" },
-        "kind": { "type": "string", "minLength": 1 },
-        "name": { "type": "string" },
+        "id": {
+          "$ref": "#/definitions/nodeId"
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string"
+        },
         "movement": {
           "oneOf": [
-            { "type": "string", "minLength": 1 },
             {
-              "type": "object", "required": ["choice"],
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "object",
+              "required": [
+                "choice"
+              ],
               "properties": {
                 "choice": {
                   "oneOf": [
-                    { "type": "string", "minLength": 1 },
-                    { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+                    {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
                   ]
                 }
               }
@@ -185,19 +479,58 @@ select $schema$
         },
         "target": {
           "allOf": [
-            { "$ref": "#/definitions/amount" },
+            {
+              "$ref": "#/definitions/amount"
+            },
             {
               "type": "object",
-              "required": ["unit"],
+              "required": [
+                "unit"
+              ],
               "properties": {
-                "unit": { "enum": ["meters", "reps", "calories", "seconds", "ft", "yd", "mi"] },
-                "max": { "const": true },
+                "unit": {
+                  "enum": [
+                    "meters",
+                    "reps",
+                    "calories",
+                    "seconds",
+                    "ft",
+                    "yd",
+                    "mi"
+                  ]
+                },
+                "max": {
+                  "const": true
+                },
                 "each": {
-                  "type": "object", "required": ["value", "unit"],
-                  "properties": { "value": { "$ref": "#/definitions/positive" }, "unit": { "type": "string", "minLength": 1 } }
+                  "type": "object",
+                  "required": [
+                    "value",
+                    "unit"
+                  ],
+                  "properties": {
+                    "value": {
+                      "$ref": "#/definitions/positive"
+                    },
+                    "unit": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
                 }
               },
-              "anyOf": [ { "required": ["value"] }, { "required": ["max"] } ]
+              "anyOf": [
+                {
+                  "required": [
+                    "value"
+                  ]
+                },
+                {
+                  "required": [
+                    "max"
+                  ]
+                }
+              ]
             }
           ]
         },
@@ -205,84 +538,236 @@ select $schema$
           "type": "object",
           "anyOf": [
             {
-              "required": ["value", "unit"],
+              "required": [
+                "value",
+                "unit"
+              ],
               "properties": {
-                "value": { "$ref": "#/definitions/positive" },
-                "valueF": { "$ref": "#/definitions/positive" },
-                "unit": { "enum": ["lb", "kg"] },
-                "count": { "type": "integer", "minimum": 1 }
+                "value": {
+                  "$ref": "#/definitions/positive"
+                },
+                "valueF": {
+                  "$ref": "#/definitions/positive"
+                },
+                "unit": {
+                  "enum": [
+                    "lb",
+                    "kg"
+                  ]
+                },
+                "count": {
+                  "type": "integer",
+                  "minimum": 1
+                }
               }
             },
             {
-              "required": ["percent"],
+              "required": [
+                "percent"
+              ],
               "properties": {
-                "percent": { "$ref": "#/definitions/positive" },
-                "of": { "type": "string", "minLength": 1 },
-                "basis": { "enum": ["1RM", "3RM", "TM"] }
+                "percent": {
+                  "$ref": "#/definitions/positive"
+                },
+                "of": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "basis": {
+                  "enum": [
+                    "1RM",
+                    "3RM",
+                    "TM"
+                  ]
+                }
               }
             }
           ]
         },
-        "height": { "allOf": [ { "$ref": "#/definitions/amount" }, { "type": "object", "required": ["value", "unit"] } ] },
-        "who": { "enum": ["me", "partner", "together", "shared"] },
-        "tempo": { "type": "string" },
-        "note": { "type": "string" }
+        "height": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/amount"
+            },
+            {
+              "type": "object",
+              "required": [
+                "value",
+                "unit"
+              ]
+            }
+          ]
+        },
+        "who": {
+          "enum": [
+            "me",
+            "partner",
+            "together",
+            "shared"
+          ]
+        },
+        "tempo": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        }
       }
     },
-
     "rest": {
       "type": "object",
       "properties": {
-        "id": { "$ref": "#/definitions/nodeId" },
-        "seconds": { "$ref": "#/definitions/positive" },
-        "ratio": { "$ref": "#/definitions/positive" },
-        "note": { "type": "string" }
+        "id": {
+          "$ref": "#/definitions/nodeId"
+        },
+        "seconds": {
+          "$ref": "#/definitions/positive"
+        },
+        "ratio": {
+          "$ref": "#/definitions/positive"
+        },
+        "note": {
+          "type": "string"
+        }
       },
-      "not": { "required": ["seconds", "ratio"] }
+      "not": {
+        "required": [
+          "seconds",
+          "ratio"
+        ]
+      }
     },
-
     "group": {
       "type": "object",
-      "required": ["id", "body"],
+      "required": [
+        "id",
+        "body"
+      ],
       "properties": {
-        "id": { "$ref": "#/definitions/nodeId" },
-        "label": { "type": "string" },
-        "asStep": { "type": "boolean" },
-        "body": { "$ref": "#/definitions/body" },
-        "note": { "type": "string" }
+        "id": {
+          "$ref": "#/definitions/nodeId"
+        },
+        "label": {
+          "type": "string"
+        },
+        "asStep": {
+          "type": "boolean"
+        },
+        "body": {
+          "$ref": "#/definitions/body"
+        },
+        "note": {
+          "type": "string"
+        }
       }
     },
-
     "repeat": {
       "type": "object",
-      "required": ["id", "body"],
+      "required": [
+        "id",
+        "body"
+      ],
       "properties": {
-        "id": { "$ref": "#/definitions/nodeId" },
-        "times": { "type": ["integer", "null"], "minimum": 1 },
-        "until": { "const": "athlete" },
-        "then": { "enum": ["repeatLast", "stop"] },
-        "vary": { "type": "object" },
-        "override": { "type": "array", "items": { "type": "object" } },
-        "body": { "$ref": "#/definitions/body" },
-        "note": { "type": "string" }
+        "id": {
+          "$ref": "#/definitions/nodeId"
+        },
+        "times": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "until": {
+          "const": "athlete"
+        },
+        "then": {
+          "enum": [
+            "repeatLast",
+            "stop"
+          ]
+        },
+        "vary": {
+          "type": "object"
+        },
+        "override": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "body": {
+          "$ref": "#/definitions/body"
+        },
+        "note": {
+          "type": "string"
+        }
       }
     },
-
     "timed": {
       "type": "object",
-      "required": ["id", "seconds", "early", "late", "body"],
+      "required": [
+        "id",
+        "seconds",
+        "early",
+        "late",
+        "body"
+      ],
       "properties": {
-        "id": { "$ref": "#/definitions/nodeId" },
-        "seconds": { "$ref": "#/definitions/positive" },
-        "early": { "enum": ["wait", "next"] },
-        "late": { "enum": ["cut", "end", "continue"] },
-        "stops": { "$ref": "#/definitions/nodeId" },
-        "startAt": { "type": "number", "minimum": 0 },
-        "body": { "$ref": "#/definitions/body" },
-        "note": { "type": "string" }
+        "id": {
+          "$ref": "#/definitions/nodeId"
+        },
+        "seconds": {
+          "$ref": "#/definitions/positive"
+        },
+        "early": {
+          "enum": [
+            "wait",
+            "next"
+          ]
+        },
+        "late": {
+          "enum": [
+            "cut",
+            "end",
+            "continue"
+          ]
+        },
+        "stops": {
+          "$ref": "#/definitions/nodeId"
+        },
+        "startAt": {
+          "type": "number",
+          "minimum": 0
+        },
+        "body": {
+          "$ref": "#/definitions/body"
+        },
+        "note": {
+          "type": "string"
+        }
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "format": {
+            "const": "amrap"
+          }
+        },
+        "required": [
+          "format"
+        ]
+      },
+      "then": {
+        "required": [
+          "timeCapSeconds"
+        ]
+      }
+    }
+  ]
 }
 $schema$::json
 $fn$;
@@ -355,7 +840,9 @@ create function public.workout_v2_before_write() returns trigger
 language plpgsql security definer set search_path = '' as $$
 begin
   if tg_op = 'INSERT' then
-    if exists (select 1 from public.workout_library l where l.id = new.id) then
+    -- (An upsert of an existing v2 row also runs this branch: its own copy is not a conflict.)
+    if exists (select 1 from public.workout_library l where l.id = new.id)
+       and not exists (select 1 from public.workout_library_v2 v where v.id = new.id) then
       raise exception 'workout id % is already used by a legacy library row', new.id
         using errcode = 'unique_violation',
               hint = 'Legacy rows move to v2 with the migration of the published rows (build 17 item 5).';
@@ -381,7 +868,6 @@ language plpgsql security definer set search_path = '' as $$
 declare
   legacy jsonb;
 begin
-  perform set_config('app.workout_v2_sync', 'on', true);
   if tg_op = 'DELETE' then
     delete from public.workout_library where id = old.id;
   else
@@ -406,7 +892,6 @@ begin
                           excluded.owner, excluded.gym_id);
     end if;
   end if;
-  perform set_config('app.workout_v2_sync', 'off', true);
   return null;
 end;
 $$;
@@ -417,12 +902,13 @@ create trigger workout_library_v2_after after insert or update or delete on publ
   for each row execute function public.workout_v2_after_write();
 
 -- One writer per row: a legacy row whose id belongs to a v2 row is written only by the trigger
--- above. (Deletes stay allowed: a deleted copy is rewritten by the next v2 write, and deleting a
+-- above (recognised by pg_trigger_depth() > 1: it writes from inside the v2 trigger, which no
+-- API caller can fake). (Deletes stay allowed: a deleted copy is rewritten by the next v2 write, and deleting a
 -- user cascades through both tables.)
 create function public.workout_library_guard_v2() returns trigger
 language plpgsql security definer set search_path = '' as $$
 begin
-  if current_setting('app.workout_v2_sync', true) is distinct from 'on'
+  if pg_trigger_depth() <= 1
      and exists (select 1 from public.workout_library_v2 v where v.id = new.id) then
     raise exception 'workout % is a v2 workout: write it to workout_library_v2 (tools/library/make_row.py)', new.id
       using errcode = 'check_violation';
@@ -454,11 +940,11 @@ grant select, insert, update, delete on public.workout_library_v2, public.workou
 create policy "Users read their own, their gyms' and public v2 workouts" on public.workout_library_v2
   for select to authenticated
   using (
-    published and (
-      owner = (select auth.uid())
-      or (owner is null and gym_id is null)
+    owner = (select auth.uid())   -- a user's own rows, published or not (so they can change them)
+    or (published and (
+      (owner is null and gym_id is null)
       or gym_id in (select m.gym_id from public.gym_members m where m.user_id = (select auth.uid()))
-    )
+    ))
   );
 create policy "Users add their own v2 workouts" on public.workout_library_v2
   for insert to authenticated with check (owner = (select auth.uid()) and gym_id is null);
@@ -473,6 +959,22 @@ create policy "Users delete their own v2 workouts" on public.workout_library_v2
 create policy "Users read revisions of the workouts they can read" on public.workout_library_v2_revisions
   for select to authenticated
   using (exists (select 1 from public.workout_library_v2 w where w.id = workout_id));
+
+-- Personal legacy rows: the id suffix rule too (RFC 14.3 F6), so a user can't take an id the owner
+-- will need (a v2 id, a gym's, a moved draft's). Policies only change writes: reads, and so the
+-- 29 published rows and builds 15/16, are unaffected (D5). The app never writes this table.
+drop policy "Users add their own workouts" on public.workout_library;
+create policy "Users add their own workouts" on public.workout_library
+  for insert to authenticated with check (
+    owner = (select auth.uid()) and gym_id is null
+    and right(id, 10) = '.u' || left(replace((select auth.uid())::text, '-', ''), 8));
+drop policy "Users change their own workouts" on public.workout_library;
+create policy "Users change their own workouts" on public.workout_library
+  for update to authenticated
+  using (owner = (select auth.uid()))
+  with check (
+    owner = (select auth.uid()) and gym_id is null
+    and right(id, 10) = '.u' || left(replace((select auth.uid())::text, '-', ''), 8));
 
 -- Library paging (RFC 7.2.7): the API returns at most 1000 rows per request. Keyset on id:
 -- call with after_id = the last id of the previous page until a page comes back short.

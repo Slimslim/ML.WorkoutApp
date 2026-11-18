@@ -23,7 +23,10 @@ select test_harness.ok(not exists (
 -- A draft can no longer be written into the library.
 select test_harness.fails($$insert into public.workout_library (id, definition, published)
   values ('lib.x.20261118.draft', '{"schemaVersion": 0, "id": "lib.x.20261118.draft"}', false)$$,
-  'library refuses a schemaVersion 0 draft', 'workout_library_no_drafts');
+  'library refuses a schemaVersion 0 draft', 'workout_library_v1_only');
+select test_harness.fails($$insert into public.workout_library (id, definition)
+  values ('lib.x.20261118.v2', '{"schemaVersion": 2, "id": "lib.x.20261118.v2"}')$$,
+  'library refuses a schemaVersion 2 definition (v2 goes to workout_library_v2)', 'workout_library_v1_only');
 
 -- RLS on drafts: the owner reads them all; a tester and another user read none.
 set role authenticated;
@@ -38,6 +41,18 @@ select test_harness.fails($$select count(*) from public.project_admins$$, 'RLS: 
 select test_harness.fails($$update public.workout_drafts set program = 'x'$$, 'RLS: a tester cannot write drafts');
 select test_harness.fails($$insert into public.workout_drafts (id, definition, owner) values ('lib.a.b.u00000000', '{"id": "lib.a.b.u00000000"}', '00000000-0000-4000-8000-000000000001')$$,
                           'RLS: a tester cannot add drafts');
+-- Legacy personal writes need the id suffix now (no squatting on the owner's or a draft's ids).
+select test_harness.fails($$insert into public.workout_library (id, definition, owner)
+  values ('lib.draft.5.u0000000a', '{"id": "lib.draft.5.u0000000a", "name": "x", "shortName": "x", "format": "forTime", "team": "solo", "healthKitActivity": "x", "segments": []}',
+          '00000000-0000-4000-8000-000000000001')$$, 'legacy: a user cannot take a draft''s id', 'row-level security');
+select test_harness.fails($$insert into public.workout_library (id, definition, owner)
+  values ('lib.hyrox.20261201.wod', '{"id": "lib.hyrox.20261201.wod", "name": "x", "shortName": "x", "format": "forTime", "team": "solo", "healthKitActivity": "x", "segments": []}',
+          '00000000-0000-4000-8000-000000000001')$$, 'legacy: a user cannot take an id without their suffix', 'row-level security');
+insert into public.workout_library (id, definition, owner)
+  values ('lib.own.20261118.legacy.u00000000', '{"id": "lib.own.20261118.legacy.u00000000", "name": "x", "shortName": "x", "format": "forTime", "team": "solo", "healthKitActivity": "x", "segments": []}',
+          '00000000-0000-4000-8000-000000000001');
+delete from public.workout_library where id = 'lib.own.20261118.legacy.u00000000';
+select test_harness.ok(true, 'legacy: a user still adds and deletes a personal row with their suffix');
 select test_harness.login('0000000c-0000-4000-8000-00000000000c');
 select test_harness.ok((select count(*) from public.workout_drafts) = 0, 'RLS: a signed-in non-member reads no drafts');
 select test_harness.ok((select count(*) from public.workout_library) = 0, 'RLS: a non-member reads no library rows (none are public)');

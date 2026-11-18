@@ -149,7 +149,11 @@ Migrations `20261118000000_workout_drafts.sql` and `20261118000100_workout_libra
 - **Paging.** The API returns at most 1,000 rows. Page with
   `rpc/workout_library_v2_page` (`after_id` = last id of the previous page, `page_size` ≤ 1000),
   or `order=id&id=gt.<last id>&limit=…` on the table.
-- **Drafts never go to the library:** `workout_library` refuses `schemaVersion: 0`.
+- **Only flat definitions in the library:** `workout_library` refuses `schemaVersion` 0 (drafts)
+  and 2 (v2 rows go to `workout_library_v2`). Personal rows written with a user's token now need
+  the id suffix there too (no one can take an id the owner or a draft uses).
+- `make_row.py` keeps a v2 row's gym when re-run without `--gym` (as for flat rows); a user can
+  still read, change and delete their own unpublished v2 rows.
 - Tests: `tools/tests/test_workout_library_v2.py` (make_row, schema copy) and
   `supabase/tests/run.sh` (the migrations on a throwaway `supabase/postgres` database: RLS,
   schema refusal, legacy copy, revisions, paging, the 29 rows untouched, rollback). CI runs both.
@@ -164,6 +168,8 @@ Never from CI. In the dashboard SQL editor (or the Supabase MCP), in this order:
    select count(*) from public.workout_library where published and definition ->> 'schemaVersion' = '0';  -- expect 0
    select md5(string_agg(t::text, '|' order by t.id)) from public.workout_library t where published;      -- note it
    select name, installed_version from pg_available_extensions where name = 'pg_jsonschema';             -- available
+   select n.nspname from pg_extension e join pg_namespace n on n.oid = e.extnamespace where e.extname = 'pg_jsonschema';  -- none or 'extensions' (the migration calls extensions.jsonb_matches_schema)
+   select count(*) from public.workout_library where coalesce(definition ->> 'schemaVersion', '1') not in ('1', '0');  -- 0
    ```
 2. **Apply** `20261118000000_workout_drafts.sql`, then `20261118000100_workout_library_v2.sql`,
    each as one run (each file is all-or-nothing; the first checks itself and raises if the move
@@ -183,4 +189,6 @@ Never from CI. In the dashboard SQL editor (or the Supabase MCP), in this order:
 4. **Rollback** (only if a check fails): `supabase/rollback/20261118_backend_v2_rollback.sql`,
    one run. It removes the v2 tables and legacy copies and puts the drafts back with
    `published = false` and their timestamps; it refuses if `workout_drafts` holds rows that did
-   not come from the library.
+   not come from the library, or a draft id is now used in the library, and it checks the
+   published rows are unchanged. Then mark the two versions reverted in the migration history if
+   they were recorded there: `supabase migration repair --status reverted 20261118000000 20261118000100`.

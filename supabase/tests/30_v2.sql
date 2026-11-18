@@ -2,6 +2,9 @@
 
 -- make_row wrote v2 rows, and the legacy copy exists only for published all-exact rows.
 select test_harness.ok((select count(*) from public.workout_library_v2) = 6, 'make_row: 6 fixture rows in workout_library_v2');
+select test_harness.ok((select bool_and(revision = 1) from public.workout_library_v2)
+  and (select count(*) from public.workout_library_v2_revisions) = 6,
+  'make_row: running the same SQL twice (an upsert of exact rows with copies) changes no revision');
 select test_harness.ok(
   (select array_agg(id order by id) from public.workout_library where id like 'lib.test.%')
   = array['lib.test.20261118.all-exact', 'lib.test.20261118.exact-emom', 'lib.test.20261118.mine.u00000000'],
@@ -47,6 +50,9 @@ select test_harness.fails($$insert into public.workout_library_v2 (id, definitio
   'one writer: a v2 row cannot take the id of a legacy row', 'already used by a legacy library row');
 select test_harness.fails($$update public.workout_library set program = 'hand edit' where id = 'lib.test.20261118.exact-emom'$$,
   'one writer: a legacy copy cannot be written directly', 'is a v2 workout');
+select set_config('app.workout_v2_sync', 'on', false);
+select test_harness.fails($$update public.workout_library set program = 'hand edit' where id = 'lib.test.20261118.exact-emom'$$,
+  'one writer: no setting turns the guard off', 'is a v2 workout');
 select test_harness.fails($$insert into public.workout_library (id, definition) values ('lib.test.20261118.mixed',
   '{"id": "lib.test.20261118.mixed", "name": "x", "shortName": "x", "format": "forTime", "team": "solo", "healthKitActivity": "x", "segments": []}')$$,
   'one writer: nobody adds a legacy row for a non-exact v2 id', 'is a v2 workout');
@@ -125,6 +131,20 @@ begin
   perform test_harness.ok(n = 0, 'RLS v2: a user cannot change a public row');
 end;
 $$;
+-- Their own unpublished row stays readable, changeable and deletable by them (and has no copy).
+update public.workout_library_v2 set published = false where id = 'lib.test.20261118.own.u00000000';
+select test_harness.ok(not exists (select 1 from public.workout_library where id = 'lib.test.20261118.own.u00000000'),
+                       'personal: unpublishing removes the copy');
+do $$
+declare n integer;
+begin
+  update public.workout_library_v2 set program = 'Still mine' where id = 'lib.test.20261118.own.u00000000';
+  get diagnostics n = row_count;
+  perform test_harness.ok(n = 1, 'personal: a user changes their own unpublished row');
+end;
+$$;
+select test_harness.ok((select count(*) from public.workout_library_v2_revisions where workout_id = 'lib.test.20261118.own.u00000000') = 1,
+                       'personal: a user reads the revisions of their unpublished row');
 delete from public.workout_library_v2 where id = 'lib.test.20261118.own.u00000000';
 select test_harness.ok(not exists (select 1 from public.workout_library where id = 'lib.test.20261118.own.u00000000'),
                        'personal: deleting the row deletes its copy');
@@ -135,6 +155,9 @@ insert into public.workout_custom_scales (workout_id, scale, based_on_revision)
          (definition -> 'scales' -> 1) || '{"id": "custom", "label": "Mine", "short": "Mine", "basedOn": "l1"}', revision
   from public.workout_library_v2 where id = 'lib.test.20261118.all-exact';
 select test_harness.ok((select count(*) from public.workout_custom_scales) = 1, 'custom scale: the tester adds and reads their own');
+insert into public.workout_custom_scales (workout_id, scale)
+  values ('lib.test.20261118.exact-emom', '{"id": "custom", "label": "Mine", "basedOn": "rx", "structure": {"body": [{"part": {"id": "sq", "movement": "airSquats", "target": {"value": 8, "unit": "reps"}}}]}}');
+select test_harness.ok((select count(*) from public.workout_custom_scales) = 2, 'custom scale: the RFC 3.6 shape (no rank, no fidelity) is accepted');
 select test_harness.fails($$insert into public.workout_custom_scales (workout_id, scale)
   values ('lib.test.20261118.future', '{"id": "custom", "label": "Mine", "rank": 1, "fidelity": "exact", "structure": {"body": []}}')$$,
   'custom scale: an invalid scale is refused', 'workout_custom_scales_schema');

@@ -288,7 +288,7 @@ def make_row_v2(d: dict, program, scheduled_on, published: bool = True,
            f"values ({vals})\n"
            "on conflict (id) do update set definition = excluded.definition,\n"
            "  program = excluded.program, scheduled_on = excluded.scheduled_on,\n"
-           "  published = excluded.published, gym_id = excluded.gym_id")
+           "  published = excluded.published" + (", gym_id = excluded.gym_id" if gym else ""))
     if owner:
         sql += "\n  where public.workout_library_v2.owner = excluded.owner"
     else:

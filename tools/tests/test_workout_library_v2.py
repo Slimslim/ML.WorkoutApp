@@ -11,14 +11,15 @@ from pathlib import Path
 
 import pytest
 
-pytest.importorskip("jsonschema")
-
 from barpath.workout import WorkoutDefinition
 
 TOOLS = Path(__file__).resolve().parent.parent
 REPO = TOOLS.parent
 sys.path.insert(0, str(TOOLS / "library"))
 import make_row  # noqa: E402
+
+needs_jsonschema = pytest.mark.skipif(
+    __import__("importlib").util.find_spec("jsonschema") is None, reason="pip install jsonschema")
 
 FIXTURES = TOOLS / "library" / "fixtures" / "v2"
 SCHEMA = REPO / "schemas" / "workout-definition.v2.schema.json"
@@ -63,6 +64,7 @@ def test_fixtures_exist():
     assert len(valid_files()) >= 5 and len(invalid_files()) >= 5
 
 
+@needs_jsonschema
 @pytest.mark.parametrize("path", valid_files(), ids=lambda p: p.name)
 def test_valid_fixture_is_accepted(path):
     raw = json.loads(path.read_text(encoding="utf-8"))
@@ -71,6 +73,7 @@ def test_valid_fixture_is_accepted(path):
     make_row.validate_v2(d, raw.get("owner"))
 
 
+@needs_jsonschema
 @pytest.mark.parametrize("path", invalid_files(), ids=lambda p: p.name)
 def test_invalid_fixture_is_refused(path):
     with pytest.raises(make_row.LibraryError):
@@ -102,6 +105,7 @@ def test_one_inexact_scale_means_no_copy():
     assert make_row.legacy_copy(d2) is None
 
 
+@needs_jsonschema
 def test_v2_rows_go_to_the_v2_table_only(capsys):
     assert make_row.main([str(p) for p in valid_files()]) == 0
     out = capsys.readouterr().out
@@ -110,6 +114,7 @@ def test_v2_rows_go_to_the_v2_table_only(capsys):
     assert "insert into public.workout_library (" not in out
 
 
+@needs_jsonschema
 def test_v2_sql_passes_unknown_fields_through():
     path = FIXTURES / "valid" / "future_fields.json"
     raw = json.loads(path.read_text(encoding="utf-8"))
@@ -122,6 +127,7 @@ def test_v2_sql_passes_unknown_fields_through():
     assert stored["x-futureRoot"] == {"anything": [1, 2.5, "three", None]}
 
 
+@needs_jsonschema
 def test_v2_personal_row_needs_the_owner_suffix():
     raw = json.loads((FIXTURES / "valid" / "exact_personal.json").read_text(encoding="utf-8"))
     d = raw["definition"]
@@ -138,6 +144,7 @@ def test_v2_public_upsert_never_overwrites_a_personal_row():
     assert "where public.workout_library_v2.owner is null" in make_row.make_row_v2(d, None, None)
 
 
+@needs_jsonschema
 def test_v2_old_keys_must_still_decode():
     d = definition_of(FIXTURES / "valid" / "exact_emom.json")
     bad = json.loads(json.dumps(d))
@@ -150,6 +157,7 @@ def test_v2_old_keys_must_still_decode():
         make_row.validate_v2(bad)
 
 
+@needs_jsonschema
 def test_main_refuses_an_invalid_v2_file(capsys):
     assert make_row.main([str(FIXTURES / "invalid" / "bad_late.json")]) == 1
     assert "late" in capsys.readouterr().err
@@ -162,3 +170,23 @@ def test_sql_legacy_keys_match_python():
     assert m
     keys = tuple(k.strip().strip("'") for k in m.group(1).replace("\n", " ").split(","))
     assert keys == make_row.LEGACY_KEYS
+
+
+def test_v2_rerun_without_gym_keeps_the_gym():
+    """Re-running a gym file without --gym must not turn gym programming into a public row."""
+    d = definition_of(FIXTURES / "valid" / "scales_all_exact.json")
+    assert "gym_id = excluded.gym_id" not in make_row.make_row_v2(d, None, None)
+    assert "gym_id = excluded.gym_id" in make_row.make_row_v2(d, None, None, gym="test-gym")
+
+
+def test_custom_scale_shape_of_the_rfc_is_valid():
+    jsonschema = pytest.importorskip("jsonschema")
+    schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
+    custom = {"$schema": schema["$schema"], "$ref": "#/definitions/customScale",
+              "definitions": schema["definitions"]}
+    v = jsonschema.Draft7Validator(custom)
+    mine = {"id": "custom", "label": "Mine", "basedOn": "l2",
+            "structure": {"body": [{"part": {"id": "row", "movement": "row"}}]}}
+    assert not list(v.iter_errors(mine))
+    assert list(v.iter_errors(dict(mine, id="rx")))
+    assert list(v.iter_errors({k: x for k, x in mine.items() if k != "basedOn"}))

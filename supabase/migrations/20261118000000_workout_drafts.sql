@@ -70,18 +70,22 @@ declare
   published_before text;
   published_after text;
 begin
+  -- No write may slip in between counting, copying and deleting.
+  lock table public.workout_library in share row exclusive mode;
   select count(*) into n_drafts from public.workout_library where not published;
   select coalesce(md5(string_agg(t::text, '|' order by t.id)), '')
     into published_before from public.workout_library t where t.published;
 
+  -- One statement: exactly the rows deleted are the rows inserted.
+  with moved as (
+    delete from public.workout_library where not published
+    returning id, definition, program, scheduled_on, owner, gym_id, created_at, updated_at
+  )
   insert into public.workout_drafts
     (id, definition, program, scheduled_on, owner, gym_id, source, moved_at, created_at, updated_at)
   select id, definition, program, scheduled_on, owner, gym_id, 'library', now(), created_at, updated_at
-  from public.workout_library
-  where not published;
+  from moved;
   get diagnostics n_moved = row_count;
-
-  delete from public.workout_library where not published;
 
   select coalesce(md5(string_agg(t::text, '|' order by t.id)), '')
     into published_after from public.workout_library t;
@@ -95,7 +99,8 @@ begin
 end;
 $$;
 
--- From now on a draft (schemaVersion 0) can't be written into the library: imports and synced
--- programming land in workout_drafts (#70). NOT VALID: existing rows are not re-checked.
+-- From now on the library takes only today's flat definitions (schemaVersion absent or 1): drafts
+-- (0) land in workout_drafts (#70), v2 rows in workout_library_v2, whose legacy copies carry no
+-- schemaVersion. NOT VALID: existing rows are not re-checked (D5).
 alter table public.workout_library
-  add constraint workout_library_no_drafts check ((definition ->> 'schemaVersion') is distinct from '0') not valid;
+  add constraint workout_library_v1_only check (coalesce(definition ->> 'schemaVersion', '1') = '1') not valid;
