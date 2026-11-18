@@ -68,8 +68,23 @@ final class BackgroundUploads: NSObject, URLSessionDataDelegate {
         let gz: Data = Gzip.wrap(deflated: deflated, of: data)
         let name: String = UUID().uuidString + ".csv.gz"
         let url: URL = stagingURL.appendingPathComponent(name)
-        try gz.write(to: url, options: .atomic)
+        // Readable after the first unlock: the background upload reads it with the phone locked.
+        try gz.write(to: url, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
         return StagedFile(url: url, name: name, size: gz.count)
+    }
+
+    /// Makes a file readable while the phone is locked (after the first unlock since boot), so a
+    /// background sync can stage and upload it. Files moved in from WatchConnectivity keep the
+    /// protection they had in its inbox; this sets the app's usual class explicitly.
+    static func keepReadableWhenLocked(_ url: URL) {
+        do {
+            try FileManager.default.setAttributes(
+                [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication],
+                ofItemAtPath: url.path)
+        } catch {
+            NSLog("BarPath: could not set file protection on %@: %@",
+                  url.lastPathComponent, error.localizedDescription)
+        }
     }
 
     static func removeStaged(_ name: String?) {
@@ -101,19 +116,50 @@ final class BackgroundUploads: NSObject, URLSessionDataDelegate {
     }
 
     func enqueue(_ job: UploadJob, file: URL, contentType: String, accessToken: String) {
+        guard let request = Self.makeRequest(job, contentType: contentType, accessToken: accessToken),
+              let description = try? String(data: JSONEncoder().encode(job), encoding: .utf8) else { return }
+        let task = session.uploadTask(with: request, fromFile: file)
+        task.taskDescription = description
+        task.resume()
+    }
+
+    /// Sends one file now with a normal request (not the background session), for a background
+    /// wake where the background session would wait (W28). The caller records the outcome.
+    static func uploadDirect(_ job: UploadJob, file: URL, contentType: String, accessToken: String,
+                             timeout: TimeInterval) async -> (UploadOutcome, String?) {
+        guard let request = makeRequest(job, contentType: contentType, accessToken: accessToken) else {
+            return (.retryLater, "bad upload address")
+        }
+        // A total limit (resource timeout), not an idle one: the upload must end inside the
+        // background time; on timeout the caller hands the file to the background session.
+        let config = URLSessionConfiguration.ephemeral
+        config.timeoutIntervalForRequest = timeout
+        config.timeoutIntervalForResource = timeout
+        let session = URLSession(configuration: config)
+        defer { session.finishTasksAndInvalidate() }
+        do {
+            let (body, response) = try await session.upload(for: request, fromFile: file)
+            let status: Int = (response as? HTTPURLResponse)?.statusCode ?? 0
+            let outcome: UploadOutcome = UploadOutcome.classify(status: status, body: body.prefix(2048), failed: false)
+            return (outcome, outcome == .uploaded ? nil : "HTTP \(status)")
+        } catch {
+            return (.retryLater, error.localizedDescription)
+        }
+    }
+
+    private static func makeRequest(_ job: UploadJob, contentType: String, accessToken: String) -> URLRequest? {
         let encoded = job.objectPath
             .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? job.objectPath
-        guard let url = URL(string: "\(CloudConfig.url)/storage/v1/object/\(CloudConfig.bucket)/\(encoded)"),
-              let description = try? String(data: JSONEncoder().encode(job), encoding: .utf8) else { return }
+        guard let url = URL(string: "\(CloudConfig.url)/storage/v1/object/\(CloudConfig.bucket)/\(encoded)") else {
+            return nil
+        }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue(CloudConfig.anonKey, forHTTPHeaderField: "apikey")
         request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         request.setValue(contentType, forHTTPHeaderField: "Content-Type")
         request.setValue("true", forHTTPHeaderField: "x-upsert")
-        let task = session.uploadTask(with: request, fromFile: file)
-        task.taskDescription = description
-        task.resume()
+        return request
     }
 
     func cancelAll() async {
@@ -145,29 +191,18 @@ final class BackgroundUploads: NSObject, URLSessionDataDelegate {
             return
         }
         let status = (task.response as? HTTPURLResponse)?.statusCode ?? 0
+        let outcome: UploadOutcome = UploadOutcome.classify(status: status, body: body, failed: error != nil)
         let failure: String?
-        var tooLarge = false
         if let error {
             failure = error.localizedDescription
-        } else if !(200..<300).contains(status) {
+        } else if outcome != .uploaded {
             failure = "HTTP \(status)"
-            tooLarge = Self.isTooLarge(status: status, body: body)
         } else {
             failure = nil
         }
         Task { @MainActor in
-            await CloudAccount.shared.uploadFinished(job, failure: failure, tooLarge: tooLarge)
+            await CloudAccount.shared.uploadFinished(job, outcome: outcome, failure: failure)
         }
-    }
-
-    /// The server refused the file for its size: HTTP 413, or the storage API's 400 whose
-    /// message says the object exceeded the maximum allowed size. A 400 without a readable body
-    /// is not treated as "too large" (it keeps being retried).
-    static func isTooLarge(status: Int, body: Data) -> Bool {
-        if status == 413 { return true }
-        guard status == 400 else { return false }
-        let text: String = (String(data: body, encoding: .utf8) ?? "").lowercased()
-        return text.contains("exceed") && text.contains("maximum")
     }
 
     func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {

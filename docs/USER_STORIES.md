@@ -463,11 +463,50 @@ and a per-window table for EMOMs and intervals, so I read my result the way the 
 *Done when:* every D6 preset shows right on fixtures of each format; the table matches the approved
 mockup. Ticket #74.
 
-**W33. Team rep count in a shared movement (proposed)**
-**W34. My own work and rest in a shared movement (proposed)**
-**W35. A workout in parts, each with its own cap (proposed)**
-Ids reserved 16 Nov for three stories on the release dashboard (renamed from its w29-w31, which
-clashed with W29-W31 here). The full text and "done when" are written here once the owner agrees them.
+**Record first, fix later (owner, 18 Nov).** A change to the workout, before, during or after it,
+must never stop or lose the recording. When the plan on the watch is wrong, the athlete starts anyway
+and corrects it afterwards on the phone.
+
+**W37. A note with my workout (Now)**
+As an athlete, I want to add a short note to a workout (typed or dictated, plus one optional photo of
+the whiteboard), so I remember what we really did and the recording can be labelled later.
+*Done when:* on the phone (and dictation on the watch after END), a workout result takes a note of
+up to ~500 characters and one photo; the note and photo are stored privately with the result (only
+the athlete and the owner's labelling tools read them, deleted with the account); the photo screen
+says "photograph only the workout, not people"; PRIVACY.md has a line about notes and photos; notes
+and photos never go in the repo or a library. The photos become the test set for the photo import
+(W30). Ticket #84.
+
+**W38. The start countdown matches my gym's clock (Now)**
+As an athlete, I want to choose per workout whether the watch starts at once, after 3 s or after 10 s,
+so it starts with the gym clock.
+*Done when:* the start screen offers none / 3 s / 10 s (default from the workout, else 3 s) and
+remembers the last choice per workout; the clock starts at GO (RFC 4.2.12 "get ready"); "tap to go
+now" still works; the recording starts at the START tap, so the countdown is in the recording.
+Ticket #85.
+
+**W39. Start anyway and correct it afterwards (Now)**
+As an athlete whose class changed the workout (10 x 2 became an EMOM, or the order changed), I want to
+do it with the watch as it was, then fix the order, the format or the scale on the phone, so my
+result is right without stopping the recording.
+*Done when:* on the result, "Edit workout" changes the order of parts, the format (for time, EMOM,
+AMRAP, rounds) and the scale (W31); the result is recomputed from the recording with the engine's
+replay; the original recording and the original plan are kept and can be restored; the edit is
+saved as the athlete's private copy, never in the library. Built together with W31. Ticket #86.
+
+**W40. Quick edit before I start (Later)**
+As an athlete, I want to change reps, a load or the order on the watch or phone just before START,
+so the plan matches today's whiteboard. *Done when:* written with its design.
+
+**W41. Log a lift on the watch with a rest timer (Later)**
+As an athlete doing strength work, I want to log sets (weight x reps) on the watch with a rest timer
+between them, so my strength day is in the app too. Related #35. *Done when:* written with its design.
+
+**W42. The phone is the gym clock (Later, nice to have)**
+As an athlete training alone, I want the phone to show a big gym clock synced to my watch, so I can
+read it from ~2 m. *Done when:* written with its design.
+
+Ids W33-W36 are taken by the shared-movement and rower stories (branch `claude/amazing-fermi-2lev62`).
 
 ### Recording follows the plan (spans Lifting and Workouts; after the MVP)
 
