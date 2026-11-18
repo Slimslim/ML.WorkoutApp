@@ -175,8 +175,8 @@ Order = priority. **Pilot tickets for process v2:** #70 and #59.
 | 4 | Start countdown per workout: none / 3 s / 10 s (on the engine's get ready) | W38 | #85 | S | proposed (18 Nov, in) |
 | 5 | A note with my workout: text, dictation, one whiteboard photo, private; PRIVACY.md line | W37 | #84 | S | proposed (18 Nov, in) |
 | 6 | Migrate the 29 published workouts (owner signs off with `--diff-live`) | chore | #71 | M | proposed |
-| 7 | Start anyway, correct afterwards on the phone (the W43 editor on a finished result; replay), with scales in the engine and result (plain picker) | W39 + W31 | #86, #73 | M | proposed (18 Nov, in); after W43 |
-| 8 | Workout builder: create or change a workout on the phone (For Time, AMRAP, EMOM, rounds, cap; 21-15-9 and ladders; movement table; drag to reorder) and send it to the watch; 20-min AMRAP in under 60 s | W43 | #89 | L | proposed (18 Nov, in) |
+| 7 | Workout builder: create or change a workout on the phone (For Time, AMRAP, EMOM, rounds, cap; 21-15-9 and ladders; movement table; drag to reorder) and send it to the watch; 20-min AMRAP in under 60 s | W43 | #89 | L | proposed (18 Nov, in) |
+| 8 | Start anyway, correct afterwards on the phone (the W43 editor on a finished result; replay), with scales in the engine and result (plain picker) | W39 + W31 | #86, #73 | M | proposed (18 Nov, in); after W43 |
 | 9 | Design build 17: UI/UX review (R1, R2), watch signals (D7), workout editor (W43, W39), note, countdown | - | #75 | M | proposed |
 
 **Moved out (18 Nov, one in, one out):** W32 score presets and per-window table (#74) and the
