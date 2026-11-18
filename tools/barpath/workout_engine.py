@@ -266,9 +266,15 @@ class Expansion:
 
     def _body(self, body: list, ctx: Ctx, sink: Sink):
         items = []
-        for w in body:
+        for i, w in enumerate(body):
             kind, c = node_kind(w)
             if c is None:
+                # An unknown node falls back to an athlete-paced part showing its text, never a
+                # guess (RFC 14.3 A4).
+                nid = "_unknown%d" % i
+                text = (w.get("rawText") or w.get("note")) if isinstance(w, dict) else None
+                items.append(("part", {"movement": "part", "name": text or "Unknown block",
+                                       "unknown": True}, nid))
                 continue
             nid = self.node_id(c)
             if nid in ctx.omitted:
@@ -603,10 +609,7 @@ def reduce(state: State, event: dict) -> tuple:
         if st.now - t > LATE_EVENT_MS:
             st.ignored.append({"t": t, "action": kind, "reason": "late"})
             return st, [{"kind": "hint", "t": st.now, "reason": "late"}]
-        # A late event within 5 s is applied in time order: rebuild from the log.
-        rebuilt = replay(st.plan, st.log + [dict(event)], until=st.now)
-        rebuilt.ignored = st.ignored + [x for x in rebuilt.ignored if x not in st.ignored]
-        return rebuilt, []
+        return _late(st, dict(event))
     _catch_up(st, t, effects)
     st.now = t
     if kind == "crown":
@@ -626,6 +629,30 @@ def reduce(state: State, event: dict) -> tuple:
         _block_done(st, t, effects)
     _countdown(st, t, effects)
     return st, effects
+
+
+def _late(st: State, event: dict) -> tuple:
+    """A late event within 5 s is applied in time order: rebuild from the log. Its own effects
+    are returned (hint, ask, grace, done...), with only the current state's haptic (§4.2.4)."""
+    t = int(event["t"])
+    before = [e for e in st.log if int(e["t"]) <= t]
+    after = [e for e in st.log if int(e["t"]) > t]
+    rebuilt = replay(st.plan, before)
+    rebuilt, own = reduce(rebuilt, event)
+    later = []
+    for e in after:
+        rebuilt, eff = reduce(rebuilt, e)
+        later.extend(eff)
+    rebuilt, eff = reduce(rebuilt, {"kind": "tick", "t": st.now})
+    later.extend(eff)
+    rebuilt.ignored = st.ignored + [x for x in rebuilt.ignored if x not in st.ignored]
+    effects = [e for e in own if e["kind"] not in HAPTICS and e["kind"] != "countdown"]
+    haptics = [e for e in own + later if e["kind"] in HAPTICS]
+    if haptics:
+        effects.append(haptics[-1])
+    if rebuilt.done and not st.done and not any(e["kind"] == "done" for e in effects):
+        effects.append({"kind": "done", "t": rebuilt.done_t})
+    return rebuilt, effects
 
 
 def replay(p: Plan, events: list, until: Optional[int] = None) -> State:
@@ -694,7 +721,8 @@ def _enter(st: State, t: int, effects: list, by_clock: bool):
     elif s.kind == "rest" and s.rest_seconds is not None:
         due = t + s.rest_seconds * 1000
     elif s.kind == "rest" and s.ratio is not None:
-        seconds = int(s.ratio * _scope_ms(st, s.ratio_of) / 1000.0 + 0.5)
+        milli = int(round(s.ratio * 1000))          # ratio in thousandths: integer maths only
+        seconds = (milli * _scope_ms(st, s.ratio_of) + 500000) // 1000000
         due = t + seconds * 1000
     elif s.seconds_target is not None:
         due = t + s.seconds_target * 1000
@@ -811,8 +839,14 @@ def _apply_bell(st: State, b: int, kind: str, key, effects: list):
         ws["open"] = False
         _advance(st, b, effects, by_clock=True)
         return
+    if w.late == "end" and st.plan.score.get("type") == "time" and st.cap is None:
+        # A hard cap: the workout's time is CAP + reps, ranked below every finisher (RFC 3.4, D6).
+        st.cap = {"step": s.id, "t": b, "window": key, "reps": None, "hard": True}
+        effects.append({"kind": "cap", "t": b, "step": s.id})
     if s.kind == "rest":
         _finish(st, idx, b, "clock", "done")
+    elif s.seconds_target is not None and st.due == b:
+        _finish(st, idx, b, "clock", "done")        # a seconds part ending on the bell: as planned
     elif s.is_max:
         _finish(st, idx, b, "clock", "done")        # the bell is a max part's planned ending
         _ask(st, s)
@@ -871,7 +905,8 @@ def _crown(st: State, t: int, began: int, effects: list):
     if lb is not None and t - lb < BELL_LOCKOUT_MS:
         _ignore(st, t, "bell", effects)
         return
-    in_window = bool(s.windows) or s.merged_window is not None
+    clocked = _clocked_windows(st, s)
+    in_window = bool(clocked) or s.merged_window is not None
     if in_window:
         refs = [x for x in (st.last_crown, lb) if x is not None]
         if refs and t - max(refs) < WINDOW_LOCKOUT_MS:
@@ -882,7 +917,7 @@ def _crown(st: State, t: int, began: int, effects: list):
         return
     if s.kind == "rest":
         if s.auto or s.merged_window is not None or s.ratio is not None or (
-                s.rest_seconds is not None and s.windows):
+                s.rest_seconds is not None and clocked):
             _ignore(st, t, "clock", effects)    # "Clock starts the next part"
             return
     elif s.seconds_target is not None:
@@ -896,6 +931,12 @@ def _crown(st: State, t: int, began: int, effects: list):
         _ask(st, s)                               # "I stopped": its count is asked
         effects.append({"kind": "ask", "t": t, "step": s.id})
     _advance(st, t, effects, by_clock=False)
+
+
+def _clocked_windows(st: State, s: Step) -> list:
+    """The windows around a step whose clock ends work. A `late: continue` cap closes nothing
+    (§4.2.5), so a part under it is "a part you end, outside any clock" (§4.2.8)."""
+    return [wk for wk in s.windows if st.windows[wk].late != "continue"]
 
 
 def _undo(st: State, t: int, effects: list) -> State:
@@ -1013,10 +1054,10 @@ def _countdown(st: State, t: int, effects: list):
     first seen; a mark passed late plays only the latest one (§4.2.4, §6.2)."""
     bells = _bells(st)
     signal = None
-    if bells:
-        b = bells[0]
+    for b in bells:
         if not (b[2] == "window" and st.windows[b[3]].late == "continue"):
             signal = b[0]
+            break
     if signal is None:
         st.cd = None
         return
@@ -1104,10 +1145,13 @@ def _reps_until(st: State, parts, cap: Optional[dict]) -> tuple:
         if cap is not None:
             r = st.rec.get(idx)
             if s.id == cap["step"]:
-                if cap.get("reps") is None:
+                n = cap.get("reps")
+                if n is None and r is not None and r["status"] == "cut":
+                    n = r["reps"]                  # a hard cap: the cut step's own count
+                if n is None:
                     complete = False
                 else:
-                    total += cap["reps"]
+                    total += n
                 break
             if r is None:
                 break
@@ -1204,6 +1248,9 @@ def score(st: State) -> dict:
                 if best is None or kg > best[0]:
                     best = (kg, ld, (s.target or {}).get("value"))
         out["value"] = None if best is None else {"load": best[1], "reps": best[2]}
+        return out
+    if typ == "perPiece" and sc.get("metric", "time") != "time":
+        out["factsOnly"] = True                   # distance / reps per piece: not yet implemented
         return out
     if typ == "perPiece":
         key = sc.get("of") or next(iter(st.plan.exp.repeats), None)

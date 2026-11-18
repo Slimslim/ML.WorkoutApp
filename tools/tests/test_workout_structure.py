@@ -79,8 +79,11 @@ def test_unknown_engine_field_needs_a_feature_in_requires():
     doc = copy.deepcopy(ALL["amrapShort"])
     rp = doc["structure"]["body"][0]["timed"]["body"][0]["repeat"]
     rp["resume"] = "rp0"
-    errs = ws.validate(doc)
-    assert any("requires" in e for e in errs) is False   # no requires key yet: nothing to compare
+    # The writer refuses a feature not named in requires, and a reader refuses it even then.
+    assert any(e.startswith("requires: missing") for e in ws.validate(doc))
+    assert ws.check_runnable(doc) == ("updateApp", ["resume"])
+    with pytest.raises(we.NotRunnable):
+        we.plan(doc)
     c = ws.compile_definition(doc)
     assert c["requires"] == ["resume"]
     assert ws.validate(c) == []
@@ -223,3 +226,41 @@ def test_payload_limit():
 
 def test_hard_cap_at_the_top_is_allowed():
     assert ws.validate(ALL["hardCap"]) == []
+
+
+def test_fidelity_is_lowered_on_the_default_scale_too_and_taken_back():
+    tab = copy.deepcopy(TABATA)
+    tab["scales"] = [{"id": "rx", "label": "Rx", "short": "Rx", "rank": 1, "fidelity": "exact",
+                      "structure": tab["structure"]}]
+    errs = ws.validate(tab)
+    assert any("scales[0].fidelity" in e for e in errs), errs      # a lossy default scale isn't exact
+    del tab["scales"][0]["fidelity"]
+    c = ws.compile_definition(tab)
+    assert c["scales"][0]["fidelity"] == "approx" and c["scales"][0]["approx"] == ["oldKeysLossy"]
+    assert c["fidelity"] == "approx"
+    assert ws.validate(c) == []
+    # Edited so the old keys are exact again: the compiler takes its reason back.
+    c["structure"] = copy.deepcopy(EMOM["structure"])
+    c["scales"][0]["structure"] = c["structure"]
+    again = ws.compile_definition(c)
+    assert again["fidelity"] == "exact" and "approx" not in again
+    assert again["scales"][0]["fidelity"] == "exact" and "approx" not in again["scales"][0]
+    # Other reasons stay.
+    d = dict(copy.deepcopy(EMOM), fidelity="approx", approx=["partnerSplitGuessed", "oldKeysLossy"],
+             rawText="EMOM 10")
+    assert ws.compile_definition(d)["approx"] == ["partnerSplitGuessed"]
+
+
+def test_compiled_rows_carry_the_compiler_version_and_a_hard_cap_is_for_time():
+    c = ws.compile_definition(ALL["hardCap"])
+    assert c["compilerVersion"] == ws.COMPILER_VERSION
+    assert (c["format"], c["timeCapSeconds"]) == ("forTime", 300)
+
+
+def test_unknown_node_runs_as_an_athlete_paced_part():
+    doc = copy.deepcopy(EMOM)
+    doc["structure"]["body"].append({"chant": {"id": "x"}, "rawText": "3 rounds of a future block"})
+    assert ws.validate(doc, strict=False)                 # the writer and reader checks refuse it
+    p = we.plan(doc)                                      # but an engine handed one never guesses
+    last = p.steps[-1]
+    assert last.part["name"] == "3 rounds of a future block" and last.ends == "athlete"

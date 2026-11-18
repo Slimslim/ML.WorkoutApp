@@ -240,10 +240,71 @@ def test_for_time_cap_is_announced_and_scored_cap_plus_reps():
     assert we.score(st)["complete"] is False and "rp.3.kb" in st.asks
 
 
-def test_hard_cap_stops_the_workout():
-    st, eff = run("hardCap", crowns=[100 * S, 200 * S], until=310 * S, tick=1000)
+def test_hard_cap_stops_the_workout_and_scores_cap_plus_reps():
+    extra = [{"kind": "reps", "t": 305 * S, "step": "rp.2.a", "value": 9}]
+    st, eff = run("hardCap", crowns=[100 * S, 200 * S], until=310 * S, tick=1000, extra=extra)
     assert st.done_t == 300 * S and st.ended_by == "clock"
     assert by_id(st)["rp.2.a"]["status"] == "cut"
+    assert kinds(eff, "cap") == [{"kind": "cap", "t": 300 * S, "step": "rp.2.a"}]
+    sc = we.score(st)
+    assert sc["capped"] and sc["complete"] and sc["text"] == "CAP + %d" % (21 + 21 + 9)
+    st, _ = run("hardCap", crowns=[100 * S, 200 * S], until=310 * S, tick=1000)
+    assert we.score(st)["complete"] is False             # "?" until the reps are entered
+    st, _ = run("hardCap", crowns=[40 * S * k for k in range(1, 7)], until=241 * S, tick=1000)
+    assert we.score(st)["text"] == "4:00"                # finished before the cap: a time
+
+
+def test_a_continue_cap_is_not_a_window_for_the_crown():
+    # Two turns 3 s apart under a for-time cap: both accepted (2 s rule, as without a cap).
+    st, eff = run("forTimeCap", crowns=[60 * S, 63 * S], until=64 * S, tick=1000)
+    assert not kinds(eff, "hint")
+    assert st.current.id == "rp.1.pu"
+
+
+def test_per_piece_distance_is_facts_only_until_implemented():
+    p = we.plan(dict(ALL["intervals"], structure=dict(ALL["intervals"]["structure"],
+                                                       score={"type": "perPiece", "metric": "distance"})))
+    st, _ = we.run(p, events(crowns=[58 * S], until=60 * S))
+    assert we.score(st) == {"type": "perPiece", "factsOnly": True}
+
+
+def test_a_seconds_part_ending_on_its_window_bell_is_done_not_cut():
+    doc = {"schemaVersion": 2, "structure": {"score": {"type": "none"}, "body": [
+        {"repeat": {"id": "rp", "times": 2, "body": [
+            {"timed": {"id": "m", "seconds": 60, "early": "wait", "late": "cut", "body": [
+                {"part": {"id": "hold", "movement": "plank", "target": {"value": 60, "unit": "seconds"}}}]}}]}}]}}
+    st, _ = we.run(we.plan(doc), events(until=121 * S, tick=1000))
+    assert [f["status"] for f in we.facts(st) if f["kind"] == "part"] == ["done", "done"]
+
+
+def test_ratio_rest_rounds_half_up_in_integer_maths():
+    doc = {"schemaVersion": 2, "structure": {"score": {"type": "time"}, "body": [
+        {"part": {"id": "a", "movement": "row", "target": {"value": 500, "unit": "meters"}}},
+        {"rest": {"id": "r", "ratio": 0.5}},
+        {"part": {"id": "b", "movement": "row", "target": {"value": 500, "unit": "meters"}}}]}}
+    st, _ = we.run(we.plan(doc), events(crowns=[101 * S], until=160 * S, tick=1000))
+    f = by_id(st)
+    assert f["r"]["end"] - f["r"]["start"] == 51 * S      # 0.5 x 101 s = 50.5 s -> 51 s
+
+
+def test_a_late_event_returns_its_own_effects():
+    p = P("hyrox")
+    st, _ = we.run(p, [{"kind": "start", "t": 0}, {"kind": "crown", "t": 99 * S},
+                       {"kind": "tick", "t": 100500}])
+    st, eff = we.reduce(st, {"kind": "crown", "t": 100 * S})   # 1 s after an accepted turn
+    assert eff == [{"kind": "hint", "t": 100 * S, "reason": "lockout"}]
+    # A late "I stopped" on a Tabata max part: its count is asked, the rest haptic plays once.
+    p = P("tabata")
+    st, _ = we.run(p, events(until=12500))
+    st, eff = we.reduce(st, {"kind": "crown", "t": 12 * S})
+    assert kinds(eff, "ask") == [{"kind": "ask", "t": 12 * S, "step": "rp.1.sq"}]
+    assert [e["kind"] for e in eff if e["kind"] in we.HAPTICS] == []   # athlete-ended: no haptic
+    assert st.current.id == "rp.1.r"
+    # The end of a for-time arriving late still says done.
+    p = P("partner")
+    st, _ = we.run(p, events(crowns=[300 * S, 600 * S], until=801 * S, tick=1000))
+    st, eff = we.reduce(st, {"kind": "crown", "t": 800 * S})
+    assert kinds(eff, "done") and st.done and st.done_t == 800 * S
 
 
 # ---- death by, partner, intervals, ratio rest, Hyrox ------------------------------------------

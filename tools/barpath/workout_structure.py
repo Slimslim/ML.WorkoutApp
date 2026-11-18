@@ -21,6 +21,7 @@ import math
 from typing import Optional
 
 SCHEMA_VERSION = 2
+COMPILER_VERSION = 1           # stamped on compiled rows (listRounds, old keys), RFC 14.3 D6
 DRAFT_SCHEMA_VERSION = 0
 
 NODE_KINDS = ("part", "rest", "group", "repeat", "timed")
@@ -157,6 +158,8 @@ def validate(doc: dict, strict: bool = True) -> list:
             errs.append("requires: must be a list of feature names")
         elif strict and sorted(set(req)) != features(doc):
             errs.append("requires: %s does not match the features used %s" % (sorted(req), features(doc)))
+    elif strict and features(doc):
+        errs.append("requires: missing; the definition uses %s (RFC 14.3 A2)" % features(doc))
     if errs:
         return errs
     # Size limits (RFC §3.2, §14.3 D6) on the compiled form.
@@ -166,6 +169,15 @@ def validate(doc: dict, strict: bool = True) -> list:
         n = len(workout_engine.expand(st).steps)
         if n > MAX_STEPS:
             errs.append("%s: %d steps in the plan (at most %d)" % (where, n, MAX_STEPS))
+    root_exact = legacy_keys(compiled["structure"])[1]
+    if not root_exact:
+        if doc.get("fidelity") == "exact":
+            errs.append("fidelity: exact, but the old keys can't run this structure exactly")
+        for i, sc in enumerate(doc.get("scales") or []):
+            if isinstance(sc, dict) and sc.get("structure") == doc["structure"] \
+                    and sc.get("fidelity") == "exact":
+                errs.append("scales[%d].fidelity: exact, but the old keys can't run the default "
+                            "scale exactly" % i)
     size = payload_bytes(compiled)
     if size > MAX_PAYLOAD_BYTES:
         errs.append("payload: %d bytes for the watch (at most %d)" % (size, MAX_PAYLOAD_BYTES))
@@ -700,8 +712,7 @@ def legacy_keys(st: dict) -> tuple:
                 round_size = counts.pop() + 1
                 exact = True
         else:
-            keys["format"] = "amrap" if top[0] == "timed" and top[1].get("late") == "end" else (
-                "emom" if any(w.early == "wait" for w in exp.windows.values()) else "forTime")
+            keys["format"] = "emom" if any(w.early == "wait" for w in exp.windows.values()) else "forTime"
             if top[0] == "timed":
                 keys["timeCapSeconds"] = top[1]["seconds"]
     # Old flat list: parts and explicit rests; in an exact EMOM each automatic rest becomes the
@@ -727,24 +738,41 @@ def legacy_keys(st: dict) -> tuple:
     return keys, exact, reasons
 
 
+def _set_fidelity(holder: dict, exact: bool):
+    """Lowers `fidelity` to approx (reason oldKeysLossy) when the old keys are lossy, and takes
+    that back once they are exact again. An author's textOnly or other reasons are kept."""
+    approx = [a for a in (holder.get("approx") or []) if a != "oldKeysLossy"]
+    fid = holder.get("fidelity")
+    if not exact:
+        if fid in (None, "exact"):
+            holder["fidelity"] = "approx"
+        if holder["fidelity"] == "approx":
+            holder["approx"] = approx + ["oldKeysLossy"]
+        return
+    if "oldKeysLossy" in (holder.get("approx") or []):
+        if approx:
+            holder["approx"] = approx
+        else:
+            holder.pop("approx", None)
+            if fid == "approx":
+                holder["fidelity"] = "exact"
+
+
 def _write_legacy(out: dict):
     st = out.get("structure")
     if not isinstance(st, dict):
         return
-    keys, exact, reasons = legacy_keys(st)
+    keys, exact, _ = legacy_keys(st)
     for k in ("intervalSeconds", "roundSize", "timeCapSeconds"):
         out.pop(k, None)
     out.update(keys)
-    if not exact:
-        fid = out.get("fidelity", "exact")
-        if fid == "exact":
-            out["fidelity"] = "approx"
-        if out["fidelity"] == "approx":
-            approx = list(out.get("approx") or [])
-            for r in reasons:
-                if r not in approx:
-                    approx.append(r)
-            out["approx"] = approx
+    out["compilerVersion"] = COMPILER_VERSION
+    _set_fidelity(out, exact)
+    # The old keys are compiled from the default scale (the one equal to the root structure), so
+    # its fidelity says the same thing (RFC 3.6, 14.3 B2, F2).
+    for sc in out.get("scales") or []:
+        if isinstance(sc, dict) and sc.get("structure") == st:
+            _set_fidelity(sc, exact)
 
 
 def check_runnable(doc: dict, engine_features=()) -> tuple:
@@ -756,7 +784,8 @@ def check_runnable(doc: dict, engine_features=()) -> tuple:
         return "draft", []
     if version != SCHEMA_VERSION:
         return "updateApp", ["schemaVersion %r" % (version,)]
-    missing = [f for f in (doc.get("requires") or []) if f not in engine_features]
+    needed = set(doc.get("requires") or []) | set(features(doc))   # a document that skipped the compiler
+    missing = sorted(f for f in needed if f not in engine_features)
     if missing:
         return "updateApp", missing
     return "ok", []
