@@ -5,7 +5,8 @@ flips and stays there while the bar sits on the shoulders. A catch = the moment 
 gravity x component crosses `level` into the rack and stays at least `hold` seconds.
 
 Orientation: tuned on a watch worn on the left wrist with the Crown on the left (rack = gx > 0.6).
-For the other orientations pass `sign=-1` (to be checked on recordings from those watches).
+Recordings loaded with load_session_csv are already in the canonical frame (barpath.orientation),
+so the default sign=+1 works for every watch; `sign=-1` is only for raw tester-B-style frames.
 Known false catches: raising the wrist to read the watch, handling plates; `hold` filters the
 short ones, not all.
 """
@@ -23,7 +24,7 @@ class CatchConfig:
     hold: float = 0.5        # s the rack must last to count
     smooth: float = 0.1      # s moving-average window on gravity x
     gap: float = 0.8         # s minimum between two catches
-    sign: int = 1            # +1: rack is +x (left wrist, Crown left); -1: the other way
+    sign: int = 1            # +1: rack is +x (canonical frame); -1: a raw Crown-toward-hand frame
 
 
 def detect_catches(t: np.ndarray, gravity: np.ndarray, config: CatchConfig = CatchConfig()) -> List[float]:

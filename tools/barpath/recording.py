@@ -183,6 +183,7 @@ class SessionCSV:
     plan_profile: Optional[str] = None           # header planProfile (build 15+): high | standard
     gps: Optional[str] = None                    # header gps (build 15+): on | off (location updates started)
     header: dict = field(default_factory=dict)   # every header key=value as written (W29 keys included)
+    canonical: bool = False                      # .motion turned into the canonical watch frame (barpath.orientation)
 
     def gps_fixes(self) -> list:
         """The '# event ... name=gps' lines of this file as GpsFix records."""
@@ -330,12 +331,14 @@ def decimate_motion(motion: MotionSeries, factor: int) -> MotionSeries:
                         motion.gravity[::factor], motion.rotation_rate[::factor])
 
 
-def load_session_csv(path, workout_hz: Optional[float] = WORKOUT_HZ) -> SessionCSV:
+def load_session_csv(path, workout_hz: Optional[float] = WORKOUT_HZ, canonical: bool = True) -> SessionCSV:
     """Reads a debug session CSV.
 
     Workout recordings (header 'workout=') made at 200 Hz (build 15+, CMBatchedSensorManager) are
     decimated to `workout_hz` (default 100) on load, so every workout detector sees 100 Hz as before;
-    pass workout_hz=None to keep the file's own rate. Lifting CSVs are never resampled. The rate is
+    pass workout_hz=None to keep the file's own rate. The motion is turned into the canonical watch
+    frame (left wrist, Crown left) from the header's wrist / crown (barpath.orientation), so every
+    detector sees the same frame whoever wore the watch; canonical=False keeps the raw frame. Lifting CSVs are never resampled. The rate is
     the header 'sampleRate' when present, else measured from the timestamps.
      Comment lines are skipped anywhere in the file; the watch's
     '# mark t=.. n=.. label=..' and '# event t=.. name=.. homing=.. end=.. reason=..' lines are
@@ -381,9 +384,12 @@ def load_session_csv(path, workout_hz: Optional[float] = WORKOUT_HZ) -> SessionC
         if factor >= 2 and rate / workout_hz >= 1.5:
             motion = decimate_motion(motion, factor)
             rate = rate / factor
+    if canonical:
+        from .orientation import canonicalize
+        motion = canonicalize(motion, meta.get("wrist"), meta.get("crown"))
     return SessionCSV(meta.get("sessionId"), start, meta.get("liftType"), motion,
                       marks, events, meta.get("workout"), rate, source_rate, meta.get("planProfile"),
-                      meta.get("gps"), dict(meta))
+                      meta.get("gps"), dict(meta), canonical)
 
 
 def save_session_csv(path, motion: MotionSeries, session_id: str, start_date: datetime,

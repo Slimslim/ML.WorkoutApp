@@ -265,3 +265,23 @@ the vertical. Lunges step forward and back: 0.57-0.73 of the vertical, 80-83% of
 The difference holds in all 4 rounds and does not depend on speed, so it is the feature to use to
 tell them apart. Squat reps are clear (vertical descents every 2.6-2.8 s; rounds 3-4 = 10 each).
 Lunge reps are not countable yet from forward-back bursts (10 in round 2, 3-6 in the others).
+
+### One watch frame for everyone (2026-11-18, `barpath.orientation`)
+
+Every recording is now turned into one frame on load (`load_session_csv`, `canonical=True` by
+default): left wrist, Crown left, the owner's watch, the frame every detector was written on. The
+header's `wrist` / `crown` (build 15+) pick the transform; older files are the owner's (unchanged).
+Crown toward the hand (left wrist + Crown right, Apple's default) = a 180 degree turn about the
+screen axis, (x, y, z) -> (-x, -y, z) for userAccel, gravity and rotation rate, and the attitude
+quaternion turned the same way (checked: gravity rebuilt from the turned quaternion matches the
+turned gravity exactly). Right wrist = a mirror (y flips; rotation rate -x, z); not seen on data
+yet, and the attitude cannot be mirrored.
+- Tester B's partner cleans with the **default** catch rule (`sign=+1`, hold 0.3 s): 43 / 53, the
+  same as `sign=-1` on the raw frame, so `sign` is no longer needed per watch. His pull-up hangs now
+  read gx > 0.7 (58% of the pull-up time) like the owner's.
+- Switches on the workouts with verified starts after round 1 (window 5 s; switch-v1): November
+  challenge 47 / 47 and AMRAP 20 4 / 5 (both tuned on), SunYay 5 / 10, Freedom 1 / 4, partner cleans
+  2 / 6 (owner) and 2 / 6 (tester B), Sunday Part 2 0 / 6. **On sessions it was not tuned on: 10 / 32,
+  31 false.** The frame changed tester B's numbers little (switch-v1 learns from his own round 1, so
+  it was already per-athlete; onset on his Sunday Part 1 went 2 / 7 -> 3 / 7). What the frame buys is
+  the next step: one model trained on everyone's labelled stations instead of round 1 alone.
