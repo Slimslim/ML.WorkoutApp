@@ -19,6 +19,7 @@ The Crown's own taps are shown on the same ends for comparison.
 from __future__ import annotations
 
 import argparse
+import json
 import statistics
 import sys
 from pathlib import Path
@@ -33,7 +34,7 @@ from barpath import pattern_blocks as PB  # noqa: E402
 TESTS = ["2026-11-05-amrap20", "2026-11-08-sunyay", "2026-11-09-freedom-snatch-burpee-c2b",
          "2026-11-10-freedom-flipped", "2026-11-14-partner-hpc-burpees",
          "2026-11-14-partner-hpc-burpees-tester-b", "2026-11-15-sunday-part1-tester-b",
-         "2026-11-15-sunday-part2", "2026-11-16-row-hspu-lunges", "2026-11-04-november-challenge"]
+         "2026-11-15-sunday-part2", "2026-11-16-row-hspu-lunges", "2026-11-04-november-challenge", "2026-11-18-barbara"]
 TOL = 5.0
 
 
@@ -59,8 +60,17 @@ def score(lid: str, verbose: bool = False, cfg: PB.Config = PB.Config(), use_cro
     motion, segs = S.crown_segments(d)
     hints = [s["start"] for s in segs[1:]] if use_crown else []
     tr = truth(d)
-    order = [x["movement"] for x in tr]
-    bl = PB.blocks(motion, order, steps=S.pedometer(d), cfg=cfg, hints=hints)
+    # the order as the watch had it: planned rests included (the Crown hints are by position, and
+    # the watch's splits count rests), transitions (label only) left out
+    full = [s["movement"] for s in d["segments"] if s["movement"] != "transition"]
+    # timed rests: the watch's timer ended them (advance source 'auto'), so their windows are exact
+    wk = json.load(open(L.cache_path(d, "result")))
+    auto = {e["segmentIndex"] for e in wk.get("events", []) if e.get("source") == "auto"}
+    fixed = {k: (s["start"], s["end"]) for k, s in enumerate(segs)
+             if s["movement"] == PB.REST and k + 1 in auto and len(segs) == len(full)}
+    allb = PB.blocks(motion, full, steps=S.pedometer(d), cfg=cfg, hints=hints, fixed=fixed)
+    bl = [b for b in allb if b.movement != PB.REST]
+    nxt_start = {id(b): (allb[i + 1].start if i + 1 < len(allb) else None) for i, b in enumerate(allb)}
     st_err, end_err, end_set_err, crown_set_err = [], [], [], []
     for x, b in zip(tr, bl):
         if x["start"] is not None and x is not tr[0]:
@@ -83,7 +93,7 @@ def score(lid: str, verbose: bool = False, cfg: PB.Config = PB.Config(), use_cro
             lab[(tt >= a0) & (tt < a1)] = k
     pred = np.full(len(tt), -1)
     for k, b in enumerate(bl):
-        nxt = bl[k + 1].start if k + 1 < len(bl) else tt[-1] + 1
+        nxt = nxt_start[id(b)] if nxt_start[id(b)] is not None else tt[-1] + 1
         pred[(tt >= b.start) & (tt < nxt)] = k
     m = lab >= 0
     share = float((pred[m] == lab[m]).mean()) if m.any() else float("nan")

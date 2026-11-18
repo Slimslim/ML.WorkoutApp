@@ -356,3 +356,19 @@ Tester B's one lost start: the walk after his third run went to the run (ends 13
 balls start 16 s late, but their end went from 25 s late to 1.5 s; that start is the uncertain one
 (throws before his rhythm, already flagged). Still open: Sunday Part 2 (squats and lunges back to
 back, bar not racked) and pieces under ~10 s (November challenge: switch-v1 stays the tool).
+
+### Barbara (2026-11-18): first workout after the block finder was built
+
+5 rounds of 20 kipping pull-ups, 30 push-ups, 40 sit-ups, 50 air squats, 3:00 timed rest between
+rounds; capped at 42:00 in round 5 at 14 pull-ups (label `2026-11-18-barbara`; cloud result
+`repsAtCap` 14). Pull-up sets from the motion, confirmed by the athlete: each set is one hang
+(forearm up), each rep one kip swing pair (2 per rep, ~2 s per rep): round 1 10 + 5 + 3 + 2 (plus a
+2 s grab without a kip), rounds 2-4 5 x 4 (four ~10 s hangs, 10 swing peaks each), round 5 10 + 4.
+- Block finder, first try: pull-ups started 2 min early in rounds 3-4 (inside the rest). Planned
+  rests were missing from the order, which also put every Crown hint after the first rest on the
+  wrong switch (the watch's splits count rests). Now the order keeps planned rests, and a timed
+  rest (ended by the watch's timer, advance source `auto`) is pinned to its exact window.
+- Then: pull-up starts after each rest 4 / 4 (median 1.3 s), movement ends 14-15 / 16 within 5 s of
+  the athlete's taps, with or without the taps as hints. Other workouts unchanged.
+- Kipping pull-ups are a good first rep-counting candidate: a steady 2 s rhythm, a clean swing
+  signal in every set, and the sets are the hangs.

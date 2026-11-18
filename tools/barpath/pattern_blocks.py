@@ -6,7 +6,8 @@ to the same pattern is a rest inside the movement, and the time between the end 
 the start of the next is the transition. Nothing is trained: each workout teaches itself (round 2's
 bike looks like round 1's), so it works with the little data we have.
 
-Input: the motion and the movements in the order they were done (the plan unrolled with the
+Input: the motion and the movements in the order they were done, planned rests included as "rest"
+(a timed rest's window comes from the watch's timer: `fixed`, exact) (the plan unrolled with the
 athlete's score: an AMRAP of 6 rounds + 1 bike calorie is 6 x [bike, step-ups, wall balls] + bike).
 Output: for every movement its first and last moment of pattern, and the gaps in between.
 
@@ -43,6 +44,7 @@ import re
 
 FS = 100.0
 # movements that are themselves steps: walking next to them is not a transition
+REST = "rest"     # a planned (timed) rest in the order: a block of standing / walking, no pattern
 STEPPING = re.compile(r"step|lunge|carry|walk|sled|ruck|farmer", re.I)
 HOP = 1.0        # s between feature vectors
 WINDOW = 4.0     # s of motion per feature vector
@@ -122,7 +124,8 @@ def _rhythm(a: np.ndarray, fs: float):
     return float(ac[k]), k / fs
 
 
-def align(times, F, order: Sequence[str], cfg: Config = Config(), hints: Sequence[Optional[float]] = ()):
+def align(times, F, order: Sequence[str], cfg: Config = Config(), hints: Sequence[Optional[float]] = (),
+          fixed: Optional[dict] = None):
     """State per row: 2k = work of movement k, 2k + 1 = pause after it. EM from several starting
     splits of the time: each movement gets one random share of the time, the same in every round
     (the order repeats, so a bad start can lock in one movement off); the path that explains the
@@ -131,6 +134,17 @@ def align(times, F, order: Sequence[str], cfg: Config = Config(), hints: Sequenc
     mu, sd = np.nanmean(F, 0), np.nanstd(F, 0) + 1e-9
     Z = (F - mu) / sd
     low = Z[:, 0] < np.percentile(Z[:, 0], 20)
+    # fixed[k] = (start, end): a timed rest the watch's own timer ran, so its window is known exactly:
+    # inside it only that rest, outside it never
+    pin = None
+    if fixed:
+        pin = np.zeros((T, 2 * K))
+        for k, (a, b) in fixed.items():
+            inside = (times >= a) & (times < b)
+            pin[inside, :] += 1e6
+            pin[inside, 2 * k] -= 1e6
+            pin[~inside, 2 * k] += 1e6
+            pin[:, 2 * k + 1] += 1e6
     walk = None
     if cfg.walking:
         # learn walking only near taps between two movements that are not steps themselves
@@ -158,7 +172,7 @@ def align(times, F, order: Sequence[str], cfg: Config = Config(), hints: Sequenc
             w = np.array([share[moves.index(m)] for m in order])
             edges = np.r_[0, np.cumsum(w) / w.sum()] * T
             state = np.clip(np.searchsorted(edges, np.arange(T), side="right") - 1, 0, K - 1) * 2 + low
-        state, cost = _em(Z, state, order, cfg, bonus, walk)
+        state, cost = _em(Z, state, order, cfg, bonus, walk, pin)
         if cost < best_cost:
             best, best_cost = state, cost
     return best
@@ -177,9 +191,9 @@ def walking_seconds(times, F, cfg: Config = Config(), hints: Sequence[Optional[f
     return walk
 
 
-def _em(Z, state, order, cfg, bonus=None, walk=None):
+def _em(Z, state, order, cfg, bonus=None, walk=None, pin=None):
     T, K = len(Z), len(order)
-    moves = sorted(set(order))
+    moves = sorted(set(order) - {REST})
     mid = {m: i for i, m in enumerate(moves)}
     calm = Z[:, 0] < np.percentile(Z[:, 0], cfg.calm_pct)
     cost = np.inf
@@ -192,7 +206,7 @@ def _em(Z, state, order, cfg, bonus=None, walk=None):
                 # shift every block by one
                 sel = calm
             else:
-                ks = [k for k, x in enumerate(order) if mid[x] == i]
+                ks = [k for k, x in enumerate(order) if mid.get(x) == i]
                 sel = np.isin(state // 2, ks) & (state % 2 == 0)
             X = Z[sel] if sel.sum() >= 3 else Z
             mean, var = X.mean(0), np.maximum(X.var(0), cfg.var_floor)
@@ -205,10 +219,15 @@ def _em(Z, state, order, cfg, bonus=None, walk=None):
             gap = np.minimum(gap, 0.5 * (((Z - mean) ** 2) / var + np.log(var)).sum(1))
         emis = np.empty((T, 2 * K))
         for k, m in enumerate(order):
+            if m == REST:
+                emis[:, 2 * k] = emis[:, 2 * k + 1] = gap
+                continue
             emis[:, 2 * k] = nll[:, mid[m]]
             nxt = order[k + 1] if k + 1 < K else ""
             stepping = bool(STEPPING.search(nxt))     # walking there would eat the steps' start
             emis[:, 2 * k + 1] = nll[:, len(moves)] if stepping else gap
+        if pin is not None:
+            emis = emis + pin
         new, cost = _viterbi(emis, K, cfg, bonus)
         if np.array_equal(new, state):
             break
@@ -273,11 +292,11 @@ def _viterbi(emis: np.ndarray, K: int, cfg: Config, bonus=None):
 
 
 def blocks(motion, order: Sequence[str], steps=None, cfg: Config = Config(),
-           hints: Sequence[Optional[float]] = ()) -> List[Block]:
+           hints: Sequence[Optional[float]] = (), fixed: Optional[dict] = None) -> List[Block]:
     """One Block per movement in `order` (None-free: a movement the path skipped gets a 0 s block
     at the end of the previous one)."""
     times, F = features(motion, steps)
-    state = align(times, F, order, cfg, hints)
+    state = align(times, F, order, cfg, hints, fixed)
     walking = walking_seconds(times, F, cfg)
     out: List[Block] = []
     for k, m in enumerate(order):

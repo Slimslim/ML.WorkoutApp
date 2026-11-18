@@ -1,0 +1,330 @@
+{
+ "version": 1,
+ "id": "2026-11-18-barbara",
+ "date": "2026-11-18",
+ "kind": "workout",
+ "name": "Barbara: 5 rounds of 20 pull-ups, 30 push-ups, 40 sit-ups, 50 air squats, 3:00 rest between rounds",
+ "format": "forTime",
+ "rx": true,
+ "files": {
+  "csv": "Debug/session-C37AD8AA-DB5D-4C0D-8FAA-581F3CB792A4.csv",
+  "result": "Workouts/C37AD8AA-DB5D-4C0D-8FAA-581F3CB792A4.original.json"
+ },
+ "score": "capped at 42:00: 4 rounds + 14 pull-ups",
+ "notes": [
+  "Class workout (gym programming not stored here), done in the morning (15:48 UTC).",
+  "Pull-ups kipping. Sets from motion, confirmed by the athlete: round 1 10 + 5 + 3 + 2, rounds 2-4 5 x 4, round 5 10 + 4.",
+  "Push-ups, sit-ups, air squats: the athlete's Crown taps only (not checked against motion); rests ended by the watch's 3:00 timer.",
+  "Cloud result corrected 2026-11-18: repsAtCap 14 (the athlete's count); original kept as .original.json."
+ ],
+ "segments": [
+  {
+   "movement": "pullUps",
+   "round": 1,
+   "start": 0.0,
+   "end": 64.57,
+   "source": "crown",
+   "reps": 20,
+   "unit": "reps",
+   "sets": [
+    {
+     "start": 1.1,
+     "end": 21.4,
+     "reps": 10,
+     "signal": "gx"
+    },
+    {
+     "start": 32.2,
+     "end": 42.5,
+     "reps": 5,
+     "signal": "gx"
+    },
+    {
+     "start": 47.7,
+     "end": 53.9,
+     "reps": 3,
+     "signal": "gx"
+    },
+    {
+     "start": 57.8,
+     "end": 62.2,
+     "reps": 2,
+     "signal": "gx"
+    }
+   ],
+   "note": "kipping; sets = hangs on the bar (forearm up, gravity x > 0.7), reps from the kip swings (2 per rep, about 2 s per rep), athlete confirmed; a 2 s grab at 28.0-30.4 s with no kip is not a rep"
+  },
+  {
+   "movement": "pushUps",
+   "round": 1,
+   "start": 64.57,
+   "end": 194.61,
+   "source": "crown",
+   "reps": 30,
+   "unit": "reps"
+  },
+  {
+   "movement": "sitUps",
+   "round": 1,
+   "start": 194.61,
+   "end": 297.47,
+   "source": "crown",
+   "reps": 40,
+   "unit": "reps"
+  },
+  {
+   "movement": "airSquats",
+   "round": 1,
+   "start": 297.47,
+   "end": 378.64,
+   "source": "crown",
+   "reps": 50,
+   "unit": "reps"
+  },
+  {
+   "movement": "rest",
+   "round": 1,
+   "start": 378.64,
+   "end": 558.84,
+   "source": "crown",
+   "note": "timed 3:00 rest, ended by the watch's timer"
+  },
+  {
+   "movement": "pullUps",
+   "round": 2,
+   "start": 558.84,
+   "end": 625.54,
+   "source": "crown",
+   "reps": 20,
+   "unit": "reps",
+   "sets": [
+    {
+     "start": 560.2,
+     "end": 570.3,
+     "reps": 5,
+     "signal": "gx"
+    },
+    {
+     "start": 573.1,
+     "end": 583.3,
+     "reps": 5,
+     "signal": "gx"
+    },
+    {
+     "start": 589.9,
+     "end": 600.0,
+     "reps": 5,
+     "signal": "gx"
+    },
+    {
+     "start": 612.9,
+     "end": 623.1,
+     "reps": 5,
+     "signal": "gx"
+    }
+   ],
+   "note": "kipping; sets = hangs on the bar (forearm up, gravity x > 0.7), reps from the kip swings (2 per rep, about 2 s per rep), athlete confirmed"
+  },
+  {
+   "movement": "pushUps",
+   "round": 2,
+   "start": 625.54,
+   "end": 782.75,
+   "source": "crown",
+   "reps": 30,
+   "unit": "reps"
+  },
+  {
+   "movement": "sitUps",
+   "round": 2,
+   "start": 782.75,
+   "end": 890.59,
+   "source": "crown",
+   "reps": 40,
+   "unit": "reps"
+  },
+  {
+   "movement": "airSquats",
+   "round": 2,
+   "start": 890.59,
+   "end": 972.63,
+   "source": "crown",
+   "reps": 50,
+   "unit": "reps"
+  },
+  {
+   "movement": "rest",
+   "round": 2,
+   "start": 972.63,
+   "end": 1152.79,
+   "source": "crown",
+   "note": "timed 3:00 rest, ended by the watch's timer"
+  },
+  {
+   "movement": "pullUps",
+   "round": 3,
+   "start": 1152.79,
+   "end": 1232.63,
+   "source": "crown",
+   "reps": 20,
+   "unit": "reps",
+   "sets": [
+    {
+     "start": 1154.1,
+     "end": 1164.4,
+     "reps": 5,
+     "signal": "gx"
+    },
+    {
+     "start": 1169.9,
+     "end": 1180.3,
+     "reps": 5,
+     "signal": "gx"
+    },
+    {
+     "start": 1194.5,
+     "end": 1204.6,
+     "reps": 5,
+     "signal": "gx"
+    },
+    {
+     "start": 1219.6,
+     "end": 1229.6,
+     "reps": 5,
+     "signal": "gx"
+    }
+   ],
+   "note": "kipping; sets = hangs on the bar (forearm up, gravity x > 0.7), reps from the kip swings (2 per rep, about 2 s per rep), athlete confirmed"
+  },
+  {
+   "movement": "pushUps",
+   "round": 3,
+   "start": 1232.63,
+   "end": 1408.12,
+   "source": "crown",
+   "reps": 30,
+   "unit": "reps"
+  },
+  {
+   "movement": "sitUps",
+   "round": 3,
+   "start": 1408.12,
+   "end": 1531.84,
+   "source": "crown",
+   "reps": 40,
+   "unit": "reps"
+  },
+  {
+   "movement": "airSquats",
+   "round": 3,
+   "start": 1531.84,
+   "end": 1647.29,
+   "source": "crown",
+   "reps": 50,
+   "unit": "reps"
+  },
+  {
+   "movement": "rest",
+   "round": 3,
+   "start": 1647.29,
+   "end": 1827.5,
+   "source": "crown",
+   "note": "timed 3:00 rest, ended by the watch's timer"
+  },
+  {
+   "movement": "pullUps",
+   "round": 4,
+   "start": 1827.5,
+   "end": 1912.0,
+   "source": "crown",
+   "reps": 20,
+   "unit": "reps",
+   "sets": [
+    {
+     "start": 1828.5,
+     "end": 1838.7,
+     "reps": 5,
+     "signal": "gx"
+    },
+    {
+     "start": 1846.5,
+     "end": 1856.6,
+     "reps": 5,
+     "signal": "gx"
+    },
+    {
+     "start": 1869.8,
+     "end": 1879.8,
+     "reps": 5,
+     "signal": "gx"
+    },
+    {
+     "start": 1899.7,
+     "end": 1909.7,
+     "reps": 5,
+     "signal": "gx"
+    }
+   ],
+   "note": "kipping; sets = hangs on the bar (forearm up, gravity x > 0.7), reps from the kip swings (2 per rep, about 2 s per rep), athlete confirmed"
+  },
+  {
+   "movement": "pushUps",
+   "round": 4,
+   "start": 1912.0,
+   "end": 2069.14,
+   "source": "crown",
+   "reps": 30,
+   "unit": "reps"
+  },
+  {
+   "movement": "sitUps",
+   "round": 4,
+   "start": 2069.14,
+   "end": 2190.7,
+   "source": "crown",
+   "reps": 40,
+   "unit": "reps"
+  },
+  {
+   "movement": "airSquats",
+   "round": 4,
+   "start": 2190.7,
+   "end": 2299.66,
+   "source": "crown",
+   "reps": 50,
+   "unit": "reps"
+  },
+  {
+   "movement": "rest",
+   "round": 4,
+   "start": 2299.66,
+   "end": 2479.84,
+   "source": "crown",
+   "note": "timed 3:00 rest, ended by the watch's timer"
+  },
+  {
+   "movement": "pullUps",
+   "round": 5,
+   "start": 2479.84,
+   "end": 2525.97,
+   "source": "crown",
+   "reps": 14,
+   "unit": "reps",
+   "sets": [
+    {
+     "start": 2480.5,
+     "end": 2499.8,
+     "reps": 10,
+     "signal": "gx"
+    },
+    {
+     "start": 2506.9,
+     "end": 2515.1,
+     "reps": 4,
+     "signal": "gx"
+    }
+   ],
+   "note": "kipping; sets = hangs on the bar (forearm up, gravity x > 0.7), reps from the kip swings (2 per rep, about 2 s per rep), athlete confirmed; time cap 42:00 (2520 s) reached in this set: 14 reps at the cap (14th at ~2514 s), workout ended at 2526 s"
+  }
+ ]
+}
