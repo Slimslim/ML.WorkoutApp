@@ -176,6 +176,9 @@ def validate(doc: dict, strict: bool = True) -> list:
                                                          workout_engine.MAX_TIMES, workout_engine.MAX_RATIO))
         elif not exp.steps:
             errs.append("%s: the plan has no steps" % where)
+        elif any(b["offsetMs"] > workout_engine.MAX_BELL_MS for b in workout_engine._static_bells(exp)):
+            # The reader refuses these as tooLarge (workout_engine.plan), so the author hears it here.
+            errs.append("%s: too large to expand (a clock ends more than 7 days after START)" % where)
     root_exact = legacy_keys(compiled["structure"])[1]
     if not root_exact:
         if doc.get("fidelity") == "exact":

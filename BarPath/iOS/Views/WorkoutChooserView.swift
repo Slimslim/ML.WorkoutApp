@@ -305,7 +305,8 @@ struct WorkoutPreviewView: View {
                 historySection
 
                 Button {
-                    link.sendWorkout(definition)
+                    link.sendWorkout(definition,
+                                     engineDefinition: WorkoutLibraryStore.shared.engineDefinition(id: definition.id))
                 } label: {
                     HStack {
                         Spacer()

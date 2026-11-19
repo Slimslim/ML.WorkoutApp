@@ -41,9 +41,10 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     @Published private(set) var isReachable = false
     /// Workout picked on the iPhone ("selectWorkout" application context / message).
     @Published private(set) var phoneWorkout: WorkoutDefinition?
-    /// The same workout's JSON exactly as the phone sent it, unknown keys included (RFC §8 raw
-    /// pass-through): a definition with a v2 structure runs on the engine. Set before
-    /// `phoneWorkout`, so a subscriber to `phoneWorkout` reads the matching bytes.
+    /// The same workout's v2 JSON as the phone sent it in `workoutDefinitionV2`, unknown keys
+    /// included (RFC §8 raw pass-through): it runs on the engine. nil when the phone sent only the
+    /// typed definition. Set before `phoneWorkout`, so a subscriber to `phoneWorkout` reads the
+    /// matching bytes.
     private(set) var phoneWorkoutRaw: Data?
     /// Lift + load picked on the iPhone's Lifts tab (`liftSelection` in context / message).
     @Published private(set) var phoneLift: LiftSelection?
@@ -414,7 +415,8 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         }
         defaults.set(sentAt, forKey: PhoneLink.phoneWorkoutSentAtKey)
         Log.link.info("Workout from phone: \(definition.id, privacy: .public)")
-        phoneWorkoutRaw = data
+        // W27 PR3b: the v2 JSON comes in its own key (nil for a workout that keeps the old path).
+        phoneWorkoutRaw = payload[WorkoutEngineSession.phoneV2Key] as? Data
         phoneWorkout = definition
     }
 }

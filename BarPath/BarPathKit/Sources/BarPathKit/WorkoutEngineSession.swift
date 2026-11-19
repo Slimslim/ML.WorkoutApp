@@ -406,4 +406,103 @@ public enum WorkoutEngineSession {
         }
         return out
     }
+    // MARK: - The phone: what it sends to the watch (W27 PR3b)
+
+    /// Python `PHONE_V2_KEY`: the new application-context / message key that carries a row's v2
+    /// JSON beside today's typed `workoutDefinition` (which stays, for older watches).
+    public static let phoneV2Key: String = "workoutDefinitionV2"
+    /// The watch payload budget (RFC §8, Python `workout_structure.MAX_PAYLOAD_BYTES`).
+    public static let maxPayloadBytes: Int = 16 * 1024
+
+    public enum PhoneSend: Equatable, Sendable {
+        /// Send the row's v2 JSON in `phoneV2Key`: the watch runs it on the engine.
+        case engine
+        /// Old keys only, as today. reason: notV2, needsOwner, textOnly, refused, tooBig.
+        case legacy(reason: String, refusal: String?)
+    }
+
+    /// Python `phone_route`. A legacy row never goes to the engine (a Swift `exact` isn't trusted
+    /// until the validator is ported); nor does a row the Python upgrade labelled review or
+    /// reencode (`approx` holds "upgrade:<reason>") until the owner signs it off (RFC §7.3).
+    public static func phoneRoute(_ raw: JSONValue, engineFeatures: Set<String> = []) -> PhoneSend {
+        guard carriesV2(raw) else {
+            return .legacy(reason: "notV2", refusal: nil)
+        }
+        if let approx = raw["approx"]?.array,
+           approx.contains(where: { $0.string?.hasPrefix(WorkoutUpgrade.upgradeReasonPrefix) ?? false }) {
+            return .legacy(reason: "needsOwner", refusal: nil)
+        }
+        if raw["fidelity"]?.string == "textOnly" {
+            return .legacy(reason: "textOnly", refusal: nil)
+        }
+        switch route(raw, engineFeatures: engineFeatures) {
+        case .engine:
+            break
+        case .legacy(let reason, _):
+            return .legacy(reason: "refused", refusal: reason ?? "legacy")
+        case .refused(let reason, _):
+            return .legacy(reason: "refused", refusal: reason)
+        }
+        if raw.canonicalJSON.utf8.count > maxPayloadBytes {
+            return .legacy(reason: "tooBig", refusal: nil)
+        }
+        return .engine
+    }
+
+    /// The route as Python writes it, for the parity test.
+    public static func phoneRouteJSON(_ r: PhoneSend) -> JSONValue {
+        switch r {
+        case .engine:
+            return .object(["send": .string("engine")])
+        case .legacy(let reason, let refusal):
+            var d: [String: JSONValue] = ["send": .string("legacy"), "reason": .string(reason)]
+            if let x = refusal {
+                d["refusal"] = .string(x)
+            }
+            return .object(d)
+        }
+    }
+
+    /// The v2 JSON the phone sends in `phoneV2Key`, or nil when the row keeps the old path.
+    public static func phonePayload(_ raw: JSONValue?) -> Data? {
+        guard let raw = raw, phoneRoute(raw) == .engine else {
+            return nil
+        }
+        return Data(raw.canonicalJSON.utf8)
+    }
+
+    /// The fidelity the phone stores for a row (Python `phone_fidelity`, RFC §14.3 B2).
+    public struct StoredFidelity: Codable, Equatable, Sendable {
+        public var fidelity: String?
+        public var approx: [String]
+        /// The upgrade label (exact, review, reencode) of a legacy row upgraded on the phone.
+        public var label: String?
+
+        public init(fidelity: String?, approx: [String], label: String?) {
+            self.fidelity = fidelity
+            self.approx = approx
+            self.label = label
+        }
+
+        public func toJSON() -> JSONValue {
+            return .object(["fidelity": fidelity.map { JSONValue.string($0) } ?? .null,
+                            "approx": .array(approx.map { JSONValue.string($0) }),
+                            "label": label.map { JSONValue.string($0) } ?? .null])
+        }
+    }
+
+    /// A v2 row's own `fidelity` / `approx`; a legacy row is upgraded here (on the phone only,
+    /// never on the watch) and its label saved the same way.
+    public static func phoneFidelity(_ raw: JSONValue) -> StoredFidelity {
+        guard raw.object != nil else {
+            return StoredFidelity(fidelity: nil, approx: [], label: nil)
+        }
+        if carriesV2(raw) {
+            let approx: [String] = (raw["approx"]?.array ?? []).compactMap { $0.string }
+            return StoredFidelity(fidelity: raw["fidelity"]?.string, approx: approx, label: nil)
+        }
+        let u = WorkoutUpgrade.upgrade(raw)
+        let approx: [String] = (u.definition["approx"]?.array ?? []).compactMap { $0.string }
+        return StoredFidelity(fidelity: u.definition["fidelity"]?.string, approx: approx, label: u.label)
+    }
 }

@@ -299,6 +299,26 @@ final class WorkoutEngineSessionTests: XCTestCase {
         }
     }
 
+    func testPhoneRouteAndFidelityMatchPython() throws {
+        let list = try workoutFixture("phone.json").array ?? []
+        XCTAssertEqual(list.count, try index()["phone"]?.intValue)
+        XCTAssertGreaterThanOrEqual(list.count, 60)
+        for c in list {
+            let name: String = c["name"]?.string ?? "?"
+            let raw: JSONValue = c["raw"] ?? .null
+            let r = WorkoutEngineSession.phoneRoute(raw)
+            XCTAssertEqual(WorkoutEngineSession.phoneRouteJSON(r).canonicalJSON, c["route"]?.canonicalJSON, "\(name): route")
+            XCTAssertEqual(WorkoutEngineSession.phoneFidelity(raw).toJSON().canonicalJSON,
+                           c["fidelity"]?.canonicalJSON, "\(name): fidelity")
+            // The payload is sent exactly when the route says engine, and the watch routes it there.
+            let payload: Data? = WorkoutEngineSession.phonePayload(raw)
+            XCTAssertEqual(payload != nil, r == .engine, "\(name): payload")
+            if let p = payload {
+                XCTAssertEqual(WorkoutEngineSession.route(try JSONValue.parse(p)), .engine, "\(name): watch route")
+            }
+        }
+    }
+
     // MARK: Swift-only
 
     func testEpochMillisecondsNeverNeedA64BitInt() {

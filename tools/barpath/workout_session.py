@@ -267,3 +267,52 @@ def new_lines(st, written: dict) -> list:
             written[k] = seen[k]
             out.append((t, text))
     return out
+
+
+# ---- the phone: what it sends to the watch (W27 PR3b) ---------------------------------------------
+
+PHONE_V2_KEY = "workoutDefinitionV2"   # new application-context / message key (RFC §8 raw pass-through)
+
+
+def phone_route(raw, engine_features=(), max_bytes=None) -> dict:
+    """What the phone sends with a library row: {"send": "engine"} puts the row's v2 JSON in the
+    new `workoutDefinitionV2` key (beside today's typed `workoutDefinition`, which stays), or
+    {"send": "legacy", "reason": r} sends only the old keys, as today. Reasons:
+    - notV2: a legacy row (it is upgraded on the phone only to store its fidelity; a Swift
+      `exact` is not trusted until the validator is ported, so it never goes to the engine);
+    - needsOwner: a row the Python upgrade labelled review or reencode (`approx` holds
+      "upgrade:<reason>"): never on the engine until the owner signs it off (RFC §7.3);
+    - textOnly: runs as a stopwatch, a screen that waits for design;
+    - refused: the watch engine would refuse it (`refusal` says why);
+    - tooBig: its JSON is over the watch payload budget (16 KB)."""
+    if not carries_v2(raw):
+        return {"send": "legacy", "reason": "notV2"}
+    approx = raw.get("approx")
+    if isinstance(approx, list) and any(isinstance(a, str) and a.startswith("upgrade:") for a in approx):
+        return {"send": "legacy", "reason": "needsOwner"}
+    if raw.get("fidelity") == "textOnly":
+        return {"send": "legacy", "reason": "textOnly"}
+    r = route(raw, engine_features)
+    if r["route"] != "engine":
+        return {"send": "legacy", "reason": "refused", "refusal": r.get("reason", "legacy")}
+    limit = ws.MAX_PAYLOAD_BYTES if max_bytes is None else max_bytes
+    if len(we.canonical_json(raw).encode("utf-8")) > limit:
+        return {"send": "legacy", "reason": "tooBig"}
+    return {"send": "engine"}
+
+
+def phone_fidelity(raw) -> dict:
+    """The fidelity the phone stores for a row (RFC §14.3 B2): a v2 row's own `fidelity` and
+    `approx`; a legacy row is upgraded on the phone (`upgrade()`, never on the watch) and its
+    label saved the same way. {"fidelity": str or None, "approx": [str], "label": str or None}."""
+    from .workout_upgrade import upgrade
+    if not isinstance(raw, dict):
+        return {"fidelity": None, "approx": [], "label": None}
+    if carries_v2(raw):
+        fid = raw.get("fidelity") if isinstance(raw.get("fidelity"), str) else None
+        approx = [a for a in (raw.get("approx") or []) if isinstance(a, str)] \
+            if isinstance(raw.get("approx"), list) else []
+        return {"fidelity": fid, "approx": approx, "label": None}
+    u = upgrade(raw)
+    d = u["definition"]
+    return {"fidelity": d.get("fidelity"), "approx": list(d.get("approx") or []), "label": u["label"]}

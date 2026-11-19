@@ -509,6 +509,34 @@ def session_fixture(cases: dict) -> dict:
     return out
 
 
+# ---- phone.json: what the phone sends for a library row (workout_session.phone_route) -----------
+
+def phone_fixture(cases: dict) -> list:
+    """For every legacy row, its Python upgrade, every v2 case and a few edge rows: the phone's
+    route and the fidelity it stores."""
+    from upgrade_cases import ALL as LEGACY
+    rows = []
+    for name in sorted(LEGACY):
+        rows.append(("legacy:" + name, LEGACY[name]))
+        rows.append(("upgraded:" + name, upgrade(LEGACY[name])["definition"]))
+    for name in sorted(cases):
+        rows.append(("case:" + name, cases[name][0]))
+    tab = cases["tabata"][0]
+    rows += [
+        ("textOnly", dict(tab, fidelity="textOnly", rawText="20 s on, 10 s off x 8")),
+        ("unknownFeature", dict(tab, requires=["teleport"])),
+        ("authoredApprox", dict(tab, fidelity="approx", approx=["partnerSplitGuessed"], rawText="x")),
+        ("approxNotAList", dict(tab, approx="upgrade:x")),
+        ("tooBig", dict(tab, rawText="x" * (17 * 1024))),
+        ("draft", dict(tab, schemaVersion=0)),
+        ("notAnObject", [1, 2]),
+    ]
+    out = []
+    for name, raw in rows:
+        out.append({"name": name, "raw": raw, "route": wss.phone_route(raw), "fidelity": wss.phone_fidelity(raw)})
+    return out
+
+
 def generate() -> dict:
     """{relative path: file text} for everything under Fixtures/workouts."""
     files = {}
@@ -543,11 +571,13 @@ def generate() -> dict:
     files["csv.json"] = dumps(cv)
     se = session_fixture(cases)
     files["session.json"] = dumps(se)
+    ph = phone_fixture(cases)
+    files["phone.json"] = dumps(ph)
     files["INDEX.json"] = dumps({"cases": sorted(cases), "scenarios": scenario_count, "runnable": len(rc),
                                  "planErrors": len(pe), "upgrade": len(up), "csv": len(cv),
                                  "sessionEvents": len(se["events"]), "sessionRoutes": len(se["routes"]),
                                  "sessionViews": len(se["views"]), "sessionCheckpoints": len(se["checkpoints"]),
-                                 "sessionLines": len(se["lines"]),
+                                 "sessionLines": len(se["lines"]), "phone": len(ph),
                                  "planner": we.PLANNER_VERSION})
     return files
 

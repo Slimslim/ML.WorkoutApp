@@ -302,3 +302,15 @@ def test_the_reader_refuses_out_of_range_numbers_instead_of_crashing(name):
     with pytest.raises(we.NotRunnable) as e:
         we.plan({"schemaVersion": 2, "structure": {"score": {"type": "none"}, "body": []}})
     assert e.value.reason == "empty"
+
+
+def test_a_bell_past_seven_days_is_reported_like_the_reader_refuses_it():
+    """#113 review F2: the validator says what the watch would refuse as tooLarge."""
+    body = [{"repeat": {"id": "rp", "times": 8, "body": [{"rest": {"id": "r", "seconds": 86400}}]}},
+            {"part": {"id": "a", "movement": "run", "target": {"value": 400, "unit": "meters"}}}]
+    doc = {"schemaVersion": 2, "id": "test.week", "name": "A week", "team": "solo",
+           "structure": {"score": {"type": "none"}, "body": body}}
+    errs = ws.validate(doc, strict=False)
+    assert any("more than 7 days" in e for e in errs), errs
+    body[0]["repeat"]["times"] = 7
+    assert not any("more than 7 days" in e for e in ws.validate(doc, strict=False))

@@ -141,7 +141,12 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     /// Payload `["type": "selectWorkout", "workoutDefinition": <JSON Data>, "sentAt": Double]`
     /// as application context (delivered whenever the watch app next runs) and, when the watch
     /// is reachable, also as a message (instant). The watch applies it once per `sentAt`.
-    func sendWorkout(_ definition: WorkoutDefinition) {
+    ///
+    /// W27: `engineDefinition` (the row's v2 JSON, `WorkoutEngineSession.phonePayload`) goes in
+    /// the new key `workoutDefinitionV2` beside the typed definition, which stays for older
+    /// watches; without it the key is removed, so a v2 JSON never outlives its workout. The
+    /// context starts from the current one, so other areas' keys are kept as they are.
+    func sendWorkout(_ definition: WorkoutDefinition, engineDefinition: Data? = nil) {
         guard WCSession.isSupported() else {
             sendWorkoutError = "This iPhone can't talk to a watch."
             return
@@ -163,12 +168,20 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
             return
         }
         let now = Date()
-        var payload: [String: Any] = [
-            "type": "selectWorkout",
-            "workoutDefinition": data,
-            "sentAt": now.timeIntervalSince1970
-        ]
-        // The application context holds one dictionary: keep the last lift choice in it too.
+        // The application context holds one dictionary shared by every area: start from it and
+        // change only this function's keys (RFC §8), so a key added elsewhere isn't wiped.
+        var payload: [String: Any] = session.applicationContext
+        payload["type"] = "selectWorkout"
+        payload["workoutDefinition"] = data
+        payload["sentAt"] = now.timeIntervalSince1970
+        // Explicit set / remove: assigning a nil Data? into [String: Any] would store a boxed nil,
+        // which WatchConnectivity refuses.
+        if let v2 = engineDefinition {
+            payload[WorkoutEngineSession.phoneV2Key] = v2
+        } else {
+            payload.removeValue(forKey: WorkoutEngineSession.phoneV2Key)
+        }
+        // The last lift choice stays (it came with the current context; kept explicitly too).
         if let lift = session.applicationContext[LiftSelection.contextKey] {
             payload[LiftSelection.contextKey] = lift
         }
