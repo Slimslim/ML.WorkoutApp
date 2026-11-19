@@ -495,9 +495,10 @@ replay; the original recording and the original plan are kept and can be restore
 saved as the athlete's private copy, never in the library. Built together with W31. Ticket #86.
 
 **W43. Build or change a workout on my phone and send it to the watch (Now)**
-As an athlete whose WOD isn't in the app, or was changed at the last minute (the class started at
-different stations), I want to create or edit it on my phone and send it to the watch, so I can start
-on time with the right plan.
+As an athlete who saw a workout online, or who is visiting a gym and listening to the whiteboard
+brief while warming up, I want to build it on my phone for myself and send it to the watch, so I can
+start on time with the right plan. (Owner, 19 Nov: individual use; each athlete builds their own.
+Two moments: at home, unhurried; at a visited gym, standing, one hand, in the 2-5 min before the start.)
 *Done when:*
 - Formats: For Time, AMRAP, EMOM / every N min, rounds for time, each with an optional time cap.
 - Rep schemes: fixed reps, 21-15-9, ascending and descending ladders (start, step, end).
@@ -510,8 +511,8 @@ on time with the right plan.
 - A tester builds a 20-min AMRAP of 3 movements with loads and sends it to the watch in **under 60 s**
   (timed on a device, 3 tries, median).
 - Never in the library or the repo; a change never touches a recording already made.
-*Later:* swaps with scale equivalents (run -> row), multi-part days, partner workouts, photo import
-(W30) into the builder. W40 (quick edit before start) is covered on the phone by W43; the watch side
+*Later:* sharing a workout with a friend (e.g. by message), swaps with scale equivalents (run -> row),
+multi-part days, partner workouts, photo import (W30) into the builder. Not a community or gym feature. W40 (quick edit before start) is covered on the phone by W43; the watch side
 stays Later. W39 (correct afterwards) opens this same editor on a finished result. Ticket #89.
 
 **W40. Quick edit before I start (Later)**
