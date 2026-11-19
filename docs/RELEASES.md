@@ -37,6 +37,28 @@ The team process (stand-up, planning, review, retro, the Scrum Master chat): `do
   `standups`, `sprints`, `checks`, `meta/plan` (read first, pin `if_version`, never delete a stand-up
   or decision). Its old `items` collection is replaced by the issues.
 
+## CI (issue #107, option C)
+
+What runs where:
+- **GitHub Actions, every PR** (`.github/workflows/ci.yml`): Python tests and the BarPathKit tests on
+  Linux (`swift test` in the official `swift` container). Until Xcode Cloud is green, the macOS job
+  (BarPathKit tests plus iPhone and watch builds) still runs too; it is removed after that.
+- **Xcode Cloud:** app builds, archives and TestFlight uploads. `BarPath/ci_scripts/ci_post_clone.sh`
+  installs XcodeGen, generates `BarPath.xcodeproj` (not committed) and copies the package pins into it.
+- **Package pins (`BarPath/Package.resolved`, owner to commit once):** Xcode Cloud doesn't resolve
+  packages itself, so the Supabase pins must be committed. The project folder is git-ignored, so the
+  file lives at `BarPath/Package.resolved`. To make or refresh it (first time, and whenever the
+  Supabase version in `project.yml` changes): `cd BarPath && xcodegen`, open the project in Xcode,
+  File > Packages > Resolve Package Versions, then copy
+  `BarPath.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` to
+  `BarPath/Package.resolved` and commit it. Until it is committed, the Xcode Cloud build stops in
+  `ci_post_clone.sh` with a message that says so.
+
+Build numbers: Xcode Cloud sets the build number of every build it ships to TestFlight, so
+`CURRENT_PROJECT_VERSION` in `BarPath/project.yml` doesn't decide TestFlight numbers. The setting is
+in App Store Connect > Xcode Cloud > Settings > Build Number. It takes a whole number, so the next
+build is 17.
+
 ## Rules
 
 **Status and definition of done**
