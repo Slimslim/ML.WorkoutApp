@@ -431,6 +431,104 @@ How (to check on a device, background behaviour cannot be tested in CI):
 - **Size:** the bucket takes 50 MB per file; a tester's 58-min Chad was 42 MB uncompressed, so a
   70-min session would be refused without the compressed uploads of #24. Build after #24.
 
+**W29. Every recording says how it was made (Now)**
+As the owner, I want every workout recording to carry the battery level, the devices, the app builds
+and the settings it ran with, so that when a tester reports a problem (battery drain, Crown side) I
+can see the cause in the data without asking them.
+*Done when:* a recording's header has battery % and charging state at start, Low Power Mode and the
+thermal state, and the file has a battery line once a minute, a thermal line when it changes, battery
+% at the end and the end reason (athlete, time cap, crash recovered, app killed); the upload carries
+the iPhone model, iOS version and phone app build and the settings in use (units, heart-rate zone
+source); new keys only, old recordings still parse; `tools/barpath` prints battery % per hour; no name,
+email or extra health data. (Owner, 15 Nov: 3-4 more testers on build 16; a tester reported battery
+drain on build 15, #69. Ticket #36.)
+
+**W30. Add a workout from a photo or text (Now)**
+As an athlete visiting another gym, I want to photograph the whiteboard or paste the text, check it
+and run it on my watch, so I don't build it by hand.
+*Done when:* the photo or text becomes a v2 workout (`docs/WORKOUT_MODEL_RFC.md` 7.5) with its raw
+text, fidelity and the reasons on the confirm screen; the athlete fixes and saves it and it appears
+under Workouts; a clear message when it cannot be set up; every attempt logged; the photo is not kept;
+imports stay private; email sign-up closed first. Brief: `docs/BUILD_17.md` (I1-I6, M1). Ticket #72.
+
+**W31. Pick a scale and the result remembers it (Now)**
+As an athlete, I want to pick Rx, Competitor, Level 2 or Level 1 on one workout card and have the
+watch run that scale, so my result says which version I did.
+*Done when:* a workout with several scales runs the chosen one; the result stores the scale; history
+shows it next to the score. Card design #61, built after the owner approves it. Ticket #73.
+
+**W32. The score reads the way the workout is scored (Later in build 17)**
+As an athlete, I want the headline, card and history to show each format's score (RFC decision D6),
+and a per-window table for EMOMs and intervals, so I read my result the way the gym does.
+*Done when:* every D6 preset shows right on fixtures of each format; the table matches the approved
+mockup. Ticket #74.
+
+**Record first, fix later (owner, 18 Nov).** A change to the workout, before, during or after it,
+must never stop or lose the recording. When the plan on the watch is wrong, the athlete starts anyway
+and corrects it afterwards on the phone.
+
+**W37. A note with my workout (Now)**
+As an athlete, I want to add a short note to a workout (typed or dictated, plus one optional photo of
+the whiteboard), so I remember what we really did and the recording can be labelled later.
+*Done when:* on the phone (and dictation on the watch after END), a workout result takes a note of
+up to ~500 characters and one photo; the note and photo are stored privately with the result (only
+the athlete and the owner's labelling tools read them, deleted with the account); the photo screen
+says "photograph only the workout, not people"; PRIVACY.md has a line about notes and photos; notes
+and photos never go in the repo or a library. The photos become the test set for the photo import
+(W30). Ticket #84.
+
+**W38. The start countdown matches my gym's clock (Now)**
+As an athlete, I want to choose per workout whether the watch starts at once, after 3 s or after 10 s,
+so it starts with the gym clock.
+*Done when:* the start screen offers none / 3 s / 10 s (default from the workout, else 3 s) and
+remembers the last choice per workout; the clock starts at GO (RFC 4.2.12 "get ready"); "tap to go
+now" still works; the recording starts at the START tap, so the countdown is in the recording.
+Ticket #85.
+
+**W39. Start anyway and correct it afterwards (Now)**
+As an athlete whose class changed the workout (10 x 2 became an EMOM, or the order changed), I want to
+do it with the watch as it was, then fix the order, the format or the scale on the phone, so my
+result is right without stopping the recording.
+*Done when:* on the result, "Edit workout" changes the order of parts, the format (for time, EMOM,
+AMRAP, rounds) and the scale (W31); the result is recomputed from the recording with the engine's
+replay; the original recording and the original plan are kept and can be restored; the edit is
+saved as the athlete's private copy, never in the library. Built together with W31. Ticket #86.
+
+**W43. Build or change a workout on my phone and send it to the watch (Now)**
+As an athlete who saw a workout online, or who is visiting a gym and listening to the whiteboard
+brief while warming up, I want to build it on my phone for myself and send it to the watch, so I can
+start on time with the right plan. (Owner, 19 Nov: individual use; each athlete builds their own.
+Two moments: at home, unhurried; at a visited gym, standing, one hand, in the 2-5 min before the start.)
+*Done when:*
+- Formats: For Time, AMRAP, EMOM / every N min, rounds for time, each with an optional time cap.
+- Rep schemes: fixed reps, 21-15-9, ascending and descending ladders (start, step, end).
+- Movements picked from the movement table (M1) with search; each line takes reps, load (kg/lb),
+  distance, calories or height, whichever that movement uses.
+- Drag to reorder, edit any number, duplicate a workout from the library and change it.
+- Save (private to me) and "Send to watch"; the watch shows it on its start screen.
+- The builder writes the v2 structure of `docs/WORKOUT_MODEL_RFC.md` and only offers the formats
+  above; every saved workout passes the validator.
+- A tester builds a 20-min AMRAP of 3 movements with loads and sends it to the watch in **under 60 s**
+  (timed on a device, 3 tries, median).
+- Never in the library or the repo; a change never touches a recording already made.
+*Later:* sharing a workout with a friend (e.g. by message), swaps with scale equivalents (run -> row),
+multi-part days, partner workouts, photo import (W30) into the builder. Not a community or gym feature. W40 (quick edit before start) is covered on the phone by W43; the watch side
+stays Later. W39 (correct afterwards) opens this same editor on a finished result. Ticket #89.
+
+**W40. Quick edit before I start (Later)**
+As an athlete, I want to change reps, a load or the order on the watch or phone just before START,
+so the plan matches today's whiteboard. *Done when:* written with its design.
+
+**W41. Log a lift on the watch with a rest timer (Later)**
+As an athlete doing strength work, I want to log sets (weight x reps) on the watch with a rest timer
+between them, so my strength day is in the app too. Related #35. *Done when:* written with its design.
+
+**W42. The phone is the gym clock (Later, nice to have)**
+As an athlete training alone, I want the phone to show a big gym clock synced to my watch, so I can
+read it from ~2 m. *Done when:* written with its design.
+
+Ids W33-W36 are taken by the shared-movement and rower stories (branch `claude/amazing-fermi-2lev62`).
+
 ### Recording follows the plan (spans Lifting and Workouts; after the MVP)
 
 **W21. The watch records each part the way that part needs (Later)**
