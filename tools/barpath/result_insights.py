@@ -190,6 +190,23 @@ def is_ladder(definition) -> bool:
     return False
 
 
+def last_segment_complete(result, definition, recorded: int) -> bool:
+    """The last recorded segment counts: every planned segment was done, or the athlete finished
+    by hand (Crown, press, button or a phone edit) in a for-time / Free Workout. An AMRAP stopped
+    by its cap (finish source "auto") or a workout ended without a finish leaves it partial."""
+    if result.finish_date is None:
+        return False
+    if recorded >= len(definition.segments):
+        return True
+    if definition.format == "amrap":
+        return False
+    source = None
+    for e in result.events:
+        if e.kind == "finish":
+            source = e.source
+    return source is not None and source != "auto"
+
+
 # ---- engine ----------------------------------------------------------------------------------
 
 class _Context:
@@ -197,7 +214,7 @@ class _Context:
         self.result = result
         self.definition = definition
         self.segments = sorted(result.segments, key=lambda s: s.index)
-        self.finished = result.finish_date is not None and len(self.segments) >= len(definition.segments)
+        self.finished = last_segment_complete(result, definition, len(self.segments))
         self.last_index = self.segments[-1].index if self.segments else -1
 
         # Completed work segments that match their definition segment.
@@ -479,7 +496,11 @@ def _started_hard(ctx: _Context) -> Optional[dict]:
     first = values[0]
     rest = values[1:]
     med = median(rest)
-    if first <= 0 or med <= first * (1.0 + STARTED_HARD_FRACTION):
+    # Both halves of "started hard, then faded", strictly more than 8 %: run 1 faster than the
+    # median of the rest, and the rest slower than run 1.
+    if first <= 0 or med <= 0:
+        return None
+    if not ((med - first) / med > STARTED_HARD_FRACTION and (med - first) / first > STARTED_HARD_FRACTION):
         return None
     pct = percent_text(med / first - 1.0)
     if same:
@@ -512,7 +533,9 @@ def _heaviest(ctx: _Context) -> Optional[dict]:
     """E3: heaviest completed load and the loads ladder, for a movement done at 2+ loads."""
     for key, name in ctx.movements():
         loads = []
-        for s in ctx.usable:
+        for s in ctx.segments:
+            if s.index not in ctx.clean:
+                continue
             d = ctx.def_seg(s.index)
             if d.kind + "|" + d.movement != key or d.load is None:
                 continue
@@ -611,6 +634,6 @@ def insights(result, definition=None) -> list:
         out.append(check)
     if drift is not None and any(i["id"] in ("A1", "F2") for i in out):
         cue_time = round_half_away(drift["t0"] / 5.0) * 5.0
-        out.append(_insight("CUE", f"Next time: hold the {drift['name']} nearer {time_text(cue_time)}.",
+        out.append(_insight("CUE", f"Next time: hold the {drift['name'].lower()} nearer {time_text(cue_time)}.",
                             is_cue=True))
     return out

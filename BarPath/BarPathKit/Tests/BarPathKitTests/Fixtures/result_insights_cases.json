@@ -19,7 +19,7 @@
    {
     "id": "CUE",
     "isCue": true,
-    "text": "Next time: hold the Bike nearer 1:30."
+    "text": "Next time: hold the bike nearer 1:30."
    }
   ],
   "name": "amrap_bike_drift",
@@ -522,7 +522,7 @@
    {
     "id": "CUE",
     "isCue": true,
-    "text": "Next time: hold the Push-ups nearer 0:45."
+    "text": "Next time: hold the push-ups nearer 0:45."
    }
   ],
   "name": "barbara_for_time",
@@ -2113,7 +2113,7 @@
    {
     "id": "CUE",
     "isCue": true,
-    "text": "Next time: hold the Burpees nearer 0:40."
+    "text": "Next time: hold the burpees nearer 0:40."
    }
   ],
   "name": "amrap_check_timing",

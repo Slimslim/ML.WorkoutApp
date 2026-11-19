@@ -41,7 +41,7 @@ final class ResultInsightsTests: XCTestCase {
         let got: [ResultInsight] = ResultInsights.insights(result: result, definition: result.definition)
         XCTAssertEqual(got.map({ $0.id }), ["A1", "A3", "A2", "CUE"])
         XCTAssertEqual(got[0].text, "Bike: 1:29 in round 1, then 1:48-1:51 (+23 %), 1:22 in total.")
-        XCTAssertEqual(got[3], ResultInsight(id: "CUE", text: "Next time: hold the Bike nearer 1:30.", isCue: true))
+        XCTAssertEqual(got[3], ResultInsight(id: "CUE", text: "Next time: hold the bike nearer 1:30.", isCue: true))
     }
 
     func testLimitsAndNeverShownWords() throws {

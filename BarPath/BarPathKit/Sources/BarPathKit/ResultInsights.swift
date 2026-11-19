@@ -102,7 +102,7 @@ public enum ResultInsights {
         if let c = check { out.append(c) }
         if let d = drift, out.contains(where: { (i: ResultInsight) -> Bool in i.id == "A1" || i.id == "F2" }) {
             let cueTime: Double = Double(roundHalfAway(d.t0 / 5.0)) * 5.0
-            out.append(ResultInsight(id: "CUE", text: "Next time: hold the \(d.name) nearer \(timeText(cueTime)).",
+            out.append(ResultInsight(id: "CUE", text: "Next time: hold the \(d.name.lowercased()) nearer \(timeText(cueTime)).",
                                      isCue: true))
         }
         return out
@@ -194,6 +194,21 @@ public enum ResultInsights {
         }
         let halves: Int = roundHalfAway(f * 2.0)
         return numberText(Double(halves) / 2.0) + " rounds"
+    }
+
+    /// The last recorded segment counts: every planned segment was done, or the athlete finished
+    /// by hand (Crown, press, button or a phone edit) in a for-time / Free Workout. An AMRAP stopped
+    /// by its cap (finish source auto) or a workout ended without a finish leaves it partial.
+    static func lastSegmentComplete(result: WorkoutResult, definition: WorkoutDefinition, recorded: Int) -> Bool {
+        if result.finishDate == nil { return false }
+        if recorded >= definition.segments.count { return true }
+        if definition.format == .amrap { return false }
+        var source: AdvanceSource? = nil
+        for e in result.events where e.kind == .finish {
+            source = e.source
+        }
+        guard let s = source else { return false }
+        return s != .auto
     }
 
     // MARK: - Definition structure
@@ -455,7 +470,12 @@ public enum ResultInsights {
         let first: Double = values[0]
         let rest: [Double] = Array(values.dropFirst())
         let med: Double = median(rest)
-        if first <= 0 || med <= first * (1.0 + startedHardFraction) { return nil }
+        // Both halves of "started hard, then faded", strictly more than 8 %: run 1 faster than the
+        // median of the rest, and the rest slower than run 1.
+        if first <= 0 || med <= 0 { return nil }
+        if !((med - first) / med > startedHardFraction && (med - first) / first > startedHardFraction) {
+            return nil
+        }
         let pct: String = percentText(med / first - 1.0)
         if same {
             return ResultInsight(id: "R1", text: "Started hard, then faded: run 1 in \(timeText(first)), "
@@ -486,7 +506,7 @@ public enum ResultInsights {
     static func heaviest(_ ctx: InsightContext) -> ResultInsight? {
         for (key, name) in ctx.movements() {
             var loads: [SegmentLoad] = []
-            for s in ctx.usable {
+            for s in ctx.segments where ctx.clean[s.index] != nil {
                 guard let d = ctx.definitionSegment(s.index), movementKey(d) == key, let load = d.load else { continue }
                 if !loads.contains(where: { (x: SegmentLoad) -> Bool in sameLoad(x, load) }) {
                     loads.append(load)
@@ -561,7 +581,8 @@ struct InsightContext {
             a.index < b.index
         })
         self.segments = sorted
-        let finished: Bool = result.finishDate != nil && sorted.count >= definition.segments.count
+        let finished: Bool = ResultInsights.lastSegmentComplete(result: result, definition: definition,
+                                                                recorded: sorted.count)
         let lastIndex: Int = sorted.last?.index ?? -1
 
         var usable: [SegmentResult] = []

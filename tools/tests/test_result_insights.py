@@ -11,13 +11,13 @@ EXPECTED = {
         ("A1", "Bike: 1:29 in round 1, then 1:48-1:51 (+23 %), 1:22 in total.", False),
         ("A3", "That drift added 1:22, about a third of a round.", False),
         ("A2", "Step-ups and Wall Balls held within 5 %.", False),
-        ("CUE", "Next time: hold the Bike nearer 1:30.", True),
+        ("CUE", "Next time: hold the bike nearer 1:30.", True),
     ],
     "barbara_for_time": [
         ("F2", "Push-ups: 0:45 in round 1, then 0:55-1:20 (+51 %), 1:32 in total.", False),
         ("F1", "Rounds 4-5 took 1:29 longer than rounds 1-2 (+18 %).", False),
         ("A3", "That drift added 1:32, about a third of a round.", False),
-        ("CUE", "Next time: hold the Push-ups nearer 0:45.", True),
+        ("CUE", "Next time: hold the push-ups nearer 0:45.", True),
     ],
     "ladder_21_15_9": [
         ("L1", "Thrusters 9: 1:10, expected about 0:45 from your 21 and 15.", False),
@@ -35,7 +35,7 @@ EXPECTED = {
         ("A1", "Burpees: 0:40 in round 1, then 0:44-0:51 (+18 %), 0:29 in total.", False),
         ("A3", "That drift added 0:29, about a fifth of a round.", False),
         ("CHECK", "Check your timing on round 2.", False),
-        ("CUE", "Next time: hold the Burpees nearer 0:40.", True),
+        ("CUE", "Next time: hold the burpees nearer 0:40.", True),
     ],
     "silence_two_steady_rounds": [],
     "silence_chipper": [],
@@ -157,3 +157,36 @@ def test_non_finite_duration_is_ignored():
     r.segments[0].duration = float("nan")
     got = insights(r, r.definition)   # must not raise
     assert all(i["id"] != "F1" for i in got)   # round 1 is incomplete without its pull-ups
+
+
+def test_last_segment_complete():
+    from barpath.result_insights import last_segment_complete
+    # Free Workout ended by hand after 9 of 60 parts: the 9th part counts.
+    r = cases.silence_free_workout()
+    assert last_segment_complete(r, r.definition, len(r.segments))
+    # Same, but the finish came from the cap (auto): partial.
+    r.events[-1].source = "auto"
+    assert not last_segment_complete(r, r.definition, len(r.segments))
+    # No finish at all (ended): partial.
+    r.finish_date = None
+    assert not last_segment_complete(r, r.definition, len(r.segments))
+    # AMRAP stopped by the cap: always partial.
+    a = cases.amrap_bike_drift()
+    assert not last_segment_complete(a, a.definition, len(a.segments))
+
+
+def test_ended_early_by_hand_keeps_last_segment():
+    """For time ended with the Crown after round 3 of Barbara: rounds 1-3 are all complete."""
+    r = cases.barbara_for_time()
+    r.segments = r.segments[:14]          # 3 rounds (4 work + rest) minus the last rest
+    r.events[-1].segment_index = 13
+    got = [i["id"] for i in insights(r, r.definition)]
+    assert got[0] == "F2" and "CUE" in got
+
+
+def test_e3_ignores_flagged_sets():
+    r = cases.emom_loads()
+    r.segments[6].duration = 2.0          # both 140 lb sets with a broken timing: not "successful"
+    r.segments[7].duration = 2.0
+    texts = [i["text"] for i in insights(r, r.definition)]
+    assert "Power Snatch: heaviest 135 lb. Loads 95 → 115 → 135 lb." in texts
