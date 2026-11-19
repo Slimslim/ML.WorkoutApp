@@ -15,7 +15,7 @@ final class ResultInsightsTests: XCTestCase {
 
     func testParityWithPython() throws {
         let cases = try loadCases()
-        XCTAssertEqual(cases.count, 13)
+        XCTAssertEqual(cases.count, 15)
         for c in cases {
             let name: String = c["name"] as? String ?? "?"
             let raw = try XCTUnwrap(c["result"] as? [String: Any], name)
@@ -76,6 +76,14 @@ final class ResultInsightsTests: XCTestCase {
         XCTAssertEqual(ResultInsights.percentText(0.001), "+0 %")
         XCTAssertEqual(ResultInsights.roundHalfAway(2.5), 3)
         XCTAssertEqual(ResultInsights.roundHalfAway(-2.5), -3)
+    }
+
+    func testCueNameKeepsBrandsAndAcronyms() {
+        XCTAssertEqual(ResultInsights.cueName("Bike"), "bike")
+        XCTAssertEqual(ResultInsights.cueName("Wall Balls"), "wall balls")
+        XCTAssertEqual(ResultInsights.cueName("SkiErg"), "SkiErg")
+        XCTAssertEqual(ResultInsights.cueName("KB Swings"), "KB Swings")
+        XCTAssertEqual(ResultInsights.cueName("Alt. DB Snatch"), "Alt. DB Snatch")
     }
 
     func testEmptyResultIsSilent() {

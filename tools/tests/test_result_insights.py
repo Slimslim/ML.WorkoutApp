@@ -48,6 +48,15 @@ EXPECTED = {
     ],
     "silence_free_workout": [],
     "silence_free_workout_long_first_part": [],
+    "amrap_skierg_cue": [
+        ("A1", "SkiErg: 1:10 in round 1, then 1:24-1:28 (+23 %), 0:48 in total.", False),
+        ("A3", "That drift added 0:48, about a third of a round.", False),
+        ("A2", "Burpees held within 5 %.", False),
+        ("CUE", "Next time: hold the SkiErg nearer 1:10.", True),
+    ],
+    "absurd_duration_ignored": [
+        ("A2", "Burpees held within 5 %.", False),
+    ],
 }
 
 NEVER = ("pace", "speed", "calorie", "effort", "zone", "heart", "bpm", "fatigue", "tired", "because")
@@ -190,3 +199,19 @@ def test_e3_ignores_flagged_sets():
     r.segments[7].duration = 2.0
     texts = [i["text"] for i in insights(r, r.definition)]
     assert "Power Snatch: heaviest 135 lb. Loads 95 → 115 → 135 lb." in texts
+
+
+def test_cue_name_keeps_brands_and_acronyms():
+    from barpath.result_insights import cue_name
+    assert cue_name("Bike") == "bike"
+    assert cue_name("Wall Balls") == "wall balls"
+    assert cue_name("SkiErg") == "SkiErg"
+    assert cue_name("KB Swings") == "KB Swings"
+    assert cue_name("Alt. DB Snatch") == "Alt. DB Snatch"
+
+
+def test_huge_and_negative_durations_are_ignored():
+    for bad in (1e308, 86400.0, -5.0):
+        r = cases.silence_two_steady_rounds()
+        r.segments[0].duration = bad
+        insights(r, r.definition)   # must not raise

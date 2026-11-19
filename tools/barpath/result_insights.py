@@ -25,6 +25,7 @@ from typing import Optional
 
 MAX_INSIGHTS = 3
 MIN_SEGMENT_SECONDS = 5.0
+MAX_SEGMENT_SECONDS = 86400.0  # a segment of a day or more is broken data: never used
 OUTLIER_FACTOR = 3.0
 STEADY_FRACTION = 0.05      # A2: within +-5 % of round 1
 DRIFT_MIN_SECONDS = 10.0    # A1: at least 10 s extra in total ...
@@ -118,6 +119,15 @@ def _round_fraction_text(f: float) -> str:
         return best[1]
     halves = round_half_away(f * 2.0)
     return number_text(halves / 2.0) + " rounds"
+
+
+def cue_name(name: str) -> str:
+    """Movement name inside the cue: lowercase ("the bike"), unless a word has a capital after its
+    first letter (a brand or an acronym: "SkiErg", "KB Swings", "Alt. DB Snatch" keep their case)."""
+    for word in name.split(" "):
+        if any(c.isupper() for c in word[1:]):
+            return name
+    return name.lower()
 
 
 # ---- definition structure --------------------------------------------------------------------
@@ -223,7 +233,8 @@ class _Context:
             d = self.def_seg(s.index)
             if d is None or s.kind not in WORK_KINDS or d.kind != s.kind or d.movement != s.movement:
                 continue
-            if not is_known(d) or not math.isfinite(s.duration):
+            if not is_known(d) or not math.isfinite(s.duration) or s.duration < 0 \
+                    or s.duration >= MAX_SEGMENT_SECONDS:
                 continue
             if not self.finished and s.index == self.last_index:
                 continue
@@ -486,8 +497,8 @@ def _runs(ctx: _Context, target_only: bool) -> list:
 
 
 def _started_hard(ctx: _Context) -> Optional[dict]:
-    """R1: the median of the other runs is more than 8 % slower than run 1 ("started hard, then
-    faded" read as one condition: run 1 vs the median of the rest, strictly more than 8 %)."""
+    """R1: "started hard, then faded", both halves strictly more than 8 %: run 1 is faster than the
+    median of the other runs, and that median is slower than run 1."""
     runs = _runs(ctx, target_only=False)
     if len(runs) < 3:
         return None
@@ -634,6 +645,6 @@ def insights(result, definition=None) -> list:
         out.append(check)
     if drift is not None and any(i["id"] in ("A1", "F2") for i in out):
         cue_time = round_half_away(drift["t0"] / 5.0) * 5.0
-        out.append(_insight("CUE", f"Next time: hold the {drift['name'].lower()} nearer {time_text(cue_time)}.",
+        out.append(_insight("CUE", f"Next time: hold the {cue_name(drift['name'])} nearer {time_text(cue_time)}.",
                             is_cue=True))
     return out
