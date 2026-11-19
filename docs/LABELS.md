@@ -11,18 +11,30 @@ says what really happened; `tools/score_labels.py` scores detectors against all 
 |---|---|---|
 | Recordings (watch CSV at 100 Hz, result JSON, lift JSON) | Supabase Storage, bucket `uploads`, `<user id>/Debug/…`, `Workouts/…`, `Lifts/…` (uploaded by the phone) | **No** |
 | Local copies for scoring | `data/cache/<label id>/` (`tools/fetch_sessions.py`) | No (git-ignored) |
-| Labels | `data/labels/<label id>.json` | Yes |
+| Labels | Supabase Storage, `uploads/<user id>/Corpus/labels/` (+ `MANIFEST.sha256`); local copy in `data/labels/<label id>.json` (`tools/fetch_corpus.py --kind labels`) | **No** (git-ignored) |
+| Score history | Supabase Storage, `uploads/<user id>/Corpus/eval/` (+ `MANIFEST.sha256`); local copy in `data/eval/history.jsonl` (`--kind eval`) | **No** (git-ignored) |
+| Invented labels for CI | `tools/tests/fixtures/labels/` (recordings simulated at test time) | Yes |
 | Older sessions (Oct 27 - Nov 2) with their prose notes | Supabase Storage, `uploads/<user id>/Corpus/raw/` (+ `MANIFEST.sha256`); local copy in `data/raw/` (`tools/fetch_corpus.py`) | **No** (git-ignored, #101) |
 
 No recordings, photos, videos or raw sensor data in the repo (CLAUDE.md). Paths in a label are
 relative to the owner's Storage folder; the user id is not in the repo.
 
 ```bash
+BARPATH_USER_ID=<user id> BARPATH_SUPABASE_KEY=<secret key> python3 tools/fetch_corpus.py --kind labels
 BARPATH_USER_ID=<user id> BARPATH_SUPABASE_KEY=<secret key> python3 tools/fetch_sessions.py
 python3 tools/score_labels.py
 ```
 
-## Recordings (moved out of the repo)
+The labels describe the owner's real sessions (workouts as done, loads, scores), so they moved
+out of the repo with the recordings (owner, 19 Nov). Without them `tools/tests/test_labels.py`
+skips the per-file checks and `score_labels.py` says where to fetch them; CI scores two invented
+labels instead (`tools/tests/test_score_labels.py`, recordings from `barpath.simulate`).
+
+## Recordings, labels and scores (moved out of the repo)
+
+`tools/fetch_corpus.py --kind raw|labels|eval|all` downloads each from `Corpus/<kind>/` in private
+Storage into `data/<kind>/` (one `MANIFEST.sha256` per kind, same format as below). The labels
+and the score history were in git until 19 Nov; the recordings below until the same day.
 
 Until 19 Nov the older sessions were committed in `data/raw/` (127 MB). They now live only in the
 owner's private Storage, same folder structure, with a sha256 manifest (#101); `data/raw/` is
@@ -56,6 +68,8 @@ python3 -m pytest tools/tests -q        # the real-data tests run again
 2. Claude lines that up with the motion data (forearm overhead, hanging from a bar, steps from the
    pedometer, …), writes `data/labels/<date>-<name>.json`, and asks about anything that does not fit.
 3. The athlete confirms. `python3 -m pytest tools/tests/test_labels.py` checks the file.
+4. The file goes to private Storage (`Corpus/labels/`, with its line in `MANIFEST.sha256`), never
+   into git. (Upload: the Data chat or the owner, with the service role.)
 
 The recording and the watch result are never changed for a label: the label points at the watch's
 untouched result (`<id>.original.json` when the result was corrected).
@@ -134,7 +148,8 @@ pull-up ↔ push-up switches the Crown never had.
 ## Eval
 
 `python3 tools/score_labels.py --record` scores every detector on every labelled session and
-appends one line to `data/eval/history.jsonl` (date, commit, match window, every score). Rules:
+appends one line to `data/eval/history.jsonl` (date, commit, match window, every score), a local
+file: upload it to `Corpus/eval/` (and update its manifest line) to keep the history. Rules:
 
 - **Score every new version and record it** before deciding it is better. Better = more switches
   found **and** fewer false switches, on the same sessions, at the same window (3 s).
