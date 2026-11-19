@@ -37,6 +37,23 @@ The team process (stand-up, planning, review, retro, the Scrum Master chat): `do
   `standups`, `sprints`, `checks`, `meta/plan` (read first, pin `if_version`, never delete a stand-up
   or decision). Its old `items` collection is replaced by the issues.
 
+## CI (issue #107, option C)
+
+What runs where:
+- **GitHub Actions, every PR** (`.github/workflows/ci.yml`): Python tests and the BarPathKit tests on
+  Linux (`swift test` in the official `swift` container). Until Xcode Cloud is green, the macOS job
+  (BarPathKit tests plus iPhone and watch builds) still runs too; it is removed after that.
+- **Xcode Cloud:** app builds, archives and TestFlight uploads. `BarPath/ci_scripts/ci_post_clone.sh`
+  installs XcodeGen and generates `BarPath.xcodeproj`, which is not committed.
+
+Build numbers (**owner to confirm**). Xcode Cloud has its own build counter (`CI_BUILD_NUMBER`) and
+can set the build number of each archive it makes; today `BarPath/project.yml` sets it
+(`CURRENT_PROJECT_VERSION`, now `16.1`). Recommendation: **let Xcode Cloud set it**. Its counter
+only goes up, so TestFlight never rejects a duplicate, and nobody has to bump `project.yml` before
+each build. Release notes and `docs/RELEASE_NOTES.md` then name builds by the Xcode Cloud number.
+To keep the current numbering instead, start Xcode Cloud's counter above the last uploaded build in
+the workflow settings and keep bumping `project.yml` by hand.
+
 ## Rules
 
 **Status and definition of done**
