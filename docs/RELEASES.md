@@ -202,6 +202,14 @@ dump before any database change: `docs/BACKUP.md`, `tools/backup/`. Status: in r
 ([#123](https://github.com/Slimslim/ML.WorkoutApp/pull/123)). Device-tested 19 Nov on the NAS: first
 backup OK (6.2 MB, 73 s), restore test OK (39 tables, every row).
 
+## Release 0.17.1: results insights (phone only, #126; branch `claude/release-17.1`)
+
+Spec `docs/RESULTS_INSIGHTS.md`. Ships before the race on 5 Dec if the owner agrees.
+
+| Feature | Story | Status | Note |
+|---|---|---|---|
+| Score with Rx / Scaled and the "vs last time" line on the results page | W46 | in progress | [#127](https://github.com/Slimslim/ML.WorkoutApp/pull/127); logic done, UI after mockup approval |
+
 ## Backlog (after the beta; owner picks at the review)
 
 | Feature | Story | Status | Note |
