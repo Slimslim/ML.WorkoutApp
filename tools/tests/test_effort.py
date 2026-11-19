@@ -49,6 +49,8 @@ def test_parity_fixture(case):
     assert series_effort(series, case["finish"], case["maxHeartRate"]) == case["effort"]
 
 
+@pytest.mark.skipif(not list(RAW.glob("workout-*.json")),
+                    reason="recording not in data/raw (python3 tools/fetch_corpus.py)")
 def test_real_class():
     results = [WorkoutResult.from_dict(json.loads(p.read_text())) for p in RAW.glob("workout-*.json")]
     assert highest_heart_rate(results) == 176

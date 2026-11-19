@@ -1,5 +1,9 @@
 # Recording follows the plan (what the watch measures, per planned movement)
 
+> **Where recordings live:** never in the repo. New ones are uploaded by the phone to private
+> Storage; the older corpus (once `data/raw/`) is in private Storage too and is downloaded with
+> `tools/fetch_corpus.py` (docs/LABELS.md, "Recordings (moved out of the repo)").
+
 Owner discussion of 2026-11-09/10, after the power snatch EMOM and the metcon that followed it. Story: **W21**
 (`docs/USER_STORIES.md`, Later). Apart from build 15 (below) nothing here is built yet; this is the reasoning and the open
 questions, so the build starts from the same place.
