@@ -506,6 +506,35 @@ def session_fixture(cases: dict) -> dict:
                 batches.append({"after": i + 1, "lines": [[t, line] for t, line in new]})
         lines.append({"case": name, "scenario": scen, "batches": batches})
     out["lines"] = lines
+    out["stopwatch"] = _stopwatch_cases(cases, out["routes"])
+    return out
+
+
+def _stopwatch_cases(cases: dict, routes: list) -> list:
+    """The refusal screen of every route case, and what "Run as stopwatch" runs for it (its
+    definition, byte for byte, and its plan hash), plus odd raw texts and caps."""
+    hy = cases["hyrox"][0]
+    raws = []
+    for r in routes:
+        raws.append((r["name"], cases[r["case"]][0] if "case" in r else r["raw"]))
+    raws += [
+        ("rawText", dict(hy, schemaVersion=3, rawText="1000 m run\r\n\n  50 wall balls\t\r8 burpees\n",
+                         timeCapSeconds=5400)),
+        ("rawTextInAScale", dict(hy, schemaVersion=3, scales=[{"id": "rx"}, {"id": "l1", "rawText": "a\nb"}])),
+        ("capAsFloat", dict(hy, schemaVersion=3, timeCapSeconds=600.0)),
+        ("capFractional", dict(hy, schemaVersion=3, timeCapSeconds=600.5)),
+        ("capTooLong", dict(hy, schemaVersion=3, timeCapSeconds=86401)),
+        ("capBool", dict(hy, schemaVersion=3, timeCapSeconds=True)),
+        ("manyLines", {"schemaVersion": 3, "rawText": "\n".join("line %d" % i for i in range(450))}),
+        ("blankName", {"schemaVersion": 3, "name": "   ", "rawText": " \n "}),
+        ("junkTypes", {"schemaVersion": 3, "name": 5, "rawText": 7, "scales": "x", "team": 2,
+                       "healthKitActivity": "running", "shortName": "SW"}),
+    ]
+    out = []
+    for name, raw in raws:
+        d = wss.stopwatch_definition(raw)
+        out.append({"name": name, "raw": raw, "screen": wss.refusal_screen(wss.route(raw)),
+                    "definition": d, "hash": we.plan(d).hash})
     return out
 
 
@@ -577,7 +606,8 @@ def generate() -> dict:
                                  "planErrors": len(pe), "upgrade": len(up), "csv": len(cv),
                                  "sessionEvents": len(se["events"]), "sessionRoutes": len(se["routes"]),
                                  "sessionViews": len(se["views"]), "sessionCheckpoints": len(se["checkpoints"]),
-                                 "sessionLines": len(se["lines"]), "phone": len(ph),
+                                 "sessionLines": len(se["lines"]), "sessionStopwatch": len(se["stopwatch"]),
+                                 "phone": len(ph),
                                  "planner": we.PLANNER_VERSION})
     return files
 

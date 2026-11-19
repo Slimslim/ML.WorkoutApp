@@ -174,6 +174,43 @@ final class WorkoutEngineSessionTests: XCTestCase {
         }
     }
 
+    /// The refusal screen (#115 states 1 and 2) and what "Run as stopwatch" runs: the same
+    /// definition, byte for byte, and the same plan hash as Python.
+    func testRefusalScreensAndStopwatchMatchPython() throws {
+        let cases: [JSONValue] = try session()["stopwatch"]?.array ?? []
+        XCTAssertEqual(cases.count, try index()["sessionStopwatch"]?.intValue)
+        XCTAssertGreaterThanOrEqual(cases.count, 25)
+        var screens: Set<String> = []
+        for c in cases {
+            let name: String = c["name"]?.string ?? "?"
+            let raw: JSONValue = c["raw"] ?? .null
+            let screen = WorkoutEngineSession.refusalScreen(WorkoutEngineSession.route(raw))
+            XCTAssertEqual(screen?.rawValue, c["screen"]?.string, name)
+            if let s = screen {
+                screens.insert(s.rawValue)
+            }
+            let d: JSONValue = WorkoutEngineSession.stopwatchDefinition(raw)
+            XCTAssertEqual(d.canonicalJSON, c["definition"]?.canonicalJSON, name)
+            XCTAssertEqual(WorkoutEngineSession.route(d), .engine, name)
+            XCTAssertEqual(try WorkoutEngine.plan(d).hash, c["hash"]?.string, name)
+        }
+        XCTAssertEqual(screens, ["updateApp", "tooLarge"])
+    }
+
+    func testStopwatchIsAthletePacedWithNothingAsked() throws {
+        let raw: JSONValue = .object(["schemaVersion": .int(3), "id": .string("x"), "name": .string("X"),
+                                      "rawText": .string("a\r\nb\n"), "timeCapSeconds": .int(600)])
+        let plan = try WorkoutEngine.plan(WorkoutEngineSession.stopwatchDefinition(raw))
+        var st = WorkoutEngine.initial(plan)
+        for e in [EngineEvent(kind: "start", t: 0), EngineEvent(kind: "crown", t: 10_000, began: 10_000),
+                  EngineEvent(kind: "tick", t: 11_000), EngineEvent(kind: "crown", t: 20_000, began: 20_000)] {
+            st = WorkoutEngine.reduce(st, e).0
+        }
+        XCTAssertTrue(st.done)
+        XCTAssertNil(WorkoutEngineSession.latestAsk(st))
+        XCTAssertEqual(WorkoutEngineSession.project(st).segments.count, 2)
+    }
+
     func testEveryBuiltInWorkoutKeepsTheOldPath() throws {
         for d in WorkoutLibrary.known {
             let raw: JSONValue = try JSONValue.parse(try JSONEncoder().encode(d))

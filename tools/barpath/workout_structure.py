@@ -808,18 +808,29 @@ def check_runnable(doc: dict, engine_features=()) -> tuple:
 
 def stopwatch_structure(doc: dict) -> dict:
     """The "Run as stopwatch" fallback (RFC §14.3 A4): athlete-paced, one part per line of the raw
-    text, a `late: continue` cap if one is known, no automatic rests, score typed by hand."""
-    text = doc.get("rawText")
-    if not isinstance(text, str):
-        for s in doc.get("scales") or []:
+    text, a `late: continue` cap if one is known, no automatic rests, score typed by hand.
+    Swift: `WorkoutStructureV2.stopwatchStructure`."""
+    if not isinstance(doc, dict):
+        doc = {}
+    text = doc.get("rawText") if isinstance(doc.get("rawText"), str) else None
+    if text is None:
+        scales = doc.get("scales")
+        for s in scales if isinstance(scales, list) else []:
             if isinstance(s, dict) and isinstance(s.get("rawText"), str):
                 text = s["rawText"]
                 break
-    lines = [ln.strip() for ln in (text or "").splitlines() if ln.strip()] or [doc.get("name") or "Workout"]
+    name = doc.get("name") if isinstance(doc.get("name"), str) and doc.get("name").strip() else "Workout"
+    # Lines split on \n, \r\n or \r only (Swift splits the same way).
+    raw_lines = (text or "").replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    lines = [ln.strip() for ln in raw_lines if ln.strip()] or [name.strip()]
+    # At most MAX_STEPS parts, so the stopwatch itself is never too large to expand; a cap the
+    # engine can't run (over 24 h) is dropped rather than refusing the stopwatch.
+    lines = lines[:MAX_STEPS]
     parts = [{"part": {"id": "l%d" % (i + 1), "movement": "part", "name": ln}} for i, ln in enumerate(lines)]
     cap = doc.get("timeCapSeconds")
     body = parts
-    if _is_int(cap) and cap > 0:
+    from . import workout_engine
+    if _is_int(cap) and 0 < cap <= workout_engine.MAX_SECONDS:
         body = [{"timed": {"id": "cap", "seconds": int(cap), "early": "next", "late": "continue",
                            "body": parts}}]
     return {"score": {"type": "none"}, "body": body}
