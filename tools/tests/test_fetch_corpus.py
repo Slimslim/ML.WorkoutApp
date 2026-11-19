@@ -22,7 +22,8 @@ def test_plain_sha256sum_format():
                                       ("b" * 64, None, "2026-10-29-helen/session-x.csv")]
 
 
-@pytest.mark.parametrize("line", [f"{H}  ../escape", f"{H}  12  ../escape", f"{H}  /abs/path", f"{H}  a/../../b",
+@pytest.mark.parametrize("line", [f"{H}  ../escape", f"{H}  12  ../escape", f"{H}  12  ..\\..\\x.json",
+                                  f"{H}  12  sub\\x.json", f"{H}  12  C:\\x", f"{H}  /abs/path", f"{H}  a/../../b",
                                   "short  a.csv", f"{H}", f"{'z' * 64}  a.csv"])
 def test_refuses_bad_lines(line):
     with pytest.raises((F.CorpusError, ValueError)):
@@ -167,3 +168,13 @@ def test_eval_kind_and_bad_lines_in_another_kind(store):
     STORES["labels"]["MANIFEST.sha256"] = f"{'a' * 64}  3  ../escape.json\n".encode()
     assert F.main(["--kind", "labels"]) == 1                      # path leaves the folder
     assert not (raw.parent / "escape.json").exists()
+
+
+def test_folder_filter_applies_to_recordings_only_under_all(store):
+    objects, calls, raw = store
+    history = b'{"date": "2026-01-01"}\n'
+    STORES["eval"].update({"MANIFEST.sha256": manifest({"history.jsonl": history}), "history.jsonl": history})
+    assert F.main(["--kind", "all", "2026-10-29-helen"]) == 0
+    assert leftovers(raw) == ["2026-10-29-helen/README.md"]
+    assert (raw.parent / "labels" / "2026-01-01-x.json").exists()
+    assert (raw.parent / "eval" / "history.jsonl").exists()

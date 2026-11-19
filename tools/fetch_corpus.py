@@ -75,7 +75,7 @@ def parse_manifest(text: str) -> list:
         if rel.startswith("./"):
             rel = rel[2:]
         p = Path(rel)
-        if not rel or p.is_absolute() or ".." in p.parts:
+        if not rel or p.is_absolute() or ".." in p.parts or "\\" in rel or ":" in rel:
             raise CorpusError(f"manifest line {n}: unsafe path {rel!r}")
         if any(c not in "0123456789abcdef" for c in digest):
             raise CorpusError(f"manifest line {n}: the checksum is not hex")
@@ -150,7 +150,8 @@ def fetch_kind(user: str, key: str, kind: str, only: list, force: bool) -> int:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("only", nargs="*", help="only paths starting with one of these (e.g. 2026-10-29-helen)")
+    ap.add_argument("only", nargs="*", help="only paths starting with one of these (e.g. 2026-10-29-helen); "
+                                            "with --kind all it filters the recordings only")
     ap.add_argument("--kind", choices=KINDS + ("all",), default="raw",
                     help="raw (recordings, default), labels, eval, or all three")
     ap.add_argument("--force", action="store_true", help="download again even when the checksum matches")
@@ -161,7 +162,8 @@ def main(argv=None) -> int:
         print("Set BARPATH_USER_ID and BARPATH_SUPABASE_KEY (see the docstring).", file=sys.stderr)
         return 2
     kinds = KINDS if args.kind == "all" else (args.kind,)
-    failed = sum(fetch_kind(user, key, k, args.only, args.force) for k in kinds)
+    failed = sum(fetch_kind(user, key, k, args.only if (k == "raw" or args.kind != "all") else [], args.force)
+                 for k in kinds)
     return 1 if failed else 0
 
 

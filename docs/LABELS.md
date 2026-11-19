@@ -206,49 +206,44 @@ step-ups confusion fires 17 s early.
 
 ### First held-out test: AMRAP 40 + runs (2026-11-08, labelled after v1 was frozen)
 
-Ball slams, dual DB thrusters, GHD sit-ups, dual DB lunges, 400 m run; labels are the Crown taps.
+Four stations and a run per round; labels are the Crown taps.
 
 | After round 1 (24 switches) | Crown taps | Crown + first rep | switch-v0 | switch-v1 |
 |---|---|---|---|---|
 | AMRAP 40 + runs | 24 (by construction) | 8 (17 false) | 3 (22 false) | 4 (21 false) |
 
-v1 is in step for round 2 (thrusters 0 s, sit-ups -2 s, lunges +2 s), then sees the run 14 s after
+v1 is in step for round 2 (three stations within 2 s), then sees the run 14 s after
 the Crown tap (walking to the door before running) and never recovers: it only waits for the *next*
 planned movement. For v2: resync when the motion clearly shows another planned movement, and label
 run starts from the step rate (the tap is before the run really starts).
 
 ### AMRAP 40 + runs as training data (2026-11-08)
 
-The athlete gave the reps (thrusters, GHD sit-ups, lunges unbroken; ball slams with a few breaks).
-From the motion: 8 of 24 stations got sets with one time per rep (86 rep times; ball slams rounds
-1-2 at ~3.5 s per rep from the arm angle, thrusters round 1 at 2.2 s from vertical accel, GHD
-sit-ups rounds 1, 2, 3, 5 at 2.5 s from the wrist tilt, lunges round 1); the rest stay on the Crown
-taps, not verified. Runs start at the first 6 s at >= 2.2 steps/s: 5-28 s after the Crown (walking
+The athlete gave the reps per station. From the motion: 8 of 24 stations got sets with one time per
+rep (throws from the arm angle, a squat-to-press from vertical accel, sit-ups from the wrist tilt;
+2.2-3.5 s per rep); the rest stay on the Crown taps, not verified. Runs start at the first 6 s at >= 2.2 steps/s: 5-28 s after the Crown (walking
 out), so the taps themselves match only 17 of 25 real switches after round 1. Rescored: v0 5/25,
 v1 7/25 (18 false): v1 still loses sync after the first late run.
 
 ### Strict press and SkiErg (2026-11-08, recorded for training data)
 
-- **Strict press 3 x 10 @ 65 / 75 / 75 lb:** every rep is a sharp upward push of the wrist
-  (vertical accel > 0.2 g with the forearm vertical): exactly 10 per set, 30 rep times (set 1 also
-  shows the push that takes the bar out of the rack, dropped). 2.7-3.0 s per rep in set 1; sets 2-3
-  start at 2.2-2.5 s and slow to ~3 s. The Crown comes 7-10 s after the last rep (rack, then the
+- **Strict press sets:** every rep is a sharp upward push of the wrist (vertical accel > 0.2 g with
+  the forearm vertical): every labelled rep found (the push that takes the bar out of the rack is
+  seen too, and dropped). About 2.2-3.0 s per rep, slowing within a set. The Crown comes 7-10 s after the last rep (rack, then the
   watch): it marks the end of the set, late; the start is not marked.
-- **SkiErg 5 x 250 m:** 1.6-1.8 s per stroke (34-39/min), ~38-44 strokes per 250 m (not
-  verified). In 4 of 5 intervals skiing started ~4 s before the watch's 1:00 rest ran out; the Crown
+- **SkiErg intervals:** 1.6-1.8 s per stroke (34-39/min) (not verified). In 4 of 5 intervals skiing started ~4 s before the watch's 1:00 rest ran out; the Crown
   matches the last stroke.
 
 ### Power snatch EMOM and a snatch metcon (2026-11-09): every rep from the motion
 
 A snatch (and a burpee to the bar) is a forearm rise from hanging to vertical in < 1.5 s with the
 arm held overhead 1.3-2.0 s (catch / hand on the bar); a failed snatch comes straight down (0.1-0.6 s).
-- **Power snatch every 1:00 x 10 (2 singles), 95-145 lb:** all 20 good reps; the missed rep at
-  145 lb (0.6 s overhead) between the two good ones, as the athlete said.
-- **Metcon, 3 rounds of snatches + burpee chest-to-bar (scaled):** all 21 snatches and 20 burpees; the
-  failed rep 7 in round 1 and the chalk break, the 33 s wristband break in round 2, 2 + 1 + 1 + 1
-  in round 3; two athlete Marks, each just before walking to the bar. Capped at 10:00 with 38
-  reps (1 burpee into the last 5). The Crown came at the next minute / after walking, never
-  within 3 s of the set end.
+- **Power snatch EMOM (singles):** every good rep found, and the one missed rep (0.6 s overhead)
+  between two good ones, as the athlete said.
+- **Metcon of snatches + burpees to the bar:** every snatch and burpee found, including a failed
+  rep, a chalk break, a wristband break and the split sets, as the athlete described; two athlete
+  Marks, each just before walking to the bar. The Crown came at the next minute / after walking,
+  never within 3 s of the set end.
 
 ### 2026-11-10: sit-ups + 800 m runs, Tabata press and row
 
@@ -256,7 +251,7 @@ arm held overhead 1.3-2.0 s (catch / hand on the bar); a failed snatch comes str
   every set and rep from the wrist tilt, exactly as the athlete said. Runs start 2 s and 4 s after the
   Crown (run 2 inside first, the turn onto the road visible ~10 s after the Crown).
 - **A press rep is a lockout:** dip at the shoulders, push, then the forearm fully vertical (gy between
-  -0.3 and 0.12). With that rule the Tabata press counts all 8 sets exactly (56); a push without
+  -0.3 and 0.12). With that rule the Tabata press counts every set exactly; a push without
   lockout (set 4) and racking the bar (wrist rolls, gy -0.57, set 7) are not reps. The MVP press
   counter should use the same rule.
 - **Bent-over row:** pull right after the bottom reversal; 6 of 8 sets match. Rounds 1, 4 and 8 are
