@@ -1,0 +1,151 @@
+{
+ "hash": "dbd302f92724ad99c630110ef65bd141735a2fbd63e4433d6858738f4234cb7b",
+ "plan": {
+  "bells": [
+   {
+    "anchor": "start",
+    "id": "cap.end",
+    "offsetMs": 300000
+   }
+  ],
+  "planner": 1,
+  "steps": [
+   {
+    "ends": "athlete",
+    "id": "rp.1.a",
+    "index": 0,
+    "kind": "part",
+    "node": "a",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 21
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": [
+     "cap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.1.b",
+    "index": 1,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "pullUps",
+    "partTarget": {
+     "unit": "reps",
+     "value": 21
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": [
+     "cap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.a",
+    "index": 2,
+    "kind": "part",
+    "node": "a",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 21
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": [
+     "cap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.b",
+    "index": 3,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "pullUps",
+    "partTarget": {
+     "unit": "reps",
+     "value": 21
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": [
+     "cap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.a",
+    "index": 4,
+    "kind": "part",
+    "node": "a",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 21
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": [
+     "cap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.b",
+    "index": 5,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "pullUps",
+    "partTarget": {
+     "unit": "reps",
+     "value": 21
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": [
+     "cap"
+    ]
+   }
+  ],
+  "windows": [
+   {
+    "depth": 1,
+    "early": "next",
+    "id": "cap",
+    "key": "cap",
+    "late": "end",
+    "seconds": 300
+   }
+  ]
+ }
+}

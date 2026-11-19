@@ -1,0 +1,719 @@
+{
+ "compilerVersion": 1,
+ "format": "amrap",
+ "healthKitActivity": "crossTraining",
+ "id": "test.amrapLadder",
+ "name": "AMRAP 12 ladder",
+ "roundSize": 2,
+ "schemaVersion": 2,
+ "segments": [
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 6
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 6
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 9
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 9
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 12
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 12
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 15
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 15
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 18
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 18
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 21
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 21
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 24
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 24
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 27
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 27
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 30
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 30
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 33
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 33
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 36
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 36
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 39
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 39
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 42
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 42
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 45
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 45
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 48
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 48
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 51
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 51
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 54
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 54
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 57
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 57
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 60
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 60
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 63
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 63
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 66
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 66
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 69
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 69
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 72
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 72
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 75
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 75
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 78
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 78
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 81
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 81
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 84
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 84
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 87
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 87
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 90
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 90
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 93
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 93
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 96
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 96
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 99
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 99
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 102
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 102
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 105
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 105
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 108
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "chestToBar",
+   "name": "chestToBar",
+   "target": {
+    "unit": "reps",
+    "value": 108
+   }
+  }
+ ],
+ "shortName": "AMRAP 12 l",
+ "structure": {
+  "body": [
+   {
+    "timed": {
+     "body": [
+      {
+       "repeat": {
+        "body": [
+         {
+          "part": {
+           "id": "thr",
+           "movement": "thrusters",
+           "target": {
+            "unit": "reps",
+            "value": 3
+           }
+          }
+         },
+         {
+          "part": {
+           "id": "c2b",
+           "movement": "chestToBar",
+           "target": {
+            "unit": "reps",
+            "value": 3
+           }
+          }
+         }
+        ],
+        "id": "rp",
+        "listRounds": 36,
+        "times": null,
+        "vary": {
+         "c2b": {
+          "from": 3,
+          "step": 3
+         },
+         "thr": {
+          "from": 3,
+          "step": 3
+         }
+        }
+       }
+      }
+     ],
+     "early": "next",
+     "id": "amrap",
+     "late": "end",
+     "seconds": 720
+    }
+   }
+  ],
+  "score": {
+   "show": "roundsReps",
+   "type": "totalReps"
+  }
+ },
+ "team": "solo",
+ "timeCapSeconds": 720
+}

@@ -1,0 +1,488 @@
+{
+ "asks": [
+  "rp.1.bike",
+  "rp.2.bench",
+  "rp.3.pu",
+  "rp.4.bench"
+ ],
+ "boundaries": [
+  180000,
+  240000,
+  420000,
+  480000,
+  660000,
+  720000,
+  960000
+ ],
+ "current": null,
+ "done": true,
+ "doneT": 960000,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "hint",
+   "reason": "nothingToUndo",
+   "t": 88200
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 177000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 178000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 179000
+  },
+  {
+   "kind": "ask",
+   "step": "rp.1.bike",
+   "t": 180000
+  },
+  {
+   "kind": "rest",
+   "step": "rp.1.r",
+   "t": 180000
+  },
+  {
+   "kind": "hint",
+   "reason": "clock",
+   "t": 218800
+  },
+  {
+   "kind": "hint",
+   "reason": "clock",
+   "t": 227700
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 237000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 238000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 239000
+  },
+  {
+   "kind": "go",
+   "step": "rp.2.bike",
+   "t": 240000
+  },
+  {
+   "kind": "hint",
+   "reason": "lockout",
+   "t": 269100
+  },
+  {
+   "kind": "ask",
+   "step": "rp.2.bench",
+   "t": 356000
+  },
+  {
+   "kind": "hint",
+   "reason": "clock",
+   "t": 371500
+  },
+  {
+   "kind": "undo",
+   "step": "rp.2.bench",
+   "t": 404100
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 417000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 418000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 419000
+  },
+  {
+   "kind": "ask",
+   "step": "rp.2.bench",
+   "t": 420000
+  },
+  {
+   "kind": "rest",
+   "step": "rp.2.r",
+   "t": 420000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 477000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 478000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 479000
+  },
+  {
+   "kind": "go",
+   "step": "rp.3.bike",
+   "t": 480000
+  },
+  {
+   "kind": "hint",
+   "reason": "bell",
+   "t": 481600
+  },
+  {
+   "kind": "hint",
+   "reason": "bell",
+   "t": 487200
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 657000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 658000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 659000
+  },
+  {
+   "kind": "ask",
+   "step": "rp.3.pu",
+   "t": 660000
+  },
+  {
+   "kind": "rest",
+   "step": "rp.3.r",
+   "t": 660000
+  },
+  {
+   "kind": "hint",
+   "reason": "clock",
+   "t": 705800
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 717000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 718000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 719000
+  },
+  {
+   "kind": "go",
+   "step": "rp.4.bike",
+   "t": 720000
+  },
+  {
+   "kind": "ask",
+   "step": "rp.4.bench",
+   "t": 826200
+  },
+  {
+   "kind": "hint",
+   "reason": "clock",
+   "t": 850000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 957000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 958000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 959000
+  },
+  {
+   "kind": "time",
+   "t": 960000
+  },
+  {
+   "kind": "done",
+   "t": 960000
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 1055300
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 1069100
+  }
+ ],
+ "endedBy": "clock",
+ "facts": [
+  {
+   "end": 180000,
+   "endedBy": "clock",
+   "id": "rp.1.bike",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 0,
+   "status": "cut"
+  },
+  {
+   "end": 180000,
+   "endedBy": "clock",
+   "id": "rp.1.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 180000,
+   "status": "skipped"
+  },
+  {
+   "end": 180000,
+   "endedBy": "clock",
+   "id": "rp.1.bench",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 180000,
+   "status": "skipped"
+  },
+  {
+   "end": 240000,
+   "endedBy": "clock",
+   "id": "rp.1.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 180000,
+   "status": "done"
+  },
+  {
+   "end": 268500,
+   "endedBy": "athlete",
+   "id": "rp.2.bike",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 240000,
+   "status": "done"
+  },
+  {
+   "end": 283100,
+   "endedBy": "athlete",
+   "id": "rp.2.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 268500,
+   "status": "done"
+  },
+  {
+   "end": 420000,
+   "endedBy": "clock",
+   "id": "rp.2.bench",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 283100,
+   "status": "done"
+  },
+  {
+   "end": 480000,
+   "endedBy": "clock",
+   "id": "rp.2.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 420000,
+   "status": "done"
+  },
+  {
+   "end": 582700,
+   "endedBy": "athlete",
+   "id": "rp.3.bike",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 480000,
+   "status": "done"
+  },
+  {
+   "end": 660000,
+   "endedBy": "clock",
+   "id": "rp.3.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 582700,
+   "status": "cut"
+  },
+  {
+   "end": 660000,
+   "endedBy": "clock",
+   "id": "rp.3.bench",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 660000,
+   "status": "skipped"
+  },
+  {
+   "end": 720000,
+   "endedBy": "clock",
+   "id": "rp.3.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 660000,
+   "status": "done"
+  },
+  {
+   "end": 773400,
+   "endedBy": "athlete",
+   "id": "rp.4.bike",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "start": 720000,
+   "status": "done"
+  },
+  {
+   "end": 777600,
+   "endedBy": "athlete",
+   "id": "rp.4.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "start": 773400,
+   "status": "done"
+  },
+  {
+   "end": 826200,
+   "endedBy": "athlete",
+   "id": "rp.4.bench",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "start": 777600,
+   "status": "done"
+  },
+  {
+   "auto": true,
+   "end": 960000,
+   "endedBy": "clock",
+   "id": "rp.4.w.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "start": 826200,
+   "status": "done"
+  }
+ ],
+ "score": {
+  "complete": false,
+  "text": "0",
+  "type": "totalReps",
+  "value": 0
+ }
+}

@@ -1,0 +1,452 @@
+{
+ "hash": "54ccdf0b2a32255d4c6436a9516600e191d88733c7f253db6a3af33d4a1626b1",
+ "plan": {
+  "bells": [
+   {
+    "anchor": "start",
+    "id": "rp.1.work.end",
+    "offsetMs": 20000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.1.r.end",
+    "offsetMs": 30000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.2.work.end",
+    "offsetMs": 50000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.2.r.end",
+    "offsetMs": 60000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.3.work.end",
+    "offsetMs": 80000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.3.r.end",
+    "offsetMs": 90000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.4.work.end",
+    "offsetMs": 110000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.4.r.end",
+    "offsetMs": 120000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.5.work.end",
+    "offsetMs": 140000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.5.r.end",
+    "offsetMs": 150000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.6.work.end",
+    "offsetMs": 170000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.6.r.end",
+    "offsetMs": 180000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.7.work.end",
+    "offsetMs": 200000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.7.r.end",
+    "offsetMs": 210000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.8.work.end",
+    "offsetMs": 230000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.8.r.end",
+    "offsetMs": 240000
+   }
+  ],
+  "planner": 1,
+  "steps": [
+   {
+    "ends": "clock",
+    "id": "rp.1.sq",
+    "index": 0,
+    "kind": "part",
+    "node": "sq",
+    "partMovement": "airSquats",
+    "partTarget": {
+     "max": true,
+     "unit": "reps"
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": [
+     "rp.1.work"
+    ]
+   },
+   {
+    "ends": "clock",
+    "id": "rp.1.r",
+    "index": 1,
+    "kind": "rest",
+    "mergedWindow": "rp.1.work",
+    "node": "r",
+    "restSeconds": 10,
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "clock",
+    "id": "rp.2.sq",
+    "index": 2,
+    "kind": "part",
+    "node": "sq",
+    "partMovement": "airSquats",
+    "partTarget": {
+     "max": true,
+     "unit": "reps"
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": [
+     "rp.2.work"
+    ]
+   },
+   {
+    "ends": "clock",
+    "id": "rp.2.r",
+    "index": 3,
+    "kind": "rest",
+    "mergedWindow": "rp.2.work",
+    "node": "r",
+    "restSeconds": 10,
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "clock",
+    "id": "rp.3.sq",
+    "index": 4,
+    "kind": "part",
+    "node": "sq",
+    "partMovement": "airSquats",
+    "partTarget": {
+     "max": true,
+     "unit": "reps"
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": [
+     "rp.3.work"
+    ]
+   },
+   {
+    "ends": "clock",
+    "id": "rp.3.r",
+    "index": 5,
+    "kind": "rest",
+    "mergedWindow": "rp.3.work",
+    "node": "r",
+    "restSeconds": 10,
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "clock",
+    "id": "rp.4.sq",
+    "index": 6,
+    "kind": "part",
+    "node": "sq",
+    "partMovement": "airSquats",
+    "partTarget": {
+     "max": true,
+     "unit": "reps"
+    },
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "windows": [
+     "rp.4.work"
+    ]
+   },
+   {
+    "ends": "clock",
+    "id": "rp.4.r",
+    "index": 7,
+    "kind": "rest",
+    "mergedWindow": "rp.4.work",
+    "node": "r",
+    "restSeconds": 10,
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "clock",
+    "id": "rp.5.sq",
+    "index": 8,
+    "kind": "part",
+    "node": "sq",
+    "partMovement": "airSquats",
+    "partTarget": {
+     "max": true,
+     "unit": "reps"
+    },
+    "rounds": [
+     [
+      "rp",
+      5
+     ]
+    ],
+    "windows": [
+     "rp.5.work"
+    ]
+   },
+   {
+    "ends": "clock",
+    "id": "rp.5.r",
+    "index": 9,
+    "kind": "rest",
+    "mergedWindow": "rp.5.work",
+    "node": "r",
+    "restSeconds": 10,
+    "rounds": [
+     [
+      "rp",
+      5
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "clock",
+    "id": "rp.6.sq",
+    "index": 10,
+    "kind": "part",
+    "node": "sq",
+    "partMovement": "airSquats",
+    "partTarget": {
+     "max": true,
+     "unit": "reps"
+    },
+    "rounds": [
+     [
+      "rp",
+      6
+     ]
+    ],
+    "windows": [
+     "rp.6.work"
+    ]
+   },
+   {
+    "ends": "clock",
+    "id": "rp.6.r",
+    "index": 11,
+    "kind": "rest",
+    "mergedWindow": "rp.6.work",
+    "node": "r",
+    "restSeconds": 10,
+    "rounds": [
+     [
+      "rp",
+      6
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "clock",
+    "id": "rp.7.sq",
+    "index": 12,
+    "kind": "part",
+    "node": "sq",
+    "partMovement": "airSquats",
+    "partTarget": {
+     "max": true,
+     "unit": "reps"
+    },
+    "rounds": [
+     [
+      "rp",
+      7
+     ]
+    ],
+    "windows": [
+     "rp.7.work"
+    ]
+   },
+   {
+    "ends": "clock",
+    "id": "rp.7.r",
+    "index": 13,
+    "kind": "rest",
+    "mergedWindow": "rp.7.work",
+    "node": "r",
+    "restSeconds": 10,
+    "rounds": [
+     [
+      "rp",
+      7
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "clock",
+    "id": "rp.8.sq",
+    "index": 14,
+    "kind": "part",
+    "node": "sq",
+    "partMovement": "airSquats",
+    "partTarget": {
+     "max": true,
+     "unit": "reps"
+    },
+    "rounds": [
+     [
+      "rp",
+      8
+     ]
+    ],
+    "windows": [
+     "rp.8.work"
+    ]
+   },
+   {
+    "ends": "clock",
+    "id": "rp.8.r",
+    "index": 15,
+    "kind": "rest",
+    "mergedWindow": "rp.8.work",
+    "node": "r",
+    "restSeconds": 10,
+    "rounds": [
+     [
+      "rp",
+      8
+     ]
+    ],
+    "windows": []
+   }
+  ],
+  "windows": [
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "work",
+    "key": "rp.1.work",
+    "late": "cut",
+    "seconds": 20
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "work",
+    "key": "rp.2.work",
+    "late": "cut",
+    "seconds": 20
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "work",
+    "key": "rp.3.work",
+    "late": "cut",
+    "seconds": 20
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "work",
+    "key": "rp.4.work",
+    "late": "cut",
+    "seconds": 20
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "work",
+    "key": "rp.5.work",
+    "late": "cut",
+    "seconds": 20
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "work",
+    "key": "rp.6.work",
+    "late": "cut",
+    "seconds": 20
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "work",
+    "key": "rp.7.work",
+    "late": "cut",
+    "seconds": 20
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "work",
+    "key": "rp.8.work",
+    "late": "cut",
+    "seconds": 20
+   }
+  ]
+ }
+}

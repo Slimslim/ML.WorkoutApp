@@ -1,0 +1,88 @@
+{
+ "compilerVersion": 1,
+ "format": "forTime",
+ "healthKitActivity": "crossTraining",
+ "id": "test.scaled",
+ "name": "Two scales",
+ "scales": [
+  {
+   "id": "rx",
+   "label": "Rx",
+   "rank": 2,
+   "short": "Rx",
+   "structure": {
+    "body": [
+     {
+      "part": {
+       "id": "a",
+       "movement": "pullUps",
+       "target": {
+        "unit": "reps",
+        "value": 30,
+        "valueF": 20
+       }
+      }
+     }
+    ],
+    "score": {
+     "type": "time"
+    }
+   }
+  },
+  {
+   "id": "l1",
+   "label": "Level 1",
+   "rank": 1,
+   "short": "L1",
+   "structure": {
+    "body": [
+     {
+      "part": {
+       "id": "a",
+       "movement": "ringRows",
+       "target": {
+        "unit": "reps",
+        "value": 30
+       }
+      }
+     }
+    ],
+    "score": {
+     "type": "time"
+    }
+   }
+  }
+ ],
+ "schemaVersion": 2,
+ "segments": [
+  {
+   "kind": "station",
+   "movement": "pullUps",
+   "name": "Pull-ups",
+   "target": {
+    "unit": "reps",
+    "value": 30
+   }
+  }
+ ],
+ "shortName": "Two scales",
+ "structure": {
+  "body": [
+   {
+    "part": {
+     "id": "a",
+     "movement": "pullUps",
+     "target": {
+      "unit": "reps",
+      "value": 30,
+      "valueF": 20
+     }
+    }
+   }
+  ],
+  "score": {
+   "type": "time"
+  }
+ },
+ "team": "solo"
+}

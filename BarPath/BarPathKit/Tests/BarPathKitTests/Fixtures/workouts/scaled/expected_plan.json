@@ -1,0 +1,25 @@
+{
+ "hash": "2fb0f8d9c54e59424318b888e7a562fd45e6304c3e231917e79fa92d63734e4c",
+ "plan": {
+  "bells": [],
+  "planner": 1,
+  "steps": [
+   {
+    "ends": "athlete",
+    "id": "a",
+    "index": 0,
+    "kind": "part",
+    "node": "a",
+    "partMovement": "pullUps",
+    "partTarget": {
+     "unit": "reps",
+     "value": 30,
+     "valueF": 20
+    },
+    "rounds": [],
+    "windows": []
+   }
+  ],
+  "windows": []
+ }
+}

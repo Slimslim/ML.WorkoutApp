@@ -1,0 +1,110 @@
+{
+ "asks": [],
+ "boundaries": [],
+ "current": null,
+ "done": true,
+ "doneT": 360000,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "done",
+   "t": 360000
+  }
+ ],
+ "endedBy": "athlete",
+ "facts": [
+  {
+   "end": 60000,
+   "endedBy": "athlete",
+   "id": "rp.1.thr",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 0,
+   "status": "done"
+  },
+  {
+   "end": 120000,
+   "endedBy": "athlete",
+   "id": "rp.1.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 60000,
+   "status": "done"
+  },
+  {
+   "end": 180000,
+   "endedBy": "athlete",
+   "id": "rp.2.thr",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 120000,
+   "status": "done"
+  },
+  {
+   "end": 240000,
+   "endedBy": "athlete",
+   "id": "rp.2.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 180000,
+   "status": "done"
+  },
+  {
+   "end": 300000,
+   "endedBy": "athlete",
+   "id": "rp.3.thr",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 240000,
+   "status": "done"
+  },
+  {
+   "end": 360000,
+   "endedBy": "athlete",
+   "id": "rp.3.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 300000,
+   "status": "done"
+  }
+ ],
+ "score": {
+  "complete": true,
+  "text": "6:00",
+  "type": "time",
+  "value": 360000
+ }
+}

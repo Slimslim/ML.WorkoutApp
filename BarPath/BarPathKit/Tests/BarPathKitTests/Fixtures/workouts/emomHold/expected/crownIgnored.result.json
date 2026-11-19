@@ -1,0 +1,312 @@
+{
+ "asks": [],
+ "boundaries": [
+  45000,
+  60000,
+  105000,
+  120000,
+  165000,
+  180000,
+  225000,
+  240000
+ ],
+ "current": null,
+ "done": true,
+ "doneT": 240000,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "hint",
+   "reason": "clock",
+   "t": 10000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 42000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 43000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 44000
+  },
+  {
+   "kind": "rest",
+   "step": "rp.1.m.wait",
+   "t": 45000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 57000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 58000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 59000
+  },
+  {
+   "kind": "go",
+   "step": "rp.2.plank",
+   "t": 60000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 102000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 103000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 104000
+  },
+  {
+   "kind": "rest",
+   "step": "rp.2.m.wait",
+   "t": 105000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 117000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 118000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 119000
+  },
+  {
+   "kind": "go",
+   "step": "rp.3.plank",
+   "t": 120000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 162000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 163000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 164000
+  },
+  {
+   "kind": "rest",
+   "step": "rp.3.m.wait",
+   "t": 165000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 177000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 178000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 179000
+  },
+  {
+   "kind": "go",
+   "step": "rp.4.plank",
+   "t": 180000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 222000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 223000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 224000
+  },
+  {
+   "kind": "rest",
+   "step": "rp.4.m.wait",
+   "t": 225000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 237000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 238000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 239000
+  },
+  {
+   "kind": "time",
+   "t": 240000
+  },
+  {
+   "kind": "done",
+   "t": 240000
+  }
+ ],
+ "endedBy": "clock",
+ "facts": [
+  {
+   "end": 45000,
+   "endedBy": "clock",
+   "id": "rp.1.plank",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 0,
+   "status": "done"
+  },
+  {
+   "auto": true,
+   "end": 60000,
+   "endedBy": "clock",
+   "id": "rp.1.m.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 45000,
+   "status": "done"
+  },
+  {
+   "end": 105000,
+   "endedBy": "clock",
+   "id": "rp.2.plank",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 60000,
+   "status": "done"
+  },
+  {
+   "auto": true,
+   "end": 120000,
+   "endedBy": "clock",
+   "id": "rp.2.m.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 105000,
+   "status": "done"
+  },
+  {
+   "end": 165000,
+   "endedBy": "clock",
+   "id": "rp.3.plank",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 120000,
+   "status": "done"
+  },
+  {
+   "auto": true,
+   "end": 180000,
+   "endedBy": "clock",
+   "id": "rp.3.m.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 165000,
+   "status": "done"
+  },
+  {
+   "end": 225000,
+   "endedBy": "clock",
+   "id": "rp.4.plank",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "start": 180000,
+   "status": "done"
+  },
+  {
+   "auto": true,
+   "end": 240000,
+   "endedBy": "clock",
+   "id": "rp.4.m.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "start": 225000,
+   "status": "done"
+  }
+ ],
+ "score": {
+  "type": "none"
+ }
+}

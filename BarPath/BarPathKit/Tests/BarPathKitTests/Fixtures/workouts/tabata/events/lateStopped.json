@@ -1,0 +1,112 @@
+{
+ "stream": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "tick",
+   "t": 500
+  },
+  {
+   "kind": "tick",
+   "t": 1000
+  },
+  {
+   "kind": "tick",
+   "t": 1500
+  },
+  {
+   "kind": "tick",
+   "t": 2000
+  },
+  {
+   "kind": "tick",
+   "t": 2500
+  },
+  {
+   "kind": "tick",
+   "t": 3000
+  },
+  {
+   "kind": "tick",
+   "t": 3500
+  },
+  {
+   "kind": "tick",
+   "t": 4000
+  },
+  {
+   "kind": "tick",
+   "t": 4500
+  },
+  {
+   "kind": "tick",
+   "t": 5000
+  },
+  {
+   "kind": "tick",
+   "t": 5500
+  },
+  {
+   "kind": "tick",
+   "t": 6000
+  },
+  {
+   "kind": "tick",
+   "t": 6500
+  },
+  {
+   "kind": "tick",
+   "t": 7000
+  },
+  {
+   "kind": "tick",
+   "t": 7500
+  },
+  {
+   "kind": "tick",
+   "t": 8000
+  },
+  {
+   "kind": "tick",
+   "t": 8500
+  },
+  {
+   "kind": "tick",
+   "t": 9000
+  },
+  {
+   "kind": "tick",
+   "t": 9500
+  },
+  {
+   "kind": "tick",
+   "t": 10000
+  },
+  {
+   "kind": "tick",
+   "t": 10500
+  },
+  {
+   "kind": "tick",
+   "t": 11000
+  },
+  {
+   "kind": "tick",
+   "t": 11500
+  },
+  {
+   "kind": "tick",
+   "t": 12000
+  },
+  {
+   "kind": "tick",
+   "t": 12500
+  },
+  {
+   "kind": "crown",
+   "t": 12000
+  }
+ ]
+}

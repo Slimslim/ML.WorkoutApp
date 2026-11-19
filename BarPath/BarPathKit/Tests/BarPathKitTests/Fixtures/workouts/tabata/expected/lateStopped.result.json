@@ -1,0 +1,222 @@
+{
+ "asks": [
+  "rp.1.sq"
+ ],
+ "boundaries": [],
+ "current": "rp.1.r",
+ "done": false,
+ "doneT": null,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "ask",
+   "step": "rp.1.sq",
+   "t": 12000
+  }
+ ],
+ "endedBy": null,
+ "facts": [
+  {
+   "end": 12000,
+   "endedBy": "athlete",
+   "id": "rp.1.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 0,
+   "status": "done"
+  },
+  {
+   "end": null,
+   "endedBy": null,
+   "id": "rp.1.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 12000,
+   "status": "running"
+  },
+  {
+   "id": "rp.2.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.2.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.3.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.3.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.4.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.4.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.5.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     5
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.5.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     5
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.6.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     6
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.6.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     6
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.7.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     7
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.7.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     7
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.8.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     8
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.8.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     8
+    ]
+   ],
+   "status": "notReached"
+  }
+ ],
+ "score": {
+  "complete": false,
+  "lowest": 0,
+  "perRound": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "text": "0",
+  "type": "totalReps",
+  "value": 0
+ }
+}

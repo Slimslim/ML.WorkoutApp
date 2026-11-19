@@ -1,0 +1,176 @@
+{
+ "approx": [
+  "oldKeysLossy"
+ ],
+ "compilerVersion": 1,
+ "fidelity": "approx",
+ "format": "forTime",
+ "healthKitActivity": "crossTraining",
+ "id": "test.ratioRest",
+ "name": "Rest as long as the round",
+ "roundSize": 4,
+ "schemaVersion": 2,
+ "segments": [
+  {
+   "kind": "station",
+   "movement": "skiErg",
+   "name": "SkiErg",
+   "target": {
+    "unit": "calories",
+    "value": 15
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "stepOvers",
+   "name": "stepOvers",
+   "target": {
+    "unit": "reps",
+    "value": 12
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "alternatingDumbbellSnatch",
+   "name": "alternatingDumbbellSnatch",
+   "target": {
+    "unit": "reps",
+    "value": 16
+   }
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest"
+  },
+  {
+   "kind": "station",
+   "movement": "skiErg",
+   "name": "SkiErg",
+   "target": {
+    "unit": "calories",
+    "value": 15
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "stepOvers",
+   "name": "stepOvers",
+   "target": {
+    "unit": "reps",
+    "value": 12
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "alternatingDumbbellSnatch",
+   "name": "alternatingDumbbellSnatch",
+   "target": {
+    "unit": "reps",
+    "value": 16
+   }
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest"
+  },
+  {
+   "kind": "station",
+   "movement": "skiErg",
+   "name": "SkiErg",
+   "target": {
+    "unit": "calories",
+    "value": 15
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "stepOvers",
+   "name": "stepOvers",
+   "target": {
+    "unit": "reps",
+    "value": 12
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "alternatingDumbbellSnatch",
+   "name": "alternatingDumbbellSnatch",
+   "target": {
+    "unit": "reps",
+    "value": 16
+   }
+  }
+ ],
+ "shortName": "Rest as lo",
+ "structure": {
+  "body": [
+   {
+    "repeat": {
+     "body": [
+      {
+       "group": {
+        "body": [
+         {
+          "part": {
+           "id": "ski",
+           "movement": "skiErg",
+           "target": {
+            "unit": "calories",
+            "value": 15
+           }
+          }
+         },
+         {
+          "part": {
+           "id": "so",
+           "movement": "stepOvers",
+           "target": {
+            "unit": "reps",
+            "value": 12
+           }
+          }
+         },
+         {
+          "part": {
+           "id": "sn",
+           "movement": "alternatingDumbbellSnatch",
+           "target": {
+            "unit": "reps",
+            "value": 16
+           }
+          }
+         }
+        ],
+        "id": "round",
+        "label": "round"
+       }
+      },
+      {
+       "rest": {
+        "id": "r",
+        "ratio": 1
+       }
+      }
+     ],
+     "id": "rp",
+     "override": [
+      {
+       "id": "r",
+       "omit": true,
+       "rounds": [
+        "last"
+       ]
+      }
+     ],
+     "times": 3
+    }
+   }
+  ],
+  "score": {
+   "type": "time"
+  }
+ },
+ "team": "solo"
+}

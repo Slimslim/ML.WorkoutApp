@@ -1,0 +1,28 @@
+{
+ "events": [
+  {
+   "kind": "crown",
+   "t": 60000
+  },
+  {
+   "kind": "crown",
+   "t": 120000
+  },
+  {
+   "kind": "crown",
+   "t": 180000
+  },
+  {
+   "kind": "crown",
+   "t": 400000
+  },
+  {
+   "kind": "blockDone",
+   "t": 300000
+  }
+ ],
+ "ticks": {
+  "every": 0,
+  "until": 0
+ }
+}

@@ -1,0 +1,727 @@
+{
+ "asks": [
+  "rp.1.sq",
+  "rp.2.sq",
+  "rp.3.sq",
+  "rp.4.sq",
+  "rp.5.sq",
+  "rp.6.sq",
+  "rp.7.sq",
+  "rp.8.sq"
+ ],
+ "boundaries": [
+  20000,
+  30000,
+  60000,
+  80000,
+  90000,
+  120000,
+  140000,
+  150000,
+  180000,
+  210000,
+  230000,
+  240000
+ ],
+ "current": null,
+ "done": true,
+ "doneT": 240000,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 17000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 18000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 19000
+  },
+  {
+   "kind": "ask",
+   "step": "rp.1.sq",
+   "t": 20000
+  },
+  {
+   "kind": "rest",
+   "step": "rp.1.r",
+   "t": 20000
+  },
+  {
+   "kind": "hint",
+   "reason": "nothingToUndo",
+   "t": 20500
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 27000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 28000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 29000
+  },
+  {
+   "kind": "go",
+   "step": "rp.2.sq",
+   "t": 30000
+  },
+  {
+   "kind": "ask",
+   "step": "rp.2.sq",
+   "t": 45200
+  },
+  {
+   "kind": "hint",
+   "reason": "lockout",
+   "t": 47500
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 57000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 58000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 59000
+  },
+  {
+   "kind": "go",
+   "step": "rp.3.sq",
+   "t": 60000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 77000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 78000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 79000
+  },
+  {
+   "kind": "ask",
+   "step": "rp.3.sq",
+   "t": 80000
+  },
+  {
+   "kind": "rest",
+   "step": "rp.3.r",
+   "t": 80000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 87000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 88000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 89000
+  },
+  {
+   "kind": "go",
+   "step": "rp.4.sq",
+   "t": 90000
+  },
+  {
+   "kind": "ask",
+   "step": "rp.4.sq",
+   "t": 99500
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 117000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 118000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 119000
+  },
+  {
+   "kind": "go",
+   "step": "rp.5.sq",
+   "t": 120000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 137000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 138000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 139000
+  },
+  {
+   "kind": "ask",
+   "step": "rp.5.sq",
+   "t": 140000
+  },
+  {
+   "kind": "rest",
+   "step": "rp.5.r",
+   "t": 140000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 147000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 148000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 149000
+  },
+  {
+   "kind": "go",
+   "step": "rp.6.sq",
+   "t": 150000
+  },
+  {
+   "kind": "hint",
+   "reason": "bell",
+   "t": 150300
+  },
+  {
+   "kind": "hint",
+   "reason": "bell",
+   "t": 155800
+  },
+  {
+   "kind": "ask",
+   "step": "rp.6.sq",
+   "t": 157000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 177000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 178000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 179000
+  },
+  {
+   "kind": "go",
+   "step": "rp.7.sq",
+   "t": 180000
+  },
+  {
+   "kind": "ask",
+   "step": "rp.7.sq",
+   "t": 192100
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 207000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 208000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 209000
+  },
+  {
+   "kind": "go",
+   "step": "rp.8.sq",
+   "t": 210000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 227000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 228000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 229000
+  },
+  {
+   "kind": "ask",
+   "step": "rp.8.sq",
+   "t": 230000
+  },
+  {
+   "kind": "rest",
+   "step": "rp.8.r",
+   "t": 230000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 237000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 238000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 239000
+  },
+  {
+   "kind": "hint",
+   "reason": "clock",
+   "t": 239300
+  },
+  {
+   "kind": "time",
+   "t": 240000
+  },
+  {
+   "kind": "done",
+   "t": 240000
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 240700
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 244900
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 250600
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 251800
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 258100
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 283400
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 325900
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 346200
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 455800
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 469600
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 560700
+  },
+  {
+   "kind": "hint",
+   "reason": "bell",
+   "t": 560800
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 598800
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 600100
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 661100
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 766300
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 767700
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 787800
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 839000
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 850700
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 900200
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 911000
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 990300
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 990600
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 1025700
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 1037000
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 1050100
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 1077600
+  }
+ ],
+ "endedBy": "clock",
+ "facts": [
+  {
+   "end": 20000,
+   "endedBy": "clock",
+   "id": "rp.1.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 0,
+   "status": "done"
+  },
+  {
+   "end": 30000,
+   "endedBy": "clock",
+   "id": "rp.1.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 20000,
+   "status": "done"
+  },
+  {
+   "end": 45200,
+   "endedBy": "athlete",
+   "id": "rp.2.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 30000,
+   "status": "done"
+  },
+  {
+   "end": 60000,
+   "endedBy": "clock",
+   "id": "rp.2.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 45200,
+   "status": "done"
+  },
+  {
+   "end": 80000,
+   "endedBy": "clock",
+   "id": "rp.3.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 60000,
+   "status": "done"
+  },
+  {
+   "end": 90000,
+   "endedBy": "clock",
+   "id": "rp.3.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 80000,
+   "status": "done"
+  },
+  {
+   "end": 99500,
+   "endedBy": "athlete",
+   "id": "rp.4.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "start": 90000,
+   "status": "done"
+  },
+  {
+   "end": 120000,
+   "endedBy": "clock",
+   "id": "rp.4.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "start": 99500,
+   "status": "done"
+  },
+  {
+   "end": 140000,
+   "endedBy": "clock",
+   "id": "rp.5.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     5
+    ]
+   ],
+   "start": 120000,
+   "status": "done"
+  },
+  {
+   "end": 150000,
+   "endedBy": "clock",
+   "id": "rp.5.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     5
+    ]
+   ],
+   "start": 140000,
+   "status": "done"
+  },
+  {
+   "end": 157000,
+   "endedBy": "athlete",
+   "id": "rp.6.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     6
+    ]
+   ],
+   "start": 150000,
+   "status": "done"
+  },
+  {
+   "end": 180000,
+   "endedBy": "clock",
+   "id": "rp.6.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     6
+    ]
+   ],
+   "start": 157000,
+   "status": "done"
+  },
+  {
+   "end": 192100,
+   "endedBy": "athlete",
+   "id": "rp.7.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     7
+    ]
+   ],
+   "start": 180000,
+   "status": "done"
+  },
+  {
+   "end": 210000,
+   "endedBy": "clock",
+   "id": "rp.7.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     7
+    ]
+   ],
+   "start": 192100,
+   "status": "done"
+  },
+  {
+   "end": 230000,
+   "endedBy": "clock",
+   "id": "rp.8.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     8
+    ]
+   ],
+   "start": 210000,
+   "status": "done"
+  },
+  {
+   "end": 240000,
+   "endedBy": "clock",
+   "id": "rp.8.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     8
+    ]
+   ],
+   "start": 230000,
+   "status": "done"
+  }
+ ],
+ "score": {
+  "complete": false,
+  "lowest": 0,
+  "perRound": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "text": "0",
+  "type": "totalReps",
+  "value": 0
+ }
+}

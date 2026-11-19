@@ -1,0 +1,60 @@
+{
+ "events": [
+  {
+   "kind": "crown",
+   "t": 70000
+  },
+  {
+   "kind": "crown",
+   "t": 140000
+  },
+  {
+   "kind": "crown",
+   "t": 300000
+  },
+  {
+   "kind": "crown",
+   "t": 370000
+  },
+  {
+   "kind": "crown",
+   "t": 540000
+  },
+  {
+   "kind": "crown",
+   "t": 760000
+  },
+  {
+   "kind": "crown",
+   "t": 830000
+  },
+  {
+   "kind": "reps",
+   "step": "rp.1.bench",
+   "t": 1000000,
+   "value": 12
+  },
+  {
+   "kind": "reps",
+   "step": "rp.2.bench",
+   "t": 1000000,
+   "value": 7
+  },
+  {
+   "kind": "reps",
+   "step": "rp.3.pu",
+   "t": 1000000,
+   "value": 12
+  },
+  {
+   "kind": "reps",
+   "step": "rp.4.bench",
+   "t": 1000000,
+   "value": 12
+  }
+ ],
+ "ticks": {
+  "every": 1000,
+  "until": 1000000
+ }
+}

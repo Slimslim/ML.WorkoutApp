@@ -1,0 +1,181 @@
+{
+ "events": [
+  {
+   "kind": "crown",
+   "t": 13800
+  },
+  {
+   "kind": "crown",
+   "t": 60700
+  },
+  {
+   "kind": "crown",
+   "t": 76700
+  },
+  {
+   "kind": "crown",
+   "t": 93800
+  },
+  {
+   "kind": "crown",
+   "t": 128600
+  },
+  {
+   "kind": "crown",
+   "t": 138500
+  },
+  {
+   "kind": "crown",
+   "t": 142400
+  },
+  {
+   "kind": "crown",
+   "t": 173100
+  },
+  {
+   "kind": "crown",
+   "t": 218100
+  },
+  {
+   "kind": "crown",
+   "t": 247800
+  },
+  {
+   "kind": "crown",
+   "t": 253500
+  },
+  {
+   "began": 268200,
+   "kind": "crown",
+   "t": 268600
+  },
+  {
+   "began": 305800,
+   "kind": "crown",
+   "t": 305900
+  },
+  {
+   "kind": "crown",
+   "t": 324400
+  },
+  {
+   "kind": "crown",
+   "t": 350400
+  },
+  {
+   "began": 451500,
+   "kind": "crown",
+   "t": 451900
+  },
+  {
+   "kind": "crown",
+   "t": 472500
+  },
+  {
+   "kind": "crown",
+   "t": 474800
+  },
+  {
+   "kind": "crown",
+   "t": 568800
+  },
+  {
+   "kind": "crown",
+   "t": 569900
+  },
+  {
+   "kind": "crown",
+   "t": 573300
+  },
+  {
+   "kind": "crown",
+   "t": 581900
+  },
+  {
+   "kind": "crown",
+   "t": 587000
+  },
+  {
+   "kind": "crown",
+   "t": 606000
+  },
+  {
+   "kind": "crown",
+   "t": 612000
+  },
+  {
+   "kind": "crown",
+   "t": 627800
+  },
+  {
+   "kind": "crown",
+   "t": 651700
+  },
+  {
+   "kind": "crown",
+   "t": 666600
+  },
+  {
+   "kind": "crown",
+   "t": 670400
+  },
+  {
+   "kind": "crown",
+   "t": 697200
+  },
+  {
+   "began": 715700,
+   "kind": "crown",
+   "t": 716100
+  },
+  {
+   "kind": "crown",
+   "t": 721000
+  },
+  {
+   "kind": "crown",
+   "t": 777800
+  },
+  {
+   "kind": "crown",
+   "t": 814400
+  },
+  {
+   "kind": "crown",
+   "t": 881600
+  },
+  {
+   "kind": "crown",
+   "t": 926500
+  },
+  {
+   "began": 957500,
+   "kind": "crown",
+   "t": 957600
+  },
+  {
+   "kind": "crown",
+   "t": 1024100
+  },
+  {
+   "kind": "crown",
+   "t": 1076100
+  },
+  {
+   "kind": "undo",
+   "t": 63000
+  },
+  {
+   "kind": "undo",
+   "t": 960100
+  },
+  {
+   "kind": "undo",
+   "t": 1079000
+  }
+ ],
+ "ticks": {
+  "every": 1000,
+  "until": 1100000
+ }
+}

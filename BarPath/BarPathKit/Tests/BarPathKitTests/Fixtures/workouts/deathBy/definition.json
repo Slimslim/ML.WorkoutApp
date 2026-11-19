@@ -1,0 +1,239 @@
+{
+ "approx": [
+  "oldKeysLossy"
+ ],
+ "compilerVersion": 1,
+ "fidelity": "approx",
+ "format": "emom",
+ "healthKitActivity": "crossTraining",
+ "id": "test.deathBy",
+ "name": "Death by burpees",
+ "roundSize": 1,
+ "schemaVersion": 2,
+ "segments": [
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 1
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 2
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 4
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 6
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 7
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 8
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 9
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 11
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 12
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 13
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 14
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 15
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 16
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 17
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 18
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 19
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 20
+   }
+  }
+ ],
+ "shortName": "Death by b",
+ "structure": {
+  "body": [
+   {
+    "repeat": {
+     "body": [
+      {
+       "timed": {
+        "body": [
+         {
+          "part": {
+           "id": "b",
+           "movement": "burpees",
+           "target": {
+            "unit": "reps",
+            "value": 1
+           }
+          }
+         }
+        ],
+        "early": "wait",
+        "id": "min",
+        "late": "end",
+        "seconds": 60
+       }
+      }
+     ],
+     "id": "rp",
+     "listRounds": 20,
+     "times": null,
+     "vary": {
+      "b": {
+       "from": 1,
+       "step": 1
+      }
+     }
+    }
+   }
+  ],
+  "score": {
+   "type": "roundsReps"
+  }
+ },
+ "team": "solo"
+}

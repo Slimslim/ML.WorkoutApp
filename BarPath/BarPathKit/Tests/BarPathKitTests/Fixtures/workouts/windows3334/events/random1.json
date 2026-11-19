@@ -1,0 +1,166 @@
+{
+ "events": [
+  {
+   "kind": "crown",
+   "t": 34200
+  },
+  {
+   "began": 44600,
+   "kind": "crown",
+   "t": 44700
+  },
+  {
+   "kind": "crown",
+   "t": 140500
+  },
+  {
+   "kind": "crown",
+   "t": 174600
+  },
+  {
+   "kind": "crown",
+   "t": 200300
+  },
+  {
+   "began": 238300,
+   "kind": "crown",
+   "t": 239200
+  },
+  {
+   "kind": "crown",
+   "t": 239500
+  },
+  {
+   "kind": "crown",
+   "t": 277700
+  },
+  {
+   "began": 302000,
+   "kind": "crown",
+   "t": 302400
+  },
+  {
+   "kind": "crown",
+   "t": 311500
+  },
+  {
+   "kind": "crown",
+   "t": 335100
+  },
+  {
+   "kind": "crown",
+   "t": 340200
+  },
+  {
+   "kind": "crown",
+   "t": 342100
+  },
+  {
+   "kind": "crown",
+   "t": 358300
+  },
+  {
+   "kind": "crown",
+   "t": 359500
+  },
+  {
+   "kind": "crown",
+   "t": 394800
+  },
+  {
+   "kind": "crown",
+   "t": 463000
+  },
+  {
+   "kind": "crown",
+   "t": 517600
+  },
+  {
+   "kind": "crown",
+   "t": 583900
+  },
+  {
+   "kind": "crown",
+   "t": 599400
+  },
+  {
+   "began": 649300,
+   "kind": "crown",
+   "t": 649700
+  },
+  {
+   "began": 690400,
+   "kind": "crown",
+   "t": 690800
+  },
+  {
+   "kind": "crown",
+   "t": 708700
+  },
+  {
+   "kind": "crown",
+   "t": 722600
+  },
+  {
+   "kind": "crown",
+   "t": 749600
+  },
+  {
+   "began": 763200,
+   "kind": "crown",
+   "t": 763600
+  },
+  {
+   "kind": "crown",
+   "t": 766900
+  },
+  {
+   "kind": "crown",
+   "t": 796500
+  },
+  {
+   "kind": "crown",
+   "t": 808900
+  },
+  {
+   "kind": "crown",
+   "t": 820800
+  },
+  {
+   "kind": "crown",
+   "t": 824100
+  },
+  {
+   "kind": "crown",
+   "t": 890000
+  },
+  {
+   "kind": "crown",
+   "t": 931600
+  },
+  {
+   "kind": "crown",
+   "t": 957400
+  },
+  {
+   "kind": "crown",
+   "t": 1081900
+  },
+  {
+   "kind": "undo",
+   "t": 244700
+  },
+  {
+   "kind": "undo",
+   "t": 615900
+  },
+  {
+   "kind": "undo",
+   "t": 651400
+  }
+ ],
+ "ticks": {
+  "every": 1000,
+  "until": 1100000
+ }
+}

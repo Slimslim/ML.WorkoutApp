@@ -1,0 +1,260 @@
+{
+ "asks": [],
+ "boundaries": [],
+ "current": "rp.1.kb",
+ "done": false,
+ "doneT": null,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "undo",
+   "step": "rp.1.kb",
+   "t": 50000
+  }
+ ],
+ "endedBy": null,
+ "facts": [
+  {
+   "end": null,
+   "endedBy": null,
+   "id": "rp.1.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 0,
+   "status": "running"
+  },
+  {
+   "auto": true,
+   "id": "rp.1.m.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.2.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "auto": true,
+   "id": "rp.2.m.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.3.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "auto": true,
+   "id": "rp.3.m.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.4.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "auto": true,
+   "id": "rp.4.m.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.5.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     5
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "auto": true,
+   "id": "rp.5.m.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     5
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.6.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     6
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "auto": true,
+   "id": "rp.6.m.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     6
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.7.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     7
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "auto": true,
+   "id": "rp.7.m.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     7
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.8.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     8
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "auto": true,
+   "id": "rp.8.m.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     8
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.9.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     9
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "auto": true,
+   "id": "rp.9.m.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     9
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.10.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     10
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "auto": true,
+   "id": "rp.10.m.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     10
+    ]
+   ],
+   "status": "notReached"
+  }
+ ],
+ "score": {
+  "of": 10,
+  "text": "0/10",
+  "type": "windowsCompleted",
+  "value": 0
+ }
+}

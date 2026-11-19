@@ -1,0 +1,50 @@
+{
+ "events": [
+  {
+   "kind": "crown",
+   "t": 40000
+  },
+  {
+   "kind": "crown",
+   "t": 100000
+  },
+  {
+   "kind": "crown",
+   "t": 160000
+  },
+  {
+   "kind": "crown",
+   "t": 220000
+  },
+  {
+   "kind": "crown",
+   "t": 280000
+  },
+  {
+   "kind": "crown",
+   "t": 340000
+  },
+  {
+   "kind": "crown",
+   "t": 460000
+  },
+  {
+   "kind": "crown",
+   "t": 520000
+  },
+  {
+   "kind": "crown",
+   "t": 580000
+  },
+  {
+   "kind": "reps",
+   "step": "rp.7.kb",
+   "t": 610000,
+   "value": 11
+  }
+ ],
+ "ticks": {
+  "every": 1000,
+  "until": 610000
+ }
+}

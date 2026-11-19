@@ -1,0 +1,228 @@
+{
+ "asks": [],
+ "boundaries": [
+  310000,
+  670000
+ ],
+ "current": null,
+ "done": true,
+ "doneT": 760000,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "hint",
+   "reason": "clock",
+   "t": 200000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 307000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 308000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 309000
+  },
+  {
+   "kind": "go",
+   "step": "rp.2.ski",
+   "t": 310000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 667000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 668000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 669000
+  },
+  {
+   "kind": "go",
+   "step": "rp.3.ski",
+   "t": 670000
+  },
+  {
+   "kind": "done",
+   "t": 760000
+  }
+ ],
+ "endedBy": "athlete",
+ "facts": [
+  {
+   "end": 50000,
+   "endedBy": "athlete",
+   "id": "rp.1.ski",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 0,
+   "status": "done"
+  },
+  {
+   "end": 100000,
+   "endedBy": "athlete",
+   "id": "rp.1.so",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 50000,
+   "status": "done"
+  },
+  {
+   "end": 155000,
+   "endedBy": "athlete",
+   "id": "rp.1.sn",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 100000,
+   "status": "done"
+  },
+  {
+   "end": 310000,
+   "endedBy": "clock",
+   "id": "rp.1.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 155000,
+   "status": "done"
+  },
+  {
+   "end": 370000,
+   "endedBy": "athlete",
+   "id": "rp.2.ski",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 310000,
+   "status": "done"
+  },
+  {
+   "end": 430000,
+   "endedBy": "athlete",
+   "id": "rp.2.so",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 370000,
+   "status": "done"
+  },
+  {
+   "end": 490000,
+   "endedBy": "athlete",
+   "id": "rp.2.sn",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 430000,
+   "status": "done"
+  },
+  {
+   "end": 670000,
+   "endedBy": "clock",
+   "id": "rp.2.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 490000,
+   "status": "done"
+  },
+  {
+   "end": 700000,
+   "endedBy": "athlete",
+   "id": "rp.3.ski",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 670000,
+   "status": "done"
+  },
+  {
+   "end": 730000,
+   "endedBy": "athlete",
+   "id": "rp.3.so",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 700000,
+   "status": "done"
+  },
+  {
+   "end": 760000,
+   "endedBy": "athlete",
+   "id": "rp.3.sn",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 730000,
+   "status": "done"
+  }
+ ],
+ "score": {
+  "complete": true,
+  "text": "12:40",
+  "type": "time",
+  "value": 760000
+ }
+}

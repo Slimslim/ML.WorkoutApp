@@ -185,6 +185,7 @@ closed before the import ships. Builds 18+ during the beta: fixes only.
 | Battery level line in every recording | - | story | owner, 13 Nov: later, if testers report battery issues |
 | Library aliases (old results stay linked) + "For Time" cards | - | proposed | from closed #15, branch kept; needs a free story id |
 | Strength sets in a workout get bar path / bar speed; Lifting mode merges into the normal recording | W21 | story | owner, 13 Nov: free lifting only records, classify later; Olympic live "last lift" view is a side feature |
+| Swift port of the v2 workout validator and compiler (phone: "Mine" scale editing, on-device `upgrade()` of old rows) | W27 (part) | proposed | deferred from W27 PR2 ([#99](https://github.com/Slimslim/ML.WorkoutApp/pull/99)), which ports only the reader (the watch gets compiled rows); RFC §11 step 2, §3.6, §7.3. Until then the reader refuses out-of-range plans |
 
 ## Data and server state (not code)
 

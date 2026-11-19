@@ -1,0 +1,532 @@
+{
+ "hash": "68524f89a0bf599de30ba37687aa321ffdc596e77879f551e7cef1a780ea3046",
+ "plan": {
+  "bells": [
+   {
+    "anchor": "start",
+    "id": "rp.1.odd.end",
+    "offsetMs": 60000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.1.even.end",
+    "offsetMs": 120000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.2.odd.end",
+    "offsetMs": 180000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.2.even.end",
+    "offsetMs": 240000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.3.odd.end",
+    "offsetMs": 300000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.3.even.end",
+    "offsetMs": 360000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.4.odd.end",
+    "offsetMs": 420000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.4.even.end",
+    "offsetMs": 480000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.5.odd.end",
+    "offsetMs": 540000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.5.even.end",
+    "offsetMs": 600000
+   }
+  ],
+  "planner": 1,
+  "steps": [
+   {
+    "ends": "athlete",
+    "id": "rp.1.kb",
+    "index": 0,
+    "kind": "part",
+    "node": "kb",
+    "partMovement": "kettlebellSwings",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": [
+     "rp.1.odd"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.1.odd.wait",
+    "index": 1,
+    "kind": "rest",
+    "node": "odd",
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "waitWindow": "rp.1.odd",
+    "windows": [
+     "rp.1.odd"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.1.bp",
+    "index": 2,
+    "kind": "part",
+    "node": "bp",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 10
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": [
+     "rp.1.even"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.1.even.wait",
+    "index": 3,
+    "kind": "rest",
+    "node": "even",
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "waitWindow": "rp.1.even",
+    "windows": [
+     "rp.1.even"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.kb",
+    "index": 4,
+    "kind": "part",
+    "node": "kb",
+    "partMovement": "kettlebellSwings",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": [
+     "rp.2.odd"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.2.odd.wait",
+    "index": 5,
+    "kind": "rest",
+    "node": "odd",
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "waitWindow": "rp.2.odd",
+    "windows": [
+     "rp.2.odd"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.bp",
+    "index": 6,
+    "kind": "part",
+    "node": "bp",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 10
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": [
+     "rp.2.even"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.2.even.wait",
+    "index": 7,
+    "kind": "rest",
+    "node": "even",
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "waitWindow": "rp.2.even",
+    "windows": [
+     "rp.2.even"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.kb",
+    "index": 8,
+    "kind": "part",
+    "node": "kb",
+    "partMovement": "kettlebellSwings",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": [
+     "rp.3.odd"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.3.odd.wait",
+    "index": 9,
+    "kind": "rest",
+    "node": "odd",
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "waitWindow": "rp.3.odd",
+    "windows": [
+     "rp.3.odd"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.bp",
+    "index": 10,
+    "kind": "part",
+    "node": "bp",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 10
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": [
+     "rp.3.even"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.3.even.wait",
+    "index": 11,
+    "kind": "rest",
+    "node": "even",
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "waitWindow": "rp.3.even",
+    "windows": [
+     "rp.3.even"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.4.kb",
+    "index": 12,
+    "kind": "part",
+    "node": "kb",
+    "partMovement": "kettlebellSwings",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "windows": [
+     "rp.4.odd"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.4.odd.wait",
+    "index": 13,
+    "kind": "rest",
+    "node": "odd",
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "waitWindow": "rp.4.odd",
+    "windows": [
+     "rp.4.odd"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.4.bp",
+    "index": 14,
+    "kind": "part",
+    "node": "bp",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 10
+    },
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "windows": [
+     "rp.4.even"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.4.even.wait",
+    "index": 15,
+    "kind": "rest",
+    "node": "even",
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "waitWindow": "rp.4.even",
+    "windows": [
+     "rp.4.even"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.5.kb",
+    "index": 16,
+    "kind": "part",
+    "node": "kb",
+    "partMovement": "kettlebellSwings",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      5
+     ]
+    ],
+    "windows": [
+     "rp.5.odd"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.5.odd.wait",
+    "index": 17,
+    "kind": "rest",
+    "node": "odd",
+    "rounds": [
+     [
+      "rp",
+      5
+     ]
+    ],
+    "waitWindow": "rp.5.odd",
+    "windows": [
+     "rp.5.odd"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.5.bp",
+    "index": 18,
+    "kind": "part",
+    "node": "bp",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 10
+    },
+    "rounds": [
+     [
+      "rp",
+      5
+     ]
+    ],
+    "windows": [
+     "rp.5.even"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.5.even.wait",
+    "index": 19,
+    "kind": "rest",
+    "node": "even",
+    "rounds": [
+     [
+      "rp",
+      5
+     ]
+    ],
+    "waitWindow": "rp.5.even",
+    "windows": [
+     "rp.5.even"
+    ]
+   }
+  ],
+  "windows": [
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "odd",
+    "key": "rp.1.odd",
+    "late": "cut",
+    "seconds": 60
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "even",
+    "key": "rp.1.even",
+    "late": "cut",
+    "seconds": 60
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "odd",
+    "key": "rp.2.odd",
+    "late": "cut",
+    "seconds": 60
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "even",
+    "key": "rp.2.even",
+    "late": "cut",
+    "seconds": 60
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "odd",
+    "key": "rp.3.odd",
+    "late": "cut",
+    "seconds": 60
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "even",
+    "key": "rp.3.even",
+    "late": "cut",
+    "seconds": 60
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "odd",
+    "key": "rp.4.odd",
+    "late": "cut",
+    "seconds": 60
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "even",
+    "key": "rp.4.even",
+    "late": "cut",
+    "seconds": 60
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "odd",
+    "key": "rp.5.odd",
+    "late": "cut",
+    "seconds": 60
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "even",
+    "key": "rp.5.even",
+    "late": "cut",
+    "seconds": 60
+   }
+  ]
+ }
+}

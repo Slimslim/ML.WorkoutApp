@@ -1,0 +1,569 @@
+{
+ "asks": [
+  "rp.2.bp",
+  "rp.3.kb",
+  "rp.3.bp",
+  "rp.4.kb",
+  "rp.4.bp",
+  "rp.5.kb",
+  "rp.5.bp"
+ ],
+ "boundaries": [
+  60000,
+  120000,
+  180000,
+  240000,
+  300000,
+  360000,
+  420000,
+  480000,
+  540000,
+  600000
+ ],
+ "current": null,
+ "done": true,
+ "doneT": 600000,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 57000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 58000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 59000
+  },
+  {
+   "kind": "go",
+   "step": "rp.1.bp",
+   "t": 60000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 117000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 118000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 119000
+  },
+  {
+   "kind": "go",
+   "step": "rp.2.kb",
+   "t": 120000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 177000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 178000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 179000
+  },
+  {
+   "kind": "go",
+   "step": "rp.2.bp",
+   "t": 180000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 237000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 238000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 239000
+  },
+  {
+   "kind": "ask",
+   "step": "rp.2.bp",
+   "t": 240000
+  },
+  {
+   "kind": "go",
+   "step": "rp.3.kb",
+   "t": 240000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 297000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 298000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 299000
+  },
+  {
+   "kind": "ask",
+   "step": "rp.3.kb",
+   "t": 300000
+  },
+  {
+   "kind": "go",
+   "step": "rp.3.bp",
+   "t": 300000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 357000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 358000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 359000
+  },
+  {
+   "kind": "ask",
+   "step": "rp.3.bp",
+   "t": 360000
+  },
+  {
+   "kind": "go",
+   "step": "rp.4.kb",
+   "t": 360000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 417000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 418000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 419000
+  },
+  {
+   "kind": "ask",
+   "step": "rp.4.kb",
+   "t": 420000
+  },
+  {
+   "kind": "go",
+   "step": "rp.4.bp",
+   "t": 420000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 477000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 478000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 479000
+  },
+  {
+   "kind": "ask",
+   "step": "rp.4.bp",
+   "t": 480000
+  },
+  {
+   "kind": "go",
+   "step": "rp.5.kb",
+   "t": 480000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 537000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 538000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 539000
+  },
+  {
+   "kind": "ask",
+   "step": "rp.5.kb",
+   "t": 540000
+  },
+  {
+   "kind": "go",
+   "step": "rp.5.bp",
+   "t": 540000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 597000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 598000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 599000
+  },
+  {
+   "kind": "ask",
+   "step": "rp.5.bp",
+   "t": 600000
+  },
+  {
+   "kind": "time",
+   "t": 600000
+  },
+  {
+   "kind": "done",
+   "t": 600000
+  }
+ ],
+ "endedBy": "clock",
+ "facts": [
+  {
+   "end": 30000,
+   "endedBy": "athlete",
+   "id": "rp.1.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 0,
+   "status": "done"
+  },
+  {
+   "auto": true,
+   "end": 60000,
+   "endedBy": "clock",
+   "id": "rp.1.odd.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 30000,
+   "status": "done"
+  },
+  {
+   "end": 90000,
+   "endedBy": "athlete",
+   "id": "rp.1.bp",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 60000,
+   "status": "done"
+  },
+  {
+   "auto": true,
+   "end": 120000,
+   "endedBy": "clock",
+   "id": "rp.1.even.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 90000,
+   "status": "done"
+  },
+  {
+   "end": 150000,
+   "endedBy": "athlete",
+   "id": "rp.2.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 120000,
+   "status": "done"
+  },
+  {
+   "auto": true,
+   "end": 180000,
+   "endedBy": "clock",
+   "id": "rp.2.odd.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 150000,
+   "status": "done"
+  },
+  {
+   "end": 240000,
+   "endedBy": "clock",
+   "id": "rp.2.bp",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 180000,
+   "status": "cut"
+  },
+  {
+   "auto": true,
+   "end": 240000,
+   "endedBy": "clock",
+   "id": "rp.2.even.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 240000,
+   "status": "skipped"
+  },
+  {
+   "end": 300000,
+   "endedBy": "clock",
+   "id": "rp.3.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 240000,
+   "status": "cut"
+  },
+  {
+   "auto": true,
+   "end": 300000,
+   "endedBy": "clock",
+   "id": "rp.3.odd.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 300000,
+   "status": "skipped"
+  },
+  {
+   "end": 360000,
+   "endedBy": "clock",
+   "id": "rp.3.bp",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 300000,
+   "status": "cut"
+  },
+  {
+   "auto": true,
+   "end": 360000,
+   "endedBy": "clock",
+   "id": "rp.3.even.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 360000,
+   "status": "skipped"
+  },
+  {
+   "end": 420000,
+   "endedBy": "clock",
+   "id": "rp.4.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "start": 360000,
+   "status": "cut"
+  },
+  {
+   "auto": true,
+   "end": 420000,
+   "endedBy": "clock",
+   "id": "rp.4.odd.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "start": 420000,
+   "status": "skipped"
+  },
+  {
+   "end": 480000,
+   "endedBy": "clock",
+   "id": "rp.4.bp",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "start": 420000,
+   "status": "cut"
+  },
+  {
+   "auto": true,
+   "end": 480000,
+   "endedBy": "clock",
+   "id": "rp.4.even.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "start": 480000,
+   "status": "skipped"
+  },
+  {
+   "end": 540000,
+   "endedBy": "clock",
+   "id": "rp.5.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     5
+    ]
+   ],
+   "start": 480000,
+   "status": "cut"
+  },
+  {
+   "auto": true,
+   "end": 540000,
+   "endedBy": "clock",
+   "id": "rp.5.odd.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     5
+    ]
+   ],
+   "start": 540000,
+   "status": "skipped"
+  },
+  {
+   "end": 600000,
+   "endedBy": "clock",
+   "id": "rp.5.bp",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     5
+    ]
+   ],
+   "start": 540000,
+   "status": "cut"
+  },
+  {
+   "auto": true,
+   "end": 600000,
+   "endedBy": "clock",
+   "id": "rp.5.even.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     5
+    ]
+   ],
+   "start": 600000,
+   "status": "skipped"
+  }
+ ],
+ "score": {
+  "of": 10,
+  "text": "3/10",
+  "type": "windowsCompleted",
+  "value": 3
+ }
+}

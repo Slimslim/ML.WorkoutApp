@@ -1,0 +1,205 @@
+{
+ "compilerVersion": 1,
+ "format": "emom",
+ "healthKitActivity": "crossTraining",
+ "id": "test.emomAlt",
+ "intervalSeconds": 60,
+ "name": "Alternating EMOM",
+ "roundSize": 2,
+ "schemaVersion": 2,
+ "segments": [
+  {
+   "kind": "station",
+   "movement": "kettlebellSwings",
+   "name": "KB Swings",
+   "target": {
+    "unit": "reps",
+    "value": 15
+   }
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest"
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest"
+  },
+  {
+   "kind": "station",
+   "movement": "kettlebellSwings",
+   "name": "KB Swings",
+   "target": {
+    "unit": "reps",
+    "value": 15
+   }
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest"
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest"
+  },
+  {
+   "kind": "station",
+   "movement": "kettlebellSwings",
+   "name": "KB Swings",
+   "target": {
+    "unit": "reps",
+    "value": 15
+   }
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest"
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest"
+  },
+  {
+   "kind": "station",
+   "movement": "kettlebellSwings",
+   "name": "KB Swings",
+   "target": {
+    "unit": "reps",
+    "value": 15
+   }
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest"
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest"
+  },
+  {
+   "kind": "station",
+   "movement": "kettlebellSwings",
+   "name": "KB Swings",
+   "target": {
+    "unit": "reps",
+    "value": 15
+   }
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest"
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  }
+ ],
+ "shortName": "Alternatin",
+ "structure": {
+  "body": [
+   {
+    "repeat": {
+     "body": [
+      {
+       "timed": {
+        "body": [
+         {
+          "part": {
+           "id": "kb",
+           "movement": "kettlebellSwings",
+           "target": {
+            "unit": "reps",
+            "value": 15
+           }
+          }
+         }
+        ],
+        "early": "wait",
+        "id": "odd",
+        "late": "cut",
+        "seconds": 60
+       }
+      },
+      {
+       "timed": {
+        "body": [
+         {
+          "part": {
+           "id": "bp",
+           "movement": "burpees",
+           "target": {
+            "unit": "reps",
+            "value": 10
+           }
+          }
+         }
+        ],
+        "early": "wait",
+        "id": "even",
+        "late": "cut",
+        "seconds": 60
+       }
+      }
+     ],
+     "id": "rp",
+     "times": 5
+    }
+   }
+  ],
+  "score": {
+   "type": "windowsCompleted"
+  }
+ },
+ "team": "solo",
+ "timeCapSeconds": 600
+}

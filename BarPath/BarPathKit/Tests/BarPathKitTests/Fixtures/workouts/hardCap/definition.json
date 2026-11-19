@@ -1,0 +1,118 @@
+{
+ "approx": [
+  "oldKeysLossy"
+ ],
+ "compilerVersion": 1,
+ "fidelity": "approx",
+ "format": "forTime",
+ "healthKitActivity": "crossTraining",
+ "id": "test.hardCap",
+ "name": "Hard cap 5",
+ "roundSize": 2,
+ "schemaVersion": 2,
+ "segments": [
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 21
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "pullUps",
+   "name": "Pull-ups",
+   "target": {
+    "unit": "reps",
+    "value": 21
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 21
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "pullUps",
+   "name": "Pull-ups",
+   "target": {
+    "unit": "reps",
+    "value": 21
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "thrusters",
+   "name": "Thrusters",
+   "target": {
+    "unit": "reps",
+    "value": 21
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "pullUps",
+   "name": "Pull-ups",
+   "target": {
+    "unit": "reps",
+    "value": 21
+   }
+  }
+ ],
+ "shortName": "Hard cap 5",
+ "structure": {
+  "body": [
+   {
+    "timed": {
+     "body": [
+      {
+       "repeat": {
+        "body": [
+         {
+          "part": {
+           "id": "a",
+           "movement": "thrusters",
+           "target": {
+            "unit": "reps",
+            "value": 21
+           }
+          }
+         },
+         {
+          "part": {
+           "id": "b",
+           "movement": "pullUps",
+           "target": {
+            "unit": "reps",
+            "value": 21
+           }
+          }
+         }
+        ],
+        "id": "rp",
+        "times": 3
+       }
+      }
+     ],
+     "early": "next",
+     "id": "cap",
+     "late": "end",
+     "seconds": 300
+    }
+   }
+  ],
+  "score": {
+   "atCap": "totalReps",
+   "type": "time"
+  }
+ },
+ "team": "solo",
+ "timeCapSeconds": 300
+}

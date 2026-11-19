@@ -1,0 +1,209 @@
+{
+ "approx": [
+  "oldKeysLossy"
+ ],
+ "compilerVersion": 1,
+ "fidelity": "approx",
+ "format": "emom",
+ "healthKitActivity": "crossTraining",
+ "id": "test.windows3333",
+ "name": "Windows 3:00 x4",
+ "roundSize": 4,
+ "schemaVersion": 2,
+ "segments": [
+  {
+   "kind": "station",
+   "movement": "bike",
+   "name": "bike",
+   "target": {
+    "unit": "calories",
+    "value": 21
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "strictPullUps",
+   "name": "strictPullUps",
+   "target": {
+    "unit": "reps",
+    "value": 15
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "dumbbellBenchPress",
+   "name": "dumbbellBenchPress"
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest",
+   "target": {
+    "unit": "seconds",
+    "value": 60
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "bike",
+   "name": "bike",
+   "target": {
+    "unit": "calories",
+    "value": 21
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "strictPullUps",
+   "name": "strictPullUps",
+   "target": {
+    "unit": "reps",
+    "value": 15
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "dumbbellBenchPress",
+   "name": "dumbbellBenchPress"
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest",
+   "target": {
+    "unit": "seconds",
+    "value": 60
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "bike",
+   "name": "bike",
+   "target": {
+    "unit": "calories",
+    "value": 21
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "strictPullUps",
+   "name": "strictPullUps",
+   "target": {
+    "unit": "reps",
+    "value": 15
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "dumbbellBenchPress",
+   "name": "dumbbellBenchPress"
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest",
+   "target": {
+    "unit": "seconds",
+    "value": 60
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "bike",
+   "name": "bike",
+   "target": {
+    "unit": "calories",
+    "value": 21
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "strictPullUps",
+   "name": "strictPullUps",
+   "target": {
+    "unit": "reps",
+    "value": 15
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "dumbbellBenchPress",
+   "name": "dumbbellBenchPress"
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest",
+   "target": {
+    "unit": "seconds",
+    "value": 60
+   }
+  }
+ ],
+ "shortName": "Windows 3:",
+ "structure": {
+  "body": [
+   {
+    "repeat": {
+     "body": [
+      {
+       "timed": {
+        "body": [
+         {
+          "part": {
+           "id": "bike",
+           "movement": "bike",
+           "target": {
+            "unit": "calories",
+            "value": 21
+           }
+          }
+         },
+         {
+          "part": {
+           "id": "pu",
+           "movement": "strictPullUps",
+           "target": {
+            "unit": "reps",
+            "value": 15
+           }
+          }
+         },
+         {
+          "part": {
+           "id": "bench",
+           "movement": "dumbbellBenchPress",
+           "target": {
+            "max": true,
+            "unit": "reps"
+           }
+          }
+         }
+        ],
+        "early": "wait",
+        "id": "w",
+        "late": "cut",
+        "seconds": 180
+       }
+      },
+      {
+       "rest": {
+        "id": "r",
+        "seconds": 60
+       }
+      }
+     ],
+     "id": "rp",
+     "times": 4
+    }
+   }
+  ],
+  "score": {
+   "parts": [
+    "bench"
+   ],
+   "type": "totalReps"
+  }
+ },
+ "team": "solo"
+}

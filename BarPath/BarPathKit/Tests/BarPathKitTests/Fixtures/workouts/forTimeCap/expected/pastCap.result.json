@@ -1,0 +1,163 @@
+{
+ "asks": [],
+ "boundaries": [],
+ "current": null,
+ "done": true,
+ "doneT": 1170000,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "time",
+   "t": 960000
+  },
+  {
+   "kind": "cap",
+   "step": "rp.3.kb",
+   "t": 960000
+  },
+  {
+   "kind": "done",
+   "t": 1170000
+  }
+ ],
+ "endedBy": "athlete",
+ "facts": [
+  {
+   "end": 130000,
+   "endedBy": "athlete",
+   "id": "rp.1.run",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 0,
+   "status": "done"
+  },
+  {
+   "end": 260000,
+   "endedBy": "athlete",
+   "id": "rp.1.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 130000,
+   "status": "done"
+  },
+  {
+   "end": 390000,
+   "endedBy": "athlete",
+   "id": "rp.1.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 260000,
+   "status": "done"
+  },
+  {
+   "end": 520000,
+   "endedBy": "athlete",
+   "id": "rp.2.run",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 390000,
+   "status": "done"
+  },
+  {
+   "end": 650000,
+   "endedBy": "athlete",
+   "id": "rp.2.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 520000,
+   "status": "done"
+  },
+  {
+   "end": 780000,
+   "endedBy": "athlete",
+   "id": "rp.2.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 650000,
+   "status": "done"
+  },
+  {
+   "end": 910000,
+   "endedBy": "athlete",
+   "id": "rp.3.run",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 780000,
+   "status": "done"
+  },
+  {
+   "end": 1040000,
+   "endedBy": "athlete",
+   "id": "rp.3.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 910000,
+   "status": "done"
+  },
+  {
+   "end": 1170000,
+   "endedBy": "athlete",
+   "id": "rp.3.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 1040000,
+   "status": "done"
+  }
+ ],
+ "score": {
+  "afterCapMs": 210000,
+  "capped": true,
+  "complete": true,
+  "reps": 81,
+  "text": "CAP + 81",
+  "type": "totalReps"
+ }
+}

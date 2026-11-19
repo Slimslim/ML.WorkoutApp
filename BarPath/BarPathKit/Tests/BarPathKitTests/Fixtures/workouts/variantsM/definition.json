@@ -1,0 +1,288 @@
+{
+ "approx": [
+  "oldKeysLossy"
+ ],
+ "compilerVersion": 1,
+ "fidelity": "approx",
+ "format": "forTime",
+ "id": "test.variants",
+ "name": "Übung – 1/2",
+ "roundSize": 3,
+ "scales": [
+  {
+   "approx": [
+    "oldKeysLossy"
+   ],
+   "fidelity": "approx",
+   "id": "rx",
+   "label": "Rx",
+   "rank": 2,
+   "short": "Rx",
+   "structure": {
+    "body": [
+     {
+      "repeat": {
+       "body": [
+        {
+         "group": {
+          "body": [
+           {
+            "part": {
+             "id": "thr",
+             "load": {
+              "unit": "kg",
+              "value": 42.5,
+              "valueF": 30
+             },
+             "movement": "thrusters",
+             "name": "Übung – 1/2",
+             "target": {
+              "unit": "reps",
+              "value": 21,
+              "valueF": 15
+             }
+            }
+           },
+           {
+            "part": {
+             "id": "cardio",
+             "movement": {
+              "choice": [
+               "row",
+               "bike",
+               "skiErg"
+              ]
+             },
+             "target": {
+              "unit": "calories",
+              "value": 12.5
+             }
+            }
+           }
+          ],
+          "id": "round",
+          "label": "round"
+         }
+        },
+        {
+         "rest": {
+          "id": "r",
+          "ratio": 0.5
+         }
+        }
+       ],
+       "id": "rp",
+       "override": [
+        {
+         "id": "r",
+         "omit": true,
+         "rounds": [
+          "last"
+         ]
+        }
+       ],
+       "times": 3,
+       "vary": {
+        "thr": [
+         21,
+         15,
+         9
+        ]
+       }
+      }
+     }
+    ],
+    "score": {
+     "includeRest": false,
+     "type": "time"
+    }
+   }
+  },
+  {
+   "id": "l1",
+   "label": "Level 1",
+   "rank": 1,
+   "short": "L1",
+   "structure": {
+    "body": [
+     {
+      "part": {
+       "id": "thr",
+       "movement": "ringRows",
+       "name": "Rudern – Ring",
+       "target": {
+        "unit": "reps",
+        "value": 30
+       }
+      }
+     }
+    ],
+    "score": {
+     "type": "time"
+    }
+   }
+  }
+ ],
+ "schemaVersion": 2,
+ "segments": [
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 42.5
+   },
+   "movement": "thrusters",
+   "name": "Übung – 1/2",
+   "target": {
+    "unit": "reps",
+    "value": 21
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "row",
+   "name": "Row",
+   "target": {
+    "unit": "calories",
+    "value": 12.5
+   }
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest"
+  },
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 42.5
+   },
+   "movement": "thrusters",
+   "name": "Übung – 1/2",
+   "target": {
+    "unit": "reps",
+    "value": 15
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "row",
+   "name": "Row",
+   "target": {
+    "unit": "calories",
+    "value": 12.5
+   }
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest"
+  },
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 42.5
+   },
+   "movement": "thrusters",
+   "name": "Übung – 1/2",
+   "target": {
+    "unit": "reps",
+    "value": 9
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "row",
+   "name": "Row",
+   "target": {
+    "unit": "calories",
+    "value": 12.5
+   }
+  }
+ ],
+ "structure": {
+  "body": [
+   {
+    "repeat": {
+     "body": [
+      {
+       "group": {
+        "body": [
+         {
+          "part": {
+           "id": "thr",
+           "load": {
+            "unit": "kg",
+            "value": 42.5,
+            "valueF": 30
+           },
+           "movement": "thrusters",
+           "name": "Übung – 1/2",
+           "target": {
+            "unit": "reps",
+            "value": 21,
+            "valueF": 15
+           }
+          }
+         },
+         {
+          "part": {
+           "id": "cardio",
+           "movement": {
+            "choice": [
+             "row",
+             "bike",
+             "skiErg"
+            ]
+           },
+           "target": {
+            "unit": "calories",
+            "value": 12.5
+           }
+          }
+         }
+        ],
+        "id": "round",
+        "label": "round"
+       }
+      },
+      {
+       "rest": {
+        "id": "r",
+        "ratio": 0.5
+       }
+      }
+     ],
+     "id": "rp",
+     "override": [
+      {
+       "id": "r",
+       "omit": true,
+       "rounds": [
+        "last"
+       ]
+      }
+     ],
+     "times": 3,
+     "vary": {
+      "thr": [
+       21,
+       15,
+       9
+      ]
+     }
+    }
+   }
+  ],
+  "score": {
+   "includeRest": false,
+   "type": "time"
+  }
+ },
+ "team": "solo"
+}

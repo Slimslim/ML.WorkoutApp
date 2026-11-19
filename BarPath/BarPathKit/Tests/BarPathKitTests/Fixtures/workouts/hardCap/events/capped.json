@@ -1,0 +1,22 @@
+{
+ "events": [
+  {
+   "kind": "crown",
+   "t": 100000
+  },
+  {
+   "kind": "crown",
+   "t": 200000
+  },
+  {
+   "kind": "reps",
+   "step": "rp.2.a",
+   "t": 305000,
+   "value": 9
+  }
+ ],
+ "ticks": {
+  "every": 1000,
+  "until": 310000
+ }
+}

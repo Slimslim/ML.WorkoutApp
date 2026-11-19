@@ -1,0 +1,330 @@
+{
+ "hash": "fc554dfc81c2075000aa3b988c1ea9b25bfef4818d5d30160d8aca69e00f43cf",
+ "plan": {
+  "bells": [],
+  "planner": 1,
+  "steps": [
+   {
+    "ends": "athlete",
+    "id": "rp.1.run",
+    "index": 0,
+    "kind": "part",
+    "node": "run",
+    "partKind": "run",
+    "partMovement": "run",
+    "partTarget": {
+     "unit": "meters",
+     "value": 1000
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.1.st",
+    "index": 1,
+    "kind": "part",
+    "node": "st",
+    "partKind": "station",
+    "partMovement": "skiErg",
+    "partTarget": {
+     "unit": "meters",
+     "value": 1000
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.run",
+    "index": 2,
+    "kind": "part",
+    "node": "run",
+    "partKind": "run",
+    "partMovement": "run",
+    "partTarget": {
+     "unit": "meters",
+     "value": 1000
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.st",
+    "index": 3,
+    "kind": "part",
+    "node": "st",
+    "partKind": "station",
+    "partMovement": "sledPush",
+    "partTarget": {
+     "unit": "meters",
+     "value": 50
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.run",
+    "index": 4,
+    "kind": "part",
+    "node": "run",
+    "partKind": "run",
+    "partMovement": "run",
+    "partTarget": {
+     "unit": "meters",
+     "value": 1000
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.st",
+    "index": 5,
+    "kind": "part",
+    "node": "st",
+    "partKind": "station",
+    "partMovement": "sledPull",
+    "partTarget": {
+     "unit": "meters",
+     "value": 50
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.4.run",
+    "index": 6,
+    "kind": "part",
+    "node": "run",
+    "partKind": "run",
+    "partMovement": "run",
+    "partTarget": {
+     "unit": "meters",
+     "value": 1000
+    },
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.4.st",
+    "index": 7,
+    "kind": "part",
+    "node": "st",
+    "partKind": "station",
+    "partMovement": "burpeeBroadJumps",
+    "partTarget": {
+     "unit": "meters",
+     "value": 80
+    },
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.5.run",
+    "index": 8,
+    "kind": "part",
+    "node": "run",
+    "partKind": "run",
+    "partMovement": "run",
+    "partTarget": {
+     "unit": "meters",
+     "value": 1000
+    },
+    "rounds": [
+     [
+      "rp",
+      5
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.5.st",
+    "index": 9,
+    "kind": "part",
+    "node": "st",
+    "partKind": "station",
+    "partMovement": "row",
+    "partTarget": {
+     "unit": "meters",
+     "value": 1000
+    },
+    "rounds": [
+     [
+      "rp",
+      5
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.6.run",
+    "index": 10,
+    "kind": "part",
+    "node": "run",
+    "partKind": "run",
+    "partMovement": "run",
+    "partTarget": {
+     "unit": "meters",
+     "value": 1000
+    },
+    "rounds": [
+     [
+      "rp",
+      6
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.6.st",
+    "index": 11,
+    "kind": "part",
+    "node": "st",
+    "partKind": "station",
+    "partMovement": "farmersCarry",
+    "partTarget": {
+     "unit": "meters",
+     "value": 200
+    },
+    "rounds": [
+     [
+      "rp",
+      6
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.7.run",
+    "index": 12,
+    "kind": "part",
+    "node": "run",
+    "partKind": "run",
+    "partMovement": "run",
+    "partTarget": {
+     "unit": "meters",
+     "value": 1000
+    },
+    "rounds": [
+     [
+      "rp",
+      7
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.7.st",
+    "index": 13,
+    "kind": "part",
+    "node": "st",
+    "partKind": "station",
+    "partMovement": "sandbagLunges",
+    "partTarget": {
+     "unit": "meters",
+     "value": 100
+    },
+    "rounds": [
+     [
+      "rp",
+      7
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.8.run",
+    "index": 14,
+    "kind": "part",
+    "node": "run",
+    "partKind": "run",
+    "partMovement": "run",
+    "partTarget": {
+     "unit": "meters",
+     "value": 1000
+    },
+    "rounds": [
+     [
+      "rp",
+      8
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.8.st",
+    "index": 15,
+    "kind": "part",
+    "node": "st",
+    "partKind": "station",
+    "partMovement": "wallBalls",
+    "partTarget": {
+     "unit": "reps",
+     "value": 100
+    },
+    "rounds": [
+     [
+      "rp",
+      8
+     ]
+    ],
+    "windows": []
+   }
+  ],
+  "windows": []
+ }
+}

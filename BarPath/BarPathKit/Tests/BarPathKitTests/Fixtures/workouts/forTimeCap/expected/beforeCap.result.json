@@ -1,0 +1,152 @@
+{
+ "asks": [],
+ "boundaries": [],
+ "current": null,
+ "done": true,
+ "doneT": 810000,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "done",
+   "t": 810000
+  }
+ ],
+ "endedBy": "athlete",
+ "facts": [
+  {
+   "end": 90000,
+   "endedBy": "athlete",
+   "id": "rp.1.run",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 0,
+   "status": "done"
+  },
+  {
+   "end": 180000,
+   "endedBy": "athlete",
+   "id": "rp.1.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 90000,
+   "status": "done"
+  },
+  {
+   "end": 270000,
+   "endedBy": "athlete",
+   "id": "rp.1.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 180000,
+   "status": "done"
+  },
+  {
+   "end": 360000,
+   "endedBy": "athlete",
+   "id": "rp.2.run",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 270000,
+   "status": "done"
+  },
+  {
+   "end": 450000,
+   "endedBy": "athlete",
+   "id": "rp.2.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 360000,
+   "status": "done"
+  },
+  {
+   "end": 540000,
+   "endedBy": "athlete",
+   "id": "rp.2.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 450000,
+   "status": "done"
+  },
+  {
+   "end": 630000,
+   "endedBy": "athlete",
+   "id": "rp.3.run",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 540000,
+   "status": "done"
+  },
+  {
+   "end": 720000,
+   "endedBy": "athlete",
+   "id": "rp.3.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 630000,
+   "status": "done"
+  },
+  {
+   "end": 810000,
+   "endedBy": "athlete",
+   "id": "rp.3.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 720000,
+   "status": "done"
+  }
+ ],
+ "score": {
+  "complete": true,
+  "text": "13:30",
+  "type": "time",
+  "value": 810000
+ }
+}

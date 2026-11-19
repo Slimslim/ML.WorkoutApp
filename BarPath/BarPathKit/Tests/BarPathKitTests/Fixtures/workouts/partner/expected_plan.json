@@ -1,0 +1,77 @@
+{
+ "hash": "9d7e2105a18727922728fb4e395de47c4564668b34a1cea58954051eb85c0c25",
+ "plan": {
+  "bells": [
+   {
+    "anchor": "start",
+    "id": "cap.end",
+    "offsetMs": 1500000
+   }
+  ],
+  "planner": 1,
+  "steps": [
+   {
+    "ends": "athlete",
+    "id": "wb",
+    "index": 0,
+    "kind": "part",
+    "node": "wb",
+    "partMovement": "wallBalls",
+    "partTarget": {
+     "unit": "reps",
+     "value": 100
+    },
+    "partWho": "shared",
+    "rounds": [],
+    "windows": [
+     "cap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "row",
+    "index": 1,
+    "kind": "part",
+    "node": "row",
+    "partMovement": "row",
+    "partTarget": {
+     "unit": "calories",
+     "value": 80
+    },
+    "partWho": "shared",
+    "rounds": [],
+    "windows": [
+     "cap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "run",
+    "index": 2,
+    "kind": "part",
+    "node": "run",
+    "partKind": "run",
+    "partMovement": "run",
+    "partTarget": {
+     "unit": "meters",
+     "value": 800
+    },
+    "partWho": "together",
+    "rounds": [],
+    "windows": [
+     "cap"
+    ]
+   }
+  ],
+  "windows": [
+   {
+    "depth": 1,
+    "early": "next",
+    "id": "cap",
+    "key": "cap",
+    "late": "continue",
+    "seconds": 1500
+   }
+  ]
+ }
+}

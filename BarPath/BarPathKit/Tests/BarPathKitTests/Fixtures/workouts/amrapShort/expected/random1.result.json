@@ -1,0 +1,333 @@
+{
+ "asks": [
+  "rp.1.b"
+ ],
+ "boundaries": [
+  120000
+ ],
+ "current": null,
+ "done": true,
+ "doneT": 120000,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 117000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 118000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 119000
+  },
+  {
+   "kind": "ask",
+   "step": "rp.1.b",
+   "t": 120000
+  },
+  {
+   "kind": "time",
+   "t": 120000
+  },
+  {
+   "kind": "done",
+   "t": 120000
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 140100
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 188900
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 210600
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 228500
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 282000
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 360000
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 471300
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 511000
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 521500
+  },
+  {
+   "kind": "hint",
+   "reason": "bell",
+   "t": 545900
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 554700
+  },
+  {
+   "kind": "hint",
+   "reason": "bell",
+   "t": 641300
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 700600
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 709800
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 806400
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 812600
+  },
+  {
+   "kind": "hint",
+   "reason": "bell",
+   "t": 897700
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 954700
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 975000
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 1032400
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 1056300
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 1099400
+  }
+ ],
+ "endedBy": "clock",
+ "facts": [
+  {
+   "end": 59100,
+   "endedBy": "athlete",
+   "id": "rp.1.a",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 0,
+   "status": "done"
+  },
+  {
+   "end": 120000,
+   "endedBy": "clock",
+   "id": "rp.1.b",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 59100,
+   "status": "cut"
+  },
+  {
+   "end": 120000,
+   "endedBy": "clock",
+   "id": "rp.2.a",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 120000,
+   "status": "skipped"
+  },
+  {
+   "end": 120000,
+   "endedBy": "clock",
+   "id": "rp.2.b",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 120000,
+   "status": "skipped"
+  },
+  {
+   "end": 120000,
+   "endedBy": "clock",
+   "id": "rp.3.a",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 120000,
+   "status": "skipped"
+  },
+  {
+   "end": 120000,
+   "endedBy": "clock",
+   "id": "rp.3.b",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 120000,
+   "status": "skipped"
+  },
+  {
+   "end": 120000,
+   "endedBy": "clock",
+   "id": "rp.4.a",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "start": 120000,
+   "status": "skipped"
+  },
+  {
+   "end": 120000,
+   "endedBy": "clock",
+   "id": "rp.4.b",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "start": 120000,
+   "status": "skipped"
+  },
+  {
+   "end": 120000,
+   "endedBy": "clock",
+   "id": "rp.5.a",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     5
+    ]
+   ],
+   "start": 120000,
+   "status": "skipped"
+  },
+  {
+   "end": 120000,
+   "endedBy": "clock",
+   "id": "rp.5.b",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     5
+    ]
+   ],
+   "start": 120000,
+   "status": "skipped"
+  },
+  {
+   "end": 120000,
+   "endedBy": "clock",
+   "id": "rp.6.a",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     6
+    ]
+   ],
+   "start": 120000,
+   "status": "skipped"
+  },
+  {
+   "end": 120000,
+   "endedBy": "clock",
+   "id": "rp.6.b",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     6
+    ]
+   ],
+   "start": 120000,
+   "status": "skipped"
+  }
+ ],
+ "score": {
+  "complete": false,
+  "reps": 5,
+  "rounds": 0,
+  "text": "0 + 5",
+  "type": "roundsReps"
+ }
+}

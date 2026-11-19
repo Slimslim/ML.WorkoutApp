@@ -1,0 +1,88 @@
+{
+ "approx": [
+  "oldKeysLossy"
+ ],
+ "compilerVersion": 1,
+ "fidelity": "approx",
+ "format": "emom",
+ "healthKitActivity": "crossTraining",
+ "id": "test.emomHold",
+ "name": "EMOM with a hold",
+ "roundSize": 1,
+ "schemaVersion": 2,
+ "segments": [
+  {
+   "kind": "station",
+   "movement": "plank",
+   "name": "plank",
+   "target": {
+    "unit": "seconds",
+    "value": 45
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "plank",
+   "name": "plank",
+   "target": {
+    "unit": "seconds",
+    "value": 45
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "plank",
+   "name": "plank",
+   "target": {
+    "unit": "seconds",
+    "value": 45
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "plank",
+   "name": "plank",
+   "target": {
+    "unit": "seconds",
+    "value": 45
+   }
+  }
+ ],
+ "shortName": "EMOM with ",
+ "structure": {
+  "body": [
+   {
+    "repeat": {
+     "body": [
+      {
+       "timed": {
+        "body": [
+         {
+          "part": {
+           "id": "plank",
+           "movement": "plank",
+           "target": {
+            "unit": "seconds",
+            "value": 45
+           }
+          }
+         }
+        ],
+        "early": "wait",
+        "id": "m",
+        "late": "cut",
+        "seconds": 60
+       }
+      }
+     ],
+     "id": "rp",
+     "times": 4
+    }
+   }
+  ],
+  "score": {
+   "type": "none"
+  }
+ },
+ "team": "solo"
+}

@@ -1,0 +1,213 @@
+{
+ "asks": [],
+ "boundaries": [],
+ "current": "rp.1.bench",
+ "done": false,
+ "doneT": null,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "hint",
+   "reason": "lockout",
+   "t": 13000
+  }
+ ],
+ "endedBy": null,
+ "facts": [
+  {
+   "end": 10000,
+   "endedBy": "athlete",
+   "id": "rp.1.bike",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 0,
+   "status": "done"
+  },
+  {
+   "end": 15000,
+   "endedBy": "athlete",
+   "id": "rp.1.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 10000,
+   "status": "done"
+  },
+  {
+   "end": null,
+   "endedBy": null,
+   "id": "rp.1.bench",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 15000,
+   "status": "running"
+  },
+  {
+   "id": "rp.1.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.2.bike",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.2.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.2.bench",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.2.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.3.bike",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.3.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.3.bench",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.3.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.4.bike",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.4.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.4.bench",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "auto": true,
+   "id": "rp.4.w.wait",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "status": "notReached"
+  }
+ ],
+ "score": {
+  "complete": false,
+  "text": "0",
+  "type": "totalReps",
+  "value": 0
+ }
+}

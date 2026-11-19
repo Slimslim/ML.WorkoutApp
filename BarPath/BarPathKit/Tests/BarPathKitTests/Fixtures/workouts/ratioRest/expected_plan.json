@@ -1,0 +1,213 @@
+{
+ "hash": "c361a03eca77a611555c59a71e7c5d6f574fd96231bec6f3948d5098a17c073f",
+ "plan": {
+  "bells": [],
+  "planner": 1,
+  "steps": [
+   {
+    "ends": "athlete",
+    "id": "rp.1.ski",
+    "index": 0,
+    "kind": "part",
+    "node": "ski",
+    "partMovement": "skiErg",
+    "partTarget": {
+     "unit": "calories",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.1.so",
+    "index": 1,
+    "kind": "part",
+    "node": "so",
+    "partMovement": "stepOvers",
+    "partTarget": {
+     "unit": "reps",
+     "value": 12
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.1.sn",
+    "index": 2,
+    "kind": "part",
+    "node": "sn",
+    "partMovement": "alternatingDumbbellSnatch",
+    "partTarget": {
+     "unit": "reps",
+     "value": 16
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "clock",
+    "id": "rp.1.r",
+    "index": 3,
+    "kind": "rest",
+    "node": "r",
+    "ratio": 1,
+    "ratioOf": "rp.1.round",
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.ski",
+    "index": 4,
+    "kind": "part",
+    "node": "ski",
+    "partMovement": "skiErg",
+    "partTarget": {
+     "unit": "calories",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.so",
+    "index": 5,
+    "kind": "part",
+    "node": "so",
+    "partMovement": "stepOvers",
+    "partTarget": {
+     "unit": "reps",
+     "value": 12
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.sn",
+    "index": 6,
+    "kind": "part",
+    "node": "sn",
+    "partMovement": "alternatingDumbbellSnatch",
+    "partTarget": {
+     "unit": "reps",
+     "value": 16
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "clock",
+    "id": "rp.2.r",
+    "index": 7,
+    "kind": "rest",
+    "node": "r",
+    "ratio": 1,
+    "ratioOf": "rp.2.round",
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.ski",
+    "index": 8,
+    "kind": "part",
+    "node": "ski",
+    "partMovement": "skiErg",
+    "partTarget": {
+     "unit": "calories",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.so",
+    "index": 9,
+    "kind": "part",
+    "node": "so",
+    "partMovement": "stepOvers",
+    "partTarget": {
+     "unit": "reps",
+     "value": 12
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.sn",
+    "index": 10,
+    "kind": "part",
+    "node": "sn",
+    "partMovement": "alternatingDumbbellSnatch",
+    "partTarget": {
+     "unit": "reps",
+     "value": 16
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": []
+   }
+  ],
+  "windows": []
+ }
+}

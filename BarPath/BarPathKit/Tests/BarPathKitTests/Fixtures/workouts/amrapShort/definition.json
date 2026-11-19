@@ -1,0 +1,168 @@
+{
+ "compilerVersion": 1,
+ "format": "amrap",
+ "healthKitActivity": "crossTraining",
+ "id": "test.amrapShort",
+ "name": "AMRAP 2",
+ "roundSize": 2,
+ "schemaVersion": 2,
+ "segments": [
+  {
+   "kind": "station",
+   "movement": "airSquats",
+   "name": "Air Squats",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "pushUps",
+   "name": "Push-ups",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "airSquats",
+   "name": "Air Squats",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "pushUps",
+   "name": "Push-ups",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "airSquats",
+   "name": "Air Squats",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "pushUps",
+   "name": "Push-ups",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "airSquats",
+   "name": "Air Squats",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "pushUps",
+   "name": "Push-ups",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "airSquats",
+   "name": "Air Squats",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "pushUps",
+   "name": "Push-ups",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "airSquats",
+   "name": "Air Squats",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "pushUps",
+   "name": "Push-ups",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  }
+ ],
+ "shortName": "AMRAP 2",
+ "structure": {
+  "body": [
+   {
+    "timed": {
+     "body": [
+      {
+       "repeat": {
+        "body": [
+         {
+          "part": {
+           "id": "a",
+           "movement": "airSquats",
+           "target": {
+            "unit": "reps",
+            "value": 5
+           }
+          }
+         },
+         {
+          "part": {
+           "id": "b",
+           "movement": "pushUps",
+           "target": {
+            "unit": "reps",
+            "value": 5
+           }
+          }
+         }
+        ],
+        "id": "rp",
+        "listRounds": 6,
+        "times": null
+       }
+      }
+     ],
+     "early": "next",
+     "id": "amrap",
+     "late": "end",
+     "seconds": 120
+    }
+   }
+  ],
+  "score": {
+   "type": "roundsReps"
+  }
+ },
+ "team": "solo",
+ "timeCapSeconds": 120
+}

@@ -1,0 +1,1076 @@
+{
+ "stream": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "tick",
+   "t": 500
+  },
+  {
+   "kind": "tick",
+   "t": 1000
+  },
+  {
+   "kind": "tick",
+   "t": 1500
+  },
+  {
+   "kind": "tick",
+   "t": 2000
+  },
+  {
+   "kind": "tick",
+   "t": 2500
+  },
+  {
+   "kind": "tick",
+   "t": 3000
+  },
+  {
+   "kind": "tick",
+   "t": 3500
+  },
+  {
+   "kind": "tick",
+   "t": 4000
+  },
+  {
+   "kind": "tick",
+   "t": 4500
+  },
+  {
+   "kind": "crown",
+   "t": 4500
+  },
+  {
+   "kind": "tick",
+   "t": 5000
+  },
+  {
+   "kind": "tick",
+   "t": 5500
+  },
+  {
+   "kind": "tick",
+   "t": 6000
+  },
+  {
+   "kind": "tick",
+   "t": 6500
+  },
+  {
+   "kind": "tick",
+   "t": 7000
+  },
+  {
+   "kind": "tick",
+   "t": 7500
+  },
+  {
+   "kind": "tick",
+   "t": 8000
+  },
+  {
+   "kind": "tick",
+   "t": 8500
+  },
+  {
+   "kind": "tick",
+   "t": 9000
+  },
+  {
+   "kind": "crown",
+   "t": 9000
+  },
+  {
+   "kind": "tick",
+   "t": 9500
+  },
+  {
+   "kind": "tick",
+   "t": 10000
+  },
+  {
+   "kind": "tick",
+   "t": 10500
+  },
+  {
+   "kind": "tick",
+   "t": 11000
+  },
+  {
+   "kind": "tick",
+   "t": 11500
+  },
+  {
+   "kind": "tick",
+   "t": 12000
+  },
+  {
+   "kind": "tick",
+   "t": 12500
+  },
+  {
+   "kind": "tick",
+   "t": 13000
+  },
+  {
+   "kind": "tick",
+   "t": 13500
+  },
+  {
+   "kind": "crown",
+   "t": 13500
+  },
+  {
+   "kind": "tick",
+   "t": 14000
+  },
+  {
+   "kind": "tick",
+   "t": 14500
+  },
+  {
+   "kind": "tick",
+   "t": 15000
+  },
+  {
+   "kind": "tick",
+   "t": 15500
+  },
+  {
+   "kind": "tick",
+   "t": 16000
+  },
+  {
+   "kind": "tick",
+   "t": 16500
+  },
+  {
+   "kind": "tick",
+   "t": 17000
+  },
+  {
+   "kind": "tick",
+   "t": 17500
+  },
+  {
+   "kind": "tick",
+   "t": 18000
+  },
+  {
+   "kind": "crown",
+   "t": 18000
+  },
+  {
+   "kind": "tick",
+   "t": 18500
+  },
+  {
+   "kind": "tick",
+   "t": 19000
+  },
+  {
+   "kind": "tick",
+   "t": 19500
+  },
+  {
+   "kind": "tick",
+   "t": 20000
+  },
+  {
+   "kind": "tick",
+   "t": 20500
+  },
+  {
+   "kind": "tick",
+   "t": 21000
+  },
+  {
+   "kind": "tick",
+   "t": 21500
+  },
+  {
+   "kind": "tick",
+   "t": 22000
+  },
+  {
+   "kind": "tick",
+   "t": 22500
+  },
+  {
+   "kind": "crown",
+   "t": 22500
+  },
+  {
+   "kind": "tick",
+   "t": 23000
+  },
+  {
+   "kind": "tick",
+   "t": 23500
+  },
+  {
+   "kind": "tick",
+   "t": 24000
+  },
+  {
+   "kind": "tick",
+   "t": 24500
+  },
+  {
+   "kind": "tick",
+   "t": 25000
+  },
+  {
+   "kind": "tick",
+   "t": 25500
+  },
+  {
+   "kind": "tick",
+   "t": 26000
+  },
+  {
+   "kind": "tick",
+   "t": 26500
+  },
+  {
+   "kind": "tick",
+   "t": 27000
+  },
+  {
+   "kind": "crown",
+   "t": 27000
+  },
+  {
+   "kind": "tick",
+   "t": 27500
+  },
+  {
+   "kind": "tick",
+   "t": 28000
+  },
+  {
+   "kind": "tick",
+   "t": 28500
+  },
+  {
+   "kind": "tick",
+   "t": 29000
+  },
+  {
+   "kind": "tick",
+   "t": 29500
+  },
+  {
+   "kind": "tick",
+   "t": 30000
+  },
+  {
+   "kind": "tick",
+   "t": 30500
+  },
+  {
+   "kind": "tick",
+   "t": 31000
+  },
+  {
+   "kind": "tick",
+   "t": 31500
+  },
+  {
+   "kind": "crown",
+   "t": 31500
+  },
+  {
+   "kind": "tick",
+   "t": 32000
+  },
+  {
+   "kind": "tick",
+   "t": 32500
+  },
+  {
+   "kind": "tick",
+   "t": 33000
+  },
+  {
+   "kind": "tick",
+   "t": 33500
+  },
+  {
+   "kind": "tick",
+   "t": 34000
+  },
+  {
+   "kind": "tick",
+   "t": 34500
+  },
+  {
+   "kind": "tick",
+   "t": 35000
+  },
+  {
+   "kind": "tick",
+   "t": 35500
+  },
+  {
+   "kind": "tick",
+   "t": 36000
+  },
+  {
+   "kind": "crown",
+   "t": 36000
+  },
+  {
+   "kind": "tick",
+   "t": 36500
+  },
+  {
+   "kind": "tick",
+   "t": 37000
+  },
+  {
+   "kind": "tick",
+   "t": 37500
+  },
+  {
+   "kind": "tick",
+   "t": 38000
+  },
+  {
+   "kind": "tick",
+   "t": 38500
+  },
+  {
+   "kind": "tick",
+   "t": 39000
+  },
+  {
+   "kind": "tick",
+   "t": 39500
+  },
+  {
+   "kind": "tick",
+   "t": 40000
+  },
+  {
+   "kind": "tick",
+   "t": 40500
+  },
+  {
+   "kind": "crown",
+   "t": 40500
+  },
+  {
+   "kind": "tick",
+   "t": 41000
+  },
+  {
+   "kind": "tick",
+   "t": 41500
+  },
+  {
+   "kind": "tick",
+   "t": 42000
+  },
+  {
+   "kind": "tick",
+   "t": 42500
+  },
+  {
+   "kind": "tick",
+   "t": 43000
+  },
+  {
+   "kind": "tick",
+   "t": 43500
+  },
+  {
+   "kind": "tick",
+   "t": 44000
+  },
+  {
+   "kind": "tick",
+   "t": 44500
+  },
+  {
+   "kind": "tick",
+   "t": 45000
+  },
+  {
+   "kind": "crown",
+   "t": 45000
+  },
+  {
+   "kind": "tick",
+   "t": 45500
+  },
+  {
+   "kind": "tick",
+   "t": 46000
+  },
+  {
+   "kind": "tick",
+   "t": 46500
+  },
+  {
+   "kind": "tick",
+   "t": 47000
+  },
+  {
+   "kind": "tick",
+   "t": 47500
+  },
+  {
+   "kind": "tick",
+   "t": 48000
+  },
+  {
+   "kind": "tick",
+   "t": 48500
+  },
+  {
+   "kind": "tick",
+   "t": 49000
+  },
+  {
+   "kind": "tick",
+   "t": 49500
+  },
+  {
+   "kind": "crown",
+   "t": 49500
+  },
+  {
+   "kind": "tick",
+   "t": 50000
+  },
+  {
+   "kind": "tick",
+   "t": 50500
+  },
+  {
+   "kind": "tick",
+   "t": 51000
+  },
+  {
+   "kind": "tick",
+   "t": 51500
+  },
+  {
+   "kind": "tick",
+   "t": 52000
+  },
+  {
+   "kind": "tick",
+   "t": 52500
+  },
+  {
+   "kind": "tick",
+   "t": 53000
+  },
+  {
+   "kind": "tick",
+   "t": 53500
+  },
+  {
+   "kind": "tick",
+   "t": 54000
+  },
+  {
+   "kind": "crown",
+   "t": 54000
+  },
+  {
+   "kind": "tick",
+   "t": 54500
+  },
+  {
+   "kind": "tick",
+   "t": 55000
+  },
+  {
+   "kind": "tick",
+   "t": 55500
+  },
+  {
+   "kind": "tick",
+   "t": 56000
+  },
+  {
+   "kind": "tick",
+   "t": 56500
+  },
+  {
+   "kind": "tick",
+   "t": 57000
+  },
+  {
+   "kind": "tick",
+   "t": 57500
+  },
+  {
+   "kind": "tick",
+   "t": 58000
+  },
+  {
+   "kind": "tick",
+   "t": 58500
+  },
+  {
+   "kind": "crown",
+   "t": 58500
+  },
+  {
+   "kind": "tick",
+   "t": 59000
+  },
+  {
+   "kind": "tick",
+   "t": 59500
+  },
+  {
+   "kind": "tick",
+   "t": 60000
+  },
+  {
+   "kind": "tick",
+   "t": 60500
+  },
+  {
+   "kind": "tick",
+   "t": 61000
+  },
+  {
+   "kind": "tick",
+   "t": 61500
+  },
+  {
+   "kind": "tick",
+   "t": 62000
+  },
+  {
+   "kind": "tick",
+   "t": 62500
+  },
+  {
+   "kind": "tick",
+   "t": 63000
+  },
+  {
+   "kind": "crown",
+   "t": 63000
+  },
+  {
+   "kind": "tick",
+   "t": 63500
+  },
+  {
+   "kind": "tick",
+   "t": 64000
+  },
+  {
+   "kind": "tick",
+   "t": 64500
+  },
+  {
+   "kind": "tick",
+   "t": 65000
+  },
+  {
+   "kind": "tick",
+   "t": 65500
+  },
+  {
+   "kind": "tick",
+   "t": 66000
+  },
+  {
+   "kind": "tick",
+   "t": 66500
+  },
+  {
+   "kind": "tick",
+   "t": 67000
+  },
+  {
+   "kind": "tick",
+   "t": 67500
+  },
+  {
+   "kind": "crown",
+   "t": 67500
+  },
+  {
+   "kind": "tick",
+   "t": 68000
+  },
+  {
+   "kind": "tick",
+   "t": 68500
+  },
+  {
+   "kind": "tick",
+   "t": 69000
+  },
+  {
+   "kind": "tick",
+   "t": 69500
+  },
+  {
+   "kind": "tick",
+   "t": 70000
+  },
+  {
+   "kind": "tick",
+   "t": 70500
+  },
+  {
+   "kind": "tick",
+   "t": 71000
+  },
+  {
+   "kind": "tick",
+   "t": 71500
+  },
+  {
+   "kind": "tick",
+   "t": 72000
+  },
+  {
+   "kind": "crown",
+   "t": 72000
+  },
+  {
+   "kind": "tick",
+   "t": 72500
+  },
+  {
+   "kind": "tick",
+   "t": 73000
+  },
+  {
+   "kind": "tick",
+   "t": 73500
+  },
+  {
+   "kind": "tick",
+   "t": 74000
+  },
+  {
+   "kind": "tick",
+   "t": 74500
+  },
+  {
+   "kind": "tick",
+   "t": 75000
+  },
+  {
+   "kind": "tick",
+   "t": 75500
+  },
+  {
+   "kind": "tick",
+   "t": 76000
+  },
+  {
+   "kind": "tick",
+   "t": 76500
+  },
+  {
+   "kind": "crown",
+   "t": 76500
+  },
+  {
+   "kind": "tick",
+   "t": 77000
+  },
+  {
+   "kind": "tick",
+   "t": 77500
+  },
+  {
+   "kind": "tick",
+   "t": 78000
+  },
+  {
+   "kind": "tick",
+   "t": 78500
+  },
+  {
+   "kind": "tick",
+   "t": 79000
+  },
+  {
+   "kind": "tick",
+   "t": 79500
+  },
+  {
+   "kind": "tick",
+   "t": 80000
+  },
+  {
+   "kind": "tick",
+   "t": 80500
+  },
+  {
+   "kind": "tick",
+   "t": 81000
+  },
+  {
+   "kind": "crown",
+   "t": 81000
+  },
+  {
+   "kind": "tick",
+   "t": 81500
+  },
+  {
+   "kind": "tick",
+   "t": 82000
+  },
+  {
+   "kind": "tick",
+   "t": 82500
+  },
+  {
+   "kind": "tick",
+   "t": 83000
+  },
+  {
+   "kind": "tick",
+   "t": 83500
+  },
+  {
+   "kind": "tick",
+   "t": 84000
+  },
+  {
+   "kind": "tick",
+   "t": 84500
+  },
+  {
+   "kind": "tick",
+   "t": 85000
+  },
+  {
+   "kind": "tick",
+   "t": 85500
+  },
+  {
+   "kind": "crown",
+   "t": 85500
+  },
+  {
+   "kind": "tick",
+   "t": 86000
+  },
+  {
+   "kind": "tick",
+   "t": 86500
+  },
+  {
+   "kind": "tick",
+   "t": 87000
+  },
+  {
+   "kind": "tick",
+   "t": 87500
+  },
+  {
+   "kind": "tick",
+   "t": 88000
+  },
+  {
+   "kind": "tick",
+   "t": 88500
+  },
+  {
+   "kind": "tick",
+   "t": 89000
+  },
+  {
+   "kind": "tick",
+   "t": 89500
+  },
+  {
+   "kind": "tick",
+   "t": 90000
+  },
+  {
+   "kind": "crown",
+   "t": 90000
+  },
+  {
+   "kind": "tick",
+   "t": 90500
+  },
+  {
+   "kind": "tick",
+   "t": 91000
+  },
+  {
+   "kind": "tick",
+   "t": 91500
+  },
+  {
+   "kind": "tick",
+   "t": 92000
+  },
+  {
+   "kind": "tick",
+   "t": 92500
+  },
+  {
+   "kind": "tick",
+   "t": 93000
+  },
+  {
+   "kind": "tick",
+   "t": 93500
+  },
+  {
+   "kind": "tick",
+   "t": 94000
+  },
+  {
+   "kind": "tick",
+   "t": 94500
+  },
+  {
+   "kind": "crown",
+   "t": 94500
+  },
+  {
+   "kind": "tick",
+   "t": 95000
+  },
+  {
+   "kind": "tick",
+   "t": 95500
+  },
+  {
+   "kind": "tick",
+   "t": 96000
+  },
+  {
+   "kind": "tick",
+   "t": 96500
+  },
+  {
+   "kind": "tick",
+   "t": 97000
+  },
+  {
+   "kind": "tick",
+   "t": 97500
+  },
+  {
+   "kind": "tick",
+   "t": 98000
+  },
+  {
+   "kind": "tick",
+   "t": 98500
+  },
+  {
+   "kind": "tick",
+   "t": 99000
+  },
+  {
+   "kind": "crown",
+   "t": 99000
+  },
+  {
+   "kind": "tick",
+   "t": 99500
+  },
+  {
+   "kind": "tick",
+   "t": 100000
+  },
+  {
+   "kind": "tick",
+   "t": 100500
+  },
+  {
+   "kind": "tick",
+   "t": 101000
+  },
+  {
+   "kind": "tick",
+   "t": 101500
+  },
+  {
+   "kind": "tick",
+   "t": 102000
+  },
+  {
+   "kind": "tick",
+   "t": 102500
+  },
+  {
+   "kind": "tick",
+   "t": 103000
+  },
+  {
+   "kind": "tick",
+   "t": 103500
+  },
+  {
+   "kind": "crown",
+   "t": 103500
+  },
+  {
+   "kind": "tick",
+   "t": 104000
+  },
+  {
+   "kind": "tick",
+   "t": 104500
+  },
+  {
+   "kind": "tick",
+   "t": 105000
+  },
+  {
+   "kind": "tick",
+   "t": 105500
+  },
+  {
+   "kind": "tick",
+   "t": 106000
+  },
+  {
+   "kind": "tick",
+   "t": 106500
+  },
+  {
+   "kind": "tick",
+   "t": 107000
+  },
+  {
+   "kind": "tick",
+   "t": 107500
+  },
+  {
+   "kind": "tick",
+   "t": 108000
+  },
+  {
+   "kind": "crown",
+   "t": 108000
+  },
+  {
+   "kind": "tick",
+   "t": 108500
+  },
+  {
+   "kind": "tick",
+   "t": 109000
+  },
+  {
+   "kind": "tick",
+   "t": 109500
+  },
+  {
+   "kind": "tick",
+   "t": 110000
+  },
+  {
+   "kind": "tick",
+   "t": 110500
+  },
+  {
+   "kind": "tick",
+   "t": 111000
+  },
+  {
+   "kind": "tick",
+   "t": 111500
+  },
+  {
+   "kind": "tick",
+   "t": 112000
+  },
+  {
+   "kind": "tick",
+   "t": 112500
+  },
+  {
+   "kind": "crown",
+   "t": 112500
+  },
+  {
+   "kind": "tick",
+   "t": 113000
+  },
+  {
+   "kind": "tick",
+   "t": 113500
+  },
+  {
+   "kind": "tick",
+   "t": 114000
+  },
+  {
+   "kind": "tick",
+   "t": 114500
+  },
+  {
+   "kind": "tick",
+   "t": 115000
+  },
+  {
+   "kind": "tick",
+   "t": 115500
+  },
+  {
+   "kind": "tick",
+   "t": 116000
+  },
+  {
+   "kind": "tick",
+   "t": 116500
+  },
+  {
+   "kind": "tick",
+   "t": 117000
+  },
+  {
+   "kind": "tick",
+   "t": 117500
+  },
+  {
+   "kind": "tick",
+   "t": 118000
+  },
+  {
+   "kind": "tick",
+   "t": 118500
+  },
+  {
+   "kind": "tick",
+   "t": 119000
+  },
+  {
+   "kind": "tick",
+   "t": 119500
+  },
+  {
+   "kind": "tick",
+   "t": 120000
+  },
+  {
+   "kind": "tick",
+   "t": 120500
+  },
+  {
+   "kind": "crown",
+   "t": 118500
+  }
+ ]
+}

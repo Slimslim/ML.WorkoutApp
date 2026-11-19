@@ -166,9 +166,15 @@ def validate(doc: dict, strict: bool = True) -> list:
     from . import workout_engine
     compiled = compile_definition(doc)
     for where, st in structures(compiled):
-        n = len(workout_engine.expand(st).steps)
-        if n > MAX_STEPS:
-            errs.append("%s: %d steps in the plan (at most %d)" % (where, n, MAX_STEPS))
+        exp = workout_engine.expand(st)
+        if exp.invalid == "tooLarge":
+            errs.append("%s: more than %d steps in the plan" % (where, MAX_STEPS))
+        elif exp.invalid is not None:
+            errs.append("%s: a number is out of the engine's range (seconds at most %d, repeats at "
+                        "most %d, ratio at most %d)" % (where, workout_engine.MAX_SECONDS,
+                                                         workout_engine.MAX_TIMES, workout_engine.MAX_RATIO))
+        elif not exp.steps:
+            errs.append("%s: the plan has no steps" % where)
     root_exact = legacy_keys(compiled["structure"])[1]
     if not root_exact:
         if doc.get("fidelity") == "exact":
@@ -566,9 +572,12 @@ def compile_definition(doc: dict) -> dict:
     if req or "requires" in out:
         out["requires"] = req
     _write_legacy(out)
-    # Cap listRounds so the watch payload fits (RFC §14.3 D6).
-    for _ in range(40):
-        if payload_bytes(out) <= MAX_PAYLOAD_BYTES:
+    # Cap listRounds so the watch payload fits and the plan stays within MAX_STEPS; the engine
+    # adds rounds itself past the list (RFC §14.3 D6).
+    from . import workout_engine
+    for _ in range(60):
+        too_many = any(workout_engine.expand(st).invalid == "tooLarge" for _, st in structures(out))
+        if payload_bytes(out) <= MAX_PAYLOAD_BYTES and not too_many:
             break
         if not _shrink_list_rounds(out):
             break

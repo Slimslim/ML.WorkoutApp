@@ -1,0 +1,124 @@
+{
+ "hash": "265588dd91f8b663dcee7f2f26fc4d7cffea817548d5b747615e835e125fb6c4",
+ "plan": {
+  "bells": [],
+  "planner": 1,
+  "steps": [
+   {
+    "ends": "athlete",
+    "id": "rp.1.thr",
+    "index": 0,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 21
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.1.pu",
+    "index": 1,
+    "kind": "part",
+    "node": "pu",
+    "partMovement": "pullUps",
+    "partTarget": {
+     "unit": "reps",
+     "value": 21
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.thr",
+    "index": 2,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.pu",
+    "index": 3,
+    "kind": "part",
+    "node": "pu",
+    "partMovement": "pullUps",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.thr",
+    "index": 4,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 9
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.pu",
+    "index": 5,
+    "kind": "part",
+    "node": "pu",
+    "partMovement": "pullUps",
+    "partTarget": {
+     "unit": "reps",
+     "value": 9
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": []
+   }
+  ],
+  "windows": []
+ }
+}

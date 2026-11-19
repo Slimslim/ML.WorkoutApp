@@ -1,0 +1,532 @@
+{
+ "hash": "1d5ce2caf269bc4e740f82bc979b9b0311ced324a301033f687c2770db194d93",
+ "plan": {
+  "bells": [
+   {
+    "anchor": "start",
+    "id": "rp.1.m.end",
+    "offsetMs": 60000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.2.m.end",
+    "offsetMs": 120000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.3.m.end",
+    "offsetMs": 180000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.4.m.end",
+    "offsetMs": 240000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.5.m.end",
+    "offsetMs": 300000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.6.m.end",
+    "offsetMs": 360000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.7.m.end",
+    "offsetMs": 420000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.8.m.end",
+    "offsetMs": 480000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.9.m.end",
+    "offsetMs": 540000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.10.m.end",
+    "offsetMs": 600000
+   }
+  ],
+  "planner": 1,
+  "steps": [
+   {
+    "ends": "athlete",
+    "id": "rp.1.kb",
+    "index": 0,
+    "kind": "part",
+    "node": "kb",
+    "partMovement": "kettlebellSwings",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": [
+     "rp.1.m"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.1.m.wait",
+    "index": 1,
+    "kind": "rest",
+    "node": "m",
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "waitWindow": "rp.1.m",
+    "windows": [
+     "rp.1.m"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.kb",
+    "index": 2,
+    "kind": "part",
+    "node": "kb",
+    "partMovement": "kettlebellSwings",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": [
+     "rp.2.m"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.2.m.wait",
+    "index": 3,
+    "kind": "rest",
+    "node": "m",
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "waitWindow": "rp.2.m",
+    "windows": [
+     "rp.2.m"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.kb",
+    "index": 4,
+    "kind": "part",
+    "node": "kb",
+    "partMovement": "kettlebellSwings",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": [
+     "rp.3.m"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.3.m.wait",
+    "index": 5,
+    "kind": "rest",
+    "node": "m",
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "waitWindow": "rp.3.m",
+    "windows": [
+     "rp.3.m"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.4.kb",
+    "index": 6,
+    "kind": "part",
+    "node": "kb",
+    "partMovement": "kettlebellSwings",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "windows": [
+     "rp.4.m"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.4.m.wait",
+    "index": 7,
+    "kind": "rest",
+    "node": "m",
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "waitWindow": "rp.4.m",
+    "windows": [
+     "rp.4.m"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.5.kb",
+    "index": 8,
+    "kind": "part",
+    "node": "kb",
+    "partMovement": "kettlebellSwings",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      5
+     ]
+    ],
+    "windows": [
+     "rp.5.m"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.5.m.wait",
+    "index": 9,
+    "kind": "rest",
+    "node": "m",
+    "rounds": [
+     [
+      "rp",
+      5
+     ]
+    ],
+    "waitWindow": "rp.5.m",
+    "windows": [
+     "rp.5.m"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.6.kb",
+    "index": 10,
+    "kind": "part",
+    "node": "kb",
+    "partMovement": "kettlebellSwings",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      6
+     ]
+    ],
+    "windows": [
+     "rp.6.m"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.6.m.wait",
+    "index": 11,
+    "kind": "rest",
+    "node": "m",
+    "rounds": [
+     [
+      "rp",
+      6
+     ]
+    ],
+    "waitWindow": "rp.6.m",
+    "windows": [
+     "rp.6.m"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.7.kb",
+    "index": 12,
+    "kind": "part",
+    "node": "kb",
+    "partMovement": "kettlebellSwings",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      7
+     ]
+    ],
+    "windows": [
+     "rp.7.m"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.7.m.wait",
+    "index": 13,
+    "kind": "rest",
+    "node": "m",
+    "rounds": [
+     [
+      "rp",
+      7
+     ]
+    ],
+    "waitWindow": "rp.7.m",
+    "windows": [
+     "rp.7.m"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.8.kb",
+    "index": 14,
+    "kind": "part",
+    "node": "kb",
+    "partMovement": "kettlebellSwings",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      8
+     ]
+    ],
+    "windows": [
+     "rp.8.m"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.8.m.wait",
+    "index": 15,
+    "kind": "rest",
+    "node": "m",
+    "rounds": [
+     [
+      "rp",
+      8
+     ]
+    ],
+    "waitWindow": "rp.8.m",
+    "windows": [
+     "rp.8.m"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.9.kb",
+    "index": 16,
+    "kind": "part",
+    "node": "kb",
+    "partMovement": "kettlebellSwings",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      9
+     ]
+    ],
+    "windows": [
+     "rp.9.m"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.9.m.wait",
+    "index": 17,
+    "kind": "rest",
+    "node": "m",
+    "rounds": [
+     [
+      "rp",
+      9
+     ]
+    ],
+    "waitWindow": "rp.9.m",
+    "windows": [
+     "rp.9.m"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.10.kb",
+    "index": 18,
+    "kind": "part",
+    "node": "kb",
+    "partMovement": "kettlebellSwings",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      10
+     ]
+    ],
+    "windows": [
+     "rp.10.m"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.10.m.wait",
+    "index": 19,
+    "kind": "rest",
+    "node": "m",
+    "rounds": [
+     [
+      "rp",
+      10
+     ]
+    ],
+    "waitWindow": "rp.10.m",
+    "windows": [
+     "rp.10.m"
+    ]
+   }
+  ],
+  "windows": [
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "m",
+    "key": "rp.1.m",
+    "late": "cut",
+    "seconds": 60
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "m",
+    "key": "rp.2.m",
+    "late": "cut",
+    "seconds": 60
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "m",
+    "key": "rp.3.m",
+    "late": "cut",
+    "seconds": 60
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "m",
+    "key": "rp.4.m",
+    "late": "cut",
+    "seconds": 60
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "m",
+    "key": "rp.5.m",
+    "late": "cut",
+    "seconds": 60
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "m",
+    "key": "rp.6.m",
+    "late": "cut",
+    "seconds": 60
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "m",
+    "key": "rp.7.m",
+    "late": "cut",
+    "seconds": 60
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "m",
+    "key": "rp.8.m",
+    "late": "cut",
+    "seconds": 60
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "m",
+    "key": "rp.9.m",
+    "late": "cut",
+    "seconds": 60
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "m",
+    "key": "rp.10.m",
+    "late": "cut",
+    "seconds": 60
+   }
+  ]
+ }
+}

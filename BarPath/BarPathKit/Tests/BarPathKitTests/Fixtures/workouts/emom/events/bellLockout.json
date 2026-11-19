@@ -1,0 +1,12 @@
+{
+ "events": [
+  {
+   "kind": "crown",
+   "t": 61500
+  }
+ ],
+ "ticks": {
+  "every": 1000,
+  "until": 62000
+ }
+}

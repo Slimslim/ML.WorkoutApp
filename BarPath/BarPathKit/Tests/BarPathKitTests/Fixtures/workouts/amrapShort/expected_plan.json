@@ -1,0 +1,278 @@
+{
+ "hash": "58085850bf22e3d007e02fcdc5a3a39daecf9746ed665556139e5cf1ea1575e2",
+ "plan": {
+  "bells": [
+   {
+    "anchor": "start",
+    "id": "amrap.end",
+    "offsetMs": 120000
+   }
+  ],
+  "planner": 1,
+  "steps": [
+   {
+    "ends": "athlete",
+    "id": "rp.1.a",
+    "index": 0,
+    "kind": "part",
+    "node": "a",
+    "partMovement": "airSquats",
+    "partTarget": {
+     "unit": "reps",
+     "value": 5
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.1.b",
+    "index": 1,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "pushUps",
+    "partTarget": {
+     "unit": "reps",
+     "value": 5
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.a",
+    "index": 2,
+    "kind": "part",
+    "node": "a",
+    "partMovement": "airSquats",
+    "partTarget": {
+     "unit": "reps",
+     "value": 5
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.b",
+    "index": 3,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "pushUps",
+    "partTarget": {
+     "unit": "reps",
+     "value": 5
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.a",
+    "index": 4,
+    "kind": "part",
+    "node": "a",
+    "partMovement": "airSquats",
+    "partTarget": {
+     "unit": "reps",
+     "value": 5
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.b",
+    "index": 5,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "pushUps",
+    "partTarget": {
+     "unit": "reps",
+     "value": 5
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.4.a",
+    "index": 6,
+    "kind": "part",
+    "node": "a",
+    "partMovement": "airSquats",
+    "partTarget": {
+     "unit": "reps",
+     "value": 5
+    },
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.4.b",
+    "index": 7,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "pushUps",
+    "partTarget": {
+     "unit": "reps",
+     "value": 5
+    },
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.5.a",
+    "index": 8,
+    "kind": "part",
+    "node": "a",
+    "partMovement": "airSquats",
+    "partTarget": {
+     "unit": "reps",
+     "value": 5
+    },
+    "rounds": [
+     [
+      "rp",
+      5
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.5.b",
+    "index": 9,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "pushUps",
+    "partTarget": {
+     "unit": "reps",
+     "value": 5
+    },
+    "rounds": [
+     [
+      "rp",
+      5
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.6.a",
+    "index": 10,
+    "kind": "part",
+    "node": "a",
+    "partMovement": "airSquats",
+    "partTarget": {
+     "unit": "reps",
+     "value": 5
+    },
+    "rounds": [
+     [
+      "rp",
+      6
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.6.b",
+    "index": 11,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "pushUps",
+    "partTarget": {
+     "unit": "reps",
+     "value": 5
+    },
+    "rounds": [
+     [
+      "rp",
+      6
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   }
+  ],
+  "windows": [
+   {
+    "depth": 1,
+    "early": "next",
+    "id": "amrap",
+    "key": "amrap",
+    "late": "end",
+    "seconds": 120,
+    "stops": "rp"
+   }
+  ]
+ }
+}

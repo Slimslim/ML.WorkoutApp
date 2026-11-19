@@ -1,0 +1,1538 @@
+{
+ "hash": "750731ea861274f17dbdc1f75884cd9fb8fe552baed6f2e80ce2a09547d053d6",
+ "plan": {
+  "bells": [
+   {
+    "anchor": "start",
+    "id": "amrap.end",
+    "offsetMs": 720000
+   }
+  ],
+  "planner": 1,
+  "steps": [
+   {
+    "ends": "athlete",
+    "id": "rp.1.thr",
+    "index": 0,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.1.c2b",
+    "index": 1,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.thr",
+    "index": 2,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 6
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.c2b",
+    "index": 3,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 6
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.thr",
+    "index": 4,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 9
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.c2b",
+    "index": 5,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 9
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.4.thr",
+    "index": 6,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 12
+    },
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.4.c2b",
+    "index": 7,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 12
+    },
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.5.thr",
+    "index": 8,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      5
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.5.c2b",
+    "index": 9,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      5
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.6.thr",
+    "index": 10,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 18
+    },
+    "rounds": [
+     [
+      "rp",
+      6
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.6.c2b",
+    "index": 11,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 18
+    },
+    "rounds": [
+     [
+      "rp",
+      6
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.7.thr",
+    "index": 12,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 21
+    },
+    "rounds": [
+     [
+      "rp",
+      7
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.7.c2b",
+    "index": 13,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 21
+    },
+    "rounds": [
+     [
+      "rp",
+      7
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.8.thr",
+    "index": 14,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 24
+    },
+    "rounds": [
+     [
+      "rp",
+      8
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.8.c2b",
+    "index": 15,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 24
+    },
+    "rounds": [
+     [
+      "rp",
+      8
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.9.thr",
+    "index": 16,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 27
+    },
+    "rounds": [
+     [
+      "rp",
+      9
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.9.c2b",
+    "index": 17,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 27
+    },
+    "rounds": [
+     [
+      "rp",
+      9
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.10.thr",
+    "index": 18,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 30
+    },
+    "rounds": [
+     [
+      "rp",
+      10
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.10.c2b",
+    "index": 19,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 30
+    },
+    "rounds": [
+     [
+      "rp",
+      10
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.11.thr",
+    "index": 20,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 33
+    },
+    "rounds": [
+     [
+      "rp",
+      11
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.11.c2b",
+    "index": 21,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 33
+    },
+    "rounds": [
+     [
+      "rp",
+      11
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.12.thr",
+    "index": 22,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 36
+    },
+    "rounds": [
+     [
+      "rp",
+      12
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.12.c2b",
+    "index": 23,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 36
+    },
+    "rounds": [
+     [
+      "rp",
+      12
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.13.thr",
+    "index": 24,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 39
+    },
+    "rounds": [
+     [
+      "rp",
+      13
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.13.c2b",
+    "index": 25,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 39
+    },
+    "rounds": [
+     [
+      "rp",
+      13
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.14.thr",
+    "index": 26,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 42
+    },
+    "rounds": [
+     [
+      "rp",
+      14
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.14.c2b",
+    "index": 27,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 42
+    },
+    "rounds": [
+     [
+      "rp",
+      14
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.15.thr",
+    "index": 28,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 45
+    },
+    "rounds": [
+     [
+      "rp",
+      15
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.15.c2b",
+    "index": 29,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 45
+    },
+    "rounds": [
+     [
+      "rp",
+      15
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.16.thr",
+    "index": 30,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 48
+    },
+    "rounds": [
+     [
+      "rp",
+      16
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.16.c2b",
+    "index": 31,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 48
+    },
+    "rounds": [
+     [
+      "rp",
+      16
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.17.thr",
+    "index": 32,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 51
+    },
+    "rounds": [
+     [
+      "rp",
+      17
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.17.c2b",
+    "index": 33,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 51
+    },
+    "rounds": [
+     [
+      "rp",
+      17
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.18.thr",
+    "index": 34,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 54
+    },
+    "rounds": [
+     [
+      "rp",
+      18
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.18.c2b",
+    "index": 35,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 54
+    },
+    "rounds": [
+     [
+      "rp",
+      18
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.19.thr",
+    "index": 36,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 57
+    },
+    "rounds": [
+     [
+      "rp",
+      19
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.19.c2b",
+    "index": 37,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 57
+    },
+    "rounds": [
+     [
+      "rp",
+      19
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.20.thr",
+    "index": 38,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 60
+    },
+    "rounds": [
+     [
+      "rp",
+      20
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.20.c2b",
+    "index": 39,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 60
+    },
+    "rounds": [
+     [
+      "rp",
+      20
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.21.thr",
+    "index": 40,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 63
+    },
+    "rounds": [
+     [
+      "rp",
+      21
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.21.c2b",
+    "index": 41,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 63
+    },
+    "rounds": [
+     [
+      "rp",
+      21
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.22.thr",
+    "index": 42,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 66
+    },
+    "rounds": [
+     [
+      "rp",
+      22
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.22.c2b",
+    "index": 43,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 66
+    },
+    "rounds": [
+     [
+      "rp",
+      22
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.23.thr",
+    "index": 44,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 69
+    },
+    "rounds": [
+     [
+      "rp",
+      23
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.23.c2b",
+    "index": 45,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 69
+    },
+    "rounds": [
+     [
+      "rp",
+      23
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.24.thr",
+    "index": 46,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 72
+    },
+    "rounds": [
+     [
+      "rp",
+      24
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.24.c2b",
+    "index": 47,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 72
+    },
+    "rounds": [
+     [
+      "rp",
+      24
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.25.thr",
+    "index": 48,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 75
+    },
+    "rounds": [
+     [
+      "rp",
+      25
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.25.c2b",
+    "index": 49,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 75
+    },
+    "rounds": [
+     [
+      "rp",
+      25
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.26.thr",
+    "index": 50,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 78
+    },
+    "rounds": [
+     [
+      "rp",
+      26
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.26.c2b",
+    "index": 51,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 78
+    },
+    "rounds": [
+     [
+      "rp",
+      26
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.27.thr",
+    "index": 52,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 81
+    },
+    "rounds": [
+     [
+      "rp",
+      27
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.27.c2b",
+    "index": 53,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 81
+    },
+    "rounds": [
+     [
+      "rp",
+      27
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.28.thr",
+    "index": 54,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 84
+    },
+    "rounds": [
+     [
+      "rp",
+      28
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.28.c2b",
+    "index": 55,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 84
+    },
+    "rounds": [
+     [
+      "rp",
+      28
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.29.thr",
+    "index": 56,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 87
+    },
+    "rounds": [
+     [
+      "rp",
+      29
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.29.c2b",
+    "index": 57,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 87
+    },
+    "rounds": [
+     [
+      "rp",
+      29
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.30.thr",
+    "index": 58,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 90
+    },
+    "rounds": [
+     [
+      "rp",
+      30
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.30.c2b",
+    "index": 59,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 90
+    },
+    "rounds": [
+     [
+      "rp",
+      30
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.31.thr",
+    "index": 60,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 93
+    },
+    "rounds": [
+     [
+      "rp",
+      31
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.31.c2b",
+    "index": 61,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 93
+    },
+    "rounds": [
+     [
+      "rp",
+      31
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.32.thr",
+    "index": 62,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 96
+    },
+    "rounds": [
+     [
+      "rp",
+      32
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.32.c2b",
+    "index": 63,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 96
+    },
+    "rounds": [
+     [
+      "rp",
+      32
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.33.thr",
+    "index": 64,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 99
+    },
+    "rounds": [
+     [
+      "rp",
+      33
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.33.c2b",
+    "index": 65,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 99
+    },
+    "rounds": [
+     [
+      "rp",
+      33
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.34.thr",
+    "index": 66,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 102
+    },
+    "rounds": [
+     [
+      "rp",
+      34
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.34.c2b",
+    "index": 67,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 102
+    },
+    "rounds": [
+     [
+      "rp",
+      34
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.35.thr",
+    "index": 68,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 105
+    },
+    "rounds": [
+     [
+      "rp",
+      35
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.35.c2b",
+    "index": 69,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 105
+    },
+    "rounds": [
+     [
+      "rp",
+      35
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.36.thr",
+    "index": 70,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "thrusters",
+    "partTarget": {
+     "unit": "reps",
+     "value": 108
+    },
+    "rounds": [
+     [
+      "rp",
+      36
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.36.c2b",
+    "index": 71,
+    "kind": "part",
+    "node": "c2b",
+    "partMovement": "chestToBar",
+    "partTarget": {
+     "unit": "reps",
+     "value": 108
+    },
+    "rounds": [
+     [
+      "rp",
+      36
+     ]
+    ],
+    "windows": [
+     "amrap"
+    ]
+   }
+  ],
+  "windows": [
+   {
+    "depth": 1,
+    "early": "next",
+    "id": "amrap",
+    "key": "amrap",
+    "late": "end",
+    "seconds": 720,
+    "stops": "rp"
+   }
+  ]
+ }
+}

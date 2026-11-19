@@ -1,0 +1,62 @@
+{
+ "asks": [],
+ "boundaries": [],
+ "current": null,
+ "done": true,
+ "doneT": 240000,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "done",
+   "t": 240000
+  }
+ ],
+ "endedBy": "athlete",
+ "facts": [
+  {
+   "end": 60000,
+   "endedBy": "athlete",
+   "id": "_unknown1",
+   "kind": "part",
+   "rounds": [],
+   "start": 0,
+   "status": "done"
+  },
+  {
+   "end": 120000,
+   "endedBy": "athlete",
+   "id": "a",
+   "kind": "part",
+   "rounds": [],
+   "start": 60000,
+   "status": "done"
+  },
+  {
+   "end": 180000,
+   "endedBy": "athlete",
+   "id": "_unknown2",
+   "kind": "part",
+   "rounds": [],
+   "start": 120000,
+   "status": "done"
+  },
+  {
+   "end": 240000,
+   "endedBy": "athlete",
+   "id": "b",
+   "kind": "part",
+   "rounds": [],
+   "start": 180000,
+   "status": "done"
+  }
+ ],
+ "score": {
+  "complete": true,
+  "text": "4:00",
+  "type": "time",
+  "value": 240000
+ }
+}

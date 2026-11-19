@@ -1,0 +1,31 @@
+{
+ "cases": [
+  "amrapBuyCash",
+  "amrapLadder",
+  "amrapShort",
+  "buildMax",
+  "deathBy",
+  "descending",
+  "emom",
+  "emomAlt",
+  "emomHold",
+  "forTimeCap",
+  "hardCap",
+  "hyrox",
+  "intervals",
+  "partner",
+  "ratioRest",
+  "scaled",
+  "tabata",
+  "unknownNodes",
+  "variantsF",
+  "variantsL1",
+  "variantsM",
+  "windows3333",
+  "windows3334"
+ ],
+ "planErrors": 14,
+ "planner": 1,
+ "runnable": 8,
+ "scenarios": 62
+}

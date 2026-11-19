@@ -1,0 +1,87 @@
+{
+ "approx": [
+  "oldKeysLossy"
+ ],
+ "compilerVersion": 1,
+ "fidelity": "approx",
+ "format": "forTime",
+ "id": "test.unknown",
+ "name": "Unknown blocks",
+ "schemaVersion": 2,
+ "segments": [
+  {
+   "kind": "station",
+   "movement": "part",
+   "name": "3 laps of a future block"
+  },
+  {
+   "kind": "run",
+   "movement": "run",
+   "name": "Run",
+   "target": {
+    "unit": "meters",
+    "value": 400
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "part",
+   "name": "Unknown block"
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  }
+ ],
+ "structure": {
+  "body": [
+   {
+    "future": {
+     "id": "x",
+     "laps": 3
+    },
+    "rawText": "3 laps of a future block"
+   },
+   {
+    "part": {
+     "id": "a",
+     "kind": "run",
+     "movement": "run",
+     "target": {
+      "unit": "meters",
+      "value": 400
+     }
+    }
+   },
+   {
+    "group": {
+     "body": [
+      {
+       "futureToo": {}
+      },
+      {
+       "part": {
+        "id": "b",
+        "movement": "burpees",
+        "target": {
+         "unit": "reps",
+         "value": 10
+        }
+       }
+      }
+     ],
+     "id": "g"
+    }
+   }
+  ],
+  "score": {
+   "type": "time"
+  }
+ },
+ "team": "solo"
+}
