@@ -202,7 +202,7 @@ dump before any database change: `docs/BACKUP.md`, `tools/backup/`. Status: in r
 ([#123](https://github.com/Slimslim/ML.WorkoutApp/pull/123)). Device-tested 19 Nov on the NAS: first
 backup OK (6.2 MB, 73 s), restore test OK (39 tables, every row).
 
-## Build 17.1: results insights (phone only, #126; branch `claude/release-17.1`)
+## Release 0.17.1: results insights (phone only, #126; branch `claude/release-17.1`)
 
 Spec `docs/RESULTS_INSIGHTS.md`. Ships before the race on 5 Dec if the owner agrees.
 
