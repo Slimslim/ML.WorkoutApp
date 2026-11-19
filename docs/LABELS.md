@@ -46,7 +46,8 @@ python3 -m pytest tools/tests -q        # the real-data tests run again
 - **Who can read it:** the owner's account and the service role only (apikey + `Authorization:
   Bearer`, `…/storage/v1/object/authenticated/uploads/<owner user id>/Corpus/raw/<path>`); anon
   and public URLs are refused.
-- Never commit the downloaded files, the user id or a key.
+- Never commit the downloaded files, the user id or a key. (Small, de-identified test fixtures
+  under `BarPathKit/Tests/.../Fixtures` and `tools/tests` are the one exception: CLAUDE.md.)
 
 ## How a session gets labelled
 

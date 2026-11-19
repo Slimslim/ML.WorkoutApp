@@ -24,7 +24,6 @@ import argparse
 import hashlib
 import os
 import sys
-import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -48,6 +47,9 @@ def parse_manifest(text: str) -> list:
         line = line.strip()
         if not line or line.startswith("#"):
             continue
+        # `<sha256>  <bytes>  <path>` (the Data chat's manifest). Plain sha256sum lines
+        # (`<sha256>  <path>`) are read as such only when the second field is not a number, so
+        # a 2-field path starting with a number-only word is read as a size: use 3 fields.
         parts = line.split(None, 2)
         size = None
         if len(parts) == 3 and parts[1].isdigit():
@@ -65,7 +67,8 @@ def parse_manifest(text: str) -> list:
         p = Path(rel)
         if not rel or p.is_absolute() or ".." in p.parts:
             raise CorpusError(f"manifest line {n}: unsafe path {rel!r}")
-        int(digest, 16)
+        if any(c not in "0123456789abcdef" for c in digest):
+            raise CorpusError(f"manifest line {n}: the checksum is not hex")
         out.append((digest, size, rel))
     if not out:
         raise CorpusError("manifest is empty")
@@ -100,11 +103,14 @@ def main(argv=None) -> int:
         return 2
     try:
         entries = parse_manifest(download(user, key, "MANIFEST.sha256").decode("utf-8"))
-    except (urllib.error.URLError, CorpusError, UnicodeDecodeError) as e:
+    except (OSError, CorpusError, UnicodeDecodeError) as e:   # URLError and timeouts are OSErrors
         print(f"FAILED  manifest: {e}", file=sys.stderr)
         return 1
     if args.only:
         entries = [e for e in entries if any(e[2].startswith(o.rstrip("/")) for o in args.only)]
+        if not entries:
+            print(f"FAILED  no manifest path starts with {', '.join(args.only)}", file=sys.stderr)
+            return 1
     failed = 0
     for digest, size, rel in entries:
         dest = RAW_DIR / rel
@@ -114,7 +120,7 @@ def main(argv=None) -> int:
             continue
         try:
             data = download(user, key, rel)
-        except urllib.error.URLError as e:
+        except OSError as e:          # URLError, HTTPError, timeouts
             failed += 1
             print(f"FAILED  {rel}: {e}", file=sys.stderr)
             continue

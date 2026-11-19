@@ -1,6 +1,6 @@
 # Recording follows the plan (what the watch measures, per planned movement)
 
-> **Where recordings live:** never in the repo. New ones are uploaded by the phone to private
+> **Where recordings live:** never in the repo (only small test fixtures, see CLAUDE.md). New ones are uploaded by the phone to private
 > Storage; the older corpus (once `data/raw/`) is in private Storage too and is downloaded with
 > `tools/fetch_corpus.py` (docs/LABELS.md, "Recordings (moved out of the repo)").
 
