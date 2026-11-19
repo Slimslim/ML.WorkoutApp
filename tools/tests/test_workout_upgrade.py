@@ -103,6 +103,38 @@ def test_infinity_and_nan_are_invalid_not_a_crash(bad):
     assert upgrade({"schemaVersion": bad, "segments": [b]})["label"] == "notLegacy"
 
 
+def test_mutated_rows_never_raise_and_exact_always_validates():
+    """Round 2: one or two random field changes to every row; Swift's port follows the same rules."""
+    rng = random.Random(7)
+    values = [None, 0, 0.5, 1, 1.5, 10, 90.5, 600.5, -3, "x", "", True, math.inf, math.nan, 1e12, 5e18,
+              [], {}, "furlongs", "kg", "lb", "reps", "seconds", "forTime", "amrap", "emom", "doubles"]
+    paths = [("kind",), ("movement",), ("name",), ("target",), ("target", "value"), ("target", "unit"),
+             ("load",), ("load", "value"), ("load", "unit"), ("load", "count"), ("x-note",)]
+    names = sorted(ALL)
+    labels = set()
+    for _ in range(4000):
+        row = copy.deepcopy(ALL[rng.choice(names)])
+        for _ in range(rng.randint(1, 2)):
+            if rng.random() < 0.3 or not row.get("segments"):
+                row[rng.choice(["timeCapSeconds", "roundSize", "intervalSeconds", "team", "format"])] = rng.choice(values)
+                continue
+            node = rng.choice(row["segments"])
+            path = rng.choice(paths)
+            for k in path[:-1]:
+                if not isinstance(node.get(k), dict):
+                    node[k] = {}
+                node = node[k]
+            if rng.random() < 0.15:
+                node.pop(path[-1], None)
+            else:
+                node[path[-1]] = rng.choice(values)
+        u = upgrade(row)
+        labels.add(u["label"])
+        if u["label"] == "exact":
+            assert ws.validate(u["definition"]) == [], row
+    assert labels == {"exact", "review", "reencode"}
+
+
 # ---- CSV lines --------------------------------------------------------------------------------
 
 def _run(name, crowns, until, tick=1000, extra=()):

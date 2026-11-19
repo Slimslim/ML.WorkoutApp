@@ -18,6 +18,8 @@ public enum WorkoutUpgrade {
     public static let notLegacy: String = "notLegacy"
     private static let partKeys: Set<String> = ["kind", "movement", "name", "target", "load"]
     private static let intLimit: Double = 9.0e18      // Python `_INT_LIMIT`
+    private static let targetUnits: Set<String> = ["reps", "calories", "meters", "seconds", "ft", "yd", "mi"]
+    private static let loadUnits: Set<String> = ["lb", "kg"]
 
     public struct Outcome: Equatable, Sendable {
         public let definition: JSONValue
@@ -48,12 +50,21 @@ public enum WorkoutUpgrade {
         }
     }
 
-    /// Python `_pos_int`: a number > 0 and below 9e18, truncated; nil for anything else.
+    /// Python `_pos_int`: a number >= 1 and below 9e18, truncated; nil for anything else. Below 1
+    /// is refused: truncated, it would be 0 (a zero round size divides by zero).
     private static func positiveInt(_ v: JSONValue?) -> Int? {
-        guard let v = v, let d = v.number, d.isFinite, d > 0, d < intLimit else {
+        guard let v = v, let d = v.number, d.isFinite, d >= 1, d < intLimit else {
             return nil
         }
         return v.intValue
+    }
+
+    /// Python `_whole`: a finite number with no fraction.
+    private static func whole(_ v: JSONValue?) -> Bool {
+        guard let d = v?.number, d.isFinite else {
+            return false
+        }
+        return d == d.rounded()
     }
 
     /// Python `_seconds_target`: the positive whole seconds of a seconds target.
@@ -76,11 +87,22 @@ public enum WorkoutUpgrade {
             }
             return false
         }
-        if let t = t, t["value"]?.number == nil || t["unit"]?.string == nil {
+        guard let mv = seg["movement"]?.string, !mv.isEmpty else {
             return true
         }
-        if let ld = seg["load"]?.object, ld["value"]?.number == nil {
-            return true
+        if let t = t {
+            guard let unit = t["unit"]?.string, targetUnits.contains(unit),
+                  let value = t["value"]?.number, value > 0 else {
+                return true
+            }
+        }
+        if let ld = seg["load"]?.object {
+            guard ld["value"]?.number != nil, let unit = ld["unit"]?.string, loadUnits.contains(unit) else {
+                return true
+            }
+            if let count = ld["count"], !(whole(count) && (count.number ?? 0) >= 1) {
+                return true
+            }
         }
         return false
     }
@@ -202,8 +224,8 @@ public enum WorkoutUpgrade {
         var flags = Flags()
 
         for k in ["timeCapSeconds", "roundSize", "intervalSeconds"] {
-            if let v = o[k], !v.isNull, positiveInt(v) == nil {
-                flags.flag("reencode", "invalidField")   // e.g. a cap of 0, -1 or "x": dropped
+            if let v = o[k], !v.isNull, positiveInt(v) == nil || !whole(v) {
+                flags.flag("reencode", "invalidField")   // e.g. 0, 0.5, 600.5, -1 or "x"
             }
         }
         for s in segs {
@@ -212,6 +234,9 @@ public enum WorkoutUpgrade {
             }
             if isRest(s), let secs = secondsTarget(s), let v = s["target"]?["value"]?.number, v != Double(secs) {
                 flags.flag("review", "restSecondsRounded")
+            }
+            if isRest(s), let t = s["target"]?.object, t["unit"]?.string != "seconds" {
+                flags.flag("review", "restTargetDropped")   // a rest keeps only seconds
             }
             if s.keys.contains(where: { !partKeys.contains($0) }) {
                 flags.note("note:segmentKeysNotCopied")  // they stay in the old `segments`

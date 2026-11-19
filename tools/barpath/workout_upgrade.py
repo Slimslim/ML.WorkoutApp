@@ -22,6 +22,7 @@ import copy
 import math
 
 from . import workout_engine as we
+from .workout_structure import LOAD_UNITS, TARGET_UNITS
 
 LABELS = ("exact", "review", "reencode")
 NOT_LEGACY = "notLegacy"
@@ -35,10 +36,15 @@ def _is_number(v) -> bool:
 
 
 def _pos_int(v):
-    """int(v) for a finite number > 0 that fits an Int, else None (same as Swift `positiveInt`)."""
-    if not _is_number(v) or v <= 0 or v >= _INT_LIMIT:
+    """int(v) for a finite number >= 1 that fits an Int, else None (same as Swift `positiveInt`).
+    Below 1 is refused: truncated, it would be 0 (a zero round size or interval)."""
+    if not _is_number(v) or v < 1 or v >= _INT_LIMIT:
         return None
     return int(v)
+
+
+def _whole(v) -> bool:
+    return _is_number(v) and float(v) == int(v)
 
 
 def _seconds_target(seg: dict):
@@ -50,18 +56,28 @@ def _seconds_target(seg: dict):
 
 
 def _invalid(seg: dict) -> bool:
-    """A field the v2 validator refuses: kind not text; a rest's seconds not a positive number
-    that fits an Int; a part's target value not a number or unit not text; a load value not a
-    number."""
+    """A field the v2 validator refuses (Swift `invalid`): kind not text; a rest's seconds not a
+    number >= 1 that fits an Int; a part's movement not a non-empty text, its target unit not one
+    of TARGET_UNITS or its value not a number > 0; a load value not a number, its unit not lb or
+    kg, or its count not a whole number >= 1."""
     if not isinstance(seg.get("kind"), str):
         return True
     t = seg.get("target")
     if seg.get("kind") == "rest":
         return isinstance(t, dict) and t.get("unit") == "seconds" and _pos_int(t.get("value")) is None
-    if isinstance(t, dict) and (not _is_number(t.get("value")) or not isinstance(t.get("unit"), str)):
+    mv = seg.get("movement")
+    if not isinstance(mv, str) or not mv:
+        return True
+    if isinstance(t, dict) and (t.get("unit") not in TARGET_UNITS or not _is_number(t.get("value"))
+                                or t["value"] <= 0):
         return True
     ld = seg.get("load")
-    return isinstance(ld, dict) and not _is_number(ld.get("value"))
+    if isinstance(ld, dict):
+        if not _is_number(ld.get("value")) or ld.get("unit") not in LOAD_UNITS:
+            return True
+        if "count" in ld and not (_whole(ld["count"]) and ld["count"] >= 1):
+            return True
+    return False
 
 
 def _node(seg: dict, pid: str, team: str, notes: list) -> dict:
@@ -147,8 +163,9 @@ def upgrade(old: dict) -> dict:
             reasons.append(reason)
 
     for k in ("timeCapSeconds", "roundSize", "intervalSeconds"):
-        if old.get(k) is not None and _pos_int(old.get(k)) is None:
-            flag("reencode", "invalidField")      # e.g. a cap of 0, -1, "x" or Infinity: dropped
+        v = old.get(k)
+        if v is not None and (_pos_int(v) is None or not _whole(v)):
+            flag("reencode", "invalidField")      # e.g. 0, 0.5, 600.5, -1, "x" or Infinity
     for s in segs:
         if _invalid(s):
             flag("reencode", "invalidField")
@@ -156,6 +173,8 @@ def upgrade(old: dict) -> dict:
         if s.get("kind") == "rest" and isinstance(t, dict) and t.get("unit") == "seconds" \
                 and _seconds_target(s) is not None and t.get("value") != _seconds_target(s):
             flag("review", "restSecondsRounded")
+        if s.get("kind") == "rest" and isinstance(t, dict) and t.get("unit") != "seconds":
+            flag("review", "restTargetDropped")        # a rest keeps only seconds
         if any(k not in _PART_KEYS for k in s) and "note:segmentKeysNotCopied" not in notes:
             notes.append("note:segmentKeysNotCopied")   # they stay in the old `segments`
         if s.get("kind") != "rest" and not isinstance(s.get("target"), dict):
