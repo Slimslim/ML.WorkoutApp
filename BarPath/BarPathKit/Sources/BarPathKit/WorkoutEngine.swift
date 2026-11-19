@@ -46,7 +46,7 @@ public enum WorkoutStructureV2 {
     /// Int(v) when v is a number with lo <= v <= hi, else nil (Python `_bounded`).
     static func bounded(_ v: JSONValue?, _ lo: Double, _ hi: Double) -> Int? {
         guard let d = v?.number, d.isFinite, d >= lo, d <= hi else { return nil }
-        return Int(d)
+        return Int(exactly: d.rounded(.towardZero))
     }
 
     struct NodeRef {
@@ -2186,9 +2186,10 @@ public enum WorkoutEngine {
             let show: String = sc["show"]?.string ?? "avg"
             var agg: JSONValue = .null
             if !vals.isEmpty {
-                let sum: Int = vals.reduce(0, +)
+                // In Int64: up to 400 pieces of up to 7 days each passes a 32-bit Int.
+                let sum: Int64 = vals.reduce(Int64(0)) { $0 + Int64($1) }
                 switch show {
-                case "sum": agg = .int(sum)
+                case "sum": agg = WorkoutEngineSession.wholeNumber(sum)
                 case "avg": agg = .int(Int(Double(sum) / Double(vals.count) + 0.5))
                 case "best": agg = .int(vals.min() ?? 0)
                 case "slowest": agg = .int(vals.max() ?? 0)

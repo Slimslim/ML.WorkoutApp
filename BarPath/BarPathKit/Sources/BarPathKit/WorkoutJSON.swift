@@ -123,8 +123,10 @@ public extension JSONValue {
         switch self {
         case .int(let i): return i
         case .double(let d):
+            // Int(exactly:) of the truncated value: nil (never a trap) where it doesn't fit, also
+            // where Int is 32 bits (arm64_32 watches).
             guard d.isFinite, abs(d) < 9.0e18 else { return nil }
-            return Int(d)
+            return Int(exactly: d.rounded(.towardZero))
         default: return nil
         }
     }
