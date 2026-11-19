@@ -1,0 +1,92 @@
+{
+ "compilerVersion": 1,
+ "format": "forTime",
+ "healthKitActivity": "crossTraining",
+ "id": "test.partner",
+ "name": "Partner chipper",
+ "schemaVersion": 2,
+ "segments": [
+  {
+   "kind": "station",
+   "movement": "wallBalls",
+   "name": "Wall Balls",
+   "target": {
+    "unit": "reps",
+    "value": 100
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "row",
+   "name": "Row",
+   "target": {
+    "unit": "calories",
+    "value": 80
+   }
+  },
+  {
+   "kind": "run",
+   "movement": "run",
+   "name": "Run",
+   "target": {
+    "unit": "meters",
+    "value": 800
+   }
+  }
+ ],
+ "shortName": "Partner ch",
+ "structure": {
+  "body": [
+   {
+    "timed": {
+     "body": [
+      {
+       "part": {
+        "id": "wb",
+        "movement": "wallBalls",
+        "target": {
+         "unit": "reps",
+         "value": 100
+        },
+        "who": "shared"
+       }
+      },
+      {
+       "part": {
+        "id": "row",
+        "movement": "row",
+        "target": {
+         "unit": "calories",
+         "value": 80
+        },
+        "who": "shared"
+       }
+      },
+      {
+       "part": {
+        "id": "run",
+        "kind": "run",
+        "movement": "run",
+        "target": {
+         "unit": "meters",
+         "value": 800
+        },
+        "who": "together"
+       }
+      }
+     ],
+     "early": "next",
+     "id": "cap",
+     "late": "continue",
+     "seconds": 1500
+    }
+   }
+  ],
+  "score": {
+   "atCap": "totalReps",
+   "type": "time"
+  }
+ },
+ "team": "doubles",
+ "timeCapSeconds": 1500
+}

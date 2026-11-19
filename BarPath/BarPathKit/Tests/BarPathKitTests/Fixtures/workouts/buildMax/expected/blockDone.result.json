@@ -1,0 +1,319 @@
+{
+ "asks": [],
+ "boundaries": [],
+ "current": null,
+ "done": true,
+ "doneT": 400000,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "done",
+   "t": 400000
+  }
+ ],
+ "endedBy": "athlete",
+ "facts": [
+  {
+   "end": 60000,
+   "endedBy": "athlete",
+   "id": "att.1.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "att",
+     1
+    ]
+   ],
+   "start": 0,
+   "status": "done"
+  },
+  {
+   "end": 120000,
+   "endedBy": "athlete",
+   "id": "att.2.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "att",
+     2
+    ]
+   ],
+   "start": 60000,
+   "status": "done"
+  },
+  {
+   "end": 180000,
+   "endedBy": "athlete",
+   "id": "att.3.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "att",
+     3
+    ]
+   ],
+   "start": 120000,
+   "status": "done"
+  },
+  {
+   "end": 300000,
+   "endedBy": "athlete",
+   "id": "att.4.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "att",
+     4
+    ]
+   ],
+   "start": 180000,
+   "status": "skipped"
+  },
+  {
+   "end": 300000,
+   "endedBy": "athlete",
+   "id": "att.5.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "att",
+     5
+    ]
+   ],
+   "start": 300000,
+   "status": "skipped"
+  },
+  {
+   "end": 300000,
+   "endedBy": "athlete",
+   "id": "att.6.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "att",
+     6
+    ]
+   ],
+   "start": 300000,
+   "status": "skipped"
+  },
+  {
+   "end": 300000,
+   "endedBy": "athlete",
+   "id": "att.7.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "att",
+     7
+    ]
+   ],
+   "start": 300000,
+   "status": "skipped"
+  },
+  {
+   "end": 300000,
+   "endedBy": "athlete",
+   "id": "att.8.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "att",
+     8
+    ]
+   ],
+   "start": 300000,
+   "status": "skipped"
+  },
+  {
+   "end": 300000,
+   "endedBy": "athlete",
+   "id": "att.9.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "att",
+     9
+    ]
+   ],
+   "start": 300000,
+   "status": "skipped"
+  },
+  {
+   "end": 300000,
+   "endedBy": "athlete",
+   "id": "att.10.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "att",
+     10
+    ]
+   ],
+   "start": 300000,
+   "status": "skipped"
+  },
+  {
+   "end": 300000,
+   "endedBy": "athlete",
+   "id": "att.11.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "att",
+     11
+    ]
+   ],
+   "start": 300000,
+   "status": "skipped"
+  },
+  {
+   "end": 300000,
+   "endedBy": "athlete",
+   "id": "att.12.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "att",
+     12
+    ]
+   ],
+   "start": 300000,
+   "status": "skipped"
+  },
+  {
+   "end": 300000,
+   "endedBy": "athlete",
+   "id": "att.13.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "att",
+     13
+    ]
+   ],
+   "start": 300000,
+   "status": "skipped"
+  },
+  {
+   "end": 300000,
+   "endedBy": "athlete",
+   "id": "att.14.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "att",
+     14
+    ]
+   ],
+   "start": 300000,
+   "status": "skipped"
+  },
+  {
+   "end": 300000,
+   "endedBy": "athlete",
+   "id": "att.15.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "att",
+     15
+    ]
+   ],
+   "start": 300000,
+   "status": "skipped"
+  },
+  {
+   "end": 300000,
+   "endedBy": "athlete",
+   "id": "att.16.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "att",
+     16
+    ]
+   ],
+   "start": 300000,
+   "status": "skipped"
+  },
+  {
+   "end": 300000,
+   "endedBy": "athlete",
+   "id": "att.17.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "att",
+     17
+    ]
+   ],
+   "start": 300000,
+   "status": "skipped"
+  },
+  {
+   "end": 300000,
+   "endedBy": "athlete",
+   "id": "att.18.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "att",
+     18
+    ]
+   ],
+   "start": 300000,
+   "status": "skipped"
+  },
+  {
+   "end": 300000,
+   "endedBy": "athlete",
+   "id": "att.19.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "att",
+     19
+    ]
+   ],
+   "start": 300000,
+   "status": "skipped"
+  },
+  {
+   "end": 300000,
+   "endedBy": "athlete",
+   "id": "att.20.sq",
+   "kind": "part",
+   "rounds": [
+    [
+     "att",
+     20
+    ]
+   ],
+   "start": 300000,
+   "status": "skipped"
+  },
+  {
+   "end": 400000,
+   "endedBy": "athlete",
+   "id": "cool",
+   "kind": "part",
+   "rounds": [],
+   "start": 300000,
+   "status": "done"
+  }
+ ],
+ "score": {
+  "type": "load",
+  "value": {
+   "load": {
+    "unit": "kg",
+    "value": 100
+   },
+   "reps": 3
+  }
+ }
+}

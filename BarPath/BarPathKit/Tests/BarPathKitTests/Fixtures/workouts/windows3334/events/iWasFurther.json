@@ -1,0 +1,14 @@
+{
+ "events": [
+  {
+   "kind": "reps",
+   "step": "rp.1.bench",
+   "t": 181000,
+   "value": 5
+  }
+ ],
+ "ticks": {
+  "every": 1000,
+  "until": 181000
+ }
+}

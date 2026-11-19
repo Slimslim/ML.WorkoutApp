@@ -1,0 +1,206 @@
+{
+ "hash": "cb76ee7e0cad7e6f8859c1ae572f5e52f1e3bd87aec8932d518f7d14dce6ebbe",
+ "plan": {
+  "bells": [
+   {
+    "anchor": "rp.1.row",
+    "id": "rp.1.r.end",
+    "offsetMs": 60000
+   },
+   {
+    "anchor": "rp.2.row",
+    "id": "rp.2.r.end",
+    "offsetMs": 60000
+   },
+   {
+    "anchor": "rp.3.row",
+    "id": "rp.3.r.end",
+    "offsetMs": 60000
+   },
+   {
+    "anchor": "rp.4.row",
+    "id": "rp.4.r.end",
+    "offsetMs": 60000
+   },
+   {
+    "anchor": "rp.5.row",
+    "id": "rp.5.r.end",
+    "offsetMs": 60000
+   }
+  ],
+  "planner": 1,
+  "steps": [
+   {
+    "ends": "athlete",
+    "id": "rp.1.row",
+    "index": 0,
+    "kind": "part",
+    "node": "row",
+    "partMovement": "row",
+    "partTarget": {
+     "unit": "meters",
+     "value": 250
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "clock",
+    "id": "rp.1.r",
+    "index": 1,
+    "kind": "rest",
+    "node": "r",
+    "restSeconds": 60,
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.row",
+    "index": 2,
+    "kind": "part",
+    "node": "row",
+    "partMovement": "row",
+    "partTarget": {
+     "unit": "meters",
+     "value": 250
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "clock",
+    "id": "rp.2.r",
+    "index": 3,
+    "kind": "rest",
+    "node": "r",
+    "restSeconds": 60,
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.row",
+    "index": 4,
+    "kind": "part",
+    "node": "row",
+    "partMovement": "row",
+    "partTarget": {
+     "unit": "meters",
+     "value": 250
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "clock",
+    "id": "rp.3.r",
+    "index": 5,
+    "kind": "rest",
+    "node": "r",
+    "restSeconds": 60,
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.4.row",
+    "index": 6,
+    "kind": "part",
+    "node": "row",
+    "partMovement": "row",
+    "partTarget": {
+     "unit": "meters",
+     "value": 250
+    },
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "clock",
+    "id": "rp.4.r",
+    "index": 7,
+    "kind": "rest",
+    "node": "r",
+    "restSeconds": 60,
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.5.row",
+    "index": 8,
+    "kind": "part",
+    "node": "row",
+    "partMovement": "row",
+    "partTarget": {
+     "unit": "meters",
+     "value": 250
+    },
+    "rounds": [
+     [
+      "rp",
+      5
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "clock",
+    "id": "rp.5.r",
+    "index": 9,
+    "kind": "rest",
+    "node": "r",
+    "restSeconds": 60,
+    "rounds": [
+     [
+      "rp",
+      5
+     ]
+    ],
+    "windows": []
+   }
+  ],
+  "windows": []
+ }
+}

@@ -1,0 +1,217 @@
+{
+ "hash": "faf9104d4dde0962e39aef154909c7c14365ef8f8f04870ec38161583adc54d6",
+ "plan": {
+  "bells": [
+   {
+    "anchor": "start",
+    "id": "cap.end",
+    "offsetMs": 960000
+   }
+  ],
+  "planner": 1,
+  "steps": [
+   {
+    "ends": "athlete",
+    "id": "rp.1.run",
+    "index": 0,
+    "kind": "part",
+    "node": "run",
+    "partKind": "run",
+    "partMovement": "run",
+    "partTarget": {
+     "unit": "meters",
+     "value": 400
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": [
+     "cap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.1.kb",
+    "index": 1,
+    "kind": "part",
+    "node": "kb",
+    "partMovement": "kettlebellSwings",
+    "partTarget": {
+     "unit": "reps",
+     "value": 21
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": [
+     "cap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.1.pu",
+    "index": 2,
+    "kind": "part",
+    "node": "pu",
+    "partMovement": "pullUps",
+    "partTarget": {
+     "unit": "reps",
+     "value": 12
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": [
+     "cap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.run",
+    "index": 3,
+    "kind": "part",
+    "node": "run",
+    "partKind": "run",
+    "partMovement": "run",
+    "partTarget": {
+     "unit": "meters",
+     "value": 400
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": [
+     "cap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.kb",
+    "index": 4,
+    "kind": "part",
+    "node": "kb",
+    "partMovement": "kettlebellSwings",
+    "partTarget": {
+     "unit": "reps",
+     "value": 21
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": [
+     "cap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.pu",
+    "index": 5,
+    "kind": "part",
+    "node": "pu",
+    "partMovement": "pullUps",
+    "partTarget": {
+     "unit": "reps",
+     "value": 12
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": [
+     "cap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.run",
+    "index": 6,
+    "kind": "part",
+    "node": "run",
+    "partKind": "run",
+    "partMovement": "run",
+    "partTarget": {
+     "unit": "meters",
+     "value": 400
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": [
+     "cap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.kb",
+    "index": 7,
+    "kind": "part",
+    "node": "kb",
+    "partMovement": "kettlebellSwings",
+    "partTarget": {
+     "unit": "reps",
+     "value": 21
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": [
+     "cap"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.pu",
+    "index": 8,
+    "kind": "part",
+    "node": "pu",
+    "partMovement": "pullUps",
+    "partTarget": {
+     "unit": "reps",
+     "value": 12
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": [
+     "cap"
+    ]
+   }
+  ],
+  "windows": [
+   {
+    "depth": 1,
+    "early": "next",
+    "id": "cap",
+    "key": "cap",
+    "late": "continue",
+    "seconds": 960
+   }
+  ]
+ }
+}

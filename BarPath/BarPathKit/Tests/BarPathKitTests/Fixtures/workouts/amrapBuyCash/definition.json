@@ -1,0 +1,372 @@
+{
+ "approx": [
+  "oldKeysLossy"
+ ],
+ "compilerVersion": 1,
+ "fidelity": "approx",
+ "format": "forTime",
+ "healthKitActivity": "crossTraining",
+ "id": "test.amrapBuyCash",
+ "name": "Buy-in, AMRAP, cash-out",
+ "roundSize": 2,
+ "schemaVersion": 2,
+ "segments": [
+  {
+   "kind": "station",
+   "movement": "row",
+   "name": "Row",
+   "target": {
+    "unit": "calories",
+    "value": 20
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "wallBalls",
+   "name": "Wall Balls",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "wallBalls",
+   "name": "Wall Balls",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "wallBalls",
+   "name": "Wall Balls",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "wallBalls",
+   "name": "Wall Balls",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "wallBalls",
+   "name": "Wall Balls",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "wallBalls",
+   "name": "Wall Balls",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "wallBalls",
+   "name": "Wall Balls",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "wallBalls",
+   "name": "Wall Balls",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "wallBalls",
+   "name": "Wall Balls",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "wallBalls",
+   "name": "Wall Balls",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "wallBalls",
+   "name": "Wall Balls",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "wallBalls",
+   "name": "Wall Balls",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "wallBalls",
+   "name": "Wall Balls",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "wallBalls",
+   "name": "Wall Balls",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "wallBalls",
+   "name": "Wall Balls",
+   "target": {
+    "unit": "reps",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "burpees",
+   "name": "Burpees",
+   "target": {
+    "unit": "reps",
+    "value": 5
+   }
+  },
+  {
+   "kind": "run",
+   "movement": "run",
+   "name": "Run",
+   "target": {
+    "unit": "meters",
+    "value": 400
+   }
+  }
+ ],
+ "shortName": "Buy-in, AM",
+ "structure": {
+  "body": [
+   {
+    "timed": {
+     "body": [
+      {
+       "part": {
+        "id": "buy",
+        "movement": "row",
+        "target": {
+         "unit": "calories",
+         "value": 20
+        }
+       }
+      },
+      {
+       "repeat": {
+        "body": [
+         {
+          "part": {
+           "id": "a",
+           "movement": "wallBalls",
+           "target": {
+            "unit": "reps",
+            "value": 10
+           }
+          }
+         },
+         {
+          "part": {
+           "id": "b",
+           "movement": "burpees",
+           "target": {
+            "unit": "reps",
+            "value": 5
+           }
+          }
+         }
+        ],
+        "id": "rp",
+        "listRounds": 15,
+        "times": null
+       }
+      }
+     ],
+     "early": "next",
+     "id": "amrap",
+     "late": "end",
+     "seconds": 300
+    }
+   },
+   {
+    "part": {
+     "id": "cash",
+     "kind": "run",
+     "movement": "run",
+     "target": {
+      "unit": "meters",
+      "value": 400
+     }
+    }
+   }
+  ],
+  "score": {
+   "type": "totalReps"
+  }
+ },
+ "team": "solo"
+}

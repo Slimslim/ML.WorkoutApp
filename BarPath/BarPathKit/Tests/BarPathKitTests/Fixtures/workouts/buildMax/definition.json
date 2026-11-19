@@ -1,0 +1,347 @@
+{
+ "approx": [
+  "oldKeysLossy"
+ ],
+ "compilerVersion": 1,
+ "fidelity": "approx",
+ "format": "forTime",
+ "healthKitActivity": "crossTraining",
+ "id": "test.buildMax",
+ "name": "Build to a heavy 3",
+ "roundSize": 1,
+ "schemaVersion": 2,
+ "segments": [
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 100
+   },
+   "movement": "backSquat",
+   "name": "backSquat",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 100
+   },
+   "movement": "backSquat",
+   "name": "backSquat",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 100
+   },
+   "movement": "backSquat",
+   "name": "backSquat",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 100
+   },
+   "movement": "backSquat",
+   "name": "backSquat",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 100
+   },
+   "movement": "backSquat",
+   "name": "backSquat",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 100
+   },
+   "movement": "backSquat",
+   "name": "backSquat",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 100
+   },
+   "movement": "backSquat",
+   "name": "backSquat",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 100
+   },
+   "movement": "backSquat",
+   "name": "backSquat",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 100
+   },
+   "movement": "backSquat",
+   "name": "backSquat",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 100
+   },
+   "movement": "backSquat",
+   "name": "backSquat",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 100
+   },
+   "movement": "backSquat",
+   "name": "backSquat",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 100
+   },
+   "movement": "backSquat",
+   "name": "backSquat",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 100
+   },
+   "movement": "backSquat",
+   "name": "backSquat",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 100
+   },
+   "movement": "backSquat",
+   "name": "backSquat",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 100
+   },
+   "movement": "backSquat",
+   "name": "backSquat",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 100
+   },
+   "movement": "backSquat",
+   "name": "backSquat",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 100
+   },
+   "movement": "backSquat",
+   "name": "backSquat",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 100
+   },
+   "movement": "backSquat",
+   "name": "backSquat",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 100
+   },
+   "movement": "backSquat",
+   "name": "backSquat",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "load": {
+    "count": 1,
+    "unit": "kg",
+    "value": 100
+   },
+   "movement": "backSquat",
+   "name": "backSquat",
+   "target": {
+    "unit": "reps",
+    "value": 3
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "row",
+   "name": "Row",
+   "target": {
+    "unit": "meters",
+    "value": 500
+   }
+  }
+ ],
+ "shortName": "Build to a",
+ "structure": {
+  "body": [
+   {
+    "repeat": {
+     "body": [
+      {
+       "part": {
+        "id": "sq",
+        "load": {
+         "unit": "kg",
+         "value": 100
+        },
+        "movement": "backSquat",
+        "target": {
+         "unit": "reps",
+         "value": 3
+        }
+       }
+      }
+     ],
+     "id": "att",
+     "listRounds": 20,
+     "times": null,
+     "until": "athlete"
+    }
+   },
+   {
+    "part": {
+     "id": "cool",
+     "movement": "row",
+     "target": {
+      "unit": "meters",
+      "value": 500
+     }
+    }
+   }
+  ],
+  "score": {
+   "type": "load"
+  }
+ },
+ "team": "solo"
+}

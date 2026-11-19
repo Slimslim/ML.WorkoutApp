@@ -1,0 +1,154 @@
+{
+ "events": [
+  {
+   "kind": "crown",
+   "t": 20000
+  },
+  {
+   "kind": "crown",
+   "t": 40000
+  },
+  {
+   "kind": "crown",
+   "t": 60000
+  },
+  {
+   "kind": "crown",
+   "t": 80000
+  },
+  {
+   "kind": "crown",
+   "t": 100000
+  },
+  {
+   "kind": "crown",
+   "t": 120000
+  },
+  {
+   "kind": "crown",
+   "t": 140000
+  },
+  {
+   "kind": "crown",
+   "t": 160000
+  },
+  {
+   "kind": "crown",
+   "t": 180000
+  },
+  {
+   "kind": "crown",
+   "t": 200000
+  },
+  {
+   "kind": "crown",
+   "t": 220000
+  },
+  {
+   "kind": "crown",
+   "t": 240000
+  },
+  {
+   "kind": "crown",
+   "t": 260000
+  },
+  {
+   "kind": "crown",
+   "t": 280000
+  },
+  {
+   "kind": "crown",
+   "t": 300000
+  },
+  {
+   "kind": "crown",
+   "t": 320000
+  },
+  {
+   "kind": "crown",
+   "t": 340000
+  },
+  {
+   "kind": "crown",
+   "t": 360000
+  },
+  {
+   "kind": "crown",
+   "t": 380000
+  },
+  {
+   "kind": "crown",
+   "t": 400000
+  },
+  {
+   "kind": "crown",
+   "t": 420000
+  },
+  {
+   "kind": "crown",
+   "t": 440000
+  },
+  {
+   "kind": "crown",
+   "t": 460000
+  },
+  {
+   "kind": "crown",
+   "t": 480000
+  },
+  {
+   "kind": "crown",
+   "t": 500000
+  },
+  {
+   "kind": "crown",
+   "t": 520000
+  },
+  {
+   "kind": "crown",
+   "t": 540000
+  },
+  {
+   "kind": "crown",
+   "t": 560000
+  },
+  {
+   "kind": "crown",
+   "t": 580000
+  },
+  {
+   "kind": "crown",
+   "t": 600000
+  },
+  {
+   "kind": "crown",
+   "t": 620000
+  },
+  {
+   "kind": "crown",
+   "t": 640000
+  },
+  {
+   "kind": "crown",
+   "t": 660000
+  },
+  {
+   "kind": "crown",
+   "t": 680000
+  },
+  {
+   "kind": "crown",
+   "t": 700000
+  },
+  {
+   "kind": "reps",
+   "step": "rp.18.c2b",
+   "t": 730000,
+   "value": 30
+  }
+ ],
+ "ticks": {
+  "every": 1000,
+  "until": 730000
+ }
+}

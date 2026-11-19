@@ -1,0 +1,35 @@
+{
+ "asks": [],
+ "boundaries": [],
+ "current": null,
+ "done": true,
+ "doneT": 90000,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "done",
+   "t": 90000
+  }
+ ],
+ "endedBy": "athlete",
+ "facts": [
+  {
+   "end": 90000,
+   "endedBy": "athlete",
+   "id": "a",
+   "kind": "part",
+   "rounds": [],
+   "start": 0,
+   "status": "done"
+  }
+ ],
+ "score": {
+  "complete": true,
+  "text": "1:30",
+  "type": "time",
+  "value": 90000
+ }
+}

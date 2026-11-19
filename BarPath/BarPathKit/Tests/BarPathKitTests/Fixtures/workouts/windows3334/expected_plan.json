@@ -1,0 +1,397 @@
+{
+ "hash": "94968011713cd6f5b34b2722d55af380d6bfc1c987eeb6564b0edea4abade1df",
+ "plan": {
+  "bells": [
+   {
+    "anchor": "start",
+    "id": "rp.1.w.end",
+    "offsetMs": 180000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.1.r.end",
+    "offsetMs": 240000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.2.w.end",
+    "offsetMs": 420000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.2.r.end",
+    "offsetMs": 480000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.3.w.end",
+    "offsetMs": 660000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.3.r.end",
+    "offsetMs": 720000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.4.w.end",
+    "offsetMs": 960000
+   }
+  ],
+  "planner": 1,
+  "steps": [
+   {
+    "ends": "athlete",
+    "id": "rp.1.bike",
+    "index": 0,
+    "kind": "part",
+    "node": "bike",
+    "partMovement": "bike",
+    "partTarget": {
+     "unit": "calories",
+     "value": 21
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": [
+     "rp.1.w"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.1.pu",
+    "index": 1,
+    "kind": "part",
+    "node": "pu",
+    "partMovement": "strictPullUps",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": [
+     "rp.1.w"
+    ]
+   },
+   {
+    "ends": "clock",
+    "id": "rp.1.bench",
+    "index": 2,
+    "kind": "part",
+    "node": "bench",
+    "partMovement": "dumbbellBenchPress",
+    "partTarget": {
+     "max": true,
+     "unit": "reps"
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": [
+     "rp.1.w"
+    ]
+   },
+   {
+    "ends": "clock",
+    "id": "rp.1.r",
+    "index": 3,
+    "kind": "rest",
+    "mergedWindow": "rp.1.w",
+    "node": "r",
+    "restSeconds": 60,
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.bike",
+    "index": 4,
+    "kind": "part",
+    "node": "bike",
+    "partMovement": "bike",
+    "partTarget": {
+     "unit": "calories",
+     "value": 21
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": [
+     "rp.2.w"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.pu",
+    "index": 5,
+    "kind": "part",
+    "node": "pu",
+    "partMovement": "strictPullUps",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": [
+     "rp.2.w"
+    ]
+   },
+   {
+    "ends": "clock",
+    "id": "rp.2.bench",
+    "index": 6,
+    "kind": "part",
+    "node": "bench",
+    "partMovement": "dumbbellBenchPress",
+    "partTarget": {
+     "max": true,
+     "unit": "reps"
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": [
+     "rp.2.w"
+    ]
+   },
+   {
+    "ends": "clock",
+    "id": "rp.2.r",
+    "index": 7,
+    "kind": "rest",
+    "mergedWindow": "rp.2.w",
+    "node": "r",
+    "restSeconds": 60,
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.bike",
+    "index": 8,
+    "kind": "part",
+    "node": "bike",
+    "partMovement": "bike",
+    "partTarget": {
+     "unit": "calories",
+     "value": 21
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": [
+     "rp.3.w"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.pu",
+    "index": 9,
+    "kind": "part",
+    "node": "pu",
+    "partMovement": "strictPullUps",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": [
+     "rp.3.w"
+    ]
+   },
+   {
+    "ends": "clock",
+    "id": "rp.3.bench",
+    "index": 10,
+    "kind": "part",
+    "node": "bench",
+    "partMovement": "dumbbellBenchPress",
+    "partTarget": {
+     "max": true,
+     "unit": "reps"
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": [
+     "rp.3.w"
+    ]
+   },
+   {
+    "ends": "clock",
+    "id": "rp.3.r",
+    "index": 11,
+    "kind": "rest",
+    "mergedWindow": "rp.3.w",
+    "node": "r",
+    "restSeconds": 60,
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.4.bike",
+    "index": 12,
+    "kind": "part",
+    "node": "bike",
+    "partMovement": "bike",
+    "partTarget": {
+     "unit": "calories",
+     "value": 21
+    },
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "windows": [
+     "rp.4.w"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.4.pu",
+    "index": 13,
+    "kind": "part",
+    "node": "pu",
+    "partMovement": "strictPullUps",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "windows": [
+     "rp.4.w"
+    ]
+   },
+   {
+    "ends": "clock",
+    "id": "rp.4.bench",
+    "index": 14,
+    "kind": "part",
+    "node": "bench",
+    "partMovement": "dumbbellBenchPress",
+    "partTarget": {
+     "max": true,
+     "unit": "reps"
+    },
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "windows": [
+     "rp.4.w"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.4.w.wait",
+    "index": 15,
+    "kind": "rest",
+    "node": "w",
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "waitWindow": "rp.4.w",
+    "windows": [
+     "rp.4.w"
+    ]
+   }
+  ],
+  "windows": [
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "w",
+    "key": "rp.1.w",
+    "late": "cut",
+    "seconds": 180
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "w",
+    "key": "rp.2.w",
+    "late": "cut",
+    "seconds": 180
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "w",
+    "key": "rp.3.w",
+    "late": "cut",
+    "seconds": 180
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "w",
+    "key": "rp.4.w",
+    "late": "cut",
+    "seconds": 240
+   }
+  ]
+ }
+}

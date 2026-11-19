@@ -1,0 +1,240 @@
+{
+ "hash": "71aadc6493939fa7597cb980c6c0469552c398d663ebf74831e627c7be7fd5d5",
+ "plan": {
+  "bells": [
+   {
+    "anchor": "start",
+    "id": "rp.1.m.end",
+    "offsetMs": 60000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.1.plank.end",
+    "offsetMs": 45000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.2.m.end",
+    "offsetMs": 120000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.2.plank.end",
+    "offsetMs": 105000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.3.m.end",
+    "offsetMs": 180000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.3.plank.end",
+    "offsetMs": 165000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.4.m.end",
+    "offsetMs": 240000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.4.plank.end",
+    "offsetMs": 225000
+   }
+  ],
+  "planner": 1,
+  "steps": [
+   {
+    "ends": "clock",
+    "id": "rp.1.plank",
+    "index": 0,
+    "kind": "part",
+    "node": "plank",
+    "partMovement": "plank",
+    "partTarget": {
+     "unit": "seconds",
+     "value": 45
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": [
+     "rp.1.m"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.1.m.wait",
+    "index": 1,
+    "kind": "rest",
+    "node": "m",
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "waitWindow": "rp.1.m",
+    "windows": [
+     "rp.1.m"
+    ]
+   },
+   {
+    "ends": "clock",
+    "id": "rp.2.plank",
+    "index": 2,
+    "kind": "part",
+    "node": "plank",
+    "partMovement": "plank",
+    "partTarget": {
+     "unit": "seconds",
+     "value": 45
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": [
+     "rp.2.m"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.2.m.wait",
+    "index": 3,
+    "kind": "rest",
+    "node": "m",
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "waitWindow": "rp.2.m",
+    "windows": [
+     "rp.2.m"
+    ]
+   },
+   {
+    "ends": "clock",
+    "id": "rp.3.plank",
+    "index": 4,
+    "kind": "part",
+    "node": "plank",
+    "partMovement": "plank",
+    "partTarget": {
+     "unit": "seconds",
+     "value": 45
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": [
+     "rp.3.m"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.3.m.wait",
+    "index": 5,
+    "kind": "rest",
+    "node": "m",
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "waitWindow": "rp.3.m",
+    "windows": [
+     "rp.3.m"
+    ]
+   },
+   {
+    "ends": "clock",
+    "id": "rp.4.plank",
+    "index": 6,
+    "kind": "part",
+    "node": "plank",
+    "partMovement": "plank",
+    "partTarget": {
+     "unit": "seconds",
+     "value": 45
+    },
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "windows": [
+     "rp.4.m"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.4.m.wait",
+    "index": 7,
+    "kind": "rest",
+    "node": "m",
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "waitWindow": "rp.4.m",
+    "windows": [
+     "rp.4.m"
+    ]
+   }
+  ],
+  "windows": [
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "m",
+    "key": "rp.1.m",
+    "late": "cut",
+    "seconds": 60
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "m",
+    "key": "rp.2.m",
+    "late": "cut",
+    "seconds": 60
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "m",
+    "key": "rp.3.m",
+    "late": "cut",
+    "seconds": 60
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "m",
+    "key": "rp.4.m",
+    "late": "cut",
+    "seconds": 60
+   }
+  ]
+ }
+}

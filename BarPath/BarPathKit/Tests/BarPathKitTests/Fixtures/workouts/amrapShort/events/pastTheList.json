@@ -1,0 +1,112 @@
+{
+ "events": [
+  {
+   "kind": "crown",
+   "t": 4500
+  },
+  {
+   "kind": "crown",
+   "t": 9000
+  },
+  {
+   "kind": "crown",
+   "t": 13500
+  },
+  {
+   "kind": "crown",
+   "t": 18000
+  },
+  {
+   "kind": "crown",
+   "t": 22500
+  },
+  {
+   "kind": "crown",
+   "t": 27000
+  },
+  {
+   "kind": "crown",
+   "t": 31500
+  },
+  {
+   "kind": "crown",
+   "t": 36000
+  },
+  {
+   "kind": "crown",
+   "t": 40500
+  },
+  {
+   "kind": "crown",
+   "t": 45000
+  },
+  {
+   "kind": "crown",
+   "t": 49500
+  },
+  {
+   "kind": "crown",
+   "t": 54000
+  },
+  {
+   "kind": "crown",
+   "t": 58500
+  },
+  {
+   "kind": "crown",
+   "t": 63000
+  },
+  {
+   "kind": "crown",
+   "t": 67500
+  },
+  {
+   "kind": "crown",
+   "t": 72000
+  },
+  {
+   "kind": "crown",
+   "t": 76500
+  },
+  {
+   "kind": "crown",
+   "t": 81000
+  },
+  {
+   "kind": "crown",
+   "t": 85500
+  },
+  {
+   "kind": "crown",
+   "t": 90000
+  },
+  {
+   "kind": "crown",
+   "t": 94500
+  },
+  {
+   "kind": "crown",
+   "t": 99000
+  },
+  {
+   "kind": "crown",
+   "t": 103500
+  },
+  {
+   "kind": "crown",
+   "t": 108000
+  },
+  {
+   "kind": "crown",
+   "t": 112500
+  },
+  {
+   "kind": "crown",
+   "t": 117000
+  }
+ ],
+ "ticks": {
+  "every": 500,
+  "until": 121000
+ }
+}

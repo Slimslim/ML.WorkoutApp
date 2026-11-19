@@ -1,0 +1,53 @@
+{
+ "asks": [],
+ "boundaries": [],
+ "current": null,
+ "done": true,
+ "doneT": 800000,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "done",
+   "t": 800000
+  }
+ ],
+ "endedBy": "athlete",
+ "facts": [
+  {
+   "end": 300000,
+   "endedBy": "athlete",
+   "id": "wb",
+   "kind": "part",
+   "rounds": [],
+   "start": 0,
+   "status": "done"
+  },
+  {
+   "end": 600000,
+   "endedBy": "athlete",
+   "id": "row",
+   "kind": "part",
+   "rounds": [],
+   "start": 300000,
+   "status": "done"
+  },
+  {
+   "end": 800000,
+   "endedBy": "athlete",
+   "id": "run",
+   "kind": "part",
+   "rounds": [],
+   "start": 600000,
+   "status": "done"
+  }
+ ],
+ "score": {
+  "complete": true,
+  "text": "13:20",
+  "type": "time",
+  "value": 800000
+ }
+}

@@ -1,0 +1,174 @@
+{
+ "approx": [
+  "oldKeysLossy"
+ ],
+ "compilerVersion": 1,
+ "fidelity": "approx",
+ "format": "emom",
+ "healthKitActivity": "crossTraining",
+ "id": "test.tabata",
+ "name": "Tabata Squats",
+ "roundSize": 2,
+ "schemaVersion": 2,
+ "segments": [
+  {
+   "kind": "station",
+   "movement": "airSquats",
+   "name": "Air Squats"
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest",
+   "target": {
+    "unit": "seconds",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "airSquats",
+   "name": "Air Squats"
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest",
+   "target": {
+    "unit": "seconds",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "airSquats",
+   "name": "Air Squats"
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest",
+   "target": {
+    "unit": "seconds",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "airSquats",
+   "name": "Air Squats"
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest",
+   "target": {
+    "unit": "seconds",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "airSquats",
+   "name": "Air Squats"
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest",
+   "target": {
+    "unit": "seconds",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "airSquats",
+   "name": "Air Squats"
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest",
+   "target": {
+    "unit": "seconds",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "airSquats",
+   "name": "Air Squats"
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest",
+   "target": {
+    "unit": "seconds",
+    "value": 10
+   }
+  },
+  {
+   "kind": "station",
+   "movement": "airSquats",
+   "name": "Air Squats"
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest",
+   "target": {
+    "unit": "seconds",
+    "value": 10
+   }
+  }
+ ],
+ "shortName": "Tabata Squ",
+ "structure": {
+  "body": [
+   {
+    "repeat": {
+     "body": [
+      {
+       "timed": {
+        "body": [
+         {
+          "part": {
+           "id": "sq",
+           "movement": "airSquats",
+           "target": {
+            "max": true,
+            "unit": "reps"
+           }
+          }
+         }
+        ],
+        "early": "wait",
+        "id": "work",
+        "late": "cut",
+        "seconds": 20
+       }
+      },
+      {
+       "rest": {
+        "id": "r",
+        "seconds": 10
+       }
+      }
+     ],
+     "id": "rp",
+     "times": 8
+    }
+   }
+  ],
+  "score": {
+   "parts": [
+    "sq"
+   ],
+   "show": "lowestReps",
+   "type": "totalReps"
+  }
+ },
+ "team": "solo"
+}

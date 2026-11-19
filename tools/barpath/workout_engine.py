@@ -999,7 +999,10 @@ def _undo(st: State, t: int, effects: list) -> State:
     new.ignored = st.ignored
     new.now = t
     new.cd = None
-    effects.append({"kind": "undo", "t": t, "step": new.current.id if new.current else None})
+    eff = {"kind": "undo", "t": t}
+    if new.current is not None:
+        eff["step"] = new.current.id
+    effects.append(eff)
     return new
 
 

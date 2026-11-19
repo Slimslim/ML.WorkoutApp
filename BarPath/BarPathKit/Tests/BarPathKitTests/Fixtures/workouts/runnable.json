@@ -1,0 +1,712 @@
+[
+ {
+  "doc": {
+   "compilerVersion": 1,
+   "format": "emom",
+   "healthKitActivity": "crossTraining",
+   "id": "test.emom",
+   "intervalSeconds": 60,
+   "name": "EMOM 10 Swings",
+   "roundSize": 2,
+   "schemaVersion": 2,
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings",
+     "target": {
+      "unit": "reps",
+      "value": 15
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings",
+     "target": {
+      "unit": "reps",
+      "value": 15
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings",
+     "target": {
+      "unit": "reps",
+      "value": 15
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings",
+     "target": {
+      "unit": "reps",
+      "value": 15
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings",
+     "target": {
+      "unit": "reps",
+      "value": 15
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings",
+     "target": {
+      "unit": "reps",
+      "value": 15
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings",
+     "target": {
+      "unit": "reps",
+      "value": 15
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings",
+     "target": {
+      "unit": "reps",
+      "value": 15
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings",
+     "target": {
+      "unit": "reps",
+      "value": 15
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings",
+     "target": {
+      "unit": "reps",
+      "value": 15
+     }
+    }
+   ],
+   "shortName": "EMOM 10 Sw",
+   "structure": {
+    "body": [
+     {
+      "repeat": {
+       "body": [
+        {
+         "timed": {
+          "body": [
+           {
+            "part": {
+             "id": "kb",
+             "movement": "kettlebellSwings",
+             "target": {
+              "unit": "reps",
+              "value": 15
+             }
+            }
+           }
+          ],
+          "early": "wait",
+          "id": "m",
+          "late": "cut",
+          "seconds": 60
+         }
+        }
+       ],
+       "id": "rp",
+       "times": 10
+      }
+     }
+    ],
+    "score": {
+     "type": "windowsCompleted"
+    }
+   },
+   "team": "solo",
+   "timeCapSeconds": 600
+  },
+  "engineFeatures": [],
+  "expected": [
+   "ok",
+   []
+  ],
+  "name": "ok"
+ },
+ {
+  "doc": {
+   "healthKitActivity": "crossTraining",
+   "id": "test.emom",
+   "name": "EMOM 10 Swings",
+   "schemaVersion": 0,
+   "shortName": "EMOM 10 Sw",
+   "structure": {
+    "body": [
+     {
+      "repeat": {
+       "body": [
+        {
+         "timed": {
+          "body": [
+           {
+            "part": {
+             "id": "kb",
+             "movement": "kettlebellSwings",
+             "target": {
+              "unit": "reps",
+              "value": 15
+             }
+            }
+           }
+          ],
+          "early": "wait",
+          "id": "m",
+          "late": "cut",
+          "seconds": 60
+         }
+        }
+       ],
+       "id": "rp",
+       "times": 10
+      }
+     }
+    ],
+    "score": {
+     "type": "windowsCompleted"
+    }
+   },
+   "team": "solo"
+  },
+  "engineFeatures": [],
+  "expected": [
+   "draft",
+   []
+  ],
+  "name": "draft"
+ },
+ {
+  "doc": {
+   "healthKitActivity": "crossTraining",
+   "id": "test.emom",
+   "name": "EMOM 10 Swings",
+   "schemaVersion": 3,
+   "shortName": "EMOM 10 Sw",
+   "structure": {
+    "body": [
+     {
+      "repeat": {
+       "body": [
+        {
+         "timed": {
+          "body": [
+           {
+            "part": {
+             "id": "kb",
+             "movement": "kettlebellSwings",
+             "target": {
+              "unit": "reps",
+              "value": 15
+             }
+            }
+           }
+          ],
+          "early": "wait",
+          "id": "m",
+          "late": "cut",
+          "seconds": 60
+         }
+        }
+       ],
+       "id": "rp",
+       "times": 10
+      }
+     }
+    ],
+    "score": {
+     "type": "windowsCompleted"
+    }
+   },
+   "team": "solo"
+  },
+  "engineFeatures": [],
+  "expected": [
+   "updateApp",
+   [
+    "schemaVersion 3"
+   ]
+  ],
+  "name": "newerSchema"
+ },
+ {
+  "doc": {
+   "healthKitActivity": "crossTraining",
+   "id": "test.tabata",
+   "name": "Tabata Squats",
+   "shortName": "Tabata Squ",
+   "structure": {
+    "body": [
+     {
+      "repeat": {
+       "body": [
+        {
+         "timed": {
+          "body": [
+           {
+            "part": {
+             "id": "sq",
+             "movement": "airSquats",
+             "target": {
+              "max": true,
+              "unit": "reps"
+             }
+            }
+           }
+          ],
+          "early": "wait",
+          "id": "work",
+          "late": "cut",
+          "seconds": 20
+         }
+        },
+        {
+         "rest": {
+          "id": "r",
+          "seconds": 10
+         }
+        }
+       ],
+       "id": "rp",
+       "times": 8
+      }
+     }
+    ],
+    "score": {
+     "parts": [
+      "sq"
+     ],
+     "show": "lowestReps",
+     "type": "totalReps"
+    }
+   },
+   "team": "solo"
+  },
+  "engineFeatures": [],
+  "expected": [
+   "updateApp",
+   [
+    "schemaVersion None"
+   ]
+  ],
+  "name": "noSchemaVersion"
+ },
+ {
+  "doc": {
+   "schemaVersion": 2,
+   "structure": {
+    "body": [
+     {
+      "repeat": {
+       "body": [
+        {
+         "part": {
+          "id": "x",
+          "movement": "run"
+         }
+        }
+       ],
+       "id": "a",
+       "times": 2
+      }
+     },
+     {
+      "repeat": {
+       "body": [
+        {
+         "part": {
+          "id": "y",
+          "movement": "run"
+         }
+        }
+       ],
+       "id": "b",
+       "resume": "a",
+       "times": 2
+      }
+     }
+    ],
+    "score": {
+     "type": "time"
+    }
+   }
+  },
+  "engineFeatures": [],
+  "expected": [
+   "updateApp",
+   [
+    "resume"
+   ]
+  ],
+  "name": "featureWithoutRequires"
+ },
+ {
+  "doc": {
+   "requires": [
+    "resume"
+   ],
+   "schemaVersion": 2,
+   "structure": {
+    "body": [
+     {
+      "repeat": {
+       "body": [
+        {
+         "part": {
+          "id": "x",
+          "movement": "run"
+         }
+        }
+       ],
+       "id": "a",
+       "times": 2
+      }
+     },
+     {
+      "repeat": {
+       "body": [
+        {
+         "part": {
+          "id": "y",
+          "movement": "run"
+         }
+        }
+       ],
+       "id": "b",
+       "resume": "a",
+       "times": 2
+      }
+     }
+    ],
+    "score": {
+     "type": "time"
+    }
+   }
+  },
+  "engineFeatures": [],
+  "expected": [
+   "updateApp",
+   [
+    "resume"
+   ]
+  ],
+  "name": "requiresListed"
+ },
+ {
+  "doc": {
+   "compilerVersion": 1,
+   "format": "emom",
+   "healthKitActivity": "crossTraining",
+   "id": "test.emom",
+   "intervalSeconds": 60,
+   "name": "EMOM 10 Swings",
+   "requires": [
+    "fooFeature"
+   ],
+   "roundSize": 2,
+   "schemaVersion": 2,
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings",
+     "target": {
+      "unit": "reps",
+      "value": 15
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings",
+     "target": {
+      "unit": "reps",
+      "value": 15
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings",
+     "target": {
+      "unit": "reps",
+      "value": 15
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings",
+     "target": {
+      "unit": "reps",
+      "value": 15
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings",
+     "target": {
+      "unit": "reps",
+      "value": 15
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings",
+     "target": {
+      "unit": "reps",
+      "value": 15
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings",
+     "target": {
+      "unit": "reps",
+      "value": 15
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings",
+     "target": {
+      "unit": "reps",
+      "value": 15
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings",
+     "target": {
+      "unit": "reps",
+      "value": 15
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "station",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings",
+     "target": {
+      "unit": "reps",
+      "value": 15
+     }
+    }
+   ],
+   "shortName": "EMOM 10 Sw",
+   "structure": {
+    "body": [
+     {
+      "repeat": {
+       "body": [
+        {
+         "timed": {
+          "body": [
+           {
+            "part": {
+             "id": "kb",
+             "movement": "kettlebellSwings",
+             "target": {
+              "unit": "reps",
+              "value": 15
+             }
+            }
+           }
+          ],
+          "early": "wait",
+          "id": "m",
+          "late": "cut",
+          "seconds": 60
+         }
+        }
+       ],
+       "id": "rp",
+       "times": 10
+      }
+     }
+    ],
+    "score": {
+     "type": "windowsCompleted"
+    }
+   },
+   "team": "solo",
+   "timeCapSeconds": 600
+  },
+  "engineFeatures": [],
+  "expected": [
+   "updateApp",
+   [
+    "fooFeature"
+   ]
+  ],
+  "name": "unknownRequires"
+ },
+ {
+  "doc": {
+   "requires": [
+    "resume"
+   ],
+   "schemaVersion": 2,
+   "structure": {
+    "body": [
+     {
+      "repeat": {
+       "body": [
+        {
+         "part": {
+          "id": "x",
+          "movement": "run"
+         }
+        }
+       ],
+       "id": "a",
+       "times": 2
+      }
+     },
+     {
+      "repeat": {
+       "body": [
+        {
+         "part": {
+          "id": "y",
+          "movement": "run"
+         }
+        }
+       ],
+       "id": "b",
+       "resume": "a",
+       "times": 2
+      }
+     }
+    ],
+    "score": {
+     "type": "time"
+    }
+   }
+  },
+  "engineFeatures": [
+   "resume"
+  ],
+  "expected": [
+   "ok",
+   []
+  ],
+  "name": "featureKnown"
+ }
+]

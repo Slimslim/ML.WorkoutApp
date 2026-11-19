@@ -1,0 +1,76 @@
+{
+ "events": [
+  {
+   "kind": "crown",
+   "t": 240000
+  },
+  {
+   "kind": "crown",
+   "t": 480000
+  },
+  {
+   "kind": "crown",
+   "t": 720000
+  },
+  {
+   "kind": "crown",
+   "t": 960000
+  },
+  {
+   "kind": "crown",
+   "t": 1200000
+  },
+  {
+   "kind": "crown",
+   "t": 1440000
+  },
+  {
+   "kind": "crown",
+   "t": 1680000
+  },
+  {
+   "kind": "crown",
+   "t": 1920000
+  },
+  {
+   "kind": "crown",
+   "t": 2160000
+  },
+  {
+   "kind": "crown",
+   "t": 2400000
+  },
+  {
+   "kind": "crown",
+   "t": 2640000
+  },
+  {
+   "kind": "crown",
+   "t": 2880000
+  },
+  {
+   "kind": "crown",
+   "t": 3120000
+  },
+  {
+   "kind": "crown",
+   "t": 3360000
+  },
+  {
+   "kind": "crown",
+   "t": 3600000
+  },
+  {
+   "kind": "crown",
+   "t": 3840000
+  },
+  {
+   "kind": "crown",
+   "t": 241500
+  }
+ ],
+ "ticks": {
+  "every": 0,
+  "until": 0
+ }
+}

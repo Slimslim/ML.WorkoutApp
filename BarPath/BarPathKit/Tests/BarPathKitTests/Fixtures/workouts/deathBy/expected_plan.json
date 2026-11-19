@@ -1,0 +1,1072 @@
+{
+ "hash": "af1d79be0b2213f6d40c75e5d6cc0efdc32b9c6f91919543174cc1c691b87f45",
+ "plan": {
+  "bells": [
+   {
+    "anchor": "start",
+    "id": "rp.1.min.end",
+    "offsetMs": 60000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.2.min.end",
+    "offsetMs": 120000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.3.min.end",
+    "offsetMs": 180000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.4.min.end",
+    "offsetMs": 240000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.5.min.end",
+    "offsetMs": 300000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.6.min.end",
+    "offsetMs": 360000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.7.min.end",
+    "offsetMs": 420000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.8.min.end",
+    "offsetMs": 480000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.9.min.end",
+    "offsetMs": 540000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.10.min.end",
+    "offsetMs": 600000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.11.min.end",
+    "offsetMs": 660000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.12.min.end",
+    "offsetMs": 720000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.13.min.end",
+    "offsetMs": 780000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.14.min.end",
+    "offsetMs": 840000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.15.min.end",
+    "offsetMs": 900000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.16.min.end",
+    "offsetMs": 960000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.17.min.end",
+    "offsetMs": 1020000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.18.min.end",
+    "offsetMs": 1080000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.19.min.end",
+    "offsetMs": 1140000
+   },
+   {
+    "anchor": "start",
+    "id": "rp.20.min.end",
+    "offsetMs": 1200000
+   }
+  ],
+  "planner": 1,
+  "steps": [
+   {
+    "ends": "athlete",
+    "id": "rp.1.b",
+    "index": 0,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 1
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": [
+     "rp.1.min"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.1.min.wait",
+    "index": 1,
+    "kind": "rest",
+    "node": "min",
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "waitWindow": "rp.1.min",
+    "windows": [
+     "rp.1.min"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.b",
+    "index": 2,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 2
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": [
+     "rp.2.min"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.2.min.wait",
+    "index": 3,
+    "kind": "rest",
+    "node": "min",
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "waitWindow": "rp.2.min",
+    "windows": [
+     "rp.2.min"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.b",
+    "index": 4,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": [
+     "rp.3.min"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.3.min.wait",
+    "index": 5,
+    "kind": "rest",
+    "node": "min",
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "waitWindow": "rp.3.min",
+    "windows": [
+     "rp.3.min"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.4.b",
+    "index": 6,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 4
+    },
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "windows": [
+     "rp.4.min"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.4.min.wait",
+    "index": 7,
+    "kind": "rest",
+    "node": "min",
+    "rounds": [
+     [
+      "rp",
+      4
+     ]
+    ],
+    "waitWindow": "rp.4.min",
+    "windows": [
+     "rp.4.min"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.5.b",
+    "index": 8,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 5
+    },
+    "rounds": [
+     [
+      "rp",
+      5
+     ]
+    ],
+    "windows": [
+     "rp.5.min"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.5.min.wait",
+    "index": 9,
+    "kind": "rest",
+    "node": "min",
+    "rounds": [
+     [
+      "rp",
+      5
+     ]
+    ],
+    "waitWindow": "rp.5.min",
+    "windows": [
+     "rp.5.min"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.6.b",
+    "index": 10,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 6
+    },
+    "rounds": [
+     [
+      "rp",
+      6
+     ]
+    ],
+    "windows": [
+     "rp.6.min"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.6.min.wait",
+    "index": 11,
+    "kind": "rest",
+    "node": "min",
+    "rounds": [
+     [
+      "rp",
+      6
+     ]
+    ],
+    "waitWindow": "rp.6.min",
+    "windows": [
+     "rp.6.min"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.7.b",
+    "index": 12,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 7
+    },
+    "rounds": [
+     [
+      "rp",
+      7
+     ]
+    ],
+    "windows": [
+     "rp.7.min"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.7.min.wait",
+    "index": 13,
+    "kind": "rest",
+    "node": "min",
+    "rounds": [
+     [
+      "rp",
+      7
+     ]
+    ],
+    "waitWindow": "rp.7.min",
+    "windows": [
+     "rp.7.min"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.8.b",
+    "index": 14,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 8
+    },
+    "rounds": [
+     [
+      "rp",
+      8
+     ]
+    ],
+    "windows": [
+     "rp.8.min"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.8.min.wait",
+    "index": 15,
+    "kind": "rest",
+    "node": "min",
+    "rounds": [
+     [
+      "rp",
+      8
+     ]
+    ],
+    "waitWindow": "rp.8.min",
+    "windows": [
+     "rp.8.min"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.9.b",
+    "index": 16,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 9
+    },
+    "rounds": [
+     [
+      "rp",
+      9
+     ]
+    ],
+    "windows": [
+     "rp.9.min"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.9.min.wait",
+    "index": 17,
+    "kind": "rest",
+    "node": "min",
+    "rounds": [
+     [
+      "rp",
+      9
+     ]
+    ],
+    "waitWindow": "rp.9.min",
+    "windows": [
+     "rp.9.min"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.10.b",
+    "index": 18,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 10
+    },
+    "rounds": [
+     [
+      "rp",
+      10
+     ]
+    ],
+    "windows": [
+     "rp.10.min"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.10.min.wait",
+    "index": 19,
+    "kind": "rest",
+    "node": "min",
+    "rounds": [
+     [
+      "rp",
+      10
+     ]
+    ],
+    "waitWindow": "rp.10.min",
+    "windows": [
+     "rp.10.min"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.11.b",
+    "index": 20,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 11
+    },
+    "rounds": [
+     [
+      "rp",
+      11
+     ]
+    ],
+    "windows": [
+     "rp.11.min"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.11.min.wait",
+    "index": 21,
+    "kind": "rest",
+    "node": "min",
+    "rounds": [
+     [
+      "rp",
+      11
+     ]
+    ],
+    "waitWindow": "rp.11.min",
+    "windows": [
+     "rp.11.min"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.12.b",
+    "index": 22,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 12
+    },
+    "rounds": [
+     [
+      "rp",
+      12
+     ]
+    ],
+    "windows": [
+     "rp.12.min"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.12.min.wait",
+    "index": 23,
+    "kind": "rest",
+    "node": "min",
+    "rounds": [
+     [
+      "rp",
+      12
+     ]
+    ],
+    "waitWindow": "rp.12.min",
+    "windows": [
+     "rp.12.min"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.13.b",
+    "index": 24,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 13
+    },
+    "rounds": [
+     [
+      "rp",
+      13
+     ]
+    ],
+    "windows": [
+     "rp.13.min"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.13.min.wait",
+    "index": 25,
+    "kind": "rest",
+    "node": "min",
+    "rounds": [
+     [
+      "rp",
+      13
+     ]
+    ],
+    "waitWindow": "rp.13.min",
+    "windows": [
+     "rp.13.min"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.14.b",
+    "index": 26,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 14
+    },
+    "rounds": [
+     [
+      "rp",
+      14
+     ]
+    ],
+    "windows": [
+     "rp.14.min"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.14.min.wait",
+    "index": 27,
+    "kind": "rest",
+    "node": "min",
+    "rounds": [
+     [
+      "rp",
+      14
+     ]
+    ],
+    "waitWindow": "rp.14.min",
+    "windows": [
+     "rp.14.min"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.15.b",
+    "index": 28,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      15
+     ]
+    ],
+    "windows": [
+     "rp.15.min"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.15.min.wait",
+    "index": 29,
+    "kind": "rest",
+    "node": "min",
+    "rounds": [
+     [
+      "rp",
+      15
+     ]
+    ],
+    "waitWindow": "rp.15.min",
+    "windows": [
+     "rp.15.min"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.16.b",
+    "index": 30,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 16
+    },
+    "rounds": [
+     [
+      "rp",
+      16
+     ]
+    ],
+    "windows": [
+     "rp.16.min"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.16.min.wait",
+    "index": 31,
+    "kind": "rest",
+    "node": "min",
+    "rounds": [
+     [
+      "rp",
+      16
+     ]
+    ],
+    "waitWindow": "rp.16.min",
+    "windows": [
+     "rp.16.min"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.17.b",
+    "index": 32,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 17
+    },
+    "rounds": [
+     [
+      "rp",
+      17
+     ]
+    ],
+    "windows": [
+     "rp.17.min"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.17.min.wait",
+    "index": 33,
+    "kind": "rest",
+    "node": "min",
+    "rounds": [
+     [
+      "rp",
+      17
+     ]
+    ],
+    "waitWindow": "rp.17.min",
+    "windows": [
+     "rp.17.min"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.18.b",
+    "index": 34,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 18
+    },
+    "rounds": [
+     [
+      "rp",
+      18
+     ]
+    ],
+    "windows": [
+     "rp.18.min"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.18.min.wait",
+    "index": 35,
+    "kind": "rest",
+    "node": "min",
+    "rounds": [
+     [
+      "rp",
+      18
+     ]
+    ],
+    "waitWindow": "rp.18.min",
+    "windows": [
+     "rp.18.min"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.19.b",
+    "index": 36,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 19
+    },
+    "rounds": [
+     [
+      "rp",
+      19
+     ]
+    ],
+    "windows": [
+     "rp.19.min"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.19.min.wait",
+    "index": 37,
+    "kind": "rest",
+    "node": "min",
+    "rounds": [
+     [
+      "rp",
+      19
+     ]
+    ],
+    "waitWindow": "rp.19.min",
+    "windows": [
+     "rp.19.min"
+    ]
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.20.b",
+    "index": 38,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 20
+    },
+    "rounds": [
+     [
+      "rp",
+      20
+     ]
+    ],
+    "windows": [
+     "rp.20.min"
+    ]
+   },
+   {
+    "auto": true,
+    "ends": "clock",
+    "id": "rp.20.min.wait",
+    "index": 39,
+    "kind": "rest",
+    "node": "min",
+    "rounds": [
+     [
+      "rp",
+      20
+     ]
+    ],
+    "waitWindow": "rp.20.min",
+    "windows": [
+     "rp.20.min"
+    ]
+   }
+  ],
+  "windows": [
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "min",
+    "key": "rp.1.min",
+    "late": "end",
+    "seconds": 60,
+    "stops": "rp"
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "min",
+    "key": "rp.2.min",
+    "late": "end",
+    "seconds": 60,
+    "stops": "rp"
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "min",
+    "key": "rp.3.min",
+    "late": "end",
+    "seconds": 60,
+    "stops": "rp"
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "min",
+    "key": "rp.4.min",
+    "late": "end",
+    "seconds": 60,
+    "stops": "rp"
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "min",
+    "key": "rp.5.min",
+    "late": "end",
+    "seconds": 60,
+    "stops": "rp"
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "min",
+    "key": "rp.6.min",
+    "late": "end",
+    "seconds": 60,
+    "stops": "rp"
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "min",
+    "key": "rp.7.min",
+    "late": "end",
+    "seconds": 60,
+    "stops": "rp"
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "min",
+    "key": "rp.8.min",
+    "late": "end",
+    "seconds": 60,
+    "stops": "rp"
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "min",
+    "key": "rp.9.min",
+    "late": "end",
+    "seconds": 60,
+    "stops": "rp"
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "min",
+    "key": "rp.10.min",
+    "late": "end",
+    "seconds": 60,
+    "stops": "rp"
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "min",
+    "key": "rp.11.min",
+    "late": "end",
+    "seconds": 60,
+    "stops": "rp"
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "min",
+    "key": "rp.12.min",
+    "late": "end",
+    "seconds": 60,
+    "stops": "rp"
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "min",
+    "key": "rp.13.min",
+    "late": "end",
+    "seconds": 60,
+    "stops": "rp"
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "min",
+    "key": "rp.14.min",
+    "late": "end",
+    "seconds": 60,
+    "stops": "rp"
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "min",
+    "key": "rp.15.min",
+    "late": "end",
+    "seconds": 60,
+    "stops": "rp"
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "min",
+    "key": "rp.16.min",
+    "late": "end",
+    "seconds": 60,
+    "stops": "rp"
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "min",
+    "key": "rp.17.min",
+    "late": "end",
+    "seconds": 60,
+    "stops": "rp"
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "min",
+    "key": "rp.18.min",
+    "late": "end",
+    "seconds": 60,
+    "stops": "rp"
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "min",
+    "key": "rp.19.min",
+    "late": "end",
+    "seconds": 60,
+    "stops": "rp"
+   },
+   {
+    "depth": 1,
+    "early": "wait",
+    "id": "min",
+    "key": "rp.20.min",
+    "late": "end",
+    "seconds": 60,
+    "stops": "rp"
+   }
+  ]
+ }
+}

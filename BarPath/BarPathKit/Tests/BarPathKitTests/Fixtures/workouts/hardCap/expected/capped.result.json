@@ -1,0 +1,144 @@
+{
+ "asks": [],
+ "boundaries": [
+  300000
+ ],
+ "current": null,
+ "done": true,
+ "doneT": 300000,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 297000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 298000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 299000
+  },
+  {
+   "kind": "cap",
+   "step": "rp.2.a",
+   "t": 300000
+  },
+  {
+   "kind": "ask",
+   "step": "rp.2.a",
+   "t": 300000
+  },
+  {
+   "kind": "time",
+   "t": 300000
+  },
+  {
+   "kind": "done",
+   "t": 300000
+  }
+ ],
+ "endedBy": "clock",
+ "facts": [
+  {
+   "end": 100000,
+   "endedBy": "athlete",
+   "id": "rp.1.a",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 0,
+   "status": "done"
+  },
+  {
+   "end": 200000,
+   "endedBy": "athlete",
+   "id": "rp.1.b",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 100000,
+   "status": "done"
+  },
+  {
+   "end": 300000,
+   "endedBy": "clock",
+   "id": "rp.2.a",
+   "kind": "part",
+   "reps": 9,
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 200000,
+   "status": "cut"
+  },
+  {
+   "end": 300000,
+   "endedBy": "clock",
+   "id": "rp.2.b",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 300000,
+   "status": "skipped"
+  },
+  {
+   "end": 300000,
+   "endedBy": "clock",
+   "id": "rp.3.a",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 300000,
+   "status": "skipped"
+  },
+  {
+   "end": 300000,
+   "endedBy": "clock",
+   "id": "rp.3.b",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 300000,
+   "status": "skipped"
+  }
+ ],
+ "score": {
+  "afterCapMs": 0,
+  "capped": true,
+  "complete": true,
+  "reps": 51,
+  "text": "CAP + 51",
+  "type": "totalReps"
+ }
+}

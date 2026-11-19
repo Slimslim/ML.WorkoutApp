@@ -1,0 +1,129 @@
+{
+ "asks": [],
+ "boundaries": [],
+ "current": "rp.1.pu",
+ "done": false,
+ "doneT": null,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  }
+ ],
+ "endedBy": null,
+ "facts": [
+  {
+   "end": 60000,
+   "endedBy": "athlete",
+   "id": "rp.1.run",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 0,
+   "status": "done"
+  },
+  {
+   "end": 63000,
+   "endedBy": "athlete",
+   "id": "rp.1.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 60000,
+   "status": "done"
+  },
+  {
+   "end": null,
+   "endedBy": null,
+   "id": "rp.1.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 63000,
+   "status": "running"
+  },
+  {
+   "id": "rp.2.run",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.2.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.2.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.3.run",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.3.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.3.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "status": "notReached"
+  }
+ ],
+ "score": {
+  "complete": false,
+  "type": "time",
+  "value": null
+ }
+}

@@ -1,0 +1,484 @@
+{
+ "hash": "c39758b68d69dd012f7487e9ed400c8e5cbc7d434357f50e389cedd0071dc8c2",
+ "plan": {
+  "bells": [],
+  "planner": 1,
+  "steps": [
+   {
+    "ends": "athlete",
+    "id": "att.1.sq",
+    "index": 0,
+    "kind": "part",
+    "node": "sq",
+    "partLoad": {
+     "unit": "kg",
+     "value": 100
+    },
+    "partMovement": "backSquat",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "att",
+      1
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "att.2.sq",
+    "index": 1,
+    "kind": "part",
+    "node": "sq",
+    "partLoad": {
+     "unit": "kg",
+     "value": 100
+    },
+    "partMovement": "backSquat",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "att",
+      2
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "att.3.sq",
+    "index": 2,
+    "kind": "part",
+    "node": "sq",
+    "partLoad": {
+     "unit": "kg",
+     "value": 100
+    },
+    "partMovement": "backSquat",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "att",
+      3
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "att.4.sq",
+    "index": 3,
+    "kind": "part",
+    "node": "sq",
+    "partLoad": {
+     "unit": "kg",
+     "value": 100
+    },
+    "partMovement": "backSquat",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "att",
+      4
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "att.5.sq",
+    "index": 4,
+    "kind": "part",
+    "node": "sq",
+    "partLoad": {
+     "unit": "kg",
+     "value": 100
+    },
+    "partMovement": "backSquat",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "att",
+      5
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "att.6.sq",
+    "index": 5,
+    "kind": "part",
+    "node": "sq",
+    "partLoad": {
+     "unit": "kg",
+     "value": 100
+    },
+    "partMovement": "backSquat",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "att",
+      6
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "att.7.sq",
+    "index": 6,
+    "kind": "part",
+    "node": "sq",
+    "partLoad": {
+     "unit": "kg",
+     "value": 100
+    },
+    "partMovement": "backSquat",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "att",
+      7
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "att.8.sq",
+    "index": 7,
+    "kind": "part",
+    "node": "sq",
+    "partLoad": {
+     "unit": "kg",
+     "value": 100
+    },
+    "partMovement": "backSquat",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "att",
+      8
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "att.9.sq",
+    "index": 8,
+    "kind": "part",
+    "node": "sq",
+    "partLoad": {
+     "unit": "kg",
+     "value": 100
+    },
+    "partMovement": "backSquat",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "att",
+      9
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "att.10.sq",
+    "index": 9,
+    "kind": "part",
+    "node": "sq",
+    "partLoad": {
+     "unit": "kg",
+     "value": 100
+    },
+    "partMovement": "backSquat",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "att",
+      10
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "att.11.sq",
+    "index": 10,
+    "kind": "part",
+    "node": "sq",
+    "partLoad": {
+     "unit": "kg",
+     "value": 100
+    },
+    "partMovement": "backSquat",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "att",
+      11
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "att.12.sq",
+    "index": 11,
+    "kind": "part",
+    "node": "sq",
+    "partLoad": {
+     "unit": "kg",
+     "value": 100
+    },
+    "partMovement": "backSquat",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "att",
+      12
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "att.13.sq",
+    "index": 12,
+    "kind": "part",
+    "node": "sq",
+    "partLoad": {
+     "unit": "kg",
+     "value": 100
+    },
+    "partMovement": "backSquat",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "att",
+      13
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "att.14.sq",
+    "index": 13,
+    "kind": "part",
+    "node": "sq",
+    "partLoad": {
+     "unit": "kg",
+     "value": 100
+    },
+    "partMovement": "backSquat",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "att",
+      14
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "att.15.sq",
+    "index": 14,
+    "kind": "part",
+    "node": "sq",
+    "partLoad": {
+     "unit": "kg",
+     "value": 100
+    },
+    "partMovement": "backSquat",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "att",
+      15
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "att.16.sq",
+    "index": 15,
+    "kind": "part",
+    "node": "sq",
+    "partLoad": {
+     "unit": "kg",
+     "value": 100
+    },
+    "partMovement": "backSquat",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "att",
+      16
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "att.17.sq",
+    "index": 16,
+    "kind": "part",
+    "node": "sq",
+    "partLoad": {
+     "unit": "kg",
+     "value": 100
+    },
+    "partMovement": "backSquat",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "att",
+      17
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "att.18.sq",
+    "index": 17,
+    "kind": "part",
+    "node": "sq",
+    "partLoad": {
+     "unit": "kg",
+     "value": 100
+    },
+    "partMovement": "backSquat",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "att",
+      18
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "att.19.sq",
+    "index": 18,
+    "kind": "part",
+    "node": "sq",
+    "partLoad": {
+     "unit": "kg",
+     "value": 100
+    },
+    "partMovement": "backSquat",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "att",
+      19
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "att.20.sq",
+    "index": 19,
+    "kind": "part",
+    "node": "sq",
+    "partLoad": {
+     "unit": "kg",
+     "value": 100
+    },
+    "partMovement": "backSquat",
+    "partTarget": {
+     "unit": "reps",
+     "value": 3
+    },
+    "rounds": [
+     [
+      "att",
+      20
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "cool",
+    "index": 20,
+    "kind": "part",
+    "node": "cool",
+    "partMovement": "row",
+    "partTarget": {
+     "unit": "meters",
+     "value": 500
+    },
+    "rounds": [],
+    "windows": []
+   }
+  ],
+  "windows": []
+ }
+}
