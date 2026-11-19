@@ -92,12 +92,13 @@ public enum WorkoutUpgrade {
         }
         if let t = t {
             guard let unit = t["unit"]?.string, targetUnits.contains(unit),
-                  let value = t["value"]?.number, value > 0 else {
+                  let value = t["value"]?.number, value.isFinite, value > 0 else {
                 return true
             }
         }
         if let ld = seg["load"]?.object {
-            guard ld["value"]?.number != nil, let unit = ld["unit"]?.string, loadUnits.contains(unit) else {
+            guard let lv = ld["value"]?.number, lv.isFinite, let unit = ld["unit"]?.string,
+                  loadUnits.contains(unit) else {
                 return true
             }
             if let count = ld["count"], !(whole(count) && (count.number ?? 0) >= 1) {
@@ -328,15 +329,31 @@ public enum WorkoutUpgrade {
         var out: [String: JSONValue] = o
         out["schemaVersion"] = .int(2)
         out["structure"] = .object(["score": .object(score), "body": .array(body)])
-        let doc: JSONValue = .object(out)
-        if let p = try? WorkoutEngine.plan(doc) {
+        if let p = try? WorkoutEngine.plan(.object(out)) {
             if flags.label == "exact" && !stepsMatch(p, segs) {
                 flags.flag("review", "stepsDiffer")
             }
         } else {
             flags.flag("reencode", "notRunnable")
         }
-        return Outcome(definition: doc, label: flags.label, reasons: flags.reasons + flags.notes)
+        setFidelity(&out, flags.label, flags.reasons)
+        return Outcome(definition: .object(out), label: flags.label, reasons: flags.reasons + flags.notes)
+    }
+
+    /// `approx` reasons written by `upgrade()` start with this (Python `UPGRADE_REASON_PREFIX`).
+    public static let upgradeReasonPrefix: String = "upgrade:"
+
+    /// Python `_set_fidelity`: the label saved on the definition (RFC §14.3 B2, A4).
+    /// `fidelity: "exact"` only when the structure runs what the old keys ran; otherwise
+    /// `fidelity: "approx"` with the reasons in `approx` as "upgrade:<reason>" (notes stay out).
+    private static func setFidelity(_ out: inout [String: JSONValue], _ label: String, _ reasons: [String]) {
+        out["approx"] = nil
+        if label == "exact" {
+            out["fidelity"] = .string("exact")
+        } else {
+            out["fidelity"] = .string("approx")
+            out["approx"] = .array(reasons.map { JSONValue.string(upgradeReasonPrefix + $0) })
+        }
     }
 
     private static func forTimeBody(_ segs: [[String: JSONValue]], _ r: Int?, _ team: String,

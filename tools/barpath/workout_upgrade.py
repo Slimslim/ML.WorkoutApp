@@ -9,7 +9,8 @@ builds run), plus a label and the reasons for it:
   unbounded repeat, an EMOM moves to the engine, a part has no target, ...);
 - reencode: the old keys can't say what the workout is (a rest inside an interval, as Tabata 20/10
   was stored; windows stored as for-time rests, as 3-3-3-4 was stored; an unknown format).
-The Swift port is BarPathKit's WorkoutUpgrade.swift; parity fixtures in Fixtures/workouts/upgrade.json.
+The label is also saved on the definition as `fidelity` ("exact", or "approx" with the reasons in
+`approx`; RFC §14.3 B2). The Swift port is BarPathKit's WorkoutUpgrade.swift; parity fixtures in Fixtures/workouts/upgrade.json.
 Informational reasons (they don't change the label) start with "note:".
 
 Only legacy rows are upgraded (`schemaVersion` absent, null or 1). A draft (0), a v2 row or an
@@ -26,6 +27,7 @@ from .workout_structure import LOAD_UNITS, TARGET_UNITS
 
 LABELS = ("exact", "review", "reencode")
 NOT_LEGACY = "notLegacy"
+UPGRADE_REASON_PREFIX = "upgrade:"   # `approx` reasons written by upgrade() (RFC §14.3 B2)
 _PART_KEYS = ("kind", "movement", "name", "target", "load")
 _INT_LIMIT = 9.0e18          # Swift's JSONValue.intValue: larger magnitudes don't fit an Int
 
@@ -243,7 +245,22 @@ def upgrade(old: dict) -> dict:
         p = None
     if p is not None and label == "exact" and not _steps_match(p, segs):
         flag("review", "stepsDiffer")
+    _set_fidelity(out, label, reasons)
     return {"definition": out, "label": label, "reasons": reasons + notes}
+
+
+def _set_fidelity(out: dict, label: str, reasons: list):
+    """The label, saved on the definition (RFC §14.3 B2, A4): `fidelity: "exact"` only when the
+    structure runs what the old keys ran; otherwise `fidelity: "approx"` with the reasons in
+    `approx` as "upgrade:<reason>" (notes are informational and stay out). The prefix tells the
+    validator these came from the old keys, which the row keeps, not from a coach's text, so no
+    `rawText` is required. Older builds run the old keys only when fidelity is exact."""
+    out.pop("approx", None)
+    if label == "exact":
+        out["fidelity"] = "exact"
+    else:
+        out["fidelity"] = "approx"
+        out["approx"] = [UPGRADE_REASON_PREFIX + r for r in reasons]
 
 
 def _for_time_body(segs: list, r, team: str, notes: list) -> list:
