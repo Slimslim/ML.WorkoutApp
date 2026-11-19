@@ -115,7 +115,7 @@ echo "restoring $BASE (roles, schema, data) ..."
 psqlc -f "/restore/${BASE}_roles.sql" -f "/restore/${BASE}_schema.sql" -f "/restore/${BASE}_data.sql" \
   > /dev/null 2> "$WORK/errors"
 # Supabase-only objects: present in a Supabase project (step 9 restores them), not in plain postgres.
-SUPABASE_ONLY='extension "[^"]+" is not available|publication "supabase_realtime[^"]*" does not exist|relation "(auth|storage)\.[^"]+_seq" does not exist|already exists'
+SUPABASE_ONLY='extension "[^"]+" is not available|publication "supabase_realtime[^"]*" does not exist|relation "(auth|storage)\.[^"]+_seq" does not exist'
 grep -E 'ERROR' "$WORK/errors" | grep -E "$SUPABASE_ONLY" | sed -E 's/^psql:[^ ]+ ERROR: +/  Supabase-only, skipped: /' | sort -u
 UNEXPECTED=$(grep -E 'ERROR' "$WORK/errors" | grep -v -E "$SUPABASE_ONLY" || true)
 if [ -n "$UNEXPECTED" ]; then

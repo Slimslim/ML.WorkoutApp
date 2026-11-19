@@ -5,7 +5,7 @@ The only backup of the database is the one this page sets up:
 
 - a backup every night at 03:00 to the Synology NAS (DS916+, DSM 7.2.2), into the shared folder
   `/volume1/RxLabBackup`;
-- the last 14 nights are kept;
+- the newest 14 nights are kept;
 - a restore test once a month;
 - a backup by hand before any change to the database.
 
@@ -117,17 +117,21 @@ What its settings mean for the backup:
 - **Data checksums.** Btrfs notices if a backup file is silently damaged on disk.
 - **Snapshots (recommended, free).** In **Snapshot Replication**, take a daily snapshot of
   `RxLabBackup` and keep 30.
-  - The nightly cleanup keeps 14 nights. If a bad change went unnoticed for longer, every kept
+  - The nightly cleanup keeps the newest 14 nights. If a bad change went unnoticed for longer, every kept
     backup would already contain it.
   - Snapshots keep older nights at almost no space cost.
 
-## 2. Turn on SSH for the setup (Control Panel → Terminal & SNMP)
+## 2. A root shell (SSH): only for the setup and a disaster restore
 
-Tick **Enable SSH service**, then Apply. Turn it off again when the setup is done; the nightly task
-does not need it.
+Steps 3 and 9 need a root shell on the NAS. Nothing else on this page does: the nightly backup,
+the restore test and the backup before a change all run from Task Scheduler and File Station.
 
-From your Mac: `ssh <admin>@<NAS-IP>`, then `sudo -i` (asks your DSM password). You are now root.
-The prompt ends with `#`.
+1. **Control Panel → Terminal & SNMP**: tick **Enable SSH service**, then Apply.
+2. On your Mac, in Terminal: `ssh <admin>@<NAS-IP>`.
+   - The first time, it asks whether to trust the NAS's key: type `yes`.
+   - Then it asks your DSM password. **Nothing is shown while you type it**; press Enter.
+3. `sudo -i`, and your DSM password again. You are now root: the prompt ends with `#`.
+4. When you are done: `exit` twice, then untick **Enable SSH service** again.
 
 ## 3. The scripts and the password file
 
@@ -145,8 +149,13 @@ root-only file inside the share:
 
 The backup refuses to run if anyone but root can read the file, so a mistake shows up the next night.
 
-1. Copy the two scripts from `tools/backup/` in this repo into `RxLabBackup` with File Station
-   (drag and drop). Then, as root:
+1. Download the two scripts:
+   1. On GitHub, open the repository, then `tools/backup/synology_pgdump.sh`.
+   2. Click **Download raw file**, the download icon above the code, on the right.
+   3. Do the same for `tools/backup/synology_restore_test.sh`.
+   4. Copy both files into `RxLabBackup` with File Station (drag and drop).
+
+   Then, as root (step 2):
 
    ```sh
    mkdir -p /volume1/@rxlab
@@ -159,7 +168,8 @@ The backup refuses to run if anyone but root can read the file, so a mistake sho
 
 2. Get the connection details:
    1. In the Supabase dashboard, go to **Connect → Session pooler → View parameters**: host, port,
-      database, user.
+      database, user. **Copy the host exactly as shown.** It looks like
+      `aws-0-…pooler.supabase.com` or `aws-1-…`, depending on the project.
    2. The password is the database password. If you don't know it, set a new one under
       **Database → Settings**; the app does not use it.
    3. Use the **Session** pooler, not the Transaction one: pg_dump needs a session. The direct
@@ -177,13 +187,16 @@ The backup refuses to run if anyone but root can read the file, so a mistake sho
 
    ```
    [rxlab]
-   host=aws-0-<REGION>.pooler.supabase.com
+   host=<POOLER-HOST>
    port=5432
    dbname=postgres
    user=postgres.<PROJECT-REF>
    password=<PASSWORD>
    sslmode=require
+   keepalives_idle=60
    ```
+
+   `keepalives_idle=60` lets a dead connection be noticed within minutes, not hours.
 
    Then:
 
@@ -191,6 +204,23 @@ The backup refuses to run if anyone but root can read the file, so a mistake sho
    chmod 600 /volume1/@rxlab/pg_service.conf
    ls -l /volume1/@rxlab/pg_service.conf      # must show -rw------- 1 root root
    ```
+
+4. Optional, stronger: check the server's certificate. `sslmode=require` encrypts the connection,
+   but it does not check that the other end really is Supabase. Someone on your network could then
+   pose as Supabase and read the password.
+   1. In the dashboard, open **Database → Settings → SSL Configuration → Download certificate**.
+   2. Copy the certificate into `RxLabBackup` with File Station, then as root:
+      `mv /volume1/RxLabBackup/<certificate file> /volume1/@rxlab/supabase-ca.crt`
+   3. In `pg_service.conf`, replace `sslmode=require` with these two lines:
+
+      ```
+      sslmode=verify-full
+      sslrootcert=/run/secrets/supabase-ca.crt
+      ```
+
+      The backup mounts the whole `@rxlab` folder at `/run/secrets` inside the container, read-only.
+   4. Run the task once by hand (step 5). **Not tested yet:** if it fails with a certificate error,
+      go back to `sslmode=require`.
 
 ## 4. The image `postgres:17-alpine` (Container Manager)
 
@@ -221,7 +251,8 @@ a container from it for a few seconds, then removes it.
      bash /volume1/@rxlab/synology_pgdump.sh /volume1/@rxlab/pg_service.conf /volume1/RxLabBackup 14
      ```
 
-     The last number is how many nights to keep.
+     The last number is how many nights to keep: the newest 14, however old they are. After the NAS
+     was off for a month, the first good night still keeps the 13 nights before the outage.
 5. OK.
 
 **First run now:** select the task, then click **Run**. After a few seconds, check it worked:
@@ -238,15 +269,17 @@ A failed night:
 - deletes no older backup;
 - exits with an error, so DSM emails you.
 
-A dump that hangs is stopped after 30 minutes. Stopping the task in Task Scheduler removes the dump's
-container too.
+A run that hangs is stopped after one hour, and each step inside it after 30 minutes. The log then
+says `took longer than 3600 s`. Stopping the task in Task Scheduler removes the dump's container
+too.
 
 The usual reasons:
 
 | Reason in the log | What to do |
 |---|---|
 | `password authentication failed` | The password changed: edit `pg_service.conf`. |
-| `connection ... failed` or `timeout` | The internet or Supabase is down; the next night retries. |
+| `connection ... failed`, `timeout` or `took longer than` | The internet or Supabase is down; the next night retries. |
+| `certificate` | Only with the optional step 3.4: go back to `sslmode=require`. |
 | `mode 644; run: chmod 600` | Someone changed the file's permissions. |
 | `no [rxlab] section` | The first line of the password file is missing. |
 | `docker not found` | Container Manager is not installed. |
@@ -267,11 +300,27 @@ The NAS is one place: a fire, theft or a failed volume takes the backups with it
 
 ## 7. Restore test, every month
 
-A backup that was never restored is a hope, not a backup. Once a month, as root:
+A backup that was never restored is a hope, not a backup. Set it up once as a second task, then it
+runs by itself:
 
-```sh
-bash /volume1/@rxlab/synology_restore_test.sh /volume1/RxLabBackup
-```
+1. **Control Panel → Task Scheduler → Create → Scheduled Task → User-defined script.**
+2. **General**:
+   - Task: `Rx Lab restore test`
+   - User: **root**
+3. **Schedule**: Monthly, on the 1st, at **05:00**.
+4. **Task Settings**:
+   - Tick **Send run details by email**, and this time **leave "only when the script terminates
+     abnormally" unticked**: you want to see the counts every month, not only when it fails.
+   - Run command:
+
+     ```sh
+     bash /volume1/@rxlab/synology_restore_test.sh /volume1/RxLabBackup
+     ```
+5. OK. To run it now: select it, then click **Run**.
+
+To read a run's output without email:
+1. Turn on **Task Scheduler → Settings → Save output results** once, and choose a folder.
+2. Then use **Action → View Result** on the task.
 
 What the test does:
 
@@ -295,39 +344,32 @@ Also look at the counts against the dashboard (Table Editor) once:
 - `public.workout_library` = the library rows;
 - `auth.users` = the number of accounts.
 
-You can schedule it too: a second Task Scheduler task, user root, monthly (the 1st, 05:00), the same
-command, with the email-on-error setting.
-
 ## 8. Before any change to the database: a backup by hand
 
 Before applying a migration, running a data fix or deleting rows:
 
-1. Run the backup task by hand: Task Scheduler → select **Rx Lab database backup** → **Run**.
-2. Check `backup.log` ends with `OK` and note the name, e.g. `rxlab_20261120-151500`.
-3. Keep that night from the 14-day cleanup by renaming its three files with `keep_` in front.
-   As root:
+No SSH needed:
 
-   ```sh
-   cd /volume1/RxLabBackup
-   for f in rxlab_20261120-151500_*.sql; do mv "$f" "keep_$f"; done
-   ```
-
-   The cleanup only deletes files whose name starts with `rxlab_`.
-4. Restore-test that set:
-
-   ```sh
-   bash /volume1/@rxlab/synology_restore_test.sh /volume1/RxLabBackup keep_rxlab_20261120-151500
-   ```
-
+1. Run the backup by hand: Task Scheduler → select **Rx Lab database backup** → **Run**.
+2. In File Station, check that `backup.log` ends with `OK`, and note the name, e.g.
+   `rxlab_20261120-151500`.
+3. Restore-test it: select **Rx Lab restore test** → **Run**. It tests the newest night, which is
+   this one. Read the result in the email or with **Action → View Result** (step 7).
+4. Keep that night from the cleanup. In File Station, rename its three files (right click →
+   **Rename**) by putting `keep_` in front:
+   `keep_rxlab_20261120-151500_roles.sql`, `…_schema.sql`, `…_data.sql`.
+   The cleanup only deletes files whose name starts with `rxlab_`. A rename does not go to the
+   Recycle Bin.
 5. Only then change the database. Write the backup's name in the PR or issue.
-6. Delete `keep_` sets you no longer need by hand.
+6. Delete `keep_` sets you no longer need, in File Station.
 
 Undoing a change: use the change's own rollback script first (for example
 `supabase/rollback/20261118_backend_v2_rollback.sql`). The backup is the last resort.
 
 ## 9. Restore into Supabase (disaster: the project is lost or broken)
 
-This is Supabase's own documented restore, into a **new** project, run from the NAS as root.
+This is Supabase's own documented restore, into a **new** project, run from the NAS in a root
+shell (step 2).
 
 1. Create the new project (database.new) on Postgres 17. If the old project had **Database
    Webhooks** or **pg_cron** turned on, turn them on in the new one first: their tables are in the
@@ -380,10 +422,12 @@ Tested on 19 Nov 2026, in a Linux container with Docker and `postgres:17-alpine`
 | Supabase's documented restore (step 9) into a new Supabase Postgres 17.11 | psql ended without one error. The result equalled the source on every check: rows of the library, drafts, gyms, `auth.users`, storage objects and buckets; every policy, including those on `storage.objects` (one of them calling a `public.` function); table, column and function grants; triggers; RLS flags; constraints; the automatic grants; `pg_jsonschema`. |
 | The monthly restore test (step 7) | Every row of 15 tables. A broken row is reported by file and line only, never its content. |
 | A cut-off file | Refused. |
-| Wrong password, Supabase down, a dump stopped part-way, a dump over its time limit, a second run during a run | Each exits with an error, leaves no file and deletes no older backup. |
+| Wrong password, Supabase down, a dump stopped part-way, a step over its 30-minute limit, a whole run over its one-hour limit, a second run during a run | Each exits with an error, leaves no file and deletes no older backup. The hour limit removes the container and leaves no process behind. |
 | A password in the error text | Replaced by `***` in the log and the email. |
-| The 14-night cleanup | Correct with three files a night; a night's three files share one time stamp, so they go together. |
+| The 14-night cleanup | Keeps the newest 14 nights by count, even after a long outage. A night's three files go together. |
 | `keep_` sets | Never deleted. |
+| The container's hardening (read-only root file system, no privilege gain, `@rxlab` mounted read-only) | The backup works with it. |
+| In CI | The script that runs inside the container is also run with stand-in `pg_dump`/`psql`. This checks the CLI's line rewrites and that a failing dump leaves no completion line. |
 
 ## What has not been tested on the NAS itself
 
@@ -391,7 +435,7 @@ Tested on 19 Nov 2026, in a Linux container with Docker and `postgres:17-alpine`
 |---|---|
 | DSM 7.2.2's Task Scheduler running the command as root | Paths, `bash` |
 | DSM's `stat`, `find` and `docker` (Container Manager) | Different versions from the test machine |
-| A real Session pooler connection from the home network | It needs TLS (`sslmode=require`) |
+| A real Session pooler connection from the home network | It needs TLS (`sslmode=require`). The optional `verify-full` of step 3.4 was not tried against Supabase at all. |
 | File Station showing `backup.log` | It should, the log is 644 |
 | `chmod 600` under `/volume1/@rxlab` | It should stick, outside the share's permissions |
 | Hyper Backup, Snapshot Replication and the Recycle Bin settings | Not tested at all |

@@ -36,11 +36,11 @@ base=""; backup=""; secret=""; prev=""
 for a in "$@"; do
   case "$prev" in
     -e) case "$a" in BASE=*) base="${a#BASE=}";; esac;;
-    -v) case "$a" in *:/backup) backup="${a%:/backup}";; *:/run/secrets/pg_service.conf:ro) secret="${a%:/run/secrets/pg_service.conf:ro}";; esac;;
+    -v) case "$a" in *:/backup) backup="${a%:/backup}";; *:/run/secrets:ro) secret="${a%:/run/secrets:ro}";; esac;;
   esac
   prev="$a"
 done
-[ -r "$secret" ] || { echo "service file not mounted" >&2; exit 3; }
+[ -r "$secret/pg_service.conf" ] || { echo "service file not mounted" >&2; exit 3; }
 write() {
   for k in roles schema data; do printf 'SQL\n-- rxlab backup: %s complete\n' "$k" > "$backup/${base}_$k.sql.part"; done
   # The roles file is written first, so it is older than the data file (seconds, on a real night).
@@ -119,6 +119,8 @@ def test_good_run_writes_three_private_files_and_logs(env):
     args = env["args"].read_text()
     assert "not-a-real-password" not in args
     assert "PGSERVICE=rxlab" in args and "postgres:17-alpine" in args and "--name\nrxlab-backup-" in args
+    assert "PGSERVICEFILE=/run/secrets/pg_service.conf" in args and ":/run/secrets:ro" in args
+    assert "no-new-privileges" in args and "--read-only" in args
     # The appended statements are read with an empty search_path (schema-qualified, as pg_dump).
     assert args.count("set search_path = ''") == 2
     assert "--schema-only" in args and "--data-only" in args and "--roles-only" in args
@@ -176,6 +178,27 @@ def test_retention_keeps_the_newest_14_nights(env):
     assert "deleted 21 old files, 14 nights kept" in log_lines(env["dest"])[-1]
 
 
+def test_a_long_outage_keeps_the_newest_nights_not_just_tonight(env):
+    # NAS off or Supabase failing for weeks: the first good night must not wipe the history.
+    for days in range(40, 60):
+        make_old_night(env["dest"], days - 39)
+        for p in env["dest"].glob(f"rxlab_202001{days - 39:02d}-*"):
+            t = time.time() - days * 86400
+            os.utime(p, (t, t))
+    assert run(env).returncode == 0
+    assert len(nights(env["dest"])) == 14
+    assert len(files(env["dest"])) == 14 * 3
+
+
+def test_orphan_files_older_than_every_kept_night_are_removed(env):
+    for days in range(1, 4):
+        make_old_night(env["dest"], days)
+    make_old_night(env["dest"], 30, kinds=("roles", "schema"))   # a night without its data file
+    assert run(env, "2").returncode == 0
+    assert not list(env["dest"].glob("rxlab_20200130-*"))
+    assert len(nights(env["dest"])) == 2
+
+
 def test_keep_days_argument(env):
     for days in range(1, 6):
         make_old_night(env["dest"], days)
@@ -191,6 +214,13 @@ def test_service_file_readable_by_others_is_refused(env, mode):
     assert "chmod 600" in r.stderr
     assert not env["args"].exists()              # docker never ran
     assert files(env["dest"]) == []
+
+
+def test_indented_section_header_is_accepted(env):
+    # libpq allows spaces before [rxlab]; a pasted file may have them.
+    env["secret"].write_text("  [rxlab]\n" + SERVICE.split("\n", 1)[1])
+    env["secret"].chmod(0o600)
+    assert run(env).returncode == 0
 
 
 def test_service_file_without_section_is_refused(env):
@@ -264,3 +294,107 @@ def test_kept_pre_change_backups_are_never_deleted(env):
         os.utime(p, (t, t))
     assert run(env).returncode == 0
     assert len(files(env["dest"], "keep_rxlab_*.sql")) == 3
+
+
+
+# The script that runs inside the container (between INNER=$(cat <<'EOS' and EOS), run with bash
+# and stand-in pg_dumpall/pg_dump/psql on PATH. Checks the Supabase CLI's line rewrites, the extra
+# schema-file sections, and that a failing dump leaves no completion line.
+STUBS = {
+    "pg_dumpall": r"""#!/bin/sh
+cat <<'X'
+\restrict abc
+CREATE ROLE "anon";
+ALTER ROLE "anon" WITH NOSUPERUSER NOINHERIT;
+CREATE ROLE "reporting";
+ALTER ROLE "reporting" WITH NOSUPERUSER INHERIT NOCREATEROLE NOREPLICATION;
+GRANT "pg_read_all_data" TO "authenticated";
+GRANT SET ON PARAMETER "session_replication_role" TO "supabase_admin";
+X
+""",
+    "pg_dump": r"""#!/bin/sh
+[ -n "${STUB_FAIL:-}" ] && { echo "pg_dump: error: boom" >&2; exit 1; }
+case " $* " in
+  *" --schema-only "*) cat <<'X'
+\restrict abc
+SET transaction_timeout = 0;
+CREATE SCHEMA "public";
+CREATE TABLE "public"."t" (id int);
+CREATE FUNCTION "public"."f"() RETURNS int LANGUAGE sql AS 'select 1';
+CREATE EVENT TRIGGER "ensure_rls" ON ddl_command_end
+         WHEN TAG IN ('CREATE TABLE')
+   EXECUTE FUNCTION "public"."rls_auto_enable"();
+ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin" IN SCHEMA "public" GRANT ALL ON TABLES TO "anon";
+GRANT USAGE ON SCHEMA "auth" TO "authenticated";
+COMMENT ON EXTENSION "pg_jsonschema" IS 'x';
+X
+  ;;
+  *) printf 'COPY "public"."t" ("id") FROM stdin;\n1\n\\.\n';;
+esac
+""",
+    "psql": r"""#!/bin/sh
+case "$*" in
+  *pg_extension*) echo 'CREATE EXTENSION IF NOT EXISTS pg_jsonschema WITH SCHEMA extensions;';;
+  *pg_policies*) printf 'DROP POLICY IF EXISTS "p" ON storage.objects;\nCREATE POLICY "p" ON storage.objects AS PERMISSIVE FOR SELECT TO authenticated USING (true);\n';;
+esac
+""",
+    "timeout": "#!/bin/sh\nshift 3\nexec \"$@\"\n",
+}
+
+
+def inner_script():
+    text = SCRIPT.read_text()
+    return text.split("INNER=$(cat <<'EOS'\n", 1)[1].split("\nEOS\n", 1)[0]
+
+
+def run_inner(tmp_path, **extra):
+    stubs = tmp_path / "stubs"
+    stubs.mkdir()
+    for name, body in STUBS.items():
+        (stubs / name).write_text(body)
+        (stubs / name).chmod(0o755)
+    out = tmp_path / "out"
+    out.mkdir()
+    e = dict(os.environ, PATH=f"{stubs}:{os.environ['PATH']}", BACKUP_DIR=str(out),
+             BASE="rxlab_t", DUMP_TIMEOUT="5", **extra)
+    r = subprocess.run(["bash", "-c", inner_script()], env=e, capture_output=True, text=True,
+                       timeout=30)
+    return r, {k: (out / f"rxlab_t_{k}.sql.part").read_text()
+               for k in ("roles", "schema", "data") if (out / f"rxlab_t_{k}.sql.part").exists()}
+
+
+def test_inner_script_applies_the_supabase_cli_rewrites(tmp_path):
+    r, f = run_inner(tmp_path)
+    assert r.returncode == 0, r.stderr
+    roles, schema, data = f["roles"], f["schema"], f["data"]
+    # roles: reserved roles and their grants commented out, custom roles kept without superuser-only attributes
+    assert '-- CREATE ROLE "anon"' in roles and '-- ALTER ROLE "anon"' in roles
+    assert '\nCREATE ROLE "reporting";' in roles
+    assert "NOREPLICATION" not in roles and "NOSUPERUSER" not in roles.replace('-- ALTER ROLE "anon"', "")
+    assert '-- GRANT "pg_read_all_data" TO "authenticated"' in roles
+    assert '-- GRANT SET ON PARAMETER "session_replication_role" TO "supabase_admin"' in roles
+    assert "-- \\restrict abc" in roles and roles.rstrip().endswith("-- rxlab backup: roles complete")
+    # schema: idempotent creates, platform statements commented out, our three additions in place
+    assert 'CREATE SCHEMA IF NOT EXISTS "public"' in schema
+    assert 'CREATE TABLE IF NOT EXISTS "public"."t"' in schema
+    assert 'CREATE OR REPLACE FUNCTION "public"."f"' in schema
+    assert '-- CREATE EVENT TRIGGER' in schema and '--          WHEN TAG IN' in schema
+    assert '-- ALTER DEFAULT PRIVILEGES FOR ROLE "supabase_admin"' in schema
+    assert '-- GRANT USAGE ON SCHEMA "auth"' in schema
+    assert '-- COMMENT ON EXTENSION' in schema and "-- SET transaction_timeout = 0;" in schema
+    assert schema.index("CREATE EXTENSION IF NOT EXISTS pg_jsonschema") < schema.index('CREATE TABLE IF NOT EXISTS')
+    assert schema.index("REVOKE ALL ON TABLES") < schema.index('CREATE TABLE IF NOT EXISTS')
+    assert schema.index('CREATE TABLE IF NOT EXISTS') < schema.index('CREATE POLICY "p" ON storage.objects')
+    assert schema.rstrip().endswith("-- rxlab backup: schema complete")
+    # data: triggers off while loading, session reset after, complete
+    assert data.startswith("SET session_replication_role = replica;")
+    assert 'COPY "public"."t"' in data and "RESET ALL;" in data
+    assert data.rstrip().endswith("-- rxlab backup: data complete")
+
+
+def test_inner_script_stops_at_a_failing_dump_without_a_completion_line(tmp_path):
+    r, f = run_inner(tmp_path, STUB_FAIL="1")
+    assert r.returncode != 0
+    assert "boom" in r.stderr
+    assert "-- rxlab backup: schema complete" not in f.get("schema", "")
+    assert "data" not in f
