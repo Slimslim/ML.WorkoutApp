@@ -185,7 +185,7 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
     <div>
       <span class="eyebrow">Rx Lab · iPhone · final card mockups, not app code</span>
       <h1>Workout Cards</h1>
-      <p class="muted">The workout card as the app will use it, built from the header study decisions and writing conventions. First the spec, then the card in six real places in the app. Your own workouts and scores are real; anything else is marked as an example. Colours are placeholders.</p>
+      <p class="muted">The workout card as the app will use it, built from the header study decisions and writing conventions. First the spec, then the card in six real places in the app. All workouts and scores are invented examples. Colours are placeholders.</p>
     </div>
     <div class="toggle" role="group" aria-label="Theme">
       <button type="button" data-theme-btn="sys" aria-pressed="true">System</button>
@@ -200,12 +200,12 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
     <div class="panel anat">
       <div id="anat-card"></div>
       <ol class="callouts">
-        <li><b>Date · program</b> on the left (<code>Today</code>, <code>Mon Nov 2</code>, <code>Mar 2023</code>; <code>PitFIRE</code>, <code>Mayhem</code>, <code>Built-in</code>).</li>
+        <li><b>Date · program</b> on the left (<code>Today</code>, <code>Mon Nov 2</code>, <code>Mar 2023</code>; <code>Test Gym</code>, <code>Example</code>, <code>Built-in</code>).</li>
         <li><b>Block tag + type tag</b> on the right. Block: Metcon, Strength, Accessory (neutral). Type: Chipper, EMOM, AMRAP, AMREP, Death by, Ladder, RFT, Complex, Sets × reps, For quality (outlined, the one accent).</li>
         <li><b>Name</b>, 2 lines max then "…". Open workouts get the prefix (<code>Open 13.4</code>). No name: the format is the name (<code>Every 3:00 × 3</code>).</li>
         <li><b>Time domain line</b>, first and on its own: <code>&lt;N&gt; min &lt;TYPE&gt;</code> (<code>7 min AMREP</code>, <code>40 min AMRAP</code>, <code>5 × 3 min AMRAP · rest 1 min</code>), <code>Every 1:00 × 8</code> for EMOMs, <code>5 rounds</code> for RFT. No cap here.</li>
         <li><b>Rep scheme on top, once</b>, when movements share it: <code>21-15-9</code>, <code>40-30-20-30-40 Cal</code>.</li>
-        <li><b>One movement per line, no dividers:</b> quantity, unit, movement, <code>@load</code>. Movements under a shared scheme carry no reps; fixed reps stay (<code>7 Power Cleans @155 lb</code>).</li>
+        <li><b>One movement per line, no dividers:</b> quantity, unit, movement, <code>@load</code>. Movements under a shared scheme carry no reps; fixed reps stay (<code>5 Power Cleans @135 lb</code>).</li>
         <li><b>Cap at the bottom</b>: <code>20 min cap</code>.</li>
         <li><b>After logging, the score line</b> under one thin rule: score, unit, Rx / Scaled badge, then one comparison (last time or the cap).</li>
       </ol>
@@ -255,7 +255,7 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
           <div class="status"><span>9:41</span><i>●●● ▮</i></div>
           <div class="big">Workouts</div>
           <div class="seg"><span class="on">Choose</span><span>Log</span></div>
-          <div class="sect">Your library · PitFIRE</div>
+          <div class="sect">Your library · Example</div>
           <div id="ctx-choose-lib" style="display:flex;flex-direction:column;gap:8px"></div>
           <div class="sect">Built-in</div>
           <div id="ctx-choose-built" style="display:flex;flex-direction:column;gap:8px"></div>
@@ -318,7 +318,7 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
         <div class="phone"><div class="screen">
           <div class="status"><span>6:02</span><i>●●● ▮</i></div>
           <div class="nav"><span>‹ Choose</span><span></span></div>
-          <div class="dayhead"><b>Thu Nov 5</b><span>Mayhem · 3 blocks</span></div>
+          <div class="dayhead"><b>Thu Nov 5</b><span>Example · 3 blocks</span></div>
           <div id="ctx-day" style="display:flex;flex-direction:column;gap:10px"></div>
         </div></div>
         <p class="note">Planned. Date and program sit once in the day header; each card keeps the same anatomy with its block order and block type top-left. Blocks go to the watch one at a time.</p>
@@ -329,7 +329,7 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
         <div class="phone"><div class="screen">
           <div class="status"><span>19:05</span><i>●●● ▮</i></div>
           <div class="nav"><span>‹ Log</span><span>Share</span></div>
-          <div class="dayhead"><b>Thu Nov 5</b><span>Mayhem · 3 of 3 done</span></div>
+          <div class="dayhead"><b>Thu Nov 5</b><span>Example · 3 of 3 done</span></div>
           <div id="ctx-day-done" style="display:flex;flex-direction:column;gap:10px"></div>
         </div></div>
         <p class="note">Top-left turns into the time the block was done. The front squat shows mean speed (strength lift); Olympic lifts show peak.</p>
@@ -342,7 +342,7 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
           <div class="nav"><span>‹ Log</span><span>Share</span></div>
           <div id="ctx-lift"></div>
         </div></div>
-        <p class="note">Your real power C&amp;J EMOM from Nov 2: 16/16 reps, loads you entered, peak clean speed per minute from the wrist. Olympic lifts show peak speed; strength lifts show mean (see e2).</p>
+        <p class="note">An example power C&amp;J EMOM: 18/18 reps, loads entered, peak clean speed per round from the wrist. Olympic lifts show peak speed; strength lifts show mean (see e2).</p>
       </div>
     </div>
   </section>
@@ -357,7 +357,7 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
         <li><span class="ok">DECIDED</span><span>Loads from the profile division, "See details" for the original, Rx / Scaled asked after logging.</span></li>
         <li><span class="ok">DECIDED</span><span>Logged lifts one line per set or minute; abbreviations and units as listed.</span></li>
         <li><span class="ok">DECIDED</span><span>Bar speed: <b>mean</b> for strength lifts (squats, presses, deadlifts, pull-ups), <b>peak</b> for Olympic and ballistic lifts (snatch, clean, jerk, C&amp;J), always written with its kind: <code style="font:400 12px var(--f-mono)">mean 0.62 m/s</code>, <code style="font:400 12px var(--f-mono)">peak 1.95 m/s</code>.</span></li>
-        <li><span class="ok">DECIDED</span><span>Freedom Rx was 185 lb: your 19:37 @155 lb is Scaled. AMRAP 40 and Helen stay <span class="badge q">?</span> until you answer.</span></li>
+        <li><span class="ok">DECIDED</span><span>A result below the Rx load is Scaled (Seesaw: Rx 135 lb, done at 115 lb). AMRAP 40 and Helen stay <span class="badge q">?</span> until you answer.</span></li>
         <li><span class="ok">DECIDED</span><span>Program days go to the watch block by block. Cards in a day keep their anatomy: block order + type top-left (<code style="font:400 12px var(--f-mono)">A · Strength</code>), then the time it was done.</span></li>
         <li><span class="op">OPEN</span><span>Colours are placeholders; the accent and the cyclic/barbell tints are not final.</span></li>
       </ul>
@@ -384,26 +384,26 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
   });
   function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 
-  // ---- workouts (real unless ex: true) ----
-  var FREEDOM = { date: "Mon Nov 2", source: "PitFIRE", block: "Metcon", type: "RFT", name: "Freedom", fmt: ["5 rounds"],
-    scheme: "40-30-20-30-40 Cal", moves: [["Row"], ["7 Power Cleans", "155 lb"]], cap: "20 min",
-    summary: "40-30-20-30-40 Cal Row · 7 Power Cleans @155 lb",
-    done: { n: "19:37", rx: "Scaled", vs: "Rx 185 lb · you 155 lb · 0:23 under the cap" } };
-  var PCJ = { date: "Mon Nov 2", source: "PitFIRE", block: "Strength", type: "EMOM", name: "Power Clean & Jerk", fmt: ["Every 1:00 × 8"],
-    moves: [["2 Power C&J", "125 → 175 lb"]], summary: "2 Power C&J @125 → 175 lb",
-    done: { n: "175 lb", u: "top set · 16/16 reps", rx: "8/8 min", vs: "Peak clean speed per minute (Olympic lift), wrist estimate",
-      moves: [["2 Power C&J", "125 lb", "peak 1.95 m/s"], ["2 Power C&J", "135 lb", "peak 1.84 m/s"], ["2 Power C&J", "145 lb", "peak 1.89 m/s"], ["2 Power C&J", "145 lb", "peak 1.88 m/s"], ["2 Power C&J", "155 lb", "peak 1.97 m/s"], ["2 Power C&J", "155 lb", "peak 1.80 m/s"], ["2 Power C&J", "165 lb", "peak 1.70 m/s"], ["2 Power C&J", "175 lb", "peak 1.62 m/s"]], speedHead: "peak" } };
+  // ---- workouts (all invented examples) ----
+  var SEESAW = { date: "Mon Nov 2", source: "Example", block: "Metcon", type: "RFT", name: "Seesaw", fmt: ["5 rounds"],
+    scheme: "30-24-18-24-30 Cal", moves: [["Row"], ["5 Power Cleans", "115 lb"]], cap: "18 min",
+    summary: "30-24-18-24-30 Cal Row · 5 Power Cleans @115 lb",
+    done: { n: "16:41", rx: "Scaled", vs: "Rx 135 lb · you 115 lb · 1:19 under the cap" } };
+  var PCJ = { date: "Mon Nov 2", source: "Example", block: "Strength", type: "EMOM", name: "Power Clean & Jerk", fmt: ["Every 1:30 × 6"],
+    moves: [["3 Power C&J", "95 → 135 lb"]], summary: "3 Power C&J @95 → 135 lb",
+    done: { n: "135 lb", u: "top set · 18/18 reps", rx: "6/6 rounds", vs: "Peak clean speed per round (Olympic lift), wrist estimate",
+      moves: [["3 Power C&J", "95 lb", "peak 1.95 m/s"], ["3 Power C&J", "105 lb", "peak 1.90 m/s"], ["3 Power C&J", "115 lb", "peak 1.86 m/s"], ["3 Power C&J", "125 lb", "peak 1.80 m/s"], ["3 Power C&J", "130 lb", "peak 1.74 m/s"], ["3 Power C&J", "135 lb", "peak 1.68 m/s"]], speedHead: "peak" } };
   var HELEN = { date: "Thu Oct 29", source: "Built-in", block: "Metcon", type: "RFT", name: "Helen", fmt: ["3 rounds"],
     moves: [["400 m Run"], ["21 KB Swings"], ["12 Pull-ups"]], cap: "16 min", summary: "400 m Run · 21 KB Swings · 12 Pull-ups",
     done: { n: "12:47", rx: "?", vs: "3:13 under the cap" } };
   var AMRAP40 = { date: "Sun Nov 1", source: "Built-in", block: "Metcon", type: "AMRAP", name: "AMRAP 40", fmt: ["40 min AMRAP", "rest 1 min between rounds"],
-    moves: [{ g: "A rounds" }, ["12 Cal Row"], ["15 Push-ups"], ["12 ALT DB C&J", "40 lb"], ["15 Burpees"], { g: "B rounds" }, ["12 Cal Bike"], ["6 Strict Pull-ups"], ["12 ALT DB Snatches", "40 lb"], ["3 Wall Walks"]],
-    summary: "A: Row · Push-ups · ALT DB C&J · Burpees / B: Bike · Pull-ups · Snatches · Wall Walks",
-    done: { n: "7", u: "rounds + 0", rx: "?", vs: "Avg round 4:51 · first time logged" } };
-  var FSQ = { source: "Mayhem", block: "Strength", type: "Sets × reps", name: "Front Squat", moves: [["5×3 Front Squat", "165–190 lb"]] };
-  var GAMEOVER = { source: "Mayhem", block: "Metcon", type: "RFT", name: "“GAME OVER”", scheme: "21-15-9", moves: [["Deadlift", "225 lb"], ["T2B"]], cap: "8 min" };
+    moves: [{ g: "A rounds" }, ["14 Cal Row"], ["20 KB Swings", "53 lb"], ["25 Air Squats"], ["10 Pull-ups"], { g: "B rounds" }, ["14 Cal SkiErg"], ["20 Wall Balls", "20 lb"], ["25 Lunges"], ["10 Ring Rows"]],
+    summary: "A: Row · KB Swings · Air Squats · Pull-ups / B: SkiErg · Wall Balls · Lunges · Ring Rows",
+    done: { n: "6", u: "rounds + 0", rx: "?", vs: "Avg round 5:40 · first time logged" } };
+  var FSQ = { source: "Example", block: "Strength", type: "Sets × reps", name: "Front Squat", moves: [["5×3 Front Squat", "160–185 lb"]] };
+  var LASTCALL = { source: "Example", block: "Metcon", type: "RFT", name: "“LAST CALL”", scheme: "21-15-9", moves: [["Deadlift", "205 lb"], ["Box Jumps", "24 in"]], cap: "9 min" };
   var OPEN134 = { date: "Thu Nov 5", source: "Open", block: "Metcon", type: "AMREP", name: "Open 13.4", fmt: ["7 min AMREP"], scheme: "3-6-9-12…", moves: [["C&J", "135 lb"], ["T2B"]] };
-  var CORE = { source: "Mayhem", block: "Accessory", type: "For quality", name: "Core Work", fmt: ["3 rounds"], moves: [["1/side Turkish Get-up", "pick"], ["1:00 Suitcase Hold", "pick"], ["50 ft Front-Rack Carry"]] };
+  var CORE = { source: "Example", block: "Accessory", type: "For quality", name: "Core Work", fmt: ["3 rounds"], moves: [["1:00 Plank Hold"], ["10/side Side Plank Dips"], ["50 ft Farmer Carry", "pick"]] };
 
   function card(w, o) {
     o = o || {};
@@ -440,7 +440,7 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
   }
 
   // anatomy
-  document.getElementById("anat-card").innerHTML = card(FREEDOM, { done: true });
+  document.getElementById("anat-card").innerHTML = card(SEESAW, { done: true });
 
   // states
   var DIANE = { date: "Today", source: "Benchmark", block: "Metcon", type: "RFT", name: "Diane", scheme: "21-15-9", moves: [["Deadlift", "225 lb"], ["HSPU"]] };
@@ -448,29 +448,29 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
   var st = [
     ["Planned", "", card(DIANE, { details: true })],
     ["Planned, AMREP", "", card(OPEN134, {})],
-    ["In progress", "example", card(FREEDOM, { date: "Today", live: "Round 3 of 5 · 11:02" })],
+    ["In progress", "example", card(SEESAW, { date: "Today", live: "Round 3 of 5 · 11:02" })],
     ["Done, Rx", "example score", card(DIANE, { score: { n: "8:31", rx: "Rx", good: "−0:23", vs: "vs last time (8:54, 2023)" } })],
     ["Done, scaled", "example score", card(DIANE_SC, { score: { n: "7:58", rx: "Scaled", vs: "Rx 225 lb + HSPU · you did 185 lb + box HSPU" } })],
-    ["Capped", "example score", card(GAMEOVER, { date: "Fri Nov 6", score: { n: "75", u: "reps at the cap", rx: "Rx", vs: "Capped at 8:00 · 21-15 done, 3 of 9 deadlifts" } })]
+    ["Capped", "example score", card(LASTCALL, { date: "Fri Nov 6", score: { n: "75", u: "reps at the cap", rx: "Rx", vs: "Capped at 9:00 · 21-15 done, 3 of 9 deadlifts" } })]
   ];
-  GAMEOVER.date = "Fri Nov 6";
+  LASTCALL.date = "Fri Nov 6";
   document.getElementById("states").innerHTML = st.map(function (s) {
     return '<div class="stcol"><span class="stlabel">' + s[0] + (s[1] ? '<span class="ex">' + s[1] + '</span>' : '') + '</span>' + s[2] + '</div>';
   }).join("");
 
   // contexts
-  document.getElementById("ctx-choose-lib").innerHTML = crow(FREEDOM, { last: "19:37" }) + crow(PCJ, { last: "175 lb" });
-  document.getElementById("ctx-choose-built").innerHTML = crow(HELEN, { last: "12:47" }) + crow(AMRAP40, { last: "7 rds" });
+  document.getElementById("ctx-choose-lib").innerHTML = crow(SEESAW, { last: "16:41" }) + crow(PCJ, { last: "135 lb" });
+  document.getElementById("ctx-choose-built").innerHTML = crow(HELEN, { last: "12:47" }) + crow(AMRAP40, { last: "6 rds" });
   document.getElementById("ctx-preview").innerHTML = card(HELEN, { date: "Today" });
-  document.getElementById("ctx-log").innerHTML = crow(FREEDOM, { done: true, date: "Mon Nov 2" }) + crow(PCJ, { done: true, date: "Mon Nov 2" }) +
+  document.getElementById("ctx-log").innerHTML = crow(SEESAW, { done: true, date: "Mon Nov 2" }) + crow(PCJ, { done: true, date: "Mon Nov 2" }) +
     crow(AMRAP40, { done: true, date: "Sun Nov 1" }) + crow(HELEN, { done: true, date: "Thu Oct 29" });
-  document.getElementById("ctx-report").innerHTML = card(FREEDOM, { done: true });
-  document.getElementById("ctx-day").innerHTML = card(FSQ, { slot: "A · Strength", send: "now", hint: "Next: B · Metcon" }) + card(GAMEOVER, { slot: "B · Metcon", send: "next" }) + card(CORE, { slot: "C · Accessory", send: "next" });
-  var FSQ_DONE = { source: "Mayhem", block: "Strength", type: "Sets × reps", name: "Front Squat",
+  document.getElementById("ctx-report").innerHTML = card(SEESAW, { done: true });
+  document.getElementById("ctx-day").innerHTML = card(FSQ, { slot: "A · Strength", send: "now", hint: "Next: B · Metcon" }) + card(LASTCALL, { slot: "B · Metcon", send: "next" }) + card(CORE, { slot: "C · Accessory", send: "next" });
+  var FSQ_DONE = { source: "Example", block: "Strength", type: "Sets × reps", name: "Front Squat",
     done: { n: "205 lb", u: "best set", rx: "Rx", vs: "Mean speed per set (strength lift), wrist estimate",
       moves: [["3 Front Squats", "165 lb", "mean 0.71 m/s"], ["3 Front Squats", "180 lb", "mean 0.66 m/s"], ["3 Front Squats", "190 lb", "mean 0.62 m/s"], ["3 Front Squats", "200 lb", "mean 0.56 m/s"], ["3 Front Squats", "205 lb", "mean 0.52 m/s"]] } };
   document.getElementById("ctx-day-done").innerHTML = card(FSQ_DONE, { slot: "A · 6:12 pm", done: true }) +
-    card(GAMEOVER, { slot: "B · 6:31 pm", score: { n: "7:12", rx: "Rx", vs: "0:48 under the cap" } }) +
+    card(LASTCALL, { slot: "B · 6:31 pm", score: { n: "7:12", rx: "Rx", vs: "1:48 under the cap" } }) +
     card(CORE, { slot: "C · 6:52 pm", score: { n: "Done", rx: "Rx", vs: "3 rounds" } });
   document.getElementById("ctx-lift").innerHTML = card(PCJ, { done: true });
 })();

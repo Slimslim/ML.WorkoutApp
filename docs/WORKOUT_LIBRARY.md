@@ -22,10 +22,10 @@ write from the app.
 
    ```json
    {
-     "program": "Mayhem",
+     "program": "Example",
      "scheduled_on": "2026-11-05",
      "published": true,
-     "definition": { "id": "lib.mayhem.20261105.chipper", "name": "…", "shortName": "…", … }
+     "definition": { "id": "lib.example.20261105.chipper", "name": "…", "shortName": "…", … }
    }
    ```
 
@@ -56,7 +56,7 @@ To hide a workout: `update public.workout_library set published = false where id
 | Public (both null) | every signed-in user | the project owner; only benchmarks (Helen, HYROX, ...) |
 
 Recordings and results (`uploads`) are always private to their user. Gym members are added by the
-owner for now: `insert into public.gym_members (gym_id, user_id) values ('blue-republic', '<user id>');`
+owner for now: `insert into public.gym_members (gym_id, user_id) values ('test-gym', '<user id>');`
 (the user id is the user's folder name in the `uploads` bucket, or `auth.users.id`). A new gym:
 `insert into public.gyms (id, name) values ('<slug>', '<Name>');`. Gym rows from a file: add
 `"gym": "<slug>"` to the JSON or pass `--gym <slug>` to `tools/library/make_row.py`.
@@ -77,21 +77,21 @@ python3 tools/library/make_row.py --builtin wod.helen --id lib.benchmark.2026111
 |---|---|
 | `id` | Primary key, the same string as `definition.id` (a check constraint enforces it). |
 | `definition` | `jsonb`, the WorkoutDefinition JSON exactly as BarPathKit encodes it (`id`, `name`, `shortName`, `format` forTime/amrap/emom, `team` solo/doubles/team, `healthKitActivity`, `segments`, optional `timeCapSeconds`, `intervalSeconds`, `roundSize`). Segment: `kind` run/station/transition/rest, `movement`, `name`, optional `target` {`value`, `unit` meters/reps/calories/seconds}, optional `load` {`value`, `unit` lb/kg, `count`}. |
-| `program` | Section title in Choose: "Mayhem", "Blue Republic", "Benchmark", "HYROX", … (null → "Library"). |
+| `program` | Section title in Choose: "Example", "Test Gym", "Benchmark", "HYROX", … (null → "Library"). |
 | `scheduled_on` | The day it is programmed. Today's (phone calendar) go into the "Today" section at the top; the others are listed newest first with their date. Null = undated. |
 | `published` | false hides it from the app. |
 | `owner` | A user id: that user's **personal** workout, seen only by them. Null otherwise. |
-| `gym_id` | A gym id (`gyms.id`, e.g. `blue-republic`): that gym's **programming**, seen by its members. Null otherwise. A row has an owner or a gym, never both; neither = public (benchmarks). |
+| `gym_id` | A gym id (`gyms.id`, e.g. `test-gym`): that gym's **programming**, seen by its members. Null otherwise. A row has an owner or a gym, never both; neither = public (benchmarks). |
 | `created_at`, `updated_at` | Set by the database (`updated_at` follows every change). |
 
 ## Id convention
 
 `lib.<program>.<yyyymmdd>.<slug>`: lowercase letters, digits and `-`, e.g.
-`lib.mayhem.20261105.chipper`, `lib.example.20261101.seesaw`. Undated workouts may skip the
+`lib.example.20261105.chipper`, `lib.example.20261101.seesaw`. Undated workouts may skip the
 date (`lib.benchmark.helen`).
 
 Personal rows (`owner` set) end with `.u<first 8 hex characters of the owner id, lowercase>`,
-e.g. `lib.mayhem.20261105.chipper.u1a2b3c4d`: ids are global, so two testers with the same
+e.g. `lib.example.20261105.chipper.u1a2b3c4d`: ids are global, so two testers with the same
 program, date and slug must not share one. `make_row.py` refuses an owner row without that
 suffix and names the id it expects. The app never splits an id, so the extra segment is harmless.
 
@@ -113,7 +113,7 @@ workout report work even after the row is removed.
 ## Privacy and copyright
 
 The repo is public and the shared library is readable by every signed-in user. Programs people
-pay for (Mayhem, Blue Republic, gym class programming) are the program's work: in v1 the shared
+pay for (subscription programs, gym class programming) are the program's work: in v1 the shared
 library is for the owner's own testing. When users can add workouts (the AI parser), their
 workouts are **private rows** (`owner` = their user id, readable only by them, already allowed by
 the select policy) and never copied into the shared library or into this repo. Only

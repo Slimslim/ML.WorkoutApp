@@ -100,7 +100,7 @@ System font (SF). Weights 400 and 500 only on Home, so it stays light. Numbers a
 
 - `lb` never `lbs`. Heights in `in`, runs in `m` (a mile stays `1 mile`, stored as meters), carries in `ft`, `Cal` before the movement.
 - Time domain: `20 min AMRAP`, `Every 1:00 × 8`, `5 rounds`.
-- Load with `@`: `7 Power Cleans @155 lb`. The load stays together on one line.
+- Load with `@`: `5 Power Cleans @135 lb`. The load stays together on one line.
 - Abbreviations: HSPU, T2B, C&J, DB, KB, DU, ALT.
 - A "lower is better" difference is written with its sign: `−0:23 vs last time`.
 - No coach notes, strategy or targets on a card. It records what was done.

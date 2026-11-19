@@ -173,7 +173,7 @@ bar speed can be compared with the load.
 **W5. Transition vs work time (Later)**
 As an athlete, I want each split shown as setup + work, with total time in transitions, so I
 see the time I lose walking and setting up.
-*Done when:* on the AMRAP 40 and Freedom files, transitions match the motion analysis within
+*Done when:* on the 2026-11-01 and 2026-11-02 recordings, transitions match the motion analysis within
 5 s for 80 % of segments (docs/TRANSITIONS.md).
 
 ### Recovery after the finish
@@ -235,13 +235,13 @@ whiteboard (name, `3 rounds` / `40 min AMRAP` / `Every 1:00 × 8`, one movement 
 load, the cap at the bottom), so I can tell what it is at a glance and check it before I start.
 *Done when:* every row in Choose shows the name, `block · type`, one line of movements and my
 last score when I have one; the preview shows the full card (date · program or Built-in, block
-and type tags, time domain, rep scheme, movements, cap) above Send to watch; Freedom reads
-`5 rounds` / `40-30-20-30-40 Cal` / `Row` / `7 Power Cleans @155 lb` / `20 min cap`. The card text
+and type tags, time domain, rep scheme, movements, cap) above Send to watch; Seesaw (an invented
+example) reads `5 rounds` / `30-24-18-24-30 Cal` / `Row` / `5 Power Cleans @135 lb` / `18 min cap`. The card text
 comes from one model (Python reference + Swift port with a parity test).
 
 **W12. Find a workout by searching (Now)**
 As an athlete with a growing library, I want a search button at the top right of Choose, so I
-can find "Freedom", every workout with KB swings, or every EMOM without scrolling through
+can find "Seesaw", every workout with KB swings, or every EMOM without scrolling through
 programs.
 *Done when:* the magnifying glass opens a search field; typing filters Today, every program and
 the built-ins together, matching the name, short name, program or group, movement names (as
@@ -255,9 +255,9 @@ know the score to beat and can open how it went last time.
 *Done when:* under the card a "Your results" list shows each past result newest first (date,
 score, Rx / Scaled once that is recorded, average heart rate), three at first with "Show all";
 tapping one opens its report. A result counts for the workout when it has the same id, or the
-same name and the same segment kinds and movements in order (my Freedom saved as `wod.freedom`
-shows under the library's PitFIRE Freedom; the PC&J EMOM saved as `wod.pcjEmom` likewise). The
-"last" score on the Choose rows uses the same rule (Freedom shows 19:37). Matcher in BarPathKit
+same name and the same segment kinds and movements in order (a Seesaw saved as `wod.seesaw`
+shows under the library's Seesaw; a PC&J EMOM saved as `wod.pcjEmom` likewise). The
+"last" score on the Choose rows uses the same rule. Matcher in BarPathKit
 (WorkoutHistory) with a Python reference and tests in both.
 
 **W14. A log of done cards (Now)**
@@ -439,7 +439,7 @@ switch to the right sensors and analysis for whatever comes next in the plan, so
 measured properly (a snatch gets bar speed, height and catch; a run gets GPS; a bike doesn't waste
 battery) without me choosing modes.
 *Done when:* in one session that has a barbell piece and a metcon (e.g. power snatch every 1:00 x 10,
-then Freedom), with one START:
+then a metcon), with one START:
 - **Olympic lifts** record 200 Hz motion + 800 Hz accel and give each lift its peak pull speed, max
   bar height and catch height, also without a still moment before the lift (the 2026-11-09 EMOM:
   today only 6 of 20 snatches could be analysed); **strength lifts** count reps with speed per rep;

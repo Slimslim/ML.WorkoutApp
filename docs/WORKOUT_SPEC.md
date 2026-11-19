@@ -444,7 +444,7 @@ full workout. At the end ask how many reps I did on that movement before the tim
 know how far I was. If I want to stop I can stop — it's my decision."
 
 AMRAP caps are unchanged (the clock finishes the workout, `capTime`, `partialReps`, §5). This
-section is for `format == .forTime` with `timeCapSeconds > 0` (Freedom 20:00, Helen 16:00,
+section is for `format == .forTime` with `timeCapSeconds > 0` (Seesaw 18:00, Helen 16:00,
 Partner WOD 1 30:00).
 
 ### Result format (no version bump, one new optional key)
@@ -478,7 +478,7 @@ Python: `for_time_cap_time`, `segment_index_at`, `cap_segment_index(now)`; on th
 `cap_position_text`. Finishing exactly on the cap is not capped (strictly greater).
 
 ### Score format
-- The big score is always the time for the full workout: "19:37" under the cap, "18:20" past it.
+- The big score is always the time for the full workout: "14:52" under the cap, "18:20" past it.
 - Under the cap the context line is unchanged: "3 rounds for time · 0:23 under the 16:00 cap".
 - Past the cap: "3 rounds for time · 2:20 over the 16:00 cap · at the cap: 7/12 Pull-ups (R3)".
 - `capPositionText`: "7/12 Pull-ups (R3)" (reps / target), "7 Burpees" (no reps target),

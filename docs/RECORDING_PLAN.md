@@ -1,6 +1,6 @@
 # Recording follows the plan (what the watch measures, per planned movement)
 
-Owner discussion of 2026-11-09/10, after the power snatch EMOM and Freedom. Story: **W21**
+Owner discussion of 2026-11-09/10, after the power snatch EMOM and the metcon that followed it. Story: **W21**
 (`docs/USER_STORIES.md`, Later). Apart from build 15 (below) nothing here is built yet; this is the reasoning and the open
 questions, so the build starts from the same place.
 
@@ -120,7 +120,7 @@ athlete choosing a mode.
 1. Lift pieces in the program (sets x reps x weight) and recorded as lifts (no supersets for now).
 2. `LiftAnalyzer` without the homing requirement (find the start of the pull from the motion), and
    checked at 100 Hz against the labelled snatches (`data/labels/2026-11-09-power-snatch-emom.json`,
-   20 reps, and Freedom's 21 snatches).
+   20 reps, and the 21 snatches of the metcon after it).
 3. Profile switching on the watch in one `HKWorkoutSession` (sensor rates and GPS change, the
    session does not).
 4. Battery / size test, then a gym test, before it replaces the two modes.
