@@ -3,15 +3,17 @@
 data/raw/, for the tools and tests that read them.
 
 The corpus lives in the owner's private Supabase Storage folder (bucket `uploads`,
-`<user id>/Corpus/raw/<session folder>/<file>`) with a checksum list `Corpus/raw/MANIFEST.sha256`
-(sha256sum format: `<hash>  <path relative to Corpus/raw/>`). Reading it needs the project's
-secret key, exactly like tools/fetch_sessions.py:
+`<user id>/Corpus/raw/<session folder>/<file>`, stored plain) with a checksum list
+`Corpus/raw/MANIFEST.sha256`: one line per file, `<sha256>  <bytes>  <path relative to Corpus/raw/>`
+(plain sha256sum lines without the size are accepted too). Only the owner's account and the
+service role can read the folder. Reading it needs the project's secret key, exactly like
+tools/fetch_sessions.py:
 
     BARPATH_USER_ID=<user id> BARPATH_SUPABASE_KEY=<secret key> python3 tools/fetch_corpus.py
 
 In a Claude cloud session the network proxy adds the key; pass any placeholder as the key.
-Every file is checked against the manifest; a file already in data/raw/ with the right checksum is
-skipped (--force downloads again). data/raw/ is ignored by git: recordings never go into the
+Every file is checked against the manifest (size and sha256); a file already in data/raw/ with the
+right checksum is skipped (--force downloads again). data/raw/ is ignored by git: recordings never go into the
 repository (CLAUDE.md). Without the corpus, the tests that need it are skipped.
 
     python3 tools/fetch_corpus.py 2026-10-29-helen     # only the folders whose path starts so
@@ -39,15 +41,22 @@ class CorpusError(Exception):
 
 
 def parse_manifest(text: str) -> list:
-    """[(sha256, relative path)] from sha256sum output; refuses paths that leave the folder."""
+    """[(sha256, bytes or None, relative path)] from `<sha256>  <bytes>  <path>` lines (or plain
+    sha256sum lines); refuses paths that leave the folder."""
     out = []
     for n, line in enumerate(text.splitlines(), 1):
         line = line.strip()
         if not line or line.startswith("#"):
             continue
-        parts = line.split(None, 1)
+        parts = line.split(None, 2)
+        size = None
+        if len(parts) == 3 and parts[1].isdigit():
+            size = int(parts[1])
+            parts = [parts[0], parts[2]]
+        else:
+            parts = line.split(None, 1)
         if len(parts) != 2 or len(parts[0]) != 64:
-            raise CorpusError(f"manifest line {n}: not '<sha256>  <path>'")
+            raise CorpusError(f"manifest line {n}: not '<sha256>  <bytes>  <path>'")
         digest, rel = parts[0].lower(), parts[1].strip()
         if rel.startswith("*"):            # sha256sum binary-mode marker
             rel = rel[1:]
@@ -57,7 +66,7 @@ def parse_manifest(text: str) -> list:
         if not rel or p.is_absolute() or ".." in p.parts:
             raise CorpusError(f"manifest line {n}: unsafe path {rel!r}")
         int(digest, 16)
-        out.append((digest, rel))
+        out.append((digest, size, rel))
     if not out:
         raise CorpusError("manifest is empty")
     return out
@@ -73,7 +82,7 @@ def sha256_of(path: Path) -> str:
 
 def download(user: str, key: str, rel: str) -> bytes:
     object_path = "/".join(urllib.parse.quote(part) for part in f"{user}/{PREFIX}/{rel}".split("/"))
-    url = f"{PROJECT_URL}/storage/v1/object/{BUCKET}/{object_path}"
+    url = f"{PROJECT_URL}/storage/v1/object/authenticated/{BUCKET}/{object_path}"
     req = urllib.request.Request(url, headers={"apikey": key, "Authorization": f"Bearer {key}"})
     with urllib.request.urlopen(req, timeout=300) as r:
         return r.read()
@@ -95,11 +104,12 @@ def main(argv=None) -> int:
         print(f"FAILED  manifest: {e}", file=sys.stderr)
         return 1
     if args.only:
-        entries = [(d, r) for d, r in entries if any(r.startswith(o.rstrip("/")) for o in args.only)]
+        entries = [e for e in entries if any(e[2].startswith(o.rstrip("/")) for o in args.only)]
     failed = 0
-    for digest, rel in entries:
+    for digest, size, rel in entries:
         dest = RAW_DIR / rel
-        if dest.exists() and not args.force and sha256_of(dest) == digest:
+        if (dest.exists() and not args.force and (size is None or dest.stat().st_size == size)
+                and sha256_of(dest) == digest):
             print(f"ok      {rel}")
             continue
         try:
@@ -107,6 +117,10 @@ def main(argv=None) -> int:
         except urllib.error.URLError as e:
             failed += 1
             print(f"FAILED  {rel}: {e}", file=sys.stderr)
+            continue
+        if size is not None and len(data) != size:
+            failed += 1
+            print(f"FAILED  {rel}: {len(data)} bytes, manifest says {size}", file=sys.stderr)
             continue
         if hashlib.sha256(data).hexdigest() != digest:
             failed += 1

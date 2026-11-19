@@ -37,8 +37,16 @@ BARPATH_USER_ID=<owner user id> BARPATH_SUPABASE_KEY=<secret key> python3 tools/
 python3 -m pytest tools/tests -q        # the real-data tests run again
 ```
 
-Every file is checked against `Corpus/raw/MANIFEST.sha256`; files already present with the right
-checksum are skipped. Never commit the downloaded files, the user id or a key.
+- **Where:** bucket `uploads` (private), `<owner user id>/Corpus/raw/<session folder>/<file>`, the
+  same folders as the old `data/raw/` (`Corpus/raw/2026-10-29-gym/…`), stored plain (not `.gz`),
+  byte-identical to the files in git history (main `cb98301`): 97 files, 132,718,357 bytes.
+- **Manifest:** `Corpus/raw/MANIFEST.sha256`, one line per file: `<sha256>  <bytes>  <path relative to
+  Corpus/raw/>`. `fetch_corpus.py` checks size and sha256 of every file; files already present
+  with the right checksum are skipped (`--force` downloads again).
+- **Who can read it:** the owner's account and the service role only (apikey + `Authorization:
+  Bearer`, `…/storage/v1/object/authenticated/uploads/<owner user id>/Corpus/raw/<path>`); anon
+  and public URLs are refused.
+- Never commit the downloaded files, the user id or a key.
 
 ## How a session gets labelled
 

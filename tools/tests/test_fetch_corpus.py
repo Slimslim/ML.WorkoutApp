@@ -10,13 +10,19 @@ import fetch_corpus as F  # noqa: E402
 H = "a" * 64
 
 
-def test_sha256sum_format():
+def test_manifest_with_sizes():
+    text = f"{H}  1234  2026-10-29-helen/README.md\n{'B' * 64}  98765  2026-10-29-gym/video_paths/a b.csv\n"
+    assert F.parse_manifest(text) == [(H, 1234, "2026-10-29-helen/README.md"),
+                                      ("b" * 64, 98765, "2026-10-29-gym/video_paths/a b.csv")]
+
+
+def test_plain_sha256sum_format():
     text = f"{H}  2026-10-29-helen/README.md\n{'B' * 64} *./2026-10-29-helen/session-x.csv\n\n# note\n"
-    assert F.parse_manifest(text) == [(H, "2026-10-29-helen/README.md"),
-                                      ("b" * 64, "2026-10-29-helen/session-x.csv")]
+    assert F.parse_manifest(text) == [(H, None, "2026-10-29-helen/README.md"),
+                                      ("b" * 64, None, "2026-10-29-helen/session-x.csv")]
 
 
-@pytest.mark.parametrize("line", [f"{H}  ../escape", f"{H}  /abs/path", f"{H}  a/../../b",
+@pytest.mark.parametrize("line", [f"{H}  ../escape", f"{H}  12  ../escape", f"{H}  /abs/path", f"{H}  a/../../b",
                                   "short  a.csv", f"{H}", f"{'z' * 64}  a.csv"])
 def test_refuses_bad_lines(line):
     with pytest.raises((F.CorpusError, ValueError)):
