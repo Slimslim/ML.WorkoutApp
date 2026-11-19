@@ -322,7 +322,7 @@ As an athlete whose time cap hits during a run, I want the score to say how far 
 *Done when:* when the cap ends a run segment, the watch does not ask "Reps of …?"; the result keeps
 the run's measured distance (pedometer, or GPS once runs use it) as the partial and the score reads
 "+ <m> m" on the watch done screen, the report and the done card; for a station the reps question
-stays as today. (SunYay 2026-11-08: the cap hit 21 s and 41 m into the run; 11 "reps" were entered.)
+stays as today. (AMRAP 40 + runs 2026-11-08: the cap hit 21 s and 41 m into the run; 11 "reps" were entered.)
 
 ### First workout (MVP, from the first tester: 2026-11-10)
 

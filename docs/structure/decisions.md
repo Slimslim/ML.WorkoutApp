@@ -209,7 +209,7 @@ Code re-checked for the lifting claims: `LiftType` is Olympic lifts + `other`; `
 | R2-UX-13 | No place to see declined permissions | **Accept** | Settings › Permissions. |
 | R2-UX-opt-1 | Phone report shows target deltas before Anaheim | **Accept** | Needed to review the trial sim. |
 | R2-UX-opt-2 | Program "target score" as metcon ahead/behind target | **Accept, later** | Kept on import now; used as target Before App Store. |
-| R2-UX-opt-3 | Show row ladder on confirm screen | **Accept** | Confirm mock shows 40-30-20-30-40 cal + 7 power cleans. |
+| R2-UX-opt-3 | Show row ladder on confirm screen | **Accept** | Confirm mock shows the invented ladder (30-24-18-24-30 cal + 5 power cleans). |
 | R2-UX-opt-4 | List Build formats; partner hint | **Accept** | §9 lists formats; partner walk has the Crown hint. |
 | R2-UX-opt-5 | Fix "he/his" in scenarios.md | **Accept** | Done (S-14, 18, 26, 28, 29, 38). |
 
