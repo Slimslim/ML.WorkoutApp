@@ -149,15 +149,18 @@ root-only file inside the share:
 
 The backup refuses to run if anyone but root can read the file, so a mistake shows up the next night.
 
-1. Download the two scripts:
-   1. On GitHub, open the repository and choose the branch in the branch menu at the top left:
-      - **`main`** once this backup is merged;
-      - **`claude/b17-synology-backup`** for the first test on the NAS, before it is merged.
+1. Download the two scripts. Until this backup is merged, they exist only on the branch
+   `claude/b17-synology-backup`. Open each link on your Mac, then save the page with **File → Save
+   As…** (keep the file name):
+   - https://raw.githubusercontent.com/Slimslim/ML.WorkoutApp/claude/b17-synology-backup/tools/backup/synology_pgdump.sh
+   - https://raw.githubusercontent.com/Slimslim/ML.WorkoutApp/claude/b17-synology-backup/tools/backup/synology_restore_test.sh
 
-      Then open `tools/backup/synology_pgdump.sh`.
-   2. Click **Download raw file**, the download icon above the code, on the right.
-   3. Do the same for `tools/backup/synology_restore_test.sh`.
-   4. Copy both files into `RxLabBackup` with File Station (drag and drop).
+   After the merge (build 17's release branch merged into `main`), take them from `main`: the same
+   links with `main` in place of `claude/b17-synology-backup`. On GitHub, you can also open the file
+   and click **Download raw file**.
+
+   Check that each file name ends in `.sh`, not `.sh.txt` (Safari sometimes adds `.txt`; rename it
+   in Finder). Then copy both files into `RxLabBackup` with File Station (drag and drop).
 
    Then, as root (step 2):
 
