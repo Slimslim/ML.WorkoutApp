@@ -12,8 +12,9 @@ write from the app.
 
 1. Supabase dashboard → SQL editor → paste the whole migration file
    `supabase/migrations/20261104000000_workout_library.sql` → Run.
-2. Paste `tools/library/seed/seed.sql` → Run (adds Freedom and the power C&J EMOM).
-3. On the phone: Workouts → Choose → pull down. The two workouts appear under "PitFIRE".
+2. Paste `tools/library/seed/seed.sql` → Run (adds two invented example workouts, "Seesaw" and a
+   power C&J EMOM).
+3. On the phone: Workouts → Choose → pull down. The two workouts appear under "Example".
 
 ## Add a workout
 
@@ -39,7 +40,7 @@ write from the app.
    the foreground, at most once a minute).
 
 Later, Claude with database access can run the same SQL. Keep the JSON in the repo only for
-the owner's own or public workouts (see Privacy). Keep `seed.sql` in sync:
+invented examples or public benchmarks (see Privacy); the seed files are invented workouts. Keep `seed.sql` in sync:
 `python3 tools/library/make_row.py tools/library/seed/*.json > tools/library/seed/seed.sql`
 (a test checks it).
 
@@ -86,7 +87,7 @@ python3 tools/library/make_row.py --builtin wod.helen --id lib.benchmark.2026111
 ## Id convention
 
 `lib.<program>.<yyyymmdd>.<slug>`: lowercase letters, digits and `-`, e.g.
-`lib.mayhem.20261105.chipper`, `lib.pitfire.20261102.freedom`. Undated workouts may skip the
+`lib.mayhem.20261105.chipper`, `lib.example.20261101.seesaw`. Undated workouts may skip the
 date (`lib.benchmark.helen`).
 
 Personal rows (`owner` set) end with `.u<first 8 hex characters of the owner id, lowercase>`,

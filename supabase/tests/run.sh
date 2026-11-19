@@ -7,7 +7,7 @@
 #
 # Order: migrations before 20261118 -> a synthetic production-like seed (29 published rows,
 # 2,518 drafts) -> the new migrations -> checks -> make_row.py output for the v2 fixtures ->
-# checks -> the rollback script -> checks. Needs a fresh database each run (CI starts a new container).
+# checks -> the library seed -> checks -> the rollback script -> checks. Needs a fresh database each run (CI starts a new container).
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 : "${PGURL:?set PGURL to a throwaway supabase/postgres database}"
@@ -77,6 +77,12 @@ echo "make_row: the same SQL again (an update of existing rows, exact ones with 
 python3 tools/library/make_row.py --trust-old-keys tools/library/fixtures/v2/valid/*.json | psql_run
 
 echo "tests: v2"; psql_run -f supabase/tests/30_v2.sql
+
+# The library seed (invented example workouts) still loads on the v2 schema.
+echo "library seed: tools/library/seed/seed.sql (twice)"
+psql_run -f tools/library/seed/seed.sql
+psql_run -f tools/library/seed/seed.sql
+echo "tests: library seed"; psql_run -f supabase/tests/35_library_seed.sql
 
 # The rollback script works and restores the library exactly. The delete-account test above
 # removed the tester's fixture rows only (not part of the snapshot).
