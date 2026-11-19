@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""2026-11-02 first look: barbell power clean & jerk EMOM + "Freedom" (row / power cleans), rep by
+"""2026-11-02 first look: barbell power clean & jerk EMOM + a row / power clean workout, rep by
 rep from left-wrist device motion.
 
-    python3 tools/scratch/pcj_freedom_reps.py [data/raw/2026-11-02-pcj-emom-freedom]
+    python3 tools/scratch/pcj_cleans_reps.py [data/raw/2026-11-02-pcj-emom-freedom]
 
 Prints markdown tables (copied into that folder's ANALYSIS.md).
 
@@ -57,9 +57,9 @@ CATCH_MAX_RISE_S = 0.3                # floor -> rack flip time (cleans 0.17-0.1
 CATCH_MIN_G = 3.5                     # |userAccel| peak within 1 s before / 0.3 s after the flip
 LOCK_GX, LOCK_GY, LOCK_HOLD_S = 0.93, 0.2, 0.3
 SET_GAP_S = 30.0                      # reps closer than this belong to one set (EMOM)
-# owner's loads (README.md): the workout definition says 85 kg for Freedom, the bar was 155 lb
+# owner's loads (README.md): the workout definition says 85 kg for workout 2, the bar was 155 lb
 EMOM_LOADS_LB = [125, 135, 145, 145, 155, 155, 165, 175]
-FREEDOM_LOAD_LB = 155
+CLEANS_LOAD_LB = 155
 LB = 0.45359237
 TNG_GAP_S = 3.5                       # catch-to-catch gap below this = touch-and-go
 PULL_START_V = 0.15                   # m/s: pull start = last time before the clean peak v < this
@@ -335,9 +335,9 @@ def emom(folder):
     return "\n".join(L)
 
 
-# ---- workout 2: Freedom -------------------------------------------------------------------------
+# ---- workout 2: row + cleans -------------------------------------------------------------------------
 
-def freedom(folder):
+def row_cleans(folder):
     S = find(folder, "wod.freedom")
     L = []
     P = L.append
@@ -351,7 +351,7 @@ def freedom(folder):
         rnd.append({"k": k, "row": ro, "pc": pc, "strokes": st, "onset": on, "reps": reps})
     target = sum(int(s["target"]["value"]) for s in S.wk["definition"]["segments"] if s["movement"] != "row")
 
-    P(f"Power cleans at {FREEDOM_LOAD_LB} lb ({FREEDOM_LOAD_LB * LB:.0f} kg, owner; the definition says "
+    P(f"Power cleans at {CLEANS_LOAD_LB} lb ({CLEANS_LOAD_LB * LB:.0f} kg, owner; the definition says "
       f"{S.wk['definition']['segments'][1].get('load', {}).get('value', '?')} kg).\n")
     P(f"Start {S.start:+.2f} s, finish {mmss(S.finish_s - S.start)} (Crown), End {mmss(S.end - S.t0 - S.start)}.\n")
     P("### Rounds\n")
@@ -452,8 +452,8 @@ def main(argv):
     folder = argv[0] if argv else "data/raw/2026-11-02-pcj-emom-freedom"
     print("## Workout 1 · Every 1:00 × 8 power clean & jerk\n")
     print(emom(folder))
-    print("\n## Workout 2 · Freedom\n")
-    print(freedom(folder))
+    print("\n## Workout 2 · row + power cleans\n")
+    print(row_cleans(folder))
     return 0
 
 

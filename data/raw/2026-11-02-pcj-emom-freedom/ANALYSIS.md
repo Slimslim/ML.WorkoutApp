@@ -1,9 +1,9 @@
-# Power C&J EMOM + Freedom · reps, sets and timing from the wrist, first analysis
+# Power C&J EMOM + row / power cleans · reps, sets and timing from the wrist, first analysis
 
 One athlete (owner), watch on the left wrist, 100 Hz device motion, barbell (both hands on the bar,
 so every rep is seen by the watch arm). Loads from README.md (owner). Reproduce with
 
-    python3 tools/scratch/pcj_freedom_reps.py data/raw/2026-11-02-pcj-emom-freedom
+    python3 tools/scratch/pcj_cleans_reps.py data/raw/2026-11-02-pcj-emom-freedom
 
 Everything under "Script output" is that script's output, unedited.
 
@@ -84,7 +84,7 @@ re-checking the squat first look (its "bottoms" may be the tops); not changed he
 5. Keep minute 1 at the Start press (it was exact here); a 3-2-1 countdown to each mark is enough
    cue — this athlete did not need to touch the watch at all.
 
-## Workout 2 · Freedom (row 40-30-20-30-40 cal, 7 power cleans at 155 lb after each, 19:37)
+## Workout 2 · row + power cleans (5 rounds for time)
 
 The definition says 85 kg; the owner used **155 lb (70 kg)**.
 
@@ -230,7 +230,7 @@ Recovery (HeartRateRecovery rules):
 
 5 s series finish → End: 149, 148, 140, 140, 142, 136, 136, 127, 132, 132, 132, 133, 135, 136, 136, 132, 125, 125, 126, 127, 129, 126, 125, 125, 115, 114, 118, 119, 117, 117
 
-### Workout 2 · Freedom
+### Workout 2 · row + power cleans
 
 Power cleans at 155 lb (70 kg, owner; the definition says 85 kg).
 

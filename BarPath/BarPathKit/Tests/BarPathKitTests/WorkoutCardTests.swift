@@ -85,22 +85,22 @@ final class WorkoutCardTests: XCTestCase {
 
     func testMixedSchemeAndNoName() {
         var segs: [WorkoutSegment] = []
-        for v in [40.0, 30.0, 20.0, 30.0, 40.0] {
+        for v in [30.0, 24.0, 18.0, 24.0, 30.0] {
             segs.append(WorkoutSegment(kind: .station, movement: "row", name: "Row",
                                        target: SegmentTarget(v, .calories)))
             segs.append(WorkoutSegment(kind: .station, movement: "powerCleans", name: "Power Cleans",
-                                       target: SegmentTarget(7, .reps), load: SegmentLoad(155, .lb)))
+                                       target: SegmentTarget(5, .reps), load: SegmentLoad(135, .lb)))
         }
         let d = WorkoutDefinition(id: "t", name: "  ", shortName: "", format: .forTime, team: .solo,
-                                  timeCapSeconds: 1200, healthKitActivity: "crossTraining",
+                                  timeCapSeconds: 1080, healthKitActivity: "crossTraining",
                                   segments: segs, roundSize: 2)
         let c = WorkoutCard.make(definition: d)
-        XCTAssertEqual(c.repSchemeLine, "40-30-20-30-40")
-        XCTAssertEqual(c.lines.map { (l: WorkoutCard.Line) -> String in l.full }, ["Cal Row", "7 Power Cleans @155 lb"])
+        XCTAssertEqual(c.repSchemeLine, "30-24-18-24-30")
+        XCTAssertEqual(c.lines.map { (l: WorkoutCard.Line) -> String in l.full }, ["Cal Row", "5 Power Cleans @135 lb"])
         XCTAssertEqual(c.name, "5 rounds")
         XCTAssertTrue(c.nameIsFormat)
-        XCTAssertEqual(c.capLine, "20 min cap")
-        XCTAssertEqual(c.summaryLine, "40-30-20-30-40 Cal Row · 7 Power Cleans @155 lb")
+        XCTAssertEqual(c.capLine, "18 min cap")
+        XCTAssertEqual(c.summaryLine, "30-24-18-24-30 Cal Row · 5 Power Cleans @135 lb")
     }
 
     func testFreeWorkoutAndShortNames() {

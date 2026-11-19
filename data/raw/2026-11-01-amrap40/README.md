@@ -1,4 +1,4 @@
-# 2026-11-01 · AMRAP 40 with 1:00 rest (class workout, Blue Republic / PitFIRE)
+# 2026-11-01 · AMRAP 40 with 1:00 rest (class workout)
 
 Owner's own data (consent to commit given). Watch result JSON; the session CSV (motion) and the
 same-day squat recordings will be added when shared.

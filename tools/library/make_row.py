@@ -324,7 +324,7 @@ def main(argv=None) -> int:
     ap.add_argument("files", nargs="*", help="WorkoutDefinition JSON files")
     ap.add_argument("--builtin", help="use this built-in definition from tools/barpath/workout.py")
     ap.add_argument("--id", help="library id (required with --builtin; renames a file's definition)")
-    ap.add_argument("--program", help="program name, e.g. Mayhem (overrides the file)")
+    ap.add_argument("--program", help="program name, e.g. Example (overrides the file)")
     ap.add_argument("--date", help="scheduled_on, YYYY-MM-DD (overrides the file)")
     ap.add_argument("--unpublished", action="store_true", help="add it hidden (published = false)")
     ap.add_argument("--gym", help="gym id, e.g. blue-republic: the gym's programming (overrides the file)")

@@ -1,10 +1,10 @@
 """Which saved results belong to a workout: reference for BarPathKit's WorkoutHistory.swift.
 
 The same workout can reach the phone under more than one id: a built-in on a branch that was never
-merged ("wod.freedom") and the library row of the same day ("lib.pitfire.20261102.freedom"). Two
+merged ("wod.seesaw") and the library row of the same day ("lib.example.20261101.seesaw"). Two
 definitions are the same workout when their ids are equal, or when their names match once
 normalized AND their segments have the same kinds and movements in the same order. Targets and
-loads are left out on purpose: a load typed differently (85 kg vs 155 lb) is still the workout.
+loads are left out on purpose: a load typed differently (60 kg vs 135 lb) is still the workout.
 """
 from __future__ import annotations
 
