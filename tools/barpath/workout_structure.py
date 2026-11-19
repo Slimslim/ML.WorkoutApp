@@ -168,7 +168,8 @@ def validate(doc: dict, strict: bool = True) -> list:
     for where, st in structures(compiled):
         exp = workout_engine.expand(st)
         if exp.invalid == "tooLarge":
-            errs.append("%s: more than %d steps in the plan" % (where, MAX_STEPS))
+            errs.append("%s: too large to expand (more than %d steps in the plan, or more than %d "
+                        "rounds to expand)" % (where, MAX_STEPS, workout_engine.MAX_ROUNDS))
         elif exp.invalid is not None:
             errs.append("%s: a number is out of the engine's range (seconds at most %d, repeats at "
                         "most %d, ratio at most %d)" % (where, workout_engine.MAX_SECONDS,
