@@ -906,6 +906,10 @@ final class WorkoutSessionModel: ObservableObject {
                 startTimeoutTask?.cancel()
                 startTimeoutTask = nil
                 errorMessage = "Workout ended by watch"
+                if phase == .running, let engine = engine {
+                    // The step still running ends here, like End, before the CSV closes.
+                    applyEngine(engine.end(), engine: engine, haptics: false)
+                }
                 finalize(reason: "system", backgroundRecovery: false)
                 phase = .ending
                 armEndTimeout()

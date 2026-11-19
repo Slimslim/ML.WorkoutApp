@@ -192,3 +192,35 @@ def test_lines_written_as_the_run_goes_hold_every_final_line():
     # The reps entered at the end are written again on their step line.
     assert any("reps=" in text for _, text in out)
     assert wss.new_lines(st, written) == []
+
+
+def test_an_undone_end_does_not_hide_the_real_one_in_the_csv():
+    """Review round 1 (B2): crown, undo, crown again on the same step writes the real end."""
+    doc = ws.compile_definition(ALL["hyrox"])
+    st = we.initial(we.plan(doc))
+    written, out = {}, []
+    for e in gen.expand_events(gen.SCENARIOS["hyrox"]["undoThenAgain"]):
+        st, _ = we.reduce(st, e)
+        out += wss.new_lines(st, written)
+    first = [(t, text) for t, text in out if "step=rp.1.run " in text]
+    assert [t for t, _ in first] == [60 * S, 180 * S]
+
+
+def test_a_ratio_rest_after_long_work_ends_on_time_and_is_clamped_past_a_week():
+    """Review round 1 (B1): the end is exact past 2^31 intermediate values, clamped at 7 days."""
+    p = we.plan(gen.RATIO_LONG)
+    st, _ = we.run(p, gen.expand_events(gen.EXTRA["ratioLong"][2]["tenMinutes"]))
+    assert wss.project(st)["starts"] == [0, 600 * S, 60600 * S]
+    st, _ = we.run(p, gen.expand_events(gen.EXTRA["ratioLong"][2]["clamped"]))
+    assert st.due == we.MAX_BELL_MS
+    assert wss.next_bell(st) == {"t": we.MAX_BELL_MS, "finish": False}
+
+
+def test_bells_past_a_week_refuse_the_plan():
+    body = [{"repeat": {"id": "rp", "times": 8, "body": [{"rest": {"id": "r", "seconds": 86400}}]}},
+            {"part": {"id": "a", "movement": "run"}}]
+    with pytest.raises(we.NotRunnable) as e:
+        we.plan({"schemaVersion": 2, "structure": {"score": {"type": "none"}, "body": body}})
+    assert e.value.reason == "tooLarge"
+    body[0]["repeat"]["times"] = 7                    # exactly 7 days still plans
+    we.plan({"schemaVersion": 2, "structure": {"score": {"type": "none"}, "body": body}})

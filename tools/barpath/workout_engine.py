@@ -43,6 +43,10 @@ HAPTICS = ("go", "rest", "time")
 MAX_SECONDS = 86400         # a window, rest or seconds target: at most 24 h
 MAX_TIMES = 10000           # repeat times and listRounds
 MAX_RATIO = 100             # a ratio rest
+# Engine times stay within 7 days of START: a bell planned later refuses the plan ("tooLarge") and
+# a ratio rest's end is clamped there. 7 days + a 24 h bell still fits a 32-bit Int (arm64_32
+# watches; workout_session.MAX_EVENT_MS is the same bound for decoded events).
+MAX_BELL_MS = 7 * 24 * 3600 * 1000
 MAX_ROUNDS = 10000          # rounds expanded in one plan (repeats that add no steps still cost work)
 
 
@@ -541,7 +545,10 @@ def plan(definition: dict, scale: Optional[str] = None, standard: str = "M",
         raise NotRunnable(exp.invalid, [])
     if not exp.steps:
         raise NotRunnable("empty", [])
-    return Plan(definition, structure, exp, scale)
+    p = Plan(definition, structure, exp, scale)
+    if any(b["offsetMs"] > MAX_BELL_MS for b in p.bells):
+        raise NotRunnable("tooLarge", [])
+    return p
 
 
 def _static_bells(exp: Expansion) -> list:
@@ -822,7 +829,7 @@ def _enter(st: State, t: int, effects: list, by_clock: bool):
     elif s.kind == "rest" and s.ratio is not None:
         milli = int(round(s.ratio * 1000))          # ratio in thousandths: integer maths only
         seconds = (milli * _scope_ms(st, s.ratio_of) + 500000) // 1000000
-        due = t + seconds * 1000
+        due = min(t + seconds * 1000, MAX_BELL_MS)
     elif s.seconds_target is not None:
         due = t + s.seconds_target * 1000
     st.due = due

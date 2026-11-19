@@ -73,6 +73,7 @@ final class WorkoutEngineSessionModel {
             return nil
         }
         guard let plan = try? WorkoutEngine.plan(raw) else {
+            engineLog.error("Engine route but the plan failed; running the old keys")
             return nil
         }
         let options: JSONValue = WorkoutEngineSession.options(scale: nil, standard: "M", choices: [:])
@@ -95,8 +96,15 @@ final class WorkoutEngineSessionModel {
         return ms >= UInt64(EngineEvent.maxMs) ? EngineEvent.maxMs : Int(ms)
     }
 
+    /// The CSV time (systemUptime) of engine time `ms`. `CLOCK_MONOTONIC` counts sleep and
+    /// `systemUptime` (every other CSV line) does not, so the sleep measured so far is taken off:
+    /// engine lines stay in step with the HR, segment and sensor lines after the watch slept.
+    /// A line written later than its event (catch-up after a sleep) gets the sleep up to when
+    /// it was written, at most one 200 ms tick off in practice.
     private func uptime(_ ms: Int) -> Double {
-        return startUptime + Double(ms) / 1000
+        let elapsedUptime: Double = ProcessInfo.processInfo.systemUptime - startUptime
+        let sleep: Double = max(0, Double(nowMs()) / 1000 - elapsedUptime)
+        return startUptime + Double(ms) / 1000 - sleep
     }
 
     // MARK: Inputs
@@ -295,7 +303,7 @@ enum WorkoutEngineCheckpointFile {
         queue.async {
             let url: URL = fileURL
             guard FileManager.default.fileExists(atPath: url.path) else { return }
-            let stamp: Int = Int(Date().timeIntervalSince1970)
+            let stamp: Int64 = Int64(Date().timeIntervalSince1970)
             let aside: URL = directoryURL.appendingPathComponent("engine-checkpoint-\(stamp).aside.json")
             do {
                 try FileManager.default.moveItem(at: url, to: aside)

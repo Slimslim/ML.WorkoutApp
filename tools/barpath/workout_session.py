@@ -249,19 +249,19 @@ def next_bell(st) -> Optional[dict]:
 
 def _key(text: str) -> str:
     """A line without its ` seq=<n>` token: the same step line keeps its key when a later line
-    moves its sequence number."""
+    moves its sequence number. `new_lines` pairs it with the line's time."""
     return " ".join(tok for tok in text.split(" ") if not tok.startswith("seq="))
 
 
 def new_lines(st, written: dict) -> list:
     """[(ms from START, description)] of the step and ignored-input lines (workout_csv.event_lines)
-    not written yet; `written` (key -> count) is updated. A step line whose reps change later
+    not written yet; `written` ((t, key) -> count) is updated. A step line whose reps change later
     (entered on the done screen) is written again with them: the loader keeps the last line per
     step. A late Crown that rewrites an earlier step adds its new line; nothing is ever removed."""
     out = []
     seen = {}
     for t, text in wc.event_lines(st):
-        k = _key(text)
+        k = (t, _key(text))     # with its time: an undone end and the real one differ only in t
         seen[k] = seen.get(k, 0) + 1
         if seen[k] > written.get(k, 0):
             written[k] = seen[k]

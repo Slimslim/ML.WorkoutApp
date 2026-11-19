@@ -138,6 +138,9 @@ SCENARIOS = {
     "hyrox": {
         "race": ticked(0, 0, crowns(*[240 * S * k for k in range(1, 17)], 240 * S + 1500)),
         "undo": ticked(0, 0, crowns(240 * S) + [{"kind": "undo", "t": 250 * S}]),
+        # Undo an early Crown, then end the same step again (the CSV must keep the real end).
+        "undoThenAgain": ticked(0, 0, crowns(60 * S) + [{"kind": "undo", "t": 61 * S}]
+                                + crowns(180 * S, 300 * S)),
         "lateLockout": {"stream": [{"kind": "start", "t": 0}, {"kind": "crown", "t": 99 * S},
                                    {"kind": "tick", "t": 100500}, {"kind": "crown", "t": 100 * S}]},
         "lateIgnored": {"stream": [{"kind": "start", "t": 0}, {"kind": "tick", "t": 100 * S},
@@ -205,7 +208,16 @@ UNKNOWN_NODES = {"schemaVersion": 2, "id": "test.unknown", "name": "Unknown bloc
                      {"group": {"id": "g", "body": [{"futureToo": {}}, part("b", "burpees", 10)]}}]}}
 
 _VARIANT_CROWNS = crowns(30 * S, 61 * S, 122 * S, 152 * S, 228 * S, 258 * S)
+# A ratio rest after long work (32-bit: milli × measured ms passes 2^31), and one clamped at
+# MAX_BELL_MS.
+RATIO_LONG = {"schemaVersion": 2, "id": "test.ratioLong", "name": "Long row, rest 100x", "team": "solo",
+              "structure": {"score": {"type": "time"}, "body": [
+                  part("row", "row", 10000, "meters"), {"rest": {"id": "r", "ratio": 100}},
+                  part("run", "run", 400, "meters", kind="run")]}}
 EXTRA = {
+    "ratioLong": (RATIO_LONG, {}, {
+        "tenMinutes": ticked(60 * S, 61200 * S, crowns(600 * S, 60700 * S)),
+        "clamped": ticked(600 * S, 7800 * S, crowns(7200 * S))}),
     "unknownNodes": (UNKNOWN_NODES, {}, {"athletePaced": ticked(0, 0, crowns(60 * S, 120 * S, 180 * S, 240 * S))}),
     "variantsM": (VARIANTS, {}, {"rounds": ticked(500, 260 * S, _VARIANT_CROWNS)}),
     "variantsF": (VARIANTS, {"standard": "F", "choices": {"cardio": "bike"}},
@@ -271,6 +283,9 @@ def plan_error_cases() -> list:
                        "body": [part("a", "run")]}}]}}]),
         ("emptyNestedRepeats", [part("a", "run"), {"repeat": {"id": "r1", "times": 10000, "body": [
             {"repeat": {"id": "r2", "times": 10000, "body": []}}]}}]),
+        # Bells past 7 days of START (MAX_BELL_MS): eight chained 24 h rests.
+        ("bellsPastAWeek", [{"repeat": {"id": "rp", "times": 8, "body": [
+            {"rest": {"id": "r", "seconds": 86400}}]}}, part("a", "run")]),
     ]
     hold = {"part": {"id": "hold", "movement": "plank", "target": {"value": 60, "valueF": 1e19, "unit": "seconds"}}}
     hold_x = {"part": {"id": "hold", "movement": "plank", "target": {"value": 60, "valueF": "x", "unit": "seconds"}}}
@@ -418,6 +433,7 @@ CHECKPOINT_SCENARIOS = [("tabata", "stoppedAndRestCrowns", 33 * S), ("windows333
                         ("variantsF", "rounds", 150 * S), ("emom", "grace", 60500),
                         ("intervals", "crownEndsRest", 95 * S)]
 LINE_SCENARIOS = [("tabata", "stoppedAndRestCrowns"), ("windows3334", "gymTruth"), ("hyrox", "undo"),
+                  ("hyrox", "undoThenAgain"), ("ratioLong", "tenMinutes"),
                   ("amrapShort", "lateCrownMovesTheCut"), ("intervals", "crownEndsRest")]
 CHECKPOINT_WATCH = {"heartRates": [[1795000001.5, 121], [1795000006.25, 122.5]], "recordedCSV": True,
                     "workoutId": "00000000-0000-4000-8000-000000000001", "x-later": {"a": [1, "é"]}}

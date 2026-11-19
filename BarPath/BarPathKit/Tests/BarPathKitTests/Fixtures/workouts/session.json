@@ -1038,6 +1038,72 @@
   {
    "batches": [
     {
+     "after": 2,
+     "lines": [
+      [
+       60000,
+       "name=step step=rp.1.run status=done endedBy=athlete seq=1"
+      ]
+     ]
+    },
+    {
+     "after": 4,
+     "lines": [
+      [
+       180000,
+       "name=step step=rp.1.run status=done endedBy=athlete seq=1"
+      ]
+     ]
+    },
+    {
+     "after": 5,
+     "lines": [
+      [
+       300000,
+       "name=step step=rp.1.st status=done endedBy=athlete seq=2"
+      ]
+     ]
+    }
+   ],
+   "case": "hyrox",
+   "scenario": "undoThenAgain"
+  },
+  {
+   "batches": [
+    {
+     "after": 12,
+     "lines": [
+      [
+       600000,
+       "name=step step=row status=done endedBy=athlete seq=1"
+      ]
+     ]
+    },
+    {
+     "after": 1012,
+     "lines": [
+      [
+       60600000,
+       "name=step step=r status=done endedBy=clock seq=2"
+      ]
+     ]
+    },
+    {
+     "after": 1014,
+     "lines": [
+      [
+       60700000,
+       "name=step step=run status=done endedBy=athlete seq=3"
+      ]
+     ]
+    }
+   ],
+   "case": "ratioLong",
+   "scenario": "tenMinutes"
+  },
+  {
+   "batches": [
+    {
      "after": 11,
      "lines": [
       [
@@ -10302,6 +10368,214 @@
   {
    "at": [
     {
+     "count": 16,
+     "events": 1,
+     "finish": null,
+     "finishSource": null,
+     "latestAsk": null,
+     "nextBell": null,
+     "sources": [],
+     "starts": [
+      0
+     ]
+    },
+    {
+     "count": 16,
+     "events": 2,
+     "finish": null,
+     "finishSource": null,
+     "latestAsk": null,
+     "nextBell": null,
+     "sources": [
+      "crown"
+     ],
+     "starts": [
+      0,
+      60000
+     ]
+    },
+    {
+     "count": 16,
+     "events": 3,
+     "finish": null,
+     "finishSource": null,
+     "latestAsk": null,
+     "nextBell": null,
+     "sources": [],
+     "starts": [
+      0
+     ]
+    },
+    {
+     "count": 16,
+     "events": 5,
+     "finish": null,
+     "finishSource": null,
+     "latestAsk": null,
+     "nextBell": null,
+     "sources": [
+      "crown",
+      "crown"
+     ],
+     "starts": [
+      0,
+      180000,
+      300000
+     ]
+    }
+   ],
+   "case": "hyrox",
+   "scenario": "undoThenAgain",
+   "segments": [
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "unit": "meters",
+      "value": 1000
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "skiErg",
+     "name": "SkiErg",
+     "target": {
+      "unit": "meters",
+      "value": 1000
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "unit": "meters",
+      "value": 1000
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "sledPush",
+     "name": "Sled Push",
+     "target": {
+      "unit": "meters",
+      "value": 50
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "unit": "meters",
+      "value": 1000
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "sledPull",
+     "name": "Sled Pull",
+     "target": {
+      "unit": "meters",
+      "value": 50
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "unit": "meters",
+      "value": 1000
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "burpeeBroadJumps",
+     "name": "Burpee Broad Jumps",
+     "target": {
+      "unit": "meters",
+      "value": 80
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "unit": "meters",
+      "value": 1000
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "row",
+     "name": "Row",
+     "target": {
+      "unit": "meters",
+      "value": 1000
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "unit": "meters",
+      "value": 1000
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "farmersCarry",
+     "name": "Farmers Carry",
+     "target": {
+      "unit": "meters",
+      "value": 200
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "unit": "meters",
+      "value": 1000
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "sandbagLunges",
+     "name": "Sandbag Lunges",
+     "target": {
+      "unit": "meters",
+      "value": 100
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "unit": "meters",
+      "value": 1000
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "wallBalls",
+     "name": "Wall Balls",
+     "target": {
+      "unit": "reps",
+      "value": 100
+     }
+    }
+   ]
+  },
+  {
+   "at": [
+    {
      "count": 10,
      "events": 25,
      "finish": null,
@@ -10998,6 +11272,193 @@
      "target": {
       "unit": "meters",
       "value": 800
+     }
+    }
+   ]
+  },
+  {
+   "at": [
+    {
+     "count": 3,
+     "events": 3,
+     "finish": null,
+     "finishSource": null,
+     "latestAsk": null,
+     "nextBell": null,
+     "sources": [],
+     "starts": [
+      0
+     ]
+    },
+    {
+     "count": 3,
+     "events": 7,
+     "finish": null,
+     "finishSource": null,
+     "latestAsk": null,
+     "nextBell": null,
+     "sources": [],
+     "starts": [
+      0
+     ]
+    },
+    {
+     "count": 3,
+     "events": 11,
+     "finish": null,
+     "finishSource": null,
+     "latestAsk": null,
+     "nextBell": null,
+     "sources": [],
+     "starts": [
+      0
+     ]
+    },
+    {
+     "count": 3,
+     "events": 15,
+     "finish": null,
+     "finishSource": null,
+     "latestAsk": null,
+     "nextBell": {
+      "finish": false,
+      "t": 604800000
+     },
+     "sources": [
+      "crown"
+     ],
+     "starts": [
+      0,
+      7200000
+     ]
+    }
+   ],
+   "case": "ratioLong",
+   "scenario": "clamped",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "row",
+     "name": "Row",
+     "target": {
+      "unit": "meters",
+      "value": 10000
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "unit": "meters",
+      "value": 400
+     }
+    }
+   ]
+  },
+  {
+   "at": [
+    {
+     "count": 3,
+     "events": 255,
+     "finish": null,
+     "finishSource": null,
+     "latestAsk": null,
+     "nextBell": {
+      "finish": false,
+      "t": 60600000
+     },
+     "sources": [
+      "crown"
+     ],
+     "starts": [
+      0,
+      600000
+     ]
+    },
+    {
+     "count": 3,
+     "events": 511,
+     "finish": null,
+     "finishSource": null,
+     "latestAsk": null,
+     "nextBell": {
+      "finish": false,
+      "t": 60600000
+     },
+     "sources": [
+      "crown"
+     ],
+     "starts": [
+      0,
+      600000
+     ]
+    },
+    {
+     "count": 3,
+     "events": 767,
+     "finish": null,
+     "finishSource": null,
+     "latestAsk": null,
+     "nextBell": {
+      "finish": false,
+      "t": 60600000
+     },
+     "sources": [
+      "crown"
+     ],
+     "starts": [
+      0,
+      600000
+     ]
+    },
+    {
+     "count": 3,
+     "events": 1023,
+     "finish": 60700000,
+     "finishSource": "crown",
+     "latestAsk": null,
+     "nextBell": null,
+     "sources": [
+      "crown",
+      "auto"
+     ],
+     "starts": [
+      0,
+      600000,
+      60600000
+     ]
+    }
+   ],
+   "case": "ratioLong",
+   "scenario": "tenMinutes",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "row",
+     "name": "Row",
+     "target": {
+      "unit": "meters",
+      "value": 10000
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest"
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "unit": "meters",
+      "value": 400
      }
     }
    ]

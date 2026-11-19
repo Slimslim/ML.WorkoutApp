@@ -1,0 +1,71 @@
+{
+ "approx": [
+  "oldKeysLossy"
+ ],
+ "compilerVersion": 1,
+ "fidelity": "approx",
+ "format": "forTime",
+ "id": "test.ratioLong",
+ "name": "Long row, rest 100x",
+ "schemaVersion": 2,
+ "segments": [
+  {
+   "kind": "station",
+   "movement": "row",
+   "name": "Row",
+   "target": {
+    "unit": "meters",
+    "value": 10000
+   }
+  },
+  {
+   "kind": "rest",
+   "movement": "rest",
+   "name": "Rest"
+  },
+  {
+   "kind": "run",
+   "movement": "run",
+   "name": "Run",
+   "target": {
+    "unit": "meters",
+    "value": 400
+   }
+  }
+ ],
+ "structure": {
+  "body": [
+   {
+    "part": {
+     "id": "row",
+     "movement": "row",
+     "target": {
+      "unit": "meters",
+      "value": 10000
+     }
+    }
+   },
+   {
+    "rest": {
+     "id": "r",
+     "ratio": 100
+    }
+   },
+   {
+    "part": {
+     "id": "run",
+     "kind": "run",
+     "movement": "run",
+     "target": {
+      "unit": "meters",
+      "value": 400
+     }
+    }
+   }
+  ],
+  "score": {
+   "type": "time"
+  }
+ },
+ "team": "solo"
+}

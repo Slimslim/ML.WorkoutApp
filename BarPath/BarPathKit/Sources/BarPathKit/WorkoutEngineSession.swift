@@ -387,14 +387,16 @@ public enum WorkoutEngineSession {
         return text.components(separatedBy: " ").filter { !$0.hasPrefix("seq=") }.joined(separator: " ")
     }
 
-    /// Python `new_lines`: the step and ignored-input lines not written yet; `written` is updated.
+    /// Python `new_lines`: the step and ignored-input lines not written yet; `written` (keyed by
+    /// time and line without `seq`) is updated.
     /// A step line whose reps change later is written again with them (the loader keeps the last
     /// line per step); nothing is ever removed.
     public static func newLines(_ st: EngineState, written: inout [String: Int]) -> [WorkoutEngineCSV.Line] {
         var out: [WorkoutEngineCSV.Line] = []
         var seen: [String: Int] = [:]
         for line in WorkoutEngineCSV.eventLines(st) {
-            let k: String = lineKey(line.text)
+            // With its time: an undone end and the real one differ only in t (Python `(t, key)`).
+            let k: String = "\(line.t) " + lineKey(line.text)
             let n: Int = (seen[k] ?? 0) + 1
             seen[k] = n
             if n > (written[k] ?? 0) {

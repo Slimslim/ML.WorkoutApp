@@ -1,0 +1,50 @@
+{
+ "hash": "912ce81fce89633ade4f766f30ad28e0684831cb19164e9d8065e5b05332e7d2",
+ "plan": {
+  "bells": [],
+  "planner": 1,
+  "steps": [
+   {
+    "ends": "athlete",
+    "id": "row",
+    "index": 0,
+    "kind": "part",
+    "node": "row",
+    "partMovement": "row",
+    "partTarget": {
+     "unit": "meters",
+     "value": 10000
+    },
+    "rounds": [],
+    "windows": []
+   },
+   {
+    "ends": "clock",
+    "id": "r",
+    "index": 1,
+    "kind": "rest",
+    "node": "r",
+    "ratio": 100,
+    "ratioOf": "row",
+    "rounds": [],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "run",
+    "index": 2,
+    "kind": "part",
+    "node": "run",
+    "partKind": "run",
+    "partMovement": "run",
+    "partTarget": {
+     "unit": "meters",
+     "value": 400
+    },
+    "rounds": [],
+    "windows": []
+   }
+  ],
+  "windows": []
+ }
+}
