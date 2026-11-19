@@ -205,23 +205,6 @@ The backup refuses to run if anyone but root can read the file, so a mistake sho
    ls -l /volume1/@rxlab/pg_service.conf      # must show -rw------- 1 root root
    ```
 
-4. Optional, stronger: check the server's certificate. `sslmode=require` encrypts the connection,
-   but it does not check that the other end really is Supabase. Someone on your network could then
-   pose as Supabase and read the password.
-   1. In the dashboard, open **Database → Settings → SSL Configuration → Download certificate**.
-   2. Copy the certificate into `RxLabBackup` with File Station, then as root:
-      `mv /volume1/RxLabBackup/<certificate file> /volume1/@rxlab/supabase-ca.crt`
-   3. In `pg_service.conf`, replace `sslmode=require` with these two lines:
-
-      ```
-      sslmode=verify-full
-      sslrootcert=/run/secrets/supabase-ca.crt
-      ```
-
-      The backup mounts the whole `@rxlab` folder at `/run/secrets` inside the container, read-only.
-   4. Run the task once by hand (step 5). **Not tested yet:** if it fails with a certificate error,
-      go back to `sslmode=require`.
-
 ## 4. The image `postgres:17-alpine` (Container Manager)
 
 **`postgres:17-alpine` is already downloaded.** To check, open **Container Manager → Image**: it
@@ -279,7 +262,7 @@ The usual reasons:
 |---|---|
 | `password authentication failed` | The password changed: edit `pg_service.conf`. |
 | `connection ... failed`, `timeout` or `took longer than` | The internet or Supabase is down; the next night retries. |
-| `certificate` | Only with the optional step 3.4: go back to `sslmode=require`. |
+| `certificate` | Only after the "Later" certificate check: go back to `sslmode=require`. |
 | `mode 644; run: chmod 600` | Someone changed the file's permissions. |
 | `no [rxlab] section` | The first line of the password file is missing. |
 | `docker not found` | Container Manager is not installed. |
@@ -404,6 +387,27 @@ shell (step 2).
    - Users sign in again: their old sessions are not valid in the new project.
 6. Delete `/volume1/@rxlab/restore.conf`.
 
+## Later: check Supabase's certificate (not verified yet)
+
+`sslmode=require` encrypts the connection, but it does not check that the other end really is
+Supabase. Someone on your network could then pose as Supabase and read the password. Checking the
+certificate closes that gap. **It has not been tried against the Supabase pooler yet**, so it is
+not part of the setup. Try it once the backup has run for a while:
+
+1. In the dashboard, open **Database → Settings → SSL Configuration → Download certificate**.
+2. Copy the certificate into `RxLabBackup` with File Station, then, in a root shell (step 2):
+   `mv /volume1/RxLabBackup/<certificate file> /volume1/@rxlab/supabase-ca.crt`
+3. In `pg_service.conf`, replace `sslmode=require` with these two lines:
+
+   ```
+   sslmode=verify-full
+   sslrootcert=/run/secrets/supabase-ca.crt
+   ```
+
+   The backup mounts the whole `@rxlab` folder at `/run/secrets` inside the container, read-only.
+4. Run the task once by hand (step 5). If it fails with a certificate error, go back to
+   `sslmode=require`.
+
 ## Tested
 
 Tested on 19 Nov 2026, in a Linux container with Docker and `postgres:17-alpine` (pg_dump 17.12).
@@ -435,7 +439,7 @@ Tested on 19 Nov 2026, in a Linux container with Docker and `postgres:17-alpine`
 |---|---|
 | DSM 7.2.2's Task Scheduler running the command as root | Paths, `bash` |
 | DSM's `stat`, `find` and `docker` (Container Manager) | Different versions from the test machine |
-| A real Session pooler connection from the home network | It needs TLS (`sslmode=require`). The optional `verify-full` of step 3.4 was not tried against Supabase at all. |
+| A real Session pooler connection from the home network | It needs TLS (`sslmode=require`). The "Later" `verify-full` check was not tried against Supabase at all. |
 | File Station showing `backup.log` | It should, the log is 644 |
 | `chmod 600` under `/volume1/@rxlab` | It should stick, outside the share's permissions |
 | Hyper Backup, Snapshot Replication and the Recycle Bin settings | Not tested at all |
