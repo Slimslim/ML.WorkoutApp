@@ -31,6 +31,8 @@ public struct ResultInsight: Equatable, Codable {
 public enum ResultInsights {
     static let maxInsights: Int = 3
     static let minSegmentSeconds: Double = 5.0
+    /// A segment of a day or more is broken data: never used (keeps the m:ss formatting in range).
+    static let maxSegmentSeconds: Double = 86400.0
     static let outlierFactor: Double = 3.0
     static let steadyFraction: Double = 0.05
     static let driftMinSeconds: Double = 10.0
@@ -102,7 +104,7 @@ public enum ResultInsights {
         if let c = check { out.append(c) }
         if let d = drift, out.contains(where: { (i: ResultInsight) -> Bool in i.id == "A1" || i.id == "F2" }) {
             let cueTime: Double = Double(roundHalfAway(d.t0 / 5.0)) * 5.0
-            out.append(ResultInsight(id: "CUE", text: "Next time: hold the \(d.name.lowercased()) nearer \(timeText(cueTime)).",
+            out.append(ResultInsight(id: "CUE", text: "Next time: hold the \(cueName(d.name)) nearer \(timeText(cueTime)).",
                                      isCue: true))
         }
         return out
@@ -209,6 +211,15 @@ public enum ResultInsights {
         }
         guard let s = source else { return false }
         return s != .auto
+    }
+
+    /// Movement name inside the cue: lowercase ("the bike"), unless a word has a capital after its
+    /// first letter (a brand or an acronym: "SkiErg", "KB Swings", "Alt. DB Snatch" keep their case).
+    public static func cueName(_ name: String) -> String {
+        for word in name.split(separator: " ") where word.dropFirst().contains(where: { $0.isUppercase }) {
+            return name
+        }
+        return name.lowercased()
     }
 
     // MARK: - Definition structure
@@ -458,8 +469,8 @@ public enum ResultInsights {
         return true
     }
 
-    /// R1: the median of the other runs is more than 8 % slower than run 1 ("started hard, then
-    /// faded" read as one condition: run 1 vs the median of the rest, strictly more than 8 %).
+    /// R1: "started hard, then faded", both halves strictly more than 8 %: run 1 is faster than the
+    /// median of the other runs, and that median is slower than run 1.
     static func startedHard(_ ctx: InsightContext) -> ResultInsight? {
         let list: [(SegmentResult, Double)] = runs(ctx, targetOnly: false)
         if list.count < 3 { return nil }
@@ -590,7 +601,8 @@ struct InsightContext {
             guard s.index >= 0, s.index < definition.segments.count else { continue }
             let d: WorkoutSegment = definition.segments[s.index]
             if !ResultInsights.isWork(s.kind) || d.kind != s.kind || d.movement != s.movement { continue }
-            if !ResultInsights.isKnown(d) || !s.duration.isFinite { continue }
+            if !ResultInsights.isKnown(d) || !s.duration.isFinite || s.duration < 0
+                || s.duration >= ResultInsights.maxSegmentSeconds { continue }
             if !finished && s.index == lastIndex { continue }
             usable.append(s)
         }

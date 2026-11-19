@@ -185,6 +185,24 @@ def silence_free_workout_long_first_part():
     return make_result(_free_definition(), [300, 60, 90, 240, 80, 95, 70, 110, 40], True, _uid(13))
 
 
+def amrap_skierg_cue():
+    """Brand name in the cue keeps its case: "hold the SkiErg"."""
+    d = definition("test.amrapSki", "Test AMRAP 15", "amrap",
+                   [station("skiErg", "SkiErg", 15, "calories"), station("burpees", "Burpees", 10)] * 6,
+                   cap=900, round_size=2)
+    durs = [70, 40, 84, 41, 86, 40, 88, 41, 30]
+    return make_result(d, durs, False, _uid(14))
+
+
+def absurd_duration_ignored():
+    """A segment of 1e308 s (broken data) is never used and never formatted."""
+    d = definition("test.absurd", "Test 3 rounds", "forTime",
+                   [station("row", "Row", 500, "meters"), station("burpees", "Burpees", 15)] * 3)
+    r = make_result(d, [100, 50, 102, 51, 101, 52], True, _uid(15))
+    r.segments[2].duration = 1e308       # corrupted duration field; start/end stay plausible
+    return r
+
+
 CASES = [
     ("amrap_bike_drift", amrap_bike_drift),
     ("barbara_for_time", barbara_for_time),
@@ -199,6 +217,8 @@ CASES = [
     ("check_outlier_chipper", check_outlier_chipper),
     ("silence_free_workout", silence_free_workout),
     ("silence_free_workout_long_first_part", silence_free_workout_long_first_part),
+    ("amrap_skierg_cue", amrap_skierg_cue),
+    ("absurd_duration_ignored", absurd_duration_ignored),
 ]
 
 

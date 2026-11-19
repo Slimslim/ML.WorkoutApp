@@ -4344,5 +4344,476 @@
    "totalSeconds": 1085.0,
    "version": 2
   }
+ },
+ {
+  "expected": [
+   {
+    "id": "A1",
+    "isCue": false,
+    "text": "SkiErg: 1:10 in round 1, then 1:24-1:28 (+23 %), 0:48 in total."
+   },
+   {
+    "id": "A3",
+    "isCue": false,
+    "text": "That drift added 0:48, about a third of a round."
+   },
+   {
+    "id": "A2",
+    "isCue": false,
+    "text": "Burpees held within 5 %."
+   },
+   {
+    "id": "CUE",
+    "isCue": true,
+    "text": "Next time: hold the SkiErg nearer 1:10."
+   }
+  ],
+  "name": "amrap_skierg_cue",
+  "result": {
+   "definition": {
+    "format": "amrap",
+    "healthKitActivity": "crossTraining",
+    "id": "test.amrapSki",
+    "name": "Test AMRAP 15",
+    "roundSize": 2,
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "skiErg",
+      "name": "SkiErg",
+      "target": {
+       "unit": "calories",
+       "value": 15
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "unit": "reps",
+       "value": 10
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "skiErg",
+      "name": "SkiErg",
+      "target": {
+       "unit": "calories",
+       "value": 15
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "unit": "reps",
+       "value": 10
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "skiErg",
+      "name": "SkiErg",
+      "target": {
+       "unit": "calories",
+       "value": 15
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "unit": "reps",
+       "value": 10
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "skiErg",
+      "name": "SkiErg",
+      "target": {
+       "unit": "calories",
+       "value": 15
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "unit": "reps",
+       "value": 10
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "skiErg",
+      "name": "SkiErg",
+      "target": {
+       "unit": "calories",
+       "value": 15
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "unit": "reps",
+       "value": 10
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "skiErg",
+      "name": "SkiErg",
+      "target": {
+       "unit": "calories",
+       "value": 15
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "unit": "reps",
+       "value": 10
+      }
+     }
+    ],
+    "shortName": "Test AMRAP 15",
+    "team": "solo",
+    "timeCapSeconds": 900
+   },
+   "endDate": "2027-01-15T18:09:40Z",
+   "events": [
+    {
+     "kind": "start",
+     "segmentIndex": 0,
+     "t": 1800036000.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 1,
+     "source": "crown",
+     "t": 1800036070.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 2,
+     "source": "crown",
+     "t": 1800036110.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 3,
+     "source": "crown",
+     "t": 1800036194.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 4,
+     "source": "crown",
+     "t": 1800036235.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 5,
+     "source": "crown",
+     "t": 1800036321.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 6,
+     "source": "crown",
+     "t": 1800036361.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 7,
+     "source": "crown",
+     "t": 1800036449.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 8,
+     "source": "crown",
+     "t": 1800036490.0
+    }
+   ],
+   "id": "00000000-0000-4000-8000-000000000014",
+   "segments": [
+    {
+     "duration": 70.0,
+     "end": 1800036070.0,
+     "index": 0,
+     "kind": "station",
+     "movement": "skiErg",
+     "start": 1800036000.0,
+     "title": "SkiErg 15 cal"
+    },
+    {
+     "duration": 40.0,
+     "end": 1800036110.0,
+     "index": 1,
+     "kind": "station",
+     "movement": "burpees",
+     "start": 1800036070.0,
+     "title": "Burpees 10"
+    },
+    {
+     "duration": 84.0,
+     "end": 1800036194.0,
+     "index": 2,
+     "kind": "station",
+     "movement": "skiErg",
+     "start": 1800036110.0,
+     "title": "SkiErg 15 cal"
+    },
+    {
+     "duration": 41.0,
+     "end": 1800036235.0,
+     "index": 3,
+     "kind": "station",
+     "movement": "burpees",
+     "start": 1800036194.0,
+     "title": "Burpees 10"
+    },
+    {
+     "duration": 86.0,
+     "end": 1800036321.0,
+     "index": 4,
+     "kind": "station",
+     "movement": "skiErg",
+     "start": 1800036235.0,
+     "title": "SkiErg 15 cal"
+    },
+    {
+     "duration": 40.0,
+     "end": 1800036361.0,
+     "index": 5,
+     "kind": "station",
+     "movement": "burpees",
+     "start": 1800036321.0,
+     "title": "Burpees 10"
+    },
+    {
+     "duration": 88.0,
+     "end": 1800036449.0,
+     "index": 6,
+     "kind": "station",
+     "movement": "skiErg",
+     "start": 1800036361.0,
+     "title": "SkiErg 15 cal"
+    },
+    {
+     "duration": 41.0,
+     "end": 1800036490.0,
+     "index": 7,
+     "kind": "station",
+     "movement": "burpees",
+     "start": 1800036449.0,
+     "title": "Burpees 10"
+    },
+    {
+     "duration": 30.0,
+     "end": 1800036520.0,
+     "index": 8,
+     "kind": "station",
+     "movement": "skiErg",
+     "start": 1800036490.0,
+     "title": "SkiErg 15 cal"
+    }
+   ],
+   "startDate": "2027-01-15T18:00:00Z",
+   "totalSeconds": 520.0,
+   "version": 2
+  }
+ },
+ {
+  "expected": [
+   {
+    "id": "A2",
+    "isCue": false,
+    "text": "Burpees held within 5 %."
+   }
+  ],
+  "name": "absurd_duration_ignored",
+  "result": {
+   "definition": {
+    "format": "forTime",
+    "healthKitActivity": "crossTraining",
+    "id": "test.absurd",
+    "name": "Test 3 rounds",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "unit": "meters",
+       "value": 500
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "unit": "reps",
+       "value": 15
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "unit": "meters",
+       "value": 500
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "unit": "reps",
+       "value": 15
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "unit": "meters",
+       "value": 500
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "unit": "reps",
+       "value": 15
+      }
+     }
+    ],
+    "shortName": "Test 3 rounds",
+    "team": "solo"
+   },
+   "endDate": "2027-01-15T18:08:36Z",
+   "events": [
+    {
+     "kind": "start",
+     "segmentIndex": 0,
+     "t": 1800036000.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 1,
+     "source": "crown",
+     "t": 1800036100.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 2,
+     "source": "crown",
+     "t": 1800036150.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 3,
+     "source": "crown",
+     "t": 1800036252.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 4,
+     "source": "crown",
+     "t": 1800036303.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 5,
+     "source": "crown",
+     "t": 1800036404.0
+    },
+    {
+     "kind": "finish",
+     "segmentIndex": 5,
+     "source": "crown",
+     "t": 1800036456.0
+    }
+   ],
+   "finishDate": "2027-01-15T18:07:36Z",
+   "id": "00000000-0000-4000-8000-000000000015",
+   "segments": [
+    {
+     "duration": 100.0,
+     "end": 1800036100.0,
+     "index": 0,
+     "kind": "station",
+     "movement": "row",
+     "start": 1800036000.0,
+     "title": "Row 500 m"
+    },
+    {
+     "duration": 50.0,
+     "end": 1800036150.0,
+     "index": 1,
+     "kind": "station",
+     "movement": "burpees",
+     "start": 1800036100.0,
+     "title": "Burpees 15"
+    },
+    {
+     "duration": 1e+308,
+     "end": 1800036252.0,
+     "index": 2,
+     "kind": "station",
+     "movement": "row",
+     "start": 1800036150.0,
+     "title": "Row 500 m"
+    },
+    {
+     "duration": 51.0,
+     "end": 1800036303.0,
+     "index": 3,
+     "kind": "station",
+     "movement": "burpees",
+     "start": 1800036252.0,
+     "title": "Burpees 15"
+    },
+    {
+     "duration": 101.0,
+     "end": 1800036404.0,
+     "index": 4,
+     "kind": "station",
+     "movement": "row",
+     "start": 1800036303.0,
+     "title": "Row 500 m"
+    },
+    {
+     "duration": 52.0,
+     "end": 1800036456.0,
+     "index": 5,
+     "kind": "station",
+     "movement": "burpees",
+     "start": 1800036404.0,
+     "title": "Burpees 15"
+    }
+   ],
+   "startDate": "2027-01-15T18:00:00Z",
+   "totalSeconds": 456.0,
+   "version": 2
+  }
  }
 ]
