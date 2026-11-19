@@ -281,13 +281,16 @@ def phone_route(raw, engine_features=(), max_bytes=None) -> dict:
     - notV2: a legacy row (it is upgraded on the phone only to store its fidelity; a Swift
       `exact` is not trusted until the validator is ported, so it never goes to the engine);
     - needsOwner: a row the Python upgrade labelled review or reencode (`approx` holds
-      "upgrade:<reason>"): never on the engine until the owner signs it off (RFC §7.3);
+      "upgrade:<reason>"), or whose `approx` is present but not a list: never on the engine until
+      the owner signs it off (RFC §7.3);
     - textOnly: runs as a stopwatch, a screen that waits for design;
     - refused: the watch engine would refuse it (`refusal` says why);
     - tooBig: its JSON is over the watch payload budget (16 KB)."""
     if not carries_v2(raw):
         return {"send": "legacy", "reason": "notV2"}
     approx = raw.get("approx")
+    if approx is not None and not isinstance(approx, list):
+        return {"send": "legacy", "reason": "needsOwner"}    # malformed: not trusted (#116 review)
     if isinstance(approx, list) and any(isinstance(a, str) and a.startswith("upgrade:") for a in approx):
         return {"send": "legacy", "reason": "needsOwner"}
     if raw.get("fidelity") == "textOnly":

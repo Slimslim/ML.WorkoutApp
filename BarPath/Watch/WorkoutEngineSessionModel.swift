@@ -188,12 +188,14 @@ final class WorkoutEngineSessionModel {
     private func refresh(into u: inout Update, byClock: Bool) {
         let pr = WorkoutEngineSession.project(state)
         progress = WorkoutEngineSession.progress(raw, pr, startEpoch: startEpoch)
-        let nowUp: Double = stamp(state.now ?? 0)
+
         let n: Int = pr.starts.count
         let finished: Bool = pr.finish != nil
         if n < projectedStarts || (projectedFinished && !finished) {
             let name: String = projectedFinished && !finished ? "unfinish" : "undo"
-            u.csv.append((uptime: nowUp, text: "name=\(name) index=\(max(0, n - 1)) source=crown"))
+            // Stamped only when the line is written, so a tick that writes nothing doesn't move
+            // the clamp forward (#116 review follow-up 1).
+            u.csv.append((uptime: stamp(state.now ?? 0), text: "name=\(name) index=\(max(0, n - 1)) source=crown"))
             u.stepChanged = true
         }
         if n > projectedStarts {
