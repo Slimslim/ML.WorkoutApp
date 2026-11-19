@@ -168,7 +168,8 @@ def validate(doc: dict, strict: bool = True) -> list:
     for where, st in structures(compiled):
         exp = workout_engine.expand(st)
         if exp.invalid == "tooLarge":
-            errs.append("%s: more than %d steps in the plan" % (where, MAX_STEPS))
+            errs.append("%s: too large to expand (more than %d steps in the plan, or more than %d "
+                        "rounds to expand)" % (where, MAX_STEPS, workout_engine.MAX_ROUNDS))
         elif exp.invalid is not None:
             errs.append("%s: a number is out of the engine's range (seconds at most %d, repeats at "
                         "most %d, ratio at most %d)" % (where, workout_engine.MAX_SECONDS,
@@ -201,8 +202,10 @@ def _validate_fidelity(holder: dict, where: str, errs: list):
     if approx is not None and (not isinstance(approx, list) or not all(isinstance(a, str) for a in approx)):
         errs.append("%sapprox: must be a list of reasons" % where)
     # The text the structure came from must be kept whenever the structure is not faithful to it;
-    # "oldKeysLossy" alone (set by the compiler) is about the old keys, not the text.
-    from_text = fid == "textOnly" or any(a != "oldKeysLossy" for a in (approx or [])) or (
+    # "oldKeysLossy" alone (set by the compiler) is about the old keys, not the text, and so are
+    # "upgrade:<reason>" (set by workout_upgrade, whose source is the old keys the row keeps).
+    from_text = fid == "textOnly" or any(a != "oldKeysLossy" and not str(a).startswith("upgrade:")
+                                         for a in (approx or [])) or (
         fid == "approx" and not approx)
     if from_text and not isinstance(holder.get("rawText"), str):
         errs.append("%srawText: required when fidelity is %r" % (where, fid))

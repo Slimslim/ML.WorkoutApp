@@ -14,6 +14,7 @@
   "hyrox",
   "intervals",
   "partner",
+  "ratioLong",
   "ratioRest",
   "scaled",
   "tabata",
@@ -25,9 +26,14 @@
   "windows3334"
  ],
  "csv": 8,
- "planErrors": 14,
+ "planErrors": 15,
  "planner": 1,
  "runnable": 8,
- "scenarios": 62,
+ "scenarios": 66,
+ "sessionCheckpoints": 7,
+ "sessionEvents": 20,
+ "sessionLines": 7,
+ "sessionRoutes": 20,
+ "sessionViews": 48,
  "upgrade": 49
 }

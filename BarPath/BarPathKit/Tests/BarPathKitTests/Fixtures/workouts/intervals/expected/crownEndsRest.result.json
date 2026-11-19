@@ -1,0 +1,146 @@
+{
+ "asks": [],
+ "boundaries": [],
+ "current": "rp.2.row",
+ "done": false,
+ "doneT": null,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  }
+ ],
+ "endedBy": null,
+ "facts": [
+  {
+   "end": 58000,
+   "endedBy": "athlete",
+   "id": "rp.1.row",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 0,
+   "status": "done"
+  },
+  {
+   "end": 90000,
+   "endedBy": "athlete",
+   "id": "rp.1.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 58000,
+   "status": "done"
+  },
+  {
+   "end": null,
+   "endedBy": null,
+   "id": "rp.2.row",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 90000,
+   "status": "running"
+  },
+  {
+   "id": "rp.2.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.3.row",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.3.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.4.row",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.4.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     4
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.5.row",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     5
+    ]
+   ],
+   "status": "notReached"
+  },
+  {
+   "id": "rp.5.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     5
+    ]
+   ],
+   "status": "notReached"
+  }
+ ],
+ "score": {
+  "pieces": [
+   {
+    "cut": false,
+    "ms": 58000
+   }
+  ],
+  "show": "avg",
+  "type": "perPiece",
+  "value": 58000
+ }
+}

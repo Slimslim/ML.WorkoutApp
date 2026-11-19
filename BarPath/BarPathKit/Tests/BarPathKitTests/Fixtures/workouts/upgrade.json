@@ -1,6 +1,10 @@
 [
  {
   "definition": {
+   "approx": [
+    "upgrade:movesToEngine"
+   ],
+   "fidelity": "approx",
    "format": "emom",
    "healthKitActivity": "crossTraining",
    "id": "legacy.alternatingEmom",
@@ -299,6 +303,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:amrapWithoutCap"
+   ],
+   "fidelity": "approx",
    "format": "amrap",
    "healthKitActivity": "crossTraining",
    "id": "legacy.amrapNoCap",
@@ -365,6 +373,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:invalidField"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.boolVsOne",
@@ -481,6 +493,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:invalidField"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.capFraction",
@@ -560,6 +576,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:notRunnable"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.capTooLarge",
@@ -639,6 +659,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:invalidField"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.capZero",
@@ -755,6 +779,11 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:movesToEngine",
+    "upgrade:emomWithoutRounds"
+   ],
+   "fidelity": "approx",
    "format": "emom",
    "healthKitActivity": "crossTraining",
    "id": "legacy.emomNoRounds",
@@ -902,6 +931,7 @@
  },
  {
   "definition": {
+   "fidelity": "exact",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.extraKeys",
@@ -972,6 +1002,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:partWithoutTarget"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "free.workout",
@@ -2088,6 +2122,12 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:movesToEngine",
+    "upgrade:capNotWindows",
+    "upgrade:notRunnable"
+   ],
+   "fidelity": "approx",
    "format": "emom",
    "healthKitActivity": "crossTraining",
    "id": "legacy.hugeEmom",
@@ -2198,6 +2238,7 @@
  },
  {
   "definition": {
+   "fidelity": "exact",
    "format": "forTime",
    "healthKitActivity": "mixedCardio",
    "id": "hyrox.doubles",
@@ -2642,6 +2683,7 @@
  },
  {
   "definition": {
+   "fidelity": "exact",
    "format": "forTime",
    "healthKitActivity": "mixedCardio",
    "id": "hyrox.half",
@@ -3074,6 +3116,7 @@
  },
  {
   "definition": {
+   "fidelity": "exact",
    "format": "forTime",
    "healthKitActivity": "mixedCardio",
    "id": "hyrox.solo",
@@ -3506,6 +3549,12 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:invalidField",
+    "upgrade:movesToEngine",
+    "upgrade:emomWithoutRounds"
+   ],
+   "fidelity": "approx",
    "format": "emom",
    "healthKitActivity": "crossTraining",
    "id": "legacy.intervalHalf",
@@ -3614,6 +3663,7 @@
  },
  {
   "definition": {
+   "fidelity": "exact",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.intervals",
@@ -3856,6 +3906,11 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:listedRounds",
+    "upgrade:listedRoundsVary"
+   ],
+   "fidelity": "approx",
    "format": "amrap",
    "healthKitActivity": "crossTraining",
    "id": "legacy.ladderAmrap",
@@ -4163,6 +4218,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:invalidField"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.loadCountZero",
@@ -4244,6 +4303,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:invalidField"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.loadText",
@@ -4321,6 +4384,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:invalidField"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.loadUnitNotKnown",
@@ -4400,6 +4467,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:secondsTargetPart"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.loadsAndHold",
@@ -4513,6 +4584,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:invalidField"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.negativeTarget",
@@ -4579,6 +4654,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:invalidField"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.noKind",
@@ -4642,6 +4721,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:invalidField"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.noMovement",
@@ -4705,6 +4788,11 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:noSegments",
+    "upgrade:notRunnable"
+   ],
+   "fidelity": "approx",
    "schemaVersion": 2,
    "structure": {
     "body": [],
@@ -4727,6 +4815,11 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:listedRounds",
+    "upgrade:partialLastRound"
+   ],
+   "fidelity": "approx",
    "format": "amrap",
    "healthKitActivity": "crossTraining",
    "id": "legacy.partialAmrap",
@@ -4865,6 +4958,7 @@
  },
  {
   "definition": {
+   "fidelity": "exact",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "partner.wod1",
@@ -5271,6 +5365,7 @@
  },
  {
   "definition": {
+   "fidelity": "exact",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "partner.wod2",
@@ -5462,6 +5557,7 @@
  },
  {
   "definition": {
+   "fidelity": "exact",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "quick.test",
@@ -5616,6 +5712,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:invalidField"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.restHalf",
@@ -5705,6 +5805,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:invalidField"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.restNotANumber",
@@ -5794,6 +5898,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:invalidField"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.restNull",
@@ -5883,6 +5991,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:restSecondsRounded"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.restRounded",
@@ -5973,6 +6085,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:restTargetDropped"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.restWithReps",
@@ -6062,6 +6178,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:invalidField"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.roundSizeHalf",
@@ -6160,6 +6280,7 @@
  },
  {
   "definition": {
+   "fidelity": "exact",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.schemaOne",
@@ -6273,6 +6394,11 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:noSegments",
+    "upgrade:notRunnable"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.segmentsNotAList",
@@ -6307,6 +6433,12 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:partWithoutTarget",
+    "upgrade:movesToEngine",
+    "upgrade:restInsideInterval"
+   ],
+   "fidelity": "approx",
    "format": "emom",
    "healthKitActivity": "crossTraining",
    "id": "legacy.tabataAsEmom",
@@ -6601,6 +6733,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:invalidField"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.targetNoUnit",
@@ -6665,6 +6801,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:invalidField"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.targetText",
@@ -6731,6 +6871,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:invalidField"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.unitNotKnown",
@@ -6797,6 +6941,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:unknownFormat"
+   ],
+   "fidelity": "approx",
    "format": "chipper",
    "healthKitActivity": "crossTraining",
    "id": "legacy.unknownFormat",
@@ -6981,6 +7129,11 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:partWithoutTarget",
+    "upgrade:windowsStoredAsRests"
+   ],
+   "fidelity": "approx",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "legacy.windowsAsRests",
@@ -7415,6 +7568,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:listedRounds"
+   ],
+   "fidelity": "approx",
    "format": "amrap",
    "healthKitActivity": "crossTraining",
    "id": "wod.amrap40",
@@ -8608,6 +8765,7 @@
  },
  {
   "definition": {
+   "fidelity": "exact",
    "format": "forTime",
    "healthKitActivity": "crossTraining",
    "id": "wod.helen",
@@ -8863,6 +9021,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:listedRounds"
+   ],
+   "fidelity": "approx",
    "format": "amrap",
    "healthKitActivity": "crossTraining",
    "id": "wod.nightmareAmrap",
@@ -9690,6 +9852,10 @@
  },
  {
   "definition": {
+   "approx": [
+    "upgrade:movesToEngine"
+   ],
+   "fidelity": "approx",
    "format": "emom",
    "healthKitActivity": "crossTraining",
    "id": "wod.rowThrusters",

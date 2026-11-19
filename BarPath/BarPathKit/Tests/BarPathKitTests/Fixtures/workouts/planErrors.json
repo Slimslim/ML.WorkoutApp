@@ -326,6 +326,40 @@
    "structure": {
     "body": [
      {
+      "repeat": {
+       "body": [
+        {
+         "rest": {
+          "id": "r",
+          "seconds": 86400
+         }
+        }
+       ],
+       "id": "rp",
+       "times": 8
+      }
+     },
+     {
+      "part": {
+       "id": "a",
+       "movement": "run"
+      }
+     }
+    ],
+    "score": {
+     "type": "none"
+    }
+   }
+  },
+  "name": "bellsPastAWeek",
+  "reason": "tooLarge"
+ },
+ {
+  "doc": {
+   "schemaVersion": 2,
+   "structure": {
+    "body": [
+     {
       "part": {
        "id": "hold",
        "movement": "plank",

@@ -46,7 +46,7 @@ public enum WorkoutStructureV2 {
     /// Int(v) when v is a number with lo <= v <= hi, else nil (Python `_bounded`).
     static func bounded(_ v: JSONValue?, _ lo: Double, _ hi: Double) -> Int? {
         guard let d = v?.number, d.isFinite, d >= lo, d <= hi else { return nil }
-        return Int(d)
+        return Int(exactly: d.rounded(.towardZero))
     }
 
     struct NodeRef {
@@ -452,8 +452,10 @@ final class WorkoutExpansion: @unchecked Sendable {
                     } else if let bf = baseF?.number, let b = base, b.truthy, let bv = b.number,
                               let v = value?.number {
                         let scaled: Double = bf * v / bv + 0.5
-                        if scaled.isFinite && abs(scaled) < 9.0e15 {
-                            t["valueF"] = .int(Int(scaled))
+                        // Int(exactly:) of the truncated value: never traps where Int is 32 bits.
+                        if scaled.isFinite && abs(scaled) < 9.0e15,
+                           let i = Int(exactly: scaled.rounded(.towardZero)) {
+                            t["valueF"] = .int(i)
                         }
                     }
                     c["target"] = .object(t)
@@ -838,6 +840,13 @@ public final class WorkoutPlan: @unchecked Sendable {
         var offset: Int
     }
 
+    /// a + b, saturating at Int.max (bell offsets add up along a chain of clocked steps; where Int
+    /// is 32 bits a long chain would overflow). A saturated offset is refused as tooLarge.
+    static func addMs(_ a: Int, _ b: Int) -> Int {
+        let r = a.addingReportingOverflow(b)
+        return r.overflow ? Int.max : r.partialValue
+    }
+
     static func staticBells(_ exp: WorkoutExpansion) -> [EngineBell] {
         var bells: [EngineBell] = []
         var cur = Anchor(anchor: "start", offset: 0)
@@ -846,7 +855,7 @@ public final class WorkoutPlan: @unchecked Sendable {
         for (i, s) in steps.enumerated() {
             for wk in s.windows where opened[wk] == nil {
                 let w: EngineWindow? = exp.windows[wk]
-                let end = Anchor(anchor: cur.anchor, offset: cur.offset + (w?.secondsMs ?? 0))
+                let end = Anchor(anchor: cur.anchor, offset: addMs(cur.offset, w?.secondsMs ?? 0))
                 opened[wk] = end
                 bells.append(EngineBell(id: wk + ".end", anchor: end.anchor, offsetMs: end.offset))
             }
@@ -854,13 +863,13 @@ public final class WorkoutPlan: @unchecked Sendable {
             if s.auto, let ww = s.waitWindow, let o = opened[ww] {
                 end = o
             } else if let mw = s.mergedWindow, let wb = opened[mw], let rs = s.restSeconds {
-                end = Anchor(anchor: wb.anchor, offset: wb.offset + rs * 1000)
+                end = Anchor(anchor: wb.anchor, offset: addMs(wb.offset, rs * 1000))
                 bells.append(EngineBell(id: s.id + ".end", anchor: end.anchor, offsetMs: end.offset))
             } else if s.kind == "rest", let rs = s.restSeconds {
-                end = Anchor(anchor: cur.anchor, offset: cur.offset + rs * 1000)
+                end = Anchor(anchor: cur.anchor, offset: addMs(cur.offset, rs * 1000))
                 bells.append(EngineBell(id: s.id + ".end", anchor: end.anchor, offsetMs: end.offset))
             } else if let st = s.secondsTarget {
-                end = Anchor(anchor: cur.anchor, offset: cur.offset + st * 1000)
+                end = Anchor(anchor: cur.anchor, offset: addMs(cur.offset, st * 1000))
                 bells.append(EngineBell(id: s.id + ".end", anchor: end.anchor, offsetMs: end.offset))
             } else {
                 end = Anchor(anchor: s.id, offset: 0)
@@ -890,6 +899,9 @@ public struct EngineEvent: Equatable, Codable, Sendable {
     public var began: Int?                   // crown: when the turn began
     public var step: String?                 // reps
     public var value: JSONValue?             // reps
+    /// Keys this build doesn't know, kept so a newer build's event survives a checkpoint written
+    /// or read here (RFC §14.4 rule 5). Never a known key.
+    public var extra: [String: JSONValue] = [:]
 
     public init(kind: String, t: Int, began: Int? = nil, step: String? = nil, value: JSONValue? = nil) {
         self.kind = kind
@@ -897,6 +909,73 @@ public struct EngineEvent: Equatable, Codable, Sendable {
         self.began = began
         self.step = step
         self.value = value
+    }
+
+    /// Python `workout_session.EVENT_KEYS`.
+    public static let knownKeys: Set<String> = ["kind", "t", "began", "step", "value"]
+    /// Python `workout_session.MAX_EVENT_MS`: 7 days. Far past any workout, and it fits a 32-bit
+    /// Int (arm64_32 watches) with a 24 h bell offset added to it.
+    public static let maxMs: Int = 604_800_000
+
+    /// Python `workout_session._ms`: a time in ms, truncated toward zero and clamped to
+    /// 0...maxMs; nil if not a finite number (a bool is not a number).
+    public static func clampedMs(_ v: JSONValue?) -> Int? {
+        guard let d = v?.number, d.isFinite else {
+            return nil
+        }
+        if d <= 0 {
+            return 0
+        }
+        if d >= Double(maxMs) {
+            return maxMs
+        }
+        return Int(d)
+    }
+
+    /// Python `workout_session.decode_event`: never fails. A missing or bad `kind` is "" (the
+    /// engine ignores it), a missing or bad `t` is 0, a bad `began` or `step` is dropped, and
+    /// unknown keys are kept in `extra`. Times are clamped (`clampedMs`), so a corrupt log can't
+    /// overflow `t + ms` in the engine.
+    public init(json: JSONValue) {
+        let o: [String: JSONValue] = json.object ?? [:]
+        self.kind = o["kind"]?.string ?? ""
+        self.t = EngineEvent.clampedMs(o["t"]) ?? 0
+        self.began = EngineEvent.clampedMs(o["began"])
+        self.step = o["step"]?.string
+        self.value = o["value"]
+        var extra: [String: JSONValue] = [:]
+        for (k, v) in o where !EngineEvent.knownKeys.contains(k) {
+            extra[k] = v
+        }
+        self.extra = extra
+    }
+
+    /// The event as JSON: the known keys that are set, plus `extra`.
+    public func toJSON() -> JSONValue {
+        var d: [String: JSONValue] = [:]
+        for (k, v) in extra where !EngineEvent.knownKeys.contains(k) {
+            d[k] = v
+        }
+        d["kind"] = .string(kind)
+        d["t"] = .int(t)
+        if let b = began {
+            d["began"] = .int(b)
+        }
+        if let s = step {
+            d["step"] = .string(s)
+        }
+        if let v = value {
+            d["value"] = v
+        }
+        return .object(d)
+    }
+
+    public init(from decoder: Decoder) throws {
+        self.init(json: (try? JSONValue(from: decoder)) ?? .null)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        try toJSON().encode(to: encoder)
     }
 }
 
@@ -1085,6 +1164,10 @@ public enum WorkoutEngine {
     public static let lateEventMs: Int = 5000       // a turn more than 5 s late is ignored
     public static let countdownMs: Int = 3000       // 3-2-1 only if at least 3 s are left
     public static let maxExtraRounds: Int = 1000
+    /// Python `MAX_BELL_MS`: engine times stay within 7 days of START. A bell planned later
+    /// refuses the plan (tooLarge) and a ratio rest's end is clamped here; 7 days plus a 24 h
+    /// bell still fits a 32-bit Int (arm64_32 watches).
+    public static let maxBellMs: Int = 604_800_000
 
     /// Plans a v2 definition (or a bare structure). Throws WorkoutNotRunnable for a draft, an
     /// unknown schema version or a feature this engine doesn't run.
@@ -1117,7 +1200,11 @@ public enum WorkoutEngine {
         if exp.steps.isEmpty {
             throw WorkoutNotRunnable(reason: "empty", missing: [])
         }
-        return WorkoutPlan(definition: doc, structure: structure, expansion: exp, scale: scale)
+        let plan = WorkoutPlan(definition: doc, structure: structure, expansion: exp, scale: scale)
+        if plan.bells.contains(where: { $0.offsetMs > maxBellMs }) {
+            throw WorkoutNotRunnable(reason: "tooLarge", missing: [])
+        }
+        return plan
     }
 
     public static func initial(_ plan: WorkoutPlan) -> EngineState {
@@ -1314,9 +1401,12 @@ public enum WorkoutEngine {
         } else if s.kind == "rest", let rs = s.restSeconds {
             due = t + rs * 1000
         } else if s.kind == "rest", let ratio = s.ratio?.number {
-            let milli: Int = Int((ratio * 1000.0).rounded(.toNearestOrEven))   // integer maths only
-            let seconds: Int = (milli * scopeMs(st, s.ratioOf) + 500000) / 1000000
-            due = t + seconds * 1000
+            // Integer maths only, in Int64: on arm64_32 watches Int is 32 bits, and milli × the
+            // measured ms passes 2^31 after about 36 min at ratio 1. Clamped like Python.
+            let milli: Int64 = Int64((ratio * 1000.0).rounded(.toNearestOrEven))
+            let seconds: Int64 = (milli * Int64(scopeMs(st, s.ratioOf)) + 500000) / 1000000
+            let end: Int64 = Int64(t) + seconds * 1000
+            due = Int(min(end, Int64(WorkoutEngine.maxBellMs)))
         } else if let secs = s.secondsTarget {
             due = t + secs * 1000
         }
@@ -2096,9 +2186,10 @@ public enum WorkoutEngine {
             let show: String = sc["show"]?.string ?? "avg"
             var agg: JSONValue = .null
             if !vals.isEmpty {
-                let sum: Int = vals.reduce(0, +)
+                // In Int64: up to 400 pieces of up to 7 days each passes a 32-bit Int.
+                let sum: Int64 = vals.reduce(Int64(0)) { $0 + Int64($1) }
                 switch show {
-                case "sum": agg = .int(sum)
+                case "sum": agg = WorkoutEngineSession.wholeNumber(sum)
                 case "avg": agg = .int(Int(Double(sum) / Double(vals.count) + 0.5))
                 case "best": agg = .int(vals.min() ?? 0)
                 case "slowest": agg = .int(vals.max() ?? 0)

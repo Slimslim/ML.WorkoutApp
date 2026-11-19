@@ -206,3 +206,22 @@ def test_values_are_percent_encoded():
     assert wc.enc("a b,c%d") == "a%20b%2Cc%25d"
     assert wc.dec(wc.enc("a b,c%d\n")) == "a b,c%d\n"
     assert wc._text(12.0) == "12"
+
+
+def test_the_label_is_saved_on_the_definition_as_fidelity():
+    """RFC §14.3 B2/A4: older builds run the old keys only when fidelity is exact."""
+    for name, old in ALL.items():
+        u = upgrade(old)
+        doc = u["definition"]
+        if u["label"] == "exact":
+            assert doc["fidelity"] == "exact" and "approx" not in doc, name
+        else:
+            reasons = [r for r in u["reasons"] if not r.startswith("note:")]
+            assert doc["fidelity"] == "approx", name
+            assert doc["approx"] == ["upgrade:" + r for r in reasons], name
+    # A legacy row that carried its own (stale) approx list gets the upgrade's view only.
+    old = dict(ALL["hyrox.solo"], approx=["stale"])
+    assert "approx" not in upgrade(old)["definition"]
+    # Not legacy: unchanged, no fidelity added.
+    draft = {"schemaVersion": 0, "name": "x"}
+    assert upgrade(draft)["definition"] == draft

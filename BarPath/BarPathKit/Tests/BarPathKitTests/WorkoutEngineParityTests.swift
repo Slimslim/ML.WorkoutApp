@@ -254,8 +254,8 @@ final class WorkoutEngineParityTests: XCTestCase {
             let scen: String = c["scenario"]?.string ?? "?"
             // A case folder, or an inline definition and event list (free-text ids).
             let plan: WorkoutPlan = try c["doc"].map { try WorkoutEngine.plan($0) } ?? planFor(name)
-            let lines = WorkoutEngineCSV.planLines(plan, startEpochMs: c["startEpochMs"]?.intValue ?? 0,
-                                                   startUptimeMs: c["startUptimeMs"]?.intValue ?? 0)
+            let lines = WorkoutEngineCSV.planLines(plan, startEpochMs: Int64(c["startEpochMs"]?.intValue ?? 0),
+                                                   startUptimeMs: Int64(c["startUptimeMs"]?.intValue ?? 0))
             XCTAssertEqual(lines, (c["planLines"]?.array ?? []).compactMap { $0.string }, "\(name)/\(scen): plan lines")
             let spec: JSONValue = try c["events"] ?? workoutFixture("\(name)/events/\(scen).json")
             let (st, _) = WorkoutEngine.run(plan, try events(spec))
