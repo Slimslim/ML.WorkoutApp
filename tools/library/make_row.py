@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Print the SQL that adds (or updates) workouts in the Supabase `workout_library` table.
+"""Print the SQL that adds (or updates) workouts in the Supabase workout library.
+
+A definition with `"schemaVersion": 2` (docs/WORKOUT_MODEL_RFC.md) goes to `workout_library_v2`,
+the only table it is written to: the database writes the legacy copy into `workout_library`
+itself, only when every scale is `fidelity: "exact"` (migration 20261118000100). Any other
+definition (today's flat format) goes to `workout_library` as before.
 
 Paste the output into the Supabase dashboard -> SQL editor -> Run. See docs/WORKOUT_LIBRARY.md.
 
@@ -14,7 +19,9 @@ Paste the output into the Supabase dashboard -> SQL editor -> Run. See docs/WORK
 Every definition is checked against the Python mirror of BarPathKit's WorkoutDefinition: it must
 round-trip unchanged (no unknown or misspelled keys, every required key present), use known
 kinds/units/formats, and have a `lib.` id that no built-in workout uses (the watch prefers its
-built-in version for a shared id).
+built-in version for a shared id). A v2 definition is also checked against
+schemas/workout-definition.v2.schema.json (needs `pip install jsonschema`), and its old keys are
+checked like a flat definition.
 """
 from __future__ import annotations
 
@@ -36,6 +43,10 @@ FORMATS = ("forTime", "amrap", "emom")
 TEAMS = ("solo", "doubles", "team")
 LOAD_UNITS = ("lb", "kg")
 ID_PATTERN = re.compile(r"^lib\.[a-z0-9-]+(\.[a-z0-9-]+)+$")
+SCHEMA_V2 = Path(__file__).resolve().parent.parent.parent / "schemas" / "workout-definition.v2.schema.json"
+# The keys builds 15/16 read (BarPathKit's WorkoutDefinition): the legacy copy holds only these.
+LEGACY_KEYS = ("id", "name", "shortName", "format", "team", "healthKitActivity", "segments",
+               "timeCapSeconds", "intervalSeconds", "roundSize")
 
 
 class LibraryError(ValueError):
@@ -104,6 +115,62 @@ def validate_definition(d: dict, owner: Optional[str] = None) -> WorkoutDefiniti
     if definition.format == "amrap" and definition.time_cap_seconds is None:
         raise LibraryError("an AMRAP needs timeCapSeconds")
     return definition
+
+
+def is_v2(d) -> bool:
+    return isinstance(d, dict) and d.get("schemaVersion") == 2
+
+
+_v2_validator = None
+
+
+def _schema_v2_validator():
+    global _v2_validator
+    if _v2_validator is None:
+        try:
+            import jsonschema
+        except ImportError as e:  # pragma: no cover
+            raise LibraryError("checking a schemaVersion 2 definition needs jsonschema "
+                               "(pip install jsonschema)") from e
+        schema = json.loads(SCHEMA_V2.read_text(encoding="utf-8"))
+        _v2_validator = jsonschema.Draft7Validator(schema)
+    return _v2_validator
+
+
+def is_exact(d: dict) -> bool:
+    """Every scale is `fidelity: "exact"` (without `scales`: the root `fidelity`)."""
+    scales = d.get("scales")
+    if isinstance(scales, list):
+        return len(scales) > 0 and all(isinstance(s, dict) and s.get("fidelity") == "exact"
+                                       for s in scales)
+    return d.get("fidelity") == "exact"
+
+
+def legacy_copy(d: dict) -> Optional[dict]:
+    """What the database copies into workout_library for builds 15/16: the old keys of an exact
+    definition, None otherwise. Mirror of public.workout_v2_legacy_definition (the database also
+    needs the row to be published)."""
+    if not is_exact(d):
+        return None
+    return {k: d[k] for k in LEGACY_KEYS if k in d}
+
+
+def validate_v2(d: dict, owner: Optional[str] = None) -> dict:
+    """A schemaVersion 2 definition as the database will accept it; raises LibraryError."""
+    if not isinstance(d, dict):
+        raise LibraryError("definition must be a JSON object")
+    errors = list(_schema_v2_validator().iter_errors(d))
+    if errors:
+        from jsonschema.exceptions import best_match
+        e = best_match(errors)
+        where = "/".join(str(p) for p in e.absolute_path) or "(root)"
+        raise LibraryError(f"does not match the v2 schema at {where}: {e.message[:200]}"
+                           + (f" (+{len(errors) - 1} more)" if len(errors) > 1 else ""))
+    # The old keys must still decode on today's apps, exactly like a flat definition.
+    validate_definition({k: d[k] for k in LEGACY_KEYS if k in d}, owner)
+    if len(json.dumps(d, ensure_ascii=False).encode("utf-8")) > 65536:
+        raise LibraryError("definition is larger than 64 KB")
+    return d
 
 
 def _flat_keys(value, prefix: str = "") -> list:
@@ -193,6 +260,48 @@ def make_row(definition: WorkoutDefinition, program, scheduled_on, published: bo
         "  published = excluded.published" + (", gym_id = excluded.gym_id" if gym else "") + ";\n")
 
 
+def make_row_v2(d: dict, program, scheduled_on, published: bool = True,
+                gym: Optional[str] = None, owner: Optional[str] = None) -> str:
+    """`insert … on conflict (id) do update` into workout_library_v2 for one checked v2
+    definition (see validate_v2). The JSON is written as given, so unknown keys pass through.
+    The database sets the revision and writes (or removes) the legacy copy."""
+    if owner is not None:
+        if gym is not None:
+            raise LibraryError("a row has an owner or a gym, never both")
+        owner = parse_owner(owner)
+        check_owner_id(d["id"], owner)
+    if gym is not None and not GYM_PATTERN.match(str(gym)):
+        raise LibraryError(f"gym {gym!r} must be a slug like blue-republic")
+    if scheduled_on is not None:
+        try:
+            scheduled_on = date.fromisoformat(str(scheduled_on)).isoformat()
+        except ValueError as e:
+            raise LibraryError(f"scheduled_on {scheduled_on!r} is not YYYY-MM-DD") from e
+    if program is not None and not str(program).strip():
+        program = None
+    text = json.dumps(d, ensure_ascii=False)
+    vals = (f"{_sql_text(d['id'])}, {_sql_text(text)}::jsonb, {_sql_text(program)}, "
+            f"{_sql_text(scheduled_on)}{'::date' if scheduled_on is not None else ''}, "
+            f"{'true' if published else 'false'}, {_sql_text(gym)}, "
+            f"{_sql_text(owner)}{'::uuid' if owner else ''}")
+    if "$mr$" in text:
+        raise LibraryError("definition must not contain the text $mr$")
+    sql = ("do $mr$\nbegin\n"
+           "insert into public.workout_library_v2 (id, definition, program, scheduled_on, published, gym_id, owner)\n"
+           f"values ({vals})\n"
+           "on conflict (id) do update set definition = excluded.definition,\n"
+           "  program = excluded.program, scheduled_on = excluded.scheduled_on,\n"
+           "  published = excluded.published" + (", gym_id = excluded.gym_id" if gym else ""))
+    if owner:
+        sql += "\n  where public.workout_library_v2.owner = excluded.owner"
+    else:
+        sql += "\n  where public.workout_library_v2.owner is null"
+    # An upsert the WHERE skips writes nothing and reports success: make that an error.
+    return (sql + ";\n"
+            f"if not found then raise exception 'make_row: % was not written: the id belongs to another owner or audience', {_sql_text(d['id'])}; end if;\n"
+            "end\n$mr$;\n")
+
+
 def load_file(path) -> tuple:
     """(definition dict, program, scheduled_on, published, gym) from a seed-style or bare JSON file."""
     return load_file_with_owner(path)[:5]
@@ -219,6 +328,9 @@ def main(argv=None) -> int:
     ap.add_argument("--date", help="scheduled_on, YYYY-MM-DD (overrides the file)")
     ap.add_argument("--unpublished", action="store_true", help="add it hidden (published = false)")
     ap.add_argument("--gym", help="gym id, e.g. blue-republic: the gym's programming (overrides the file)")
+    ap.add_argument("--trust-old-keys", action="store_true",
+                    help="allow a published, exact v2 row (its old keys are copied to builds 15/16). Until the "
+                         "compiler checks them (build 17 item 2), check the old keys against the structure by hand first")
     ap.add_argument("--owner", help="user id (UUID): that user's personal workout, seen only by them; "
                     "the id must end with .u<first 8 hex of the user id> (overrides the file)")
     args = ap.parse_args(argv)
@@ -246,21 +358,32 @@ def main(argv=None) -> int:
             gym = args.gym if args.gym is not None else gym
             if args.id:
                 d = dict(d, id=args.id)
+            program = args.program if args.program is not None else program
+            day = args.date if args.date is not None else day
+            published = published and not args.unpublished
             try:
                 if owner is not None and gym is not None:
                     raise LibraryError("a row has an owner or a gym, never both")
-                definition = validate_definition(d, owner)
+                if is_v2(d):
+                    validate_v2(d, owner)
+                    the_id, name = d["id"], d["name"]
+                    copy = "legacy copy for builds 15/16" if legacy_copy(d) is not None else "no legacy copy (not exact)"
+                    if published and legacy_copy(d) is not None and not args.trust_old_keys:
+                        raise LibraryError("a published, exact v2 row is copied to builds 15/16, and nothing "
+                                           "checks its old keys against the structure yet (build 17 item 2): "
+                                           "check them by hand, then pass --trust-old-keys")
+                    row = make_row_v2(d, program, day, published, gym, owner)
+                else:
+                    definition = validate_definition(d, owner)
+                    the_id, name, copy = definition.id, definition.name, None
+                    row = make_row(definition, program, day, published, gym, owner)
             except LibraryError as e:
                 raise LibraryError(f"{source}: {e}") from e
-            if definition.id in seen:
-                raise LibraryError(f"{source}: id {definition.id!r} appears twice")
-            seen.add(definition.id)
-            out.append(f"\n-- {definition.name} ({source})\n")
-            out.append(make_row(definition,
-                                args.program if args.program is not None else program,
-                                args.date if args.date is not None else day,
-                                published and not args.unpublished,
-                                gym, owner))
+            if the_id in seen:
+                raise LibraryError(f"{source}: id {the_id!r} appears twice")
+            seen.add(the_id)
+            out.append(f"\n-- {name} ({source}{'; v2, ' + copy if copy else ''})\n")
+            out.append(row)
     except LibraryError as e:
         print(f"make_row: {e}", file=sys.stderr)
         return 1
