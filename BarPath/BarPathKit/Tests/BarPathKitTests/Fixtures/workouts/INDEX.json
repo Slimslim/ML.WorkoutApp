@@ -28,6 +28,11 @@
  "planErrors": 14,
  "planner": 1,
  "runnable": 8,
- "scenarios": 62,
+ "scenarios": 63,
+ "sessionCheckpoints": 7,
+ "sessionEvents": 20,
+ "sessionLines": 5,
+ "sessionRoutes": 20,
+ "sessionViews": 45,
  "upgrade": 49
 }

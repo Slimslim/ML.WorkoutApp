@@ -22,6 +22,7 @@ from pathlib import Path
 from barpath import workout_engine as we
 from barpath import workout_structure as ws
 from barpath import workout_csv as wc
+from barpath import workout_session as wss
 from barpath.workout_upgrade import upgrade
 from engine_cases import ALL, EMOM, TABATA, part
 from upgrade_cases import ALL as UPGRADE_ROWS, EDGE as UPGRADE_EDGE
@@ -128,6 +129,8 @@ SCENARIOS = {
     "intervals": {
         "fivePieces": ticked(500, 595 * S, crowns(58 * S, 179 * S, 296 * S, 416 * S, 535 * S)),
         "undoRefused": ticked(1000, 70 * S, crowns(58 * S) + [{"kind": "undo", "t": 70 * S}]),
+        # Owner decision (W27 PR3): a Crown turn in a clocked rest outside any window ends it early.
+        "crownEndsRest": ticked(1000, 100 * S, crowns(58 * S, 90 * S)),
     },
     "ratioRest": {"roundTimes": ticked(500, 865 * S, crowns(
         50 * S, 100 * S, 155 * S, 200 * S, 370 * S, 430 * S, 490 * S, 700 * S, 730 * S, 760 * S))},
@@ -347,6 +350,149 @@ def csv_fixture(cases: dict) -> list:
     return out
 
 
+# ---- session.json: the watch session on the engine (workout_session.py) ----------------------
+
+SESSION_EVENTS = [
+    {"kind": "crown", "t": 1500},
+    {"kind": "crown", "t": 1500.9, "began": 900.2},
+    {"kind": "crown", "t": -5, "began": -1},
+    {"kind": "tick", "t": 9.3e18},
+    {"kind": "tick", "t": 1e300, "began": 2 ** 70},
+    {"kind": "undo", "t": "12"},
+    {"kind": "undo", "t": None, "began": "x"},
+    {"kind": "undo", "t": True, "began": False},
+    {"kind": 7, "t": 100},
+    {"t": 100},
+    {"kind": "reps", "t": 5000, "step": "rp.1.sq", "value": 12},
+    {"kind": "reps", "t": 5000, "step": "rp.1.sq", "value": None},
+    {"kind": "reps", "t": 5000, "step": 3, "value": {"n": 4.5, "x": [1, 2]}},
+    {"kind": "end", "t": 700000, "source": "button", "x-note": {"keep": ["me", 1.5]}},
+    {"kind": "crown", "t": 604800000},
+    {"kind": "crown", "t": 604800001},
+    {},
+    [],
+    "crown",
+    None,
+]
+
+
+def _session_routes(cases: dict) -> list:
+    from upgrade_cases import ALL as LEGACY
+    out = []
+    for name in ("hyrox.solo", "hyrox.doubles", "wod.helen"):
+        if name in LEGACY:
+            out.append({"name": "legacy:" + name, "raw": LEGACY[name]})
+    for name in ("tabata", "hyrox", "emom", "variantsL1"):
+        out.append({"name": "case:" + name, "case": name})
+    hy = cases["hyrox"][0]
+    unknown = dict(hy, requires=["teleport"])
+    out += [
+        {"name": "notAnObject", "raw": ["structure"]},
+        {"name": "schemaOne", "raw": {"schemaVersion": 1, "name": "x", "segments": []}},
+        {"name": "schemaNull", "raw": {"schemaVersion": None, "segments": []}},
+        {"name": "schemaTrue", "raw": {"schemaVersion": True, "segments": []}},
+        {"name": "draft", "raw": dict(hy, schemaVersion=0)},
+        {"name": "schemaThree", "raw": dict(hy, schemaVersion=3)},
+        {"name": "unknownFeature", "raw": unknown},
+        {"name": "unknownFeatureExact", "raw": dict(unknown, fidelity="exact")},
+        {"name": "unknownFeatureExactNoSegments",
+         "raw": {k: v for k, v in dict(unknown, fidelity="exact").items() if k != "segments"}},
+        {"name": "unknownFeatureApprox", "raw": dict(unknown, fidelity="approx", approx=["upgrade:x"])},
+        {"name": "structureNotObject", "raw": {"schemaVersion": 2, "structure": "x"}},
+        {"name": "tooLarge", "raw": {"schemaVersion": 2, "structure": {"score": {"type": "time"}, "body": [
+            {"repeat": {"id": "r", "times": 401, "body": [part("a", "burpees", 1)]}}]}}},
+        {"name": "empty", "raw": {"schemaVersion": 2, "structure": {"score": {"type": "time"}, "body": []}}},
+    ]
+    for r in out:
+        raw = cases[r["case"]][0] if "case" in r else r["raw"]
+        opts = cases[r["case"]][1] if "case" in r else {}
+        if "case" in r:
+            r["options"] = opts
+        r["expected"] = wss.route(raw, **opts)
+    return out
+
+
+SESSION_VIEW_SKIP = ("random",)
+CHECKPOINT_SCENARIOS = [("tabata", "stoppedAndRestCrowns", 33 * S), ("windows3334", "gymTruth", 545 * S),
+                        ("hyrox", "undo", None), ("amrapShort", "pastTheList", 61 * S),
+                        ("variantsF", "rounds", 150 * S), ("emom", "grace", 60500),
+                        ("intervals", "crownEndsRest", 95 * S)]
+LINE_SCENARIOS = [("tabata", "stoppedAndRestCrowns"), ("windows3334", "gymTruth"), ("hyrox", "undo"),
+                  ("amrapShort", "lateCrownMovesTheCut"), ("intervals", "crownEndsRest")]
+CHECKPOINT_WATCH = {"heartRates": [[1795000001.5, 121], [1795000006.25, 122.5]], "recordedCSV": True,
+                    "workoutId": "00000000-0000-4000-8000-000000000001", "x-later": {"a": [1, "é"]}}
+
+
+def _view(st) -> dict:
+    pr = wss.project(st)
+    return {"count": len(pr["segments"]), "starts": pr["starts"], "sources": pr["sources"],
+            "finish": pr["finish"], "finishSource": pr["finishSource"], "latestAsk": wss.latest_ask(st),
+            "nextBell": wss.next_bell(st)}
+
+
+def session_fixture(cases: dict) -> dict:
+    """What workout_session.py gives for the same inputs: decoded events, routes, the views of
+    every non-random scenario at four points (a quarter, half, three quarters and all of its
+    events), checkpoints (text, byte for byte) and the CSV lines written as the run goes."""
+    out = {"maxEventMs": wss.MAX_EVENT_MS, "checkpointVersion": wss.CHECKPOINT_VERSION}
+    out["events"] = [{"raw": e, "decoded": wss.decode_event(e)} for e in SESSION_EVENTS]
+    out["routes"] = _session_routes(cases)
+    views = []
+    for name in sorted(cases):
+        doc, opts, scenarios = cases[name]
+        p = we.plan(doc, **opts)
+        for scen, spec in sorted(scenarios.items()):
+            if scen.startswith(SESSION_VIEW_SKIP):
+                continue
+            evs = expand_events(spec)
+            n = len(evs)
+            at = []
+            final = None
+            for k in sorted({n // 4, n // 2, (3 * n) // 4, n}):
+                st, _ = we.run(p, evs[:k])
+                v = _view(st)
+                v["events"] = k
+                at.append(v)
+                final = st
+            segs = wss.project(final)["segments"]
+            for v in at:   # earlier views are a prefix of the final list (rounds are only appended)
+                assert v["count"] <= len(segs)
+            views.append({"case": name, "scenario": scen, "segments": segs, "at": at})
+    out["views"] = views
+    cps = []
+    for i, (name, scen, saved) in enumerate(CHECKPOINT_SCENARIOS):
+        doc, opts, scenarios = cases[name]
+        p = we.plan(doc, **opts)
+        evs = expand_events(scenarios[scen])
+        if saved is None:
+            saved = max(int(e["t"]) for e in evs)
+        live, _ = we.run(p, [e for e in evs if int(e["t"]) <= saved])
+        o = wss.options_dict(opts.get("scale"), opts.get("standard", "M"), opts.get("choices"))
+        epoch = 1795000000000 + 1000 * i
+        cp = wss.make_checkpoint(doc, p, live, epoch, saved, options=o, watch=CHECKPOINT_WATCH)
+        text = wss.checkpoint_text(cp)
+        rec = wss.recover(cp)
+        assert rec["status"] == "ok", (name, scen, rec)
+        cps.append({"case": name, "scenario": scen, "savedAtMs": saved, "startEpochMs": epoch,
+                    "text": text, "view": _view(rec["state"]), "liveView": _view(live)})
+    out["checkpoints"] = cps
+    lines = []
+    for name, scen in LINE_SCENARIOS:
+        doc, opts, scenarios = cases[name]
+        p = we.plan(doc, **opts)
+        st = we.initial(p)
+        written = {}
+        batches = []
+        for i, e in enumerate(expand_events(scenarios[scen])):
+            st, _ = we.reduce(st, e)
+            new = wss.new_lines(st, written)
+            if new:
+                batches.append({"after": i + 1, "lines": [[t, line] for t, line in new]})
+        lines.append({"case": name, "scenario": scen, "batches": batches})
+    out["lines"] = lines
+    return out
+
+
 def generate() -> dict:
     """{relative path: file text} for everything under Fixtures/workouts."""
     files = {}
@@ -379,8 +525,13 @@ def generate() -> dict:
     files["upgrade.json"] = dumps(up)
     cv = csv_fixture(cases)
     files["csv.json"] = dumps(cv)
+    se = session_fixture(cases)
+    files["session.json"] = dumps(se)
     files["INDEX.json"] = dumps({"cases": sorted(cases), "scenarios": scenario_count, "runnable": len(rc),
                                  "planErrors": len(pe), "upgrade": len(up), "csv": len(cv),
+                                 "sessionEvents": len(se["events"]), "sessionRoutes": len(se["routes"]),
+                                 "sessionViews": len(se["views"]), "sessionCheckpoints": len(se["checkpoints"]),
+                                 "sessionLines": len(se["lines"]),
                                  "planner": we.PLANNER_VERSION})
     return files
 

@@ -45,8 +45,9 @@ public enum WorkoutEngineCSV {
         return s.removingPercentEncoding ?? s
     }
 
-    /// The `plan` line and one `bell` line per planned boundary.
-    public static func planLines(_ plan: WorkoutPlan, startEpochMs: Int, startUptimeMs: Int) -> [String] {
+    /// The `plan` line and one `bell` line per planned boundary. The epochs are Int64: epoch ms
+    /// doesn't fit a 32-bit Int (arm64_32 watches).
+    public static func planLines(_ plan: WorkoutPlan, startEpochMs: Int64, startUptimeMs: Int64) -> [String] {
         var out: [String] = [
             "name=plan schema=\(planSchema) planner=\(WorkoutPlan.plannerVersion) hash=\(plan.hash) "
                 + "startEpochMs=\(startEpochMs) startUptimeMs=\(startUptimeMs) "

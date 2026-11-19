@@ -890,6 +890,9 @@ public struct EngineEvent: Equatable, Codable, Sendable {
     public var began: Int?                   // crown: when the turn began
     public var step: String?                 // reps
     public var value: JSONValue?             // reps
+    /// Keys this build doesn't know, kept so a newer build's event survives a checkpoint written
+    /// or read here (RFC §14.4 rule 5). Never a known key.
+    public var extra: [String: JSONValue] = [:]
 
     public init(kind: String, t: Int, began: Int? = nil, step: String? = nil, value: JSONValue? = nil) {
         self.kind = kind
@@ -897,6 +900,73 @@ public struct EngineEvent: Equatable, Codable, Sendable {
         self.began = began
         self.step = step
         self.value = value
+    }
+
+    /// Python `workout_session.EVENT_KEYS`.
+    public static let knownKeys: Set<String> = ["kind", "t", "began", "step", "value"]
+    /// Python `workout_session.MAX_EVENT_MS`: 7 days. Far past any workout, and it fits a 32-bit
+    /// Int (arm64_32 watches) with a 24 h bell offset added to it.
+    public static let maxMs: Int = 604_800_000
+
+    /// Python `workout_session._ms`: a time in ms, truncated toward zero and clamped to
+    /// 0...maxMs; nil if not a finite number (a bool is not a number).
+    public static func clampedMs(_ v: JSONValue?) -> Int? {
+        guard let d = v?.number, d.isFinite else {
+            return nil
+        }
+        if d <= 0 {
+            return 0
+        }
+        if d >= Double(maxMs) {
+            return maxMs
+        }
+        return Int(d)
+    }
+
+    /// Python `workout_session.decode_event`: never fails. A missing or bad `kind` is "" (the
+    /// engine ignores it), a missing or bad `t` is 0, a bad `began` or `step` is dropped, and
+    /// unknown keys are kept in `extra`. Times are clamped (`clampedMs`), so a corrupt log can't
+    /// overflow `t + ms` in the engine.
+    public init(json: JSONValue) {
+        let o: [String: JSONValue] = json.object ?? [:]
+        self.kind = o["kind"]?.string ?? ""
+        self.t = EngineEvent.clampedMs(o["t"]) ?? 0
+        self.began = EngineEvent.clampedMs(o["began"])
+        self.step = o["step"]?.string
+        self.value = o["value"]
+        var extra: [String: JSONValue] = [:]
+        for (k, v) in o where !EngineEvent.knownKeys.contains(k) {
+            extra[k] = v
+        }
+        self.extra = extra
+    }
+
+    /// The event as JSON: the known keys that are set, plus `extra`.
+    public func toJSON() -> JSONValue {
+        var d: [String: JSONValue] = [:]
+        for (k, v) in extra where !EngineEvent.knownKeys.contains(k) {
+            d[k] = v
+        }
+        d["kind"] = .string(kind)
+        d["t"] = .int(t)
+        if let b = began {
+            d["began"] = .int(b)
+        }
+        if let s = step {
+            d["step"] = .string(s)
+        }
+        if let v = value {
+            d["value"] = v
+        }
+        return .object(d)
+    }
+
+    public init(from decoder: Decoder) throws {
+        self.init(json: (try? JSONValue(from: decoder)) ?? .null)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        try toJSON().encode(to: encoder)
     }
 }
 
