@@ -14,6 +14,9 @@
 -- skips them: `supabase migration repair --status reverted 20261118000000 20261118000100`
 -- (or delete those two rows from supabase_migrations.schema_migrations).
 begin;
+-- Exclusive locks on workout_library follow: wait at most 5 s for them (the apps keep reading);
+-- on a lock timeout nothing changed, just run the file again.
+set local lock_timeout = '5s';
 
 -- Works whether both migrations were applied or only the first (the second failed): the v2 part
 -- is skipped when its tables don't exist.

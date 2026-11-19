@@ -159,6 +159,10 @@ Migrations `20261118000000_workout_drafts.sql` and `20261118000100_workout_libra
 - **Until the compiler exists (build 17 item 2), "exact" is the author's word.** `make_row.py`
   refuses a published, exact v2 row (its old keys go to builds 15/16) unless `--trust-old-keys`
   is given, after the old keys were checked against the structure by hand.
+- **Publish v2 rows only through `make_row.py`** (re-run it without `--unpublished`), never with a
+  dashboard `update public.workout_library_v2 set published = true …`: that skips the
+  `--trust-old-keys` guard above and sends unchecked old keys to builds 15/16 through the legacy
+  copy. Hiding a row (`set published = false`) is safe: the copy is removed.
 - **Changing the schema later:** the CHECK calls `workout_definition_v2_schema()`. A stricter
   schema must come with a data migration that checks every existing row first; otherwise those
   rows fail every later update and a `pg_dump` restore.

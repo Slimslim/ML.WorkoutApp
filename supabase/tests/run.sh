@@ -76,6 +76,23 @@ python3 tools/library/make_row.py --trust-old-keys tools/library/fixtures/v2/val
 echo "make_row: the same SQL again (an update of existing rows, exact ones with copies)"
 python3 tools/library/make_row.py --trust-old-keys tools/library/fixtures/v2/valid/*.json | psql_run
 
+# S5: an upsert whose WHERE skips the existing row (the id belongs to another owner or audience)
+# writes nothing; make_row's SQL must raise instead of reporting success. Here: the tester's
+# personal fixture row, written again as a public row.
+echo "make_row: an upsert that would write nothing raises"
+s5_sql=$(python3 -c '
+import json, sys
+sys.path.insert(0, "tools/library")
+import make_row
+d = json.load(open("tools/library/fixtures/v2/valid/exact_personal.json"))["definition"]
+print(make_row.make_row_v2(d, "Example", None), end="")
+')
+if out=$(printf '%s\n' "$s5_sql" | psql_run 2>&1); then
+  echo "FAILED: make_row SQL for another owner's id reported success" >&2; exit 1
+fi
+echo "$out" | grep -q "was not written" || { echo "FAILED: S5 raised another error: $out" >&2; exit 1; }
+echo "ok - S5: make_row SQL raises 'was not written' when the upsert writes nothing"
+
 echo "tests: v2"; psql_run -f supabase/tests/30_v2.sql
 
 # The library seed (invented example workouts) still loads on the v2 schema.
