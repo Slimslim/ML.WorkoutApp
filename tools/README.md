@@ -129,6 +129,7 @@ CSV (no ML, plain thresholds, written to port to Swift). `segments_report.py` pr
 segment; `--plot out.png` writes a timeline (matplotlib needed, only written where you point it):
 
 ```sh
+python tools/fetch_corpus.py 2026-10-29-helen     # recordings are not in git (docs/LABELS.md); needs BARPATH_USER_ID / BARPATH_SUPABASE_KEY
 python tools/segments_report.py data/raw/2026-10-29-helen/session-*.csv [--plot out.png]
 python -m pytest tools/tests/test_segments_helen.py -q   # regression on the Helen recording
 ```

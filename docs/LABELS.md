@@ -12,15 +12,42 @@ says what really happened; `tools/score_labels.py` scores detectors against all 
 | Recordings (watch CSV at 100 Hz, result JSON, lift JSON) | Supabase Storage, bucket `uploads`, `<user id>/Debug/…`, `Workouts/…`, `Lifts/…` (uploaded by the phone) | **No** |
 | Local copies for scoring | `data/cache/<label id>/` (`tools/fetch_sessions.py`) | No (git-ignored) |
 | Labels | `data/labels/<label id>.json` | Yes |
-| Older sessions with prose notes | `data/raw/*/README.md` (recordings committed before this) | Yes (to be converted) |
+| Older sessions (Oct 27 - Nov 2) with their prose notes | Supabase Storage, `uploads/<user id>/Corpus/raw/` (+ `MANIFEST.sha256`); local copy in `data/raw/` (`tools/fetch_corpus.py`) | **No** (git-ignored, #101) |
 
-Recordings stay out of git from now on (`data/raw` is already 127 MB). Paths in a label are
+No recordings, photos, videos or raw sensor data in the repo (CLAUDE.md). Paths in a label are
 relative to the owner's Storage folder; the user id is not in the repo.
 
 ```bash
 BARPATH_USER_ID=<user id> BARPATH_SUPABASE_KEY=<secret key> python3 tools/fetch_sessions.py
 python3 tools/score_labels.py
 ```
+
+## Recordings (moved out of the repo)
+
+Until 19 Nov the older sessions were committed in `data/raw/` (127 MB). They now live only in the
+owner's private Storage, same folder structure, with a sha256 manifest (#101); `data/raw/` is
+git-ignored. The tools and tests that read them (`transitions.py`, `segments_report.py`,
+`fit_lever_arm.py`, `tools/scratch/*`, the real-data tests) work as before once the corpus is
+downloaded; without it the tests are skipped (CI runs without it).
+
+```bash
+# service role key (or any placeholder in a Claude cloud session: the proxy adds the key)
+BARPATH_USER_ID=<owner user id> BARPATH_SUPABASE_KEY=<secret key> python3 tools/fetch_corpus.py
+BARPATH_USER_ID=<owner user id> BARPATH_SUPABASE_KEY=<secret key> python3 tools/fetch_corpus.py 2026-10-29-helen
+python3 -m pytest tools/tests -q        # the real-data tests run again
+```
+
+- **Where:** bucket `uploads` (private), `<owner user id>/Corpus/raw/<session folder>/<file>`, the
+  same folders as the old `data/raw/` (`Corpus/raw/2026-10-29-gym/…`), stored plain (not `.gz`),
+  byte-identical to the files in git history (main `cb98301`): 97 files, 132,718,357 bytes.
+- **Manifest:** `Corpus/raw/MANIFEST.sha256`, one line per file: `<sha256>  <bytes>  <path relative to
+  Corpus/raw/>`. `fetch_corpus.py` checks size and sha256 of every file; files already present
+  with the right checksum are skipped (`--force` downloads again).
+- **Who can read it:** the owner's account and the service role only (apikey + `Authorization:
+  Bearer`, `…/storage/v1/object/authenticated/uploads/<owner user id>/Corpus/raw/<path>`); anon
+  and public URLs are refused.
+- Never commit the downloaded files, the user id or a key. (Small, de-identified test fixtures
+  under `BarPathKit/Tests/.../Fixtures` and `tools/tests` are the one exception: CLAUDE.md.)
 
 ## How a session gets labelled
 

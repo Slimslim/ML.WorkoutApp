@@ -30,3 +30,5 @@ videos/
 
 # Recordings downloaded for scoring (tools/fetch_sessions.py); never committed
 data/cache/
+# The older recordings corpus, downloaded by tools/fetch_corpus.py (private Storage); never committed
+data/raw/
