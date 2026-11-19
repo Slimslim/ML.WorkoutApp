@@ -195,8 +195,9 @@ closed before the import ships. Builds 18+ during the beta: fixes only.
 
 Backend v2 (#70) goes live only after the database has a backup (owner, 19 Nov: Free plan, so no
 Supabase backups). Nightly dump to the owner's NAS, 14 nights kept, monthly restore test, a manual
-dump before any database change: `docs/BACKUP.md`, `tools/backup/`. Status: in review (branch
-`claude/b17-synology-backup`). Not tested on the NAS (DSM) yet.
+dump before any database change: `docs/BACKUP.md`, `tools/backup/`. Status: in review
+([#123](https://github.com/Slimslim/ML.WorkoutApp/pull/123)). Device-tested 19 Nov on the NAS: first
+backup OK (6.2 MB, 73 s), restore test OK (39 tables, every row).
 
 ## Backlog (after the beta; owner picks at the review)
 

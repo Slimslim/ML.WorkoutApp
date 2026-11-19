@@ -103,6 +103,9 @@ major version as the server or newer.
 - It is on Btrfs, with data checksums on and a 20 GB quota.
 - It is for administrators only. Check under **Control Panel → Shared Folder → RxLabBackup →
   Edit → Permissions**: administrators Read/Write, everyone else No access.
+- **Use an account that has Read/Write on `RxLabBackup`** (for example `admin`) for every File
+  Station step on this page. In DSM an explicit **No access** for a user overrides the
+  administrators group, so an admin whose own row says No access cannot open the folder.
 - Backups go straight into it, with no subfolder.
 
 What its settings mean for the backup:
@@ -112,8 +115,9 @@ What its settings mean for the backup:
   File Station or over the network land there.
   - Under **Edit → General**, tick "Restrict access to administrators only" for the Recycle Bin.
   - Empty it now and then: **Control Panel → Task Scheduler → Create → Scheduled Task → Recycle Bin**.
-- **Quota 20 GB.** Today one night is about 1–6 MB, so 14 nights are under 100 MB. The log line
-  gives each night's size; look again if it ever passes 500 MB.
+- **Quota 20 GB.** Today one night is about 6 MB (the first backup on the NAS: 6.2 MB), so 14
+  nights are under 100 MB. It grows with the data. The log line gives each night's size; look again
+  if it ever passes 500 MB.
 - **Data checksums.** Btrfs notices if a backup file is silently damaged on disk.
 - **Snapshots (recommended, free).** In **Snapshot Replication**, take a daily snapshot of
   `RxLabBackup` and keep 30.
@@ -126,12 +130,20 @@ What its settings mean for the backup:
 Steps 3 and 9 need a root shell on the NAS. Nothing else on this page does: the nightly backup,
 the restore test and the backup before a change all run from Task Scheduler and File Station.
 
-1. **Control Panel → Terminal & SNMP**: tick **Enable SSH service**, then Apply.
+1. **Control Panel → Terminal & SNMP**: tick **Enable SSH service**, then Apply. If it was already
+   ticked, leave it as it is, and leave it on at step 4 too.
 2. On your Mac, in Terminal: `ssh <admin>@<NAS-IP>`.
    - The first time, it asks whether to trust the NAS's key: type `yes`.
    - Then it asks your DSM password. **Nothing is shown while you type it**; press Enter.
 3. `sudo -i`, and your DSM password again. You are now root: the prompt ends with `#`.
-4. When you are done: `exit` twice, then untick **Enable SSH service** again.
+4. When you are done: `exit` twice, then untick **Enable SSH service** again (unless it was on
+   before step 1).
+
+If SSH stays on, make sure it is reachable from your home network only:
+- **Control Panel → Security → Firewall**: allow the SSH port from your local network only.
+- **Control Panel → Security → Protection**: turn on **Auto Block**.
+- On the router, **no port forward** to the NAS's SSH port.
+- **2-step verification** for the admin accounts (**Personal → Security**).
 
 ## 3. The scripts and the password file
 
@@ -160,7 +172,10 @@ The backup refuses to run if anyone but root can read the file, so a mistake sho
    and click **Download raw file**.
 
    Check that each file name ends in `.sh`, not `.sh.txt` (Safari sometimes adds `.txt`; rename it
-   in Finder). Then copy both files into `RxLabBackup` with File Station (drag and drop).
+   in Finder). Then copy both files into `RxLabBackup` with File Station (drag and drop), logged in
+   with an account that has Read/Write on it (step 1).
+
+   A `#recycle` folder in `RxLabBackup` is the Recycle Bin. It is normal; leave it.
 
    Then, as root (step 2):
 
@@ -177,8 +192,11 @@ The backup refuses to run if anyone but root can read the file, so a mistake sho
    1. In the Supabase dashboard, go to **Connect → Session pooler → View parameters**: host, port,
       database, user. **Copy the host exactly as shown.** It looks like
       `aws-0-…pooler.supabase.com` or `aws-1-…`, depending on the project.
-   2. The password is the database password. If you don't know it, set a new one under
-      **Database → Settings**; the app does not use it.
+   2. The password is the database password. If you don't know it, reset it on the project's
+      **Database Settings** page (in the dashboard: **Database → Settings**, or
+      `supabase.com/dashboard/project/<PROJECT-REF>/database/settings`), under **Database
+      password**. The app does not use this password. A reset can take a few minutes to take
+      effect.
    3. Use the **Session** pooler, not the Transaction one: pg_dump needs a session. The direct
       connection is IPv6 only, so it is no use from most home networks.
 
@@ -221,8 +239,11 @@ If it is ever missing:
 1. **Container Manager → Registry**, search `postgres`.
 2. Select the official `postgres` image, **Download**, and choose the tag **`17-alpine`**.
 
-The NAS (Intel, x86-64) runs it as is, and nothing else is installed. Each night the backup starts
-a container from it for a few seconds, then removes it.
+The NAS (Intel, x86-64) runs it as is, and nothing else is installed.
+
+**You never start a container yourself.** Each task (the nightly backup, the restore test) starts a
+temporary container from this image and removes it when it is done. So **Container Manager →
+Container** stays empty, and that is normal. Only the image must stay.
 
 ## 5. The nightly task (Control Panel → Task Scheduler)
 
@@ -245,12 +266,13 @@ a container from it for a few seconds, then removes it.
      was off for a month, the first good night still keeps the 13 nights before the outage.
 5. OK.
 
-**First run now:** select the task, then click **Run**. After a few seconds, check it worked:
+**First run now:** select the task, then click **Run**. It takes about 1–2 minutes (the first run
+on the NAS: 73 s). Then check it worked:
 
 - **File Station → RxLabBackup** shows three new files: `rxlab_<date>-<time>_roles.sql`,
   `_schema.sql` and `_data.sql`.
 - `backup.log` in the same folder ends with a line like:
-  `2026-11-20T03:00:04+0100 OK rxlab_20261120-030001 (roles, schema, data) 4123456 bytes 3s, deleted 0 old files, 1 nights kept`
+  `2026-11-20T03:01:14+0100 OK rxlab_20261120-030001 (roles, schema, data) 6200000 bytes 73s, deleted 0 old files, 1 nights kept`
 
 A failed night:
 
@@ -309,10 +331,14 @@ runs by itself:
 5. OK. To run it now: select it, then click **Run**.
 
 To read a run's output without email:
-1. Turn on **Task Scheduler → Settings → Save output results** once, and choose a folder.
+1. Turn on **Task Scheduler → Settings → Save output results** once. It is a setting of Task
+   Scheduler as a whole, not of one task. Pick an admin-only folder: `RxLabBackup` is fine. DSM
+   writes into a subfolder there, and neither the cleanup nor the restore test looks at
+   subfolders.
 2. Then use **Action → View Result** on the task.
 
-What the test does:
+What the test does. It **never touches Supabase or the apps**: it loads the backup into a throwaway
+database on the NAS.
 
 1. Takes the newest night's three files and checks each one is complete.
 2. Starts a throwaway `postgres:17-alpine` container. The database is in memory and the container
@@ -331,7 +357,8 @@ Output:
 
 Also look at the counts against the dashboard (Table Editor) once:
 
-- `public.workout_library` = the library rows;
+- `public.workout_library` = the library rows **plus the drafts** (until build 17's backend moves
+  the drafts into `public.workout_drafts`);
 - `auth.users` = the number of accounts.
 
 ## 8. Before any change to the database: a backup by hand
@@ -402,7 +429,8 @@ Supabase. Someone on your network could then pose as Supabase and read the passw
 certificate closes that gap. **It has not been tried against the Supabase pooler yet**, so it is
 not part of the setup. Try it once the backup has run for a while:
 
-1. In the dashboard, open **Database → Settings → SSL Configuration → Download certificate**.
+1. On the project's **Database Settings** page (step 3.2), section **SSL Configuration**, download the
+   certificate.
 2. Copy the certificate into `RxLabBackup` with File Station, then, in a root shell (step 2):
    `mv /volume1/RxLabBackup/<certificate file> /volume1/@rxlab/supabase-ca.crt`
 3. In `pg_service.conf`, replace `sslmode=require` with these two lines:
@@ -441,16 +469,22 @@ Tested on 19 Nov 2026, in a Linux container with Docker and `postgres:17-alpine`
 | The container's hardening (read-only root file system, no privilege gain, `@rxlab` mounted read-only) | The backup works with it. |
 | In CI | The script that runs inside the container is also run with stand-in `pg_dump`/`psql`. This checks the CLI's line rewrites and that a failing dump leaves no completion line. |
 
-## What has not been tested on the NAS itself
+## Tested on the NAS (19 Nov 2026)
 
-| Not tested | What could go wrong |
+The owner ran the setup on the DS916+ (DSM 7.2.2) against the live project, through the Session
+pooler with `sslmode=require`:
+
+| Test | Result |
 |---|---|
-| DSM 7.2.2's Task Scheduler running the command as root | Paths, `bash` |
-| DSM's `stat`, `find` and `docker` (Container Manager) | Different versions from the test machine |
-| A real Session pooler connection from the home network | It needs TLS (`sslmode=require`). The "Later" `verify-full` check was not tried against Supabase at all. |
-| File Station showing `backup.log` | It should, the log is 644 |
-| `chmod 600` under `/volume1/@rxlab` | It should stick, outside the share's permissions |
-| Hyper Backup, Snapshot Replication and the Recycle Bin settings | Not tested at all |
+| First backup (step 5) | OK: three files, 6.2 MB, 73 s. |
+| Restore test (step 7) | OK: 39 tables, every row restored. |
 
-The first manual run (step 5) and the first restore test (step 7) check all of these. If one fails,
-the log line says which check stopped it.
+This shows that Task Scheduler runs the command as root, and that DSM's own `bash`, `stat`, `find`
+and `docker` work. It also shows the Session pooler connection over TLS, and the root-only password
+file under `/volume1/@rxlab`.
+
+Still not tried:
+- the "Later" `verify-full` certificate check;
+- Hyper Backup and Snapshot Replication;
+- a full restore into a new Supabase project (step 9; tested only against Supabase's Postgres image,
+  see "Tested").
