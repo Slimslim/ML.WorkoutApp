@@ -52,6 +52,9 @@ python3 -m pytest tools/tests -q        # the real-data tests run again
 - **Where:** bucket `uploads` (private), `<owner user id>/Corpus/raw/<session folder>/<file>`, the
   same folders as the old `data/raw/` (`Corpus/raw/2026-10-29-gym/…`), stored plain (not `.gz`),
   byte-identical to the files in git history (main `cb98301`): 97 files, 132,718,357 bytes.
+- **Paths in a manifest** are relative to its own folder: bare file names for labels
+  (`2026-11-04-z-press.json`) and eval (`history.jsonl`), never `labels/…`, or the files land in
+  `data/labels/labels/`.
 - **Manifest:** `Corpus/raw/MANIFEST.sha256`, one line per file: `<sha256>  <bytes>  <path relative to
   Corpus/raw/>`. `fetch_corpus.py` checks size and sha256 of every file; files already present
   with the right checksum are skipped (`--force` downloads again).
