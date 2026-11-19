@@ -1,0 +1,36 @@
+# Pings the owner when the `needs-owner` label is added to an issue or a PR.
+# Posts made under the owner's own account don't notify them; a comment from github-actions[bot]
+# that @mentions them does, so the decision reaches their phone.
+#
+# Safety:
+# - pull_request_target runs from the default branch with no checkout: no PR code ever runs.
+# - No third-party actions and no secrets: only the default GITHUB_TOKEN, limited below.
+# - Nothing from the issue or PR (the title) is put into the shell script's source: it is passed
+#   through an environment variable and sent as data with `gh api -f`.
+
+name: Needs owner ping
+
+on:
+  issues:
+    types: [labeled]
+  pull_request_target:
+    types: [labeled]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  ping:
+    if: github.event.label.name == 'needs-owner'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment with an @mention of the owner
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+          TITLE: ${{ github.event.issue.title || github.event.pull_request.title }}
+        run: |
+          body="$(printf '@Slimslim this needs your decision: %s\n\n_Automated: the `needs-owner` label was added._' "$TITLE")"
+          gh api --method POST "repos/$REPO/issues/$NUMBER/comments" -f body="$body" > /dev/null

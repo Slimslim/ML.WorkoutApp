@@ -6,6 +6,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -47,6 +50,17 @@ jobs:
         env:
           PGURL: postgres://postgres:postgres@localhost:54322/postgres
         run: supabase/tests/run.sh
+
+  swift-linux:
+    name: BarPathKit tests (Linux)
+    runs-on: ubuntu-latest
+    container:
+      image: swift:6.0.3-jammy
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: swift test
+        working-directory: BarPath/BarPathKit
+        run: swift test
 
   swift:
     name: BarPathKit tests + app builds
