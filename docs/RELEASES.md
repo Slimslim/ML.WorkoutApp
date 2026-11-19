@@ -53,6 +53,8 @@ What runs where:
   `BarPath.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` to
   `BarPath/Package.resolved` and commit it. Until it is committed, the Xcode Cloud build stops in
   `ci_post_clone.sh` with a message that says so.
+- **Xcode version:** the Xcode Cloud workflow needs Xcode 16.3 or later, because supabase-swift 2.55.6
+  and its dependencies need Swift tools 6.1.
 
 Build numbers: Xcode Cloud sets the build number of every build it ships to TestFlight, so
 `CURRENT_PROJECT_VERSION` in `BarPath/project.yml` doesn't decide TestFlight numbers. The setting is
@@ -96,8 +98,8 @@ build is 17.
   reviewed by an independent reviewer and merges it into the build branch when CI is green and the
   review says merge, otherwise the findings go back to the worker. The owner device-tests the build
   branch and merges it into `main`; TestFlight is built from `main`.
-- **Build numbers:** `CURRENT_PROJECT_VERSION` in `BarPath/project.yml` (shared file), set once by
-  the PR that owns the build (named in the build's heading). Never reuse a number.
+- **Build numbers:** Xcode Cloud sets the TestFlight build number (next: 17; see CI above).
+  `CURRENT_PROJECT_VERSION` in `BarPath/project.yml` only affects local builds. Never reuse a number.
 - **Freeze:** a build freezes when its PR says so; after that only fixes from the owner's device
   test. Any other change needs the owner's OK and is listed under "Exceptions" in that build.
 - **Story ids:** take the next id free on `main` **and** in open PRs. A brief may use provisional
