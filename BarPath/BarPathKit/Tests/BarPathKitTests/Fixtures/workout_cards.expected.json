@@ -2554,159 +2554,8 @@
   },
   {
    "definition": {
-    "id": "lib.pitfire.20261102.freedom",
-    "name": "Freedom",
-    "shortName": "Freedom",
-    "format": "forTime",
-    "team": "solo",
-    "healthKitActivity": "crossTraining",
-    "segments": [
-     {
-      "kind": "station",
-      "movement": "row",
-      "name": "Row",
-      "target": {
-       "value": 40.0,
-       "unit": "calories"
-      }
-     },
-     {
-      "kind": "station",
-      "movement": "powerCleans",
-      "name": "Power Cleans",
-      "target": {
-       "value": 7.0,
-       "unit": "reps"
-      },
-      "load": {
-       "value": 155.0,
-       "unit": "lb",
-       "count": 1
-      }
-     },
-     {
-      "kind": "station",
-      "movement": "row",
-      "name": "Row",
-      "target": {
-       "value": 30.0,
-       "unit": "calories"
-      }
-     },
-     {
-      "kind": "station",
-      "movement": "powerCleans",
-      "name": "Power Cleans",
-      "target": {
-       "value": 7.0,
-       "unit": "reps"
-      },
-      "load": {
-       "value": 155.0,
-       "unit": "lb",
-       "count": 1
-      }
-     },
-     {
-      "kind": "station",
-      "movement": "row",
-      "name": "Row",
-      "target": {
-       "value": 20.0,
-       "unit": "calories"
-      }
-     },
-     {
-      "kind": "station",
-      "movement": "powerCleans",
-      "name": "Power Cleans",
-      "target": {
-       "value": 7.0,
-       "unit": "reps"
-      },
-      "load": {
-       "value": 155.0,
-       "unit": "lb",
-       "count": 1
-      }
-     },
-     {
-      "kind": "station",
-      "movement": "row",
-      "name": "Row",
-      "target": {
-       "value": 30.0,
-       "unit": "calories"
-      }
-     },
-     {
-      "kind": "station",
-      "movement": "powerCleans",
-      "name": "Power Cleans",
-      "target": {
-       "value": 7.0,
-       "unit": "reps"
-      },
-      "load": {
-       "value": 155.0,
-       "unit": "lb",
-       "count": 1
-      }
-     },
-     {
-      "kind": "station",
-      "movement": "row",
-      "name": "Row",
-      "target": {
-       "value": 40.0,
-       "unit": "calories"
-      }
-     },
-     {
-      "kind": "station",
-      "movement": "powerCleans",
-      "name": "Power Cleans",
-      "target": {
-       "value": 7.0,
-       "unit": "reps"
-      },
-      "load": {
-       "value": 155.0,
-       "unit": "lb",
-       "count": 1
-      }
-     }
-    ],
-    "timeCapSeconds": 1200.0,
-    "roundSize": 2
-   },
-   "card": {
-    "name": "Freedom",
-    "nameIsFormat": false,
-    "typeTag": "RFT",
-    "blockTag": "Metcon",
-    "timeDomainLine": "5 rounds",
-    "repSchemeLine": "40-30-20-30-40",
-    "lines": [
-     {
-      "text": "Cal Row",
-      "load": null
-     },
-     {
-      "text": "7 Power Cleans",
-      "load": "155 lb"
-     }
-    ],
-    "capLine": "20 min cap",
-    "summaryLine": "40-30-20-30-40 Cal Row · 7 Power Cleans @155 lb",
-    "visibleLineCount": 2,
-    "hiddenLineCount": 0
-   }
-  },
-  {
-   "definition": {
-    "id": "lib.pitfire.20261102.pcj-emom",
-    "name": "Every 1:00 × 8: Power C&J",
+    "id": "lib.example.20261101.power-cj-emom",
+    "name": "Every 1:30 × 6: Power C&J",
     "shortName": "PC&J EMOM",
     "format": "emom",
     "team": "solo",
@@ -2717,7 +2566,7 @@
       "movement": "powerCleanAndJerk",
       "name": "Power C&J",
       "target": {
-       "value": 2.0,
+       "value": 3.0,
        "unit": "reps"
       }
      },
@@ -2731,7 +2580,7 @@
       "movement": "powerCleanAndJerk",
       "name": "Power C&J",
       "target": {
-       "value": 2.0,
+       "value": 3.0,
        "unit": "reps"
       }
      },
@@ -2745,7 +2594,7 @@
       "movement": "powerCleanAndJerk",
       "name": "Power C&J",
       "target": {
-       "value": 2.0,
+       "value": 3.0,
        "unit": "reps"
       }
      },
@@ -2759,7 +2608,7 @@
       "movement": "powerCleanAndJerk",
       "name": "Power C&J",
       "target": {
-       "value": 2.0,
+       "value": 3.0,
        "unit": "reps"
       }
      },
@@ -2773,7 +2622,7 @@
       "movement": "powerCleanAndJerk",
       "name": "Power C&J",
       "target": {
-       "value": 2.0,
+       "value": 3.0,
        "unit": "reps"
       }
      },
@@ -2787,41 +2636,13 @@
       "movement": "powerCleanAndJerk",
       "name": "Power C&J",
       "target": {
-       "value": 2.0,
-       "unit": "reps"
-      }
-     },
-     {
-      "kind": "rest",
-      "movement": "rest",
-      "name": "Rest"
-     },
-     {
-      "kind": "station",
-      "movement": "powerCleanAndJerk",
-      "name": "Power C&J",
-      "target": {
-       "value": 2.0,
-       "unit": "reps"
-      }
-     },
-     {
-      "kind": "rest",
-      "movement": "rest",
-      "name": "Rest"
-     },
-     {
-      "kind": "station",
-      "movement": "powerCleanAndJerk",
-      "name": "Power C&J",
-      "target": {
-       "value": 2.0,
+       "value": 3.0,
        "unit": "reps"
       }
      }
     ],
-    "timeCapSeconds": 480.0,
-    "intervalSeconds": 60.0,
+    "timeCapSeconds": 540.0,
+    "intervalSeconds": 90.0,
     "roundSize": 2
    },
    "card": {
@@ -2829,17 +2650,168 @@
     "nameIsFormat": false,
     "typeTag": "EMOM",
     "blockTag": "Strength",
-    "timeDomainLine": "Every 1:00 × 8",
+    "timeDomainLine": "Every 1:30 × 6",
     "repSchemeLine": null,
     "lines": [
      {
-      "text": "2 Power C&J",
+      "text": "3 Power C&J",
       "load": null
      }
     ],
     "capLine": null,
-    "summaryLine": "2 Power C&J",
+    "summaryLine": "3 Power C&J",
     "visibleLineCount": 1,
+    "hiddenLineCount": 0
+   }
+  },
+  {
+   "definition": {
+    "id": "lib.example.20261101.seesaw",
+    "name": "Seesaw",
+    "shortName": "Seesaw",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 30.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleans",
+      "name": "Power Cleans",
+      "target": {
+       "value": 5.0,
+       "unit": "reps"
+      },
+      "load": {
+       "value": 135.0,
+       "unit": "lb",
+       "count": 1
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 24.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleans",
+      "name": "Power Cleans",
+      "target": {
+       "value": 5.0,
+       "unit": "reps"
+      },
+      "load": {
+       "value": 135.0,
+       "unit": "lb",
+       "count": 1
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 18.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleans",
+      "name": "Power Cleans",
+      "target": {
+       "value": 5.0,
+       "unit": "reps"
+      },
+      "load": {
+       "value": 135.0,
+       "unit": "lb",
+       "count": 1
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 24.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleans",
+      "name": "Power Cleans",
+      "target": {
+       "value": 5.0,
+       "unit": "reps"
+      },
+      "load": {
+       "value": 135.0,
+       "unit": "lb",
+       "count": 1
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 30.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleans",
+      "name": "Power Cleans",
+      "target": {
+       "value": 5.0,
+       "unit": "reps"
+      },
+      "load": {
+       "value": 135.0,
+       "unit": "lb",
+       "count": 1
+      }
+     }
+    ],
+    "timeCapSeconds": 1080.0,
+    "roundSize": 2
+   },
+   "card": {
+    "name": "Seesaw",
+    "nameIsFormat": false,
+    "typeTag": "RFT",
+    "blockTag": "Metcon",
+    "timeDomainLine": "5 rounds",
+    "repSchemeLine": "30-24-18-24-30",
+    "lines": [
+     {
+      "text": "Cal Row",
+      "load": null
+     },
+     {
+      "text": "5 Power Cleans",
+      "load": "135 lb"
+     }
+    ],
+    "capLine": "18 min cap",
+    "summaryLine": "30-24-18-24-30 Cal Row · 5 Power Cleans @135 lb",
+    "visibleLineCount": 2,
     "hiddenLineCount": 0
    }
   }

@@ -45,16 +45,16 @@ def test_seed_definitions():
         d, _, _, _, _ = make_row.load_file(f)
         definition = make_row.validate_definition(d)
         by_id[definition.id] = definition
-    freedom = by_id["lib.pitfire.20261102.freedom"]
-    assert freedom.format == "forTime" and freedom.time_cap_seconds == 1200
-    assert [s.target.value for s in freedom.segments if s.movement == "row"] == [40, 30, 20, 30, 40]
-    cleans = [s for s in freedom.segments if s.movement == "powerCleans"]
-    assert len(cleans) == 5 and all(s.target.value == 7 and s.load.value == 155 and s.load.unit == "lb"
+    seesaw = by_id["lib.example.20261101.seesaw"]
+    assert seesaw.format == "forTime" and seesaw.time_cap_seconds == 1080
+    assert [s.target.value for s in seesaw.segments if s.movement == "row"] == [30, 24, 18, 24, 30]
+    cleans = [s for s in seesaw.segments if s.movement == "powerCleans"]
+    assert len(cleans) == 5 and all(s.target.value == 5 and s.load.value == 135 and s.load.unit == "lb"
                                     for s in cleans)
-    emom = by_id["lib.pitfire.20261102.pcj-emom"]
-    assert emom.format == "emom" and emom.interval_seconds == 60 and emom.round_size == 2
-    assert len(emom.segments) == 15
-    assert sum(1 for s in emom.segments if s.kind == "station" and s.target.value == 2) == 8
+    emom = by_id["lib.example.20261101.power-cj-emom"]
+    assert emom.format == "emom" and emom.interval_seconds == 90 and emom.round_size == 2
+    assert len(emom.segments) == 11
+    assert sum(1 for s in emom.segments if s.kind == "station" and s.target.value == 3) == 6
     assert [s.kind for s in emom.segments[:2]] == ["station", "rest"]
 
 

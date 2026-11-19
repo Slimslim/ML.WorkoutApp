@@ -1,11 +1,11 @@
 {
-  "program": "PitFIRE",
-  "scheduled_on": "2026-11-02",
+  "program": "Example",
+  "scheduled_on": "2026-11-01",
   "published": true,
   "definition": {
-    "id": "lib.pitfire.20261102.freedom",
-    "name": "Freedom",
-    "shortName": "Freedom",
+    "id": "lib.example.20261101.seesaw",
+    "name": "Seesaw",
+    "shortName": "Seesaw",
     "format": "forTime",
     "team": "solo",
     "healthKitActivity": "crossTraining",
@@ -15,7 +15,7 @@
         "movement": "row",
         "name": "Row",
         "target": {
-          "value": 40,
+          "value": 30,
           "unit": "calories"
         }
       },
@@ -24,11 +24,80 @@
         "movement": "powerCleans",
         "name": "Power Cleans",
         "target": {
-          "value": 7,
+          "value": 5,
           "unit": "reps"
         },
         "load": {
-          "value": 155,
+          "value": 135,
+          "unit": "lb",
+          "count": 1
+        }
+      },
+      {
+        "kind": "station",
+        "movement": "row",
+        "name": "Row",
+        "target": {
+          "value": 24,
+          "unit": "calories"
+        }
+      },
+      {
+        "kind": "station",
+        "movement": "powerCleans",
+        "name": "Power Cleans",
+        "target": {
+          "value": 5,
+          "unit": "reps"
+        },
+        "load": {
+          "value": 135,
+          "unit": "lb",
+          "count": 1
+        }
+      },
+      {
+        "kind": "station",
+        "movement": "row",
+        "name": "Row",
+        "target": {
+          "value": 18,
+          "unit": "calories"
+        }
+      },
+      {
+        "kind": "station",
+        "movement": "powerCleans",
+        "name": "Power Cleans",
+        "target": {
+          "value": 5,
+          "unit": "reps"
+        },
+        "load": {
+          "value": 135,
+          "unit": "lb",
+          "count": 1
+        }
+      },
+      {
+        "kind": "station",
+        "movement": "row",
+        "name": "Row",
+        "target": {
+          "value": 24,
+          "unit": "calories"
+        }
+      },
+      {
+        "kind": "station",
+        "movement": "powerCleans",
+        "name": "Power Cleans",
+        "target": {
+          "value": 5,
+          "unit": "reps"
+        },
+        "load": {
+          "value": 135,
           "unit": "lb",
           "count": 1
         }
@@ -47,86 +116,17 @@
         "movement": "powerCleans",
         "name": "Power Cleans",
         "target": {
-          "value": 7,
+          "value": 5,
           "unit": "reps"
         },
         "load": {
-          "value": 155,
-          "unit": "lb",
-          "count": 1
-        }
-      },
-      {
-        "kind": "station",
-        "movement": "row",
-        "name": "Row",
-        "target": {
-          "value": 20,
-          "unit": "calories"
-        }
-      },
-      {
-        "kind": "station",
-        "movement": "powerCleans",
-        "name": "Power Cleans",
-        "target": {
-          "value": 7,
-          "unit": "reps"
-        },
-        "load": {
-          "value": 155,
-          "unit": "lb",
-          "count": 1
-        }
-      },
-      {
-        "kind": "station",
-        "movement": "row",
-        "name": "Row",
-        "target": {
-          "value": 30,
-          "unit": "calories"
-        }
-      },
-      {
-        "kind": "station",
-        "movement": "powerCleans",
-        "name": "Power Cleans",
-        "target": {
-          "value": 7,
-          "unit": "reps"
-        },
-        "load": {
-          "value": 155,
-          "unit": "lb",
-          "count": 1
-        }
-      },
-      {
-        "kind": "station",
-        "movement": "row",
-        "name": "Row",
-        "target": {
-          "value": 40,
-          "unit": "calories"
-        }
-      },
-      {
-        "kind": "station",
-        "movement": "powerCleans",
-        "name": "Power Cleans",
-        "target": {
-          "value": 7,
-          "unit": "reps"
-        },
-        "load": {
-          "value": 155,
+          "value": 135,
           "unit": "lb",
           "count": 1
         }
       }
     ],
-    "timeCapSeconds": 1200.0,
+    "timeCapSeconds": 1080.0,
     "roundSize": 2
   }
 }

@@ -33,22 +33,22 @@ def test_helen_rounds_for_time():
     assert c.summary_line == "400 m Run · 21 KB Swings · 12 Pull-ups"
 
 
-def test_freedom_mixed_scheme():
-    c = card_of("lib.pitfire.20261102.freedom")
-    assert (c.name, c.type_label) == ("Freedom", "RFT")
+def test_mixed_scheme():
+    c = card_of("lib.example.20261101.seesaw")
+    assert (c.name, c.type_label) == ("Seesaw", "RFT")
     assert c.time_domain_line == "5 rounds"
-    assert c.rep_scheme_line == "40-30-20-30-40"
-    assert texts(c) == ["Cal Row", "7 Power Cleans @155 lb"]
-    assert c.lines[1].text == "7 Power Cleans" and c.lines[1].load == "155 lb"
-    assert c.cap_line == "20 min cap"
-    assert c.summary_line == "40-30-20-30-40 Cal Row · 7 Power Cleans @155 lb"
+    assert c.rep_scheme_line == "30-24-18-24-30"
+    assert texts(c) == ["Cal Row", "5 Power Cleans @135 lb"]
+    assert c.lines[1].text == "5 Power Cleans" and c.lines[1].load == "135 lb"
+    assert c.cap_line == "18 min cap"
+    assert c.summary_line == "30-24-18-24-30 Cal Row · 5 Power Cleans @135 lb"
 
 
 def test_emom_names_drop_the_format_prefix():
-    c = card_of("lib.pitfire.20261102.pcj-emom")
+    c = card_of("lib.example.20261101.power-cj-emom")
     assert (c.name, c.name_is_format, c.type_label, c.block_label) == ("Power C&J", False, "EMOM", "Strength")
-    assert c.time_domain_line == "Every 1:00 × 8"
-    assert texts(c) == ["2 Power C&J"]
+    assert c.time_domain_line == "Every 1:30 × 6"
+    assert texts(c) == ["3 Power C&J"]
     assert c.cap_line is None  # EMOM: the cap is the clock, not a for-time cap
     rt = card_of("wod.rowThrusters")
     assert rt.name == "Row + Thrusters" and rt.time_domain_line == "Every 3:00 × 6"
