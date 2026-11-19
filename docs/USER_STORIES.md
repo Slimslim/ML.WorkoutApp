@@ -431,6 +431,27 @@ How (to check on a device, background behaviour cannot be tested in CI):
 - **Size:** the bucket takes 50 MB per file; a tester's 58-min Chad was 42 MB uncompressed, so a
   70-min session would be refused without the compressed uploads of #24. Build after #24.
 
+**W46. My score and how it compares with last time (Now)**
+As an athlete opening my result, I want my score first (rounds + reps or time, Rx / Scaled) and,
+under it, how it compares with the last time I did the same workout at the same scale, so I know in
+two seconds whether I improved.
+*Done when:* the rules of `docs/RESULTS_INSIGHTS.md` section 2 hold on fixtures for every case (both
+finished, finish vs capped, both capped, different scale, no earlier result); nothing is compared
+across scales or loads.
+
+**W47. Up to three facts about my workout (Now)**
+As an athlete, I want at most three short insights after a workout, each with a number, so I learn
+where my time went without being told things the app can't know.
+*Done when:* AMRAP/rounds (A1-A3), for time (F1, F2, F5), ladders (L1) and runs (R1) of
+`docs/RESULTS_INSIGHTS.md` produce the expected text on fixtures built from the owner's AMRAP 20 and
+Barbara; the honesty filters (section 3) hide segments < 5 s or > 3x the median; nothing in section 5
+is ever shown; no insight block when nothing passes. Python reference first, Swift port with parity.
+
+**W48. Lifting insights inside a workout (Later)**
+As an athlete doing an EMOM of lifts, I want rest left per minute and bar speed by load, so I see where
+the weight started to cost me. *Done when:* E1/E2 of `docs/RESULTS_INSIGHTS.md` work in the app (needs
+set detection and #35).
+
 ### Recording follows the plan (spans Lifting and Workouts; after the MVP)
 
 **W21. The watch records each part the way that part needs (Later)**
