@@ -205,3 +205,15 @@ def test_v2_upsert_that_writes_nothing_is_an_error():
     d = definition_of(FIXTURES / "valid" / "exact_emom.json")
     sql = make_row.make_row_v2(d, None, None)
     assert sql.startswith("do $mr$") and "if not found then raise exception" in sql
+
+
+@pytest.mark.parametrize("field", ["program", "definition"])
+def test_v2_values_must_not_contain_the_block_delimiter(field):
+    d = definition_of(FIXTURES / "valid" / "exact_emom.json")
+    program = "Example"
+    if field == "program":
+        program = "x $mr$; drop table public.workout_library; do $mr$"
+    else:
+        d = dict(d, note="a $mr$ inside")
+    with pytest.raises(make_row.LibraryError, match=f"{field} must not contain"):
+        make_row.make_row_v2(d, program, None)

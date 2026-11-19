@@ -205,3 +205,23 @@ delete from auth.users where id = '00000000-0000-4000-8000-000000000001';
 select test_harness.ok(not exists (select 1 from public.workout_library_v2 where owner = '00000000-0000-4000-8000-000000000001')
   and not exists (select 1 from public.workout_library where id = 'lib.test.20261118.mine.u00000000')
   and not exists (select 1 from public.workout_custom_scales), 'delete account: v2 rows, copies and custom scales go with the user');
+
+-- N3: the schema helpers, trigger functions and admin check are not callable by anon (Supabase
+-- grants execute on new functions to PUBLIC by default; the migrations revoke it).
+select test_harness.ok(not exists (
+    select 1 from unnest(array[
+      'public.workout_definition_v2_schema()', 'public.workout_custom_scale_schema()',
+      'public.workout_v2_legacy_definition(jsonb)', 'public.workout_v2_before_write()',
+      'public.workout_v2_after_write()', 'public.workout_library_guard_v2()',
+      'public.workout_library_v2_page(text, integer)', 'public.is_project_admin()']) f
+    where has_function_privilege('anon', f, 'execute')),
+  'grants: anon has no execute on the v2 helpers, trigger functions, paging and is_project_admin');
+select test_harness.ok(not exists (
+    select 1 from unnest(array['public.workout_v2_before_write()', 'public.workout_v2_after_write()',
+                               'public.workout_library_guard_v2()']) f
+    where has_function_privilege('authenticated', f, 'execute')),
+  'grants: signed-in users have no execute on the trigger functions');
+set role anon;
+select test_harness.fails($$select public.workout_definition_v2_schema()$$,
+                          'grants: anon calling a schema helper is refused', 'permission denied');
+reset role;

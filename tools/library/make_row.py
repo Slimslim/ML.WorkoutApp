@@ -284,8 +284,12 @@ def make_row_v2(d: dict, program, scheduled_on, published: bool = True,
             f"{_sql_text(scheduled_on)}{'::date' if scheduled_on is not None else ''}, "
             f"{'true' if published else 'false'}, {_sql_text(gym)}, "
             f"{_sql_text(owner)}{'::uuid' if owner else ''}")
-    if "$mr$" in text:
-        raise LibraryError("definition must not contain the text $mr$")
+    # Every value goes inside the $mr$ … $mr$ block: none may contain its delimiter (the
+    # definition, and the free text program; id, gym and owner are checked above, but cheap).
+    for name, value in (("definition", text), ("program", program), ("id", d["id"]),
+                        ("gym", gym), ("owner", owner), ("scheduled_on", scheduled_on)):
+        if value is not None and "$mr$" in str(value):
+            raise LibraryError(f"{name} must not contain the text $mr$")
     sql = ("do $mr$\nbegin\n"
            "insert into public.workout_library_v2 (id, definition, program, scheduled_on, published, gym_id, owner)\n"
            f"values ({vals})\n"
