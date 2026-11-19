@@ -90,14 +90,24 @@ build, PR checks included, so it jumps); our docs ignore it. `CURRENT_PROJECT_VE
 - **Hotfix:** a crash in a release testers have goes on a short branch from that release's tag
   (`claude/hotfix-0.17-<name>` from `v0.17`), PR into `main` (review + CI), shipped as the next patch
   Version (`0.17.2`); merge `main` into the open release branch afterwards.
-- **Builds come from `main` only.** The commit a release is shipped from gets a git tag
-  `v<Version>` (`v0.17`, `v0.17.1`). Older releases keep their tags (`build-15`, `build-16`,
-  `build-16.1`). (Builds 7-14 came from an unmerged branch; never again.)
-- **Release branch (owner, 13 Nov):** each build has one branch cut from `main` (`claude/release-16`;
-  build 15 is `claude/funny-faraday-1adqio`). Workers branch from it and open PRs into it; the Scrum Master has each
-  reviewed by an independent reviewer and merges it into the build branch when CI is green and the
-  review says merge, otherwise the findings go back to the worker. The owner device-tests the build
-  branch and merges it into `main`; TestFlight is built from `main`.
+- **Release candidates are tags (owner, 19 Nov).** When a release branch is ready for the owner's
+  test, the tag `vX.Y.Z-rcN` goes on its head (`v0.17.1-rc1`, then `-rc2` after fixes). Xcode Cloud's
+  TestFlight workflow builds every tag that starts with `v` and ships it to **internal testers only**.
+  The owner tests the RC. A new RC is needed after any change to the branch.
+- **Release (owner, 19 Nov).** After the owner approves an RC, the release branch is merged into
+  `main` and the tag `vX.Y.Z` (`v0.17.1`) goes on that merge commit; that build is the one for
+  external testers. Older releases keep their tags (`build-15`, `build-16`, `build-16.1`). (Builds
+  7-14 came from an unmerged branch; never again.)
+- **Who pushes tags:** cloud chats can push branches but not tags (GitHub refuses the push from this
+  environment, HTTP 403). Delivery names the commit; the owner creates the tag, either on GitHub
+  (Releases, then "Draft a new release", new tag, target the release branch, tick "Set as a
+  pre-release" for an RC) or on the Mac (`git tag -a v0.17.1-rc1 <sha> -m "0.17.1-rc1"` then
+  `git push origin v0.17.1-rc1`).
+- **Release branch (owner, 13 Nov):** each release has one branch cut from `main`
+  (`claude/release-17.1`; build 15 is `claude/funny-faraday-1adqio`). Workers branch from it and open
+  PRs into it; the Scrum Master has each reviewed by an independent reviewer and merges it into the
+  release branch when CI is green and the review says merge, otherwise the findings go back to the
+  worker. The owner tests an RC tag, then the branch is merged into `main` and tagged.
 - **Versions:** `MARKETING_VERSION` in `BarPath/project.yml` (shared file) is set once on the release
   branch when it is cut (`0.17.1` on `claude/release-17.1`), in its own commit. Never reuse a Version.
   Build numbers belong to Xcode Cloud; don't write them in docs, tickets or tester notes.
