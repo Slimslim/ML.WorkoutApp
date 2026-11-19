@@ -54,7 +54,7 @@ planted-hand movements** (push-ups, wall walks, strict pull-ups: it fires on the
 look like walking (cadence 80–135/min); it is mostly 0–6 s because the walk to the next station is
 short and mixed with picking things up.
 
-### AMRAP 40, 2026-11-01 (odd rounds row / push-ups / C&J / burpees, even rounds bike / pull-ups / snatch / wall walks)
+### AMRAP 40, 2026-11-01 (4 slots, two options each, alternated by round)
 
 | # | movement | total | transition | work | conf | method | specific / generic s | walking in transition s |
 |---:|---|---:|---:|---:|---:|---|---|---:|
