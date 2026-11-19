@@ -41,6 +41,7 @@ public enum WorkoutStructureV2 {
     public static let maxSeconds: Double = 86400     // a window, rest or seconds target: at most 24 h
     public static let maxTimes: Double = 10000       // repeat times and listRounds
     public static let maxRatio: Double = 100         // a ratio rest
+    public static let maxRounds: Int = 10000         // rounds expanded in one plan (a work budget)
 
     /// Int(v) when v is a number with lo <= v <= hi, else nil (Python `_bounded`).
     static func bounded(_ v: JSONValue?, _ lo: Double, _ hi: Double) -> Int? {
@@ -306,6 +307,7 @@ final class ExpansionSink {
     var repeats: [String: RepeatInstance] = [:]
     var repeatOrder: [String] = []
     var invalid: String? = nil              // "invalid" or "tooLarge": the expansion stopped there
+    var rounds: Int = 0                      // round() calls: repeats that add no steps can't hang
 
     init(offset: Int = 0) {
         self.offset = offset
@@ -539,12 +541,14 @@ final class WorkoutExpansion: @unchecked Sendable {
             let c: [String: JSONValue] = item.content
             switch item.kind {
             case "part":
-                if let t = c["target"]?.object, t["unit"]?.string == "seconds", let v = t["value"],
+                let resolved: [String: JSONValue] = resolvePart(c, item.nid)
+                // Resolved: with standard F, valueF is the value.
+                if let t = resolved["target"]?.object, t["unit"]?.string == "seconds", let v = t["value"],
                    WorkoutStructureV2.bounded(v, 0, WorkoutStructureV2.maxSeconds) == nil {
                     sink.fail()
                     return
                 }
-                sink.add(id: key, kind: "part", node: item.nid, part: resolvePart(c, item.nid), ctx: ctx,
+                sink.add(id: key, kind: "part", node: item.nid, part: resolved, ctx: ctx,
                          scopes: ctx.scopes + [key])
             case "rest":
                 var seconds: Int? = nil
@@ -719,6 +723,11 @@ final class WorkoutExpansion: @unchecked Sendable {
     /// Expands round r of a repeat into sink; false when a vary list stops the repeat.
     @discardableResult
     func round(_ inst: RepeatInstance, _ r: Int, sink: ExpansionSink) -> Bool {
+        sink.rounds += 1
+        if sink.rounds > WorkoutStructureV2.maxRounds {
+            sink.fail("tooLarge")
+            return false
+        }
         let ctx: ExpansionContext = inst.ctx
         var patches: [(String, JSONValue)] = ctx.patches
         if let vary = inst.content["vary"]?.object {

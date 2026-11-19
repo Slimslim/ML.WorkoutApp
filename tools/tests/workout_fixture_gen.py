@@ -261,16 +261,26 @@ def plan_error_cases() -> list:
         ("varyHugeSeconds", [{"repeat": {"id": "rp", "times": 2, "vary": {"t": [60, 10 ** 12]}, "body": [
             {"timed": {"id": "t", "seconds": 60, "early": "wait", "late": "cut",
                        "body": [part("a", "run")]}}]}}]),
+        ("emptyNestedRepeats", [part("a", "run"), {"repeat": {"id": "r1", "times": 10000, "body": [
+            {"repeat": {"id": "r2", "times": 10000, "body": []}}]}}]),
     ]
+    hold = {"part": {"id": "hold", "movement": "plank", "target": {"value": 60, "valueF": 1e19, "unit": "seconds"}}}
+    hold_x = {"part": {"id": "hold", "movement": "plank", "target": {"value": 60, "valueF": "x", "unit": "seconds"}}}
+    hold_neg = {"part": {"id": "hold", "movement": "plank", "target": {"value": 60, "valueF": -5, "unit": "seconds"}}}
+    cases_f = [("secondsTargetValueFHuge", [hold]), ("secondsTargetValueFText", [hold_x]),
+               ("secondsTargetValueFNegative", [hold_neg])]
     out = []
-    for name, body in cases:
+    for name, body, opts in [(n, b, {}) for n, b in cases] + [(n, b, {"standard": "F"}) for n, b in cases_f]:
         try:
-            we.plan(doc(body))
+            we.plan(doc(body), **opts)
             reason = "ok"
         except we.NotRunnable as e:
             reason = e.reason
         assert reason != "ok", name
-        out.append({"name": name, "doc": doc(body), "reason": reason})
+        case = {"name": name, "doc": doc(body), "reason": reason}
+        if opts:
+            case["options"] = opts
+        out.append(case)
     return out
 
 

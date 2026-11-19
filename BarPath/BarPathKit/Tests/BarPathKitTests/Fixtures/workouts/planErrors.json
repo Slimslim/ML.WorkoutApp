@@ -284,5 +284,124 @@
   },
   "name": "varyHugeSeconds",
   "reason": "invalid"
+ },
+ {
+  "doc": {
+   "schemaVersion": 2,
+   "structure": {
+    "body": [
+     {
+      "part": {
+       "id": "a",
+       "movement": "run"
+      }
+     },
+     {
+      "repeat": {
+       "body": [
+        {
+         "repeat": {
+          "body": [],
+          "id": "r2",
+          "times": 10000
+         }
+        }
+       ],
+       "id": "r1",
+       "times": 10000
+      }
+     }
+    ],
+    "score": {
+     "type": "none"
+    }
+   }
+  },
+  "name": "emptyNestedRepeats",
+  "reason": "tooLarge"
+ },
+ {
+  "doc": {
+   "schemaVersion": 2,
+   "structure": {
+    "body": [
+     {
+      "part": {
+       "id": "hold",
+       "movement": "plank",
+       "target": {
+        "unit": "seconds",
+        "value": 60,
+        "valueF": 1e+19
+       }
+      }
+     }
+    ],
+    "score": {
+     "type": "none"
+    }
+   }
+  },
+  "name": "secondsTargetValueFHuge",
+  "options": {
+   "standard": "F"
+  },
+  "reason": "invalid"
+ },
+ {
+  "doc": {
+   "schemaVersion": 2,
+   "structure": {
+    "body": [
+     {
+      "part": {
+       "id": "hold",
+       "movement": "plank",
+       "target": {
+        "unit": "seconds",
+        "value": 60,
+        "valueF": "x"
+       }
+      }
+     }
+    ],
+    "score": {
+     "type": "none"
+    }
+   }
+  },
+  "name": "secondsTargetValueFText",
+  "options": {
+   "standard": "F"
+  },
+  "reason": "invalid"
+ },
+ {
+  "doc": {
+   "schemaVersion": 2,
+   "structure": {
+    "body": [
+     {
+      "part": {
+       "id": "hold",
+       "movement": "plank",
+       "target": {
+        "unit": "seconds",
+        "value": 60,
+        "valueF": -5
+       }
+      }
+     }
+    ],
+    "score": {
+     "type": "none"
+    }
+   }
+  },
+  "name": "secondsTargetValueFNegative",
+  "options": {
+   "standard": "F"
+  },
+  "reason": "invalid"
  }
 ]

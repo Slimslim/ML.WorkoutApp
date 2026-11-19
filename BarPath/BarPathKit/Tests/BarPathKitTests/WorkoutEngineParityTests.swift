@@ -195,7 +195,7 @@ final class WorkoutEngineParityTests: XCTestCase {
         for c in list {
             let name: String = c["name"]?.string ?? "?"
             do {
-                _ = try WorkoutEngine.plan(c["doc"] ?? .null)
+                _ = try WorkoutEngine.plan(c["doc"] ?? .null, standard: c["options"]?["standard"]?.string ?? "M")
                 XCTFail("\(name): planned")
             } catch let e as WorkoutNotRunnable {
                 XCTAssertEqual(e.reason, c["reason"]?.string, name)

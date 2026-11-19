@@ -43,6 +43,7 @@ HAPTICS = ("go", "rest", "time")
 MAX_SECONDS = 86400         # a window, rest or seconds target: at most 24 h
 MAX_TIMES = 10000           # repeat times and listRounds
 MAX_RATIO = 100             # a ratio rest
+MAX_ROUNDS = 10000          # rounds expanded in one plan (repeats that add no steps still cost work)
 
 
 def _bounded(v, lo, hi):
@@ -191,6 +192,7 @@ class Sink:
         self.windows = {}
         self.repeats = {}
         self.invalid = None              # "invalid" or "tooLarge": the expansion stopped there
+        self.rounds = 0                  # round() calls: a work budget, so empty repeats can't hang
 
     def add(self, **kw) -> Optional[Step]:
         if self.invalid is not None:
@@ -317,12 +319,13 @@ class Expansion:
                 return
             key = ctx.prefix + nid
             if kind == "part":
-                t = c.get("target")
+                resolved = self._resolve_part(c, nid)
+                t = resolved.get("target")      # resolved: with standard F, valueF is the value
                 if isinstance(t, dict) and t.get("unit") == "seconds" and "value" in t \
                         and _bounded(t["value"], 0, MAX_SECONDS) is None:
                     sink.fail()
                     return
-                sink.add(id=key, kind="part", node=nid, part=self._resolve_part(c, nid),
+                sink.add(id=key, kind="part", node=nid, part=resolved,
                          windows=ctx.windows, rounds=ctx.rounds, repeats=ctx.repeats,
                          scopes=ctx.scopes + (key,), extra=ctx.extra)
             elif kind == "rest":
@@ -427,6 +430,10 @@ class Expansion:
 
     def _round(self, inst: RepeatInst, r: int, sink: Sink) -> bool:
         """Expands round r of a repeat into sink; False when a vary list stops the repeat."""
+        sink.rounds += 1
+        if sink.rounds > MAX_ROUNDS:
+            sink.fail("tooLarge")
+            return False
         ctx = inst.ctx
         patches = list(ctx.patches)
         for vid, spec in (inst.content.get("vary") or {}).items():
