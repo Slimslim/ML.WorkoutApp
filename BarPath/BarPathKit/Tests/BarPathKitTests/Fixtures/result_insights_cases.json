@@ -3412,5 +3412,937 @@
    "totalSeconds": 975.0,
    "version": 2
   }
+ },
+ {
+  "expected": [],
+  "name": "silence_free_workout",
+  "result": {
+   "definition": {
+    "format": "forTime",
+    "healthKitActivity": "crossTraining",
+    "id": "test.free",
+    "name": "Test Free Workout",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 1"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 2"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 3"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 4"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 5"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 6"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 7"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 8"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 9"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 10"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 11"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 12"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 13"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 14"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 15"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 16"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 17"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 18"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 19"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 20"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 21"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 22"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 23"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 24"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 25"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 26"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 27"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 28"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 29"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 30"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 31"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 32"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 33"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 34"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 35"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 36"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 37"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 38"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 39"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 40"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 41"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 42"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 43"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 44"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 45"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 46"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 47"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 48"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 49"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 50"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 51"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 52"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 53"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 54"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 55"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 56"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 57"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 58"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 59"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 60"
+     }
+    ],
+    "shortName": "Test Free Workout",
+    "team": "solo"
+   },
+   "endDate": "2027-01-15T18:13:00Z",
+   "events": [
+    {
+     "kind": "start",
+     "segmentIndex": 0,
+     "t": 1800036000.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 1,
+     "source": "crown",
+     "t": 1800036060.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 2,
+     "source": "crown",
+     "t": 1800036150.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 3,
+     "source": "crown",
+     "t": 1800036225.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 4,
+     "source": "crown",
+     "t": 1800036325.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 5,
+     "source": "crown",
+     "t": 1800036405.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 6,
+     "source": "crown",
+     "t": 1800036500.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 7,
+     "source": "crown",
+     "t": 1800036570.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 8,
+     "source": "crown",
+     "t": 1800036680.0
+    },
+    {
+     "kind": "finish",
+     "segmentIndex": 8,
+     "source": "crown",
+     "t": 1800036720.0
+    }
+   ],
+   "finishDate": "2027-01-15T18:12:00Z",
+   "id": "00000000-0000-4000-8000-000000000012",
+   "segments": [
+    {
+     "duration": 60.0,
+     "end": 1800036060.0,
+     "index": 0,
+     "kind": "station",
+     "movement": "part",
+     "start": 1800036000.0,
+     "title": "Part 1"
+    },
+    {
+     "duration": 90.0,
+     "end": 1800036150.0,
+     "index": 1,
+     "kind": "station",
+     "movement": "part",
+     "start": 1800036060.0,
+     "title": "Part 2"
+    },
+    {
+     "duration": 75.0,
+     "end": 1800036225.0,
+     "index": 2,
+     "kind": "station",
+     "movement": "part",
+     "start": 1800036150.0,
+     "title": "Part 3"
+    },
+    {
+     "duration": 100.0,
+     "end": 1800036325.0,
+     "index": 3,
+     "kind": "station",
+     "movement": "part",
+     "start": 1800036225.0,
+     "title": "Part 4"
+    },
+    {
+     "duration": 80.0,
+     "end": 1800036405.0,
+     "index": 4,
+     "kind": "station",
+     "movement": "part",
+     "start": 1800036325.0,
+     "title": "Part 5"
+    },
+    {
+     "duration": 95.0,
+     "end": 1800036500.0,
+     "index": 5,
+     "kind": "station",
+     "movement": "part",
+     "start": 1800036405.0,
+     "title": "Part 6"
+    },
+    {
+     "duration": 70.0,
+     "end": 1800036570.0,
+     "index": 6,
+     "kind": "station",
+     "movement": "part",
+     "start": 1800036500.0,
+     "title": "Part 7"
+    },
+    {
+     "duration": 110.0,
+     "end": 1800036680.0,
+     "index": 7,
+     "kind": "station",
+     "movement": "part",
+     "start": 1800036570.0,
+     "title": "Part 8"
+    },
+    {
+     "duration": 40.0,
+     "end": 1800036720.0,
+     "index": 8,
+     "kind": "station",
+     "movement": "part",
+     "start": 1800036680.0,
+     "title": "Part 9"
+    }
+   ],
+   "startDate": "2027-01-15T18:00:00Z",
+   "totalSeconds": 720.0,
+   "version": 2
+  }
+ },
+ {
+  "expected": [],
+  "name": "silence_free_workout_long_first_part",
+  "result": {
+   "definition": {
+    "format": "forTime",
+    "healthKitActivity": "crossTraining",
+    "id": "test.free",
+    "name": "Test Free Workout",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 1"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 2"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 3"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 4"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 5"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 6"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 7"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 8"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 9"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 10"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 11"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 12"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 13"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 14"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 15"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 16"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 17"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 18"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 19"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 20"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 21"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 22"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 23"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 24"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 25"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 26"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 27"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 28"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 29"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 30"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 31"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 32"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 33"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 34"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 35"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 36"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 37"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 38"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 39"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 40"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 41"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 42"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 43"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 44"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 45"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 46"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 47"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 48"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 49"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 50"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 51"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 52"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 53"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 54"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 55"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 56"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 57"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 58"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 59"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 60"
+     }
+    ],
+    "shortName": "Test Free Workout",
+    "team": "solo"
+   },
+   "endDate": "2027-01-15T18:19:05Z",
+   "events": [
+    {
+     "kind": "start",
+     "segmentIndex": 0,
+     "t": 1800036000.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 1,
+     "source": "crown",
+     "t": 1800036300.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 2,
+     "source": "crown",
+     "t": 1800036360.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 3,
+     "source": "crown",
+     "t": 1800036450.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 4,
+     "source": "crown",
+     "t": 1800036690.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 5,
+     "source": "crown",
+     "t": 1800036770.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 6,
+     "source": "crown",
+     "t": 1800036865.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 7,
+     "source": "crown",
+     "t": 1800036935.0
+    },
+    {
+     "kind": "advance",
+     "segmentIndex": 8,
+     "source": "crown",
+     "t": 1800037045.0
+    },
+    {
+     "kind": "finish",
+     "segmentIndex": 8,
+     "source": "crown",
+     "t": 1800037085.0
+    }
+   ],
+   "finishDate": "2027-01-15T18:18:05Z",
+   "id": "00000000-0000-4000-8000-000000000013",
+   "segments": [
+    {
+     "duration": 300.0,
+     "end": 1800036300.0,
+     "index": 0,
+     "kind": "station",
+     "movement": "part",
+     "start": 1800036000.0,
+     "title": "Part 1"
+    },
+    {
+     "duration": 60.0,
+     "end": 1800036360.0,
+     "index": 1,
+     "kind": "station",
+     "movement": "part",
+     "start": 1800036300.0,
+     "title": "Part 2"
+    },
+    {
+     "duration": 90.0,
+     "end": 1800036450.0,
+     "index": 2,
+     "kind": "station",
+     "movement": "part",
+     "start": 1800036360.0,
+     "title": "Part 3"
+    },
+    {
+     "duration": 240.0,
+     "end": 1800036690.0,
+     "index": 3,
+     "kind": "station",
+     "movement": "part",
+     "start": 1800036450.0,
+     "title": "Part 4"
+    },
+    {
+     "duration": 80.0,
+     "end": 1800036770.0,
+     "index": 4,
+     "kind": "station",
+     "movement": "part",
+     "start": 1800036690.0,
+     "title": "Part 5"
+    },
+    {
+     "duration": 95.0,
+     "end": 1800036865.0,
+     "index": 5,
+     "kind": "station",
+     "movement": "part",
+     "start": 1800036770.0,
+     "title": "Part 6"
+    },
+    {
+     "duration": 70.0,
+     "end": 1800036935.0,
+     "index": 6,
+     "kind": "station",
+     "movement": "part",
+     "start": 1800036865.0,
+     "title": "Part 7"
+    },
+    {
+     "duration": 110.0,
+     "end": 1800037045.0,
+     "index": 7,
+     "kind": "station",
+     "movement": "part",
+     "start": 1800036935.0,
+     "title": "Part 8"
+    },
+    {
+     "duration": 40.0,
+     "end": 1800037085.0,
+     "index": 8,
+     "kind": "station",
+     "movement": "part",
+     "start": 1800037045.0,
+     "title": "Part 9"
+    }
+   ],
+   "startDate": "2027-01-15T18:00:00Z",
+   "totalSeconds": 1085.0,
+   "version": 2
+  }
  }
 ]

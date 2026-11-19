@@ -15,7 +15,7 @@ final class ResultInsightsTests: XCTestCase {
 
     func testParityWithPython() throws {
         let cases = try loadCases()
-        XCTAssertEqual(cases.count, 11)
+        XCTAssertEqual(cases.count, 13)
         for c in cases {
             let name: String = c["name"] as? String ?? "?"
             let raw = try XCTUnwrap(c["result"] as? [String: Any], name)

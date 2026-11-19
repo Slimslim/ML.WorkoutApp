@@ -170,6 +170,21 @@ def check_outlier_chipper():
     return make_result(d, [90, 110, 95, 105, 400, 3, 92, 80], True, _uid(11))
 
 
+def _free_definition():
+    return definition("test.free", "Test Free Workout", "forTime",
+                      [WorkoutSegment("station", "part", f"Part {i}", None) for i in range(1, 61)])
+
+
+def silence_free_workout():
+    """Free Workout ended after 9 parts: parts are different movements, never compared."""
+    return make_result(_free_definition(), [60, 90, 75, 100, 80, 95, 70, 110, 40], True, _uid(12))
+
+
+def silence_free_workout_long_first_part():
+    """A long first part is no timing error: it is not compared with other parts."""
+    return make_result(_free_definition(), [300, 60, 90, 240, 80, 95, 70, 110, 40], True, _uid(13))
+
+
 CASES = [
     ("amrap_bike_drift", amrap_bike_drift),
     ("barbara_for_time", barbara_for_time),
@@ -182,6 +197,8 @@ CASES = [
     ("silence_chipper", silence_chipper),
     ("runs_mixed_distances", runs_mixed_distances),
     ("check_outlier_chipper", check_outlier_chipper),
+    ("silence_free_workout", silence_free_workout),
+    ("silence_free_workout_long_first_part", silence_free_workout_long_first_part),
 ]
 
 

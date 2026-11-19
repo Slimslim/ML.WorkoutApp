@@ -134,8 +134,17 @@ def _same_load(a, b) -> bool:
     return a.value == b.value and a.unit == b.unit and a.count == b.count
 
 
+UNKNOWN_MOVEMENTS = ("part", "")
+
+
+def is_known(seg) -> bool:
+    """A work segment says which movement it is. Free Workout "part" segments do not: two parts
+    are usually different movements, so they are never compared and never grouped."""
+    return seg.kind not in WORK_KINDS or seg.movement not in UNKNOWN_MOVEMENTS
+
+
 def _same_movement(a, b) -> bool:
-    return a.kind == b.kind and a.movement == b.movement
+    return is_known(a) and is_known(b) and a.kind == b.kind and a.movement == b.movement
 
 
 def _comparable(a, b) -> bool:
@@ -171,7 +180,7 @@ def is_ladder(definition) -> bool:
     """Some movement appears with different rep targets (21-15-9, 2-4-6 ...)."""
     seen = {}
     for s in definition.segments:
-        if s.kind not in WORK_KINDS or s.target is None or s.target.unit != "reps":
+        if s.kind not in WORK_KINDS or not is_known(s) or s.target is None or s.target.unit != "reps":
             continue
         key = s.kind + "|" + s.movement
         if key in seen and seen[key] != s.target.value:
@@ -196,6 +205,8 @@ class _Context:
         for s in self.segments:
             d = self.def_seg(s.index)
             if d is None or s.kind not in WORK_KINDS or d.kind != s.kind or d.movement != s.movement:
+                continue
+            if not is_known(d) or not math.isfinite(s.duration):
                 continue
             if not self.finished and s.index == self.last_index:
                 continue
@@ -222,10 +233,11 @@ class _Context:
         groups = {}
         order = []
         for s in self.usable:
-            if s.movement not in groups:
-                groups[s.movement] = []
-                order.append(s.movement)
-            groups[s.movement].append(s)
+            key = s.kind + "|" + s.movement
+            if key not in groups:
+                groups[key] = []
+                order.append(key)
+            groups[key].append(s)
         flagged = []
         for m in order:
             group = groups[m]
@@ -247,7 +259,7 @@ class _Context:
         out = []
         seen = set()
         for d in self.definition.segments:
-            if d.kind not in WORK_KINDS:
+            if d.kind not in WORK_KINDS or not is_known(d):
                 continue
             key = d.kind + "|" + d.movement
             if key not in seen:
@@ -457,7 +469,8 @@ def _runs(ctx: _Context, target_only: bool) -> list:
 
 
 def _started_hard(ctx: _Context) -> Optional[dict]:
-    """R1: first run more than 8 % faster than the median of the rest."""
+    """R1: the median of the other runs is more than 8 % slower than run 1 ("started hard, then
+    faded" read as one condition: run 1 vs the median of the rest, strictly more than 8 %)."""
     runs = _runs(ctx, target_only=False)
     if len(runs) < 3:
         return None
@@ -466,7 +479,7 @@ def _started_hard(ctx: _Context) -> Optional[dict]:
     first = values[0]
     rest = values[1:]
     med = median(rest)
-    if first <= 0 or med < first * (1.0 + STARTED_HARD_FRACTION):
+    if first <= 0 or med <= first * (1.0 + STARTED_HARD_FRACTION):
         return None
     pct = percent_text(med / first - 1.0)
     if same:

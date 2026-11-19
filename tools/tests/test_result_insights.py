@@ -46,6 +46,8 @@ EXPECTED = {
     "check_outlier_chipper": [
         ("CHECK", "Check your timing on segments 5 and 6.", False),
     ],
+    "silence_free_workout": [],
+    "silence_free_workout_long_first_part": [],
 }
 
 NEVER = ("pace", "speed", "calorie", "effort", "zone", "heart", "bpm", "fatigue", "tired", "because")
@@ -138,3 +140,20 @@ def test_small_drift_is_silent():
     ids = [i["id"] for i in insights(r, r.definition)]
     assert "A1" not in ids and "A3" not in ids and "CUE" not in ids
     assert ids == ["A2"]
+
+
+def test_r1_needs_strictly_more_than_8_percent():
+    """Median of the rest exactly +8 % over run 1: silent."""
+    r = cases.runs_started_hard()
+    runs = [s for s in r.segments if s.kind == "run"]
+    runs[0].duration = 250.0
+    for s, d in zip(runs[1:], (270.0, 270.0, 270.0)):
+        s.duration = d
+    assert "R1" not in [i["id"] for i in insights(r, r.definition)]
+
+
+def test_non_finite_duration_is_ignored():
+    r = cases.barbara_for_time()
+    r.segments[0].duration = float("nan")
+    got = insights(r, r.definition)   # must not raise
+    assert all(i["id"] != "F1" for i in got)   # round 1 is incomplete without its pull-ups

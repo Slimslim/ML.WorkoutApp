@@ -121,8 +121,8 @@ public enum ResultInsights {
         let h: Int = total / 3600
         let m: Int = (total % 3600) / 60
         let s: Int = total % 60
-        if h > 0 { return String(format: "%d:%02d:%02d", h, m, s) }
-        return String(format: "%d:%02d", m, s)
+        if h > 0 { return String(format: "%ld:%02ld:%02ld", h, m, s) }
+        return String(format: "%ld:%02ld", m, s)
     }
 
     /// "+22 %", "-6 %", "+0 %".
@@ -208,8 +208,14 @@ public enum ResultInsights {
         return x.value == y.value && x.unit == y.unit && x.count == y.count
     }
 
+    /// A work segment says which movement it is. Free Workout "part" segments do not: two parts
+    /// are usually different movements, so they are never compared and never grouped.
+    public static func isKnown(_ s: WorkoutSegment) -> Bool {
+        return !isWork(s.kind) || (s.movement != Movement.part && !s.movement.isEmpty)
+    }
+
     static func sameMovement(_ a: WorkoutSegment, _ b: WorkoutSegment) -> Bool {
-        return a.kind == b.kind && a.movement == b.movement
+        return isKnown(a) && isKnown(b) && a.kind == b.kind && a.movement == b.movement
     }
 
     static func comparable(_ a: WorkoutSegment, _ b: WorkoutSegment) -> Bool {
@@ -245,7 +251,7 @@ public enum ResultInsights {
     public static func isLadder(_ definition: WorkoutDefinition) -> Bool {
         var seen: [String: Double] = [:]
         for s in definition.segments {
-            guard isWork(s.kind), let t = s.target, t.unit == .reps else { continue }
+            guard isWork(s.kind), isKnown(s), let t = s.target, t.unit == .reps else { continue }
             let key: String = movementKey(s)
             if let v = seen[key] {
                 if v != t.value { return true }
@@ -437,7 +443,8 @@ public enum ResultInsights {
         return true
     }
 
-    /// R1: first run more than 8 % faster than the median of the rest.
+    /// R1: the median of the other runs is more than 8 % slower than run 1 ("started hard, then
+    /// faded" read as one condition: run 1 vs the median of the rest, strictly more than 8 %).
     static func startedHard(_ ctx: InsightContext) -> ResultInsight? {
         let list: [(SegmentResult, Double)] = runs(ctx, targetOnly: false)
         if list.count < 3 { return nil }
@@ -448,7 +455,7 @@ public enum ResultInsights {
         let first: Double = values[0]
         let rest: [Double] = Array(values.dropFirst())
         let med: Double = median(rest)
-        if first <= 0 || med < first * (1.0 + startedHardFraction) { return nil }
+        if first <= 0 || med <= first * (1.0 + startedHardFraction) { return nil }
         let pct: String = percentText(med / first - 1.0)
         if same {
             return ResultInsight(id: "R1", text: "Started hard, then faded: run 1 in \(timeText(first)), "
@@ -562,6 +569,7 @@ struct InsightContext {
             guard s.index >= 0, s.index < definition.segments.count else { continue }
             let d: WorkoutSegment = definition.segments[s.index]
             if !ResultInsights.isWork(s.kind) || d.kind != s.kind || d.movement != s.movement { continue }
+            if !ResultInsights.isKnown(d) || !s.duration.isFinite { continue }
             if !finished && s.index == lastIndex { continue }
             usable.append(s)
         }
@@ -597,11 +605,12 @@ struct InsightContext {
         var groups: [String: [SegmentResult]] = [:]
         var order: [String] = []
         for s in usable {
-            if groups[s.movement] == nil {
-                groups[s.movement] = []
-                order.append(s.movement)
+            let key: String = s.kind.rawValue + "|" + s.movement
+            if groups[key] == nil {
+                groups[key] = []
+                order.append(key)
             }
-            groups[s.movement]?.append(s)
+            groups[key]?.append(s)
         }
         var flagged: [SegmentResult] = []
         for m in order {
@@ -645,7 +654,7 @@ struct InsightContext {
     func movements() -> [(String, String)] {
         var out: [(String, String)] = []
         var seen: Set<String> = []
-        for d in definition.segments where ResultInsights.isWork(d.kind) {
+        for d in definition.segments where ResultInsights.isWork(d.kind) && ResultInsights.isKnown(d) {
             let key: String = ResultInsights.movementKey(d)
             if !seen.contains(key) {
                 seen.insert(key)
