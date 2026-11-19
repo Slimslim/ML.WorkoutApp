@@ -41,7 +41,11 @@ for a in "$@"; do
   prev="$a"
 done
 [ -r "$secret" ] || { echo "service file not mounted" >&2; exit 3; }
-write() { for k in roles schema data; do printf 'SQL\n-- rxlab backup: %s complete\n' "$k" > "$backup/${base}_$k.sql.part"; done; }
+write() {
+  for k in roles schema data; do printf 'SQL\n-- rxlab backup: %s complete\n' "$k" > "$backup/${base}_$k.sql.part"; done
+  # The roles file is written first, so it is older than the data file (seconds, on a real night).
+  touch -d '@1000000000' "$backup/${base}_roles.sql.part"
+}
 case "$FAKE_MODE" in
   ok)    write; exit 0;;
   fail)  printf 'half' > "$backup/${base}_roles.sql.part"
@@ -114,7 +118,9 @@ def test_good_run_writes_three_private_files_and_logs(env):
     # command line or in the environment.
     args = env["args"].read_text()
     assert "not-a-real-password" not in args
-    assert "PGSERVICE=rxlab" in args and "postgres:17-alpine" in args and "--init" in args
+    assert "PGSERVICE=rxlab" in args and "postgres:17-alpine" in args and "--name\nrxlab-backup-" in args
+    # The appended statements are read with an empty search_path (schema-qualified, as pg_dump).
+    assert args.count("set search_path = ''") == 2
     assert "--schema-only" in args and "--data-only" in args and "--roles-only" in args
     # As the Supabase CLI: auth and storage are left out of the schema, kept in the data.
     internal = args.split("INTERNAL='")[1].split("'")[0].split()
@@ -146,6 +152,13 @@ def test_secrets_in_error_text_are_redacted(env):
     for text in (log, r.stderr):
         assert "not-a-real-password" not in text
         assert "password=***" in text and "u.x:***@" in text
+
+
+def test_a_nights_three_files_share_one_time_stamp(env):
+    # So the cleanup keeps or deletes a night's set together, never part of it.
+    assert run(env).returncode == 0
+    times = {(env["dest"] / n).stat().st_mtime for n in files(env["dest"])}
+    assert len(times) == 1
 
 
 def test_retention_keeps_the_newest_14_nights(env):

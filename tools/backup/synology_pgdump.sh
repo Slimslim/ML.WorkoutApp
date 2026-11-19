@@ -85,7 +85,8 @@ ERR="$DEST/.backup.err"
 CNAME="rxlab-backup-$$"
 DPID=""
 cleanup() {
-  # Stopped mid-run (Task Scheduler "stop", shutdown): stop the dump container too.
+  # Stopped mid-run (Task Scheduler "stop", shutdown): remove the dump container, which ends
+  # pg_dump (sh is PID 1 there and would ignore a forwarded SIGTERM).
   if [ -n "$DPID" ]; then
     "$DOCKER" rm -f "$CNAME" > /dev/null 2>&1
     kill "$DPID" 2>/dev/null; wait "$DPID" 2>/dev/null
@@ -134,7 +135,7 @@ T="timeout -s TERM $DUMP_TIMEOUT"
 # 2. Schema (CLI dump_schema.sh) with the three additions described in the script header.
 {
   echo '-- rxlab backup: extensions the schema uses (a new project has the defaults already)'
-  psql -X -q -At -v ON_ERROR_STOP=1 -c "select format('CREATE EXTENSION IF NOT EXISTS %I WITH SCHEMA %I;', extname, extnamespace::regnamespace) from pg_extension where extnamespace = 'extensions'::regnamespace order by extname"
+  psql -X -q -At -v ON_ERROR_STOP=1 -c "set search_path = ''" -c "select format('CREATE EXTENSION IF NOT EXISTS %I WITH SCHEMA %I;', extname, extnamespace::regnamespace) from pg_extension where extnamespace = 'extensions'::regnamespace order by extname"
   echo '-- rxlab backup: no automatic grants while restoring; the dump sets every grant itself'
   echo '-- and ends with the ALTER DEFAULT PRIVILEGES lines that put the automatic ones back.'
   echo 'ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" REVOKE ALL ON TABLES FROM "anon", "authenticated", "service_role";'
@@ -167,8 +168,10 @@ T="timeout -s TERM $DUMP_TIMEOUT"
   | sed -E 's/^CREATE POLICY "cron_job_/-- &/' \
   | sed -E 's/^ALTER TABLE "cron"/-- &/' \
   | sed -E 's/^SET transaction_timeout = 0;/-- &/'
+  # Read with an empty search_path, as pg_dump does: every function in a policy comes out with its
+  # schema, so it restores whatever the restoring session's search_path is.
   echo '-- rxlab backup: RLS policies this project added to Supabase-managed tables'
-  psql -X -q -At -v ON_ERROR_STOP=1 -c "select format(E'DROP POLICY IF EXISTS %I ON %I.%I;\nCREATE POLICY %I ON %I.%I AS %s FOR %s TO %s%s%s;',
+  psql -X -q -At -v ON_ERROR_STOP=1 -c "set search_path = ''" -c "select format(E'DROP POLICY IF EXISTS %I ON %I.%I;\nCREATE POLICY %I ON %I.%I AS %s FOR %s TO %s%s%s;',
       policyname, schemaname, tablename, policyname, schemaname, tablename, permissive, cmd,
       (select string_agg(case when r = 'public' then 'PUBLIC' else quote_ident(r) end, ', ') from unnest(roles) r),
       coalesce(' USING (' || qual || ')', ''), coalesce(' WITH CHECK (' || with_check || ')', ''))
@@ -190,7 +193,8 @@ T="timeout -s TERM $DUMP_TIMEOUT"
 EOS
 )
 
-"$DOCKER" run --rm --init --name "$CNAME" \
+# No --init: DSM's Docker may lack docker-init. A stop removes the container (cleanup).
+"$DOCKER" run --rm --name "$CNAME" \
   -v "$SECRET:/run/secrets/pg_service.conf:ro" \
   -v "$DEST:/backup" \
   -e PGSERVICEFILE=/run/secrets/pg_service.conf \
@@ -221,6 +225,10 @@ for k in $KINDS; do
   mv -f "$DEST/${BASE}_$k.sql.part" "$DEST/${BASE}_$k.sql" || fail "could not rename the $k file"
   chmod 600 "$DEST/${BASE}_$k.sql"
 done
+# One time stamp for the night's three files (after all three are renamed): the cleanup keeps or
+# deletes them together.
+touch -r "$DEST/${BASE}_data.sql" "$DEST/${BASE}_roles.sql" "$DEST/${BASE}_schema.sql" \
+  || fail "could not set the files' time stamp"
 BYTES=$(cat "$DEST/${BASE}"_*.sql | wc -c)
 
 # Retention only after a good night: files older than KEEP days go (the newest KEEP nights stay).

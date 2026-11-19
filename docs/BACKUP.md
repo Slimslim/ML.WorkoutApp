@@ -66,6 +66,9 @@ What a backup does **not** contain:
   database.
 - **Auth settings** (Apple sign-in, email), **API keys** and **edge functions**: they are project
   settings, not data.
+- **Triggers or grants the project adds to Supabase's own tables** (`auth.users`,
+  `storage.objects`). Only policies on those tables are saved. There are none today. If a migration
+  ever adds one (for example a trigger on new sign-ups), add it to this backup in the same PR.
 
 **The files hold user accounts, emails and password hashes.** Treat them like a password:
 
@@ -235,8 +238,8 @@ A failed night:
 - deletes no older backup;
 - exits with an error, so DSM emails you.
 
-A dump that hangs is stopped after 30 minutes. Stopping the task in Task Scheduler stops the dump
-too.
+A dump that hangs is stopped after 30 minutes. Stopping the task in Task Scheduler removes the dump's
+container too.
 
 The usual reasons:
 
@@ -247,6 +250,7 @@ The usual reasons:
 | `mode 644; run: chmod 600` | Someone changed the file's permissions. |
 | `no [rxlab] section` | The first line of the password file is missing. |
 | `docker not found` | Container Manager is not installed. |
+| `dump exit 125` | Docker could not start the container, for example the image is missing (step 4). |
 | `another backup is running` | A run was killed. It clears itself after 6 hours. |
 
 ## 6. Off-site copy: Hyper Backup (recommended)
@@ -325,7 +329,9 @@ Undoing a change: use the change's own rollback script first (for example
 
 This is Supabase's own documented restore, into a **new** project, run from the NAS as root.
 
-1. Create the new project (database.new) on Postgres 17.
+1. Create the new project (database.new) on Postgres 17. If the old project had **Database
+   Webhooks** or **pg_cron** turned on, turn them on in the new one first: their tables are in the
+   data file, and the restore stops if the new project lacks them. Neither is used today.
 2. Write its connection details into a second service file, as in step 3, with the section
    `[restore]` instead of `[rxlab]`:
 
@@ -371,12 +377,12 @@ Tested on 19 Nov 2026, in a Linux container with Docker and `postgres:17-alpine`
 | Test | Result |
 |---|---|
 | A nightly backup | Three files, about 1.3 MB, under a second. |
-| Supabase's documented restore (step 9) into a new Supabase Postgres 17.11 | psql ended without one error. The result equalled the source on every check: rows of the library, drafts, gyms, `auth.users`, storage objects and buckets; all 20 policies, including the 4 on `storage.objects`; table, column and function grants; triggers; RLS flags; constraints; the automatic grants; `pg_jsonschema`. |
-| The monthly restore test (step 7) | Every row of 15 tables. |
+| Supabase's documented restore (step 9) into a new Supabase Postgres 17.11 | psql ended without one error. The result equalled the source on every check: rows of the library, drafts, gyms, `auth.users`, storage objects and buckets; every policy, including those on `storage.objects` (one of them calling a `public.` function); table, column and function grants; triggers; RLS flags; constraints; the automatic grants; `pg_jsonschema`. |
+| The monthly restore test (step 7) | Every row of 15 tables. A broken row is reported by file and line only, never its content. |
 | A cut-off file | Refused. |
 | Wrong password, Supabase down, a dump stopped part-way, a dump over its time limit, a second run during a run | Each exits with an error, leaves no file and deletes no older backup. |
 | A password in the error text | Replaced by `***` in the log and the email. |
-| The 14-night cleanup | Correct with three files a night. |
+| The 14-night cleanup | Correct with three files a night; a night's three files share one time stamp, so they go together. |
 | `keep_` sets | Never deleted. |
 
 ## What has not been tested on the NAS itself

@@ -120,7 +120,9 @@ grep -E 'ERROR' "$WORK/errors" | grep -E "$SUPABASE_ONLY" | sed -E 's/^psql:[^ ]
 UNEXPECTED=$(grep -E 'ERROR' "$WORK/errors" | grep -v -E "$SUPABASE_ONLY" || true)
 if [ -n "$UNEXPECTED" ]; then
   echo "unexpected errors while loading:"
-  echo "$UNEXPECTED" | head -20 | sed 's/^/  /'
+  # Only where (file:line), not the message: an error can quote a row (an email), and a
+  # scheduled run mails this output.
+  echo "$UNEXPECTED" | head -20 | sed -E 's/^psql:([^ ]+): ERROR:.*/  \1/'
 fi
 
 BAD=0
