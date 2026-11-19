@@ -1,9 +1,9 @@
 {
  "version": 1,
- "id": "2026-11-08-sunyay",
+ "id": "2026-11-08-amrap40-run",
  "date": "2026-11-08",
  "kind": "workout",
- "name": "SunYay (AMRAP 40)",
+ "name": "AMRAP 40 (4 stations + 400 m run)",
  "format": "amrap",
  "rx": false,
  "files": {
@@ -12,8 +12,7 @@
  },
  "score": "5 rounds + 44 reps + 41 m",
  "notes": [
-  "Per round: 12 ball slams, 12 dual DB thrusters (2 x 25 lb), 10 GHD sit-ups (instead of toes-to-bar), 10 dual DB lunges (2 x 50 lb held at the sides), 400 m run.",
-  "Scaled: GHD sit-ups instead of toes-to-bar. Ball weight not given.",
+    "Scaled: GHD sit-ups instead of toes-to-bar. Ball weight not given.",
   "Athlete (2026-11-08): thrusters, GHD sit-ups and lunges unbroken every round; ball slams with a few breaks.",
   "Station boundaries are the Crown taps. 8 of 24 stations have motion sets with one time per rep (repTimes = the peak of each cycle in the named signal), kept only where the count equalled the known reps; the others are not verified.",
   "Run starts: first 6 s at >= 2.2 steps/s after the Crown (5-28 s later: walking out), the time before is a transition. First session labelled after switch-v1 was frozen (2026-11-06)."

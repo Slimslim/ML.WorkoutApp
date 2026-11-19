@@ -1,9 +1,9 @@
 {
  "version": 1,
- "id": "2026-11-10-freedom-flipped",
+ "id": "2026-11-10-situps-runs",
  "date": "2026-11-10",
  "kind": "workout",
- "name": "Freedom (flipped, scaled)",
+ "name": "Sit-ups + 800 m runs (flipped, scaled)",
  "format": "forTime",
  "rx": false,
  "files": {
@@ -12,7 +12,7 @@
  },
  "score": "14:37",
  "notes": [
-  "Planned by the gym: 800 m run, 50 GHD sit-ups, 800 m run, 50 toes-to-bar (21:00 cap). Done flipped and scaled: 50 GHD sit-ups, 800 m run, 50 AbMat sit-ups, 800 m run.",
+  "Done flipped and scaled from a runs + core class piece: 50 GHD sit-ups, 800 m run, 50 AbMat sit-ups, 800 m run.",
   "Athlete (2026-11-10): GHD 15, 10, 10, 5, then 2 and a cramp; finished with 8 sit-ups on the floor. AbMat 20, 20, 10. Runs fine.",
   "Every set and rep found in the motion matches the athlete's count: GHD and floor sit-ups from the wrist tilt (gz), AbMat sit-ups from gx, ~2.2-2.5 s per rep.",
   "The athlete said 80 AbMat sit-ups once; the sets (20 + 20 + 10) and the plan say 50, and the motion counts 50.",

@@ -59,8 +59,8 @@ def test_amrap_with_rest():
     c = card_of("wod.amrap40")
     assert (c.name, c.name_is_format, c.type_label) == ("AMRAP 40", True, "AMRAP")
     assert c.time_domain_line == "40 min AMRAP · rest 1 min between rounds"
-    assert texts(c) == ["12 Cal Row / Bike", "15 Push-ups / Pull-ups", "12 DB C&J / Snatch",
-                        "15 Burpees / Wall Walks"]
+    assert texts(c) == ["14 Cal Row / SkiErg", "20 KB Swings / Wall Balls", "25 Air Squats / Lunges",
+                        "10 Pull-ups / Ring Rows"]
     assert c.cap_line is None
     n = card_of("wod.nightmareAmrap")
     assert n.name == "Nightmare AMRAP 20" and n.time_domain_line == "20 min AMRAP"

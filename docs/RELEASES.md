@@ -190,7 +190,7 @@ closed before the import ships. Builds 18+ during the beta: fixes only.
 
 ## Data and server state (not code)
 
-- Gyms migration run on 11 Nov. Gym `blue-republic`: owner and tester B are members; 18 class rows
+- Gyms migration run on 11 Nov. The owner's gym: owner and tester B are members; 18 class rows
   belong to it; 2 training-data rows are private to the owner.
 - Email sign-up is still open (accepted for TestFlight); close it before any AI import ships.
 - Testers' programs are entered as private rows; gym programming only for gym members.

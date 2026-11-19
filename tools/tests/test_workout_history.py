@@ -29,7 +29,7 @@ def result(d: WorkoutDefinition, day: int, seconds: float = 600.0) -> WorkoutRes
 
 def test_normalized_name():
     assert normalized_name("Every 1:00 × 8: Power C&J") == "every 1 00 8 power c j"
-    assert normalized_name("  FREEDOM ") == "freedom"
+    assert normalized_name("  SEESAW ") == "seesaw"
     assert normalized_name("Café  “Game Over”") == "cafe game over"
     assert normalized_name("") == ""
 

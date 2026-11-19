@@ -6,7 +6,7 @@ v2 is a big step up. All owner decisions are applied consistently. Spot checks o
 Main problems: the Before Anaheim flows use screens that won't exist before the race, and the model doesn't say how two strength blocks become one lifting block.
 
 **P1 re-walk (56):** 47 work, 7 partial (S-02, S-09, S-21, S-28, S-29, S-77, S-80), 1 fails (S-39, in no stage), 1 moved on purpose (S-82).
-**Mayhem day:** partial. The flow works, but there are 4 inconsistencies (fixes 2–5).
+**Program day:** partial. The flow works, but there are 4 inconsistencies (fixes 2–5).
 **Before Anaheim:** realistic and race-critical once fixes 1, 7 and 8 are made.
 
 ## Required fixes
@@ -15,11 +15,11 @@ Main problems: the Before Anaheim flows use screens that won't exist before the 
 
 2. **§7 Block / Lifting block, §12 Log wireframe.** The confirm screen makes Back squat and Front squat two Strength blocks. The lifting screen runs both as one ("Lift 1 of 2"). The Log row lists only Back squat, and "4 scored blocks" doesn't add up. **Fix:** add to §7: "Strength blocks that follow each other run as one lifting block: one recording, one Apple workout, but each lift keeps its own result. *Start lifting* on the first card includes the next ones." In the Log wireframe, add "Front squat 185 ×3". Walkthrough: "5 scored blocks".
 
-3. **§11 Mayhem walkthrough, steps 3 and 8.** The day is scheduled but never sent, yet step 8 says the metcon "was sent to the watch with the day". **Fix:** in step 4 (next morning), add "Today › **Send day to watch**", or make Schedule send automatically on the day.
+3. **§11 Program-day walkthrough, steps 3 and 8.** The day is scheduled but never sent, yet step 8 says the metcon "was sent to the watch with the day". **Fix:** in step 4 (next morning), add "Today › **Send day to watch**", or make Schedule send automatically on the day.
 
-4. **§12 Log wireframe "V-ups 100 CAP+82".** "CAP+N" is read both as reps done and as reps short. **Fix:** "V-ups · 82 reps at cap (7:00)". Use this wording everywhere.
+4. **§12 Log wireframe "V-ups 50 CAP+42".** "CAP+N" is read both as reps done and as reps short. **Fix:** "V-ups · 42 reps at cap (5:00)". Use this wording everywhere.
 
-5. **§12 Today and lifting wireframes.** "Last: 5×3 @ 245 lb (Dec 24)" sits above suggested loads of 155–175 lb with a 3RM of 215. That reads as a bug. **Fix:** when the last result is more than 6 months old, show it greyed with "over a year ago". Base suggested loads only on maxes from the last 6 months. Show "from 3RM 215 (Feb 26), est. 1RM ~230".
+5. **§12 Today and lifting wireframes.** "Last: 5×3 @ 225 lb (Oct 24)" sits above suggested loads of 150–170 lb with a 3RM of 200. That reads as a bug. **Fix:** when the last result is more than 6 months old, show it greyed with "over a year ago". Base suggested loads only on maxes from the last 6 months. Show "from 3RM 200 (Mar 26), est. 1RM ~215".
 
 6. **§14 Q1, §11 "Profile: men's", report wireframe "Open Men".** The defaults assume the owner's gender. **Fix:** "Default: your division and load column as set in Q1 / Profile". Ask Q1 as "Solo or Doubles, Open or Pro, which category".
 
@@ -31,7 +31,7 @@ Main problems: the Before Anaheim flows use screens that won't exist before the 
 
 10. **§13 build order ID lists.** S-31 and S-36 appear in two stages. S-41 is listed as "Works today", but the watch home has no Today item yet. **Fix:** list each ID once. S-36 and S-41 go Before TestFlight.
 
-11. **§12 watch done wireframe "Next: V-ups 100 ›".** The tree marks [Next block] as *(later)*. **Fix:** label the wireframe "later", or make it Before TestFlight. It is cheap and the Mayhem day needs it.
+11. **§12 watch done wireframe "Next: V-ups 50 ›".** The tree marks [Next block] as *(later)*. **Fix:** label the wireframe "later", or make it Before TestFlight. It is cheap and the program day needs it.
 
 12. **Jargon for a non-developer (§13 Before TestFlight / Before App Store; §6).** Replace:
     - "units stored canonically" → "stored in kg/m/s plus the unit you typed"
@@ -44,7 +44,7 @@ Main problems: the Before Anaheim flows use screens that won't exist before the 
 
 ## Optional suggestions
 - Add "phone report shows target deltas" to Before Anaheim, so the trial sim can be reviewed.
-- Use the Mayhem "target score" as the metcon's ahead/behind target (it reuses the race code).
-- Confirm wireframe: show the row ladder (40-30-20-30-40 cal / 7 PC) instead of "×5 rounds".
+- Use the program's "target score" as the metcon's ahead/behind target (it reuses the race code).
+- Confirm wireframe: show the row ladder (30-24-18-24-30 cal / 5 PC) instead of "×5 rounds".
 - S-21: list the formats Build offers. S-28/29: until the watch toggle exists, add the hint "Crown at each change of who works, tag later".
 - scenarios.md S-14/18/26/28/29/38 use "he/his". Change them to "you/your".

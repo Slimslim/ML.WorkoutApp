@@ -282,7 +282,7 @@ struct WorkoutChooserView: View {
 /// collapsed list of every segment (for checking what the watch will step through).
 struct WorkoutPreviewView: View {
     let definition: WorkoutDefinition
-    /// Top-left of the card: "Mon, Nov 2 · PitFIRE", "Built-in".
+    /// Top-left of the card: "Mon, Nov 2 · Example", "Built-in".
     var meta: String? = nil
     @ObservedObject private var link = PhoneLink.shared
     @ObservedObject private var store = WorkoutStore.shared

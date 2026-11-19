@@ -40,7 +40,7 @@ final class WorkoutHistoryTests: XCTestCase {
 
     func testNormalizedName() {
         XCTAssertEqual(WorkoutHistory.normalizedName("Every 1:00 × 8: Power C&J"), "every 1 00 8 power c j")
-        XCTAssertEqual(WorkoutHistory.normalizedName("  FREEDOM "), "freedom")
+        XCTAssertEqual(WorkoutHistory.normalizedName("  SEESAW "), "seesaw")
         XCTAssertEqual(WorkoutHistory.normalizedName("Café  “Game Over”"), "cafe game over")
         XCTAssertEqual(WorkoutHistory.normalizedName(""), "")
     }

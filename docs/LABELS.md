@@ -159,20 +159,20 @@ first stroke 8-14 s after the Crown, too late to be true). Labels must not copy 
 AMRAP misses: bike starts come 4-9 s after the Crown tap (unverified label), and one bike ->
 step-ups confusion fires 17 s early.
 
-### First held-out test: SunYay AMRAP 40 (2026-11-08, labelled after v1 was frozen)
+### First held-out test: AMRAP 40 + runs (2026-11-08, labelled after v1 was frozen)
 
 Ball slams, dual DB thrusters, GHD sit-ups, dual DB lunges, 400 m run; labels are the Crown taps.
 
 | After round 1 (24 switches) | Crown taps | Crown + first rep | switch-v0 | switch-v1 |
 |---|---|---|---|---|
-| SunYay | 24 (by construction) | 8 (17 false) | 3 (22 false) | 4 (21 false) |
+| AMRAP 40 + runs | 24 (by construction) | 8 (17 false) | 3 (22 false) | 4 (21 false) |
 
 v1 is in step for round 2 (thrusters 0 s, sit-ups -2 s, lunges +2 s), then sees the run 14 s after
 the Crown tap (walking to the door before running) and never recovers: it only waits for the *next*
 planned movement. For v2: resync when the motion clearly shows another planned movement, and label
 run starts from the step rate (the tap is before the run really starts).
 
-### SunYay as training data (2026-11-08)
+### AMRAP 40 + runs as training data (2026-11-08)
 
 The athlete gave the reps (thrusters, GHD sit-ups, lunges unbroken; ball slams with a few breaks).
 From the motion: 8 of 24 stations got sets with one time per rep (86 rep times; ball slams rounds
@@ -193,21 +193,21 @@ v1 7/25 (18 false): v1 still loses sync after the first late run.
   verified). In 4 of 5 intervals skiing started ~4 s before the watch's 1:00 rest ran out; the Crown
   matches the last stroke.
 
-### Power snatch EMOM and Freedom (2026-11-09): every rep from the motion
+### Power snatch EMOM and a snatch metcon (2026-11-09): every rep from the motion
 
 A snatch (and a burpee to the bar) is a forearm rise from hanging to vertical in < 1.5 s with the
 arm held overhead 1.3-2.0 s (catch / hand on the bar); a failed snatch comes straight down (0.1-0.6 s).
 - **Power snatch every 1:00 x 10 (2 singles), 95-145 lb:** all 20 good reps; the missed rep at
   145 lb (0.6 s overhead) between the two good ones, as the athlete said.
-- **Freedom 9-7-5, 135 lb + burpee chest-to-bar (scaled):** all 21 snatches and 20 burpees; the
+- **Metcon, 3 rounds of snatches + burpee chest-to-bar (scaled):** all 21 snatches and 20 burpees; the
   failed rep 7 in round 1 and the chalk break, the 33 s wristband break in round 2, 2 + 1 + 1 + 1
   in round 3; two athlete Marks, each just before walking to the bar. Capped at 10:00 with 38
   reps (1 burpee into the last 5). The Crown came at the next minute / after walking, never
   within 3 s of the set end.
 
-### 2026-11-10: Freedom flipped, Tabata press and row
+### 2026-11-10: sit-ups + 800 m runs, Tabata press and row
 
-- **Freedom (flipped, scaled):** GHD 15 / 10 / 10 / 5 / 2 (cramp) + 8 floor sit-ups, AbMat 20 / 20 / 10:
+- **Sit-ups + 800 m runs (flipped, scaled):** GHD and AbMat sit-up sets with runs in between:
   every set and rep from the wrist tilt, exactly as the athlete said. Runs start 2 s and 4 s after the
   Crown (run 2 inside first, the turn onto the road visible ~10 s after the Crown).
 - **A press rep is a lockout:** dip at the shoulders, push, then the forearm fully vertical (gy between

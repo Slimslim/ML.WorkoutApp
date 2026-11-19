@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
-"""2026-11-02 first look: barbell power clean & jerk EMOM + "Freedom" (row / power cleans), rep by
+"""2026-11-02 first look: barbell power clean & jerk EMOM + a row / power clean workout, rep by
 rep from left-wrist device motion.
 
-    python3 tools/scratch/pcj_freedom_reps.py [data/raw/2026-11-02-pcj-emom-freedom]
+    python3 tools/scratch/pcj_cleans_reps.py [data/raw/2026-11-02-pcj-emom-freedom]
+        [--emom-loads 95,95,...] [--clean-load 95]
+
+The loads (lb, one per EMOM set, and the load of the power cleans) are the athlete's own and are
+not kept in the repo: pass them on the command line (the session's notes in private Storage have
+them). Without them the load columns stay empty.
 
 Prints markdown tables (copied into that folder's ANALYSIS.md).
 
@@ -57,9 +62,9 @@ CATCH_MAX_RISE_S = 0.3                # floor -> rack flip time (cleans 0.17-0.1
 CATCH_MIN_G = 3.5                     # |userAccel| peak within 1 s before / 0.3 s after the flip
 LOCK_GX, LOCK_GY, LOCK_HOLD_S = 0.93, 0.2, 0.3
 SET_GAP_S = 30.0                      # reps closer than this belong to one set (EMOM)
-# owner's loads (README.md): the workout definition says 85 kg for Freedom, the bar was 155 lb
-EMOM_LOADS_LB = [125, 135, 145, 145, 155, 155, 165, 175]
-FREEDOM_LOAD_LB = 155
+# athlete's loads, lb (command line; never in the repo)
+EMOM_LOADS_LB: list = []
+CLEANS_LOAD_LB = None
 LB = 0.45359237
 TNG_GAP_S = 3.5                       # catch-to-catch gap below this = touch-and-go
 PULL_START_V = 0.15                   # m/s: pull start = last time before the clean peak v < this
@@ -335,9 +340,9 @@ def emom(folder):
     return "\n".join(L)
 
 
-# ---- workout 2: Freedom -------------------------------------------------------------------------
+# ---- workout 2: row + cleans -------------------------------------------------------------------------
 
-def freedom(folder):
+def row_cleans(folder):
     S = find(folder, "wod.freedom")
     L = []
     P = L.append
@@ -351,8 +356,8 @@ def freedom(folder):
         rnd.append({"k": k, "row": ro, "pc": pc, "strokes": st, "onset": on, "reps": reps})
     target = sum(int(s["target"]["value"]) for s in S.wk["definition"]["segments"] if s["movement"] != "row")
 
-    P(f"Power cleans at {FREEDOM_LOAD_LB} lb ({FREEDOM_LOAD_LB * LB:.0f} kg, owner; the definition says "
-      f"{S.wk['definition']['segments'][1].get('load', {}).get('value', '?')} kg).\n")
+    if CLEANS_LOAD_LB is not None:
+        P(f"Power cleans at {CLEANS_LOAD_LB} lb ({CLEANS_LOAD_LB * LB:.0f} kg, athlete).\n")
     P(f"Start {S.start:+.2f} s, finish {mmss(S.finish_s - S.start)} (Crown), End {mmss(S.end - S.t0 - S.start)}.\n")
     P("### Rounds\n")
     P("| round | row cal | row segment | strokes window (from seg start) | strokes | period s | rate /min | "
@@ -449,11 +454,20 @@ def freedom(folder):
 
 
 def main(argv):
-    folder = argv[0] if argv else "data/raw/2026-11-02-pcj-emom-freedom"
+    global EMOM_LOADS_LB, CLEANS_LOAD_LB
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("folder", nargs="?", default="data/raw/2026-11-02-pcj-emom-freedom")
+    ap.add_argument("--emom-loads", default="", help="lb per EMOM set, comma-separated")
+    ap.add_argument("--clean-load", type=float, default=None, help="lb, power cleans of workout 2")
+    args = ap.parse_args(argv)
+    EMOM_LOADS_LB = [float(x) for x in args.emom_loads.split(",") if x.strip()]
+    CLEANS_LOAD_LB = args.clean_load
+    folder = args.folder
     print("## Workout 1 · Every 1:00 × 8 power clean & jerk\n")
     print(emom(folder))
-    print("\n## Workout 2 · Freedom\n")
-    print(freedom(folder))
+    print("\n## Workout 2 · row + power cleans\n")
+    print(row_cleans(folder))
     return 0
 
 

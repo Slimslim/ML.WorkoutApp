@@ -287,10 +287,10 @@ class WorkoutLibrary:
         round_size=4)
     amrap40 = WorkoutDefinition(
         "wod.amrap40", "AMRAP 40 with 1:00 rest", "AMRAP 40", "amrap", "solo", 40 * 60, "crossTraining",
-        [WorkoutSegment("station", Movement.row, "Row / Bike", SegmentTarget(12, "calories")),
-         WorkoutSegment("station", Movement.pushUps, "Push-ups / Pull-ups", SegmentTarget(15, "reps")),
-         WorkoutSegment("station", Movement.dumbbellSnatch, "DB C&J / Snatch", SegmentTarget(12, "reps")),
-         WorkoutSegment("station", Movement.burpees, "Burpees / Wall Walks", SegmentTarget(15, "reps")),
+        [WorkoutSegment("station", Movement.row, "Row / SkiErg", SegmentTarget(14, "calories")),
+         WorkoutSegment("station", Movement.kettlebellSwings, "KB Swings / Wall Balls", SegmentTarget(20, "reps")),
+         WorkoutSegment("station", Movement.airSquats, "Air Squats / Lunges", SegmentTarget(25, "reps")),
+         WorkoutSegment("station", Movement.pullUps, "Pull-ups / Ring Rows", SegmentTarget(10, "reps")),
          WorkoutSegment("rest", Movement.rest, "Rest", SegmentTarget(60, "seconds"))] * 12,
         round_size=5)
     free = WorkoutDefinition(

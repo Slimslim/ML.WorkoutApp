@@ -16,7 +16,7 @@ struct WorkoutOverviewView: View {
     let isNew: Bool
     /// HR after the finish (nil for older results or when End came right away: no card).
     let recovery: HeartRateRecovery?
-    /// Report top: the workout card and its meta ("Mon, Nov 2 · PitFIRE").
+    /// Report top: the workout card and its meta ("Mon, Nov 2 · Example").
     let card: WorkoutCard?
     let cardMeta: String?
 
