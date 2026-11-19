@@ -41,6 +41,8 @@ final class WorkoutEngineSessionModel {
     private var startMonoNs: UInt64 = 0
     private var written: [String: Int] = [:]
     private var projectedStarts: Int = 0
+    /// The CSV time of the last engine line written (lines never go back in time).
+    private var lastLineUptime: Double = 0
     private var projectedFinished: Bool = false
 
     private init(raw: JSONValue, plan: WorkoutPlan, options: JSONValue) {
@@ -99,8 +101,10 @@ final class WorkoutEngineSessionModel {
     /// The CSV time (systemUptime) of engine time `ms`. `CLOCK_MONOTONIC` counts sleep and
     /// `systemUptime` (every other CSV line) does not, so the sleep measured so far is taken off:
     /// engine lines stay in step with the HR, segment and sensor lines after the watch slept.
-    /// A line written later than its event (catch-up after a sleep) gets the sleep up to when
-    /// it was written, at most one 200 ms tick off in practice.
+    /// This is exact for a line written as its event happens (every 200 ms tick). A line whose
+    /// event came before a sleep but is written after it (a bell due during the sleep, reps
+    /// entered later, a late Crown) has the whole sleep taken off and can come out too early;
+    /// `stamp` keeps it from going before START or before a line already written.
     private func uptime(_ ms: Int) -> Double {
         let elapsedUptime: Double = ProcessInfo.processInfo.systemUptime - startUptime
         let sleep: Double = max(0, Double(nowMs()) / 1000 - elapsedUptime)
@@ -115,6 +119,7 @@ final class WorkoutEngineSessionModel {
         startEpoch = epoch
         startUptime = uptime
         startMonoNs = WorkoutEngineSessionModel.monotonicNs()
+        lastLineUptime = uptime
         var u = Update()
         let epochMs = Int64((epoch * 1000).rounded())
         let uptimeMs = Int64((uptime * 1000).rounded())
@@ -170,13 +175,20 @@ final class WorkoutEngineSessionModel {
         refresh(into: &u, byClock: event.kind == "tick")
     }
 
+    /// `uptime(ms)`, never before START nor before the last line written (#113 review F1).
+    private func stamp(_ ms: Int) -> Double {
+        let v: Double = max(uptime(ms), startUptime, lastLineUptime)
+        lastLineUptime = v
+        return v
+    }
+
     /// Re-projects the state and writes the CSV lines for what changed: today's `segment`,
     /// `finish` and `undo` lines (index = the projected flat list), then the engine's `step` and
     /// `input` lines not written yet.
     private func refresh(into u: inout Update, byClock: Bool) {
         let pr = WorkoutEngineSession.project(state)
         progress = WorkoutEngineSession.progress(raw, pr, startEpoch: startEpoch)
-        let nowUp: Double = uptime(state.now ?? 0)
+        let nowUp: Double = stamp(state.now ?? 0)
         let n: Int = pr.starts.count
         let finished: Bool = pr.finish != nil
         if n < projectedStarts || (projectedFinished && !finished) {
@@ -191,12 +203,12 @@ final class WorkoutEngineSessionModel {
                 if i > 0 {
                     source = (i - 1 < pr.sources.count && pr.sources[i - 1] == "crown") ? "crown" : "auto"
                 }
-                u.csv.append((uptime: uptime(pr.starts[i]), text: "name=segment index=\(i) kind=\(kind) source=\(source)"))
+                u.csv.append((uptime: stamp(pr.starts[i]), text: "name=segment index=\(i) kind=\(kind) source=\(source)"))
             }
             u.stepChanged = true
         }
         if finished && !projectedFinished, let f = pr.finish {
-            u.csv.append((uptime: uptime(f), text: "name=finish index=\(max(0, n - 1)) source=\(pr.finishSource ?? "auto")"))
+            u.csv.append((uptime: stamp(f), text: "name=finish index=\(max(0, n - 1)) source=\(pr.finishSource ?? "auto")"))
             u.stepChanged = true
         }
         if u.stepChanged && byClock {
@@ -205,7 +217,7 @@ final class WorkoutEngineSessionModel {
         projectedStarts = n
         projectedFinished = finished
         for line in WorkoutEngineSession.newLines(state, written: &written) {
-            u.csv.append((uptime: uptime(line.t), text: line.text))
+            u.csv.append((uptime: stamp(line.t), text: line.text))
         }
     }
 

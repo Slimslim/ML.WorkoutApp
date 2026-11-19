@@ -224,3 +224,37 @@ def test_bells_past_a_week_refuse_the_plan():
     assert e.value.reason == "tooLarge"
     body[0]["repeat"]["times"] = 7                    # exactly 7 days still plans
     we.plan({"schemaVersion": 2, "structure": {"score": {"type": "none"}, "body": body}})
+
+
+# ---- the phone (W27 PR3b) -------------------------------------------------------------------------
+
+def test_the_phone_sends_v2_json_only_for_rows_the_engine_may_run():
+    for name, old in LEGACY.items():
+        assert wss.phone_route(old) == {"send": "legacy", "reason": "notV2"}, name
+        u = upgrade(old)
+        r = wss.phone_route(u["definition"])
+        if u["label"] == "exact" and r["send"] == "engine":
+            continue
+        # review / reencode rows never reach the engine without the owner's sign-off (RFC 7.3)
+        assert r["send"] == "legacy", (name, r)
+        if u["label"] != "exact":
+            assert r["reason"] == "needsOwner", (name, r)
+    for name in ALL:
+        assert wss.phone_route(ws.compile_definition(ALL[name])) == {"send": "engine"}, name
+
+
+def test_phone_refusals():
+    tab = ws.compile_definition(ALL["tabata"])
+    assert wss.phone_route(dict(tab, fidelity="textOnly"))["reason"] == "textOnly"
+    assert wss.phone_route(dict(tab, requires=["teleport"])) == {"send": "legacy", "reason": "refused",
+                                                                 "refusal": "updateApp"}
+    assert wss.phone_route(dict(tab, rawText="x" * 20000))["reason"] == "tooBig"
+    assert wss.phone_route(dict(tab, fidelity="approx", approx=["partnerSplitGuessed"])) == {"send": "engine"}
+
+
+def test_the_phone_stores_the_upgrade_label_as_fidelity():
+    for name, old in LEGACY.items():
+        f = wss.phone_fidelity(old)
+        u = upgrade(old)
+        assert f["label"] == u["label"], name
+        assert f["fidelity"] == ("exact" if u["label"] == "exact" else "approx"), name

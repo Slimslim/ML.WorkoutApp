@@ -12,6 +12,12 @@ struct LibraryWorkout: Codable, Equatable, Identifiable {
     /// Postgres `date` as sent by the API, "yyyy-MM-dd": the day it is programmed.
     let scheduledOn: String?
     let updatedAt: String?
+    /// W27: the row's `definition` JSON as stored, unknown keys and the v2 `structure` included
+    /// (the typed `definition` drops them). nil in a cache written by an older build.
+    var raw: JSONValue? = nil
+    /// W27: the fidelity stored for the row (RFC §14.3 B2): a v2 row's own, or the label of the
+    /// on-phone `upgrade()` of a legacy row. Not shown anywhere yet.
+    var fidelity: WorkoutEngineSession.StoredFidelity? = nil
 
     var id: String { return definition.id }
 
@@ -20,6 +26,14 @@ struct LibraryWorkout: Codable, Equatable, Identifiable {
         case program
         case scheduledOn = "scheduled_on"
         case updatedAt = "updated_at"
+        case raw
+        case fidelity
+    }
+
+    /// The v2 JSON to send to the watch beside the typed definition, or nil when the row keeps
+    /// the old path (legacy, needs the owner's sign-off, text only, refused, too big).
+    var engineDefinition: Data? {
+        return WorkoutEngineSession.phonePayload(raw)
     }
 
     /// "Mon, Nov 2" or nil.
@@ -115,6 +129,12 @@ final class WorkoutLibraryStore: ObservableObject {
 
     var definitions: [WorkoutDefinition] {
         return workouts.map { (w: LibraryWorkout) -> WorkoutDefinition in w.definition }
+    }
+
+    /// The v2 JSON the watch runs on the engine for this id, or nil (built-ins and every row the
+    /// engine may not run keep the old path).
+    func engineDefinition(id: String) -> Data? {
+        return workouts.first(where: { (w: LibraryWorkout) -> Bool in w.id == id })?.engineDefinition
     }
 
     /// A library workout first, then the built-in one.
@@ -254,8 +274,11 @@ private struct LibraryRow: Decodable {
             let program: String? = try c.decodeIfPresent(String.self, forKey: .program)
             let scheduledOn: String? = try c.decodeIfPresent(String.self, forKey: .scheduledOn)
             let updatedAt: String? = try c.decodeIfPresent(String.self, forKey: .updatedAt)
+            // The same JSON, kept whole: the watch engine needs its v2 structure (RFC §8).
+            let raw: JSONValue? = try? c.decode(JSONValue.self, forKey: .definition)
             found = LibraryWorkout(definition: definition, program: program,
-                                   scheduledOn: scheduledOn, updatedAt: updatedAt)
+                                   scheduledOn: scheduledOn, updatedAt: updatedAt, raw: raw,
+                                   fidelity: raw.map { WorkoutEngineSession.phoneFidelity($0) })
         } catch {
             failure = rowId + ": " + LibraryRow.describe(error)
         }

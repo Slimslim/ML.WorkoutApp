@@ -608,7 +608,9 @@ final class WorkoutSessionModel: ObservableObject {
     /// Picker range 0…partialRepsMax: the segment's reps target, else 200.
     var partialRepsMax: Int {
         if let target = partialRepsSegment?.target, target.unit == .reps, target.value >= 1 {
-            return Int(target.value.rounded())
+            // Capped first: Int(...) of a target at 2^31 or more traps on a 32-bit watch, and an
+            // engine segment passes any finite value through (#113 review F4).
+            return Int(min(target.value, 10_000).rounded())
         }
         return 200
     }
