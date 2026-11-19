@@ -21,6 +21,11 @@ tools/
 
 Requirements: numpy, scipy, matplotlib, and pytest (`pip install pytest`).
 
+## Database backup
+
+`tools/backup/`: the nightly Supabase dump to the NAS and the monthly restore test. Setup and
+restore steps: `docs/BACKUP.md`.
+
 ## Run the tests
 
 ```sh

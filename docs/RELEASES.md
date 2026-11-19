@@ -193,6 +193,11 @@ testers' feedback, "add a workout from a photo or text" (server function, moveme
 log). Provisional labels R1-R2, I1-I6, M1 until the owner approves the brief. Email sign-up must be
 closed before the import ships. Builds 18+ during the beta: fixes only.
 
+Backend v2 (#70) goes live only after the database has a backup (owner, 19 Nov: Free plan, so no
+Supabase backups). Nightly dump to the owner's NAS, 14 nights kept, monthly restore test, a manual
+dump before any database change: `docs/BACKUP.md`, `tools/backup/`. Status: in review (branch
+`claude/b17-synology-backup`). Not tested on the NAS (DSM) yet.
+
 ## Backlog (after the beta; owner picks at the review)
 
 | Feature | Story | Status | Note |
