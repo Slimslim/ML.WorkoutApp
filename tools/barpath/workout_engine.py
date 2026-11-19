@@ -505,7 +505,7 @@ class Plan:
 
 
 def _canon(v):
-    if isinstance(v, float) and v == int(v):
+    if isinstance(v, float) and v.is_integer():   # inf and nan stay floats (no OverflowError)
         return int(v)
     if isinstance(v, dict):
         return {k: _canon(x) for k, x in v.items()}
