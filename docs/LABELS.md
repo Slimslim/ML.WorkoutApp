@@ -79,24 +79,24 @@ untouched result (`<id>.original.json` when the result was corrected).
 Times are **session seconds**: the watch CSV's `t` column (0 = START on the watch).
 
 ```json
-{
+{                                        // invented example, not a real session
  "version": 1,
- "id": "2026-11-05-amrap20",            // = file name
- "date": "2026-11-05",                   // local date of the workout
+ "id": "2026-01-01-example-amrap",       // = file name
+ "date": "2026-01-01",                   // local date of the workout
  "kind": "workout",                      // or "lifts"
- "name": "20 min AMRAP",
+ "name": "10 min AMRAP",
  "format": "amrap",                      // optional: forTime / amrap / emom
  "rx": true,                             // optional
  "files": {"csv": "Debug/session-<id>.csv", "result": "Workouts/<id>.json"},
- "score": "6 rounds + 0",
+ "score": "4 rounds + 3",
  "notes": ["…what the athlete said…"],
  "segments": [
-  {"movement": "airBike", "round": 1, "start": 0.0, "end": 83.5, "reps": 15, "unit": "calories",
+  {"movement": "row", "round": 1, "start": 0.0, "end": 52.0, "reps": 12, "unit": "calories",
    "source": "motion"},
-  {"movement": "wallBalls", "round": 1, "start": 146.5, "end": 187.1, "reps": 15, "unit": "reps",
-   "loadLb": 20, "source": "crown",
-   "sets": [{"start": 147.9, "end": 165.0, "reps": 9}, {"start": 173.0, "end": 184.2, "reps": 6}]},
-  {"movement": "rest", "start": 20.0, "end": 30.0, "source": "motion"}
+  {"movement": "wallBalls", "round": 1, "start": 60.0, "end": 104.0, "reps": 12, "unit": "reps",
+   "loadLb": 14, "source": "crown",
+   "sets": [{"start": 61.5, "end": 80.0, "reps": 8}, {"start": 88.0, "end": 101.5, "reps": 4}]},
+  {"movement": "rest", "start": 104.0, "end": 114.0, "source": "motion"}
  ]
 }
 ```

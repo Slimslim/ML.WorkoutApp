@@ -156,6 +156,9 @@ def main(argv=None) -> int:
     ap.add_argument("--labels", type=Path, default=L.LABELS_DIR, help="label folder (default data/labels)")
     ap.add_argument("--cache", type=Path, default=None, help="recordings folder (default data/cache)")
     args = ap.parse_args(argv)
+    if args.record and Path(args.labels).resolve() != L.LABELS_DIR.resolve():
+        print("--record only scores the real labels (data/labels): refusing with --labels", file=sys.stderr)
+        return 2
     if args.cache is not None:
         L.CACHE_DIR = args.cache
     files = L.all_label_files(args.labels)

@@ -52,12 +52,15 @@ def test_scores_the_fixture_labels(cache, capsys):
     assert score_labels.main(["--labels", str(FIXTURES), "--cache", str(cache)]) == 0
     out = capsys.readouterr().out
     assert "Not scored" not in out
-    assert "| 2026-01-01-example-workout | crown |" in out
-    assert "| 2026-01-01-example-workout | onset |" in out
-    # crown taps at the true segment ends: both set ends of the label are found
-    crown_row = next(ln for ln in out.splitlines() if "| 2026-01-01-example-workout | crown |" in ln)
-    assert "2/2" in crown_row
-    assert "| 2026-01-01-example-lifts | snatch 95 lb | 1 |" in out
+    rows = out.splitlines()
+    # The crown row is circular (the fake watch result uses the label's own segment ends): it
+    # checks the plumbing, not a detector.
+    assert "| 2026-01-01-example-workout | crown | - | 2/2 (0 false, median 1.2 s) | 0 |" in rows
+    # Pinned current values from the simulated motion, so a scorer or detector change shows up
+    # here. The onset detector misses the one switch (snatch -> clean & jerk) and puts a false one
+    # elsewhere; the snatch simulation currently counts 2 reps for 1. Update these on purpose.
+    assert "| 2026-01-01-example-workout | onset | 0/1 (1 false, -) | 2/2 (0 false, median 1.2 s) | 0 |" in rows
+    assert "| 2026-01-01-example-lifts | snatch 88 lb | 1 | 2 | 1 |" in rows
 
 
 def test_without_recordings_the_labels_are_listed_not_scored(tmp_path, capsys, monkeypatch):
@@ -69,3 +72,7 @@ def test_without_recordings_the_labels_are_listed_not_scored(tmp_path, capsys, m
 def test_no_labels_is_a_clean_exit(tmp_path, capsys):
     assert score_labels.main(["--labels", str(tmp_path)]) == 0
     assert "fetch_corpus.py --kind labels" in capsys.readouterr().out
+
+
+def test_record_is_refused_for_other_label_folders(capsys):
+    assert score_labels.main(["--labels", str(FIXTURES), "--record"]) == 2

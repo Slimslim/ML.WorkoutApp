@@ -61,6 +61,9 @@ def manifest(files, sizes=True, override=None):
     return ("\n".join(lines) + "\n").encode()
 
 
+STORES = {}   # the fake Storage of the labels and eval kinds, for the test that changes them
+
+
 @pytest.fixture
 def store(monkeypatch, tmp_path):
     """A fake Storage: {path: bytes}; records every download."""
@@ -68,10 +71,11 @@ def store(monkeypatch, tmp_path):
     calls = []
 
     labels = {"MANIFEST.sha256": manifest(LABEL_FILES), **LABEL_FILES}
+    evals = {}
 
     def download(user, key, rel, kind="raw"):
         calls.append(rel if kind == "raw" else f"{kind}:{rel}")
-        store = objects if kind == "raw" else labels if kind == "labels" else {}
+        store = {"raw": objects, "labels": labels, "eval": evals}.get(kind, {})
         if rel not in store:
             raise urllib.error.HTTPError(rel, 404, "not found", {}, None)
         return store[rel]
@@ -83,6 +87,8 @@ def store(monkeypatch, tmp_path):
     monkeypatch.setattr(F, "REPO", tmp_path)
     monkeypatch.setenv("BARPATH_USER_ID", "user")
     monkeypatch.setenv("BARPATH_SUPABASE_KEY", "placeholder")
+    STORES.clear()
+    STORES.update(labels=labels, eval=evals)
     return objects, calls, tmp_path / "data" / "raw"
 
 
@@ -147,3 +153,17 @@ def test_all_kinds_fail_when_one_manifest_is_missing(store):
     assert F.main(["--kind", "all"]) == 1          # the fake Storage has no eval manifest
     assert (raw / "2026-10-29-helen/README.md").exists()
     assert (raw.parent / "labels" / "2026-01-01-x.json").exists()
+
+
+def test_eval_kind_and_bad_lines_in_another_kind(store):
+    objects, calls, raw = store
+    history = b'{"date": "2026-01-01"}\n'
+    STORES["eval"].update({"MANIFEST.sha256": manifest({"history.jsonl": history}), "history.jsonl": history})
+    assert F.main(["--kind", "eval"]) == 0
+    assert (raw.parent / "eval" / "history.jsonl").read_bytes() == history
+    STORES["labels"]["MANIFEST.sha256"] = manifest(LABEL_FILES, override={"2026-01-01-x.json": {"sha": "0" * 64}})
+    assert F.main(["--kind", "labels"]) == 1                      # checksum mismatch
+    assert not (raw.parent / "labels" / "2026-01-01-x.json").exists()
+    STORES["labels"]["MANIFEST.sha256"] = f"{'a' * 64}  3  ../escape.json\n".encode()
+    assert F.main(["--kind", "labels"]) == 1                      # path leaves the folder
+    assert not (raw.parent / "escape.json").exists()

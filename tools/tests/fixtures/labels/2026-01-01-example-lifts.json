@@ -9,6 +9,6 @@
   "Invented test fixture (no real athlete). tools/tests/test_score_labels.py builds the lift from barpath.simulate.simulate_lift('snatch', seed=1) at test time."
  ],
  "sets": [
-  {"file": "Lifts/example/snatch.json", "lift": "snatch", "loadLb": 95, "reps": 1}
+  {"file": "Lifts/example/snatch.json", "lift": "snatch", "loadLb": 88, "reps": 1}
  ]
 }
