@@ -15,6 +15,10 @@ private let engineLog = Logger(subsystem: "BarPathWatch", category: "workoutEngi
 /// question, End. The engine state is projected onto a `WorkoutProgress`
 /// (`WorkoutEngineSession.progress`), so the existing workout views show the run unchanged.
 ///
+/// A refused v2 definition (updateApp, tooLarge) never gets here directly: `launch` returns the
+/// refusal screen, and "Run as stopwatch" runs `WorkoutEngineSession.stopwatchDefinition` on this
+/// model like any other engine definition.
+///
 /// Time: engine times are Int ms since START on a monotonic clock that keeps counting while the
 /// watch sleeps (`CLOCK_MONOTONIC`, RFC §14.3 E3), never `Date()`. Wall time is used only for
 /// the projection, the result and the CSV.
@@ -29,6 +33,9 @@ final class WorkoutEngineSessionModel {
         var stepChanged: Bool = false
         /// The change came from the clock, not from the athlete.
         var byClock: Bool = false
+        /// A Crown turn the engine ignored in a rest the clock ends (a Tabata or EMOM rest inside
+        /// a window, RFC §4.2.8): show "Clock starts the next part" (#115 state 3, no haptic).
+        var clockHint: Bool = false
     }
 
     let raw: JSONValue
@@ -54,26 +61,51 @@ final class WorkoutEngineSessionModel {
                                                       startEpoch: 0)
     }
 
-    /// The engine model for a definition's raw JSON, or nil when it keeps the old path. A
-    /// refused v2 definition also returns nil for now: the "Update the app / Run as stopwatch"
-    /// screen waits for the owner's design approval, so until then the watch runs what it ran
-    /// before this change (the old keys), and logs the refusal.
-    static func make(rawDefinition data: Data?) -> WorkoutEngineSessionModel? {
+    /// What START does with a definition's raw JSON.
+    enum Launch {
+        /// The old path, unchanged (no raw JSON, not v2, old keys marked exact, or the interim
+        /// fallback for a refusal that has no screen).
+        case legacy
+        case engine(WorkoutEngineSessionModel)
+        /// The engine refused it (owner decision on #115, states 1 and 2): the watch shows
+        /// "UPDATE THE APP" or "TOO LARGE" with [Run as stopwatch] and [Back]. `stopwatch` is
+        /// what "Run as stopwatch" runs (`WorkoutEngineSession.stopwatchDefinition`).
+        case refused(screen: WorkoutEngineSession.RefusalScreen, stopwatch: JSONValue)
+    }
+
+    /// Routes a definition's raw JSON at START. Only updateApp and tooLarge refusals get a screen;
+    /// any other refusal (draft, invalid, empty, noScale) keeps the interim fallback: the watch
+    /// runs the old keys, as before #113, and logs the refusal.
+    static func launch(rawDefinition data: Data?) -> Launch {
         guard let data = data, let raw = try? JSONValue.parse(data) else {
-            return nil
+            return .legacy
         }
-        switch WorkoutEngineSession.route(raw) {
+        let route = WorkoutEngineSession.route(raw)
+        switch route {
         case .engine:
             break
         case .legacy(let reason, let missing):
             if let reason = reason {
                 engineLog.info("Engine refused (\(reason, privacy: .public) \(missing.joined(separator: ","), privacy: .public)); old keys are exact")
             }
-            return nil
+            return .legacy
         case .refused(let reason, let missing):
-            engineLog.error("Engine refused (\(reason, privacy: .public) \(missing.joined(separator: ","), privacy: .public)); running the old keys until the refusal screen is approved")
-            return nil
+            if let screen = WorkoutEngineSession.refusalScreen(route) {
+                engineLog.error("Engine refused (\(reason, privacy: .public) \(missing.joined(separator: ","), privacy: .public)); showing the \(screen.rawValue, privacy: .public) screen")
+                return .refused(screen: screen, stopwatch: WorkoutEngineSession.stopwatchDefinition(raw))
+            }
+            engineLog.error("Engine refused (\(reason, privacy: .public) \(missing.joined(separator: ","), privacy: .public)); running the old keys (no screen for this refusal)")
+            return .legacy
         }
+        guard let model = make(raw: raw) else {
+            return .legacy
+        }
+        return .engine(model)
+    }
+
+    /// The engine model for a definition the engine plans (a routed v2 definition, or the
+    /// stopwatch definition), or nil if the plan fails.
+    static func make(raw: JSONValue) -> WorkoutEngineSessionModel? {
         guard let plan = try? WorkoutEngine.plan(raw) else {
             engineLog.error("Engine route but the plan failed; running the old keys")
             return nil
@@ -104,7 +136,8 @@ final class WorkoutEngineSessionModel {
     /// This is exact for a line written as its event happens (every 200 ms tick). A line whose
     /// event came before a sleep but is written after it (a bell due during the sleep, reps
     /// entered later, a late Crown) has the whole sleep taken off and can come out too early;
-    /// `stamp` keeps it from going before START or before a line already written.
+    /// `WorkoutEngineCSVClock.stamp` (BarPathKit, via `stamp` below) keeps it from going before
+    /// START or before a line already written.
     private func sleepSoFar() -> Double {
         let elapsedUptime: Double = ProcessInfo.processInfo.systemUptime - startUptime
         return max(0, Double(nowMs()) / 1000 - elapsedUptime)
@@ -135,6 +168,10 @@ final class WorkoutEngineSessionModel {
         var u = Update()
         let t: Int = nowMs()
         apply(EngineEvent(kind: "crown", t: t, began: began ?? t), into: &u)
+        // The engine ignores the turn with reason "clock" in a rest it ends (owner, #115: the
+        // Crown ends normal rests between parts; in Tabata/EMOM window rests the clock rules).
+        let ignoredByClock: Bool = u.effects.contains { $0.kind == "hint" && $0.reason == "clock" }
+        u.clockHint = ignoredByClock && !u.stepChanged && state.current?.kind == "rest"
         return u
     }
 
@@ -176,6 +213,8 @@ final class WorkoutEngineSessionModel {
 
     /// The CSV time of a line written now at engine time `ms`, never before START nor before the
     /// last line written (#113 review F1); the clamp moves only here, when a line is written.
+    /// Call it ONLY inside a CSV append (`u.csv.append((uptime: stamp(...), ...))`): every call
+    /// moves the clamp forward, so a call whose line is not written would push later lines late.
     private func stamp(_ ms: Int) -> Double {
         return csvClock.stamp(ms: ms, sleep: sleepSoFar())
     }

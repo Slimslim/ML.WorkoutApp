@@ -14,6 +14,19 @@ struct WorkoutStartView: View {
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
+        if let screen = model.engineRefusal {
+            // W27 (#115 states 1 and 2): START found a v2 workout this watch can't run.
+            WorkoutEngineRefusalView(screen: screen) {
+                model.runRefusedAsStopwatch()
+            } onBack: {
+                model.dismissEngineRefusal()
+            }
+        } else {
+            startPage
+        }
+    }
+
+    private var startPage: some View {
         VStack(spacing: 6) {
             HStack {
                 HStack(spacing: 4) {
@@ -189,5 +202,70 @@ struct WorkoutStartView: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
         .background(RoundedRectangle(cornerRadius: 14).fill(Color(white: 0.11)))
+    }
+}
+
+/// W27 (#115 states 1 and 2, owner-approved text mockups in #113): a v2 workout the engine refuses
+/// at START. "Run as stopwatch" (highlighted) runs it athlete-paced, one part per line of its raw
+/// text, the score typed on the phone; "Back" returns to the start page. Fits 41 mm, no scrolling.
+struct WorkoutEngineRefusalView: View {
+    let screen: WorkoutEngineSession.RefusalScreen
+    let onStopwatch: () -> Void
+    let onBack: () -> Void
+
+    private var title: String {
+        switch screen {
+        case .updateApp: return "UPDATE THE APP"
+        case .tooLarge: return "TOO LARGE"
+        }
+    }
+
+    private var detail: String {
+        switch screen {
+        case .updateApp: return "to run this workout"
+        case .tooLarge: return "to expand on the watch"
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 6) {
+            Spacer(minLength: 0)
+            Text(title)
+                .font(.system(size: 22, weight: .heavy, design: .rounded))
+                .foregroundColor(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+            Text(detail)
+                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+            Spacer(minLength: 0)
+            Button {
+                onStopwatch()
+            } label: {
+                Text("Run as stopwatch")
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .frame(maxWidth: .infinity, minHeight: 42)
+                    .background(Capsule().fill(Color(white: 0.23)))
+                    .overlay(Capsule().stroke(Color.white, lineWidth: 2))
+            }
+            .buttonStyle(.plain)
+            Button {
+                onBack()
+            } label: {
+                Text("Back")
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity, minHeight: 42)
+                    .background(Capsule().fill(Color(white: 0.11)))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 4)
     }
 }
