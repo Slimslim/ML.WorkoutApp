@@ -22,7 +22,8 @@ def test_plain_sha256sum_format():
                                       ("b" * 64, None, "2026-10-29-helen/session-x.csv")]
 
 
-@pytest.mark.parametrize("line", [f"{H}  ../escape", f"{H}  12  ../escape", f"{H}  /abs/path", f"{H}  a/../../b",
+@pytest.mark.parametrize("line", [f"{H}  ../escape", f"{H}  12  ../escape", f"{H}  12  ..\\..\\x.json",
+                                  f"{H}  12  sub\\x.json", f"{H}  12  C:\\x", f"{H}  /abs/path", f"{H}  a/../../b",
                                   "short  a.csv", f"{H}", f"{'z' * 64}  a.csv"])
 def test_refuses_bad_lines(line):
     with pytest.raises((F.CorpusError, ValueError)):
@@ -47,6 +48,7 @@ import urllib.error  # noqa: E402
 
 FILES = {"2026-10-29-helen/README.md": b"helen notes\n",
          "2026-10-29-gym/session-a.csv": b"t,ax\n0,1\n"}
+LABEL_FILES = {"2026-01-01-x.json": b'{"version": 1}\n'}
 
 
 def manifest(files, sizes=True, override=None):
@@ -60,23 +62,34 @@ def manifest(files, sizes=True, override=None):
     return ("\n".join(lines) + "\n").encode()
 
 
+STORES = {}   # the fake Storage of the labels and eval kinds, for the test that changes them
+
+
 @pytest.fixture
 def store(monkeypatch, tmp_path):
     """A fake Storage: {path: bytes}; records every download."""
     objects = {"MANIFEST.sha256": manifest(FILES), **FILES}
     calls = []
 
-    def download(user, key, rel):
-        calls.append(rel)
-        if rel not in objects:
+    labels = {"MANIFEST.sha256": manifest(LABEL_FILES), **LABEL_FILES}
+    evals = {}
+
+    def download(user, key, rel, kind="raw"):
+        calls.append(rel if kind == "raw" else f"{kind}:{rel}")
+        store = {"raw": objects, "labels": labels, "eval": evals}.get(kind, {})
+        if rel not in store:
             raise urllib.error.HTTPError(rel, 404, "not found", {}, None)
-        return objects[rel]
+        return store[rel]
 
     monkeypatch.setattr(F, "download", download)
     monkeypatch.setattr(F, "RAW_DIR", tmp_path / "data" / "raw")
+    monkeypatch.setattr(F, "LABELS_DIR", tmp_path / "data" / "labels")
+    monkeypatch.setattr(F, "EVAL_DIR", tmp_path / "data" / "eval")
     monkeypatch.setattr(F, "REPO", tmp_path)
     monkeypatch.setenv("BARPATH_USER_ID", "user")
     monkeypatch.setenv("BARPATH_SUPABASE_KEY", "placeholder")
+    STORES.clear()
+    STORES.update(labels=labels, eval=evals)
     return objects, calls, tmp_path / "data" / "raw"
 
 
@@ -125,3 +138,43 @@ def test_missing_object_and_bad_manifest_fail_cleanly(store):
     assert F.main([]) == 1
     objects["MANIFEST.sha256"] = f"{'g' * 64}  3  a.csv\n".encode()
     assert F.main([]) == 1
+
+
+def test_labels_kind_goes_to_data_labels(store):
+    objects, calls, raw = store
+    assert F.main(["--kind", "labels"]) == 0
+    labels = raw.parent / "labels"
+    assert (labels / "2026-01-01-x.json").read_bytes() == LABEL_FILES["2026-01-01-x.json"]
+    assert not raw.exists()
+    assert calls == ["labels:MANIFEST.sha256", "labels:2026-01-01-x.json"]
+
+
+def test_all_kinds_fail_when_one_manifest_is_missing(store):
+    objects, calls, raw = store
+    assert F.main(["--kind", "all"]) == 1          # the fake Storage has no eval manifest
+    assert (raw / "2026-10-29-helen/README.md").exists()
+    assert (raw.parent / "labels" / "2026-01-01-x.json").exists()
+
+
+def test_eval_kind_and_bad_lines_in_another_kind(store):
+    objects, calls, raw = store
+    history = b'{"date": "2026-01-01"}\n'
+    STORES["eval"].update({"MANIFEST.sha256": manifest({"history.jsonl": history}), "history.jsonl": history})
+    assert F.main(["--kind", "eval"]) == 0
+    assert (raw.parent / "eval" / "history.jsonl").read_bytes() == history
+    STORES["labels"]["MANIFEST.sha256"] = manifest(LABEL_FILES, override={"2026-01-01-x.json": {"sha": "0" * 64}})
+    assert F.main(["--kind", "labels"]) == 1                      # checksum mismatch
+    assert not (raw.parent / "labels" / "2026-01-01-x.json").exists()
+    STORES["labels"]["MANIFEST.sha256"] = f"{'a' * 64}  3  ../escape.json\n".encode()
+    assert F.main(["--kind", "labels"]) == 1                      # path leaves the folder
+    assert not (raw.parent / "escape.json").exists()
+
+
+def test_folder_filter_applies_to_recordings_only_under_all(store):
+    objects, calls, raw = store
+    history = b'{"date": "2026-01-01"}\n'
+    STORES["eval"].update({"MANIFEST.sha256": manifest({"history.jsonl": history}), "history.jsonl": history})
+    assert F.main(["--kind", "all", "2026-10-29-helen"]) == 0
+    assert leftovers(raw) == ["2026-10-29-helen/README.md"]
+    assert (raw.parent / "labels" / "2026-01-01-x.json").exists()
+    assert (raw.parent / "eval" / "history.jsonl").exists()

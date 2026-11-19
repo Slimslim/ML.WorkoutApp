@@ -11,18 +11,30 @@ says what really happened; `tools/score_labels.py` scores detectors against all 
 |---|---|---|
 | Recordings (watch CSV at 100 Hz, result JSON, lift JSON) | Supabase Storage, bucket `uploads`, `<user id>/Debug/…`, `Workouts/…`, `Lifts/…` (uploaded by the phone) | **No** |
 | Local copies for scoring | `data/cache/<label id>/` (`tools/fetch_sessions.py`) | No (git-ignored) |
-| Labels | `data/labels/<label id>.json` | Yes |
+| Labels | Supabase Storage, `uploads/<user id>/Corpus/labels/` (+ `MANIFEST.sha256`); local copy in `data/labels/<label id>.json` (`tools/fetch_corpus.py --kind labels`) | **No** (git-ignored) |
+| Score history | Supabase Storage, `uploads/<user id>/Corpus/eval/` (+ `MANIFEST.sha256`); local copy in `data/eval/history.jsonl` (`--kind eval`) | **No** (git-ignored) |
+| Invented labels for CI | `tools/tests/fixtures/labels/` (recordings simulated at test time) | Yes |
 | Older sessions (Oct 27 - Nov 2) with their prose notes | Supabase Storage, `uploads/<user id>/Corpus/raw/` (+ `MANIFEST.sha256`); local copy in `data/raw/` (`tools/fetch_corpus.py`) | **No** (git-ignored, #101) |
 
 No recordings, photos, videos or raw sensor data in the repo (CLAUDE.md). Paths in a label are
 relative to the owner's Storage folder; the user id is not in the repo.
 
 ```bash
+BARPATH_USER_ID=<user id> BARPATH_SUPABASE_KEY=<secret key> python3 tools/fetch_corpus.py --kind labels
 BARPATH_USER_ID=<user id> BARPATH_SUPABASE_KEY=<secret key> python3 tools/fetch_sessions.py
 python3 tools/score_labels.py
 ```
 
-## Recordings (moved out of the repo)
+The labels describe the owner's real sessions (workouts as done, loads, scores), so they moved
+out of the repo with the recordings (owner, 19 Nov). Without them `tools/tests/test_labels.py`
+skips the per-file checks and `score_labels.py` says where to fetch them; CI scores two invented
+labels instead (`tools/tests/test_score_labels.py`, recordings from `barpath.simulate`).
+
+## Recordings, labels and scores (moved out of the repo)
+
+`tools/fetch_corpus.py --kind raw|labels|eval|all` downloads each from `Corpus/<kind>/` in private
+Storage into `data/<kind>/` (one `MANIFEST.sha256` per kind, same format as below). The labels
+and the score history were in git until 19 Nov; the recordings below until the same day.
 
 Until 19 Nov the older sessions were committed in `data/raw/` (127 MB). They now live only in the
 owner's private Storage, same folder structure, with a sha256 manifest (#101); `data/raw/` is
@@ -40,6 +52,9 @@ python3 -m pytest tools/tests -q        # the real-data tests run again
 - **Where:** bucket `uploads` (private), `<owner user id>/Corpus/raw/<session folder>/<file>`, the
   same folders as the old `data/raw/` (`Corpus/raw/2026-10-29-gym/…`), stored plain (not `.gz`),
   byte-identical to the files in git history (main `cb98301`): 97 files, 132,718,357 bytes.
+- **Paths in a manifest** are relative to its own folder: bare file names for labels
+  (`2026-11-04-z-press.json`) and eval (`history.jsonl`), never `labels/…`, or the files land in
+  `data/labels/labels/`.
 - **Manifest:** `Corpus/raw/MANIFEST.sha256`, one line per file: `<sha256>  <bytes>  <path relative to
   Corpus/raw/>`. `fetch_corpus.py` checks size and sha256 of every file; files already present
   with the right checksum are skipped (`--force` downloads again).
@@ -56,6 +71,8 @@ python3 -m pytest tools/tests -q        # the real-data tests run again
 2. Claude lines that up with the motion data (forearm overhead, hanging from a bar, steps from the
    pedometer, …), writes `data/labels/<date>-<name>.json`, and asks about anything that does not fit.
 3. The athlete confirms. `python3 -m pytest tools/tests/test_labels.py` checks the file.
+4. The file goes to private Storage (`Corpus/labels/`, with its line in `MANIFEST.sha256`), never
+   into git. (Upload: the Data chat or the owner, with the service role.)
 
 The recording and the watch result are never changed for a label: the label points at the watch's
 untouched result (`<id>.original.json` when the result was corrected).
@@ -65,24 +82,24 @@ untouched result (`<id>.original.json` when the result was corrected).
 Times are **session seconds**: the watch CSV's `t` column (0 = START on the watch).
 
 ```json
-{
+{                                        // invented example, not a real session
  "version": 1,
- "id": "2026-11-05-amrap20",            // = file name
- "date": "2026-11-05",                   // local date of the workout
+ "id": "2026-01-01-example-amrap",       // = file name
+ "date": "2026-01-01",                   // local date of the workout
  "kind": "workout",                      // or "lifts"
- "name": "20 min AMRAP",
+ "name": "10 min AMRAP",
  "format": "amrap",                      // optional: forTime / amrap / emom
  "rx": true,                             // optional
  "files": {"csv": "Debug/session-<id>.csv", "result": "Workouts/<id>.json"},
- "score": "6 rounds + 0",
+ "score": "4 rounds + 3",
  "notes": ["…what the athlete said…"],
  "segments": [
-  {"movement": "airBike", "round": 1, "start": 0.0, "end": 83.5, "reps": 15, "unit": "calories",
+  {"movement": "row", "round": 1, "start": 0.0, "end": 52.0, "reps": 12, "unit": "calories",
    "source": "motion"},
-  {"movement": "wallBalls", "round": 1, "start": 146.5, "end": 187.1, "reps": 15, "unit": "reps",
-   "loadLb": 20, "source": "crown",
-   "sets": [{"start": 147.9, "end": 165.0, "reps": 9}, {"start": 173.0, "end": 184.2, "reps": 6}]},
-  {"movement": "rest", "start": 20.0, "end": 30.0, "source": "motion"}
+  {"movement": "wallBalls", "round": 1, "start": 60.0, "end": 104.0, "reps": 12, "unit": "reps",
+   "loadLb": 14, "source": "crown",
+   "sets": [{"start": 61.5, "end": 80.0, "reps": 8}, {"start": 88.0, "end": 101.5, "reps": 4}]},
+  {"movement": "rest", "start": 104.0, "end": 114.0, "source": "motion"}
  ]
 }
 ```
@@ -134,7 +151,8 @@ pull-up ↔ push-up switches the Crown never had.
 ## Eval
 
 `python3 tools/score_labels.py --record` scores every detector on every labelled session and
-appends one line to `data/eval/history.jsonl` (date, commit, match window, every score). Rules:
+appends one line to `data/eval/history.jsonl` (date, commit, match window, every score), a local
+file: upload it to `Corpus/eval/` (and update its manifest line) to keep the history. Rules:
 
 - **Score every new version and record it** before deciding it is better. Better = more switches
   found **and** fewer false switches, on the same sessions, at the same window (3 s).
@@ -188,49 +206,44 @@ step-ups confusion fires 17 s early.
 
 ### First held-out test: AMRAP 40 + runs (2026-11-08, labelled after v1 was frozen)
 
-Ball slams, dual DB thrusters, GHD sit-ups, dual DB lunges, 400 m run; labels are the Crown taps.
+Four stations and a run per round; labels are the Crown taps.
 
 | After round 1 (24 switches) | Crown taps | Crown + first rep | switch-v0 | switch-v1 |
 |---|---|---|---|---|
 | AMRAP 40 + runs | 24 (by construction) | 8 (17 false) | 3 (22 false) | 4 (21 false) |
 
-v1 is in step for round 2 (thrusters 0 s, sit-ups -2 s, lunges +2 s), then sees the run 14 s after
+v1 is in step for round 2 (three stations within 2 s), then sees the run 14 s after
 the Crown tap (walking to the door before running) and never recovers: it only waits for the *next*
 planned movement. For v2: resync when the motion clearly shows another planned movement, and label
 run starts from the step rate (the tap is before the run really starts).
 
 ### AMRAP 40 + runs as training data (2026-11-08)
 
-The athlete gave the reps (thrusters, GHD sit-ups, lunges unbroken; ball slams with a few breaks).
-From the motion: 8 of 24 stations got sets with one time per rep (86 rep times; ball slams rounds
-1-2 at ~3.5 s per rep from the arm angle, thrusters round 1 at 2.2 s from vertical accel, GHD
-sit-ups rounds 1, 2, 3, 5 at 2.5 s from the wrist tilt, lunges round 1); the rest stay on the Crown
-taps, not verified. Runs start at the first 6 s at >= 2.2 steps/s: 5-28 s after the Crown (walking
+The athlete gave the reps per station. From the motion: 8 of 24 stations got sets with one time per
+rep (throws from the arm angle, a squat-to-press from vertical accel, sit-ups from the wrist tilt;
+2.2-3.5 s per rep); the rest stay on the Crown taps, not verified. Runs start at the first 6 s at >= 2.2 steps/s: 5-28 s after the Crown (walking
 out), so the taps themselves match only 17 of 25 real switches after round 1. Rescored: v0 5/25,
 v1 7/25 (18 false): v1 still loses sync after the first late run.
 
 ### Strict press and SkiErg (2026-11-08, recorded for training data)
 
-- **Strict press 3 x 10 @ 65 / 75 / 75 lb:** every rep is a sharp upward push of the wrist
-  (vertical accel > 0.2 g with the forearm vertical): exactly 10 per set, 30 rep times (set 1 also
-  shows the push that takes the bar out of the rack, dropped). 2.7-3.0 s per rep in set 1; sets 2-3
-  start at 2.2-2.5 s and slow to ~3 s. The Crown comes 7-10 s after the last rep (rack, then the
+- **Strict press sets:** every rep is a sharp upward push of the wrist (vertical accel > 0.2 g with
+  the forearm vertical): every labelled rep found (the push that takes the bar out of the rack is
+  seen too, and dropped). About 2.2-3.0 s per rep, slowing within a set. The Crown comes 7-10 s after the last rep (rack, then the
   watch): it marks the end of the set, late; the start is not marked.
-- **SkiErg 5 x 250 m:** 1.6-1.8 s per stroke (34-39/min), ~38-44 strokes per 250 m (not
-  verified). In 4 of 5 intervals skiing started ~4 s before the watch's 1:00 rest ran out; the Crown
+- **SkiErg intervals:** 1.6-1.8 s per stroke (34-39/min) (not verified). In 4 of 5 intervals skiing started ~4 s before the watch's 1:00 rest ran out; the Crown
   matches the last stroke.
 
 ### Power snatch EMOM and a snatch metcon (2026-11-09): every rep from the motion
 
 A snatch (and a burpee to the bar) is a forearm rise from hanging to vertical in < 1.5 s with the
 arm held overhead 1.3-2.0 s (catch / hand on the bar); a failed snatch comes straight down (0.1-0.6 s).
-- **Power snatch every 1:00 x 10 (2 singles), 95-145 lb:** all 20 good reps; the missed rep at
-  145 lb (0.6 s overhead) between the two good ones, as the athlete said.
-- **Metcon, 3 rounds of snatches + burpee chest-to-bar (scaled):** all 21 snatches and 20 burpees; the
-  failed rep 7 in round 1 and the chalk break, the 33 s wristband break in round 2, 2 + 1 + 1 + 1
-  in round 3; two athlete Marks, each just before walking to the bar. Capped at 10:00 with 38
-  reps (1 burpee into the last 5). The Crown came at the next minute / after walking, never
-  within 3 s of the set end.
+- **Power snatch EMOM (singles):** every good rep found, and the one missed rep (0.6 s overhead)
+  between two good ones, as the athlete said.
+- **Metcon of snatches + burpees to the bar:** every snatch and burpee found, including a failed
+  rep, a chalk break, a wristband break and the split sets, as the athlete described; two athlete
+  Marks, each just before walking to the bar. The Crown came at the next minute / after walking,
+  never within 3 s of the set end.
 
 ### 2026-11-10: sit-ups + 800 m runs, Tabata press and row
 
@@ -238,7 +251,7 @@ arm held overhead 1.3-2.0 s (catch / hand on the bar); a failed snatch comes str
   every set and rep from the wrist tilt, exactly as the athlete said. Runs start 2 s and 4 s after the
   Crown (run 2 inside first, the turn onto the road visible ~10 s after the Crown).
 - **A press rep is a lockout:** dip at the shoulders, push, then the forearm fully vertical (gy between
-  -0.3 and 0.12). With that rule the Tabata press counts all 8 sets exactly (56); a push without
+  -0.3 and 0.12). With that rule the Tabata press counts every set exactly; a push without
   lockout (set 4) and racking the bar (wrist rolls, gy -0.57, set 7) are not reps. The MVP press
   counter should use the same rule.
 - **Bent-over row:** pull right after the bottom reversal; 6 of 8 sets match. Rounds 1, 4 and 8 are

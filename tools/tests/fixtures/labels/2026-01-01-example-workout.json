@@ -1,0 +1,24 @@
+{
+ "version": 1,
+ "id": "2026-01-01-example-workout",
+ "date": "2026-01-01",
+ "kind": "workout",
+ "name": "Invented example: 1 snatch, rest, 1 clean & jerk",
+ "format": "forTime",
+ "rx": true,
+ "files": {
+  "csv": "Debug/session-example.csv",
+  "result": "Workouts/example.json"
+ },
+ "score": "0:43",
+ "notes": [
+  "Invented test fixture (no real athlete or workout). tools/tests/test_score_labels.py builds the recording from barpath.simulate.simulate_session(seed=7) at test time."
+ ],
+ "segments": [
+  {"movement": "snatch", "start": 0, "end": 17.0, "source": "athlete", "reps": 1, "unit": "reps",
+   "sets": [{"start": 10.8, "end": 15.8, "reps": 1}]},
+  {"movement": "rest", "start": 17.0, "end": 28.0, "source": "athlete"},
+  {"movement": "cleanAndJerk", "start": 28.0, "end": 43.0, "source": "athlete", "reps": 1, "unit": "reps",
+   "sets": [{"start": 33.7, "end": 41.7, "reps": 1}]}
+ ]
+}

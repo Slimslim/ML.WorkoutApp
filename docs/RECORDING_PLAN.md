@@ -65,11 +65,11 @@ Today the athlete picks a mode up front and the whole session is recorded one wa
 | Workout (metcons) | device motion 100 Hz, HR, pedometer, Crown/segment events | splits, HR, (offline) switches and reps |
 | Lifting | device motion 200 Hz + raw accel 800 Hz (`CMBatchedSensorManager`) | `LiftAnalyzer`: peak pull speed, max bar height, catch height, drop under the bar; `RepCounter` |
 
-On 2026-11-09 the power snatch EMOM (every 1:00 x 10, 95 -> 145 lb) was programmed as a workout,
-so it was recorded in Workout mode. Every rep is visible in the 100 Hz data (20 good reps and the
-miss), but `LiftAnalyzer` could analyse only **6 of 20** snatches: it needs a still "homing" moment
-before the pull, and 100 Hz is below what it was tuned for. Those six already hint at what the
-athlete wants to see: max height ~1.41 m at 125 lb down to ~1.28 m at 145 lb (not verified).
+On 2026-11-09 a power snatch EMOM was programmed as a workout, so it was recorded in Workout mode.
+Every rep is visible in the 100 Hz data (the good reps and the miss), but `LiftAnalyzer` could
+analyse fewer than a third of the snatches: it needs a still "homing" moment before the pull, and
+100 Hz is below what it was tuned for. Those few already hint at what the athlete wants to see:
+max bar height falling as the load goes up (not verified).
 
 The owner's view: that EMOM was a lifting piece inside a class, not a metcon. The plan already says
 what comes next, so the watch should measure each part the way that part needs, without the
