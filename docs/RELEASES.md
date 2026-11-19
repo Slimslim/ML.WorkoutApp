@@ -82,7 +82,7 @@ build, PR checks included, so it jumps); our docs ignore it. `CURRENT_PROJECT_VE
 | `ready` | approved, can be built |
 | `building` | claimed: a branch exists (`who` = branch, `claimed` = date) |
 | `in PR` | CI green + independent review done + a "not tested" list in the PR |
-| `in 0.N` | release 0.N (the Version) is on TestFlight, built from `main` |
+| `in 0.N` | on TestFlight: the approved RC build of Version 0.N (`v0.N…-rcN`) |
 | `device-tested` | the owner ticked the PR's device checklist (**only the owner sets it**) |
 | `with testers` | invites sent for that build |
 
@@ -96,7 +96,7 @@ build, PR checks included, so it jumps); our docs ignore it. `CURRENT_PROJECT_VE
 - **WIP limit:** one build in `building` at a time. The next build's rows stay `ready` until the
   current build is merged.
 - **`main` is protected:** changes only through a PR with CI green (Python tests, BarPathKit tests
-  (Linux), and the Xcode Cloud PR check when app files change); no force push, no deletion. Only the owner merges into `main`.
+  (Linux), Supabase migration tests, and the Xcode Cloud PR check when app files change); no force push, no deletion. Only the owner merges into `main`.
 - **Hotfix:** a crash in a release testers have goes on a short branch from that release's tag
   (`claude/hotfix-0.17-<name>` from `release-0.17`), PR into `main` (review + CI), shipped as the next
   free patch Version (`0.17.2`) through an RC tag; merge `main` into the open release branch afterwards.
