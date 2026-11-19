@@ -413,5 +413,115 @@
   "scenario": "athletePaced",
   "startEpochMs": 1795000006000,
   "startUptimeMs": 50042
+ },
+ {
+  "case": "oddIds",
+  "doc": {
+   "schemaVersion": 2,
+   "structure": {
+    "body": [
+     {
+      "part": {
+       "id": "Épaulé 1",
+       "movement": "cleans",
+       "target": {
+        "unit": "reps",
+        "value": 5
+       }
+      }
+     },
+     {
+      "rest": {
+       "id": "007",
+       "seconds": 10
+      }
+     },
+     {
+      "part": {
+       "id": "inf",
+       "movement": "burpees",
+       "target": {
+        "unit": "reps",
+        "value": 10
+       }
+      }
+     },
+     {
+      "part": {
+       "id": "nb sp,x=1",
+       "movement": "row",
+       "target": {
+        "unit": "meters",
+        "value": 250
+       }
+      }
+     }
+    ],
+    "score": {
+     "type": "time"
+    }
+   }
+  },
+  "eventLines": [
+   [
+    5000,
+    "name=step step=%C3%89paul%C3%A9%201 status=done endedBy=athlete seq=1 reps=5"
+   ],
+   [
+    15000,
+    "name=step step=%3007 status=done endedBy=clock seq=2"
+   ],
+   [
+    22000,
+    "name=step step=%69nf status=done endedBy=athlete seq=3"
+   ],
+   [
+    23000,
+    "name=input action=ignored input=reps reason=unknownStep seq=4"
+   ],
+   [
+    30000,
+    "name=step step=nb%C2%A0sp%2Cx%3D1 status=done endedBy=athlete seq=5"
+   ]
+  ],
+  "events": {
+   "events": [
+    {
+     "kind": "crown",
+     "t": 5000
+    },
+    {
+     "kind": "reps",
+     "step": "Épaulé 1",
+     "t": 6000,
+     "value": 5
+    },
+    {
+     "kind": "crown",
+     "t": 22000
+    },
+    {
+     "kind": "reps",
+     "step": "x y",
+     "t": 23000,
+     "value": 3
+    },
+    {
+     "kind": "crown",
+     "t": 30000
+    }
+   ],
+   "ticks": {
+    "every": 1000,
+    "until": 40000
+   }
+  },
+  "planLines": [
+   "name=plan schema=2 planner=1 hash=bb705fabdd63351ea4e317e07f4e8504caffab55bacca6e8b69c265c861116c1 startEpochMs=1795000007000 startUptimeMs=50049 steps=4 bells=1",
+   "name=bell id=%3007.end anchor=%C3%89paul%C3%A9%201 offsetMs=10000"
+  ],
+  "scenario": "inline",
+  "startEpochMs": 1795000007000,
+  "startUptimeMs": 50049
  }
 ]

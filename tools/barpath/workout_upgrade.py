@@ -11,25 +11,66 @@ builds run), plus a label and the reasons for it:
   was stored; windows stored as for-time rests, as 3-3-3-4 was stored; an unknown format).
 The Swift port is BarPathKit's WorkoutUpgrade.swift; parity fixtures in Fixtures/workouts/upgrade.json.
 Informational reasons (they don't change the label) start with "note:".
+
+Only legacy rows are upgraded (`schemaVersion` absent, null or 1). A draft (0), a v2 row or an
+unknown version comes back unchanged with the label "notLegacy": its authored structure is the
+truth (RFC §14.3 A1, A4). `upgrade()` is total: any JSON value gives a result, never an exception.
 """
 from __future__ import annotations
 
 import copy
+import math
+
+from . import workout_engine as we
 
 LABELS = ("exact", "review", "reencode")
+NOT_LEGACY = "notLegacy"
 _PART_KEYS = ("kind", "movement", "name", "target", "load")
+_INT_LIMIT = 9.0e18          # Swift's JSONValue.intValue: larger magnitudes don't fit an Int
 
 
+def _is_number(v) -> bool:
+    """A finite JSON number (not a bool; not the Infinity / NaN Python's json accepts)."""
+    return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
+
+
+def _pos_int(v):
+    """int(v) for a finite number > 0 that fits an Int, else None (same as Swift `positiveInt`)."""
+    if not _is_number(v) or v <= 0 or v >= _INT_LIMIT:
+        return None
+    return int(v)
+
+
+def _seconds_target(seg: dict):
+    """The positive whole seconds of a seconds target, else None."""
+    t = seg.get("target")
+    if isinstance(t, dict) and t.get("unit") == "seconds":
+        return _pos_int(t.get("value"))
+    return None
+
+
+def _invalid(seg: dict) -> bool:
+    """A field the v2 validator refuses: kind not text; a rest's seconds not a positive number
+    that fits an Int; a part's target value not a number or unit not text; a load value not a
+    number."""
+    if not isinstance(seg.get("kind"), str):
+        return True
+    t = seg.get("target")
+    if seg.get("kind") == "rest":
+        return isinstance(t, dict) and t.get("unit") == "seconds" and _pos_int(t.get("value")) is None
+    if isinstance(t, dict) and (not _is_number(t.get("value")) or not isinstance(t.get("unit"), str)):
+        return True
+    ld = seg.get("load")
+    return isinstance(ld, dict) and not _is_number(ld.get("value"))
 
 
 def _node(seg: dict, pid: str, team: str, notes: list) -> dict:
     """The v2 node for one old segment."""
     if seg.get("kind") == "rest":
         rest = {"id": pid}
-        t = seg.get("target")
-        if isinstance(t, dict) and t.get("unit") == "seconds" and isinstance(t.get("value"), (int, float)) \
-                and t["value"] > 0:
-            rest["seconds"] = int(t["value"])
+        secs = _seconds_target(seg)
+        if secs is not None:
+            rest["seconds"] = secs
         return {"rest": rest}
     part = {"id": pid}
     for k in ("kind", "movement", "name"):
@@ -65,7 +106,7 @@ def _rounds_body(rounds: list, team: str, notes: list, prefix: str = "p") -> tup
         nodes = [_node(r[j], pid, team, notes) for r in rounds]
         body.append(nodes[0])
         contents = [_content(n)[1] for n in nodes]
-        if all(c == contents[0] for c in contents):
+        if all(we.canonical_json(c) == we.canonical_json(contents[0]) for c in contents):
             continue
         keys0 = set(contents[0])
         if any(set(c) != keys0 for c in contents):
@@ -79,17 +120,22 @@ def _chunks(segs: list, size: int) -> list:
 
 
 def upgrade(old: dict) -> dict:
-    """{"definition": the v2 definition, "label": exact | review | reencode, "reasons": [...]}."""
-    segs = [s for s in (old.get("segments") or []) if isinstance(s, dict)]
+    """{"definition": the v2 definition, "label": exact | review | reencode | notLegacy,
+    "reasons": [...]}."""
+    if not isinstance(old, dict):
+        old = {}
+    sv = old.get("schemaVersion")
+    if sv is not None and not (_is_number(sv) and sv == 1):
+        why = "draft" if _is_number(sv) and sv == 0 else ("alreadyV2" if _is_number(sv) and sv >= 2
+                                                           else "unknownSchemaVersion")
+        return {"definition": copy.deepcopy(old), "label": NOT_LEGACY, "reasons": [why]}
+    raw = old.get("segments")
+    segs = [s for s in raw if isinstance(s, dict)] if isinstance(raw, list) else []
     fmt = old.get("format")
     team = old.get("team", "solo")
-    cap = old.get("timeCapSeconds")
-    cap = int(cap) if isinstance(cap, (int, float)) and not isinstance(cap, bool) and cap > 0 else None
-    r = old.get("roundSize")
-    r = int(r) if isinstance(r, (int, float)) and not isinstance(r, bool) and r > 0 else None
-    interval = old.get("intervalSeconds")
-    interval = int(interval) if isinstance(interval, (int, float)) and not isinstance(interval, bool) \
-        and interval > 0 else None
+    cap = _pos_int(old.get("timeCapSeconds"))
+    r = _pos_int(old.get("roundSize"))
+    interval = _pos_int(old.get("intervalSeconds"))
     reasons, notes = [], []
     label = "exact"
 
@@ -100,7 +146,18 @@ def upgrade(old: dict) -> dict:
         if reason not in reasons:
             reasons.append(reason)
 
+    for k in ("timeCapSeconds", "roundSize", "intervalSeconds"):
+        if old.get(k) is not None and _pos_int(old.get(k)) is None:
+            flag("reencode", "invalidField")      # e.g. a cap of 0, -1, "x" or Infinity: dropped
     for s in segs:
+        if _invalid(s):
+            flag("reencode", "invalidField")
+        t = s.get("target")
+        if s.get("kind") == "rest" and isinstance(t, dict) and t.get("unit") == "seconds" \
+                and _seconds_target(s) is not None and t.get("value") != _seconds_target(s):
+            flag("review", "restSecondsRounded")
+        if any(k not in _PART_KEYS for k in s) and "note:segmentKeysNotCopied" not in notes:
+            notes.append("note:segmentKeysNotCopied")   # they stay in the old `segments`
         if s.get("kind") != "rest" and not isinstance(s.get("target"), dict):
             flag("review", "partWithoutTarget")
         t = s.get("target")
@@ -149,7 +206,8 @@ def upgrade(old: dict) -> dict:
             flag("reencode", "emomWithoutRounds")
         body = _emom_body(segs, interval or 60, r or len(segs), team, notes, flag)
         n_windows = len(_chunks(segs, r or len(segs)))
-        if cap is not None and interval is not None and cap != interval * n_windows:
+        if cap is not None and interval is not None and (interval * n_windows >= 2 ** 63
+                                                         or cap != interval * n_windows):
             flag("review", "capNotWindows")
         score = {"type": "windowsCompleted"}
     else:
@@ -159,7 +217,12 @@ def upgrade(old: dict) -> dict:
     out = copy.deepcopy(old)
     out["schemaVersion"] = 2
     out["structure"] = {"score": score, "body": body}
-    if label == "exact" and not _steps_match(out, segs):
+    try:
+        p = we.plan(out)
+    except we.NotRunnable:
+        flag("reencode", "notRunnable")
+        p = None
+    if p is not None and label == "exact" and not _steps_match(p, segs):
         flag("review", "stepsDiffer")
     return {"definition": out, "label": label, "reasons": reasons + notes}
 
@@ -217,21 +280,15 @@ def _same_number(a, b) -> bool:
     return a == b
 
 
-def _steps_match(doc: dict, segs: list) -> bool:
+def _steps_match(p, segs: list) -> bool:
     """The planned (non-automatic) steps reproduce the old segments in order: kind, movement,
     name, target and load, rests with the same seconds."""
-    from . import workout_engine as we
-    try:
-        p = we.plan(doc)
-    except we.NotRunnable:
-        return False
     steps = [s for s in p.steps if not s.auto]
     if len(steps) != len(segs):
         return False
     for st, seg in zip(steps, segs):
         if seg.get("kind") == "rest":
-            t = seg.get("target")
-            want = int(t["value"]) if isinstance(t, dict) and t.get("unit") == "seconds" else None
+            want = _seconds_target(seg)
             if st.kind != "rest" or st.rest_seconds != want:
                 return False
             continue
@@ -241,12 +298,14 @@ def _steps_match(doc: dict, segs: list) -> bool:
         for k in ("kind", "movement", "name"):
             if part.get(k) != seg.get(k):
                 return False
-        t, pt = seg.get("target"), part.get("target")
+        t = seg.get("target") if isinstance(seg.get("target"), dict) else None
+        pt = part.get("target")
         if (t is None) != (pt is None):
             return False
         if t is not None and (t.get("unit") != pt.get("unit") or not _same_number(t.get("value"), pt.get("value"))):
             return False
-        ld, pl = seg.get("load"), part.get("load")
+        ld = seg.get("load") if isinstance(seg.get("load"), dict) else None
+        pl = part.get("load")
         if (ld is None) != (pl is None):
             return False
         if ld is not None and (ld.get("unit") != pl.get("unit") or not _same_number(ld.get("value"), pl.get("value"))

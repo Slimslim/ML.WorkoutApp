@@ -56,3 +56,45 @@ SYNTHETIC = {
 }
 
 ALL = dict({d.id: d.to_dict() for d in WorkoutLibrary.known}, **SYNTHETIC)
+
+_B = seg("station", "burpees", "Burpees", 10, "reps")
+_HELENISH = legacy("v2Authored", "forTime", [_B, rest(60)], roundSize=2)
+
+# Rows upgrade() must survive without an exception, with the label and reasons it gives
+# (JSON-safe only: the same rows go to Swift; Infinity / NaN are tested in Python alone).
+EDGE = {
+    "draft": (dict(legacy("draft", "forTime", [_B]), schemaVersion=0), "notLegacy", ["draft"]),
+    # An authored v2 row whose old keys are a lossy compile: its structure is kept as written.
+    "v2Authored": (dict(_HELENISH, schemaVersion=2, structure={
+        "score": {"type": "time"},
+        "body": [{"repeat": {"id": "r", "times": 3, "body": [{"part": {"id": "b", "movement": "burpees",
+                                                                       "target": {"value": 10, "unit": "reps"}}}]}}]}),
+        "notLegacy", ["alreadyV2"]),
+    "schemaText": (dict(legacy("schemaText", "forTime", [_B]), schemaVersion="1"), "notLegacy",
+                   ["unknownSchemaVersion"]),
+    "schemaOne": (dict(legacy("schemaOne", "forTime", [_B]), schemaVersion=1), "exact", []),
+    "notAnObject": ([1, 2], "reencode", ["noSegments", "notRunnable"]),
+    "segmentsNotAList": (dict(legacy("segmentsNotAList", "forTime", []), segments=5), "reencode",
+                         ["noSegments", "notRunnable"]),
+    "restNotANumber": (legacy("restNotANumber", "forTime", [_B, seg("rest", "rest", "Rest", "x", "seconds")]),
+                       "reencode", ["invalidField"]),
+    "restNull": (legacy("restNull", "forTime", [_B, {"kind": "rest", "movement": "rest", "name": "Rest",
+                                                     "target": {"value": None, "unit": "seconds"}}]),
+                 "reencode", ["invalidField"]),
+    "restRounded": (legacy("restRounded", "forTime", [_B, rest(90.5)]), "review", ["restSecondsRounded"]),
+    "extraKeys": (legacy("extraKeys", "forTime", [dict(_B, note="scale to 7", **{"x-tempo": "2-0-1"})]),
+                  "exact", ["note:segmentKeysNotCopied"]),
+    "hugeEmom": (legacy("hugeEmom", "emom", [_B, _B], roundSize=1, intervalSeconds=5e18, timeCapSeconds=60),
+                 "reencode", ["movesToEngine", "capNotWindows", "notRunnable"]),
+    "targetText": (legacy("targetText", "forTime", [seg("station", "burpees", "Burpees", "ten", "reps")]),
+                   "reencode", ["invalidField"]),
+    "targetNoUnit": (legacy("targetNoUnit", "forTime", [dict(_B, target={"value": 10})]), "reencode",
+                     ["invalidField"]),
+    "loadText": (legacy("loadText", "forTime", [dict(_B, load={"value": "heavy"})]), "reencode", ["invalidField"]),
+    "noKind": (legacy("noKind", "forTime", [{"movement": "burpees", "name": "B", "target": {"value": 1, "unit": "reps"}}]),
+               "reencode", ["invalidField"]),
+    "capTooLarge": (legacy("capTooLarge", "forTime", [_B], timeCapSeconds=1e12), "reencode", ["notRunnable"]),
+    "capZero": (legacy("capZero", "forTime", [_B], timeCapSeconds=0), "reencode", ["invalidField"]),
+    "boolVsOne": (legacy("boolVsOne", "forTime", [dict(_B, target={"value": True, "unit": "reps"}), _B], roundSize=1),
+                  "reencode", ["invalidField"]),
+}

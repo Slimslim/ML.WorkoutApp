@@ -24,7 +24,9 @@ from barpath import workout_structure as ws
 from barpath import workout_csv as wc
 from barpath.workout_upgrade import upgrade
 from engine_cases import ALL, EMOM, TABATA, part
-from upgrade_cases import ALL as UPGRADE_CASES
+from upgrade_cases import ALL as UPGRADE_ROWS, EDGE as UPGRADE_EDGE
+
+UPGRADE_CASES = dict(UPGRADE_ROWS, **{k: v[0] for k, v in UPGRADE_EDGE.items()})
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 OUT = ROOT / "BarPath/BarPathKit/Tests/BarPathKitTests/Fixtures/workouts"
@@ -287,6 +289,14 @@ def plan_error_cases() -> list:
     return out
 
 
+def _plan_hash(doc):
+    """The plan hash, or None when the definition doesn't plan (the reader refuses it)."""
+    try:
+        return we.plan(doc).hash if isinstance(doc, dict) else None
+    except we.NotRunnable:
+        return None
+
+
 def upgrade_fixture() -> list:
     """Every built-in library row and the synthetic legacy look-alikes (RFC 7.3): the input, the
     upgraded definition, its label and reasons, and the hash of its plan."""
@@ -294,13 +304,25 @@ def upgrade_fixture() -> list:
     for name in sorted(UPGRADE_CASES):
         u = upgrade(UPGRADE_CASES[name])
         out.append({"name": name, "input": UPGRADE_CASES[name], "label": u["label"], "reasons": u["reasons"],
-                    "definition": u["definition"], "planHash": we.plan(u["definition"]).hash})
+                    "definition": u["definition"], "planHash": _plan_hash(u["definition"])})
     return out
 
 
 CSV_SCENARIOS = [("tabata", "stoppedAndRestCrowns"), ("windows3334", "gymTruth"), ("windows3334", "lockout"),
                  ("hyrox", "undo"), ("amrapShort", "pastTheList"), ("variantsF", "rounds"),
                  ("unknownNodes", "athletePaced")]
+
+
+ODD_IDS_DOC = {"schemaVersion": 2, "structure": {"score": {"type": "time"}, "body": [
+    {"part": {"id": "Épaulé 1", "movement": "cleans", "target": {"value": 5, "unit": "reps"}}},
+    {"rest": {"id": "007", "seconds": 10}},
+    {"part": {"id": "inf", "movement": "burpees", "target": {"value": 10, "unit": "reps"}}},
+    {"part": {"id": "nb\u00a0sp,x=1", "movement": "row", "target": {"value": 250, "unit": "meters"}}},
+]}}
+ODD_IDS_EVENTS = {"ticks": {"every": 1000, "until": 40000}, "events": [
+    {"kind": "crown", "t": 5000}, {"kind": "reps", "t": 6000, "step": "Épaulé 1", "value": 5},
+    {"kind": "crown", "t": 22000}, {"kind": "reps", "t": 23000, "step": "x y", "value": 3},
+    {"kind": "crown", "t": 30000}]}
 
 
 def csv_fixture(cases: dict) -> list:
@@ -315,6 +337,13 @@ def csv_fixture(cases: dict) -> list:
         out.append({"case": name, "scenario": scen, "startEpochMs": epoch, "startUptimeMs": uptime,
                     "planLines": wc.plan_lines(p, epoch, uptime),
                     "eventLines": [[t, line] for t, line in wc.event_lines(st)]})
+    # Free-text ids: non-ASCII, Unicode spaces, ids that look like numbers (RFC 9 encoding).
+    p = we.plan(ODD_IDS_DOC)
+    st, _ = we.run(p, expand_events(ODD_IDS_EVENTS))
+    epoch, uptime = 1795000000000 + 1000 * len(CSV_SCENARIOS), 50000 + 7 * len(CSV_SCENARIOS)
+    out.append({"case": "oddIds", "scenario": "inline", "doc": ODD_IDS_DOC, "events": ODD_IDS_EVENTS,
+                "startEpochMs": epoch, "startUptimeMs": uptime, "planLines": wc.plan_lines(p, epoch, uptime),
+                "eventLines": [[t, line] for t, line in wc.event_lines(st)]})
     return out
 
 

@@ -1,4 +1,6 @@
 """Legacy (schema 1) definitions to v2 (RFC 7.3) and the engine's CSV lines (RFC 9)."""
+import copy
+import math
 import random
 
 import pytest
@@ -9,7 +11,7 @@ from barpath import workout_structure as ws
 from barpath.recording import MOTION_KEYS, load_session_csv
 from barpath.workout_upgrade import upgrade
 from engine_cases import ALL as ENGINE_CASES
-from upgrade_cases import ALL, SYNTHETIC
+from upgrade_cases import ALL, EDGE, SYNTHETIC
 
 EXPECTED = {
     "hyrox.solo": "exact", "hyrox.doubles": "exact", "hyrox.half": "exact", "partner.wod1": "exact",
@@ -66,6 +68,41 @@ def test_upgrade_is_idempotent_on_its_own_output_shape():
     assert u1 == u2
 
 
+@pytest.mark.parametrize("name", sorted(EDGE))
+def test_odd_rows_give_a_label_never_an_exception(name):
+    old, label, reasons = EDGE[name]
+    before = copy.deepcopy(old)
+    u = upgrade(old)
+    assert (u["label"], u["reasons"]) == (label, reasons)
+    assert old == before
+    if label == "notLegacy":                      # drafts and v2 rows come back unchanged
+        assert u["definition"] == old
+    if label == "exact":
+        assert ws.validate(u["definition"]) == []
+
+
+def test_v2_row_keeps_its_authored_structure():
+    old = EDGE["v2Authored"][0]
+    assert upgrade(old)["definition"]["structure"] == old["structure"]
+
+
+@pytest.mark.parametrize("bad", [math.inf, -math.inf, math.nan])
+def test_infinity_and_nan_are_invalid_not_a_crash(bad):
+    b = {"kind": "station", "movement": "burpees", "name": "B", "target": {"value": 10, "unit": "reps"}}
+    rows = [
+        {"format": "forTime", "segments": [b], "timeCapSeconds": bad},
+        {"format": "forTime", "segments": [b, b], "roundSize": bad},
+        {"format": "emom", "segments": [b], "intervalSeconds": bad, "roundSize": 1},
+        {"format": "forTime", "segments": [b, {"kind": "rest", "target": {"value": bad, "unit": "seconds"}}]},
+        {"format": "forTime", "segments": [dict(b, target={"value": bad, "unit": "reps"}), b], "roundSize": 1},
+        {"format": "forTime", "segments": [dict(b, load={"value": bad, "unit": "kg"})]},
+    ]
+    for row in rows:
+        u = upgrade(row)
+        assert u["label"] == "reencode" and "invalidField" in u["reasons"], row
+    assert upgrade({"schemaVersion": bad, "segments": [b]})["label"] == "notLegacy"
+
+
 # ---- CSV lines --------------------------------------------------------------------------------
 
 def _run(name, crowns, until, tick=1000, extra=()):
@@ -111,6 +148,26 @@ def test_without_a_plan_line_the_loader_reads_segments():
               {"t": 0.0, "name": "segment", "index": 0.0, "kind": "run", "source": "start"}]
     tl = wc.timeline(events)
     assert tl["source"] == "segments" and [x["index"] for x in tl["items"]] == [0, 1]
+
+
+@pytest.mark.parametrize("value", ["Épaulé 1", "007", "1.50", "inf", "-x", "NaN", "Infinity", "nb\u00a0sp",
+                                   "ls\u2028x", "vt\x0bx", "fs\x1cx", "a,b=c%d", "😀"])
+def test_free_text_ids_survive_the_loader(tmp_path, value):
+    line = "name=step step=%s status=done endedBy=clock seq=1" % wc.enc(value)
+    path = tmp_path / "s.csv"
+    path.write_text("# barpath-session workout=test\n# event t=0.000 name=plan schema=2 hash=ab\n"
+                    "# event t=1.000 %s\n" % line + ",".join(MOTION_KEYS) + "\n"
+                    + ",".join(["0"] * len(MOTION_KEYS)) + "\n", encoding="utf-8")
+    tl = wc.timeline(load_session_csv(str(path), workout_hz=None).events)
+    assert [x["step"] for x in tl["items"]] == [value]
+
+
+def test_text_from_an_older_writer_never_raises():
+    assert wc._text(float("inf")) == "inf" and wc._text(float("nan")) == "nan" and wc._text(7.0) == "7"
+
+
+def test_reps_text():
+    assert [wc._reps_text(v) for v in (12, 12.0, 12.5, -3, True, "a b")] == ["12", "12", "12.5", "-3", "true", "a%20b"]
 
 
 def test_values_are_percent_encoded():

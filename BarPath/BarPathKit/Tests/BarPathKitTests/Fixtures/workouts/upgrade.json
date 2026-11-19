@@ -365,6 +365,317 @@
  },
  {
   "definition": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.boolVsOne",
+   "name": "boolVsOne",
+   "roundSize": 1,
+   "schemaVersion": 2,
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": true
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    }
+   ],
+   "shortName": "boolVsOne",
+   "structure": {
+    "body": [
+     {
+      "repeat": {
+       "body": [
+        {
+         "part": {
+          "id": "p1",
+          "kind": "station",
+          "movement": "burpees",
+          "name": "Burpees",
+          "target": {
+           "unit": "reps",
+           "value": true
+          }
+         }
+        }
+       ],
+       "id": "rp",
+       "times": 2,
+       "vary": {
+        "p1": [
+         {
+          "kind": "station",
+          "movement": "burpees",
+          "name": "Burpees",
+          "target": {
+           "unit": "reps",
+           "value": true
+          }
+         },
+         {
+          "kind": "station",
+          "movement": "burpees",
+          "name": "Burpees",
+          "target": {
+           "unit": "reps",
+           "value": 10
+          }
+         }
+        ]
+       }
+      }
+     }
+    ],
+    "score": {
+     "type": "time"
+    }
+   },
+   "team": "solo"
+  },
+  "input": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.boolVsOne",
+   "name": "boolVsOne",
+   "roundSize": 1,
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": true
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    }
+   ],
+   "shortName": "boolVsOne",
+   "team": "solo"
+  },
+  "label": "reencode",
+  "name": "boolVsOne",
+  "planHash": "dc929c28ca89414ba72b760267e8bd86636ce4155f1073548d78eeaa39f57b6e",
+  "reasons": [
+   "invalidField"
+  ]
+ },
+ {
+  "definition": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.capTooLarge",
+   "name": "capTooLarge",
+   "schemaVersion": 2,
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    }
+   ],
+   "shortName": "capTooLarg",
+   "structure": {
+    "body": [
+     {
+      "timed": {
+       "body": [
+        {
+         "part": {
+          "id": "s1",
+          "kind": "station",
+          "movement": "burpees",
+          "name": "Burpees",
+          "target": {
+           "unit": "reps",
+           "value": 10
+          }
+         }
+        }
+       ],
+       "early": "next",
+       "id": "cap",
+       "late": "continue",
+       "seconds": 1000000000000
+      }
+     }
+    ],
+    "score": {
+     "atCap": "totalReps",
+     "type": "time"
+    }
+   },
+   "team": "solo",
+   "timeCapSeconds": 1000000000000.0
+  },
+  "input": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.capTooLarge",
+   "name": "capTooLarge",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    }
+   ],
+   "shortName": "capTooLarg",
+   "team": "solo",
+   "timeCapSeconds": 1000000000000.0
+  },
+  "label": "reencode",
+  "name": "capTooLarge",
+  "planHash": null,
+  "reasons": [
+   "notRunnable"
+  ]
+ },
+ {
+  "definition": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.capZero",
+   "name": "capZero",
+   "schemaVersion": 2,
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    }
+   ],
+   "shortName": "capZero",
+   "structure": {
+    "body": [
+     {
+      "part": {
+       "id": "s1",
+       "kind": "station",
+       "movement": "burpees",
+       "name": "Burpees",
+       "target": {
+        "unit": "reps",
+        "value": 10
+       }
+      }
+     }
+    ],
+    "score": {
+     "type": "time"
+    }
+   },
+   "team": "solo",
+   "timeCapSeconds": 0
+  },
+  "input": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.capZero",
+   "name": "capZero",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    }
+   ],
+   "shortName": "capZero",
+   "team": "solo",
+   "timeCapSeconds": 0
+  },
+  "label": "reencode",
+  "name": "capZero",
+  "planHash": "570d37cb24614fc811701dc6a5ef4d0103c31539097d5ca9159cffda95ab3ff0",
+  "reasons": [
+   "invalidField"
+  ]
+ },
+ {
+  "definition": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.draft",
+   "name": "draft",
+   "schemaVersion": 0,
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    }
+   ],
+   "shortName": "draft",
+   "team": "solo"
+  },
+  "input": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.draft",
+   "name": "draft",
+   "schemaVersion": 0,
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    }
+   ],
+   "shortName": "draft",
+   "team": "solo"
+  },
+  "label": "notLegacy",
+  "name": "draft",
+  "planHash": null,
+  "reasons": [
+   "draft"
+  ]
+ },
+ {
+  "definition": {
    "format": "emom",
    "healthKitActivity": "crossTraining",
    "id": "legacy.emomNoRounds",
@@ -508,6 +819,76 @@
   "reasons": [
    "movesToEngine",
    "emomWithoutRounds"
+  ]
+ },
+ {
+  "definition": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.extraKeys",
+   "name": "extraKeys",
+   "schemaVersion": 2,
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "note": "scale to 7",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     },
+     "x-tempo": "2-0-1"
+    }
+   ],
+   "shortName": "extraKeys",
+   "structure": {
+    "body": [
+     {
+      "part": {
+       "id": "s1",
+       "kind": "station",
+       "movement": "burpees",
+       "name": "Burpees",
+       "target": {
+        "unit": "reps",
+        "value": 10
+       }
+      }
+     }
+    ],
+    "score": {
+     "type": "time"
+    }
+   },
+   "team": "solo"
+  },
+  "input": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.extraKeys",
+   "name": "extraKeys",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "note": "scale to 7",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     },
+     "x-tempo": "2-0-1"
+    }
+   ],
+   "shortName": "extraKeys",
+   "team": "solo"
+  },
+  "label": "exact",
+  "name": "extraKeys",
+  "planHash": "570d37cb24614fc811701dc6a5ef4d0103c31539097d5ca9159cffda95ab3ff0",
+  "reasons": [
+   "note:segmentKeysNotCopied"
   ]
  },
  {
@@ -1624,6 +2005,116 @@
   "planHash": "820522b1be8e9cdadf5ba58f712e1eab82788afa96b7f0598735886d867bb1dd",
   "reasons": [
    "partWithoutTarget"
+  ]
+ },
+ {
+  "definition": {
+   "format": "emom",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.hugeEmom",
+   "intervalSeconds": 5e+18,
+   "name": "hugeEmom",
+   "roundSize": 1,
+   "schemaVersion": 2,
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    }
+   ],
+   "shortName": "hugeEmom",
+   "structure": {
+    "body": [
+     {
+      "repeat": {
+       "body": [
+        {
+         "timed": {
+          "body": [
+           {
+            "part": {
+             "id": "p1",
+             "kind": "station",
+             "movement": "burpees",
+             "name": "Burpees",
+             "target": {
+              "unit": "reps",
+              "value": 10
+             }
+            }
+           }
+          ],
+          "early": "wait",
+          "id": "w",
+          "late": "cut",
+          "seconds": 5000000000000000000
+         }
+        }
+       ],
+       "id": "rp",
+       "times": 2
+      }
+     }
+    ],
+    "score": {
+     "type": "windowsCompleted"
+    }
+   },
+   "team": "solo",
+   "timeCapSeconds": 60
+  },
+  "input": {
+   "format": "emom",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.hugeEmom",
+   "intervalSeconds": 5e+18,
+   "name": "hugeEmom",
+   "roundSize": 1,
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    }
+   ],
+   "shortName": "hugeEmom",
+   "team": "solo",
+   "timeCapSeconds": 60
+  },
+  "label": "reencode",
+  "name": "hugeEmom",
+  "planHash": null,
+  "reasons": [
+   "movesToEngine",
+   "capNotWindows",
+   "notRunnable"
   ]
  },
  {
@@ -3487,6 +3978,83 @@
   "definition": {
    "format": "forTime",
    "healthKitActivity": "crossTraining",
+   "id": "legacy.loadText",
+   "name": "loadText",
+   "schemaVersion": 2,
+   "segments": [
+    {
+     "kind": "station",
+     "load": {
+      "value": "heavy"
+     },
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    }
+   ],
+   "shortName": "loadText",
+   "structure": {
+    "body": [
+     {
+      "part": {
+       "id": "s1",
+       "kind": "station",
+       "load": {
+        "count": 1,
+        "unit": null,
+        "value": "heavy"
+       },
+       "movement": "burpees",
+       "name": "Burpees",
+       "target": {
+        "unit": "reps",
+        "value": 10
+       }
+      }
+     }
+    ],
+    "score": {
+     "type": "time"
+    }
+   },
+   "team": "solo"
+  },
+  "input": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.loadText",
+   "name": "loadText",
+   "segments": [
+    {
+     "kind": "station",
+     "load": {
+      "value": "heavy"
+     },
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    }
+   ],
+   "shortName": "loadText",
+   "team": "solo"
+  },
+  "label": "reencode",
+  "name": "loadText",
+  "planHash": "43af6fa8233abae536dd60a384dc3eee395b24f4916966573f8dacc328c2f6d9",
+  "reasons": [
+   "invalidField"
+  ]
+ },
+ {
+  "definition": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
    "id": "legacy.loadsAndHold",
    "name": "loadsAndHold",
    "roundSize": 2,
@@ -3594,6 +4162,91 @@
   "planHash": "cee69eceb436bc0f5bd0e8dd2b8fd735d648cc37b4f61b663e7371437a0a66cd",
   "reasons": [
    "secondsTargetPart"
+  ]
+ },
+ {
+  "definition": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.noKind",
+   "name": "noKind",
+   "schemaVersion": 2,
+   "segments": [
+    {
+     "movement": "burpees",
+     "name": "B",
+     "target": {
+      "unit": "reps",
+      "value": 1
+     }
+    }
+   ],
+   "shortName": "noKind",
+   "structure": {
+    "body": [
+     {
+      "part": {
+       "id": "s1",
+       "movement": "burpees",
+       "name": "B",
+       "target": {
+        "unit": "reps",
+        "value": 1
+       }
+      }
+     }
+    ],
+    "score": {
+     "type": "time"
+    }
+   },
+   "team": "solo"
+  },
+  "input": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.noKind",
+   "name": "noKind",
+   "segments": [
+    {
+     "movement": "burpees",
+     "name": "B",
+     "target": {
+      "unit": "reps",
+      "value": 1
+     }
+    }
+   ],
+   "shortName": "noKind",
+   "team": "solo"
+  },
+  "label": "reencode",
+  "name": "noKind",
+  "planHash": "0ade300d9f12ba90646660b590fd0cb5a4c9bcc9c605453e90354083027b281c",
+  "reasons": [
+   "invalidField"
+  ]
+ },
+ {
+  "definition": {
+   "schemaVersion": 2,
+   "structure": {
+    "body": [],
+    "score": {
+     "type": "none"
+    }
+   }
+  },
+  "input": [
+   1,
+   2
+  ],
+  "label": "reencode",
+  "name": "notAnObject",
+  "planHash": null,
+  "reasons": [
+   "noSegments",
+   "notRunnable"
   ]
  },
  {
@@ -4487,6 +5140,421 @@
  },
  {
   "definition": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.restNotANumber",
+   "name": "restNotANumber",
+   "schemaVersion": 2,
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest",
+     "target": {
+      "unit": "seconds",
+      "value": "x"
+     }
+    }
+   ],
+   "shortName": "restNotANu",
+   "structure": {
+    "body": [
+     {
+      "part": {
+       "id": "s1",
+       "kind": "station",
+       "movement": "burpees",
+       "name": "Burpees",
+       "target": {
+        "unit": "reps",
+        "value": 10
+       }
+      }
+     },
+     {
+      "rest": {
+       "id": "s2"
+      }
+     }
+    ],
+    "score": {
+     "type": "time"
+    }
+   },
+   "team": "solo"
+  },
+  "input": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.restNotANumber",
+   "name": "restNotANumber",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest",
+     "target": {
+      "unit": "seconds",
+      "value": "x"
+     }
+    }
+   ],
+   "shortName": "restNotANu",
+   "team": "solo"
+  },
+  "label": "reencode",
+  "name": "restNotANumber",
+  "planHash": "c5bdf3d696d21113612cc2b0950114870efce0046929fedbf57f71a164548ed4",
+  "reasons": [
+   "invalidField"
+  ]
+ },
+ {
+  "definition": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.restNull",
+   "name": "restNull",
+   "schemaVersion": 2,
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest",
+     "target": {
+      "unit": "seconds",
+      "value": null
+     }
+    }
+   ],
+   "shortName": "restNull",
+   "structure": {
+    "body": [
+     {
+      "part": {
+       "id": "s1",
+       "kind": "station",
+       "movement": "burpees",
+       "name": "Burpees",
+       "target": {
+        "unit": "reps",
+        "value": 10
+       }
+      }
+     },
+     {
+      "rest": {
+       "id": "s2"
+      }
+     }
+    ],
+    "score": {
+     "type": "time"
+    }
+   },
+   "team": "solo"
+  },
+  "input": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.restNull",
+   "name": "restNull",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest",
+     "target": {
+      "unit": "seconds",
+      "value": null
+     }
+    }
+   ],
+   "shortName": "restNull",
+   "team": "solo"
+  },
+  "label": "reencode",
+  "name": "restNull",
+  "planHash": "c5bdf3d696d21113612cc2b0950114870efce0046929fedbf57f71a164548ed4",
+  "reasons": [
+   "invalidField"
+  ]
+ },
+ {
+  "definition": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.restRounded",
+   "name": "restRounded",
+   "schemaVersion": 2,
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest",
+     "target": {
+      "unit": "seconds",
+      "value": 90.5
+     }
+    }
+   ],
+   "shortName": "restRounde",
+   "structure": {
+    "body": [
+     {
+      "part": {
+       "id": "s1",
+       "kind": "station",
+       "movement": "burpees",
+       "name": "Burpees",
+       "target": {
+        "unit": "reps",
+        "value": 10
+       }
+      }
+     },
+     {
+      "rest": {
+       "id": "s2",
+       "seconds": 90
+      }
+     }
+    ],
+    "score": {
+     "type": "time"
+    }
+   },
+   "team": "solo"
+  },
+  "input": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.restRounded",
+   "name": "restRounded",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest",
+     "target": {
+      "unit": "seconds",
+      "value": 90.5
+     }
+    }
+   ],
+   "shortName": "restRounde",
+   "team": "solo"
+  },
+  "label": "review",
+  "name": "restRounded",
+  "planHash": "56c7d62ee0d0b2d141b70ceb786443f0607b01daa324b11723a42c698931071f",
+  "reasons": [
+   "restSecondsRounded"
+  ]
+ },
+ {
+  "definition": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.schemaOne",
+   "name": "schemaOne",
+   "schemaVersion": 2,
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    }
+   ],
+   "shortName": "schemaOne",
+   "structure": {
+    "body": [
+     {
+      "part": {
+       "id": "s1",
+       "kind": "station",
+       "movement": "burpees",
+       "name": "Burpees",
+       "target": {
+        "unit": "reps",
+        "value": 10
+       }
+      }
+     }
+    ],
+    "score": {
+     "type": "time"
+    }
+   },
+   "team": "solo"
+  },
+  "input": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.schemaOne",
+   "name": "schemaOne",
+   "schemaVersion": 1,
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    }
+   ],
+   "shortName": "schemaOne",
+   "team": "solo"
+  },
+  "label": "exact",
+  "name": "schemaOne",
+  "planHash": "570d37cb24614fc811701dc6a5ef4d0103c31539097d5ca9159cffda95ab3ff0",
+  "reasons": []
+ },
+ {
+  "definition": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.schemaText",
+   "name": "schemaText",
+   "schemaVersion": "1",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    }
+   ],
+   "shortName": "schemaText",
+   "team": "solo"
+  },
+  "input": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.schemaText",
+   "name": "schemaText",
+   "schemaVersion": "1",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    }
+   ],
+   "shortName": "schemaText",
+   "team": "solo"
+  },
+  "label": "notLegacy",
+  "name": "schemaText",
+  "planHash": null,
+  "reasons": [
+   "unknownSchemaVersion"
+  ]
+ },
+ {
+  "definition": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.segmentsNotAList",
+   "name": "segmentsNotAList",
+   "schemaVersion": 2,
+   "segments": 5,
+   "shortName": "segmentsNo",
+   "structure": {
+    "body": [],
+    "score": {
+     "type": "none"
+    }
+   },
+   "team": "solo"
+  },
+  "input": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.segmentsNotAList",
+   "name": "segmentsNotAList",
+   "segments": 5,
+   "shortName": "segmentsNo",
+   "team": "solo"
+  },
+  "label": "reencode",
+  "name": "segmentsNotAList",
+  "planHash": null,
+  "reasons": [
+   "noSegments",
+   "notRunnable"
+  ]
+ },
+ {
+  "definition": {
    "format": "emom",
    "healthKitActivity": "crossTraining",
    "id": "legacy.tabataAsEmom",
@@ -4781,6 +5849,136 @@
  },
  {
   "definition": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.targetNoUnit",
+   "name": "targetNoUnit",
+   "schemaVersion": 2,
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "value": 10
+     }
+    }
+   ],
+   "shortName": "targetNoUn",
+   "structure": {
+    "body": [
+     {
+      "part": {
+       "id": "s1",
+       "kind": "station",
+       "movement": "burpees",
+       "name": "Burpees",
+       "target": {
+        "unit": null,
+        "value": 10
+       }
+      }
+     }
+    ],
+    "score": {
+     "type": "time"
+    }
+   },
+   "team": "solo"
+  },
+  "input": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.targetNoUnit",
+   "name": "targetNoUnit",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "value": 10
+     }
+    }
+   ],
+   "shortName": "targetNoUn",
+   "team": "solo"
+  },
+  "label": "reencode",
+  "name": "targetNoUnit",
+  "planHash": "7011c3926bbb3ebc977f5cc1e1ae9148eb6a7c00b1a3e755c70b6b28dfb63741",
+  "reasons": [
+   "invalidField"
+  ]
+ },
+ {
+  "definition": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.targetText",
+   "name": "targetText",
+   "schemaVersion": 2,
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": "ten"
+     }
+    }
+   ],
+   "shortName": "targetText",
+   "structure": {
+    "body": [
+     {
+      "part": {
+       "id": "s1",
+       "kind": "station",
+       "movement": "burpees",
+       "name": "Burpees",
+       "target": {
+        "unit": "reps",
+        "value": "ten"
+       }
+      }
+     }
+    ],
+    "score": {
+     "type": "time"
+    }
+   },
+   "team": "solo"
+  },
+  "input": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.targetText",
+   "name": "targetText",
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": "ten"
+     }
+    }
+   ],
+   "shortName": "targetText",
+   "team": "solo"
+  },
+  "label": "reencode",
+  "name": "targetText",
+  "planHash": "4129f950f52b27fa6d7fc5f976621580984e89e1ef1b48a9692e780f98f777b3",
+  "reasons": [
+   "invalidField"
+  ]
+ },
+ {
+  "definition": {
    "format": "chipper",
    "healthKitActivity": "crossTraining",
    "id": "legacy.unknownFormat",
@@ -4843,6 +6041,124 @@
   "planHash": "570d37cb24614fc811701dc6a5ef4d0103c31539097d5ca9159cffda95ab3ff0",
   "reasons": [
    "unknownFormat"
+  ]
+ },
+ {
+  "definition": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.v2Authored",
+   "name": "v2Authored",
+   "roundSize": 2,
+   "schemaVersion": 2,
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest",
+     "target": {
+      "unit": "seconds",
+      "value": 60
+     }
+    }
+   ],
+   "shortName": "v2Authored",
+   "structure": {
+    "body": [
+     {
+      "repeat": {
+       "body": [
+        {
+         "part": {
+          "id": "b",
+          "movement": "burpees",
+          "target": {
+           "unit": "reps",
+           "value": 10
+          }
+         }
+        }
+       ],
+       "id": "r",
+       "times": 3
+      }
+     }
+    ],
+    "score": {
+     "type": "time"
+    }
+   },
+   "team": "solo"
+  },
+  "input": {
+   "format": "forTime",
+   "healthKitActivity": "crossTraining",
+   "id": "legacy.v2Authored",
+   "name": "v2Authored",
+   "roundSize": 2,
+   "schemaVersion": 2,
+   "segments": [
+    {
+     "kind": "station",
+     "movement": "burpees",
+     "name": "Burpees",
+     "target": {
+      "unit": "reps",
+      "value": 10
+     }
+    },
+    {
+     "kind": "rest",
+     "movement": "rest",
+     "name": "Rest",
+     "target": {
+      "unit": "seconds",
+      "value": 60
+     }
+    }
+   ],
+   "shortName": "v2Authored",
+   "structure": {
+    "body": [
+     {
+      "repeat": {
+       "body": [
+        {
+         "part": {
+          "id": "b",
+          "movement": "burpees",
+          "target": {
+           "unit": "reps",
+           "value": 10
+          }
+         }
+        }
+       ],
+       "id": "r",
+       "times": 3
+      }
+     }
+    ],
+    "score": {
+     "type": "time"
+    }
+   },
+   "team": "solo"
+  },
+  "label": "notLegacy",
+  "name": "v2Authored",
+  "planHash": "7e7e2b28f4c84e45dda590f942e9ab059056b682ad60b920e6ea77326de365a0",
+  "reasons": [
+   "alreadyV2"
   ]
  },
  {

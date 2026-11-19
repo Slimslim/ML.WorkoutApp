@@ -7,26 +7,35 @@ and reads them back. Old parsers ignore unknown names, so these sit beside today
 - 'name=step step=<id> status=<s> endedBy=<who> seq=<n> [reps=<n>]' each time a step ends;
 - 'name=input action=ignored input=<crown|undo|...> reason=<r> seq=<n>' for each input the engine ignored.
 `seq` orders lines written at the same time (#50: event lines are not in time order in the file).
-Values are percent-encoded where they would break 'key=value' parsing (%, space, comma, tabs and
-line breaks). Times are integer milliseconds from START. Swift port: WorkoutEngineCSV.swift.
+Text values (ids, anchors, inputs, reasons) are percent-encoded: every UTF-8 byte outside
+[A-Za-z0-9._:-] becomes %XX, so no whitespace of any kind or comma reaches the loader's
+`key=([^,\\s]+)`. The loader also turns anything float() accepts into a number, so a value that
+starts like a number (a digit, '.' or '-') or spells inf / infinity / nan has its first character
+encoded too: 'step=007' is written 'step=%3007' and reads back as "007". Times are integer
+milliseconds from START. Swift port: WorkoutEngineCSV.swift.
 """
 from __future__ import annotations
 
+from urllib.parse import unquote
+
 PLAN_SCHEMA = 2
-_ENCODE = (("%", "%25"), (" ", "%20"), (",", "%2C"), ("\t", "%09"), ("\n", "%0A"), ("\r", "%0D"))
+_SAFE = frozenset(b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._:-")
+_NUMBER_START = frozenset(b"0123456789.-")
+_NUMBER_WORDS = ("inf", "infinity", "nan")
 
 
 def enc(v) -> str:
-    s = str(v)
-    for a, b in _ENCODE:
-        s = s.replace(a, b)
-    return s
+    """Percent-encode a text value for a 'key=value' token (see the module notes)."""
+    data = str(v).encode("utf-8")
+    out = []
+    for i, b in enumerate(data):
+        first_numeric = i == 0 and (b in _NUMBER_START or str(v).lower() in _NUMBER_WORDS)
+        out.append(chr(b) if b in _SAFE and not first_numeric else "%%%02X" % b)
+    return "".join(out)
 
 
 def dec(s: str) -> str:
-    for a, b in reversed(_ENCODE):
-        s = s.replace(b, a)
-    return s
+    return unquote(s, errors="replace")
 
 
 def plan_lines(plan, start_epoch_ms: int, start_uptime_ms: int) -> list:
@@ -40,8 +49,14 @@ def plan_lines(plan, start_epoch_ms: int, start_uptime_ms: int) -> list:
 
 
 def _reps_text(v) -> str:
-    if isinstance(v, float) and v == int(v):
-        return str(int(v))
+    """Reps as written: a whole number without a decimal point, other numbers as repr, anything
+    else as encoded text (Swift `repsText`)."""
+    if isinstance(v, bool):
+        return enc(str(v).lower())
+    if isinstance(v, int):
+        return str(v)
+    if isinstance(v, float):
+        return str(int(v)) if v.is_integer() else repr(v)
     return enc(v)
 
 
@@ -75,8 +90,8 @@ def event_lines(state) -> list:
 
 def _text(v) -> str:
     """A value the CSV loader turned into a float back into its text (step ids are text)."""
-    if isinstance(v, float):
-        return str(int(v)) if v == int(v) else repr(v)
+    if isinstance(v, float):     # written by an older encoder: best effort, never raises
+        return str(int(v)) if v.is_integer() else repr(v)
     return dec(str(v))
 
 
