@@ -224,15 +224,22 @@ final class WorkoutEngineParityTests: XCTestCase {
     func testUpgradeMatchesPython() throws {
         let list = try workoutFixture("upgrade.json").array ?? []
         XCTAssertEqual(list.count, try index()["upgrade"]?.intValue)
-        XCTAssertGreaterThanOrEqual(list.count, 20)
+        XCTAssertGreaterThanOrEqual(list.count, 39)
         for c in list {
             let name: String = c["name"]?.string ?? "?"
             let u = WorkoutUpgrade.upgrade(c["input"] ?? .null)
             XCTAssertEqual(u.definition.canonicalJSON, c["definition"]?.canonicalJSON, "\(name): definition")
             XCTAssertEqual(u.label, c["label"]?.string, "\(name): label")
             XCTAssertEqual(u.reasons, (c["reasons"]?.array ?? []).compactMap { $0.string }, "\(name): reasons")
-            XCTAssertEqual(try WorkoutEngine.plan(u.definition).hash, c["planHash"]?.string, "\(name): plan hash")
-            // Idempotent: upgrading the upgraded definition changes nothing but keeps the label.
+            if let hash = c["planHash"]?.string {
+                XCTAssertEqual(try WorkoutEngine.plan(u.definition).hash, hash, "\(name): plan hash")
+            } else {
+                XCTAssertThrowsError(try WorkoutEngine.plan(u.definition), "\(name): plans, Python refuses it")
+            }
+            if u.label == WorkoutUpgrade.notLegacy {
+                XCTAssertEqual(u.definition, c["input"], "\(name): a non-legacy row comes back unchanged")
+            }
+            // Idempotent: the upgraded definition is v2, so upgrading it again changes nothing.
             let again = WorkoutUpgrade.upgrade(u.definition)
             XCTAssertEqual(again.definition.canonicalJSON, u.definition.canonicalJSON, "\(name): idempotent")
         }
@@ -245,11 +252,13 @@ final class WorkoutEngineParityTests: XCTestCase {
         for c in list {
             let name: String = c["case"]?.string ?? "?"
             let scen: String = c["scenario"]?.string ?? "?"
-            let plan = try planFor(name)
+            // A case folder, or an inline definition and event list (free-text ids).
+            let plan: WorkoutPlan = try c["doc"].map { try WorkoutEngine.plan($0) } ?? planFor(name)
             let lines = WorkoutEngineCSV.planLines(plan, startEpochMs: c["startEpochMs"]?.intValue ?? 0,
                                                    startUptimeMs: c["startUptimeMs"]?.intValue ?? 0)
             XCTAssertEqual(lines, (c["planLines"]?.array ?? []).compactMap { $0.string }, "\(name)/\(scen): plan lines")
-            let (st, _) = WorkoutEngine.run(plan, try events(try workoutFixture("\(name)/events/\(scen).json")))
+            let spec: JSONValue = try c["events"] ?? workoutFixture("\(name)/events/\(scen).json")
+            let (st, _) = WorkoutEngine.run(plan, try events(spec))
             let got: [WorkoutEngineCSV.Line] = WorkoutEngineCSV.eventLines(st)
             let want: [JSONValue] = c["eventLines"]?.array ?? []
             XCTAssertEqual(got.count, want.count, "\(name)/\(scen): event line count")
@@ -267,6 +276,17 @@ final class WorkoutEngineParityTests: XCTestCase {
         XCTAssertEqual(e, "a%20b%2Cc%25d%09e%0Af%0Dg")
         XCTAssertEqual(WorkoutEngineCSV.dec(e), raw)
         XCTAssertEqual(WorkoutEngineCSV.dec(WorkoutEngineCSV.enc("%20")), "%20")
+        // Unicode spaces, non-ASCII and values the Python loader would read as numbers.
+        XCTAssertEqual(WorkoutEngineCSV.enc("Épaulé 1"), "%C3%89paul%C3%A9%201")
+        XCTAssertEqual(WorkoutEngineCSV.enc("nb\u{00A0}sp"), "nb%C2%A0sp")
+        XCTAssertEqual(WorkoutEngineCSV.enc("007"), "%3007")
+        XCTAssertEqual(WorkoutEngineCSV.enc("Infinity"), "%49nfinity")
+        XCTAssertEqual(WorkoutEngineCSV.enc("rp.1.sq"), "rp.1.sq")
+        for raw in ["Épaulé 1", "007", "nan", "ls\u{2028}x", "😀"] {
+            XCTAssertEqual(WorkoutEngineCSV.dec(WorkoutEngineCSV.enc(raw)), raw)
+        }
+        XCTAssertEqual(WorkoutEngineCSV.repsText(.double(1e20)), "100000000000000000000")
+        XCTAssertEqual(WorkoutEngineCSV.repsText(.bool(true)), "true")
     }
 
     /// The plain-Swift SHA-256 (used where CryptoKit is missing) gives the standard digests and the
@@ -281,6 +301,8 @@ final class WorkoutEngineParityTests: XCTestCase {
                        "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1")
         XCTAssertEqual(sha(String(repeating: "a", count: 1000)),
                        "41edece42d63e8d9bf515a9ba6932e1c20cbc9f5a5d134645adb5db1b9737ea3")
+        XCTAssertEqual(sha(String(repeating: "a", count: 1_000_000)),
+                       "cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0")
         for name in try cases() {
             let plan = try planFor(name)
             XCTAssertEqual(WorkoutSHA256.hex(WorkoutSHA256.digest(Array(plan.canonicalJSON.utf8))), plan.hash, name)

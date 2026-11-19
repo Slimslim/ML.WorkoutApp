@@ -9,8 +9,15 @@ import Foundation
 /// exact (the planned steps reproduce the old segment list), review (it runs, but the owner
 /// checks it) or reencode (the old keys can't say what the workout is). Reasons that start with
 /// "note:" are informational and don't change the label.
+///
+/// Only legacy rows are upgraded (`schemaVersion` absent, null or 1). A draft (0), a v2 row or an
+/// unknown version comes back unchanged with the label "notLegacy": its authored structure is the
+/// truth (RFC §14.3 A1, A4). Total: any JSON value gives a result, never a trap.
 public enum WorkoutUpgrade {
     public static let labels: [String] = ["exact", "review", "reencode"]
+    public static let notLegacy: String = "notLegacy"
+    private static let partKeys: Set<String> = ["kind", "movement", "name", "target", "load"]
+    private static let intLimit: Double = 9.0e18      // Python `_INT_LIMIT`
 
     public struct Outcome: Equatable, Sendable {
         public let definition: JSONValue
@@ -41,12 +48,41 @@ public enum WorkoutUpgrade {
         }
     }
 
-    /// Python `int(x) if isinstance(x, (int, float)) and not isinstance(x, bool) and x > 0 else None`.
+    /// Python `_pos_int`: a number > 0 and below 9e18, truncated; nil for anything else.
     private static func positiveInt(_ v: JSONValue?) -> Int? {
-        guard let v = v, let d = v.number, d > 0 else {
+        guard let v = v, let d = v.number, d.isFinite, d > 0, d < intLimit else {
             return nil
         }
         return v.intValue
+    }
+
+    /// Python `_seconds_target`: the positive whole seconds of a seconds target.
+    private static func secondsTarget(_ seg: [String: JSONValue]) -> Int? {
+        guard let t = seg["target"]?.object, t["unit"]?.string == "seconds" else {
+            return nil
+        }
+        return positiveInt(t["value"])
+    }
+
+    /// Python `_invalid`: a field the v2 validator refuses.
+    private static func invalid(_ seg: [String: JSONValue]) -> Bool {
+        guard let kind = seg["kind"]?.string else {
+            return true
+        }
+        let t: [String: JSONValue]? = seg["target"]?.object
+        if kind == "rest" {
+            if let t = t, t["unit"]?.string == "seconds" {
+                return positiveInt(t["value"]) == nil
+            }
+            return false
+        }
+        if let t = t, t["value"]?.number == nil || t["unit"]?.string == nil {
+            return true
+        }
+        if let ld = seg["load"]?.object, ld["value"]?.number == nil {
+            return true
+        }
+        return false
     }
 
     private static func isRest(_ seg: [String: JSONValue]) -> Bool {
@@ -57,9 +93,8 @@ public enum WorkoutUpgrade {
                              _ flags: inout Flags) -> JSONValue {
         if isRest(seg) {
             var rest: [String: JSONValue] = ["id": .string(pid)]
-            if let t = seg["target"]?.object, t["unit"]?.string == "seconds",
-               let v = t["value"], let d = v.number, d > 0, let i = v.intValue {
-                rest["seconds"] = .int(i)
+            if let secs = secondsTarget(seg) {
+                rest["seconds"] = .int(secs)
             }
             return .object(["rest": .object(rest)])
         }
@@ -147,6 +182,17 @@ public enum WorkoutUpgrade {
     /// {definition, label, reasons} for one old definition.
     public static func upgrade(_ old: JSONValue) -> Outcome {
         let o: [String: JSONValue] = old.object ?? [:]
+        if let sv = o["schemaVersion"], !sv.isNull, sv.number != 1 {
+            var why: String = "unknownSchemaVersion"
+            if let d = sv.number {
+                if d == 0 {
+                    why = "draft"
+                } else if d >= 2 {
+                    why = "alreadyV2"
+                }
+            }
+            return Outcome(definition: old, label: notLegacy, reasons: [why])
+        }
         let segs: [[String: JSONValue]] = (o["segments"]?.array ?? []).compactMap { $0.object }
         let fmt: String? = o["format"]?.string
         let team: String = o["team"]?.string ?? "solo"
@@ -155,7 +201,24 @@ public enum WorkoutUpgrade {
         let interval: Int? = positiveInt(o["intervalSeconds"])
         var flags = Flags()
 
-        for s in segs where !isRest(s) {
+        for k in ["timeCapSeconds", "roundSize", "intervalSeconds"] {
+            if let v = o[k], !v.isNull, positiveInt(v) == nil {
+                flags.flag("reencode", "invalidField")   // e.g. a cap of 0, -1 or "x": dropped
+            }
+        }
+        for s in segs {
+            if invalid(s) {
+                flags.flag("reencode", "invalidField")
+            }
+            if isRest(s), let secs = secondsTarget(s), let v = s["target"]?["value"]?.number, v != Double(secs) {
+                flags.flag("review", "restSecondsRounded")
+            }
+            if s.keys.contains(where: { !partKeys.contains($0) }) {
+                flags.note("note:segmentKeysNotCopied")  // they stay in the old `segments`
+            }
+            if isRest(s) {
+                continue
+            }
             guard let t = s["target"]?.object else {
                 flags.flag("review", "partWithoutTarget")
                 continue
@@ -225,8 +288,11 @@ public enum WorkoutUpgrade {
             }
             body = emomBody(segs, interval ?? 60, r ?? segs.count, team, &flags)
             let nWindows: Int = chunks(segs, r ?? segs.count).count
-            if let c = cap, let iv = interval, c != iv * nWindows {
-                flags.flag("review", "capNotWindows")
+            if let c = cap, let iv = interval {
+                let product = iv.multipliedReportingOverflow(by: nWindows)
+                if product.overflow || c != product.partialValue {
+                    flags.flag("review", "capNotWindows")
+                }
             }
             score = ["type": .string("windowsCompleted")]
         } else {
@@ -238,8 +304,12 @@ public enum WorkoutUpgrade {
         out["schemaVersion"] = .int(2)
         out["structure"] = .object(["score": .object(score), "body": .array(body)])
         let doc: JSONValue = .object(out)
-        if flags.label == "exact" && !stepsMatch(doc, segs) {
-            flags.flag("review", "stepsDiffer")
+        if let p = try? WorkoutEngine.plan(doc) {
+            if flags.label == "exact" && !stepsMatch(p, segs) {
+                flags.flag("review", "stepsDiffer")
+            }
+        } else {
+            flags.flag("reencode", "notRunnable")
         }
         return Outcome(definition: doc, label: flags.label, reasons: flags.reasons + flags.notes)
     }
@@ -316,20 +386,14 @@ public enum WorkoutUpgrade {
 
     /// The planned (non-automatic) steps reproduce the old segments in order: kind, movement,
     /// name, target and load, rests with the same seconds.
-    private static func stepsMatch(_ doc: JSONValue, _ segs: [[String: JSONValue]]) -> Bool {
-        guard let p = try? WorkoutEngine.plan(doc) else {
-            return false
-        }
+    private static func stepsMatch(_ p: WorkoutPlan, _ segs: [[String: JSONValue]]) -> Bool {
         let steps: [EngineStep] = p.steps.filter { !$0.auto }
         if steps.count != segs.count {
             return false
         }
         for (st, seg) in zip(steps, segs) {
             if isRest(seg) {
-                var want: Int? = nil
-                if let t = seg["target"]?.object, t["unit"]?.string == "seconds" {
-                    want = t["value"]?.intValue
-                }
+                let want: Int? = secondsTarget(seg)
                 if st.kind != "rest" || st.restSeconds != want {
                     return false
                 }
