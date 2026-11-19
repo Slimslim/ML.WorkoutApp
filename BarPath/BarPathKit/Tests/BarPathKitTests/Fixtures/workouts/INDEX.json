@@ -35,6 +35,7 @@
  "sessionEvents": 20,
  "sessionLines": 7,
  "sessionRoutes": 20,
+ "sessionStopwatch": 29,
  "sessionViews": 48,
  "upgrade": 49
 }

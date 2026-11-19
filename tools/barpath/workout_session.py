@@ -269,6 +269,36 @@ def new_lines(st, written: dict) -> list:
     return out
 
 
+# ---- the watch's refusal screens and "Run as stopwatch" (W27, owner decision on #115) -------------
+
+REFUSAL_SCREENS = ("updateApp", "tooLarge")
+
+
+def refusal_screen(r: dict) -> Optional[str]:
+    """The screen the watch shows at START for a route: "updateApp" ("UPDATE THE APP" / Run as
+    stopwatch) or "tooLarge" ("TOO LARGE to expand on the watch" / Run as stopwatch). None for
+    every other route: the engine or the old path runs it, and any other refusal (draft, invalid,
+    empty, noScale) keeps the interim fallback, the old keys, logged."""
+    if isinstance(r, dict) and r.get("route") == "refused" and r.get("reason") in REFUSAL_SCREENS:
+        return r["reason"]
+    return None
+
+
+def stopwatch_definition(raw) -> dict:
+    """What "Run as stopwatch" runs on the engine (RFC §14.3 A4): the refused definition's id,
+    names, team and HealthKit activity, a for-time format, and `workout_structure.
+    stopwatch_structure` (one athlete-ended part per line of the raw text, a `late: continue` cap
+    if one is known, no automatic rests, no reps question, score "none": typed on the phone).
+    Always plans on this engine."""
+    src = raw if isinstance(raw, dict) else {}
+    out = {"schemaVersion": ws.SCHEMA_VERSION, "format": "forTime"}
+    for k in ("id", "name", "shortName", "team", "healthKitActivity"):
+        if isinstance(src.get(k), str):
+            out[k] = src[k]
+    out["structure"] = ws.stopwatch_structure(src)
+    return out
+
+
 # ---- the phone: what it sends to the watch (W27 PR3b) ---------------------------------------------
 
 PHONE_V2_KEY = "workoutDefinitionV2"   # new application-context / message key (RFC §8 raw pass-through)

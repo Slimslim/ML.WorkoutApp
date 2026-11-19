@@ -523,6 +523,9 @@ struct WorkoutMainPage: View {
             Spacer(minLength: 0)
 
             timerText(now: now, scale: scale)
+            if model.isOnEngine {
+                engineTimerCaption(now: now, scale: scale)
+            }
             metricRow(now: now, scale: scale)
 
             Spacer(minLength: 0)
@@ -556,6 +559,28 @@ struct WorkoutMainPage: View {
             seconds = max(0, clock.time - nowT).rounded(.up)
         }
         return Text(SessionModel.formatElapsed(seconds))
+    }
+
+    /// Engine only (#115 states 3 and 4; the old path shows neither): "LEFT" under a countdown,
+    /// replaced for `WorkoutSessionModel.clockHintSeconds` after a Crown turn the clock ignored in
+    /// a rest by "Clock starts the next part" (wrist up only: the Crown isn't used wrist down).
+    @ViewBuilder
+    private func engineTimerCaption(now: Date, scale: CGFloat) -> some View {
+        if model.clockHintShown && !isLuminanceReduced {
+            Text("Clock starts the next part")
+                .font(.system(size: 13 * scale, weight: .bold, design: .rounded))
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+        } else if let clock = model.nextClockEvent(), !clock.isFinish {
+            // The same condition as `timerValue`: the big number is a countdown.
+            Text("LEFT")
+                .font(.system(size: 12 * scale, weight: .heavy, design: .rounded))
+                .foregroundColor(.secondary)
+                .lineLimit(1)
+                .padding(.top, -4)
+        }
     }
 
     /// One row under the timer: the key metric, then HR.

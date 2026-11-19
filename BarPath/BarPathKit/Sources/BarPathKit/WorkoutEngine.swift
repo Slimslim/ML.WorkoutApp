@@ -128,6 +128,98 @@ public enum WorkoutStructureV2 {
         return ("ok", [])
     }
 
+    /// Python `stopwatch_structure`: the "Run as stopwatch" fallback (RFC §14.3 A4). One
+    /// athlete-ended part per line of the raw text (the root's, else the first scale's; the name
+    /// when there is none), at most `maxSteps` parts, a `late: continue` cap when
+    /// `timeCapSeconds` is a whole number in 1...`maxSeconds`, no rests, score "none".
+    public static func stopwatchStructure(_ doc: JSONValue) -> JSONValue {
+        let src: [String: JSONValue] = doc.object ?? [:]
+        var text: String? = src["rawText"]?.string
+        if text == nil {
+            for sc in src["scales"]?.array ?? [] {
+                if let t = sc["rawText"]?.string {
+                    text = t
+                    break
+                }
+            }
+        }
+        var name: String = "Workout"
+        if let n = src["name"]?.string, !stripped(n).isEmpty {
+            name = n
+        }
+        var lines: [String] = []
+        for line in splitLines(text ?? "") {
+            let s: String = stripped(line)
+            if !s.isEmpty {
+                lines.append(s)
+            }
+        }
+        if lines.isEmpty {
+            lines = [stripped(name)]
+        }
+        if lines.count > maxSteps {
+            lines = Array(lines.prefix(maxSteps))
+        }
+        var parts: [JSONValue] = []
+        for (i, line) in lines.enumerated() {
+            parts.append(.object(["part": .object(["id": .string("l\(i + 1)"), "movement": .string("part"),
+                                                   "name": .string(line)])]))
+        }
+        var body: [JSONValue] = parts
+        if let cap = stopwatchCap(src["timeCapSeconds"]) {
+            body = [.object(["timed": .object(["id": .string("cap"), "seconds": .int(cap), "early": .string("next"),
+                                               "late": .string("continue"), "body": .array(parts)])])]
+        }
+        return .object(["score": .object(["type": .string("none")]), "body": .array(body)])
+    }
+
+    /// A whole number of seconds in 1...maxSeconds (Python `_is_int(cap) and 0 < cap <= MAX_SECONDS`).
+    static func stopwatchCap(_ v: JSONValue?) -> Int? {
+        guard let v = v else { return nil }
+        let d: Double
+        switch v {
+        case .int(let i):
+            d = Double(i)
+        case .double(let x):
+            d = x
+        default:
+            return nil
+        }
+        guard d.isFinite, d == d.rounded(.towardZero), d > 0, d <= maxSeconds else { return nil }
+        return Int(exactly: d)
+    }
+
+    /// Lines split on \n, \r\n or \r only, like the Python reference (by Unicode scalar, so a
+    /// \r\n pair is never one Character here).
+    static func splitLines(_ text: String) -> [String] {
+        var out: [String] = []
+        var cur = String.UnicodeScalarView()
+        var afterCR: Bool = false
+        for u in text.unicodeScalars {
+            if u == "\n" {
+                if !afterCR {
+                    out.append(String(cur))
+                    cur = String.UnicodeScalarView()
+                }
+                afterCR = false
+            } else if u == "\r" {
+                out.append(String(cur))
+                cur = String.UnicodeScalarView()
+                afterCR = true
+            } else {
+                cur.append(u)
+                afterCR = false
+            }
+        }
+        out.append(String(cur))
+        return out
+    }
+
+    /// Python `str.strip()` for the text a coach types (spaces, tabs, line breaks).
+    static func stripped(_ s: String) -> String {
+        return s.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     static func pythonRepr(_ v: JSONValue) -> String {
         switch v {
         case .null: return "None"

@@ -62,6 +62,44 @@ def test_refusals_never_fall_back_silently():
                      )["reason"] == "tooLarge"
 
 
+def test_only_update_app_and_too_large_get_a_refusal_screen():
+    """Owner decision on #115: states 1 and 2; every other refusal keeps the interim fallback."""
+    hy = ws.compile_definition(ALL["hyrox"])
+    unknown = dict(hy, requires=["teleport"])
+    assert wss.refusal_screen(wss.route(unknown)) == "updateApp"
+    assert wss.refusal_screen(wss.route(dict(hy, schemaVersion=3))) == "updateApp"
+    big = {"schemaVersion": 2, "structure": {"body": [{"repeat": {"id": "r", "times": 401, "body": [
+        {"part": {"id": "a", "movement": "x", "target": {"value": 1, "unit": "reps"}}}]}}]}}
+    assert wss.refusal_screen(wss.route(big)) == "tooLarge"
+    for raw in (hy, dict(unknown, fidelity="exact"), dict(hy, schemaVersion=0),
+                {"schemaVersion": 2, "structure": None},
+                {"schemaVersion": 2, "structure": {"score": {"type": "time"}, "body": []}},
+                {"name": "today's row", "segments": []}):
+        assert wss.refusal_screen(wss.route(raw)) is None
+    assert wss.refusal_screen(None) is None
+
+
+def test_run_as_stopwatch_always_plans_athlete_paced():
+    hy = ws.compile_definition(ALL["hyrox"])
+    raw = dict(hy, schemaVersion=3, rawText="1000 m run\n\n  50 wall balls  \n", timeCapSeconds=5400)
+    d = wss.stopwatch_definition(raw)
+    assert d["id"] == hy["id"] and d["name"] == hy["name"] and d["format"] == "forTime"
+    assert wss.route(d) == {"route": "engine"}
+    p = we.plan(d)
+    assert [s.part["name"] for s in p.steps] == ["1000 m run", "50 wall balls"]
+    assert all(s.ends == "athlete" for s in p.steps) and p.windows["cap"].late == "continue"
+    # Two Crown turns finish it; nothing is asked and no clock ends anything.
+    st, _ = we.run(p, gen.expand_events(gen.ticked(500, 30 * S, gen.crowns(10 * S, 20 * S))))
+    assert st.done and st.asks == [] and wss.next_bell(st) is None
+    # No raw text: one part with the name. Too many lines: capped so the stopwatch still plans.
+    assert [s.part["name"] for s in we.plan(wss.stopwatch_definition({"name": "Big"})).steps] == ["Big"]
+    many = {"rawText": "\n".join("line %d" % i for i in range(900)), "timeCapSeconds": 10 ** 9}
+    d = wss.stopwatch_definition(many)
+    assert len(we.plan(d).steps) == ws.MAX_STEPS and d["structure"]["body"][0].get("part")
+    for junk in (None, [], "x", {"name": 5, "rawText": 7, "timeCapSeconds": True}):
+        assert wss.route(wss.stopwatch_definition(junk)) == {"route": "engine"}
+
+
 # ---- events -------------------------------------------------------------------------------------
 
 def test_event_times_are_clamped_and_unknown_keys_kept():

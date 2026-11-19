@@ -406,6 +406,43 @@ public enum WorkoutEngineSession {
         }
         return out
     }
+    // MARK: - Refusal screens and "Run as stopwatch" (owner decision on #115)
+
+    /// The screen the watch shows at START instead of running a refused v2 definition.
+    public enum RefusalScreen: String, Equatable, Sendable {
+        /// "UPDATE THE APP / to run this workout", [Run as stopwatch] [Back].
+        case updateApp
+        /// "TOO LARGE / to expand on the watch", [Run as stopwatch] [Back].
+        case tooLarge
+    }
+
+    /// Python `refusal_screen`: updateApp and tooLarge refusals get their screen; every other
+    /// route returns nil (the engine or the old path runs it, and any other refusal keeps the
+    /// interim fallback, the old keys, logged).
+    public static func refusalScreen(_ r: Route) -> RefusalScreen? {
+        if case .refused(let reason, _) = r {
+            return RefusalScreen(rawValue: reason)
+        }
+        return nil
+    }
+
+    /// Python `stopwatch_definition`: what "Run as stopwatch" runs on the engine. The refused
+    /// definition's id, names, team and HealthKit activity, a for-time format, and
+    /// `WorkoutStructureV2.stopwatchStructure` (athlete-paced, no reps question, score typed on
+    /// the phone). Always plans on this engine.
+    public static func stopwatchDefinition(_ raw: JSONValue) -> JSONValue {
+        let src: [String: JSONValue] = raw.object ?? [:]
+        var out: [String: JSONValue] = ["schemaVersion": .int(WorkoutStructureV2.schemaVersion),
+                                        "format": .string("forTime")]
+        for k in ["id", "name", "shortName", "team", "healthKitActivity"] {
+            if let s = src[k]?.string {
+                out[k] = .string(s)
+            }
+        }
+        out["structure"] = WorkoutStructureV2.stopwatchStructure(.object(src))
+        return .object(out)
+    }
+
     // MARK: - The phone: what it sends to the watch (W27 PR3b)
 
     /// Python `PHONE_V2_KEY`: the new application-context / message key that carries a row's v2

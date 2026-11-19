@@ -112,6 +112,10 @@ final class WorkoutSessionModel: ObservableObject {
     /// Selects a workout sent by the iPhone. Safe during a session: the running workout keeps
     /// its own definition; this only changes what the next START uses.
     func selectFromPhone(_ definition: WorkoutDefinition) {
+        if engineRefusal != nil {
+            // The refusal screen was for the previous workout.
+            dismissEngineRefusal()
+        }
         phoneDefinition = definition
         if let data = try? JSONEncoder().encode(definition) {
             UserDefaults.standard.set(data, forKey: Keys.phoneDefinition)
@@ -213,6 +217,23 @@ final class WorkoutSessionModel: ObservableObject {
     private var pendingEngineLines: [(uptime: Double, text: String)] = []
     /// The step whose reps were entered on the done screen (engine), so the picker stays on it.
     private var engineAnsweredStep: String?
+    /// What "Run as stopwatch" runs while the refusal screen shows (`engineRefusal`).
+    private var refusedStopwatch: JSONValue?
+    private var clockHintTask: Task<Void, Never>?
+
+    /// W27 (#115 states 1 and 2): START found a v2 workout the engine refuses ("UPDATE THE APP"
+    /// or "TOO LARGE"); the start page shows that screen until "Run as stopwatch" or "Back".
+    @Published private(set) var engineRefusal: WorkoutEngineSession.RefusalScreen?
+    /// W27 (#115 state 3): "Clock starts the next part" shows under the rest's countdown for
+    /// `clockHintSeconds` after a Crown turn the clock ignored. No haptic.
+    @Published private(set) var clockHintShown: Bool = false
+    static let clockHintSeconds: Double = 1.5
+
+    /// The running workout is on the engine (its views show "LEFT" under countdowns and the
+    /// clock hint; the old path shows neither).
+    var isOnEngine: Bool {
+        return engine != nil
+    }
 
     // MARK: Recovery after the finish (WORKOUT_SPEC §6)
 
@@ -369,13 +390,52 @@ final class WorkoutSessionModel: ObservableObject {
 
     func start() {
         guard phase == .idle else { return }
+        // W27: a v2 definition runs on the engine. One the engine refuses as updateApp or
+        // tooLarge stops here: the start page shows its screen (#115), and nothing runs until
+        // the athlete taps "Run as stopwatch" or "Back".
+        switch WorkoutEngineSessionModel.launch(rawDefinition: selectedRawDefinition) {
+        case .refused(let screen, let stopwatch):
+            refusedStopwatch = stopwatch
+            engineRefusal = screen
+        case .engine(let model):
+            begin(engine: model)
+        case .legacy:
+            begin(engine: nil)
+        }
+    }
+
+    /// "Run as stopwatch" on the refusal screen (RFC §14.3 A4): the refused workout runs on the
+    /// engine as athlete-paced parts, one per line of its raw text; the score is typed on the
+    /// phone. Its clock starts at this tap.
+    func runRefusedAsStopwatch() {
+        guard phase == .idle, engineRefusal != nil, let stopwatch = refusedStopwatch else { return }
+        engineRefusal = nil
+        refusedStopwatch = nil
+        guard let model = WorkoutEngineSessionModel.make(raw: stopwatch) else {
+            // Never expected: the stopwatch definition always plans (tested in Python and Swift).
+            workoutLog.error("Run as stopwatch: the plan failed")
+            errorMessage = "Stopwatch could not start"
+            return
+        }
+        workoutLog.info("Run as stopwatch: \(stopwatch["id"]?.string ?? "?", privacy: .public)")
+        begin(engine: model)
+    }
+
+    /// "Back" on the refusal screen: the start page again, nothing started.
+    func dismissEngineRefusal() {
+        engineRefusal = nil
+        refusedStopwatch = nil
+    }
+
+    /// START of a workout: on the engine when `newEngine` is set, else on the old path.
+    private func begin(engine newEngine: WorkoutEngineSessionModel?) {
         // Retries a recovery whose result could not be written at launch, before the new
         // workout's checkpoint replaces it.
         recoverInterruptedWorkout()
         resetForStart(definition: selectedDefinition, demo: false)
-        // W27: a v2 definition runs on the engine. Its clock starts at this tap (RFC §14.3 E1),
-        // not when HealthKit is ready; late ticks catch up.
-        engine = WorkoutEngineSessionModel.make(rawDefinition: selectedRawDefinition)
+        // The engine's clock starts at this tap (RFC §14.3 E1), not when HealthKit is ready;
+        // late ticks catch up.
+        engine = newEngine
         if let engine = engine {
             pendingEngineLines = engine.start(epoch: Date().timeIntervalSince1970,
                                               uptime: ProcessInfo.processInfo.systemUptime).csv
@@ -449,6 +509,9 @@ final class WorkoutSessionModel: ObservableObject {
         engine = nil
         pendingEngineLines = []
         engineAnsweredStep = nil
+        engineRefusal = nil
+        refusedStopwatch = nil
+        hideClockHint()
         resetRecovery()
         phase = .starting
     }
@@ -460,6 +523,9 @@ final class WorkoutSessionModel: ObservableObject {
         if let engine = engine {
             let u = engine.crown()
             applyEngine(u, engine: engine, haptics: true)
+            if u.clockHint {
+                showClockHint()
+            }
             return u.stepChanged
         }
         let t = Date().timeIntervalSince1970
@@ -1673,10 +1739,10 @@ final class WorkoutSessionModel: ObservableObject {
         return st.steps[st.seq[i]].id == id ? partialReps : nil
     }
 
-    /// Writes the engine's CSV lines, takes its projection and plays its effects as today's
-    /// haptics: TIME (stop ×3, success) when the clock ends work, `.start` into the next part or
-    /// rest, `.success` at the athlete's finish, `.directionUp` for each of the 3-2-1. The REST
-    /// pattern and the hint "Clock starts the next part" wait for the owner's design.
+    /// Writes the engine's CSV lines, takes its projection and plays its effects: TIME (stop ×3,
+    /// success) when the clock ends work, GO (`.start`) when the clock starts the next part, REST
+    /// (`playRestHaptic`, #115 state 4) when the clock starts a rest, `.success` at the athlete's
+    /// finish, `.directionUp` for each of the 3-2-1.
     private func applyEngine(_ u: WorkoutEngineSessionModel.Update, engine: WorkoutEngineSessionModel,
                              haptics: Bool) {
         for line in u.csv {
@@ -1689,8 +1755,13 @@ final class WorkoutSessionModel: ObservableObject {
         if haptics {
             if kinds.contains("time") {
                 playTimeHaptic()
-            } else if kinds.contains("go") || kinds.contains("rest") {
-                play(.start)
+            } else if let entry = u.effects.last(where: { $0.kind == "go" || $0.kind == "rest" }) {
+                // The engine keeps only the entry haptic of the state you are in now (§4.2.4).
+                if entry.kind == "rest" {
+                    playRestHaptic()
+                } else {
+                    play(.start)
+                }
             } else if kinds.contains("done") {
                 play(.success)
             } else if u.stepChanged && !u.byClock {
@@ -1705,11 +1776,42 @@ final class WorkoutSessionModel: ObservableObject {
             forTimeCapAnnouncedDate = Date()
         }
         if u.stepChanged {
+            // A new step: the clock hint belonged to the rest that just ended.
+            hideClockHint()
             lastChangeDate = Date()
             if u.byClock {
                 lastAutoAdvanceDate = Date()
             }
             persistProgress()
+        }
+    }
+
+    /// REST (#115 state 4, RFC §6.2): the clock starts a rest. Two `.directionDown` taps 0.6 s
+    /// apart: unlike GO (one `.start`) and TIME (which starts with `.stop`), and after the 3-2-1's
+    /// `.directionUp` beats. To be confirmed on a device.
+    private func playRestHaptic() {
+        play(.directionDown)
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 600_000_000)
+            WKInterfaceDevice.current().play(.directionDown)
+        }
+    }
+
+    private func showClockHint() {
+        clockHintShown = true
+        clockHintTask?.cancel()
+        clockHintTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: UInt64(WorkoutSessionModel.clockHintSeconds * 1_000_000_000))
+            if Task.isCancelled { return }
+            self?.clockHintShown = false
+        }
+    }
+
+    private func hideClockHint() {
+        clockHintTask?.cancel()
+        clockHintTask = nil
+        if clockHintShown {
+            clockHintShown = false
         }
     }
 
