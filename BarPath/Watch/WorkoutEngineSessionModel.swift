@@ -41,8 +41,8 @@ final class WorkoutEngineSessionModel {
     private var startMonoNs: UInt64 = 0
     private var written: [String: Int] = [:]
     private var projectedStarts: Int = 0
-    /// The CSV time of the last engine line written (lines never go back in time).
-    private var lastLineUptime: Double = 0
+    /// CSV times of engine lines (BarPathKit `WorkoutEngineCSVClock`, tested there).
+    private var csvClock = WorkoutEngineCSVClock(startUptime: 0)
     private var projectedFinished: Bool = false
 
     private init(raw: JSONValue, plan: WorkoutPlan, options: JSONValue) {
@@ -98,17 +98,16 @@ final class WorkoutEngineSessionModel {
         return ms >= UInt64(EngineEvent.maxMs) ? EngineEvent.maxMs : Int(ms)
     }
 
-    /// The CSV time (systemUptime) of engine time `ms`. `CLOCK_MONOTONIC` counts sleep and
+    /// The sleep measured so far (seconds), for the CSV time of engine lines. `CLOCK_MONOTONIC` counts sleep and
     /// `systemUptime` (every other CSV line) does not, so the sleep measured so far is taken off:
     /// engine lines stay in step with the HR, segment and sensor lines after the watch slept.
     /// This is exact for a line written as its event happens (every 200 ms tick). A line whose
     /// event came before a sleep but is written after it (a bell due during the sleep, reps
     /// entered later, a late Crown) has the whole sleep taken off and can come out too early;
     /// `stamp` keeps it from going before START or before a line already written.
-    private func uptime(_ ms: Int) -> Double {
+    private func sleepSoFar() -> Double {
         let elapsedUptime: Double = ProcessInfo.processInfo.systemUptime - startUptime
-        let sleep: Double = max(0, Double(nowMs()) / 1000 - elapsedUptime)
-        return startUptime + Double(ms) / 1000 - sleep
+        return max(0, Double(nowMs()) / 1000 - elapsedUptime)
     }
 
     // MARK: Inputs
@@ -119,7 +118,7 @@ final class WorkoutEngineSessionModel {
         startEpoch = epoch
         startUptime = uptime
         startMonoNs = WorkoutEngineSessionModel.monotonicNs()
-        lastLineUptime = uptime
+        csvClock = WorkoutEngineCSVClock(startUptime: uptime)
         var u = Update()
         let epochMs = Int64((epoch * 1000).rounded())
         let uptimeMs = Int64((uptime * 1000).rounded())
@@ -175,11 +174,10 @@ final class WorkoutEngineSessionModel {
         refresh(into: &u, byClock: event.kind == "tick")
     }
 
-    /// `uptime(ms)`, never before START nor before the last line written (#113 review F1).
+    /// The CSV time of a line written now at engine time `ms`, never before START nor before the
+    /// last line written (#113 review F1); the clamp moves only here, when a line is written.
     private func stamp(_ ms: Int) -> Double {
-        let v: Double = max(uptime(ms), startUptime, lastLineUptime)
-        lastLineUptime = v
-        return v
+        return csvClock.stamp(ms: ms, sleep: sleepSoFar())
     }
 
     /// Re-projects the state and writes the CSV lines for what changed: today's `segment`,
