@@ -86,15 +86,15 @@ re-checking the squat first look (its "bottoms" may be the tops); not changed he
 
 ## Workout 2 · row + power cleans (5 rounds for time)
 
-The definition says 85 kg; the owner used **155 lb (70 kg)**.
+Load: the owner's own, see README.md.
 
-| round | row cal | strokes | rate /min | row → bar transition | cleans found | clean span | median gap | style | clean peak v | bar → row transition |
-|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
-| 1 | 40 | 52 | 19.9 | 29.9 s | 7 | 68 s | 10.4 s | singles | 1.99 | 13.6 s |
-| 2 | 30 | 43 | 19.8 | 30.7 s | 7 | 72 s | 11.4 s | singles | 1.93 | 16.7 s |
-| 3 | 20 | 33 | 22.9 | 23.5 s | 7 | 68 s | 11.3 s | singles | 1.94 | 10.8 s |
-| 4 | 30 | 48 | 20.8 | 24.1 s | 7 | 82 s | 11.5 s | singles | 1.89 | 13.3 s |
-| 5 | 40 | 57 | 18.8 | 12.2 s | 7 | 31 s | 4.8 s | fast singles | 1.94 | – |
+| round | strokes | rate /min | row → bar transition | cleans found | clean span | median gap | style | clean peak v | bar → row transition |
+|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| 1 | 52 | 19.9 | 29.9 s | 7 | 68 s | 10.4 s | singles | 1.99 | 13.6 s |
+| 2 | 43 | 19.8 | 30.7 s | 7 | 72 s | 11.4 s | singles | 1.93 | 16.7 s |
+| 3 | 33 | 22.9 | 23.5 s | 7 | 68 s | 11.3 s | singles | 1.94 | 10.8 s |
+| 4 | 48 | 20.8 | 24.1 s | 7 | 82 s | 11.5 s | singles | 1.89 | 13.3 s |
+| 5 | 57 | 18.8 | 12.2 s | 7 | 31 s | 4.8 s | fast singles | 1.94 | – |
 
 * **35/35 power cleans found**, 7 in every round, none outside the clean windows. All reps were
   singles (bar back to the floor; gaps 4.6-24 s, none < 3.5 s). Rounds 1-4: one rep every
@@ -232,19 +232,19 @@ Recovery (HeartRateRecovery rules):
 
 ### Workout 2 · row + power cleans
 
-Power cleans at 155 lb (70 kg, owner; the definition says 85 kg).
+Power cleans at the owner's load (README.md).
 
 Start -0.00 s, finish 19:37 (Crown), End 22:50.
 
 #### Rounds
 
-| round | row cal | row segment | strokes window (from seg start) | strokes | period s | rate /min | cal/stroke | transitions.py row onset s (method, conf) | cleans segment | reps found | clean window |
-|---:|---:|---|---|---:|---:|---:|---:|---|---|---:|---|
-| 1 | 40 | 0:00-2:38 (158 s) | 0-154 | 52 | 3.01 | 19.9 | 0.77 | 20.0 (row, 0.75) | 2:38-4:15 (97 s) | **7** | 3:04-4:12 |
-| 2 | 30 | 4:15-6:33 (138 s) | 10-137 | 43 | 3.02 | 19.8 | 0.70 | 25.0 (row, 0.90) | 6:33-8:17 (104 s) | **7** | 7:03-8:15 |
-| 3 | 20 | 8:17-10:01 (104 s) | 14-98 | 33 | 2.62 | 22.9 | 0.61 | 15.0 (row, 0.75) | 10:01-11:30 (89 s) | **7** | 10:19-11:27 |
-| 4 | 30 | 11:30-13:57 (147 s) | 8-143 | 48 | 2.88 | 20.8 | 0.62 | 5.5 (row, 0.90) | 13:57-15:43 (105 s) | **7** | 14:17-15:40 |
-| 5 | 40 | 15:43-18:53 (190 s) | 10-189 | 57 | 3.20 | 18.8 | 0.70 | 29.8 (row, 0.90) | 18:53-19:37 (44 s) | **7** | 19:04-19:35 |
+| round | row segment | strokes window (from seg start) | strokes | period s | rate /min | cal/stroke | transitions.py row onset s (method, conf) | cleans segment | reps found | clean window |
+|---:|---|---|---:|---:|---:|---:|---|---|---:|---|
+| 1 | 0:00-2:38 (158 s) | 0-154 | 52 | 3.01 | 19.9 | 0.77 | 20.0 (row, 0.75) | 2:38-4:15 (97 s) | **7** | 3:04-4:12 |
+| 2 | 4:15-6:33 (138 s) | 10-137 | 43 | 3.02 | 19.8 | 0.70 | 25.0 (row, 0.90) | 6:33-8:17 (104 s) | **7** | 7:03-8:15 |
+| 3 | 8:17-10:01 (104 s) | 14-98 | 33 | 2.62 | 22.9 | 0.61 | 15.0 (row, 0.75) | 10:01-11:30 (89 s) | **7** | 10:19-11:27 |
+| 4 | 11:30-13:57 (147 s) | 8-143 | 48 | 2.88 | 20.8 | 0.62 | 5.5 (row, 0.90) | 13:57-15:43 (105 s) | **7** | 14:17-15:40 |
+| 5 | 15:43-18:53 (190 s) | 10-189 | 57 | 3.20 | 18.8 | 0.70 | 29.8 (row, 0.90) | 18:53-19:37 (44 s) | **7** | 19:04-19:35 |
 
 Power cleans found: **35** of 35.
 

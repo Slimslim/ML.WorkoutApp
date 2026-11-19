@@ -108,11 +108,11 @@ a new workout doesn't fit.
    `1:00 Suitcase Hold @pick`. Number first; the unit (`Cal`, `m`, `ft`, `s`, `1:00`) sits
    between the number and the movement; the load goes last after `@`.
 4. **Loads inline, never in a right-aligned column** (picked for round 3, applied to every card).
-5. Movement names in Title Case, plural when the quantity is more than 1 (`7 Power Cleans`).
+5. Movement names in Title Case, plural when the quantity is more than 1 (`5 Power Cleans`).
 6. **Abbreviate** the common names: HSPU, T2B, C&J, DB, KB, DU (round 4).
 7. **Units:** heights in inches (`Box Jumps @24 in`), run distances in m (miles only when the
    workout says so), `lb` never `lbs`.
-8. **Alternating** = `ALT` (`12 ALT DB Snatches @40 lb`); two dumbbells = `Double DB`.
+8. **Alternating** = `ALT` (`10 ALT DB Snatches @50 lb`); two dumbbells = `Double DB`.
 9. **Cap at the bottom** of the card, under the movements: `8 min cap`. Not in the time-domain line.
 10. **CrossFit Open** workouts get the `Open` prefix. `Open 13.4` is an **AMREP** (tag AMREP, not
     AMRAP): `7 min AMREP` / `3-6-9-12…` / `C&J @135 lb` (F 95 lb) / `T2B`; score = total reps.
