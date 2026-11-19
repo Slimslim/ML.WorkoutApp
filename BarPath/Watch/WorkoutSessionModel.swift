@@ -75,6 +75,8 @@ final class WorkoutSessionModel: ObservableObject {
         static let definitionId = "workoutDefinitionId.v1"
         static let lastSummary = "workoutLastSummary.v1"
         static let phoneDefinition = "phoneWorkoutDefinition.v1"
+        /// The phone workout's JSON as sent (W27 engine route; v2 structure included).
+        static let phoneDefinitionRaw = "phoneWorkoutRaw.v1"
     }
 
     // MARK: Settings (persisted)
@@ -114,7 +116,31 @@ final class WorkoutSessionModel: ObservableObject {
         if let data = try? JSONEncoder().encode(definition) {
             UserDefaults.standard.set(data, forKey: Keys.phoneDefinition)
         }
+        // The bytes the phone sent (PhoneLink sets them before publishing the definition), kept
+        // only when they are this definition's: a v2 structure in them runs on the engine.
+        var raw: Data? = nil
+        if let data = link.phoneWorkoutRaw, let parsed = try? JSONValue.parse(data),
+           parsed["id"]?.string == definition.id {
+            raw = data
+        }
+        phoneDefinitionRaw = raw
+        if let raw = raw {
+            UserDefaults.standard.set(raw, forKey: Keys.phoneDefinitionRaw)
+        } else {
+            UserDefaults.standard.removeObject(forKey: Keys.phoneDefinitionRaw)
+        }
         definitionId = definition.id
+    }
+
+    /// The raw JSON of the selected workout when it came from the phone; nil for a built-in.
+    var selectedRawDefinition: Data? {
+        if WorkoutLibrary.definition(id: definitionId) != nil {
+            return nil
+        }
+        if let phone = phoneDefinition, phone.id == definitionId {
+            return phoneDefinitionRaw
+        }
+        return nil
     }
 
     // MARK: Session state
@@ -178,6 +204,15 @@ final class WorkoutSessionModel: ObservableObject {
     /// Screen demo: fake HR ticker and its state.
     private var demoTask: Task<Void, Never>?
     private var demoHeartRate = WorkoutDemo.HeartRate()
+    /// The phone workout's raw JSON (see `selectFromPhone`).
+    private var phoneDefinitionRaw: Data?
+    /// W27: the engine session, only for a definition that carries a v2 structure (set at START).
+    /// While it exists it makes every timing decision; nil = the old path, unchanged.
+    private var engine: WorkoutEngineSessionModel?
+    /// CSV lines from the engine's START, written once the recorder runs (`beginRunning`).
+    private var pendingEngineLines: [(uptime: Double, text: String)] = []
+    /// The step whose reps were entered on the done screen (engine), so the picker stays on it.
+    private var engineAnsweredStep: String?
 
     // MARK: Recovery after the finish (WORKOUT_SPEC §6)
 
@@ -268,6 +303,7 @@ final class WorkoutSessionModel: ObservableObject {
         // All stored properties are initialized now; this one has a default, so it's a setter.
         lastSummary = defaults.string(forKey: Keys.lastSummary)
         phoneDefinition = storedPhoneDefinition
+        phoneDefinitionRaw = defaults.data(forKey: Keys.phoneDefinitionRaw)
         wireWorkoutCallbacks()
         recorder.onBatchWritten = { [weak self] in
             self?.refreshCounters()
@@ -337,6 +373,14 @@ final class WorkoutSessionModel: ObservableObject {
         // workout's checkpoint replaces it.
         recoverInterruptedWorkout()
         resetForStart(definition: selectedDefinition, demo: false)
+        // W27: a v2 definition runs on the engine. Its clock starts at this tap (RFC §14.3 E1),
+        // not when HealthKit is ready; late ticks catch up.
+        engine = WorkoutEngineSessionModel.make(rawDefinition: selectedRawDefinition)
+        if let engine = engine {
+            pendingEngineLines = engine.start(epoch: Date().timeIntervalSince1970,
+                                              uptime: ProcessInfo.processInfo.systemUptime).csv
+            workoutLog.info("Workout on the engine: \(self.progress.definition.id, privacy: .public)")
+        }
         // A background recovery (W6) holds a HealthKit session and only one can run: it is
         // stopped (its update sent) first; HealthKit starts once it has ended, at most ~1 s.
         stopBackgroundRecovery(reason: "new workout") { [weak self] in
@@ -402,6 +446,9 @@ final class WorkoutSessionModel: ObservableObject {
         countdownLastBeep = nil
         lastResultInput = nil
         pendingRecovery = nil
+        engine = nil
+        pendingEngineLines = []
+        engineAnsweredStep = nil
         resetRecovery()
         phase = .starting
     }
@@ -410,6 +457,11 @@ final class WorkoutSessionModel: ObservableObject {
     @discardableResult
     func advance(source: AdvanceSource) -> Bool {
         guard phase == .running else { return false }
+        if let engine = engine {
+            let u = engine.crown()
+            applyEngine(u, engine: engine, haptics: true)
+            return u.stepChanged
+        }
         let t = Date().timeIntervalSince1970
         let uptime = ProcessInfo.processInfo.systemUptime
         guard progress.advance(at: t, source: source) else { return false }
@@ -435,7 +487,7 @@ final class WorkoutSessionModel: ObservableObject {
     /// recorded as 0 s), and the last set finishes on its minute. One "go" haptic.
     @discardableResult
     func clockAdvance() -> Bool {
-        guard phase == .running else { return false }
+        guard phase == .running, engine == nil else { return false }
         let t = Date().timeIntervalSince1970
         let uptime = ProcessInfo.processInfo.systemUptime
         guard progress.autoAdvance(at: t) else { return false }
@@ -460,6 +512,19 @@ final class WorkoutSessionModel: ObservableObject {
     @discardableResult
     func undo(source: AdvanceSource) -> Bool {
         guard phase == .running else { return false }
+        if let engine = engine {
+            let wasFinished = progress.isFinished
+            let u = engine.undo()
+            applyEngine(u, engine: engine, haptics: false)
+            if u.stepChanged {
+                play(.directionDown)
+                if wasFinished {
+                    partialReps = nil
+                    engineAnsweredStep = nil
+                }
+            }
+            return u.stepChanged
+        }
         let t = Date().timeIntervalSince1970
         let uptime = ProcessInfo.processInfo.systemUptime
         let wasFinished = progress.isFinished
@@ -488,6 +553,9 @@ final class WorkoutSessionModel: ObservableObject {
 
     /// Finished by the AMRAP time cap (the last finish event came from the clock).
     var isFinishedByCap: Bool {
+        if let engine = engine {
+            return progress.isFinished && engine.finishedByClock
+        }
         guard progress.isFinished, progress.capTime != nil,
               let last = progress.events.last(where: { (e: WorkoutEvent) -> Bool in e.kind == .finish }) else {
             return false
@@ -499,6 +567,14 @@ final class WorkoutSessionModel: ObservableObject {
     /// AMRAP: the segment the cap finished in. For time finished past the cap: the segment
     /// running at the cap (`repsAtCapSegment`).
     var partialRepsSegment: WorkoutSegment? {
+        if let engine = engine {
+            // The engine's one question: the latest it asked (RFC §6.4), kept once answered.
+            guard progress.isFinished else { return nil }
+            if let id = engineAnsweredStep, let step = engine.state.step(id: id) {
+                return WorkoutEngineSession.segment(WorkoutEngineSession.legacySegment(step))
+            }
+            return engine.askedSegment
+        }
         if isFinishedByCap {
             guard let segment = progress.currentSegment, segment.kind != .rest else { return nil }
             return segment
@@ -510,7 +586,7 @@ final class WorkoutSessionModel: ObservableObject {
     /// reps (asked "Reps of <name> at the cap?"); nil for a run, a rest, a metre or time target,
     /// or when the workout finished under the cap.
     var repsAtCapSegment: WorkoutSegment? {
-        guard progress.isFinished, let finish = progress.finishTime,
+        guard engine == nil, progress.isFinished, let finish = progress.finishTime,
               let i = progress.capSegmentIndex(now: finish),
               i >= 0, i < progress.definition.segments.count else { return nil }
         let segment: WorkoutSegment = progress.definition.segments[i]
@@ -543,6 +619,15 @@ final class WorkoutSessionModel: ObservableObject {
         guard phase == .running, partialRepsSegment != nil else { return }
         let value: Int = min(max(0, reps), partialRepsMax)
         partialReps = value
+        if let engine = engine, let id = engineAnsweredStep ?? engine.askedStep?.id {
+            // Stored per step in the engine (its `step` line carries the reps); the picker stays.
+            engineAnsweredStep = id
+            applyEngine(engine.reps(step: id, value: value), engine: engine, haptics: false)
+            play(.click)
+            saveCheckpoint()
+            workoutLog.info("engine reps saved: \(value) for \(id, privacy: .public)")
+            return
+        }
         let name: String = asksRepsAtCap ? "repsAtCap" : "partialReps"
         recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
                              description: "name=\(name) reps=\(value)")
@@ -575,6 +660,10 @@ final class WorkoutSessionModel: ObservableObject {
         }
         switch phase {
         case .starting, .running:
+            if phase == .running, let engine = engine {
+                // A step still running ends here; its lines go in before the CSV closes.
+                applyEngine(engine.end(), engine: engine, haptics: false)
+            }
             let until: Double? = backgroundRecoveryEnd(now: Date().timeIntervalSince1970)
             if until != nil {
                 // Logged before the CSV closes; the HR after End is not in the CSV.
@@ -607,7 +696,12 @@ final class WorkoutSessionModel: ObservableObject {
         startTimeoutTask?.cancel()
         startTimeoutTask = nil
         let t = Date().timeIntervalSince1970
-        progress.start(at: t)
+        if let engine = engine {
+            // Started at the START tap (`start()`); the views read its projection from now on.
+            progress = engine.progress
+        } else {
+            progress.start(at: t)
+        }
         phase = .running
 
         if isDemo {
@@ -633,8 +727,16 @@ final class WorkoutSessionModel: ObservableObject {
             isRecordingCSV = true
         }
         let kind = progress.currentSegment?.kind ?? .station
-        recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
-                             description: "name=segment index=0 kind=\(kind.rawValue) source=start")
+        if engine != nil {
+            // The engine's plan, bell and first segment lines, from the START tap.
+            for line in pendingEngineLines {
+                recorder.appendEvent(atUptime: line.uptime, description: line.text)
+            }
+            pendingEngineLines = []
+        } else {
+            recorder.appendEvent(atUptime: ProcessInfo.processInfo.systemUptime,
+                                 description: "name=segment index=0 kind=\(kind.rawValue) source=start")
+        }
         persistProgress()
         startClock()
         startPedometer(from: Date(timeIntervalSince1970: t))
@@ -648,6 +750,9 @@ final class WorkoutSessionModel: ObservableObject {
     /// (finish), whichever comes first.
     func nextClockEvent() -> (time: Double, isFinish: Bool)? {
         guard phase == .running, progress.isStarted, !progress.isFinished else { return nil }
+        if let engine = engine {
+            return engine.nextClockEvent
+        }
         var best: (time: Double, isFinish: Bool)? = nil
         if let t = progress.autoAdvanceTime(), progress.segmentStarts.last != autoSuppressedStart {
             best = (time: t, isFinish: false)
@@ -685,6 +790,13 @@ final class WorkoutSessionModel: ObservableObject {
             for line in recordingInfo.tick(uptime: uptime) {
                 recorder.appendEvent(atUptime: uptime, description: line)
             }
+        }
+        if let engine = engine {
+            // The engine owns bells, the 3-2-1 and caps: one tick, its effects played.
+            if !isDemo {
+                applyEngine(engine.tick(), engine: engine, haptics: true)
+            }
+            return
         }
         guard let event = nextClockEvent() else {
             countdownTarget = nil
@@ -850,6 +962,9 @@ final class WorkoutSessionModel: ObservableObject {
         // cleared once its result is written; a demo never has one.)
         if !isDemo && !progress.isStarted {
             WorkoutCheckpoint.clear()
+            if engine != nil {
+                WorkoutEngineCheckpointFile.clear()
+            }
         }
         stopLocation()
         recordingInfo.stop()
@@ -1332,7 +1447,7 @@ final class WorkoutSessionModel: ObservableObject {
         let hr: [TimedValue] = heartRates.map { TimedValue(t: $0.t, value: $0.bpm) }
         let input = ResultInput(id: workoutId, progress: progress, heartRates: hr,
                                 pedometer: pedometerSamples,
-                                partialReps: progress.isFinished ? partialReps : nil,
+                                partialReps: progress.isFinished ? resultPartialReps : nil,
                                 recordedCSV: recordedCSV, endT: endT)
         lastResultInput = input
         let result: WorkoutResult = WorkoutSessionModel.makeResult(input, recordingEndT: endT)
@@ -1347,7 +1462,11 @@ final class WorkoutSessionModel: ObservableObject {
         UserDefaults.standard.set(summary, forKey: Keys.lastSummary)
 
         if writeAndSend(result, fileName: "workout-\(workoutId.uuidString).json") {
-            WorkoutCheckpoint.clear()
+            if engine != nil {
+                WorkoutEngineCheckpointFile.clear()
+            } else {
+                WorkoutCheckpoint.clear()
+            }
         } else {
             let failed = "\(summary) · not saved"
             lastSummary = failed
@@ -1367,6 +1486,19 @@ final class WorkoutSessionModel: ObservableObject {
         let hr: [TimedValue] = heartRates.map { (s: HeartRateSample) -> TimedValue in
             TimedValue(t: s.t, value: s.bpm)
         }
+        if let engine = engine {
+            // Its own file (W27): the definition, plan, events and this watch data.
+            let watch: JSONValue = .object([
+                "workoutId": .string(workoutId.uuidString),
+                "heartRates": WorkoutSessionModel.json(hr),
+                "pedometer": WorkoutSessionModel.json(pedometerSamples),
+                "partialReps": partialReps.map { JSONValue.int($0) } ?? .null,
+                "recordedCSV": .bool(isRecordingCSV),
+                "savedAt": .double(Date().timeIntervalSince1970),
+            ])
+            WorkoutEngineCheckpointFile.save(engine.checkpointData(watch: watch))
+            return
+        }
         let checkpoint = WorkoutCheckpoint(workoutId: workoutId,
                                            progress: progress,
                                            heartRates: hr,
@@ -1384,6 +1516,7 @@ final class WorkoutSessionModel: ObservableObject {
     /// The debug CSV (`session-<id>.csv`) is moved to the outbox by `PhoneLink.activate()`.
     private func recoverInterruptedWorkout() {
         guard phase == .idle, !isDemo else { return }
+        recoverInterruptedEngineWorkout()
         guard let checkpoint = WorkoutCheckpoint.load() else { return }
         guard checkpoint.progress.isStarted else {
             WorkoutCheckpoint.clear()
@@ -1518,6 +1651,132 @@ final class WorkoutSessionModel: ObservableObject {
 
     private func play(_ type: WKHapticType) {
         WKInterfaceDevice.current().play(type)
+    }
+
+    // MARK: - Engine (W27)
+
+    /// The done screen's reps as the result's `partialReps`: on the old path always; on the
+    /// engine only when they belong to the last step run (the result has one reps field until
+    /// per-step reps reach it, RFC §11 step 8). The CSV `step` lines and the checkpoint carry
+    /// every step's reps either way.
+    private var resultPartialReps: Int? {
+        guard let engine = engine else { return partialReps }
+        let st: EngineState = engine.state
+        let i: Int = progress.currentIndex
+        guard let id = engineAnsweredStep, i >= 0, i < st.seq.count else { return nil }
+        return st.steps[st.seq[i]].id == id ? partialReps : nil
+    }
+
+    /// Writes the engine's CSV lines, takes its projection and plays its effects as today's
+    /// haptics: TIME (stop ×3, success) when the clock ends work, `.start` into the next part or
+    /// rest, `.success` at the athlete's finish, `.directionUp` for each of the 3-2-1. The REST
+    /// pattern and the hint "Clock starts the next part" wait for the owner's design.
+    private func applyEngine(_ u: WorkoutEngineSessionModel.Update, engine: WorkoutEngineSessionModel,
+                             haptics: Bool) {
+        for line in u.csv {
+            recorder.appendEvent(atUptime: line.uptime, description: line.text)
+        }
+        if progress != engine.progress {
+            progress = engine.progress
+        }
+        let kinds: Set<String> = Set(u.effects.map { $0.kind })
+        if haptics {
+            if kinds.contains("time") {
+                playTimeHaptic()
+            } else if kinds.contains("go") || kinds.contains("rest") {
+                play(.start)
+            } else if kinds.contains("done") {
+                play(.success)
+            } else if u.stepChanged && !u.byClock {
+                play(progress.currentSegment?.kind == .run ? .start : .directionUp)
+            }
+            if kinds.contains("countdown") && !kinds.contains("time") {
+                play(.directionUp)
+            }
+        }
+        if kinds.contains("cap") && forTimeCapAnnouncedDate == nil {
+            // A `late: continue` cap: today's "Time cap · keep going" banner.
+            forTimeCapAnnouncedDate = Date()
+        }
+        if u.stepChanged {
+            lastChangeDate = Date()
+            if u.byClock {
+                lastAutoAdvanceDate = Date()
+            }
+            persistProgress()
+        }
+    }
+
+    /// A Codable value as JSON for the engine checkpoint's `watch` part (null if it can't be).
+    private static func json<T: Encodable>(_ value: T) -> JSONValue {
+        guard let data = try? JSONEncoder().encode(value), let v = try? JSONValue.parse(data) else {
+            return .null
+        }
+        return v
+    }
+
+    private static func decode<T: Decodable>(_ type: T.Type, _ value: JSONValue?) -> T? {
+        guard let v = value, let data = try? JSONEncoder().encode(v) else { return nil }
+        return try? JSONDecoder().decode(type, from: data)
+    }
+
+    /// At launch (and before a new START): an engine checkpoint left behind means the app died
+    /// mid-workout. The run is replayed only up to the checkpoint (RFC §4.2.11) and saved like an
+    /// early End at `savedAt`, as the old path does. A checkpoint that can't be replayed (unknown
+    /// version or feature, a plan this build makes differently, unreadable) is moved aside, never
+    /// deleted (RFC §8).
+    private func recoverInterruptedEngineWorkout() {
+        guard let data = WorkoutEngineCheckpointFile.load() else { return }
+        guard let cp = try? JSONValue.parse(data) else {
+            WorkoutEngineCheckpointFile.moveAside(reason: "unreadable")
+            return
+        }
+        let watch: JSONValue = cp["watch"] ?? .null
+        guard let idText = watch["workoutId"]?.string, let id = UUID(uuidString: idText) else {
+            WorkoutEngineCheckpointFile.moveAside(reason: "noWorkoutId")
+            return
+        }
+        let state: EngineState
+        switch WorkoutEngineSession.recover(cp) {
+        case .refused(let reason):
+            WorkoutEngineCheckpointFile.moveAside(reason: reason)
+            return
+        case .ok(_, let st):
+            state = st
+        }
+        let startEpoch: Double = (cp["startEpochMs"]?.number ?? 0) / 1000
+        var recovered: WorkoutProgress = WorkoutEngineSession.progress(cp["definition"] ?? .null,
+                                                                       WorkoutEngineSession.project(state),
+                                                                       startEpoch: startEpoch)
+        guard recovered.isStarted else {
+            WorkoutEngineCheckpointFile.clear()
+            return
+        }
+        let fileName = "workout-\(id.uuidString).json"
+        let outboxFile: URL = WatchFiles.outbox.appendingPathComponent(fileName)
+        if FileManager.default.fileExists(atPath: outboxFile.path) {
+            workoutLog.info("Engine checkpoint ignored: result \(fileName, privacy: .public) already written")
+            WorkoutEngineCheckpointFile.clear()
+            return
+        }
+        let savedAt: Double = watch["savedAt"]?.number ?? (recovered.startTime ?? startEpoch)
+        let endT: Double = max(savedAt, recovered.startTime ?? savedAt)
+        recovered.recordEnd(at: endT)
+        let hr: [TimedValue] = WorkoutSessionModel.decode([TimedValue].self, watch["heartRates"]) ?? []
+        let steps: [PedometerSnapshot] = WorkoutSessionModel.decode([PedometerSnapshot].self, watch["pedometer"]) ?? []
+        let input = ResultInput(id: id, progress: recovered, heartRates: hr, pedometer: steps,
+                                partialReps: nil, recordedCSV: watch["recordedCSV"]?.bool ?? false, endT: endT)
+        let result: WorkoutResult = WorkoutSessionModel.makeResult(input, recordingEndT: endT)
+        if let received = SensorAccess.receivedHeartRate(sampleCount: hr.count, sessionSeconds: result.totalSeconds) {
+            UserDefaults.standard.set(received, forKey: SensorAccess.receivedHeartRateKey)
+        }
+        if writeAndSend(result, fileName: fileName) {
+            let summary = "\(result.definition.shortName) · \(SessionModel.formatElapsed(result.totalSeconds)) · saved after interruption"
+            lastSummary = summary
+            UserDefaults.standard.set(summary, forKey: Keys.lastSummary)
+            WorkoutEngineCheckpointFile.clear()
+            workoutLog.info("Recovered an interrupted engine workout: \(result.segments.count) segments")
+        }
     }
 
     // MARK: - Formatting
