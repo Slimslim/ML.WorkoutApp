@@ -1,0 +1,417 @@
+[
+ {
+  "case": "tabata",
+  "eventLines": [
+   [
+    20000,
+    "name=step step=rp.1.sq status=done endedBy=clock seq=1 reps=12"
+   ],
+   [
+    25000,
+    "name=input action=ignored input=crown reason=clock seq=2"
+   ],
+   [
+    30000,
+    "name=step step=rp.1.r status=done endedBy=clock seq=3"
+   ],
+   [
+    41000,
+    "name=step step=rp.2.sq status=done endedBy=athlete seq=4 reps=11"
+   ],
+   [
+    47000,
+    "name=input action=ignored input=crown reason=clock seq=5"
+   ],
+   [
+    60000,
+    "name=step step=rp.2.r status=done endedBy=clock seq=6"
+   ],
+   [
+    80000,
+    "name=step step=rp.3.sq status=done endedBy=clock seq=7 reps=10"
+   ],
+   [
+    90000,
+    "name=step step=rp.3.r status=done endedBy=clock seq=8"
+   ],
+   [
+    110000,
+    "name=step step=rp.4.sq status=done endedBy=clock seq=9 reps=10"
+   ],
+   [
+    120000,
+    "name=step step=rp.4.r status=done endedBy=clock seq=10"
+   ],
+   [
+    140000,
+    "name=step step=rp.5.sq status=done endedBy=clock seq=11 reps=9"
+   ],
+   [
+    150000,
+    "name=step step=rp.5.r status=done endedBy=clock seq=12"
+   ],
+   [
+    170000,
+    "name=step step=rp.6.sq status=done endedBy=clock seq=13 reps=9"
+   ],
+   [
+    180000,
+    "name=step step=rp.6.r status=done endedBy=clock seq=14"
+   ],
+   [
+    200000,
+    "name=step step=rp.7.sq status=done endedBy=clock seq=15 reps=8"
+   ],
+   [
+    210000,
+    "name=step step=rp.7.r status=done endedBy=clock seq=16"
+   ],
+   [
+    230000,
+    "name=step step=rp.8.sq status=done endedBy=clock seq=17 reps=7"
+   ],
+   [
+    240000,
+    "name=step step=rp.8.r status=done endedBy=clock seq=18"
+   ]
+  ],
+  "planLines": [
+   "name=plan schema=2 planner=1 hash=54ccdf0b2a32255d4c6436a9516600e191d88733c7f253db6a3af33d4a1626b1 startEpochMs=1795000000000 startUptimeMs=50000 steps=16 bells=16",
+   "name=bell id=rp.1.work.end anchor=start offsetMs=20000",
+   "name=bell id=rp.1.r.end anchor=start offsetMs=30000",
+   "name=bell id=rp.2.work.end anchor=start offsetMs=50000",
+   "name=bell id=rp.2.r.end anchor=start offsetMs=60000",
+   "name=bell id=rp.3.work.end anchor=start offsetMs=80000",
+   "name=bell id=rp.3.r.end anchor=start offsetMs=90000",
+   "name=bell id=rp.4.work.end anchor=start offsetMs=110000",
+   "name=bell id=rp.4.r.end anchor=start offsetMs=120000",
+   "name=bell id=rp.5.work.end anchor=start offsetMs=140000",
+   "name=bell id=rp.5.r.end anchor=start offsetMs=150000",
+   "name=bell id=rp.6.work.end anchor=start offsetMs=170000",
+   "name=bell id=rp.6.r.end anchor=start offsetMs=180000",
+   "name=bell id=rp.7.work.end anchor=start offsetMs=200000",
+   "name=bell id=rp.7.r.end anchor=start offsetMs=210000",
+   "name=bell id=rp.8.work.end anchor=start offsetMs=230000",
+   "name=bell id=rp.8.r.end anchor=start offsetMs=240000"
+  ],
+  "scenario": "stoppedAndRestCrowns",
+  "startEpochMs": 1795000000000,
+  "startUptimeMs": 50000
+ },
+ {
+  "case": "windows3334",
+  "eventLines": [
+   [
+    70000,
+    "name=step step=rp.1.bike status=done endedBy=athlete seq=1"
+   ],
+   [
+    140000,
+    "name=step step=rp.1.pu status=done endedBy=athlete seq=2"
+   ],
+   [
+    180000,
+    "name=step step=rp.1.bench status=done endedBy=clock seq=3 reps=12"
+   ],
+   [
+    240000,
+    "name=step step=rp.1.r status=done endedBy=clock seq=4"
+   ],
+   [
+    300000,
+    "name=step step=rp.2.bike status=done endedBy=athlete seq=5"
+   ],
+   [
+    370000,
+    "name=step step=rp.2.pu status=done endedBy=athlete seq=6"
+   ],
+   [
+    420000,
+    "name=step step=rp.2.bench status=done endedBy=clock seq=7 reps=7"
+   ],
+   [
+    480000,
+    "name=step step=rp.2.r status=done endedBy=clock seq=8"
+   ],
+   [
+    540000,
+    "name=step step=rp.3.bike status=done endedBy=athlete seq=9"
+   ],
+   [
+    660000,
+    "name=step step=rp.3.pu status=cut endedBy=clock seq=10 reps=12"
+   ],
+   [
+    660000,
+    "name=step step=rp.3.bench status=skipped endedBy=clock seq=11"
+   ],
+   [
+    720000,
+    "name=step step=rp.3.r status=done endedBy=clock seq=12"
+   ],
+   [
+    760000,
+    "name=step step=rp.4.bike status=done endedBy=athlete seq=13"
+   ],
+   [
+    830000,
+    "name=step step=rp.4.pu status=done endedBy=athlete seq=14"
+   ],
+   [
+    960000,
+    "name=step step=rp.4.bench status=done endedBy=clock seq=15 reps=12"
+   ],
+   [
+    960000,
+    "name=step step=rp.4.w.wait status=skipped endedBy=clock seq=16"
+   ]
+  ],
+  "planLines": [
+   "name=plan schema=2 planner=1 hash=94968011713cd6f5b34b2722d55af380d6bfc1c987eeb6564b0edea4abade1df startEpochMs=1795000001000 startUptimeMs=50007 steps=16 bells=7",
+   "name=bell id=rp.1.w.end anchor=start offsetMs=180000",
+   "name=bell id=rp.1.r.end anchor=start offsetMs=240000",
+   "name=bell id=rp.2.w.end anchor=start offsetMs=420000",
+   "name=bell id=rp.2.r.end anchor=start offsetMs=480000",
+   "name=bell id=rp.3.w.end anchor=start offsetMs=660000",
+   "name=bell id=rp.3.r.end anchor=start offsetMs=720000",
+   "name=bell id=rp.4.w.end anchor=start offsetMs=960000"
+  ],
+  "scenario": "gymTruth",
+  "startEpochMs": 1795000001000,
+  "startUptimeMs": 50007
+ },
+ {
+  "case": "windows3334",
+  "eventLines": [
+   [
+    10000,
+    "name=step step=rp.1.bike status=done endedBy=athlete seq=1"
+   ],
+   [
+    13000,
+    "name=input action=ignored input=crown reason=lockout seq=2"
+   ],
+   [
+    15000,
+    "name=step step=rp.1.pu status=done endedBy=athlete seq=3"
+   ]
+  ],
+  "planLines": [
+   "name=plan schema=2 planner=1 hash=94968011713cd6f5b34b2722d55af380d6bfc1c987eeb6564b0edea4abade1df startEpochMs=1795000002000 startUptimeMs=50014 steps=16 bells=7",
+   "name=bell id=rp.1.w.end anchor=start offsetMs=180000",
+   "name=bell id=rp.1.r.end anchor=start offsetMs=240000",
+   "name=bell id=rp.2.w.end anchor=start offsetMs=420000",
+   "name=bell id=rp.2.r.end anchor=start offsetMs=480000",
+   "name=bell id=rp.3.w.end anchor=start offsetMs=660000",
+   "name=bell id=rp.3.r.end anchor=start offsetMs=720000",
+   "name=bell id=rp.4.w.end anchor=start offsetMs=960000"
+  ],
+  "scenario": "lockout",
+  "startEpochMs": 1795000002000,
+  "startUptimeMs": 50014
+ },
+ {
+  "case": "hyrox",
+  "eventLines": [],
+  "planLines": [
+   "name=plan schema=2 planner=1 hash=fc554dfc81c2075000aa3b988c1ea9b25bfef4818d5d30160d8aca69e00f43cf startEpochMs=1795000003000 startUptimeMs=50021 steps=16 bells=0"
+  ],
+  "scenario": "undo",
+  "startEpochMs": 1795000003000,
+  "startUptimeMs": 50021
+ },
+ {
+  "case": "amrapShort",
+  "eventLines": [
+   [
+    4500,
+    "name=step step=rp.1.a status=done endedBy=athlete seq=1"
+   ],
+   [
+    9000,
+    "name=step step=rp.1.b status=done endedBy=athlete seq=2"
+   ],
+   [
+    13500,
+    "name=step step=rp.2.a status=done endedBy=athlete seq=3"
+   ],
+   [
+    18000,
+    "name=step step=rp.2.b status=done endedBy=athlete seq=4"
+   ],
+   [
+    22500,
+    "name=step step=rp.3.a status=done endedBy=athlete seq=5"
+   ],
+   [
+    27000,
+    "name=step step=rp.3.b status=done endedBy=athlete seq=6"
+   ],
+   [
+    31500,
+    "name=step step=rp.4.a status=done endedBy=athlete seq=7"
+   ],
+   [
+    36000,
+    "name=step step=rp.4.b status=done endedBy=athlete seq=8"
+   ],
+   [
+    40500,
+    "name=step step=rp.5.a status=done endedBy=athlete seq=9"
+   ],
+   [
+    45000,
+    "name=step step=rp.5.b status=done endedBy=athlete seq=10"
+   ],
+   [
+    49500,
+    "name=step step=rp.6.a status=done endedBy=athlete seq=11"
+   ],
+   [
+    54000,
+    "name=step step=rp.6.b status=done endedBy=athlete seq=12"
+   ],
+   [
+    58500,
+    "name=step step=rp.7.a status=done endedBy=athlete seq=13"
+   ],
+   [
+    63000,
+    "name=step step=rp.7.b status=done endedBy=athlete seq=14"
+   ],
+   [
+    67500,
+    "name=step step=rp.8.a status=done endedBy=athlete seq=15"
+   ],
+   [
+    72000,
+    "name=step step=rp.8.b status=done endedBy=athlete seq=16"
+   ],
+   [
+    76500,
+    "name=step step=rp.9.a status=done endedBy=athlete seq=17"
+   ],
+   [
+    81000,
+    "name=step step=rp.9.b status=done endedBy=athlete seq=18"
+   ],
+   [
+    85500,
+    "name=step step=rp.10.a status=done endedBy=athlete seq=19"
+   ],
+   [
+    90000,
+    "name=step step=rp.10.b status=done endedBy=athlete seq=20"
+   ],
+   [
+    94500,
+    "name=step step=rp.11.a status=done endedBy=athlete seq=21"
+   ],
+   [
+    99000,
+    "name=step step=rp.11.b status=done endedBy=athlete seq=22"
+   ],
+   [
+    103500,
+    "name=step step=rp.12.a status=done endedBy=athlete seq=23"
+   ],
+   [
+    108000,
+    "name=step step=rp.12.b status=done endedBy=athlete seq=24"
+   ],
+   [
+    112500,
+    "name=step step=rp.13.a status=done endedBy=athlete seq=25"
+   ],
+   [
+    117000,
+    "name=step step=rp.13.b status=done endedBy=athlete seq=26"
+   ],
+   [
+    120000,
+    "name=step step=rp.14.a status=cut endedBy=clock seq=27"
+   ],
+   [
+    120000,
+    "name=step step=rp.14.b status=skipped endedBy=clock seq=28"
+   ]
+  ],
+  "planLines": [
+   "name=plan schema=2 planner=1 hash=58085850bf22e3d007e02fcdc5a3a39daecf9746ed665556139e5cf1ea1575e2 startEpochMs=1795000004000 startUptimeMs=50028 steps=12 bells=1",
+   "name=bell id=amrap.end anchor=start offsetMs=120000"
+  ],
+  "scenario": "pastTheList",
+  "startEpochMs": 1795000004000,
+  "startUptimeMs": 50028
+ },
+ {
+  "case": "variantsF",
+  "eventLines": [
+   [
+    30000,
+    "name=step step=rp.1.thr status=done endedBy=athlete seq=1"
+   ],
+   [
+    61000,
+    "name=step step=rp.1.cardio status=done endedBy=athlete seq=2"
+   ],
+   [
+    92000,
+    "name=step step=rp.1.r status=done endedBy=clock seq=3"
+   ],
+   [
+    122000,
+    "name=step step=rp.2.thr status=done endedBy=athlete seq=4"
+   ],
+   [
+    152000,
+    "name=step step=rp.2.cardio status=done endedBy=athlete seq=5"
+   ],
+   [
+    182000,
+    "name=step step=rp.2.r status=done endedBy=clock seq=6"
+   ],
+   [
+    228000,
+    "name=step step=rp.3.thr status=done endedBy=athlete seq=7"
+   ],
+   [
+    258000,
+    "name=step step=rp.3.cardio status=done endedBy=athlete seq=8"
+   ]
+  ],
+  "planLines": [
+   "name=plan schema=2 planner=1 hash=a15e13ef4efcb0d5b03c103b10334a562b4278f6a2f5462eb5c846fb29dbd2c1 startEpochMs=1795000005000 startUptimeMs=50035 steps=8 bells=0"
+  ],
+  "scenario": "rounds",
+  "startEpochMs": 1795000005000,
+  "startUptimeMs": 50035
+ },
+ {
+  "case": "unknownNodes",
+  "eventLines": [
+   [
+    60000,
+    "name=step step=_unknown1 status=done endedBy=athlete seq=1"
+   ],
+   [
+    120000,
+    "name=step step=a status=done endedBy=athlete seq=2"
+   ],
+   [
+    180000,
+    "name=step step=_unknown2 status=done endedBy=athlete seq=3"
+   ],
+   [
+    240000,
+    "name=step step=b status=done endedBy=athlete seq=4"
+   ]
+  ],
+  "planLines": [
+   "name=plan schema=2 planner=1 hash=4f63b5ba7ad9d433b6e1e2a579ca5a595a7c86be12f5dc57a3a6977cd772e6ee startEpochMs=1795000006000 startUptimeMs=50042 steps=4 bells=0"
+  ],
+  "scenario": "athletePaced",
+  "startEpochMs": 1795000006000,
+  "startUptimeMs": 50042
+ }
+]

@@ -21,7 +21,10 @@ from pathlib import Path
 
 from barpath import workout_engine as we
 from barpath import workout_structure as ws
+from barpath import workout_csv as wc
+from barpath.workout_upgrade import upgrade
 from engine_cases import ALL, EMOM, TABATA, part
+from upgrade_cases import ALL as UPGRADE_CASES
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 OUT = ROOT / "BarPath/BarPathKit/Tests/BarPathKitTests/Fixtures/workouts"
@@ -284,6 +287,37 @@ def plan_error_cases() -> list:
     return out
 
 
+def upgrade_fixture() -> list:
+    """Every built-in library row and the synthetic legacy look-alikes (RFC 7.3): the input, the
+    upgraded definition, its label and reasons, and the hash of its plan."""
+    out = []
+    for name in sorted(UPGRADE_CASES):
+        u = upgrade(UPGRADE_CASES[name])
+        out.append({"name": name, "input": UPGRADE_CASES[name], "label": u["label"], "reasons": u["reasons"],
+                    "definition": u["definition"], "planHash": we.plan(u["definition"]).hash})
+    return out
+
+
+CSV_SCENARIOS = [("tabata", "stoppedAndRestCrowns"), ("windows3334", "gymTruth"), ("windows3334", "lockout"),
+                 ("hyrox", "undo"), ("amrapShort", "pastTheList"), ("variantsF", "rounds"),
+                 ("unknownNodes", "athletePaced")]
+
+
+def csv_fixture(cases: dict) -> list:
+    """The engine's CSV lines (RFC 9) for a few scenarios: plan and bell lines, then the step and
+    ignored-input lines after the run."""
+    out = []
+    for i, (name, scen) in enumerate(CSV_SCENARIOS):
+        doc, opts, scenarios = cases[name]
+        p = we.plan(doc, **opts)
+        st, _ = we.run(p, expand_events(scenarios[scen]))
+        epoch, uptime = 1795000000000 + 1000 * i, 50000 + 7 * i
+        out.append({"case": name, "scenario": scen, "startEpochMs": epoch, "startUptimeMs": uptime,
+                    "planLines": wc.plan_lines(p, epoch, uptime),
+                    "eventLines": [[t, line] for t, line in wc.event_lines(st)]})
+    return out
+
+
 def generate() -> dict:
     """{relative path: file text} for everything under Fixtures/workouts."""
     files = {}
@@ -312,8 +346,13 @@ def generate() -> dict:
     files["runnable.json"] = dumps(rc)
     pe = plan_error_cases()
     files["planErrors.json"] = dumps(pe)
+    up = upgrade_fixture()
+    files["upgrade.json"] = dumps(up)
+    cv = csv_fixture(cases)
+    files["csv.json"] = dumps(cv)
     files["INDEX.json"] = dumps({"cases": sorted(cases), "scenarios": scenario_count, "runnable": len(rc),
-                                 "planErrors": len(pe), "planner": we.PLANNER_VERSION})
+                                 "planErrors": len(pe), "upgrade": len(up), "csv": len(cv),
+                                 "planner": we.PLANNER_VERSION})
     return files
 
 

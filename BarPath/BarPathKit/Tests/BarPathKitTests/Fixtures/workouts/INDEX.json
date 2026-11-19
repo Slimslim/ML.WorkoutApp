@@ -24,8 +24,10 @@
   "windows3333",
   "windows3334"
  ],
+ "csv": 7,
  "planErrors": 14,
  "planner": 1,
  "runnable": 8,
- "scenarios": 62
+ "scenarios": 62,
+ "upgrade": 21
 }
