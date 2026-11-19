@@ -219,6 +219,74 @@ final class WorkoutEngineParityTests: XCTestCase {
         XCTAssertEqual(again["x-coach"]?["cue"]?.string, "hips")
     }
 
+    /// RFC §7.3: every legacy row upgrades to the same definition, label and reasons as Python,
+    /// and the upgraded definition plans to the same hash.
+    func testUpgradeMatchesPython() throws {
+        let list = try workoutFixture("upgrade.json").array ?? []
+        XCTAssertEqual(list.count, try index()["upgrade"]?.intValue)
+        XCTAssertGreaterThanOrEqual(list.count, 20)
+        for c in list {
+            let name: String = c["name"]?.string ?? "?"
+            let u = WorkoutUpgrade.upgrade(c["input"] ?? .null)
+            XCTAssertEqual(u.definition.canonicalJSON, c["definition"]?.canonicalJSON, "\(name): definition")
+            XCTAssertEqual(u.label, c["label"]?.string, "\(name): label")
+            XCTAssertEqual(u.reasons, (c["reasons"]?.array ?? []).compactMap { $0.string }, "\(name): reasons")
+            XCTAssertEqual(try WorkoutEngine.plan(u.definition).hash, c["planHash"]?.string, "\(name): plan hash")
+            // Idempotent: upgrading the upgraded definition changes nothing but keeps the label.
+            let again = WorkoutUpgrade.upgrade(u.definition)
+            XCTAssertEqual(again.definition.canonicalJSON, u.definition.canonicalJSON, "\(name): idempotent")
+        }
+    }
+
+    /// RFC §9: the plan, bell, step and ignored-input lines match Python's text exactly.
+    func testCSVLinesMatchPython() throws {
+        let list = try workoutFixture("csv.json").array ?? []
+        XCTAssertEqual(list.count, try index()["csv"]?.intValue)
+        for c in list {
+            let name: String = c["case"]?.string ?? "?"
+            let scen: String = c["scenario"]?.string ?? "?"
+            let plan = try planFor(name)
+            let lines = WorkoutEngineCSV.planLines(plan, startEpochMs: c["startEpochMs"]?.intValue ?? 0,
+                                                   startUptimeMs: c["startUptimeMs"]?.intValue ?? 0)
+            XCTAssertEqual(lines, (c["planLines"]?.array ?? []).compactMap { $0.string }, "\(name)/\(scen): plan lines")
+            let (st, _) = WorkoutEngine.run(plan, try events(try workoutFixture("\(name)/events/\(scen).json")))
+            let got: [WorkoutEngineCSV.Line] = WorkoutEngineCSV.eventLines(st)
+            let want: [JSONValue] = c["eventLines"]?.array ?? []
+            XCTAssertEqual(got.count, want.count, "\(name)/\(scen): event line count")
+            for (g, w) in zip(got, want) {
+                XCTAssertEqual(g.t, w.array?.first?.intValue, "\(name)/\(scen): t")
+                XCTAssertEqual(g.text, w.array?.last?.string, "\(name)/\(scen): line")
+            }
+        }
+    }
+
+    func testCSVEncodingRoundTrips() {
+        let raw: String = "a b,c%d\te\nf\rg"
+        let e: String = WorkoutEngineCSV.enc(raw)
+        XCTAssertFalse(e.contains(" ") || e.contains(",") || e.contains("\t") || e.contains("\n"))
+        XCTAssertEqual(e, "a%20b%2Cc%25d%09e%0Af%0Dg")
+        XCTAssertEqual(WorkoutEngineCSV.dec(e), raw)
+        XCTAssertEqual(WorkoutEngineCSV.dec(WorkoutEngineCSV.enc("%20")), "%20")
+    }
+
+    /// The plain-Swift SHA-256 (used where CryptoKit is missing) gives the standard digests and the
+    /// same plan hashes as the platform hash.
+    func testPlainSHA256MatchesStandardVectors() throws {
+        func sha(_ s: String) -> String {
+            return WorkoutSHA256.hex(WorkoutSHA256.digest(Array(s.utf8)))
+        }
+        XCTAssertEqual(sha(""), "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+        XCTAssertEqual(sha("abc"), "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad")
+        XCTAssertEqual(sha("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"),
+                       "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1")
+        XCTAssertEqual(sha(String(repeating: "a", count: 1000)),
+                       "41edece42d63e8d9bf515a9ba6932e1c20cbc9f5a5d134645adb5db1b9737ea3")
+        for name in try cases() {
+            let plan = try planFor(name)
+            XCTAssertEqual(WorkoutSHA256.hex(WorkoutSHA256.digest(Array(plan.canonicalJSON.utf8))), plan.hash, name)
+        }
+    }
+
     func testCanonicalJSONMatchesPythonRules() {
         let v: JSONValue = .object(["b": .double(40.0), "a": .array([.double(0.5), .string("é\"\n")]), "c": .null])
         XCTAssertEqual(v.canonicalJSON, "{\"a\":[0.5,\"é\\\"\\n\"],\"b\":40,\"c\":null}")
