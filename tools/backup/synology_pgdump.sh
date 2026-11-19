@@ -259,27 +259,38 @@ touch -r "$DEST/${BASE}_data.sql" "$DEST/${BASE}_roles.sql" "$DEST/${BASE}_schem
   || fail "could not set the files' time stamp"
 BYTES=$(cat "$DEST/${BASE}"_*.sql | wc -c)
 
-# Retention only after a good night, by count: the newest KEEP nights stay (newest by time stamp,
-# a night is its data file), however old they are. Every other night's files go, all three
-# together; keep_ sets and other files are never touched.
+# Retention only after a good night, by count: the newest KEEP complete nights stay (all three
+# files present), however old they are; older nights' files go, all three together. Incomplete
+# nights among the kept ones are left alone (someone may be renaming them); only those older than
+# every kept night are deleted. keep_ sets and other files are never touched: a stamp that has any
+# keep_ file is skipped, so a half-renamed keep_ set loses nothing.
 DELETED=0
 NIGHTS=0
 OLDEST_KEPT=""
-for f in $(ls -1t "$DEST/${PREFIX}_"*_data.sql 2>/dev/null); do
-  NIGHTS=$((NIGHTS + 1))
-  if [ "$NIGHTS" -le "$KEEP" ]; then OLDEST_KEPT="$f"; continue; fi
-  stamp=$(basename "$f" _data.sql)
+has_keep() { ls "$DEST/keep_$1_"*.sql > /dev/null 2>&1; }
+delete_night() {
   for k in $KINDS; do
-    [ -f "$DEST/${stamp}_$k.sql" ] && rm -f "$DEST/${stamp}_$k.sql" && DELETED=$((DELETED + 1))
+    [ -f "$DEST/$1_$k.sql" ] && rm -f "$DEST/$1_$k.sql" && DELETED=$((DELETED + 1))
   done
+}
+for f in $(ls -1t "$DEST/${PREFIX}_"*_data.sql 2>/dev/null); do
+  stamp=$(basename "$f" _data.sql)
+  if [ -f "$DEST/${stamp}_roles.sql" ] && [ -f "$DEST/${stamp}_schema.sql" ]; then
+    NIGHTS=$((NIGHTS + 1))
+    if [ "$NIGHTS" -le "$KEEP" ]; then OLDEST_KEPT="$f"; continue; fi
+  elif [ "$NIGHTS" -lt "$KEEP" ]; then
+    continue
+  fi
+  has_keep "$stamp" || delete_night "$stamp"
 done
 [ "$NIGHTS" -gt "$KEEP" ] && NIGHTS=$KEEP
-# Roles or schema files whose night has no data file and is older than every kept night.
-if [ -n "$OLDEST_KEPT" ]; then
+# Roles or schema files whose night has no data file: only once KEEP complete nights exist, and
+# only when older than every kept night.
+if [ "$NIGHTS" -ge "$KEEP" ] && [ -n "$OLDEST_KEPT" ]; then
   ORPHANS=$(find "$DEST" -maxdepth 1 -type f \( -name "${PREFIX}_*_roles.sql" -o -name "${PREFIX}_*_schema.sql" \) ! -newer "$OLDEST_KEPT" -print)
   for f in $ORPHANS; do
-    s="${f%_*.sql}"
-    [ -f "${s}_data.sql" ] || { rm -f "$f" && DELETED=$((DELETED + 1)); }
+    s=$(basename "${f%_*.sql}")
+    [ -f "$DEST/${s}_data.sql" ] || has_keep "$s" || { rm -f "$f" && DELETED=$((DELETED + 1)); }
   done
 fi
 

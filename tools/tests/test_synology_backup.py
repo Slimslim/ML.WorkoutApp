@@ -199,6 +199,36 @@ def test_orphan_files_older_than_every_kept_night_are_removed(env):
     assert len(nights(env["dest"])) == 2
 
 
+def test_orphans_are_kept_while_fewer_nights_than_keep_exist(env):
+    make_old_night(env["dest"], 30, kinds=("roles", "schema"))
+    assert run(env).returncode == 0                      # only tonight exists: keep everything
+    assert len(files(env["dest"], "rxlab_20200130-*")) == 2
+
+
+def test_a_half_renamed_keep_set_loses_nothing(env):
+    # The owner renamed only the data file to keep_ and forgot the other two (review round 2).
+    make_old_night(env["dest"], 40)
+    stamp = "rxlab_20200140-030000"
+    (env["dest"] / f"{stamp}_data.sql").rename(env["dest"] / f"keep_{stamp}_data.sql")
+    for days in range(1, 21):
+        make_old_night(env["dest"], days)
+    assert run(env).returncode == 0
+    assert (env["dest"] / f"keep_{stamp}_data.sql").exists()
+    assert (env["dest"] / f"{stamp}_roles.sql").exists() and (env["dest"] / f"{stamp}_schema.sql").exists()
+
+
+def test_only_complete_nights_count_towards_keep(env):
+    for days in range(1, 6):
+        make_old_night(env["dest"], days)
+    (env["dest"] / "rxlab_20200101-030000_roles.sql").unlink()    # the newest old night is incomplete
+    assert run(env, "3").returncode == 0
+    # tonight + the 2 newest complete nights; the incomplete night is newer, so it is left alone
+    kept = nights(env["dest"])
+    assert "rxlab_20200102-030000" in kept and "rxlab_20200103-030000" in kept
+    assert "rxlab_20200104-030000" not in kept
+    assert (env["dest"] / "rxlab_20200101-030000_data.sql").exists()
+
+
 def test_keep_days_argument(env):
     for days in range(1, 6):
         make_old_night(env["dest"], days)

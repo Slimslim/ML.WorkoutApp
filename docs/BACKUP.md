@@ -24,7 +24,7 @@ Placeholders on this page:
 |---|---|
 | `<PASSWORD>` | The database password. Never put it in the repo, an issue or a chat. |
 | `<PROJECT-REF>` | The project's id. |
-| `<REGION>` | The project's region. |
+| `<POOLER-HOST>` | The Session pooler host, copied exactly from the dashboard's **Connect** panel. |
 | `<admin>` | Your DSM admin user. |
 | `<NAS-IP>` | The NAS's local address. |
 
@@ -150,7 +150,11 @@ root-only file inside the share:
 The backup refuses to run if anyone but root can read the file, so a mistake shows up the next night.
 
 1. Download the two scripts:
-   1. On GitHub, open the repository, then `tools/backup/synology_pgdump.sh`.
+   1. On GitHub, open the repository and choose the branch in the branch menu at the top left:
+      - **`main`** once this backup is merged;
+      - **`claude/b17-synology-backup`** for the first test on the NAS, before it is merged.
+
+      Then open `tools/backup/synology_pgdump.sh`.
    2. Click **Download raw file**, the download icon above the code, on the right.
    3. Do the same for `tools/backup/synology_restore_test.sh`.
    4. Copy both files into `RxLabBackup` with File Station (drag and drop).
@@ -341,8 +345,9 @@ No SSH needed:
 4. Keep that night from the cleanup. In File Station, rename its three files (right click →
    **Rename**) by putting `keep_` in front:
    `keep_rxlab_20261120-151500_roles.sql`, `…_schema.sql`, `…_data.sql`.
-   The cleanup only deletes files whose name starts with `rxlab_`. A rename does not go to the
-   Recycle Bin.
+   The cleanup only deletes files whose name starts with `rxlab_`. It also leaves a night alone
+   if any of its files starts with `keep_`, so a forgotten rename loses nothing. A rename does
+   not go to the Recycle Bin.
 5. Only then change the database. Write the backup's name in the PR or issue.
 6. Delete `keep_` sets you no longer need, in File Station.
 
@@ -428,7 +433,7 @@ Tested on 19 Nov 2026, in a Linux container with Docker and `postgres:17-alpine`
 | A cut-off file | Refused. |
 | Wrong password, Supabase down, a dump stopped part-way, a step over its 30-minute limit, a whole run over its one-hour limit, a second run during a run | Each exits with an error, leaves no file and deletes no older backup. The hour limit removes the container and leaves no process behind. |
 | A password in the error text | Replaced by `***` in the log and the email. |
-| The 14-night cleanup | Keeps the newest 14 nights by count, even after a long outage. A night's three files go together. |
+| The 14-night cleanup | Keeps the newest 14 complete nights by count, even after a long outage. A night's three files go together. A night with any `keep_` file is never touched, even if only one of its files was renamed. |
 | `keep_` sets | Never deleted. |
 | The container's hardening (read-only root file system, no privilege gain, `@rxlab` mounted read-only) | The backup works with it. |
 | In CI | The script that runs inside the container is also run with stand-in `pg_dump`/`psql`. This checks the CLI's line rewrites and that a failing dump leaves no completion line. |
