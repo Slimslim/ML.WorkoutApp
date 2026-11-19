@@ -1,6 +1,6 @@
 # Rx Lab structure: decisions on the four reviews (v1 → v2)
 
-Date: 1 Nov 2026. Inputs: context.md, the owner's binding decision on phone-controlled lifting blocks (late 1 Nov), proposal-v1.html, proposal-v2.html, proposal-v3.html, scenarios.md, review-ux.md, review-athlete.md, review-watch.md, review-data.md, mayhem-day.md (owner input, late 1 Nov), and a read-only check of the code in `/home/user/ML.WorkoutApp/BarPath` (Watch, iOS, BarPathKit).
+Date: 1 Nov 2026. Inputs: context.md, the owner's binding decision on phone-controlled lifting blocks (late 1 Nov), proposal-v1.html, proposal-v2.html, proposal-v3.html, scenarios.md, review-ux.md, review-athlete.md, review-watch.md, review-data.md, a subscription program day (owner screenshots, not in repo; late 1 Nov), and a read-only check of the code in `/home/user/ML.WorkoutApp/BarPath` (Watch, iOS, BarPathKit).
 
 Decision words: **Accept** = do as the reviewer says. **Adapt** = keep the goal, change the how or the timing. **Reject** = don't do it (reason given).
 

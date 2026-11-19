@@ -218,7 +218,7 @@ def check_owner_id(definition_id: str, owner) -> None:
 
 def make_row(definition: WorkoutDefinition, program, scheduled_on, published: bool = True,
              gym: Optional[str] = None, owner: Optional[str] = None) -> str:
-    """`insert … on conflict (id) do update` for one workout. With `gym` (e.g. 'blue-republic',
+    """`insert … on conflict (id) do update` for one workout. With `gym` (e.g. 'test-gym',
     migration 20261110000000_gyms.sql) the row is that gym's programming, seen by its members;
     without, the statement is unchanged (a public row: owner and gym_id stay null). With `owner`
     (a user id) the row is that user's personal workout: the id must end with the owner's
@@ -230,7 +230,7 @@ def make_row(definition: WorkoutDefinition, program, scheduled_on, published: bo
         owner = parse_owner(owner)
         check_owner_id(definition.id, owner)
     if gym is not None and not GYM_PATTERN.match(str(gym)):
-        raise LibraryError(f"gym {gym!r} must be a slug like blue-republic")
+        raise LibraryError(f"gym {gym!r} must be a slug like test-gym")
     if scheduled_on is not None:
         try:
             scheduled_on = date.fromisoformat(str(scheduled_on)).isoformat()
@@ -271,7 +271,7 @@ def make_row_v2(d: dict, program, scheduled_on, published: bool = True,
         owner = parse_owner(owner)
         check_owner_id(d["id"], owner)
     if gym is not None and not GYM_PATTERN.match(str(gym)):
-        raise LibraryError(f"gym {gym!r} must be a slug like blue-republic")
+        raise LibraryError(f"gym {gym!r} must be a slug like test-gym")
     if scheduled_on is not None:
         try:
             scheduled_on = date.fromisoformat(str(scheduled_on)).isoformat()
@@ -327,7 +327,7 @@ def main(argv=None) -> int:
     ap.add_argument("--program", help="program name, e.g. Example (overrides the file)")
     ap.add_argument("--date", help="scheduled_on, YYYY-MM-DD (overrides the file)")
     ap.add_argument("--unpublished", action="store_true", help="add it hidden (published = false)")
-    ap.add_argument("--gym", help="gym id, e.g. blue-republic: the gym's programming (overrides the file)")
+    ap.add_argument("--gym", help="gym id, e.g. test-gym: the gym's programming (overrides the file)")
     ap.add_argument("--trust-old-keys", action="store_true",
                     help="allow a published, exact v2 row (its old keys are copied to builds 15/16). Until the "
                          "compiler checks them (build 17 item 2), check the old keys against the structure by hand first")
