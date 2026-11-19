@@ -448,8 +448,8 @@ Barbara; the honesty filters (section 3) hide segments < 5 s or > 3x the median;
 is ever shown; no insight block when nothing passes. Python reference first, Swift port with parity.
 
 **W48. Lifting insights inside a workout (Later)**
-As an athlete doing an EMOM of lifts, I want rest left per minute and bar speed by load, so I see where
-the weight started to cost me. *Done when:* E1/E2 of `docs/RESULTS_INSIGHTS.md` work in the app (needs
+As an athlete doing an EMOM of lifts, I want to see when each rep happened inside each minute (and the
+rest left), and bar speed by load, so I see where the weight started to cost me. *Done when:* E1/E2 of `docs/RESULTS_INSIGHTS.md` work in the app (needs
 set detection and #35).
 
 ### Recording follows the plan (spans Lifting and Workouts; after the MVP)

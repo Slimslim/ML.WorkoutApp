@@ -46,7 +46,7 @@ Each rule: what it says, the data it needs, and whether it is measurable in the 
 ### AMRAP and rounds for time
 | # | Insight | Data | Today |
 |---|---|---|---|
-| A1 | **Biggest drift:** the movement whose segment time grew most vs its own round 1 (relative). "Bike: 1:29 in round 1, then 1:48-1:51 (+22%)." Never compares two movements. | Crown segments per round | Yes |
+| A1 | **Biggest drift:** the movement whose segment time **cost the most extra seconds** vs its own round 1, summed over the rounds (owner, 19 Nov: ranking by % picked a short movement that felt steady). Show the seconds and the %: "Bike: 1:29 in round 1, then 1:48-1:51 (+22 %), 1:41 in total." Never compares two movements. | Crown segments per round | Yes |
 | A2 | **What stayed steady:** movements within ±5 % of their round-1 time across rounds. "Step-ups and wall balls held within 5 %." | same | Yes |
 | A3 | **Into the score:** the drift's extra seconds, summed, divided by the average round time. "That drift added 1:41, about half a round." | same + round time | Yes |
 | Cue | One "next time" cue, only from A1: "Next time: hold the bike nearer 1:30." | A1 | Yes |
@@ -55,7 +55,7 @@ Each rule: what it says, the data it needs, and whether it is measurable in the 
 | # | Insight | Data | Today |
 |---|---|---|---|
 | F1 | **Second half vs first half** (work time only, rests excluded): "Rounds 3-4 took 2:54 longer than rounds 1-2 (+22 %)." | Crown segments | Yes |
-| F2 | **Biggest drift per movement** (as A1) when the workout has rounds. | same | Yes |
+| F2 | **Biggest drift per movement** (as A1: most extra seconds, % shown) when the workout has rounds. | same | Yes |
 | F3 | **Movement vs your normal:** only with 3+ earlier results of the same movement and load. | history | Not yet (few results) |
 | F4 | **Total transition time:** needs work/transition split. | motion or a second Crown turn | Not yet (Crown segments include transitions) |
 | F5 | **Run fade:** run segment times or pace per run, first vs last. | runs with a target distance | Yes for runs with a target |
@@ -73,7 +73,7 @@ Each rule: what it says, the data it needs, and whether it is measurable in the 
 ### EMOM and Olympic lifting
 | # | Insight | Data | Today |
 |---|---|---|---|
-| E1 | **Rest left per minute** falling with load: "48 s left at 95 lb, 15 s at 145 lb." | set end per minute (motion) | Not in the app: set detection runs only offline (labels) |
+| E1 | **When each rep happened inside the minute**, by load: a strip per minute with a dot per rep, and the rest left. "Rep 2 at 0:10 at 95 lb, 0:35 at 140 lb; rest left 48 s → 15 s." (owner, 19 Nov: the favourite view) | rep times per minute (motion) | Not in the app: rep detection runs only offline (labels) |
 | E2 | **Bar speed by load**, paired with the bar path: "Speed dropped 15 % at 80 kg." Never "you're fatigued". | Lifting analysis inside a workout | Not yet (#35, strength sets in a workout) |
 | E3 | **Heaviest successful load** and the loads ladder. | definition loads + score | Yes |
 
