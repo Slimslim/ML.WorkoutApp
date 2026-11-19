@@ -1,0 +1,288 @@
+[
+ {
+  "doc": {
+   "schemaVersion": 2,
+   "structure": {
+    "body": [
+     {
+      "repeat": {
+       "body": [
+        {
+         "part": {
+          "id": "a",
+          "movement": "run"
+         }
+        }
+       ],
+       "id": "rp",
+       "times": 401
+      }
+     }
+    ],
+    "score": {
+     "type": "none"
+    }
+   }
+  },
+  "name": "tooManySteps",
+  "reason": "tooLarge"
+ },
+ {
+  "doc": {
+   "schemaVersion": 2,
+   "structure": {
+    "body": [
+     {
+      "repeat": {
+       "body": [
+        {
+         "part": {
+          "id": "a",
+          "movement": "run"
+         }
+        }
+       ],
+       "id": "rp",
+       "times": 1e+20
+      }
+     }
+    ],
+    "score": {
+     "type": "none"
+    }
+   }
+  },
+  "name": "hugeTimes",
+  "reason": "invalid"
+ },
+ {
+  "doc": {
+   "schemaVersion": 2,
+   "structure": {
+    "body": [
+     {
+      "timed": {
+       "body": [
+        {
+         "repeat": {
+          "body": [
+           {
+            "part": {
+             "id": "a",
+             "movement": "run"
+            }
+           }
+          ],
+          "id": "rp",
+          "listRounds": 1e+30,
+          "times": null
+         }
+        }
+       ],
+       "early": "next",
+       "id": "t",
+       "late": "end",
+       "seconds": 60
+      }
+     }
+    ],
+    "score": {
+     "type": "none"
+    }
+   }
+  },
+  "name": "hugeListRounds",
+  "reason": "invalid"
+ },
+ {
+  "doc": {
+   "schemaVersion": 2,
+   "structure": {
+    "body": [
+     {
+      "timed": {
+       "body": [
+        {
+         "part": {
+          "id": "a",
+          "movement": "run"
+         }
+        }
+       ],
+       "early": "next",
+       "id": "t",
+       "late": "cut",
+       "seconds": 1e+19
+      }
+     }
+    ],
+    "score": {
+     "type": "none"
+    }
+   }
+  },
+  "name": "hugeSeconds",
+  "reason": "invalid"
+ },
+ {
+  "doc": {
+   "schemaVersion": 2,
+   "structure": {
+    "body": [
+     {
+      "part": {
+       "id": "w",
+       "movement": "run"
+      }
+     },
+     {
+      "rest": {
+       "id": "r",
+       "seconds": 1000000000000
+      }
+     }
+    ],
+    "score": {
+     "type": "none"
+    }
+   }
+  },
+  "name": "hugeRestSeconds",
+  "reason": "invalid"
+ },
+ {
+  "doc": {
+   "schemaVersion": 2,
+   "structure": {
+    "body": [
+     {
+      "part": {
+       "id": "w",
+       "movement": "run"
+      }
+     },
+     {
+      "rest": {
+       "id": "r",
+       "ratio": 1000000000.0
+      }
+     }
+    ],
+    "score": {
+     "type": "none"
+    }
+   }
+  },
+  "name": "hugeRatio",
+  "reason": "invalid"
+ },
+ {
+  "doc": {
+   "schemaVersion": 2,
+   "structure": {
+    "body": [
+     {
+      "part": {
+       "id": "a",
+       "movement": "plank",
+       "target": {
+        "unit": "seconds",
+        "value": 1e+19
+       }
+      }
+     }
+    ],
+    "score": {
+     "type": "none"
+    }
+   }
+  },
+  "name": "hugeSecondsTarget",
+  "reason": "invalid"
+ },
+ {
+  "doc": {
+   "schemaVersion": 2,
+   "structure": {
+    "body": [
+     {
+      "repeat": {
+       "body": [
+        {
+         "part": {
+          "id": "a",
+          "movement": "run"
+         }
+        }
+       ],
+       "id": "rp",
+       "times": 0
+      }
+     }
+    ],
+    "score": {
+     "type": "none"
+    }
+   }
+  },
+  "name": "zeroTimes",
+  "reason": "empty"
+ },
+ {
+  "doc": {
+   "schemaVersion": 2,
+   "structure": {
+    "body": [],
+    "score": {
+     "type": "none"
+    }
+   }
+  },
+  "name": "emptyBody",
+  "reason": "empty"
+ },
+ {
+  "doc": {
+   "schemaVersion": 2,
+   "structure": {
+    "body": [
+     {
+      "repeat": {
+       "body": [
+        {
+         "timed": {
+          "body": [
+           {
+            "part": {
+             "id": "a",
+             "movement": "run"
+            }
+           }
+          ],
+          "early": "wait",
+          "id": "t",
+          "late": "cut",
+          "seconds": 60
+         }
+        }
+       ],
+       "id": "rp",
+       "times": 2,
+       "vary": {
+        "t": [
+         60,
+         1000000000000
+        ]
+       }
+      }
+     }
+    ],
+    "score": {
+     "type": "none"
+    }
+   }
+  },
+  "name": "varyHugeSeconds",
+  "reason": "invalid"
+ }
+]

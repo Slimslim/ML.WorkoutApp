@@ -13,6 +13,13 @@ import Foundation
 //   here reads a clock. It returns the new state and the effects (haptics, questions, hints).
 // - `WorkoutEngine.replay(_:_:until:)` rebuilds a state from saved events (crash recovery).
 //
+// The reader is total (RFC 14.4, lenient on read): where Python would raise on malformed input,
+// this file picks a safe default, and `plan` refuses (WorkoutNotRunnable "invalid" / "tooLarge" /
+// "empty") any number it would consume outside MAX_SECONDS / MAX_TIMES / MAX_RATIO, or a plan
+// past 400 steps, instead of trapping or expanding without end. Python uses the same bounds.
+// Canonical JSON matches Python for every value a plan holds (integer ms, whole or decimal
+// numbers, any Unicode); see WorkoutJSON.swift for the limits outside that domain.
+//
 // Clocks are start-anchored (§4.2.2): a step starts at the planned end of the step before it when
 // the clock ended that step, and at its actual end when the athlete ended it. No format names
 // appear here: Tabata, EMOM, AMRAP, caps and Hyrox are all the same five blocks.
@@ -30,6 +37,16 @@ public enum WorkoutStructureV2 {
         "group": ["interrupt"],
     ]
     static let countUnits: [String] = ["reps", "calories"]
+    public static let maxSteps: Int = 400
+    public static let maxSeconds: Double = 86400     // a window, rest or seconds target: at most 24 h
+    public static let maxTimes: Double = 10000       // repeat times and listRounds
+    public static let maxRatio: Double = 100         // a ratio rest
+
+    /// Int(v) when v is a number with lo <= v <= hi, else nil (Python `_bounded`).
+    static func bounded(_ v: JSONValue?, _ lo: Double, _ hi: Double) -> Int? {
+        guard let d = v?.number, d.isFinite, d >= lo, d <= hi else { return nil }
+        return Int(d)
+    }
 
     struct NodeRef {
         let kind: String
@@ -124,12 +141,12 @@ public enum WorkoutStructureV2 {
 
 // MARK: - Plan types
 
-public struct RoundRef: Equatable {
+public struct RoundRef: Equatable, Sendable {
     public let key: String
     public let round: Int
 }
 
-public struct EngineStep: Equatable {
+public struct EngineStep: Equatable, Sendable {
     public let index: Int
     public let id: String
     public let kind: String                  // part | rest
@@ -158,7 +175,7 @@ public struct EngineStep: Equatable {
 
     public var secondsTarget: Int? {
         guard kind == "part", let t = target, t["unit"]?.string == "seconds",
-              let v = t["value"]?.number else { return nil }
+              let v = t["value"]?.number, v.isFinite, abs(v) <= WorkoutStructureV2.maxSeconds else { return nil }
         return Int(v.rounded(.toNearestOrEven))
     }
 
@@ -225,7 +242,7 @@ public struct EngineStep: Equatable {
     }
 }
 
-public struct EngineWindow: Equatable {
+public struct EngineWindow: Equatable, Sendable {
     public let key: String
     public let id: String
     public let secondsMs: Int
@@ -247,7 +264,7 @@ public struct EngineWindow: Equatable {
     }
 }
 
-public struct EngineBell: Equatable {
+public struct EngineBell: Equatable, Sendable {
     public let id: String
     public let anchor: String                // "start" or the step / window whose actual end it counts from
     public let offsetMs: Int
@@ -257,7 +274,7 @@ public struct EngineBell: Equatable {
     }
 }
 
-struct ExpansionContext {
+struct ExpansionContext: @unchecked Sendable {
     var prefix: String = ""
     var windows: [String] = []
     var rounds: [RoundRef] = []
@@ -270,7 +287,7 @@ struct ExpansionContext {
     var extra: Bool = false
 }
 
-struct RepeatInstance {
+struct RepeatInstance: @unchecked Sendable {
     let key: String
     let id: String
     let content: [String: JSONValue]
@@ -288,9 +305,16 @@ final class ExpansionSink {
     var windowOrder: [String] = []
     var repeats: [String: RepeatInstance] = [:]
     var repeatOrder: [String] = []
+    var invalid: String? = nil              // "invalid" or "tooLarge": the expansion stopped there
 
     init(offset: Int = 0) {
         self.offset = offset
+    }
+
+    func fail(_ reason: String = "invalid") {
+        if invalid == nil {
+            invalid = reason
+        }
     }
 
     func addWindow(_ w: EngineWindow) {
@@ -312,6 +336,13 @@ final class ExpansionSink {
              auto: Bool = false, waitWindow: String? = nil, mergedWindow: String? = nil,
              ctx: ExpansionContext, windows: [String]? = nil, scopes: [String],
              asStep: Bool = false) {
+        if invalid != nil {
+            return
+        }
+        if steps.count >= WorkoutStructureV2.maxSteps {
+            invalid = "tooLarge"
+            return
+        }
         let s = EngineStep(index: offset + steps.count, id: id, kind: kind, node: node, part: part,
                            restSeconds: restSeconds, ratio: ratio, ratioOf: ratioOf, auto: auto,
                            waitWindow: waitWindow, mergedWindow: mergedWindow,
@@ -323,7 +354,8 @@ final class ExpansionSink {
 
 /// The structure expanded into steps (unbounded repeats at listRounds), with its windows and repeat
 /// instances. Rounds past listRounds are generated on demand by `roundSteps`.
-final class WorkoutExpansion {
+/// Immutable once `init` returns (only `roundSteps` runs later, and it writes into its own sink).
+final class WorkoutExpansion: @unchecked Sendable {
     let structure: [String: JSONValue]
     let standard: String
     let choices: [String: String]
@@ -334,6 +366,7 @@ final class WorkoutExpansion {
     private(set) var windowOrder: [String] = []
     private(set) var repeats: [String: RepeatInstance] = [:]
     private(set) var repeatOrder: [String] = []
+    private(set) var invalid: String? = nil
 
     init(structure: [String: JSONValue], standard: String = "M", choices: [String: String] = [:]) {
         self.structure = structure
@@ -348,6 +381,7 @@ final class WorkoutExpansion {
         windowOrder = sink.windowOrder
         repeats = sink.repeats
         repeatOrder = sink.repeatOrder
+        invalid = sink.invalid
     }
 
     static func childPath(_ path: String, _ i: Int) -> String {
@@ -415,7 +449,10 @@ final class WorkoutExpansion {
                         t["valueF"] = vf
                     } else if let bf = baseF?.number, let b = base, b.truthy, let bv = b.number,
                               let v = value?.number {
-                        t["valueF"] = .int(Int(bf * v / bv + 0.5))
+                        let scaled: Double = bf * v / bv + 0.5
+                        if scaled.isFinite && abs(scaled) < 9.0e15 {
+                            t["valueF"] = .int(Int(scaled))
+                        }
                     }
                     c["target"] = .object(t)
                 } else if kind == "repeat" {
@@ -495,19 +532,35 @@ final class WorkoutExpansion {
         var prevKey: String? = nil
         var merged: String? = nil
         for (i, item) in items.enumerated() {
+            if sink.invalid != nil {
+                return
+            }
             let key: String = ctx.prefix + item.nid
             let c: [String: JSONValue] = item.content
             switch item.kind {
             case "part":
+                if let t = c["target"]?.object, t["unit"]?.string == "seconds", let v = t["value"],
+                   WorkoutStructureV2.bounded(v, 0, WorkoutStructureV2.maxSeconds) == nil {
+                    sink.fail()
+                    return
+                }
                 sink.add(id: key, kind: "part", node: item.nid, part: resolvePart(c, item.nid), ctx: ctx,
                          scopes: ctx.scopes + [key])
             case "rest":
                 var seconds: Int? = nil
                 if let s = c["seconds"], !s.isNull {
-                    seconds = s.intValue
+                    guard let b = WorkoutStructureV2.bounded(s, 1, WorkoutStructureV2.maxSeconds) else {
+                        sink.fail()
+                        return
+                    }
+                    seconds = b
                 }
                 var ratio: JSONValue? = nil
                 if let r = c["ratio"], !r.isNull {
+                    guard let d = r.number, d.isFinite, d > 0, d <= WorkoutStructureV2.maxRatio else {
+                        sink.fail()
+                        return
+                    }
                     ratio = r
                 }
                 sink.add(id: key, kind: "rest", node: item.nid, restSeconds: seconds, ratio: ratio,
@@ -579,7 +632,11 @@ final class WorkoutExpansion {
             }
         }
         let early: String = c["early"]?.string ?? ""
-        let w = EngineWindow(key: key, id: nid, secondsMs: (c["seconds"]?.intValue ?? 0) * 1000, early: early,
+        guard let seconds = WorkoutStructureV2.bounded(c["seconds"], 1, WorkoutStructureV2.maxSeconds) else {
+            sink.fail()
+            return
+        }
+        let w = EngineWindow(key: key, id: nid, secondsMs: seconds * 1000, early: early,
                              late: c["late"]?.string ?? "", depth: ctx.windows.count + 1,
                              ancestors: ctx.windows, stops: stops)
         sink.addWindow(w)
@@ -598,14 +655,24 @@ final class WorkoutExpansion {
     private func repeatNode(_ c: [String: JSONValue], nid: String, key: String, path: String,
                             ctx: ExpansionContext, sink: ExpansionSink) {
         var times: Int? = nil
-        if let t = c["times"], !t.isNull {
-            times = t.intValue
-        }
         var lr: Int = 1
-        if let t = times {
-            lr = t
-        } else if let l = c["listRounds"], l.truthy, let li = l.intValue {
-            lr = li
+        if let t = c["times"], !t.isNull {
+            guard let b = WorkoutStructureV2.bounded(t, 0, WorkoutStructureV2.maxTimes) else {
+                sink.fail()
+                return
+            }
+            times = b
+            lr = b
+        } else {
+            var raw: JSONValue = .int(1)
+            if let l = c["listRounds"], l.truthy {
+                raw = l
+            }
+            guard let b = WorkoutStructureV2.bounded(raw, 1, WorkoutStructureV2.maxTimes) else {
+                sink.fail()
+                return
+            }
+            lr = b
         }
         var until: String? = nil
         if let u = c["until"]?.string {
@@ -618,7 +685,7 @@ final class WorkoutExpansion {
             return
         }
         for r in 1...lr {
-            if !round(inst, r, sink: sink) {
+            if sink.invalid != nil || !round(inst, r, sink: sink) {
                 break
             }
         }
@@ -638,7 +705,13 @@ final class WorkoutExpansion {
         let from: JSONValue = spec["from"] ?? .int(0)
         let step: JSONValue = spec["step"] ?? .int(0)
         if case .int(let f) = from, case .int(let s) = step {
-            return .int(f + s * (r - 1))
+            let m = s.multipliedReportingOverflow(by: r - 1)
+            if !m.overflow {
+                let a = f.addingReportingOverflow(m.partialValue)
+                if !a.overflow {
+                    return .int(a.partialValue)
+                }
+            }
         }
         return .double((from.number ?? 0) + (step.number ?? 0) * Double(r - 1))
     }
@@ -697,7 +770,7 @@ final class WorkoutExpansion {
     func roundSteps(_ key: String, _ r: Int, offset: Int) -> ExpansionSink? {
         guard let inst = repeats[key] else { return nil }
         let sink = ExpansionSink(offset: offset)
-        if !round(inst, r, sink: sink) || sink.steps.isEmpty {
+        if !round(inst, r, sink: sink) || sink.steps.isEmpty || sink.invalid != nil {
             return nil
         }
         return sink
@@ -706,12 +779,12 @@ final class WorkoutExpansion {
 
 // MARK: - Plan
 
-public struct WorkoutNotRunnable: Error, Equatable {
+public struct WorkoutNotRunnable: Error, Equatable, Sendable {
     public let reason: String                // draft | updateApp
     public let missing: [String]
 }
 
-public final class WorkoutPlan {
+public final class WorkoutPlan: @unchecked Sendable {
     public static let plannerVersion: Int = 1
 
     public let definition: JSONValue
@@ -802,7 +875,7 @@ public final class WorkoutPlan {
 
 // MARK: - Events and effects
 
-public struct EngineEvent: Equatable, Codable {
+public struct EngineEvent: Equatable, Codable, Sendable {
     public var kind: String                  // start | tick | crown | undo | reps | end | blockDone
     public var t: Int                        // ms
     public var began: Int?                   // crown: when the turn began
@@ -818,7 +891,7 @@ public struct EngineEvent: Equatable, Codable {
     }
 }
 
-public struct EngineEffect: Equatable {
+public struct EngineEffect: Equatable, Sendable {
     public let kind: String                  // go | rest | time | countdown | ask | cap | hint | grace | done | start | undo
     public let t: Int
     public let step: String?
@@ -838,8 +911,15 @@ public struct EngineEffect: Equatable {
     }
 
     /// What the effect says, without its time (a late event can move an effect without making it new).
-    var key: String {
-        return kind + "|" + (step ?? "-") + "|" + (n.map { String($0) } ?? "-") + "|" + (reason ?? "-")
+    struct Key: Hashable {
+        let kind: String
+        let step: String?
+        let n: Int?
+        let reason: String?
+    }
+
+    var key: Key {
+        return Key(kind: kind, step: step, n: n, reason: reason)
     }
 
     public func toJSON() -> JSONValue {
@@ -859,7 +939,7 @@ public struct EngineEffect: Equatable {
 
 // MARK: - State
 
-public struct StepRecord: Equatable {
+public struct StepRecord: Equatable, Sendable {
     public var start: Int?
     public var end: Int?
     public var endedBy: String?
@@ -868,21 +948,21 @@ public struct StepRecord: Equatable {
     public var relabeled: Bool = false
 }
 
-struct WindowState: Equatable {
+struct WindowState: Equatable, Sendable {
     var start: Int
     var end: Int
     var open: Bool
     var fired: Bool
 }
 
-struct RepeatState: Equatable {
+struct RepeatState: Equatable, Sendable {
     var rounds: Int
     var last: Int?
     var stopped: Bool
     var until: String?
 }
 
-public struct CapState: Equatable {
+public struct CapState: Equatable, Sendable {
     public var step: String
     public var t: Int
     public var window: String
@@ -890,19 +970,19 @@ public struct CapState: Equatable {
     public var hard: Bool
 }
 
-public struct IgnoredInput: Equatable {
+public struct IgnoredInput: Equatable, Sendable {
     public let t: Int
     public let action: String
     public let reason: String
 }
 
-struct CountdownState: Equatable {
+struct CountdownState: Equatable, Sendable {
     var bell: Int
     var armed: Bool
     var next: Int
 }
 
-final class EngineSnapshot {
+final class EngineSnapshot: @unchecked Sendable {
     let t: Int
     let state: EngineState
 
@@ -912,7 +992,7 @@ final class EngineSnapshot {
     }
 }
 
-public struct EngineState {
+public struct EngineState: @unchecked Sendable {
     public let plan: WorkoutPlan
     public internal(set) var steps: [EngineStep]
     var windows: [String: EngineWindow]
@@ -1022,6 +1102,12 @@ public enum WorkoutEngine {
             }
         }
         let exp = WorkoutExpansion(structure: structure, standard: standard, choices: choices)
+        if let reason = exp.invalid {
+            throw WorkoutNotRunnable(reason: reason, missing: [])
+        }
+        if exp.steps.isEmpty {
+            throw WorkoutNotRunnable(reason: "empty", missing: [])
+        }
         return WorkoutPlan(definition: doc, structure: structure, expansion: exp, scale: scale)
     }
 
@@ -1150,7 +1236,7 @@ public enum WorkoutEngine {
             ignored.append(x)
         }
         rebuilt.ignored = ignored
-        var remaining: [String: Int] = [:]
+        var remaining: [EngineEffect.Key: Int] = [:]
         for e in played {
             remaining[e.key, default: 0] += 1
         }
@@ -1828,12 +1914,25 @@ public enum WorkoutEngine {
         return String(format: "%d:%02d", s / 60, s % 60)
     }
 
-    /// Python's str() of a number that is usually whole.
+    /// Python's str() of a number that is usually whole (integer reps).
     static func numberText(_ x: Double) -> String {
-        if x == x.rounded() && abs(x) < 9.0e15 {
-            return String(Int(x))
+        if x.isFinite && x == x.rounded() {
+            return wholeText(x)
         }
         return "\(x)"
+    }
+
+    /// Python's "%d" % x: truncates toward zero; never traps on a huge value.
+    static func intText(_ x: Double) -> String {
+        guard x.isFinite else { return "\(x)" }
+        return wholeText(x.rounded(.towardZero))
+    }
+
+    private static func wholeText(_ x: Double) -> String {
+        if let i = Int(exactly: x) {
+            return String(i)
+        }
+        return String(format: "%.0f", x)
     }
 
     /// The declared score (RFC §5), from the per-step facts. `complete` is false while a count it
@@ -1855,7 +1954,7 @@ public enum WorkoutEngine {
                 out["capped"] = .bool(true)
                 out["reps"] = JSONValue.numeric(r.0)
                 out["complete"] = .bool(r.1)
-                out["text"] = .string("CAP + " + String(Int(r.0)))
+                out["text"] = .string("CAP + " + intText(r.0))
                 out["type"] = sc["atCap"] ?? .string("totalReps")
                 out["afterCapMs"] = st.doneT.map { JSONValue.int($0 - cap.t) } ?? .null
                 return .object(out)
@@ -1909,7 +2008,7 @@ public enum WorkoutEngine {
             out["rounds"] = .int(rr.0)
             out["reps"] = JSONValue.numeric(rr.1)
             out["complete"] = .bool(rr.2)
-            out["text"] = .string(String(rr.0) + " + " + String(Int(rr.1)))
+            out["text"] = .string(String(rr.0) + " + " + intText(rr.1))
             return .object(out)
         case "windowsCompleted":
             var total: Int = 0
@@ -1939,9 +2038,10 @@ public enum WorkoutEngine {
                       let v = ld["value"]?.number else { continue }
                 let perUnit: Double = ld["unit"]?.string == "kg" ? 1.0 : 0.45359237
                 let kg: Double = v * perUnit * (ld["count"]?.number ?? 1)
-                if best == nil || kg > best!.0 {
-                    best = (kg, ld, s.target?["value"] ?? .null)
+                if let b = best, kg <= b.0 {
+                    continue
                 }
+                best = (kg, ld, s.target?["value"] ?? .null)
             }
             if let b = best {
                 out["value"] = .object(["load": .object(b.1), "reps": b.2])

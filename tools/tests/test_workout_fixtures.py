@@ -17,8 +17,8 @@ def test_fixtures_are_up_to_date():
 
 def test_index_counts_every_case():
     index = json.loads((gen.OUT / "INDEX.json").read_text())
-    assert len(index["cases"]) == len(gen.ALL) and index["scenarios"] >= 40
-    assert all(gen.SCENARIOS[c] for c in index["cases"])
+    assert len(index["cases"]) == len(gen.ALL) + len(gen.EXTRA) and index["scenarios"] >= 50
+    assert index["planErrors"] >= 10
 
 
 def test_late_scenario_moves_the_cut():

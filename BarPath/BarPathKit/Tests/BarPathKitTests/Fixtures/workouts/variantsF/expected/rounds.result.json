@@ -1,0 +1,181 @@
+{
+ "asks": [],
+ "boundaries": [
+  92000,
+  182000
+ ],
+ "current": null,
+ "done": true,
+ "doneT": 258000,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 89000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 90000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 91000
+  },
+  {
+   "kind": "go",
+   "step": "rp.2.thr",
+   "t": 92000
+  },
+  {
+   "kind": "countdown",
+   "n": 3,
+   "t": 179000
+  },
+  {
+   "kind": "countdown",
+   "n": 2,
+   "t": 180000
+  },
+  {
+   "kind": "countdown",
+   "n": 1,
+   "t": 181000
+  },
+  {
+   "kind": "go",
+   "step": "rp.3.thr",
+   "t": 182000
+  },
+  {
+   "kind": "done",
+   "t": 258000
+  }
+ ],
+ "endedBy": "athlete",
+ "facts": [
+  {
+   "end": 30000,
+   "endedBy": "athlete",
+   "id": "rp.1.thr",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 0,
+   "status": "done"
+  },
+  {
+   "end": 61000,
+   "endedBy": "athlete",
+   "id": "rp.1.cardio",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 30000,
+   "status": "done"
+  },
+  {
+   "end": 92000,
+   "endedBy": "clock",
+   "id": "rp.1.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 61000,
+   "status": "done"
+  },
+  {
+   "end": 122000,
+   "endedBy": "athlete",
+   "id": "rp.2.thr",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 92000,
+   "status": "done"
+  },
+  {
+   "end": 152000,
+   "endedBy": "athlete",
+   "id": "rp.2.cardio",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 122000,
+   "status": "done"
+  },
+  {
+   "end": 182000,
+   "endedBy": "clock",
+   "id": "rp.2.r",
+   "kind": "rest",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 152000,
+   "status": "done"
+  },
+  {
+   "end": 228000,
+   "endedBy": "athlete",
+   "id": "rp.3.thr",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 182000,
+   "status": "done"
+  },
+  {
+   "end": 258000,
+   "endedBy": "athlete",
+   "id": "rp.3.cardio",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 228000,
+   "status": "done"
+  }
+ ],
+ "score": {
+  "complete": true,
+  "text": "3:17",
+  "type": "time",
+  "value": 197000
+ }
+}

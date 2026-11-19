@@ -16,11 +16,12 @@ Event files: {"ticks": {"every": ms, "until": ms}, "events": [...]} is expanded 
 by (t, order) with start 0, tick 1, others 2, stable. {"stream": [...]} is used as written (late
 deliveries)."""
 import json
+import random
 from pathlib import Path
 
 from barpath import workout_engine as we
 from barpath import workout_structure as ws
-from engine_cases import ALL, EMOM, TABATA
+from engine_cases import ALL, EMOM, TABATA, part
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 OUT = ROOT / "BarPath/BarPathKit/Tests/BarPathKitTests/Fixtures/workouts"
@@ -170,16 +171,126 @@ def result(st, effects) -> dict:
             "current": st.current.id if st.current else None}
 
 
+# Cases beyond engine_cases.ALL that the validator would refuse (unknown nodes) or that need plan
+# arguments (scale, standard, machine choice): options.json holds the arguments for plan().
+_VARIANT_RX = {"score": {"type": "time", "includeRest": False}, "body": [
+    {"repeat": {"id": "rp", "times": 3, "vary": {"thr": [21, 15, 9]}, "body": [
+        {"group": {"id": "round", "label": "round", "body": [
+            {"part": {"id": "thr", "movement": "thrusters", "name": "Übung – 1/2",
+                      "target": {"value": 21, "valueF": 15, "unit": "reps"},
+                      "load": {"value": 42.5, "valueF": 30, "unit": "kg"}}},
+            {"part": {"id": "cardio", "movement": {"choice": ["row", "bike", "skiErg"]},
+                      "target": {"value": 12.5, "unit": "calories"}}}]}},
+        {"rest": {"id": "r", "ratio": 0.5}}],
+        "override": [{"rounds": ["last"], "id": "r", "omit": True}]}}]}
+_VARIANT_L1 = {"score": {"type": "time"}, "body": [
+    {"part": {"id": "thr", "movement": "ringRows", "name": "Rudern – Ring",
+              "target": {"value": 30, "unit": "reps"}}}]}
+VARIANTS = {"schemaVersion": 2, "id": "test.variants", "name": "Übung – 1/2", "team": "solo",
+            "structure": _VARIANT_RX,
+            "scales": [{"id": "rx", "label": "Rx", "short": "Rx", "rank": 2, "structure": _VARIANT_RX},
+                       {"id": "l1", "label": "Level 1", "short": "L1", "rank": 1, "structure": _VARIANT_L1}]}
+UNKNOWN_NODES = {"schemaVersion": 2, "id": "test.unknown", "name": "Unknown blocks", "team": "solo",
+                 "structure": {"score": {"type": "time"}, "body": [
+                     {"future": {"id": "x", "laps": 3}, "rawText": "3 laps of a future block"},
+                     part("a", "run", 400, "meters", kind="run"),
+                     {"group": {"id": "g", "body": [{"futureToo": {}}, part("b", "burpees", 10)]}}]}}
+
+_VARIANT_CROWNS = crowns(30 * S, 61 * S, 122 * S, 152 * S, 228 * S, 258 * S)
+EXTRA = {
+    "unknownNodes": (UNKNOWN_NODES, {}, {"athletePaced": ticked(0, 0, crowns(60 * S, 120 * S, 180 * S, 240 * S))}),
+    "variantsM": (VARIANTS, {}, {"rounds": ticked(500, 260 * S, _VARIANT_CROWNS)}),
+    "variantsF": (VARIANTS, {"standard": "F", "choices": {"cardio": "bike"}},
+                  {"rounds": ticked(500, 260 * S, _VARIANT_CROWNS)}),
+    "variantsL1": (VARIANTS, {"scale": "l1"}, {"one": ticked(0, 0, crowns(90 * S))}),
+}
+
+RANDOM_CASES = ("tabata", "windows3334", "amrapShort", "forTimeCap", "intervals", "hyrox")
+
+
+def _random_scenarios(name: str) -> dict:
+    """Seeded random event streams (RFC 10.3): Crowns (some begun earlier), undos, and one stream
+    with Crowns delivered after the next tick."""
+    out = {}
+    for seed in (1, 2):
+        rng = random.Random("%s-%d" % (name, seed))
+        horizon = 1100 * S
+        tick = rng.choice([200, 1000])
+        evs = []
+        for t in sorted(rng.sample(range(500, horizon, 100), rng.randint(10, 50))):
+            e = {"kind": "crown", "t": t}
+            if rng.random() < 0.15:
+                e["began"] = t - rng.choice([100, 400, 900])
+            evs.append(e)
+        for t in sorted(rng.sample(range(1000, horizon, 100), 3)):
+            evs.append({"kind": "undo", "t": t})
+        spec = ticked(tick, horizon, evs)
+        out["random%d" % seed] = spec
+        if seed == 2:
+            on_time = expand_events(spec)
+            stream, pending = [], []
+            for e in on_time:
+                if e["kind"] == "crown" and rng.random() < 0.4:
+                    pending.append(e)
+                    continue
+                stream.append(e)
+                if e["kind"] == "tick" and pending:
+                    stream.extend(pending)
+                    pending = []
+            stream.extend(pending)
+            out["random2late"] = {"stream": stream}
+    return out
+
+
+def plan_error_cases() -> list:
+    def doc(body):
+        return {"schemaVersion": 2, "structure": {"score": {"type": "none"}, "body": body}}
+    cases = [
+        ("tooManySteps", [{"repeat": {"id": "rp", "times": 401, "body": [part("a", "run")]}}]),
+        ("hugeTimes", [{"repeat": {"id": "rp", "times": 1e20, "body": [part("a", "run")]}}]),
+        ("hugeListRounds", [{"timed": {"id": "t", "seconds": 60, "early": "next", "late": "end", "body": [
+            {"repeat": {"id": "rp", "times": None, "listRounds": 1e30, "body": [part("a", "run")]}}]}}]),
+        ("hugeSeconds", [{"timed": {"id": "t", "seconds": 1e19, "early": "next", "late": "cut",
+                                    "body": [part("a", "run")]}}]),
+        ("hugeRestSeconds", [part("w", "run"), {"rest": {"id": "r", "seconds": 10 ** 12}}]),
+        ("hugeRatio", [part("w", "run"), {"rest": {"id": "r", "ratio": 1e9}}]),
+        ("hugeSecondsTarget", [{"part": {"id": "a", "movement": "plank",
+                                         "target": {"value": 1e19, "unit": "seconds"}}}]),
+        ("zeroTimes", [{"repeat": {"id": "rp", "times": 0, "body": [part("a", "run")]}}]),
+        ("emptyBody", []),
+        ("varyHugeSeconds", [{"repeat": {"id": "rp", "times": 2, "vary": {"t": [60, 10 ** 12]}, "body": [
+            {"timed": {"id": "t", "seconds": 60, "early": "wait", "late": "cut",
+                       "body": [part("a", "run")]}}]}}]),
+    ]
+    out = []
+    for name, body in cases:
+        try:
+            we.plan(doc(body))
+            reason = "ok"
+        except we.NotRunnable as e:
+            reason = e.reason
+        assert reason != "ok", name
+        out.append({"name": name, "doc": doc(body), "reason": reason})
+    return out
+
+
 def generate() -> dict:
     """{relative path: file text} for everything under Fixtures/workouts."""
     files = {}
     scenario_count = 0
-    for name in sorted(ALL):
-        doc = ws.compile_definition(ALL[name])
-        p = we.plan(doc)
+    cases = {name: (ws.compile_definition(ALL[name]), {}, dict(SCENARIOS[name])) for name in ALL}
+    for name in RANDOM_CASES:
+        cases[name][2].update(_random_scenarios(name))
+    for name, (doc, opts, scen) in EXTRA.items():
+        cases[name] = (ws.compile_definition(doc), opts, scen)
+    for name in sorted(cases):
+        doc, opts, scenarios = cases[name]
+        p = we.plan(doc, **opts)
         files["%s/definition.json" % name] = dumps(doc)
+        if opts:
+            files["%s/options.json" % name] = dumps(opts)
         files["%s/expected_plan.json" % name] = dumps({"hash": p.hash, "plan": p.to_dict()})
-        for scen, spec in sorted(SCENARIOS[name].items()):
+        for scen, spec in sorted(scenarios.items()):
             st, eff = we.run(p, expand_events(spec))
             files["%s/events/%s.json" % (name, scen)] = dumps(spec)
             files["%s/expected/%s.result.json" % (name, scen)] = dumps(result(st, eff))
@@ -189,8 +300,10 @@ def generate() -> dict:
         status, missing = ws.check_runnable(c["doc"], tuple(c["engineFeatures"]))
         assert [status, missing] == c["expected"], (c["name"], status, missing)
     files["runnable.json"] = dumps(rc)
-    files["INDEX.json"] = dumps({"cases": sorted(ALL), "scenarios": scenario_count, "runnable": len(rc),
-                                 "planner": we.PLANNER_VERSION})
+    pe = plan_error_cases()
+    files["planErrors.json"] = dumps(pe)
+    files["INDEX.json"] = dumps({"cases": sorted(cases), "scenarios": scenario_count, "runnable": len(rc),
+                                 "planErrors": len(pe), "planner": we.PLANNER_VERSION})
     return files
 
 

@@ -27,6 +27,24 @@ final class WorkoutEngineParityTests: XCTestCase {
         return try JSONValue.parse(try Data(contentsOf: u))
     }
 
+    /// The plan arguments a case needs (scale, standard, machine choice), from options.json.
+    private func planFor(_ name: String) throws -> WorkoutPlan {
+        let definition = try workoutFixture("\(name)/definition.json")
+        var opts: JSONValue = .object([:])
+        if Bundle.module.url(forResource: "options", withExtension: "json",
+                             subdirectory: "Fixtures/workouts/\(name)") != nil {
+            opts = try workoutFixture("\(name)/options.json")
+        }
+        var choices: [String: String] = [:]
+        for (k, v) in opts["choices"]?.object ?? [:] {
+            if let s = v.string {
+                choices[k] = s
+            }
+        }
+        return try WorkoutEngine.plan(definition, scale: opts["scale"]?.string,
+                                      standard: opts["standard"]?.string ?? "M", choices: choices)
+    }
+
     private func index() throws -> JSONValue {
         return try workoutFixture("INDEX.json")
     }
@@ -92,7 +110,8 @@ final class WorkoutEngineParityTests: XCTestCase {
     func testIndexCountsEveryCaseAndScenario() throws {
         let idx = try index()
         let names = try cases()
-        XCTAssertEqual(names.count, 19)
+        XCTAssertGreaterThanOrEqual(names.count, 23)
+        XCTAssertTrue(names.contains("unknownNodes") && names.contains("variantsF") && names.contains("variantsL1"))
         XCTAssertEqual(idx["planner"]?.intValue, WorkoutPlan.plannerVersion)
         var total: Int = 0
         for name in names {
@@ -105,9 +124,8 @@ final class WorkoutEngineParityTests: XCTestCase {
 
     func testPlansMatchPythonByteForByte() throws {
         for name in try cases() {
-            let definition = try workoutFixture("\(name)/definition.json")
             let expected = try workoutFixture("\(name)/expected_plan.json")
-            let plan = try WorkoutEngine.plan(definition)
+            let plan = try planFor(name)
             XCTAssertEqual(plan.canonicalJSON, expected["plan"]?.canonicalJSON, "\(name): plan")
             XCTAssertEqual(plan.hash, expected["hash"]?.string, "\(name): plan hash")
         }
@@ -115,7 +133,7 @@ final class WorkoutEngineParityTests: XCTestCase {
 
     func testScenariosMatchPython() throws {
         for name in try cases() {
-            let plan = try WorkoutEngine.plan(try workoutFixture("\(name)/definition.json"))
+            let plan = try planFor(name)
             for scen in try scenarios(name) {
                 let spec = try workoutFixture("\(name)/events/\(scen).json")
                 let expected = try workoutFixture("\(name)/expected/\(scen).result.json")
@@ -140,7 +158,7 @@ final class WorkoutEngineParityTests: XCTestCase {
 
     func testReplayOfTheLogEqualsLive() throws {
         for name in try cases() {
-            let plan = try WorkoutEngine.plan(try workoutFixture("\(name)/definition.json"))
+            let plan = try planFor(name)
             for scen in try scenarios(name) {
                 let (live, _) = WorkoutEngine.run(plan, try events(try workoutFixture("\(name)/events/\(scen).json")))
                 let replayed = WorkoutEngine.replay(plan, live.log, until: live.now)
@@ -169,6 +187,22 @@ final class WorkoutEngineParityTests: XCTestCase {
         }
     }
 
+    /// The reader is total: out-of-range numbers, a plan past 400 steps or an empty plan are refused
+    /// with the same reason as Python, never a trap or an endless expansion.
+    func testPlanErrorsMatchPython() throws {
+        let list = try workoutFixture("planErrors.json").array ?? []
+        XCTAssertEqual(list.count, try index()["planErrors"]?.intValue)
+        for c in list {
+            let name: String = c["name"]?.string ?? "?"
+            do {
+                _ = try WorkoutEngine.plan(c["doc"] ?? .null)
+                XCTFail("\(name): planned")
+            } catch let e as WorkoutNotRunnable {
+                XCTAssertEqual(e.reason, c["reason"]?.string, name)
+            }
+        }
+    }
+
     /// Raw pass-through (RFC §14.3 A5): a definition decoded and encoded again keeps every key.
     func testDefinitionsRoundTripUnchanged() throws {
         for name in try cases() {
@@ -188,5 +222,8 @@ final class WorkoutEngineParityTests: XCTestCase {
     func testCanonicalJSONMatchesPythonRules() {
         let v: JSONValue = .object(["b": .double(40.0), "a": .array([.double(0.5), .string("é\"\n")]), "c": .null])
         XCTAssertEqual(v.canonicalJSON, "{\"a\":[0.5,\"é\\\"\\n\"],\"b\":40,\"c\":null}")
+        XCTAssertEqual(JSONValue.double(1e16).canonicalJSON, "10000000000000000")
+        XCTAssertEqual(JSONValue.double(1e20).canonicalJSON, "100000000000000000000")
+        XCTAssertNil(JSONValue.double(1e20).intValue)
     }
 }

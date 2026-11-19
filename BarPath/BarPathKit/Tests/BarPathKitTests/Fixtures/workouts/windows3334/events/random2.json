@@ -1,0 +1,87 @@
+{
+ "events": [
+  {
+   "kind": "crown",
+   "t": 218800
+  },
+  {
+   "kind": "crown",
+   "t": 227700
+  },
+  {
+   "kind": "crown",
+   "t": 268500
+  },
+  {
+   "began": 268700,
+   "kind": "crown",
+   "t": 269100
+  },
+  {
+   "kind": "crown",
+   "t": 283100
+  },
+  {
+   "kind": "crown",
+   "t": 356000
+  },
+  {
+   "kind": "crown",
+   "t": 371500
+  },
+  {
+   "kind": "crown",
+   "t": 481600
+  },
+  {
+   "kind": "crown",
+   "t": 582700
+  },
+  {
+   "kind": "crown",
+   "t": 705800
+  },
+  {
+   "kind": "crown",
+   "t": 773400
+  },
+  {
+   "kind": "crown",
+   "t": 777600
+  },
+  {
+   "kind": "crown",
+   "t": 826200
+  },
+  {
+   "began": 849100,
+   "kind": "crown",
+   "t": 850000
+  },
+  {
+   "kind": "crown",
+   "t": 1055300
+  },
+  {
+   "began": 1068200,
+   "kind": "crown",
+   "t": 1069100
+  },
+  {
+   "kind": "undo",
+   "t": 88200
+  },
+  {
+   "kind": "undo",
+   "t": 404100
+  },
+  {
+   "kind": "undo",
+   "t": 487200
+  }
+ ],
+ "ticks": {
+  "every": 200,
+  "until": 1100000
+ }
+}

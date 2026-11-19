@@ -1,0 +1,372 @@
+{
+ "asks": [
+  "rp.3.pu"
+ ],
+ "boundaries": [],
+ "current": null,
+ "done": true,
+ "doneT": 1084900,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "done",
+   "t": 135800
+  },
+  {
+   "kind": "undo",
+   "step": "rp.3.pu",
+   "t": 151000
+  },
+  {
+   "kind": "done",
+   "t": 175900
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 194600
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 195200
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 201200
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 209900
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 242100
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 253800
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 288100
+  },
+  {
+   "kind": "undo",
+   "step": "rp.3.pu",
+   "t": 291100
+  },
+  {
+   "kind": "done",
+   "t": 306900
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 319100
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 319600
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 381200
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 383000
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 403500
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 458500
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 460500
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 475500
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 524400
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 596200
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 660400
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 699200
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 732200
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 786500
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 803600
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 813000
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 843200
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 870300
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 871900
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 876200
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 881500
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 909500
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 925400
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 983600
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 986400
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 1002900
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 1026600
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 1031400
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 1058000
+  },
+  {
+   "kind": "undo",
+   "step": "rp.3.pu",
+   "t": 1075500
+  },
+  {
+   "kind": "time",
+   "t": 960000
+  },
+  {
+   "kind": "cap",
+   "step": "rp.3.pu",
+   "t": 960000
+  },
+  {
+   "kind": "done",
+   "t": 1084900
+  }
+ ],
+ "endedBy": "athlete",
+ "facts": [
+  {
+   "end": 43000,
+   "endedBy": "athlete",
+   "id": "rp.1.run",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 0,
+   "status": "done"
+  },
+  {
+   "end": 53300,
+   "endedBy": "athlete",
+   "id": "rp.1.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 43000,
+   "status": "done"
+  },
+  {
+   "end": 59800,
+   "endedBy": "athlete",
+   "id": "rp.1.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 53300,
+   "status": "done"
+  },
+  {
+   "end": 83200,
+   "endedBy": "athlete",
+   "id": "rp.2.run",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 59800,
+   "status": "done"
+  },
+  {
+   "end": 107300,
+   "endedBy": "athlete",
+   "id": "rp.2.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 83200,
+   "status": "done"
+  },
+  {
+   "end": 116600,
+   "endedBy": "athlete",
+   "id": "rp.2.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 107300,
+   "status": "done"
+  },
+  {
+   "end": 128300,
+   "endedBy": "athlete",
+   "id": "rp.3.run",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 116600,
+   "status": "done"
+  },
+  {
+   "end": 131500,
+   "endedBy": "athlete",
+   "id": "rp.3.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 128300,
+   "status": "done"
+  },
+  {
+   "end": 1084900,
+   "endedBy": "athlete",
+   "id": "rp.3.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 131500,
+   "status": "done"
+  }
+ ],
+ "score": {
+  "afterCapMs": 124900,
+  "capped": true,
+  "complete": false,
+  "reps": 87,
+  "text": "CAP + 87",
+  "type": "totalReps"
+ }
+}

@@ -1,0 +1,61 @@
+{
+ "hash": "4f63b5ba7ad9d433b6e1e2a579ca5a595a7c86be12f5dc57a3a6977cd772e6ee",
+ "plan": {
+  "bells": [],
+  "planner": 1,
+  "steps": [
+   {
+    "ends": "athlete",
+    "id": "_unknown1",
+    "index": 0,
+    "kind": "part",
+    "node": "_unknown1",
+    "partMovement": "part",
+    "partName": "3 laps of a future block",
+    "rounds": [],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "a",
+    "index": 1,
+    "kind": "part",
+    "node": "a",
+    "partKind": "run",
+    "partMovement": "run",
+    "partTarget": {
+     "unit": "meters",
+     "value": 400
+    },
+    "rounds": [],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "_unknown2",
+    "index": 2,
+    "kind": "part",
+    "node": "_unknown2",
+    "partMovement": "part",
+    "partName": "Unknown block",
+    "rounds": [],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "b",
+    "index": 3,
+    "kind": "part",
+    "node": "b",
+    "partMovement": "burpees",
+    "partTarget": {
+     "unit": "reps",
+     "value": 10
+    },
+    "rounds": [],
+    "windows": []
+   }
+  ],
+  "windows": []
+ }
+}

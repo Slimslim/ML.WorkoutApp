@@ -1,0 +1,325 @@
+{
+ "asks": [],
+ "boundaries": [],
+ "current": null,
+ "done": true,
+ "doneT": 876400,
+ "effects": [
+  {
+   "kind": "start",
+   "t": 0
+  },
+  {
+   "kind": "hint",
+   "reason": "nothingToUndo",
+   "t": 29000
+  },
+  {
+   "kind": "done",
+   "t": 349300
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 448100
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 465500
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 471700
+  },
+  {
+   "kind": "undo",
+   "step": "rp.3.pu",
+   "t": 527500
+  },
+  {
+   "kind": "done",
+   "t": 530500
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 559000
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 571500
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 614100
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 627500
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 639200
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 649200
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 656300
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 663300
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 688600
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 699900
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 723500
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 761300
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 775000
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 789400
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 814800
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 833700
+  },
+  {
+   "kind": "undo",
+   "step": "rp.3.pu",
+   "t": 874200
+  },
+  {
+   "kind": "done",
+   "t": 876400
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 886100
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 887500
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 888800
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 924600
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 926800
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 932000
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 935400
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 993300
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 1054400
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 1078800
+  },
+  {
+   "kind": "hint",
+   "reason": "done",
+   "t": 1079000
+  }
+ ],
+ "endedBy": "athlete",
+ "facts": [
+  {
+   "end": 53100,
+   "endedBy": "athlete",
+   "id": "rp.1.run",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 0,
+   "status": "done"
+  },
+  {
+   "end": 62200,
+   "endedBy": "athlete",
+   "id": "rp.1.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 53100,
+   "status": "done"
+  },
+  {
+   "end": 126900,
+   "endedBy": "athlete",
+   "id": "rp.1.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     1
+    ]
+   ],
+   "start": 62200,
+   "status": "done"
+  },
+  {
+   "end": 170000,
+   "endedBy": "athlete",
+   "id": "rp.2.run",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 126900,
+   "status": "done"
+  },
+  {
+   "end": 231500,
+   "endedBy": "athlete",
+   "id": "rp.2.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 170000,
+   "status": "done"
+  },
+  {
+   "end": 299100,
+   "endedBy": "athlete",
+   "id": "rp.2.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     2
+    ]
+   ],
+   "start": 231500,
+   "status": "done"
+  },
+  {
+   "end": 331200,
+   "endedBy": "athlete",
+   "id": "rp.3.run",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 299100,
+   "status": "done"
+  },
+  {
+   "end": 337100,
+   "endedBy": "athlete",
+   "id": "rp.3.kb",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 331200,
+   "status": "done"
+  },
+  {
+   "end": 876400,
+   "endedBy": "athlete",
+   "id": "rp.3.pu",
+   "kind": "part",
+   "rounds": [
+    [
+     "rp",
+     3
+    ]
+   ],
+   "start": 337100,
+   "status": "done"
+  }
+ ],
+ "score": {
+  "complete": true,
+  "text": "14:36",
+  "type": "time",
+  "value": 876400
+ }
+}

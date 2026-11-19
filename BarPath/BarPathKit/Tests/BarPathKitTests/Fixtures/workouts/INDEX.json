@@ -17,10 +17,15 @@
   "ratioRest",
   "scaled",
   "tabata",
+  "unknownNodes",
+  "variantsF",
+  "variantsL1",
+  "variantsM",
   "windows3333",
   "windows3334"
  ],
+ "planErrors": 10,
  "planner": 1,
  "runnable": 8,
- "scenarios": 40
+ "scenarios": 62
 }

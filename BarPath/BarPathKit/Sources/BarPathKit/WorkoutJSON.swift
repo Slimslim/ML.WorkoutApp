@@ -4,7 +4,12 @@ import CryptoKit
 /// A JSON value that keeps everything it was given, so a v2 workout definition passes through
 /// every hop unchanged, unknown keys included (docs/WORKOUT_MODEL_RFC.md §14.3 A5).
 /// Python reference: tools/barpath/workout_engine.py (`canonical_json`).
-public enum JSONValue: Equatable {
+///
+/// Canonical JSON is byte-for-byte Python's for every value a workout holds. Known limits outside
+/// that domain: an integer beyond Int.max decodes as a Double (precision lost), and two object keys
+/// that differ only in Unicode normalization (NFC vs NFD) collapse into one, since Swift compares
+/// strings by canonical equivalence. Neither occurs in a definition the compiler writes.
+public enum JSONValue: Equatable, Sendable {
     case null
     case bool(Bool)
     case int(Int)
@@ -111,11 +116,13 @@ public extension JSONValue {
         }
     }
 
-    /// Python's `int(x)` of a number: truncates toward zero.
+    /// Python's `int(x)` of a number: truncates toward zero; nil when it doesn't fit an Int.
     var intValue: Int? {
         switch self {
         case .int(let i): return i
-        case .double(let d): return d.isFinite ? Int(d) : nil
+        case .double(let d):
+            guard d.isFinite, abs(d) < 9.0e18 else { return nil }
+            return Int(d)
         default: return nil
         }
     }
@@ -146,8 +153,8 @@ public extension JSONValue {
 
     /// A number that is whole and fits an Int becomes `.int` (Python `_canon`: 40 never 40.0).
     static func numeric(_ d: Double) -> JSONValue {
-        if d.isFinite && d == d.rounded() && abs(d) < 9.0e15 {
-            return .int(Int(d))
+        if let i = Int(exactly: d) {
+            return .int(i)
         }
         return .double(d)
     }
@@ -179,8 +186,11 @@ public extension JSONValue {
         case .int(let i):
             out += String(i)
         case .double(let d):
-            if d.isFinite && d == d.rounded() && abs(d) < 9.0e15 {
-                out += String(Int(d))
+            // Python `_canon`: any whole float is written as an integer.
+            if let i = Int(exactly: d) {
+                out += String(i)
+            } else if d.isFinite && d == d.rounded() {
+                out += String(format: "%.0f", d)
             } else {
                 out += "\(d)"
             }

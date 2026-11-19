@@ -264,3 +264,41 @@ def test_unknown_node_runs_as_an_athlete_paced_part():
     p = we.plan(doc)                                      # but an engine handed one never guesses
     last = p.steps[-1]
     assert last.part["name"] == "3 rounds of a future block" and last.ends == "athlete"
+
+
+def test_list_rounds_is_capped_so_a_long_amrap_fits_the_step_limit():
+    doc = {"schemaVersion": 2, "id": "test.long", "name": "Long", "team": "solo", "structure": {
+        "score": {"type": "roundsReps"},
+        "body": [{"timed": {"id": "t", "seconds": 7200, "early": "next", "late": "end", "body": [
+            {"repeat": {"id": "rp", "times": None, "body": [part("a", "burpees", 1)]}}]}}]}}
+    c = ws.compile_definition(doc)
+    assert ws.validate(c) == []
+    assert len(we.plan(c).steps) <= ws.MAX_STEPS
+
+
+PLAN_ERRORS = {
+    "tooManySteps": ({"repeat": {"id": "rp", "times": 401, "body": [part("a", "run")]}}, "tooLarge"),
+    "hugeTimes": ({"repeat": {"id": "rp", "times": 1e20, "body": [part("a", "run")]}}, "invalid"),
+    "hugeSeconds": ({"timed": {"id": "t", "seconds": 1e19, "early": "next", "late": "cut",
+                               "body": [part("a", "run")]}}, "invalid"),
+    "hugeRestSeconds": ({"rest": {"id": "r", "seconds": 10 ** 12}}, "invalid"),
+    "hugeRatio": ({"rest": {"id": "r", "ratio": 1e9}}, "invalid"),
+    "hugeSecondsTarget": ({"part": {"id": "a", "movement": "plank",
+                                    "target": {"value": 1e19, "unit": "seconds"}}}, "invalid"),
+    "zeroTimes": ({"repeat": {"id": "rp", "times": 0, "body": [part("a", "run")]}}, "empty"),
+    "varyHugeSeconds": ({"repeat": {"id": "rp", "times": 2, "vary": {"t": [60, 10 ** 12]}, "body": [
+        {"timed": {"id": "t", "seconds": 60, "early": "wait", "late": "cut", "body": [part("a", "run")]}}]}},
+                        "invalid"),
+}
+
+
+@pytest.mark.parametrize("name", sorted(PLAN_ERRORS))
+def test_the_reader_refuses_out_of_range_numbers_instead_of_crashing(name):
+    node, reason = PLAN_ERRORS[name]
+    body = [part("w", "run"), node] if node.get("rest") else [node]
+    with pytest.raises(we.NotRunnable) as e:
+        we.plan({"schemaVersion": 2, "structure": {"score": {"type": "none"}, "body": body}})
+    assert e.value.reason == reason
+    with pytest.raises(we.NotRunnable) as e:
+        we.plan({"schemaVersion": 2, "structure": {"score": {"type": "none"}, "body": []}})
+    assert e.value.reason == "empty"

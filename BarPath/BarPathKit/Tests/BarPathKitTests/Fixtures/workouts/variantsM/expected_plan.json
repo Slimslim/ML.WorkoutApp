@@ -1,0 +1,177 @@
+{
+ "hash": "1d22340542b3f2018a4591efd5d95734b22717b5c622db890cd15442479a7a6c",
+ "plan": {
+  "bells": [],
+  "planner": 1,
+  "steps": [
+   {
+    "ends": "athlete",
+    "id": "rp.1.thr",
+    "index": 0,
+    "kind": "part",
+    "node": "thr",
+    "partLoad": {
+     "unit": "kg",
+     "value": 42.5,
+     "valueF": 30
+    },
+    "partMovement": "thrusters",
+    "partName": "Übung – 1/2",
+    "partTarget": {
+     "unit": "reps",
+     "value": 21,
+     "valueF": 15
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.1.cardio",
+    "index": 1,
+    "kind": "part",
+    "node": "cardio",
+    "partMovement": "row",
+    "partTarget": {
+     "unit": "calories",
+     "value": 12.5
+    },
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "clock",
+    "id": "rp.1.r",
+    "index": 2,
+    "kind": "rest",
+    "node": "r",
+    "ratio": 0.5,
+    "ratioOf": "rp.1.round",
+    "rounds": [
+     [
+      "rp",
+      1
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.thr",
+    "index": 3,
+    "kind": "part",
+    "node": "thr",
+    "partLoad": {
+     "unit": "kg",
+     "value": 42.5,
+     "valueF": 30
+    },
+    "partMovement": "thrusters",
+    "partName": "Übung – 1/2",
+    "partTarget": {
+     "unit": "reps",
+     "value": 15,
+     "valueF": 11
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.2.cardio",
+    "index": 4,
+    "kind": "part",
+    "node": "cardio",
+    "partMovement": "row",
+    "partTarget": {
+     "unit": "calories",
+     "value": 12.5
+    },
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "clock",
+    "id": "rp.2.r",
+    "index": 5,
+    "kind": "rest",
+    "node": "r",
+    "ratio": 0.5,
+    "ratioOf": "rp.2.round",
+    "rounds": [
+     [
+      "rp",
+      2
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.thr",
+    "index": 6,
+    "kind": "part",
+    "node": "thr",
+    "partLoad": {
+     "unit": "kg",
+     "value": 42.5,
+     "valueF": 30
+    },
+    "partMovement": "thrusters",
+    "partName": "Übung – 1/2",
+    "partTarget": {
+     "unit": "reps",
+     "value": 9,
+     "valueF": 6
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": []
+   },
+   {
+    "ends": "athlete",
+    "id": "rp.3.cardio",
+    "index": 7,
+    "kind": "part",
+    "node": "cardio",
+    "partMovement": "row",
+    "partTarget": {
+     "unit": "calories",
+     "value": 12.5
+    },
+    "rounds": [
+     [
+      "rp",
+      3
+     ]
+    ],
+    "windows": []
+   }
+  ],
+  "windows": []
+ }
+}

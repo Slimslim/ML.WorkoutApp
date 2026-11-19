@@ -24,7 +24,7 @@ import json
 from dataclasses import dataclass
 from typing import Optional
 
-from .workout_structure import (COUNT_UNITS, check_runnable, iter_nodes, node_kind, unbounded)
+from .workout_structure import (COUNT_UNITS, MAX_STEPS, check_runnable, iter_nodes, node_kind, unbounded)
 
 PLANNER_VERSION = 1
 
@@ -36,6 +36,22 @@ COUNTDOWN_MS = 3000         # 3-2-1 only if at least 3 s are left (§4.2.4)
 MAX_EXTRA_ROUNDS = 1000     # safety bound on rounds added past listRounds
 
 HAPTICS = ("go", "rest", "time")
+
+# The reader is total (RFC 14.4: lenient on read): a value the engine would consume out of these
+# bounds, or a plan past MAX_STEPS, refuses the workout ("invalid" / "tooLarge" / "empty") instead
+# of crashing or expanding without end. The Swift port uses the same bounds.
+MAX_SECONDS = 86400         # a window, rest or seconds target: at most 24 h
+MAX_TIMES = 10000           # repeat times and listRounds
+MAX_RATIO = 100             # a ratio rest
+
+
+def _bounded(v, lo, hi):
+    """int(v) when v is a number (not a bool) with lo <= v <= hi, else None."""
+    if isinstance(v, bool) or not isinstance(v, (int, float)):
+        return None
+    if v != v or v < lo or v > hi:
+        return None
+    return int(v)
 
 
 class NotRunnable(Exception):
@@ -174,11 +190,21 @@ class Sink:
         self.steps = []
         self.windows = {}
         self.repeats = {}
+        self.invalid = None              # "invalid" or "tooLarge": the expansion stopped there
 
-    def add(self, **kw) -> Step:
+    def add(self, **kw) -> Optional[Step]:
+        if self.invalid is not None:
+            return None
+        if len(self.steps) >= MAX_STEPS:
+            self.invalid = "tooLarge"
+            return None
         s = Step(index=self.offset + len(self.steps), **kw)
         self.steps.append(s)
         return s
+
+    def fail(self, reason: str = "invalid"):
+        if self.invalid is None:
+            self.invalid = reason
 
 
 class Expansion:
@@ -207,6 +233,7 @@ class Expansion:
         self.steps = sink.steps
         self.windows = sink.windows
         self.repeats = sink.repeats
+        self.invalid = sink.invalid
 
     def node_id(self, content: dict) -> str:
         return self._ids[id(content)]
@@ -286,15 +313,32 @@ class Expansion:
         prev_key = None
         merged = None
         for i, (kind, c, nid) in enumerate(items):
+            if sink.invalid is not None:
+                return
             key = ctx.prefix + nid
             if kind == "part":
+                t = c.get("target")
+                if isinstance(t, dict) and t.get("unit") == "seconds" and "value" in t \
+                        and _bounded(t["value"], 0, MAX_SECONDS) is None:
+                    sink.fail()
+                    return
                 sink.add(id=key, kind="part", node=nid, part=self._resolve_part(c, nid),
                          windows=ctx.windows, rounds=ctx.rounds, repeats=ctx.repeats,
                          scopes=ctx.scopes + (key,), extra=ctx.extra)
             elif kind == "rest":
                 seconds = c.get("seconds")
+                if seconds is not None:
+                    seconds = _bounded(seconds, 1, MAX_SECONDS)
+                    if seconds is None:
+                        sink.fail()
+                        return
+                ratio = c.get("ratio")
+                if ratio is not None and (isinstance(ratio, bool) or not isinstance(ratio, (int, float))
+                                          or not 0 < ratio <= MAX_RATIO):
+                    sink.fail()
+                    return
                 sink.add(id=key, kind="rest", node=nid,
-                         rest_seconds=int(seconds) if seconds is not None else None,
+                         rest_seconds=seconds,
                          ratio=c.get("ratio"), ratio_of=prev_key if "ratio" in c else None,
                          merged_window=merged if seconds is not None else None,
                          windows=ctx.windows, rounds=ctx.rounds, repeats=ctx.repeats,
@@ -336,25 +380,39 @@ class Expansion:
                 if named is None or named == cid or ckey.endswith("." + named) or ckey == named:
                     stops = ckey
                     break
-        w = Window(key=key, id=nid, seconds_ms=int(c["seconds"]) * 1000, early=c["early"],
-                   late=c["late"], depth=len(ctx.windows) + 1, ancestors=ctx.windows, stops=stops)
+        seconds = _bounded(c.get("seconds"), 1, MAX_SECONDS)
+        if seconds is None:
+            sink.fail()
+            return
+        w = Window(key=key, id=nid, seconds_ms=seconds * 1000, early=c.get("early") or "",
+                   late=c.get("late") or "", depth=len(ctx.windows) + 1, ancestors=ctx.windows, stops=stops)
         sink.windows[key] = w
         inner = Ctx(ctx.prefix, ctx.windows + (key,), ctx.rounds, ctx.repeats, ctx.scopes + (key,),
                     ctx.patches, ctx.omitted, None, False, ctx.extra)
         self._body(c.get("body") or [], inner, sink)
-        if c["early"] == "wait" and not merge:
+        if c.get("early") == "wait" and not merge:
             sink.add(id=key + ".wait", kind="rest", node=nid, auto=True, wait_window=key,
                      windows=ctx.windows + (key,), rounds=ctx.rounds, repeats=ctx.repeats,
                      scopes=ctx.scopes + (key,), extra=ctx.extra)
 
     def _repeat(self, c: dict, nid: str, key: str, ctx: Ctx, sink: Sink):
         times = c.get("times")
-        lr = int(c.get("listRounds") or 1) if times is None else int(times)
-        inst = RepeatInst(key=key, id=nid, content=c, ctx=ctx, times=None if times is None else int(times),
+        if times is not None:
+            times = _bounded(times, 0, MAX_TIMES)
+            if times is None:
+                sink.fail()
+                return
+            lr = times
+        else:
+            lr = _bounded(c.get("listRounds") or 1, 1, MAX_TIMES)
+            if lr is None:
+                sink.fail()
+                return
+        inst = RepeatInst(key=key, id=nid, content=c, ctx=ctx, times=times,
                           list_rounds=lr, until=c.get("until"))
         sink.repeats[key] = inst
         for r in range(1, lr + 1):
-            if not self._round(inst, r, sink):
+            if sink.invalid is not None or not self._round(inst, r, sink):
                 break
 
     def _vary_value(self, spec, r: int, inst: RepeatInst):
@@ -400,7 +458,7 @@ class Expansion:
         the repeat has no more rounds."""
         inst = self.repeats[key]
         sink = Sink(offset)
-        if not self._round(inst, r, sink) or not sink.steps:
+        if not self._round(inst, r, sink) or not sink.steps or sink.invalid is not None:
             return None
         return sink
 
@@ -471,7 +529,12 @@ def plan(definition: dict, scale: Optional[str] = None, standard: str = "M",
                 break
         else:
             raise KeyError("no scale %r" % scale)
-    return Plan(definition, structure, expand(structure, standard, choices), scale)
+    exp = expand(structure, standard, choices)
+    if exp.invalid is not None:
+        raise NotRunnable(exp.invalid, [])
+    if not exp.steps:
+        raise NotRunnable("empty", [])
+    return Plan(definition, structure, exp, scale)
 
 
 def _static_bells(exp: Expansion) -> list:

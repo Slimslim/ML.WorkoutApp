@@ -1,0 +1,25 @@
+{
+ "hash": "82f405e96130cbb58dfef340ba481f29c939fc5e63e94f83a251ab16bdd0095b",
+ "plan": {
+  "bells": [],
+  "planner": 1,
+  "steps": [
+   {
+    "ends": "athlete",
+    "id": "thr",
+    "index": 0,
+    "kind": "part",
+    "node": "thr",
+    "partMovement": "ringRows",
+    "partName": "Rudern – Ring",
+    "partTarget": {
+     "unit": "reps",
+     "value": 30
+    },
+    "rounds": [],
+    "windows": []
+   }
+  ],
+  "windows": []
+ }
+}
