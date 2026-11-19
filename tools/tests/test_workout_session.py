@@ -258,3 +258,10 @@ def test_the_phone_stores_the_upgrade_label_as_fidelity():
         u = upgrade(old)
         assert f["label"] == u["label"], name
         assert f["fidelity"] == ("exact" if u["label"] == "exact" else "approx"), name
+
+
+def test_an_approx_that_is_not_a_list_is_not_trusted():
+    tab = ws.compile_definition(ALL["tabata"])
+    assert wss.phone_route(dict(tab, approx="upgrade:x"))["reason"] == "needsOwner"
+    assert wss.phone_route(dict(tab, approx={"a": 1}))["reason"] == "needsOwner"
+    assert wss.phone_route(dict(tab, approx=None)) == {"send": "engine"}

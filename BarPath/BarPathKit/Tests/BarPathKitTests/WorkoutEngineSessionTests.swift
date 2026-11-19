@@ -321,6 +321,26 @@ final class WorkoutEngineSessionTests: XCTestCase {
 
     // MARK: Swift-only
 
+    /// #116 review follow-up 1: a bell line is stamped at its bell time, even when ticks that wrote
+    /// nothing ran after it; lines never go back before START or an earlier line.
+    func testEngineCSVClockStampsLinesAtTheirOwnTime() {
+        var clock = WorkoutEngineCSVClock(startUptime: 100)
+        // Ticks at 0.2 s, 0.4 s ... write nothing: nothing moves the clamp.
+        XCTAssertEqual(clock.lastLineUptime, 100)
+        // The 20 s bell, written by the tick at 20.1 s: stamped at 20.0 s, not the tick's time.
+        XCTAssertEqual(clock.stamp(ms: 20_000, sleep: 0), 120, accuracy: 1e-9)
+        // Two parts skipped by the same tick keep their own (equal) bell time.
+        XCTAssertEqual(clock.stamp(ms: 20_000, sleep: 0), 120, accuracy: 1e-9)
+        // A line for an earlier event, written later, is not stamped before the last line.
+        XCTAssertEqual(clock.stamp(ms: 19_000, sleep: 0), 120, accuracy: 1e-9)
+        // After a 5 s sleep (monotonic counted it, uptime didn't), later lines move back by 5 s...
+        XCTAssertEqual(clock.stamp(ms: 40_000, sleep: 5), 135, accuracy: 1e-9)
+        // ...and a sleep longer than the time since START never puts a line before START.
+        var fresh = WorkoutEngineCSVClock(startUptime: 50)
+        XCTAssertEqual(fresh.stamp(ms: 1_000, sleep: 30), 50, accuracy: 1e-9)
+        XCTAssertEqual(fresh.uptime(ms: 1_000, sleep: -3), 51, accuracy: 1e-9)
+    }
+
     func testEpochMillisecondsNeverNeedA64BitInt() {
         XCTAssertEqual(WorkoutEngineSession.wholeNumber(1_795_000_000_123).canonicalJSON, "1795000000123")
         XCTAssertEqual(WorkoutEngineSession.wholeNumber(-3).canonicalJSON, "-3")

@@ -428,6 +428,9 @@ public enum WorkoutEngineSession {
         guard carriesV2(raw) else {
             return .legacy(reason: "notV2", refusal: nil)
         }
+        if let a = raw["approx"], !a.isNull, a.array == nil {
+            return .legacy(reason: "needsOwner", refusal: nil)    // malformed: not trusted (#116 review)
+        }
         if let approx = raw["approx"]?.array,
            approx.contains(where: { $0.string?.hasPrefix(WorkoutUpgrade.upgradeReasonPrefix) ?? false }) {
             return .legacy(reason: "needsOwner", refusal: nil)

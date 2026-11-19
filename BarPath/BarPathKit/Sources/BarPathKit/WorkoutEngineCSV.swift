@@ -134,3 +134,31 @@ public enum WorkoutEngineCSV {
         return out
     }
 }
+
+/// The CSV time (systemUptime, seconds) of engine lines (docs/WORKOUT_MODEL_RFC.md §9). The
+/// engine counts ms on `CLOCK_MONOTONIC`, which counts sleep; `systemUptime`, which every other
+/// CSV line uses, does not. So the sleep measured so far is taken off, and a line is never
+/// stamped before START or before a line already written. The clamp moves only when a line is
+/// written (`stamp`), so a tick that writes nothing leaves the next line at its own time.
+public struct WorkoutEngineCSVClock: Equatable, Sendable {
+    public let startUptime: Double
+    public private(set) var lastLineUptime: Double
+
+    public init(startUptime: Double) {
+        self.startUptime = startUptime
+        self.lastLineUptime = startUptime
+    }
+
+    /// The uptime of engine time `ms`, given the sleep measured so far (seconds), unclamped.
+    public func uptime(ms: Int, sleep: Double) -> Double {
+        return startUptime + Double(ms) / 1000 - max(0, sleep)
+    }
+
+    /// The uptime for a line written now at engine time `ms`: never before START nor before the
+    /// last line written. Moves the clamp.
+    public mutating func stamp(ms: Int, sleep: Double) -> Double {
+        let v: Double = max(uptime(ms: ms, sleep: sleep), startUptime, lastLineUptime)
+        lastLineUptime = v
+        return v
+    }
+}
