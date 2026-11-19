@@ -40,11 +40,21 @@ The team process (stand-up, planning, review, retro, the Scrum Master chat): `do
 ## CI (issue #107, option C)
 
 What runs where:
-- **GitHub Actions, every PR** (`.github/workflows/ci.yml`): Python tests and the BarPathKit tests on
-  Linux (`swift test` in the official `swift` container). Until Xcode Cloud is green, the macOS job
-  (BarPathKit tests plus iPhone and watch builds) still runs too; it is removed after that.
-- **Xcode Cloud:** app builds, archives and TestFlight uploads. `BarPath/ci_scripts/ci_post_clone.sh`
-  installs XcodeGen, generates `BarPath.xcodeproj` (not committed) and copies the package pins into it.
+- **GitHub Actions, every PR** (`.github/workflows/ci.yml`, Linux only): Python tests, the Supabase
+  migration tests, and the BarPathKit tests on Linux (`swift test` in the official `swift` container).
+  The macOS job (BarPathKit tests plus iPhone and watch builds) was removed on 19 Nov: Xcode Cloud
+  builds the app now.
+- **Xcode Cloud, two workflows only (owner, 19 Nov):**
+  - **PR check:** Build (iOS, scheme BarPath, which embeds the watch app) on pull requests into
+    `main` or `claude/release-*`, and only when a file under `BarPath/` changes. Docs, tools,
+    `.github/` and `supabase/` changes build nothing.
+  - **Release candidate:** on tags beginning with `v` (`v0.17.1-rc1`): Archive (App Store Connect),
+    then TestFlight to the internal group only.
+  - `BarPath/ci_scripts/ci_post_clone.sh` installs XcodeGen, generates `BarPath.xcodeproj` (not
+    committed) and copies the package pins into it.
+- **Beta testers get the approved RC build itself:** in App Store Connect, TestFlight, add that build
+  to the external group. No second build. The first build of each new Version goes through Apple's
+  Beta App Review (usually under a day).
 - **Package pins (`BarPath/Package.resolved`, owner to commit once):** Xcode Cloud doesn't resolve
   packages itself, so the Supabase pins must be committed. The project folder is git-ignored, so the
   file lives at `BarPath/Package.resolved`. To make or refresh it (first time, and whenever the
@@ -85,19 +95,21 @@ build, PR checks included, so it jumps); our docs ignore it. `CURRENT_PROJECT_VE
   owner's OK. Piloted on 2 tickets of build 17.
 - **WIP limit:** one build in `building` at a time. The next build's rows stay `ready` until the
   current build is merged.
-- **`main` is protected:** changes only through a PR with CI green (Python tests, BarPathKit tests +
-  app builds); no force push, no deletion. Only the owner merges into `main`.
+- **`main` is protected:** changes only through a PR with CI green (Python tests, BarPathKit tests
+  (Linux), and the Xcode Cloud PR check when app files change); no force push, no deletion. Only the owner merges into `main`.
 - **Hotfix:** a crash in a release testers have goes on a short branch from that release's tag
-  (`claude/hotfix-0.17-<name>` from `v0.17`), PR into `main` (review + CI), shipped as the next patch
-  Version (`0.17.2`); merge `main` into the open release branch afterwards.
+  (`claude/hotfix-0.17-<name>` from `release-0.17`), PR into `main` (review + CI), shipped as the next
+  free patch Version (`0.17.2`) through an RC tag; merge `main` into the open release branch afterwards.
 - **Release candidates are tags (owner, 19 Nov).** When a release branch is ready for the owner's
   test, the tag `vX.Y.Z-rcN` goes on its head (`v0.17.1-rc1`, then `-rc2` after fixes). Xcode Cloud's
-  TestFlight workflow builds every tag that starts with `v` and ships it to **internal testers only**.
+  Release candidate workflow builds every tag that starts with `v` and ships it to **internal testers
+  only**. Only RC tags start with `v`.
   The owner tests the RC. A new RC is needed after any change to the branch.
-- **Release (owner, 19 Nov).** After the owner approves an RC, the release branch is merged into
-  `main` and the tag `vX.Y.Z` (`v0.17.1`) goes on that merge commit; that build is the one for
-  external testers. Older releases keep their tags (`build-15`, `build-16`, `build-16.1`). (Builds
-  7-14 came from an unmerged branch; never again.)
+- **Release (owner, 19 Nov).** After the owner approves an RC, that RC's build goes to the external
+  testers (App Store Connect, no rebuild), the release branch is merged into `main`, and the tag
+  `release-X.Y.Z` (`release-0.17.1`) goes on that merge commit. It is a bookmark only: it doesn't
+  start with `v`, so it builds nothing. Older releases keep their tags (`build-15`, `build-16`,
+  `build-16.1`). (Builds 7-14 came from an unmerged branch; never again.)
 - **Who pushes tags:** cloud chats can push branches but not tags (GitHub refuses the push from this
   environment, HTTP 403). Delivery names the commit; the owner creates the tag, either on GitHub
   (Releases, then "Draft a new release", new tag, target the release branch, tick "Set as a
@@ -107,7 +119,7 @@ build, PR checks included, so it jumps); our docs ignore it. `CURRENT_PROJECT_VE
   (`claude/release-17.1`; build 15 is `claude/funny-faraday-1adqio`). Workers branch from it and open
   PRs into it; the Scrum Master has each reviewed by an independent reviewer and merges it into the
   release branch when CI is green and the review says merge, otherwise the findings go back to the
-  worker. The owner tests an RC tag, then the branch is merged into `main` and tagged.
+  worker. The owner tests an RC tag, then the branch is merged into `main` and tagged `release-X.Y.Z`.
 - **Versions:** `MARKETING_VERSION` in `BarPath/project.yml` (shared file) is set once on the release
   branch when it is cut (`0.17.1` on `claude/release-17.1`), in its own commit. Never reuse a Version.
   Build numbers belong to Xcode Cloud; don't write them in docs, tickets or tester notes.
