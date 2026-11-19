@@ -44,15 +44,20 @@ What runs where:
   Linux (`swift test` in the official `swift` container). Until Xcode Cloud is green, the macOS job
   (BarPathKit tests plus iPhone and watch builds) still runs too; it is removed after that.
 - **Xcode Cloud:** app builds, archives and TestFlight uploads. `BarPath/ci_scripts/ci_post_clone.sh`
-  installs XcodeGen and generates `BarPath.xcodeproj`, which is not committed.
+  installs XcodeGen, generates `BarPath.xcodeproj` (not committed) and copies the package pins into it.
+- **Package pins (`BarPath/Package.resolved`, owner to commit once):** Xcode Cloud doesn't resolve
+  packages itself, so the Supabase pins must be committed. The project folder is git-ignored, so the
+  file lives at `BarPath/Package.resolved`. To make or refresh it (first time, and whenever the
+  Supabase version in `project.yml` changes): `cd BarPath && xcodegen`, open the project in Xcode,
+  File > Packages > Resolve Package Versions, then copy
+  `BarPath.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` to
+  `BarPath/Package.resolved` and commit it. Until it is committed, the Xcode Cloud build stops in
+  `ci_post_clone.sh` with a message that says so.
 
-Build numbers (**owner to confirm**). Xcode Cloud has its own build counter (`CI_BUILD_NUMBER`) and
-can set the build number of each archive it makes; today `BarPath/project.yml` sets it
-(`CURRENT_PROJECT_VERSION`, now `16.1`). Recommendation: **let Xcode Cloud set it**. Its counter
-only goes up, so TestFlight never rejects a duplicate, and nobody has to bump `project.yml` before
-each build. Release notes and `docs/RELEASE_NOTES.md` then name builds by the Xcode Cloud number.
-To keep the current numbering instead, start Xcode Cloud's counter above the last uploaded build in
-the workflow settings and keep bumping `project.yml` by hand.
+Build numbers: Xcode Cloud sets the build number of every build it ships to TestFlight, so
+`CURRENT_PROJECT_VERSION` in `BarPath/project.yml` doesn't decide TestFlight numbers. The setting is
+in App Store Connect > Xcode Cloud > Settings > Build Number. It takes a whole number, so the next
+build is 17.
 
 ## Rules
 
