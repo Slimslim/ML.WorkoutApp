@@ -101,10 +101,10 @@ athlete choosing a mode.
     movement starting, ends the run;
   - the margin is learned from labelled runs (2026-11-10: 718 m and 720 m by steps for the gym's
     "800 m", indoor start included).
-- **GPS measured (build 15, 15 Nov, Sunday Part 1):** on for the whole 25 min, no gap over 10 s,
-  accuracy ~14 m, wrist down. Runs 850 / 703 / 441 m by GPS (plan 800 / 600 / 400; steps 702 / 582 /
-  386): GPS includes walking out and back in. Indoors at the stations GPS drifts 76-194 m: count
-  GPS distance during runs only.
+- **GPS measured (build 15, 15 Nov):** on for a whole 25 min workout, no gap over 10 s, accuracy
+  ~14 m, wrist down. GPS run distances read 6-17 % over the planned distance and steps 3-12 % under
+  it: GPS includes walking out and back in. Indoors at the stations GPS drifts 76-194 m: count GPS
+  distance during runs only.
 - **Rest at a low rate** saves battery, but the eval needs the real start of the next set (the
   Crown marks the end of a movement, not the start). So the rate drops only after the set is clearly
   over, and comes back up on the first movement.

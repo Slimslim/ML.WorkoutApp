@@ -227,161 +227,116 @@ arm held overhead 1.3-2.0 s (catch / hand on the bar); a failed snatch comes str
 - Tabata timing: the watch row counted 30 s per interval (no timed work part yet: story W27); the
   work/rest windows in the labels are the gym's 20 / 10 clock.
 
-### Hang power clean warm-up (2026-11-14): first session labelled from video
+Sections from 14 Nov on describe methods and detector scores only: no workouts as prescribed, no
+loads, no athletes' scores or rep counts (those are in the private labels, `Corpus/labels/`).
+Labels are named by their private ids.
 
-19 hang power cleans, 45-185 lb, Lifting mode at 200 Hz; every catch frame from the athlete's
+### Clean warm-up (2026-11-14): first session labelled from video
+
+Hang power cleans at increasing loads, Lifting mode at 200 Hz; every catch frame from the athlete's
 video (30 fps) matches a forearm flip to the front rack in the watch motion within 1-10 frames
-(label `2026-11-14-clean-warmup`, rep times = rack onset in each recording).
+(`2026-11-14-clean-warmup`). Rep times are the rack onsets in the motion, so they test the count,
+not the timing (data audit, 20 Nov).
 
 | Detector (match window 0.5 s) | Reps found | False |
 |---|---|---|
-| Lifting mode (the watch's logged lifts) | 5 / 19 | 1 (a window with no catch) |
-| catch-rule (`barpath.catches`: forearm into the rack >= 0.5 s) | **19 / 19** | 3 (plates, looking at the watch) |
+| Lifting mode (the watch's logged lifts) | about a quarter | 1 (a window with no catch) |
+| catch-rule (`barpath.catches`: forearm into the rack >= 0.5 s) | all | 3 (plates, looking at the watch) |
 
 Lifting mode needs a still moment before each lift: after the first hang rep the bar never rests,
 and the heavy singles were set up without one. The catch rule was written on this session, so its
-score here is not a test; the next clean session (and other wrists: `sign`) is.
+score here is not a test. Peak vertical speed from the watch's analyzer (started from the still
+point at the hang) falls with load as expected; bar height is not reported (not checked on video).
 
-Peak vertical speed per rep (the watch's own analyzer, started from the still point at the hang
-just before each pull): 45 lb 2.25; 95 lb 2.22 / 2.40 / 2.61 / 2.33; 115 lb 2.17 / 2.15;
-135 lb 1.98 / 2.00 / 1.99 / 2.48 / 2.02 (+1 failed estimate, 0.79); 155 lb 1.84 / 1.90 / 1.78;
-185 lb 1.77 / 1.80 m/s (low confidence). Typical: 2.37 at 95, 2.16 at 115, 2.00 at 135, 1.84 at 155,
-1.79 at 185 lb, falling with load as expected. Bar height from the same analysis is not reported:
-it depends on where the start point falls and is not checked against the video.
+### Partner cleans + synchro burpees (2026-11-14), from video
 
-### Partner hang power cleans + synchro burpees (2026-11-14), from video
+Two athletes' recordings of the same partner workout, synced to one video on the catches
+(`2026-11-14-partner-hpc-burpees`, `2026-11-14-partner-hpc-burpees-tester-b`).
+- **catch-rule, first session it was not written on:** every catch of the owner found (all within
+  0.21-0.34 s of the video), 6 false (5 while the partner was on the bar, 1 in the rest). Tester B
+  (Crown toward the hand, short holds): 43 / 53 found, 50 false (later: same with the canonical
+  frame, below).
+- The owner's Crown splits were right within 1 s except one (6.7 s early, before the partner's last
+  set ended). An unplanned rest is labelled as rest.
 
-4 rounds; the athlete did 15 / 15 / 17 / 13 cleans at 135 lb (60 reps) alternating with his partner,
-then 15 synchro burpees per round (label `2026-11-14-partner-hpc-burpees`). Video synced to the
-watch on the catches (offset 11.06 s; START pressed on "go"). A second athlete's recording from
-the same video: `2026-11-14-partner-hpc-burpees-tester-b` (rounds 1-2, with his OK).
-- **catch-rule, first test on a session it was not written on:** 60 / 60 of the athlete's catches
-  (all within 0.21-0.34 s of the video), 6 false (5 while the partner was on the bar, 1 in the rest).
-  Tester B (Crown on the right, `sign=-1`, short holds, all 4 rounds): 43 / 53 found, 50 false;
-  not tuned for that orientation yet. His team did 30 shared per round (as planned).
-- The athlete's Crown splits were right within 1 s except one (round 1 burpees marked 6.7 s early,
-  before the partner's last set ended). A 39 s rest after round 3 (they thought the workout was over)
-  is labelled as rest. Round 3 was 40 shared reps by the athlete's count against 30 in the plan.
+### Squats vs lunges from the wrist (2026-11-15)
 
-### Squats vs lunges from the wrist (2026-11-15, Sunday Part 2)
-
-Done back to back without racking the bar. Squats are up-down: horizontal movement is 0.14-0.24 of
-the vertical. Lunges step forward and back: 0.57-0.73 of the vertical, 80-83% of it on one line.
-The difference holds in all 4 rounds and does not depend on speed, so it is the feature to use to
-tell them apart. Squat reps are clear (vertical descents every 2.6-2.8 s; rounds 3-4 = 10 each).
-Lunge reps are not countable yet from forward-back bursts (10 in round 2, 3-6 in the others).
+Done back to back with a barbell on the back (`2026-11-15-sunday-part2`). Squats are up-down:
+horizontal movement is 0.14-0.24 of the vertical. Lunges step forward and back: 0.57-0.73 of the
+vertical, 80-83% of it on one line. The difference holds in every round and does not depend on
+speed, so it is the feature to tell them apart. Squat reps are clear (vertical descents every
+2.6-2.8 s); lunge reps are not countable yet from forward-back bursts.
 
 ### One watch frame for everyone (2026-11-18, `barpath.orientation`)
 
-Every recording is now turned into one frame on load (`load_session_csv`, `canonical=True` by
-default): left wrist, Crown left, the owner's watch, the frame every detector was written on. The
-header's `wrist` / `crown` (build 15+) pick the transform; older files are the owner's (unchanged).
-Crown toward the hand (left wrist + Crown right, Apple's default) = a 180 degree turn about the
-screen axis, (x, y, z) -> (-x, -y, z) for userAccel, gravity and rotation rate, and the attitude
-quaternion turned the same way (checked: gravity rebuilt from the turned quaternion matches the
-turned gravity exactly). Right wrist = a mirror (y flips; rotation rate -x, z); not seen on data
-yet, and the attitude cannot be mirrored.
-- Tester B's partner cleans with the **default** catch rule (`sign=+1`, hold 0.3 s): 43 / 53, the
-  same as `sign=-1` on the raw frame, so `sign` is no longer needed per watch. His pull-up hangs now
-  read gx > 0.7 (58% of the pull-up time) like the owner's.
-- Switches on the workouts with verified starts after round 1 (window 5 s; switch-v1): November
-  challenge 47 / 47 and AMRAP 20 4 / 5 (both tuned on), SunYay 5 / 10, Freedom 1 / 4, partner cleans
-  2 / 6 (owner) and 2 / 6 (tester B), Sunday Part 2 0 / 6. **On sessions it was not tuned on: 10 / 32,
-  31 false.** The frame changed tester B's numbers little (switch-v1 learns from his own round 1, so
-  it was already per-athlete; onset on his Sunday Part 1 went 2 / 7 -> 3 / 7). What the frame buys is
-  the next step: one model trained on everyone's labelled stations instead of round 1 alone.
+Every recording is turned into one frame on load (`load_session_csv`, `canonical=True` by
+default): left wrist, Crown left, the frame every detector was written on. The header's `wrist` /
+`crown` (build 15+) pick the transform; older files are the owner's (unchanged). Crown toward the
+hand (left wrist + Crown right, Apple's default) = a 180 degree turn about the screen axis,
+(x, y, z) -> (-x, -y, z) for userAccel, gravity and rotation rate, and the attitude quaternion
+turned the same way (checked: gravity rebuilt from the turned quaternion matches the turned
+gravity exactly). Right wrist = a mirror (y flips; rotation rate -x, z); not seen on data yet, and
+the attitude cannot be mirrored.
+- Tester B's partner cleans with the default catch rule: 43 / 53, the same as the flipped rule on
+  the raw frame, so no per-watch setting is needed. His bar hangs now read gx > 0.7 like the owner's.
+- switch-v1 on the workouts with verified starts after round 1 (window 5 s): on sessions it was not
+  tuned on, 10 / 32 with 31 false. The frame changed tester B's numbers little (switch-v1 learns
+  from his own round 1). What it buys: one model over everyone's labelled stations later.
 
 ### Movement blocks after the workout (2026-11-18, `barpath.pattern_blocks`, experimental)
 
 The owner's idea: every movement repeats a pattern; looked at after the workout, the session is a
 chain of pattern blocks in the plan's order, pauses inside a block are rests, the time between two
 patterns is the transition. Nothing is trained (each workout teaches itself: one pattern per
-movement, shared by its rounds), so it fits how little data we have. Input: motion + the movements
-in the order done (plan + score) + the Crown taps as hints by position (the k-th tap = the switch
-into movement k; a soft pull, never required). Output per movement: first and last second of
-pattern and the rests inside. Scored by `tools/score_pattern_blocks.py`.
+movement, shared by its rounds). Input: motion + the movements in the order done + the Crown taps
+as hints by position (the k-th tap = the switch into movement k; a soft pull, never required).
+Output per movement: first and last second of pattern and the rests inside. Scored by
+`tools/score_pattern_blocks.py`.
 
-What it took on the 3 development workouts (AMRAP 20, SunYay, Freedom):
+What it took (developed on `2026-11-05-amrap20`, `2026-11-08-amrap40-run`,
+`2026-11-09-snatch-burpee-c2b`):
 - A minimum of 5 s of pattern per movement and several starting splits (one share of time per
   movement, the same each round): without them the chain locks in one movement off.
 - The pause pattern learned once from the calmest 15% of seconds and kept: re-estimated, it
-  swallowed the low-effort step-ups and shifted every block.
-- The last movement may be cut short (the AMRAP's 1-calorie bike).
-- The Crown taps as anchors: on motion alone the AMRAP's boundaries are right but named one movement
-  off (the order bike / step-ups / wall balls repeats, so starting the cycle 6 s in fits as well).
-  SunYay and Freedom need no anchor (same scores with --no-crown).
+  swallowed a low-effort station and shifted every block.
+- The last movement may be cut short by the clock.
+- The Crown taps as anchors: on motion alone a repeating order can fit one movement off (right
+  boundaries, wrong names).
+- Walking is a transition: runs 2.5-3.2 steps/s with 2.4-3.0 g impacts (90th percentile of
+  |userAccel|), walking between stations about 1-2 steps/s at 0.6-0.9 g; arm swings at stations
+  count steps but hit 2-3 g. The pause after a movement is standing still OR walking, a planned run
+  stays a movement. Box step-ups look like walking, so walking is learned only near Crown taps and
+  the transition INTO a stepping movement is standing only. One more starting guess: the
+  athlete's own Crown splits.
+- Planned rests stay in the order (the watch's splits count them, so the hints stay aligned), and
+  a rest ended by the watch's own timer (advance source `auto`) is pinned to its exact window.
+- The "time" score counts only known working time (labelled sets, or segments whose start came
+  from motion / the athlete): a Crown-only segment also holds the walk over and the set-up.
 
-| workout | time in the right movement | first rep within 5 s (where known) | last rep within 5 s: blocks / Crown |
-|---|---:|---|---|
-| AMRAP 20 (dev) | 90% | 5 / 7 | 3 / 6 / 6 / 6 |
-| SunYay (dev) | 89% | 11 / 14 | 7 / 9 / 6 / 9 |
-| Freedom (dev) | 96% | 3 / 5 | 2 / 5 / 3 / 5 |
-| Freedom flipped | 100% | 4 / 4 | 3 / 3 / 2 / 3 |
-| tester B, Sunday Part 1 | 100% | 6 / 7 (median 0.5 s) | - |
-| partner cleans (owner / tester B) | 97% / 96% | 2 / 7, 4 / 7 | 0 / 4, 1 / 4 (Crown 2 / 4, 0 / 4) |
-| row, HSPU, lunges | 78% | - | - |
-| Sunday Part 2 (squats + lunges, bar not racked) | 65% | 3 / 7 | 0 / 2 |
-| November challenge (25 x 2 pull-ups + 4 push-ups, 2 taps) | 52% | 1 / 50 | - |
+Results (first rep / last rep within 5 s where known; known working time in the right movement):
+the 3 development workouts 22 / 26 first reps, 96-100%; held-out 18 / 32 first reps (data audit,
+20 Nov; nothing here is a clean test: every session was seen while building it). Fails: squats
+and lunges back to back (49%), pieces of 6-10 s (below the 4 s window: switch-v1's hang /
+planted-hand signals stay the tool there), and the wait before a movement done in small sets.
 
-Held-out rows (all below the first three) ran with no change. Where it fails: walking after a
-movement is counted as that movement (wall balls end 6-24 s late, lunges swallow the walk out to the
-run); the wait before a movement done in small sets looks like the rests inside it (Freedom's
-snatches start 28-35 s early); squats and lunges back to back look alike; pieces of 6-10 s
-(November challenge) are below its 4 s window: switch-v1's hang / planted-hand signals stay the tool
-there (47 / 47). Next: a walking state between blocks (steps without the run's pace).
+### Bodyweight chipper with timed rests (2026-11-18, `2026-11-18-barbara`)
 
-#### Walking is a transition (2026-11-18)
+First workout recorded after the block finder was built (but used the same day to change it).
+- Pull-up sets: each set is one hang (forearm up), each kipping rep one swing pair (~2 s per rep),
+  confirmed by the athlete. A good first rep-counting candidate.
+- Sit-ups: the forearm tilts with the torso (main axis of the gravity change), one clear cycle per
+  rep at 2.4-2.8 s; one set the athlete remembered as split shows no pause over 3 s.
+- Air squats with the arm hanging: count the upward SPEED (vertical acceleration integrated), one
+  peak per squat; the acceleration itself gives two peaks per slow squat. At 2.2 s per squat the
+  speed counter still adds about 2 small movements per set (settling in, a breath at the top).
+- Block finder with the timed rests pinned: first rep within 5 s 11 / 12 (median 1.6 s), last rep
+  11 / 12 (median 1.7 s; the athlete's Crown 12 / 12, median 2.2 s). Starts and ends there come from
+  the motion (tier C), so this is agreement, not proof.
 
-The watch tells walking from running clearly: runs 2.5-3.2 steps/s with 2.4-3.0 g impacts (90th
-percentile of |userAccel|), walking between stations about 1-2 steps/s at 0.6-0.9 g. Arm swings
-at stations (wall balls, ball slams, ski) also count steps but hit 2-3 g. So the pause after a
-movement is now standing still OR walking (`Config.walking`), and a planned run stays a movement.
-Box step-ups look like walking (1.3 steps/s, 0.8 g): walking is learned only from step-like seconds
-near Crown taps, and the transition INTO a stepping movement (step-ups, lunges, carries) is
-standing only, or it eats the first steps. One more starting guess: the athlete's own Crown splits
-(the AMRAP's right answer explained the data better but the random starts missed it).
+### Console values (2026-11-19, `2026-11-19-bike-20cal`)
 
-The "time" score now counts only known working time (labelled sets, or segments whose start came
-from motion / the athlete): a Crown-only segment also holds the walk over and the set-up, which the
-detector now rightly calls transition (SunYay round 2: tap 353.5 s, first slam 366.2 s).
-
-| workout | first rep within 5 s: standing only -> + walking | last rep within 5 s (Crown) | known working time |
-|---|---|---|---|
-| AMRAP 20 | 2 / 7 -> 6 / 7 (median 0.8 s) | 2 / 6 -> 5 / 6 (6 / 6) | 96% -> 96% |
-| SunYay | 11 / 14 -> 13 / 14 | 7 / 9 -> 8 / 9 (6 / 9) | 96% -> 98% |
-| Freedom | 3 / 5 -> 3 / 5 | 2 / 5 -> 3 / 5 (3 / 5) | 100% |
-| Freedom flipped | 4 / 4 | 3 / 3 (2 / 3) | 100% |
-| partner cleans (owner / tester B) | 2 / 7, 4 / 7 | 0 / 4, 1 / 4 (2 / 4, 0 / 4) | 95-96% |
-| tester B, Sunday Part 1 | 6 / 7 -> 5 / 7 | - | 100% -> 99% |
-| row, HSPU, lunges | - (Crown-only) | ends vs the Crown 2 / 11 -> 9 / 11 | - |
-| Sunday Part 2 | 3 / 7 | 0 / 2 (2 / 2) | 49% |
-| November challenge | 1 / 50 -> 2 / 50 | - | 3-4% |
-
-Tester B's one lost start: the walk after his third run went to the run (ends 13 s late) and his wall
-balls start 16 s late, but their end went from 25 s late to 1.5 s; that start is the uncertain one
-(throws before his rhythm, already flagged). Still open: Sunday Part 2 (squats and lunges back to
-back, bar not racked) and pieces under ~10 s (November challenge: switch-v1 stays the tool).
-
-### Barbara (2026-11-18): first workout after the block finder was built
-
-5 rounds of 20 kipping pull-ups, 30 push-ups, 40 sit-ups, 50 air squats, 3:00 timed rest between
-rounds; capped at 42:00 in round 5 at 14 pull-ups (label `2026-11-18-barbara`; cloud result
-`repsAtCap` 14). Pull-up sets from the motion, confirmed by the athlete: each set is one hang
-(forearm up), each rep one kip swing pair (2 per rep, ~2 s per rep): round 1 10 + 5 + 3 + 2 (plus a
-2 s grab without a kip), rounds 2-4 5 x 4 (four ~10 s hangs, 10 swing peaks each), round 5 10 + 4.
-- Block finder, first try: pull-ups started 2 min early in rounds 3-4 (inside the rest). Planned
-  rests were missing from the order, which also put every Crown hint after the first rest on the
-  wrong switch (the watch's splits count rests). Now the order keeps planned rests, and a timed
-  rest (ended by the watch's timer, advance source `auto`) is pinned to its exact window.
-- Then: pull-up starts after each rest 4 / 4 (median 1.3 s), movement ends 14-15 / 16 within 5 s of
-  the athlete's taps, with or without the taps as hints. Other workouts unchanged.
-- Kipping pull-ups are a good first rep-counting candidate: a steady 2 s rhythm, a clean swing
-  signal in every set, and the sets are the hangs.
-- Sit-ups and air squats from the motion (athlete's memory checked, 2026-11-18). Sit-ups: the
-  forearm tilts with the torso (main axis of the gravity change), one clear cycle per rep at
-  2.4-2.8 s: 40 / 40 / 20 + 20 / 20 + 20 (the athlete remembered 20 + 20 in round 2: no pause over
-  3 s there). Air squats with the arm hanging: count the upward SPEED (vertical acceleration
-  integrated), one peak per squat; the acceleration itself gives two peaks per slow squat (96 and
-  87 for 50). 50 / 31 + 12 + 7 / 52 / 52 (athlete 50: the speed counter adds 2 at 2.2 s/rep).
-  With these starts known, the block finder: first rep within 5 s 11 / 12 (median 1.6 s), last rep
-  11 / 12 (median 1.7 s; the athlete's Crown 12 / 12, median 2.2 s), 99% of the working time.
+First clap-synced session: one clap before and three after an air bike bout, 10-13 g spikes the
+pedalling never reaches. The console's summary (ErgZone) is stored in the segment's `console`
+block. Wrist cadence (one forearm cycle per revolution) agrees with the console's average within
+1 rpm, revolutions within 2%; the console's time is 3-4 s shorter than the pedalling in the motion
+(where its clock starts and stops is unknown without per-second data).
