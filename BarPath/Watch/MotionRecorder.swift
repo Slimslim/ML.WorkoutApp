@@ -40,6 +40,9 @@ final class MotionRecorder {
     var onSetEnded: (@MainActor (Int, Int) -> Void)?
     /// Rest / armed / in set changed (#148).
     var onCycleChange: (@MainActor (LiftCycle) -> Void)?
+    /// Set-like motion while resting, at most once per rest: "Turn the Crown?" (#148). Nothing
+    /// is counted, recorded or uploaded for it.
+    var onRestReminder: (@MainActor () -> Void)?
 
     // MARK: Settings for the next lift
 
@@ -72,6 +75,9 @@ final class MotionRecorder {
     private var motionBuffer = MotionRingBuffer(capacity: 6000)    // 30 s @ 200 Hz
     private var accelBuffer = AccelRingBuffer(capacity: 24000)     // 30 s @ 800 Hz
     private let detector = OnlineLiftDetector()
+    /// Olympic lifts at rest (#148): a shadow detector whose only use is the "Turn the Crown?"
+    /// reminder when it sees a lift start. Its events never cut or save anything.
+    private let restDetector = OnlineLiftDetector()
     /// Strength mode (liftType.countsReps): reps and sets instead of the lift detector.
     private var setTracker = SetTracker()
     private var repMode = false
@@ -117,6 +123,7 @@ final class MotionRecorder {
         motionBuffer.removeAll()
         accelBuffer.removeAll()
         detector.reset()
+        restDetector.reset()
         lastPublishedState = detector.state
         setTracker.reset()
         repMode = liftType.countsReps
@@ -351,16 +358,41 @@ final class MotionRecorder {
         // 2. Ring buffer + detector (strength mode: the set tracker instead). While resting
         //    (#148) the lift detector is not fed and the set tracker counts no rep, so nothing
         //    at rest can start a set; the buffers keep filling for the next pre-roll.
+        var setLikeAtRest = false
         for s in accepted {
             motionBuffer.append(s)
             if !repMode && cycle.isListening && s.t >= cycle.armedAt, let event = detector.process(s) {
                 handle(event, sample: s)
+            } else if !repMode && cycle.state == .resting, let shadow = restDetector.process(s) {
+                if case .liftStarted = shadow {
+                    setLikeAtRest = true
+                }
             }
         }
         if repMode {
             setTracker.armedFrom = cycle.listeningFrom
             for event in setTracker.process(accepted) {
                 handleSet(event)
+            }
+            if cycle.state == .resting && setTracker.restReps >= 2 {
+                setLikeAtRest = true
+            }
+        }
+        // Forgotten Crown: a buzz and "Turn the Crown?", at most once per rest; nothing counted.
+        if setLikeAtRest && cycle.remindAtRest() {
+            Log.motion.info("Set-like motion at rest: reminder")
+            onRestReminder?()
+        }
+        // Armed with no set for LiftCycle.armedTimeout: back to Rest.
+        if let latest = accepted.last?.t {
+            let busy = repMode ? setTracker.detected : detector.state == .lifting
+            if cycle.expireArmed(at: latest, busy: busy) {
+                setTracker.armedFrom = cycle.listeningFrom
+                detector.reset()
+                restDetector.reset()
+                currentLift = nil
+                Log.motion.info("Armed with no set: back to rest")
+                onCycleChange?(cycle)
             }
         }
 
@@ -409,6 +441,7 @@ final class MotionRecorder {
                                                        homingTime - t0, endTime - t0) + reason.rawValue)
             // Rest starts at the lift's end; the detector is not fed again until the Crown.
             if cycle.setEnded(at: endTime) {
+                restDetector.reset()
                 onCycleChange?(cycle)
             }
         }
@@ -427,6 +460,7 @@ final class MotionRecorder {
         case .setEnded(let start, let end, let firstRepStart, let lastRepEnd, let reps):
             // Rest starts at the last rep's top; no rep counts again until the Crown (#148).
             if cycle.setEnded(at: lastRepEnd) {
+                restDetector.reset()
                 onCycleChange?(cycle)
             }
             setTracker.armedFrom = cycle.listeningFrom
