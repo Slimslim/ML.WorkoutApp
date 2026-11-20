@@ -109,10 +109,8 @@ struct SessionView: View {
             Text("REST")
                 .font(.system(size: 15, weight: .bold, design: .rounded))
                 .foregroundColor(rest)
-            // A system timer: keeps counting in Always-On, where the TimelineView slows down.
-            Text(timerInterval: since...Date.distantFuture, countsDown: false)
+            Text(SessionModel.formatElapsed(now.timeIntervalSince(since)))
                 .font(.system(size: 52, weight: .heavy, design: .rounded).monospacedDigit())
-                .multilineTextAlignment(.center)
                 .foregroundColor(rest)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
@@ -180,7 +178,7 @@ struct SessionView: View {
     private var restTopLine: String {
         let n = model.liftCount
         if n == 0 {
-            // Armed time-out before the first set: nothing saved yet.
+            // Defensive: Rest only follows a saved set, so this shouldn't show; never "Set 0".
             return model.liftType.displayName + (model.useLoad ? " \u{00B7} " + model.loadText : "")
         }
         if model.isRepMode {

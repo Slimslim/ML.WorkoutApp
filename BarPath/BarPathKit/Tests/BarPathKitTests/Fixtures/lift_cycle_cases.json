@@ -36,8 +36,6 @@
      "lastRest": null,
      "listening": true,
      "canShowEndPage": true,
-     "listeningFrom": 0.0,
-     "listeningUntil": null,
      "ok": true
     },
     {
@@ -47,8 +45,6 @@
      "lastRest": null,
      "listening": true,
      "canShowEndPage": false,
-     "listeningFrom": 0.0,
-     "listeningUntil": null,
      "ok": true
     },
     {
@@ -58,8 +54,6 @@
      "lastRest": null,
      "listening": false,
      "canShowEndPage": true,
-     "listeningFrom": null,
-     "listeningUntil": null,
      "ok": true
     },
     {
@@ -69,8 +63,6 @@
      "lastRest": 120.5,
      "listening": true,
      "canShowEndPage": true,
-     "listeningFrom": 140.5,
-     "listeningUntil": null,
      "ok": true
     },
     {
@@ -80,8 +72,6 @@
      "lastRest": 120.5,
      "listening": true,
      "canShowEndPage": false,
-     "listeningFrom": 140.5,
-     "listeningUntil": null,
      "ok": true
     },
     {
@@ -91,8 +81,6 @@
      "lastRest": 120.5,
      "listening": false,
      "canShowEndPage": true,
-     "listeningFrom": null,
-     "listeningUntil": null,
      "ok": true
     }
    ]
@@ -144,8 +132,6 @@
      "lastRest": null,
      "listening": true,
      "canShowEndPage": true,
-     "listeningFrom": 0.0,
-     "listeningUntil": null,
      "ok": true
     },
     {
@@ -155,8 +141,6 @@
      "lastRest": null,
      "listening": true,
      "canShowEndPage": false,
-     "listeningFrom": 0.0,
-     "listeningUntil": null,
      "ok": true
     },
     {
@@ -166,8 +150,6 @@
      "lastRest": null,
      "listening": false,
      "canShowEndPage": true,
-     "listeningFrom": null,
-     "listeningUntil": null,
      "ok": true
     },
     {
@@ -177,8 +159,6 @@
      "lastRest": null,
      "listening": false,
      "canShowEndPage": true,
-     "listeningFrom": null,
-     "listeningUntil": null,
      "ok": false
     },
     {
@@ -188,8 +168,6 @@
      "lastRest": null,
      "listening": false,
      "canShowEndPage": true,
-     "listeningFrom": null,
-     "listeningUntil": null,
      "ok": false
     },
     {
@@ -199,8 +177,6 @@
      "lastRest": 30.0,
      "listening": true,
      "canShowEndPage": true,
-     "listeningFrom": 40.0,
-     "listeningUntil": null,
      "ok": true
     },
     {
@@ -210,8 +186,6 @@
      "lastRest": 30.0,
      "listening": true,
      "canShowEndPage": true,
-     "listeningFrom": 40.0,
-     "listeningUntil": null,
      "ok": false
     },
     {
@@ -221,8 +195,6 @@
      "lastRest": 30.0,
      "listening": true,
      "canShowEndPage": false,
-     "listeningFrom": 40.0,
-     "listeningUntil": null,
      "ok": true
     },
     {
@@ -232,8 +204,6 @@
      "lastRest": 30.0,
      "listening": true,
      "canShowEndPage": false,
-     "listeningFrom": 40.0,
-     "listeningUntil": null,
      "ok": false
     }
    ]
@@ -261,8 +231,6 @@
      "lastRest": null,
      "listening": true,
      "canShowEndPage": true,
-     "listeningFrom": 5.0,
-     "listeningUntil": null,
      "ok": true
     },
     {
@@ -272,8 +240,6 @@
      "lastRest": null,
      "listening": false,
      "canShowEndPage": true,
-     "listeningFrom": null,
-     "listeningUntil": null,
      "ok": true
     },
     {
@@ -283,395 +249,7 @@
      "lastRest": 0.0,
      "listening": true,
      "canShowEndPage": true,
-     "listeningFrom": 9.0,
-     "listeningUntil": null,
      "ok": true
-    }
-   ]
-  },
-  "armed_timeout": {
-   "ops": [
-    [
-     "start",
-     0.0
-    ],
-    [
-     "expire",
-     179.0,
-     false
-    ],
-    [
-     "expire",
-     200.0,
-     true
-    ],
-    [
-     "setStarted",
-     201.0
-    ],
-    [
-     "expire",
-     400.0,
-     false
-    ],
-    [
-     "setEnded",
-     410.0
-    ],
-    [
-     "arm",
-     470.0
-    ],
-    [
-     "expire",
-     649.0,
-     false
-    ],
-    [
-     "expire",
-     650.0,
-     false
-    ],
-    [
-     "arm",
-     700.0
-    ]
-   ],
-   "expected": [
-    {
-     "state": "armed",
-     "since": 0.0,
-     "armedAt": 0.0,
-     "lastRest": null,
-     "listening": true,
-     "canShowEndPage": true,
-     "listeningFrom": 0.0,
-     "listeningUntil": null,
-     "ok": true
-    },
-    {
-     "state": "armed",
-     "since": 0.0,
-     "armedAt": 0.0,
-     "lastRest": null,
-     "listening": true,
-     "canShowEndPage": true,
-     "listeningFrom": 0.0,
-     "listeningUntil": null,
-     "ok": false
-    },
-    {
-     "state": "armed",
-     "since": 0.0,
-     "armedAt": 0.0,
-     "lastRest": null,
-     "listening": true,
-     "canShowEndPage": true,
-     "listeningFrom": 0.0,
-     "listeningUntil": null,
-     "ok": false
-    },
-    {
-     "state": "inSet",
-     "since": 0.0,
-     "armedAt": 0.0,
-     "lastRest": null,
-     "listening": true,
-     "canShowEndPage": false,
-     "listeningFrom": 0.0,
-     "listeningUntil": null,
-     "ok": true
-    },
-    {
-     "state": "inSet",
-     "since": 0.0,
-     "armedAt": 0.0,
-     "lastRest": null,
-     "listening": true,
-     "canShowEndPage": false,
-     "listeningFrom": 0.0,
-     "listeningUntil": null,
-     "ok": false
-    },
-    {
-     "state": "resting",
-     "since": 410.0,
-     "armedAt": 0.0,
-     "lastRest": null,
-     "listening": false,
-     "canShowEndPage": true,
-     "listeningFrom": null,
-     "listeningUntil": null,
-     "ok": true
-    },
-    {
-     "state": "armed",
-     "since": 470.0,
-     "armedAt": 470.0,
-     "lastRest": 60.0,
-     "listening": true,
-     "canShowEndPage": true,
-     "listeningFrom": 470.0,
-     "listeningUntil": null,
-     "ok": true
-    },
-    {
-     "state": "armed",
-     "since": 470.0,
-     "armedAt": 470.0,
-     "lastRest": 60.0,
-     "listening": true,
-     "canShowEndPage": true,
-     "listeningFrom": 470.0,
-     "listeningUntil": null,
-     "ok": false
-    },
-    {
-     "state": "resting",
-     "since": 410.0,
-     "armedAt": 470.0,
-     "lastRest": 60.0,
-     "listening": false,
-     "canShowEndPage": true,
-     "listeningFrom": 470.0,
-     "listeningUntil": 650.0,
-     "ok": true
-    },
-    {
-     "state": "armed",
-     "since": 700.0,
-     "armedAt": 700.0,
-     "lastRest": 290.0,
-     "listening": true,
-     "canShowEndPage": true,
-     "listeningFrom": 700.0,
-     "listeningUntil": null,
-     "ok": true
-    }
-   ]
-  },
-  "first_set_timeout": {
-   "ops": [
-    [
-     "start",
-     10.0
-    ],
-    [
-     "expire",
-     190.0,
-     false
-    ],
-    [
-     "arm",
-     200.0
-    ]
-   ],
-   "expected": [
-    {
-     "state": "armed",
-     "since": 10.0,
-     "armedAt": 10.0,
-     "lastRest": null,
-     "listening": true,
-     "canShowEndPage": true,
-     "listeningFrom": 10.0,
-     "listeningUntil": null,
-     "ok": true
-    },
-    {
-     "state": "resting",
-     "since": 10.0,
-     "armedAt": 10.0,
-     "lastRest": null,
-     "listening": false,
-     "canShowEndPage": true,
-     "listeningFrom": 10.0,
-     "listeningUntil": 190.0,
-     "ok": true
-    },
-    {
-     "state": "armed",
-     "since": 200.0,
-     "armedAt": 200.0,
-     "lastRest": 190.0,
-     "listening": true,
-     "canShowEndPage": true,
-     "listeningFrom": 200.0,
-     "listeningUntil": null,
-     "ok": true
-    }
-   ]
-  },
-  "rep_under_way_at_timeout": {
-   "ops": [
-    [
-     "start",
-     0.0
-    ],
-    [
-     "setStarted",
-     2.0
-    ],
-    [
-     "setEnded",
-     10.0
-    ],
-    [
-     "arm",
-     40.0
-    ],
-    [
-     "expire",
-     220.0,
-     false
-    ],
-    [
-     "setStarted",
-     219.0
-    ],
-    [
-     "setEnded",
-     240.0
-    ],
-    [
-     "arm",
-     300.0
-    ],
-    [
-     "expire",
-     480.0,
-     false
-    ],
-    [
-     "setStarted",
-     481.0
-    ],
-    [
-     "setStarted",
-     39.0
-    ]
-   ],
-   "expected": [
-    {
-     "state": "armed",
-     "since": 0.0,
-     "armedAt": 0.0,
-     "lastRest": null,
-     "listening": true,
-     "canShowEndPage": true,
-     "listeningFrom": 0.0,
-     "listeningUntil": null,
-     "ok": true
-    },
-    {
-     "state": "inSet",
-     "since": 0.0,
-     "armedAt": 0.0,
-     "lastRest": null,
-     "listening": true,
-     "canShowEndPage": false,
-     "listeningFrom": 0.0,
-     "listeningUntil": null,
-     "ok": true
-    },
-    {
-     "state": "resting",
-     "since": 10.0,
-     "armedAt": 0.0,
-     "lastRest": null,
-     "listening": false,
-     "canShowEndPage": true,
-     "listeningFrom": null,
-     "listeningUntil": null,
-     "ok": true
-    },
-    {
-     "state": "armed",
-     "since": 40.0,
-     "armedAt": 40.0,
-     "lastRest": 30.0,
-     "listening": true,
-     "canShowEndPage": true,
-     "listeningFrom": 40.0,
-     "listeningUntil": null,
-     "ok": true
-    },
-    {
-     "state": "resting",
-     "since": 10.0,
-     "armedAt": 40.0,
-     "lastRest": 30.0,
-     "listening": false,
-     "canShowEndPage": true,
-     "listeningFrom": 40.0,
-     "listeningUntil": 220.0,
-     "ok": true
-    },
-    {
-     "state": "inSet",
-     "since": 40.0,
-     "armedAt": 40.0,
-     "lastRest": 30.0,
-     "listening": true,
-     "canShowEndPage": false,
-     "listeningFrom": 40.0,
-     "listeningUntil": null,
-     "ok": true
-    },
-    {
-     "state": "resting",
-     "since": 240.0,
-     "armedAt": 40.0,
-     "lastRest": 30.0,
-     "listening": false,
-     "canShowEndPage": true,
-     "listeningFrom": null,
-     "listeningUntil": null,
-     "ok": true
-    },
-    {
-     "state": "armed",
-     "since": 300.0,
-     "armedAt": 300.0,
-     "lastRest": 60.0,
-     "listening": true,
-     "canShowEndPage": true,
-     "listeningFrom": 300.0,
-     "listeningUntil": null,
-     "ok": true
-    },
-    {
-     "state": "resting",
-     "since": 240.0,
-     "armedAt": 300.0,
-     "lastRest": 60.0,
-     "listening": false,
-     "canShowEndPage": true,
-     "listeningFrom": 300.0,
-     "listeningUntil": 480.0,
-     "ok": true
-    },
-    {
-     "state": "resting",
-     "since": 240.0,
-     "armedAt": 300.0,
-     "lastRest": 60.0,
-     "listening": false,
-     "canShowEndPage": true,
-     "listeningFrom": 300.0,
-     "listeningUntil": 480.0,
-     "ok": false
-    },
-    {
-     "state": "resting",
-     "since": 240.0,
-     "armedAt": 300.0,
-     "lastRest": 60.0,
-     "listening": false,
-     "canShowEndPage": true,
-     "listeningFrom": 300.0,
-     "listeningUntil": 480.0,
-     "ok": false
     }
    ]
   }

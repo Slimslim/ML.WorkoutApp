@@ -138,8 +138,8 @@ watch only listens when I'm ready, with no taps and no looking down for long.
 *Done when:* one Crown turn (the same 0.8-turn gesture as in workouts, with the same arc) arms
 detection with a start haptic and the armed screen; the set that follows is counted as today;
 the rest just taken (set end to Crown turn) shows on the armed screen; the first set after
-Start is armed without a Crown turn; armed for 3 min with no set goes back to Rest (owner, 20
-Nov). (Storing the rest with the set's recording comes with L4.)
+Start is armed without a Crown turn; armed stays armed until a set or End (time-out: removed,
+revisit if it's a problem in the gym). (Storing the rest with the set's recording comes with L4.)
 
 **L9. End or change the lift with a swipe (Now)**
 As a lifter, I want to swipe left from the rest screen to End (or change the lift), so the main

@@ -32,8 +32,7 @@ starts the watch at the bar. Swiping is off during In set.
 
 Events from motion before the Crown turn are dropped, and both detectors restart counting only
 motion after it. That is a structural guarantee, not a threshold, so it holds for every lift.
-What remains: (1) a shake after arming but before the set (same as today, for at most the 3 min
-armed time-out); (2) an accidental 0.8-turn Crown turn (sleeve, wrist on the knee) arms; (3)
+What remains: (1) a shake after arming but before the set (same as today); (2) an accidental 0.8-turn Crown turn (sleeve, wrist on the knee) arms; (3)
 forgetting to turn the Crown means the set isn't counted (no reminder, by the owner's choice; the
 Rest screen's Crown cue is the only prompt).
 
@@ -51,11 +50,8 @@ Rest screen's Crown cue is the only prompt).
 ## Decisions (20 Nov, #150)
 
 1. Weight at rest: **variant A** (tap the weight, then the Crown). Owner's choice.
-2. Armed time-out: **yes, 3 min** (owner). Armed with no set → back to Rest, the rest counting on from
-   the last set; not while a rep / lift is under way (deadlift: a rep seen; Olympic: READY at the
-   bar or lifting). A rep that had already started when it fired still counts and turns the rest
-   back into that set (`LiftCycle.listeningUntil`, `SetTracker.armedUntil`; review of #150). The
-   time-out is silent (no haptic). `LiftCycle.armedTimeout`.
+2. Armed time-out: **removed** (owner, 20 Nov). Armed stays armed until a set or End. Revisit it
+   if it's a problem in the gym.
 3. Forgotten Crown: **no reminder** (owner correction, 20 Nov). During rest the detector is simply
    ignored: no buzz, no prompt.
 4. Change lift: **on the End page** (owner OK).
