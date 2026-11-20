@@ -350,3 +350,25 @@ def test_insights_of_a_block_result_use_its_parts():
     t0 = datetime.fromtimestamp(p.start_time, tz=timezone.utc)
     r = WorkoutResult(d, t0, t0, t0, 300.0, segs, p.events, passes=2)
     assert insights(r) == insights(r, r.display_definition)
+
+
+def test_a_marked_fixed_list_stores_today_s_result_on_the_new_engine():
+    import dataclasses
+    from barpath.workout import split_stats
+    marked = dataclasses.replace(WorkoutLibrary.hyroxSolo, listed_once=True)
+    on_new = rb.start_progress(marked, rb.ENGINE_V2)
+    classic = rb.start_progress(WorkoutLibrary.hyroxSolo, rb.ENGINE_LEGACY)
+    assert on_new.block.kind == rb.FIXED and not on_new.is_repeating_block
+    for p in (on_new, classic):
+        p.start(0.0)
+        for k in range(1, 6):
+            p.advance(60.0 * k, "crown")
+    assert on_new.passes_started is None and on_new.part_index(5) == 5
+    a = [s.to_dict() for s in split_stats(on_new, 400.0, [], [])]
+    b = [s.to_dict() for s in split_stats(classic, 400.0, [], [])]
+    assert a == b and all("pass" not in s for s in a)
+
+
+def test_part_index_and_passes_of_a_repeating_block():
+    d, p, segs = _capped_amrap()
+    assert p.is_repeating_block and p.part_index(3) == 1 and p.passes_started == 2

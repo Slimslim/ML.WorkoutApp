@@ -1487,10 +1487,9 @@ final class WorkoutSessionModel: ObservableObject {
                                    recordingFileName: input.recordedCSV ? "session-\(input.id.uuidString).csv" : nil,
                                    heartRateSeries: hrSeries)
         result.engine = input.engine
-        if p.block != nil {
-            // Block mode (5c): segment indices are steps; record how many passes were started.
-            result.passes = (p.position(ofStep: p.currentIndex)?.pass ?? 0) + 1
-        }
+        // A repeating block (5c): segment indices are steps; record how many passes were started.
+        // A listed-once fixed list stores today's result (no passes).
+        result.passes = p.passesStarted
         if p.isFinished, let reps = input.partialReps {
             // Entered on the watch: not an edit, so editedAt stays nil. For time past the cap
             // the picker asked the reps at the cap (§5b); AMRAP: the reps of the cut segment.

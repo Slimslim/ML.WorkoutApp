@@ -70,6 +70,25 @@ public struct WorkoutProgress: Codable, Equatable {
         return RepeatBlock.position(plan, step: step)
     }
 
+    /// A repeating block (5c: AMRAP, EMOM / Tabata, rounds × N). A listed-once fixed list also runs
+    /// in block mode, but its step is its segment index: views and results treat it as today's.
+    public var isRepeatingBlock: Bool {
+        return block?.kind == .repeating
+    }
+
+    /// The index into `definition.segments` of the part a step does: step % P in a repeating
+    /// block, else the step itself (today's segment index).
+    public func partIndex(ofStep step: Int) -> Int {
+        guard isRepeatingBlock, let plan = block, plan.parts > 0, step >= 0 else { return step }
+        return step % plan.parts
+    }
+
+    /// Passes started, for a repeating block only (`WorkoutResult.passes`); nil otherwise.
+    public var passesStarted: Int? {
+        guard isRepeatingBlock, isStarted, let pos = position(ofStep: currentIndex) else { return nil }
+        return pos.pass + 1
+    }
+
     private func isLastStep(_ step: Int) -> Bool {
         guard let plan = block else { return step >= definition.segments.count - 1 }
         return RepeatBlock.advanceFinishes(plan, step: step)
