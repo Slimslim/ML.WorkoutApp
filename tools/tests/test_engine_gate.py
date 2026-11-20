@@ -104,3 +104,24 @@ def test_engine_test_workouts_end_as_designed():
     amrap = _run_on(WorkoutLibrary.engineAmrap, [[0.0, "start"]] + [[40.0 * (k + 1), "crown"] for k in range(11)]
                     + [[500.0, "tick"]])
     assert amrap.finish_time == 480.0 and len(amrap.segment_starts) == 12   # 4 passes, still going at the cap
+
+
+def _run_classic(d, script):
+    p = rb.start_progress(d, rb.ENGINE_LEGACY)
+    rb.run_script(p, script)
+    return p
+
+
+def test_engine_test_workouts_run_every_pass_on_classic():
+    """Classic (engine off): the listed-once test workouts are written out first, never one pass."""
+    rounds = _run_classic(WorkoutLibrary.engineRounds5, [[0.0, "start"]] + [[30.0 * (k + 1), "crown"] for k in range(16)])
+    assert rounds.is_finished and len(rounds.segment_starts) == 15 and rounds.finish_time == 450.0
+    emom = _run_classic(WorkoutLibrary.engineEmom, [[0.0, "start"]] + [[60.0 * k + 30, "crown"] for k in range(6)]
+                        + [[400.0, "tick"]])
+    assert emom.is_finished and len(emom.segment_starts) == 12 and emom.finish_time == 360.0
+    tabata = _run_classic(WorkoutLibrary.engineTabata, [[0.0, "start"]] + [[30.0 * k + 20, "crown"] for k in range(8)]
+                          + [[300.0, "tick"]])
+    assert tabata.is_finished and len(tabata.segment_starts) == 16 and tabata.finish_time == 240.0
+    amrap = _run_classic(WorkoutLibrary.engineAmrap, [[0.0, "start"]] + [[40.0 * (k + 1), "crown"] for k in range(11)]
+                         + [[500.0, "tick"]])
+    assert amrap.finish_time == 480.0 and len(amrap.segment_starts) == 12

@@ -203,8 +203,8 @@ public enum WorkoutLibrary {
     // MARK: Engine test workouts (0.18, E5)
 
     /// Invented test workouts for the new engine (WORKOUT_SPEC 5c). The first four list their block
-    /// once (`listedOnce`): with the engine switch on they repeat lazily, with it off they take
-    /// today's path (and finish after one pass, as any one-pass row would). The Hyrox simulation is
+    /// once (`listedOnce`): with the engine switch on they repeat lazily; with it off (Classic) they
+    /// are written out first (`RepeatBlock.writtenOut`) and run like today's rows. The Hyrox simulation is
     /// a plain fixed list and must run identically either way (the E4 gate checks it). Picked on the
     /// phone (chooser group "Engine test"); off the watch's 3×3 grid; never in the database.
     public static let engineAmrap: WorkoutDefinition = WorkoutDefinition(

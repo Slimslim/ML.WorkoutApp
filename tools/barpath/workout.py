@@ -354,7 +354,8 @@ class WorkoutLibrary:
     known = all + [amrap20, quickTest]   # off the watch grid but still resolvable
 
     # E5 (0.18): invented engine test workouts (WorkoutLibrary.engineTests in Swift). Four list
-    # their block once; the Hyrox simulation is a plain fixed list. Not in all / known.
+    # their block once (written out on Classic); the Hyrox simulation is a plain fixed list. Not in
+    # all / known.
     engineAmrap = WorkoutDefinition(
         "engine.amrap", "Engine test: AMRAP 8", "AMRAP 8", "amrap", "solo", 480.0, "crossTraining",
         [_station(Movement.burpees, 10, "reps"), _station(Movement.airSquats, 15, "reps"), _run(200)],

@@ -167,4 +167,31 @@ final class EngineGateTests: XCTestCase {
         XCTAssertEqual(on.starts.count, 16)
         XCTAssertEqual(on.finish, 240)
     }
+
+    /// Classic (engine off): the listed-once test workouts are written out first, never one pass.
+    func testEngineTestWorkoutsRunEveryPassOnClassic() throws {
+        func classic(_ d: WorkoutDefinition, _ raw: [[Any]]) throws -> Run {
+            let script: [Action] = try JSONDecoder().decode([Action].self,
+                                                            from: JSONSerialization.data(withJSONObject: raw, options: []))
+            return EngineGateTests.run(d, engineOn: false, script: script)
+        }
+        var rounds: [[Any]] = [[0.0, "start"]]
+        for k in 0..<16 { rounds.append([30.0 * Double(k + 1), "crown"]) }
+        let r: Run = try classic(WorkoutLibrary.engineRounds5, rounds)
+        XCTAssertEqual(r.starts.count, 15)
+        XCTAssertEqual(r.finish, 450)
+        var emom: [[Any]] = [[0.0, "start"]]
+        for k in 0..<6 { emom.append([60.0 * Double(k) + 30, "crown"]) }
+        emom.append([400.0, "tick"])
+        let e: Run = try classic(WorkoutLibrary.engineEmom, emom)
+        XCTAssertEqual(e.starts.count, 12)
+        XCTAssertEqual(e.finish, 360)
+        var tabata: [[Any]] = [[0.0, "start"]]
+        for k in 0..<8 { tabata.append([30.0 * Double(k) + 20, "crown"]) }
+        tabata.append([300.0, "tick"])
+        let t: Run = try classic(WorkoutLibrary.engineTabata, tabata)
+        XCTAssertEqual(t.starts.count, 16)
+        XCTAssertEqual(t.finish, 240)
+        XCTAssertFalse(r.block || e.block || t.block)
+    }
 }
