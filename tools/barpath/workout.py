@@ -472,6 +472,23 @@ class WorkoutProgress:
         return window, (target if target is not None else plan.step_limit)
 
     @property
+    def is_repeating_block(self) -> bool:
+        """WorkoutProgress.isRepeatingBlock: a listed-once fixed list is not one."""
+        return self.block is not None and self.block.kind == "repeat"
+
+    def part_index(self, step: int) -> int:
+        if not self.is_repeating_block or self.block.parts <= 0 or step < 0:
+            return step
+        return step % self.block.parts
+
+    @property
+    def passes_started(self) -> Optional[int]:
+        if not self.is_repeating_block or not self.is_started:
+            return None
+        from .repeat_block import position
+        return position(self.block, self.current_index)[0] + 1
+
+    @property
     def waiting_for_window(self) -> bool:
         """Block mode with an interval: the current step is the block's closing rest, the wait for
         the next window. The athlete's Crown is ignored there until the window ends (the watch
@@ -776,9 +793,12 @@ def split_stats(progress: WorkoutProgress, now: float, heart_rates: list, pedome
     for sp in progress.splits(now):
         seg = progress._part(sp.index)     # block mode (5c): the step's part; today: the segment
         pass_ = None
-        if progress.block is not None:
+        if progress.is_repeating_block:   # a listed-once fixed list stores today's result
             from .repeat_block import position
-            pass_ = position(progress.block, sp.index)[0]
+            try:
+                pass_ = position(progress.block, sp.index)[0]
+            except ValueError:
+                pass_ = None
         kind = seg.kind if seg else "station"
         movement = seg.movement if seg else ""
         title = seg.title if seg else f"Segment {sp.index + 1}"
@@ -957,6 +977,7 @@ class WorkoutResult:
         import dataclasses
         segs = self.definition.segments
         count = max(len(segs), max((s.index for s in self.segments), default=-1) + 1)
+        count = min(count, len(self.segments) + len(segs))   # a corrupt index must not blow up
         return dataclasses.replace(self.definition, segments=[segs[i % len(segs)] for i in range(count)],
                                    round_size=len(segs), listed_once=False, rounds=None)
 

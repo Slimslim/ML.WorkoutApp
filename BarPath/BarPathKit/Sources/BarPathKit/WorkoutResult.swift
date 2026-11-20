@@ -180,7 +180,8 @@ public enum SplitStats {
         for split in progress.splits(now: now) {
             // Block mode (5c): a step does part step % P; today a segment index is the segment.
             let seg: WorkoutSegment? = progress.part(atStep: split.index)
-            let pass: Int? = progress.block == nil ? nil : progress.position(ofStep: split.index)?.pass
+            // Only a repeating block records passes; a listed-once fixed list stores today's result.
+            let pass: Int? = progress.isRepeatingBlock ? progress.position(ofStep: split.index)?.pass : nil
             let kind: SegmentKind = seg?.kind ?? .station
             let movement: String = seg?.movement ?? ""
             let title: String = seg?.title ?? "Segment \(split.index + 1)"
@@ -341,7 +342,8 @@ public struct WorkoutResult: Codable, Equatable, Identifiable {
         for s in segments where s.index > maxIndex {
             maxIndex = s.index
         }
-        let count: Int = Swift.max(segs.count, maxIndex + 1)
+        // Clamped: a corrupt or hand-edited file with a huge index must not allocate a huge list.
+        let count: Int = Swift.min(Swift.max(segs.count, maxIndex + 1), segments.count + segs.count)
         var d: WorkoutDefinition = definition
         d.segments = (0..<count).map { (i: Int) -> WorkoutSegment in segs[i % segs.count] }
         d.roundSize = segs.count
