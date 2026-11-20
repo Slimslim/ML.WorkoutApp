@@ -13,6 +13,7 @@ final class RepeatBlockTests: XCTestCase {
         let capSeconds: Double?
         let capEnds: Bool
         let intervalSeconds: Double?
+        let trailingRests: Int
         let stepLimit: Int?
     }
 
@@ -66,6 +67,7 @@ final class RepeatBlockTests: XCTestCase {
             XCTAssertEqual(plan.capSeconds, c.plan.capSeconds, c.name)
             XCTAssertEqual(plan.capEnds, c.plan.capEnds, c.name)
             XCTAssertEqual(plan.intervalSeconds, c.plan.intervalSeconds, c.name)
+            XCTAssertEqual(plan.trailingRests, c.plan.trailingRests, c.name)
             XCTAssertEqual(plan.stepLimit, c.plan.stepLimit, c.name)
             for p in c.positions {
                 guard let pos = RepeatBlock.position(plan, step: p[0]) else {
@@ -136,66 +138,83 @@ final class RepeatBlockTests: XCTestCase {
         XCTAssertNil(RepeatBlock.previousStep(0))
     }
 
-    /// Hyrox and every other fixed-list built-in: same steps and the same Finish as WorkoutProgress.
-    func testFixedListBuiltInsStepExactlyAsToday() {
-        var checked: Int = 0
-        let known: [WorkoutDefinition] = WorkoutLibrary.all + [WorkoutLibrary.amrap20, WorkoutLibrary.quickTest]
-        for d in known {
-            let plan: RepeatBlock.Plan = RepeatBlock.plan(for: d)
-            guard plan.kind == .fixed else { continue }
-            checked += 1
-            var p = WorkoutProgress(definition: d)
-            let t0: Double = 1_800_000_000
-            p.start(at: t0)
-            var t: Double = t0
-            var guardCount: Int = 0
-            while !p.isFinished && guardCount < 10_000 {
-                t += 10
-                XCTAssertTrue(p.advance(at: t, source: .crown), d.id)
-                guardCount += 1
-            }
-            XCTAssertEqual(plan.stepLimit, p.segmentStarts.count, d.id)
-            XCTAssertEqual(plan.stepLimit, d.segments.count, d.id)
-            for s in 0..<d.segments.count {
-                let pos = RepeatBlock.position(plan, step: s)
-                XCTAssertEqual(pos?.pass, 0, d.id)
-                XCTAssertEqual(pos?.part, s, d.id)
-                XCTAssertEqual(RepeatBlock.advanceFinishes(plan, step: s), s == p.currentIndex, d.id)
-            }
-        }
-        XCTAssertGreaterThanOrEqual(checked, 3)
+    /// Every built-in, by id, as stored today. None is marked listedOnce, so each takes the legacy
+    /// route (same list as tools/tests/test_repeat_block.py).
+    static let builtInIds: [String] = ["hyrox.solo", "hyrox.doubles", "hyrox.half", "partner.wod1",
+                                       "partner.wod2", "wod.amrap40", "wod.helen", "wod.rowThrusters",
+                                       "free.workout", "wod.nightmareAmrap", "quick.test"]
+
+    func testTheBuiltInListIsComplete() {
+        let known: [String] = WorkoutLibrary.known.map { (d: WorkoutDefinition) -> String in d.id }
+        XCTAssertEqual(known.sorted(), RepeatBlockTests.builtInIds.sorted())
     }
 
-    /// Every interval built-in: as a block of one set, the window target is what WorkoutProgress
-    /// does today (its roundSize is the block), so EMOM / Tabata timing doesn't change.
-    func testTodaysIntervalRowsKeepTheirWindow() {
-        var checked: Int = 0
-        let known: [WorkoutDefinition] = WorkoutLibrary.all + [WorkoutLibrary.amrap20, WorkoutLibrary.quickTest]
-        for d in known {
-            guard let interval = d.intervalSeconds, interval > 0, let rs = d.roundSize, rs > 0,
-                  d.segments.count > rs else { continue }
-            var block: WorkoutDefinition = d
-            block.segments = Array(d.segments.prefix(rs))
-            block.rounds = (d.segments.count + rs - 1) / rs
-            let plan: RepeatBlock.Plan = RepeatBlock.plan(for: block)
-            guard let limit = plan.stepLimit else {
-                XCTFail(d.id)
+    func testEveryStoredBuiltInTakesTheLegacyRoute() {
+        for id in RepeatBlockTests.builtInIds {
+            guard let d = WorkoutLibrary.definition(id: id) else {
+                XCTFail("missing \(id)")
                 continue
             }
-            for step in 0..<(d.segments.count - 1) {
-                let today: Int = (step / rs + 1) * rs
-                let want: Int? = today < limit ? today : nil
-                XCTAssertEqual(RepeatBlock.windowTargetStep(plan, step: step), want, "\(d.id) \(step)")
-            }
-            checked += 1
+            XCTAssertNil(d.listedOnce, id)
+            XCTAssertEqual(RepeatBlock.plan(for: d).kind, RepeatBlock.Kind.legacy, id)
+            XCTAssertNil(RepeatBlock.enginePlan(for: d, engineOn: true), id)
+            XCTAssertNil(RepeatBlock.enginePlan(for: d, engineOn: false), id)
         }
-        XCTAssertGreaterThanOrEqual(checked, 1)
     }
 
-    func testHyroxIsAFixedList() {
-        for d in [WorkoutLibrary.hyroxSolo, WorkoutLibrary.hyroxDoubles, WorkoutLibrary.halfHyrox] {
-            XCTAssertEqual(RepeatBlock.plan(for: d).kind, RepeatBlock.Kind.fixed, d.id)
+    /// The stored Row + Thrusters (17 segments, roundSize 3, every 3:00): the clock still jumps by
+    /// set with the engine on, exactly as today.
+    func testRowThrustersWindowTargetsAreTodays() {
+        let d: WorkoutDefinition = WorkoutLibrary.rowThrusters
+        XCTAssertEqual(d.segments.count, 17)
+        var p = WorkoutProgress(definition: d, block: RepeatBlock.enginePlan(for: d, engineOn: true))
+        XCTAssertNil(p.block)
+        p.start(at: 0)
+        var targets: [Int] = []
+        for i in 0..<16 {
+            targets.append(p.autoAdvanceTargetIndex)
+            p.advance(at: Double(10 * (i + 1)), source: .crown)
         }
+        XCTAssertEqual(targets, [3, 3, 3, 6, 6, 6, 9, 9, 9, 12, 12, 12, 15, 15, 15, 18])
+    }
+
+    func testHyroxTakesTheLegacyRoute() {
+        for d in [WorkoutLibrary.hyroxSolo, WorkoutLibrary.hyroxDoubles, WorkoutLibrary.halfHyrox] {
+            XCTAssertEqual(RepeatBlock.plan(for: d).kind, RepeatBlock.Kind.legacy, d.id)
+            XCTAssertNil(RepeatBlock.enginePlan(for: d, engineOn: true), d.id)
+        }
+    }
+
+    func testMarkedDefinitionsNeedTheEngineSwitch() throws {
+        guard let c = try loadCases().first(where: { (c: Case) -> Bool in c.definition.rounds != nil }) else {
+            XCTFail("no case with rounds")
+            return
+        }
+        XCTAssertEqual(RepeatBlock.enginePlan(for: c.definition, engineOn: true)?.kind, RepeatBlock.Kind.repeating)
+        XCTAssertNil(RepeatBlock.enginePlan(for: c.definition, engineOn: false))
+    }
+
+    func testAnIntervalBlockMustEndWithARest() throws {
+        guard let c = try loadCases().first(where: { (c: Case) -> Bool in c.definition.intervalSeconds != nil
+            && c.definition.listedOnce == true }) else {
+            XCTFail("no interval case")
+            return
+        }
+        var d: WorkoutDefinition = c.definition
+        d.segments = d.segments.filter { (s: WorkoutSegment) -> Bool in s.kind != .rest }
+        XCTAssertEqual(RepeatBlock.listedOnceProblems(d), ["interval block does not end with a rest"])
+        XCTAssertEqual(RepeatBlock.plan(for: d).kind, RepeatBlock.Kind.legacy)
+    }
+
+    func testListedOnceKeyIsOptionalAndRoundTrips() throws {
+        let c: Case = try loadCases()[0]
+        XCTAssertEqual(c.definition.listedOnce, true)
+        let data: Data = try JSONEncoder().encode(c.definition)
+        XCTAssertEqual(try JSONDecoder().decode(WorkoutDefinition.self, from: data), c.definition)
+        var old: WorkoutDefinition = c.definition
+        old.listedOnce = nil
+        let oldJSON: String = String(data: try JSONEncoder().encode(old), encoding: .utf8) ?? ""
+        XCTAssertFalse(oldJSON.contains("listedOnce"))
     }
 
     func testRoundsKeyIsOptionalAndRoundTrips() throws {

@@ -31,17 +31,88 @@ public struct SegmentSplit: Codable, Equatable {
     }
 }
 
+/// Progress through a definition's segments, as today. With `block` (the `RepeatBlock.Plan` of a
+/// listed-once definition, WORKOUT_SPEC 5c) it counts steps instead: step s is part s % P of pass
+/// s / P, and the plan decides when it finishes. Without `block` every method is exactly today's.
+/// Python mirror: WorkoutProgress in tools/barpath/workout.py.
 public struct WorkoutProgress: Codable, Equatable {
     public let definition: WorkoutDefinition
-    public private(set) var segmentStarts: [Double]   // start time of segments 0...currentIndex
+    public private(set) var segmentStarts: [Double]   // start time of segments (steps) 0...currentIndex
     public private(set) var finishTime: Double?
     public private(set) var events: [WorkoutEvent]
+    /// Block mode (5c). Nil: today's path. Optional in a checkpoint (older ones have none).
+    public private(set) var block: RepeatBlock.Plan?
 
-    public init(definition: WorkoutDefinition) {
+    public init(definition: WorkoutDefinition, block: RepeatBlock.Plan? = nil) {
         self.definition = definition
         self.segmentStarts = []
         self.finishTime = nil
         self.events = []
+        self.block = block
+    }
+
+    /// The listed segment a step does (block mode), or the segment at that index (today).
+    public func part(atStep step: Int) -> WorkoutSegment? {
+        let segs: [WorkoutSegment] = definition.segments
+        guard let plan = block else {
+            return step >= 0 && step < segs.count ? segs[step] : nil
+        }
+        if segs.isEmpty || step < 0 { return nil }
+        if let limit = plan.stepLimit, step >= limit { return nil }
+        return segs[step % segs.count]
+    }
+
+    /// (pass, part index) of a step in block mode; on today's path (0, step).
+    public func position(ofStep step: Int) -> (pass: Int, part: Int)? {
+        guard let plan = block else {
+            return step >= 0 && step < definition.segments.count ? (0, step) : nil
+        }
+        return RepeatBlock.position(plan, step: step)
+    }
+
+    private func isLastStep(_ step: Int) -> Bool {
+        guard let plan = block else { return step >= definition.segments.count - 1 }
+        return RepeatBlock.advanceFinishes(plan, step: step)
+    }
+
+    /// Block mode with an interval: the current step is the block's closing rest, the wait for the
+    /// next window. The athlete's Crown is ignored there (the watch shows a hint); only the clock
+    /// moves on, so every window starts on the clock. Always false on today's path.
+    public var isWaitingForWindow: Bool {
+        guard let plan = block, plan.intervalSeconds != nil, isStarted, !isFinished,
+              let segment = currentSegment, segment.kind == .rest, plan.parts > 0 else { return false }
+        return currentIndex % plan.parts == plan.parts - 1
+    }
+
+    /// Block mode (5c): (when the current step ends by itself or nil, the step the clock moves to).
+    /// With an interval, one window is one pass: a part with a seconds target ends on its timer and
+    /// hands over to the next part, unless the window ends first; the block's last part (its rest,
+    /// the wait for the next window) ends on the window; at the window end the clock moves to the
+    /// first part of the next pass, or finishes after the last one. Without an interval: a timed
+    /// rest ends after its seconds, as today.
+    private func blockAuto(_ plan: RepeatBlock.Plan) -> (time: Double?, target: Int) {
+        let i: Int = currentIndex
+        let next: Int = i + 1
+        guard isStarted, !isFinished, let segment = currentSegment,
+              let segmentStart = segmentStarts.last, let start = startTime else { return (nil, next) }
+        var timer: Double? = nil
+        if let target = segment.target, target.unit == .seconds, target.value > 0 {
+            timer = target.value
+        }
+        guard plan.intervalSeconds != nil,
+              let windowElapsed = RepeatBlock.windowEnd(plan, stepStartElapsed: segmentStart - start) else {
+            if segment.kind == .rest, let v = timer { return (segmentStart + v, next) }
+            return (nil, next)
+        }
+        let window: Double = start + windowElapsed
+        let lastPart: Bool = plan.parts > 0 && i % plan.parts == plan.parts - 1
+        if let v = timer, !(segment.kind == .rest && lastPart), segmentStart + v < window {
+            return (segmentStart + v, next)
+        }
+        if let target = RepeatBlock.windowTargetStep(plan, step: i) {
+            return (window, target)
+        }
+        return (window, plan.stepLimit ?? next)
     }
 
     public var isStarted: Bool { return !segmentStarts.isEmpty }
@@ -50,16 +121,12 @@ public struct WorkoutProgress: Codable, Equatable {
 
     public var currentSegment: WorkoutSegment? {
         if !isStarted { return nil }
-        let i = currentIndex
-        if i < definition.segments.count { return definition.segments[i] }
-        return nil
+        return part(atStep: currentIndex)
     }
 
     public var nextSegment: WorkoutSegment? {
         if !isStarted || isFinished { return nil }
-        let i = currentIndex + 1
-        if i < definition.segments.count { return definition.segments[i] }
-        return nil
+        return part(atStep: currentIndex + 1)
     }
 
     public var startTime: Double? { return segmentStarts.first }
@@ -72,12 +139,14 @@ public struct WorkoutProgress: Codable, Equatable {
     }
 
     /// Moves to the next segment; on the last segment it finishes. Returns false if not
-    /// started, already finished, or t is before the current segment's start.
+    /// started, already finished, or t is before the current segment's start. Block mode: false
+    /// while waiting for the next window, unless the clock (source .auto) moves on.
     @discardableResult
     public mutating func advance(at t: Double, source: AdvanceSource) -> Bool {
         guard isStarted, !isFinished, let last = segmentStarts.last else { return false }
         if t < last { return false }
-        if currentIndex >= definition.segments.count - 1 {
+        if source != .auto && isWaitingForWindow { return false }
+        if isLastStep(currentIndex) {
             finishTime = t
             events.append(WorkoutEvent(t: t, kind: .finish, segmentIndex: currentIndex, source: source))
         } else {
@@ -120,6 +189,7 @@ public struct WorkoutProgress: Codable, Equatable {
     ///   the boundary jumps to the next set (work segments need `roundSize`). Changed 2026-11-03:
     ///   the athlete expected each minute to start by itself without a Crown turn.
     public func autoAdvanceTime() -> Double? {
+        if let plan = block { return blockAuto(plan).time }
         guard isStarted, !isFinished, let segment = currentSegment,
               let segmentStart = segmentStarts.last, let start = startTime else { return nil }
         if segment.kind == .rest, let target = segment.target, target.unit == .seconds, target.value > 0 {
@@ -137,6 +207,7 @@ public struct WorkoutProgress: Codable, Equatable {
     /// The segment the clock moves to: the next one, or for a work segment of an interval
     /// workout the first segment of the next set (skipping what is left of this set).
     public var autoAdvanceTargetIndex: Int {
+        if let plan = block { return blockAuto(plan).target }
         let i: Int = currentIndex
         guard let segment = currentSegment, segment.kind != .rest,
               let interval = definition.intervalSeconds, interval > 0,
@@ -157,8 +228,13 @@ public struct WorkoutProgress: Codable, Equatable {
         return changed
     }
 
-    /// AMRAP time cap: when the workout finishes by itself, or nil.
+    /// AMRAP time cap: when the workout finishes by itself, or nil. Block mode: every plan whose
+    /// cap ends it (AMRAP, EMOM / Tabata with a cap).
     public var capTime: Double? {
+        if let plan = block {
+            guard plan.capEnds, let cap = plan.capSeconds, let start = startTime else { return nil }
+            return start + cap
+        }
         guard definition.format == .amrap, let cap = definition.timeCapSeconds, cap > 0,
               let start = startTime else { return nil }
         return start + cap

@@ -198,14 +198,19 @@ public struct WorkoutDefinition: Codable, Equatable, Identifiable {
     /// EMOM with a round count. Optional in JSON; builds before 0.18 ignore it. Only RepeatBlock
     /// reads it so far.
     public var rounds: Int?
+    /// WORKOUT_SPEC 5c: the segments list the block once, and only a definition marked `true` may
+    /// repeat (with the engine switch on). Every row stored today is unmarked (nil) and keeps
+    /// today's path. Optional in JSON, left out when nil; builds before 0.18 ignore it.
+    public var listedOnce: Bool?
 
     public init(id: String, name: String, shortName: String, format: WorkoutFormat,
                 team: TeamFormat, timeCapSeconds: Double?, healthKitActivity: String,
                 segments: [WorkoutSegment], intervalSeconds: Double? = nil,
-                roundSize: Int? = nil, rounds: Int? = nil) {
+                roundSize: Int? = nil, rounds: Int? = nil, listedOnce: Bool? = nil) {
         self.intervalSeconds = intervalSeconds
         self.roundSize = roundSize
         self.rounds = rounds
+        self.listedOnce = listedOnce
         self.id = id
         self.name = name
         self.shortName = shortName

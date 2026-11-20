@@ -1,27 +1,32 @@
 import Foundation
 
 /// Repeating blocks and fixed lists (docs/WORKOUT_SPEC.md 5c, #138). Port of
-/// tools/barpath/repeat_block.py; shared cases in Fixtures/repeat_block_cases.json. Pure: not called
-/// from the watch or the phone yet.
+/// tools/barpath/repeat_block.py; shared cases in Fixtures/repeat_block_cases.json and
+/// Fixtures/repeat_block_progress_cases.json. Pure; `WorkoutProgress` takes a plan in block mode.
 ///
 /// A part is one listed segment (`segments[p]`, `0 <= p < P`). A step is one part as it is actually
 /// done, numbered from START. A pass is one time through the block: step `s` is pass `s / P`, part
 /// `s % P`. A fixed list has exactly `P` steps, so its step numbers are today's segment indices.
-/// The block is the whole listed list; `roundSize` plays no part here.
+///
+/// Only a definition marked `listedOnce` may repeat. Every row stored today is unmarked: it lists
+/// its rounds or windows out and takes the legacy route (today's WorkoutProgress, with the §5a AMRAP
+/// expansion), whatever the engine switch says. The block is the whole listed list; `roundSize` is
+/// display only and plays no part here.
 public enum RepeatBlock {
 
     public enum Kind: String, Codable, Equatable {
+        case legacy
         case fixed
         case repeating = "repeat"
     }
 
     public enum EndReason: String, Codable, Equatable {
         case listDone      // fixed list: Crown on the last part
-        case roundsDone    // repeating block with N rounds: Crown on the last part of pass N
+        case roundsDone    // repeating block with N rounds: Crown on the last step of pass N
         case cap           // AMRAP / EMOM: the clock
     }
 
-    public struct Plan: Equatable {
+    public struct Plan: Codable, Equatable {
         public let kind: Kind
         public let parts: Int
         /// Passes to do; nil = until the clock (or End).
@@ -31,22 +36,27 @@ public enum RepeatBlock {
         public let capEnds: Bool
         /// One window = one pass of the block (5c Q3).
         public let intervalSeconds: Double?
+        /// Rests after the block's last work part, skipped on the last pass (no interval only).
+        public let trailingRests: Int
 
         public init(kind: Kind, parts: Int, rounds: Int?, capSeconds: Double?, capEnds: Bool,
-                    intervalSeconds: Double?) {
+                    intervalSeconds: Double?, trailingRests: Int = 0) {
             self.kind = kind
             self.parts = parts
             self.rounds = rounds
             self.capSeconds = capSeconds
             self.capEnds = capEnds
             self.intervalSeconds = intervalSeconds
+            self.trailingRests = trailingRests
         }
 
-        /// Steps in the whole workout; nil when only the clock (or End) stops it.
+        /// Steps in the whole workout; nil when only the clock (or End) stops it. Without an
+        /// interval the last pass ends on its last work part (a rest after the last round is not
+        /// done); with one, the last window keeps its rest and the clock ends it.
         public var stepLimit: Int? {
-            if kind == .fixed { return parts }
+            if kind != .repeating { return parts }
             guard let r = rounds else { return nil }
-            return r * parts
+            return r * parts - trailingRests
         }
     }
 
@@ -55,7 +65,32 @@ public enum RepeatBlock {
         return v
     }
 
-    /// The kind of a definition (5c table). Anything not listed as repeating is a fixed list.
+    private static func trailingRests(_ d: WorkoutDefinition) -> Int {
+        var n: Int = 0
+        for s in d.segments.reversed() {
+            if s.kind != .rest { break }
+            n += 1
+        }
+        return n < d.segments.count ? n : 0
+    }
+
+    /// Why a definition marked listedOnce cannot run as a block (it then takes the legacy route).
+    /// An interval block must end with a rest: that rest is the wait until the next window, so an
+    /// early Crown never starts the next pass before its window.
+    public static func listedOnceProblems(_ d: WorkoutDefinition) -> [String] {
+        var out: [String] = []
+        if d.segments.isEmpty {
+            out.append("no segments")
+        } else if d.segments.allSatisfy({ (s: WorkoutSegment) -> Bool in s.kind == .rest }) {
+            out.append("only rests")
+        } else if positive(d.intervalSeconds) != nil, let last = d.segments.last, last.kind != .rest {
+            out.append("interval block does not end with a rest")
+        }
+        return out
+    }
+
+    /// The kind of a definition (5c table). Unmarked (every row stored today): legacy. Marked
+    /// `listedOnce`: repeating for the repeating formats, else fixed.
     public static func plan(for d: WorkoutDefinition) -> Plan {
         let n: Int = d.segments.count
         let cap: Double? = positive(d.timeCapSeconds)
@@ -64,22 +99,33 @@ public enum RepeatBlock {
         if let r = d.rounds, r > 0 {
             rounds = r
         }
-        if n > 0 {
-            if d.format == .amrap, cap != nil {
-                return Plan(kind: .repeating, parts: n, rounds: nil, capSeconds: cap, capEnds: true,
-                            intervalSeconds: interval)
-            }
-            if d.format == .emom, cap != nil || rounds != nil {
-                return Plan(kind: .repeating, parts: n, rounds: rounds, capSeconds: cap, capEnds: cap != nil,
-                            intervalSeconds: interval)
-            }
-            if d.format == .forTime, rounds != nil {
-                return Plan(kind: .repeating, parts: n, rounds: rounds, capSeconds: cap, capEnds: false,
-                            intervalSeconds: interval)
-            }
+        if d.listedOnce != true || !listedOnceProblems(d).isEmpty {
+            return Plan(kind: .legacy, parts: n, rounds: 1, capSeconds: cap, capEnds: false,
+                        intervalSeconds: interval)
+        }
+        let tr: Int = interval != nil ? 0 : trailingRests(d)
+        if d.format == .amrap, cap != nil {
+            return Plan(kind: .repeating, parts: n, rounds: nil, capSeconds: cap, capEnds: true,
+                        intervalSeconds: interval, trailingRests: tr)
+        }
+        if d.format == .emom, cap != nil || rounds != nil {
+            return Plan(kind: .repeating, parts: n, rounds: rounds, capSeconds: cap, capEnds: cap != nil,
+                        intervalSeconds: interval, trailingRests: tr)
+        }
+        if d.format == .forTime, rounds != nil {
+            return Plan(kind: .repeating, parts: n, rounds: rounds, capSeconds: cap, capEnds: false,
+                        intervalSeconds: interval, trailingRests: tr)
         }
         return Plan(kind: .fixed, parts: n, rounds: 1, capSeconds: cap, capEnds: false,
                     intervalSeconds: interval)
+    }
+
+    /// The plan `WorkoutProgress` runs in block mode, or nil for today's path. Block mode needs both
+    /// the engine switch on and a definition marked listedOnce; anything else is today's path.
+    public static func enginePlan(for d: WorkoutDefinition, engineOn: Bool) -> Plan? {
+        if !engineOn { return nil }
+        let p: Plan = plan(for: d)
+        return p.kind == .legacy ? nil : p
     }
 
     /// (pass, part) of a step; nil for a step before START or past the workout's end.
@@ -92,7 +138,7 @@ public enum RepeatBlock {
     /// A Crown advance from this step finishes the workout (instead of starting the next step).
     public static func advanceFinishes(_ plan: Plan, step: Int) -> Bool {
         guard let limit = plan.stepLimit else { return false }
-        return step == limit - 1
+        return step >= limit - 1
     }
 
     /// Undo goes back one step, across a pass boundary too; nothing before step 0.
@@ -104,7 +150,7 @@ public enum RepeatBlock {
     /// `elapsed`: seconds since START. The cap ends only AMRAP / EMOM (for time keeps going, 5b).
     public static func endReason(_ plan: Plan, step: Int, advanced: Bool, elapsed: Double) -> EndReason? {
         if advanced && advanceFinishes(plan, step: step) {
-            return plan.kind == .fixed ? EndReason.listDone : EndReason.roundsDone
+            return plan.kind == .repeating ? EndReason.roundsDone : EndReason.listDone
         }
         if plan.capEnds, let cap = plan.capSeconds, elapsed >= cap {
             return EndReason.cap
@@ -122,8 +168,13 @@ public enum RepeatBlock {
 
     /// Interval workouts: the step the clock moves to at the window's end, the first part of the
     /// next pass (what is left of this pass is skipped). Nil without an interval, or when that pass
-    /// would be past the last one (the clock then finishes). For today's rows (roundSize = block)
-    /// this is WorkoutProgress.autoAdvanceTargetIndex.
+    /// would be past the last one (the clock then finishes).
+    ///
+    /// Not quite today's `WorkoutProgress.autoAdvanceTargetIndex`: today a rest goes to the next
+    /// segment and roundSize is the set. Here the window end always goes to the next pass, so a rest
+    /// in the middle of the block with no timer of its own skips the rest of the pass. A rest with a
+    /// seconds target still ends by itself and hands over to the next part (block mode). When the
+    /// rests are the block's last parts, as in every interval row today, both agree.
     public static func windowTargetStep(_ plan: Plan, step: Int) -> Int? {
         guard plan.intervalSeconds != nil, plan.parts > 0, step >= 0 else { return nil }
         let next: Int = (step / plan.parts + 1) * plan.parts

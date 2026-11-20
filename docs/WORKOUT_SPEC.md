@@ -528,19 +528,49 @@ Python: `for_time_cap_time`, `segment_index_at`, `cap_segment_index(now)`; on th
 
 ## 5c. Repeating blocks and fixed lists (brief, #138, owner decision 20 Nov)
 
-Status: **brief, Python reference** (`tools/barpath/repeat_block.py`, fixtures
-`Fixtures/repeat_block_cases.json`) **and a pure BarPathKit port** (`RepeatBlock.swift`). Nothing is
-wired into the watch or phone before 5 Dec. Until then the 0.17.1 stopgap (§5a) stays unchanged.
-Questions are marked **[Q1]…[Q8]**.
+Status: **engine core for 0.18 (E1)**: Python reference (`tools/barpath/repeat_block.py`,
+block mode in `WorkoutProgress`), BarPathKit port (`RepeatBlock.swift`, `WorkoutProgress.block`),
+shared fixtures `Fixtures/repeat_block_cases.json` and `Fixtures/repeat_block_progress_cases.json`
+(written by `tools/make_repeat_block_progress_cases.py`). The watch wiring behind the engine switch
+is E3. The 0.17.1 stopgap (§5a) stays unchanged on the legacy route. Questions are marked
+**[Q1]…[Q8]**.
+
+### Only definitions marked listed-once repeat (0.18, owner 20 Nov via Delivery)
+- A definition repeats only when it carries **`listedOnce: true`** (new optional key, left out
+  otherwise; builds before 0.18 ignore it). **Every row stored today is unmarked** and takes the
+  **legacy route**: today's `WorkoutProgress`, with the §5a AMRAP expansion, whatever the engine
+  switch says. Written-out EMOM, Tabata and AMRAP rows (Row + Thrusters, AMRAP 20 / 40) and Hyrox
+  therefore keep their window targets, finish and score exactly; tests check the stored built-ins
+  by id (`test_repeat_block.py`, `RepeatBlockTests.swift`).
+- Block mode needs **both** the engine switch on and the mark: `engine_plan(d, "v2")` /
+  `RepeatBlock.enginePlan(for:engineOn:)` gives the plan, anything else gives nil (today's path).
+  `WorkoutProgress(definition:block:)` with `block == nil` runs exactly today's code.
+- A marked definition the block can't run (no segments, only rests, an interval block that does
+  not end with a rest) falls back to the legacy route (`listed_once_problems`).
+
+### Timing in block mode (E1)
+- **Interval blocks (EMOM, Tabata, "Go every"):** one window = one pass. The block must end with a
+  rest: that rest is the wait until the next window, and a Crown there is **ignored** (the watch
+  shows a hint, E3), so every window starts on the clock. A part with a seconds target (Tabata's
+  20 s work, a 30 s rest in the middle) ends on its own timer and hands over to the next part,
+  unless the window ends first. At the window end the clock moves to the first part of the next
+  pass. A rest in the middle with no timer is skipped by the window end (today a rest moves to the
+  next segment; this differs only for a mid-block rest, which no stored row has).
+- **The last pass:** with an interval, the last window keeps its rest and the clock ends the
+  workout (Tabata 8 × 30 s = 16 steps, 4:00 exactly). Without an interval (Rounds for time × N),
+  the last pass ends on its last work part: a rest after the last round is not done.
+- **The cap** ends AMRAP and interval blocks that have one (`capTime` in block mode); for time
+  keeps going (§5b). Undo crosses back into the previous pass; undo after a Finish unfinishes.
 
 **Answers so far (Delivery, 20 Nov).** These are defaults until the owner overrides them:
-- **Q1:** yes, an optional `rounds` key. Rows written out today, such as Helen, stay fixed lists
-  until they are migrated.
-- **Q2:** no data change. EMOM and Tabata rows stay written out.
+- **Q1:** yes, an optional `rounds` key. Rows written out today, such as Helen, stay on the
+  legacy route until they are migrated (and marked listedOnce).
+- **Q2:** no data change. EMOM and Tabata rows stay written out, unmarked, on the legacy route.
 - **Q3:** in an interval format, **one window = one pass of the block**. In the owner's words,
   "Go every … is a block that repeats". The window length comes from `intervalSeconds` and the
-  block, never from `roundSize`. In today's rows `roundSize` *is* the block, so EMOM and Tabata
-  timing doesn't change. An alternating EMOM ("min 1 A, min 2 B") has no form in the new model
+  block, never from `roundSize`. Today's rows are unmarked and keep today's window rule, so EMOM
+  and Tabata timing doesn't change (#145 review: a written-out row read as a block would have
+  jumped past the whole list). An alternating EMOM ("min 1 A, min 2 B") has no form in the new model
   yet. Those rows keep today's written-out path, which is a later extension; there is no
   `partsPerWindow`.
 - **Q4:** a rest the cap falls in doesn't count as done (as today).
@@ -602,7 +632,8 @@ Questions are marked **[Q1]…[Q8]**.
 - **Answered (Q3):** one window = one pass. At the window's end the clock moves to the first part of
   the next pass, skipping what is left of this one. The rule is `window_target_step`: next pass
   start = `(step / P + 1) × P`. It is today's `autoAdvanceTargetIndex` with `roundSize` replaced
-  by the block length P. A test checks that every interval built-in steps the same.
+  by the block length P, for listed-once definitions only. The stored interval built-ins are unmarked
+  and keep today's rule; a test checks them by id.
 
 ### Undo across a pass boundary
 - Undo goes back one step, whatever the pass: from pass k, part 0, back to pass k−1, last part. It
@@ -669,9 +700,10 @@ Questions are marked **[Q1]…[Q8]**.
 
 ### Fixed lists don't change (must hold)
 - Same steps, same Finish on the last part, same undo, same `WorkoutResult` fields and values.
-- The reference and the Swift port must give, for every fixed-list built-in (Hyrox Solo, Doubles,
-  Half, partner WODs, Helen, Quick test, Free) and every fixed fixture, exactly the steps the
-  current `WorkoutProgress` gives. A test proves it.
+- Every stored built-in, listed by id in the tests (Hyrox Solo, Doubles, Half, partner WODs,
+  AMRAP 20 / 40, Helen, Row + Thrusters, Quick test, Free), takes the legacy route with the engine
+  on, and a scripted run gives exactly the events it gives with the engine off. The E4 gate extends
+  this to fixed-list fixture rows in CI.
 
 ### What gets built before 5 Dec (no wiring)
 1. **Python reference** in `tools/barpath`, as pure functions:

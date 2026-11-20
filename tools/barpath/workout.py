@@ -167,6 +167,7 @@ class WorkoutDefinition:
     interval_seconds: Optional[float] = None
     round_size: Optional[int] = None   # segments per round/set (rest included); last round may be partial
     rounds: Optional[int] = None       # repeating block (WORKOUT_SPEC 5c): passes of the listed block
+    listed_once: bool = False          # 5c: the segments list the block once (only these may repeat)
 
     @property
     def run_count(self) -> int:
@@ -188,6 +189,8 @@ class WorkoutDefinition:
             d["roundSize"] = self.round_size
         if self.rounds is not None:
             d["rounds"] = self.rounds
+        if self.listed_once:
+            d["listedOnce"] = True
         return d
 
     @classmethod
@@ -201,7 +204,8 @@ class WorkoutDefinition:
                    [WorkoutSegment.from_dict(s) for s in d["segments"]],
                    None if interval is None else float(interval),
                    None if round_size is None else int(round_size),
-                   None if rounds is None else int(rounds))
+                   None if rounds is None else int(rounds),
+                   d.get("listedOnce") is True)
 
     def to_json(self) -> str:
         """JSON as BarPathKit's JSONEncoder writes it (nil optionals left out)."""
@@ -389,11 +393,73 @@ class SegmentSplit:
 
 
 class WorkoutProgress:
-    def __init__(self, definition: WorkoutDefinition):
+    """Today's progress through a definition's segments. With `block` (a repeat_block.BlockPlan of
+    a listed-once definition, WORKOUT_SPEC 5c) it counts steps instead: step s is part s % P of pass
+    s // P, and the plan decides when it finishes. Without `block` every method is exactly today's."""
+
+    def __init__(self, definition: WorkoutDefinition, block=None):
         self.definition = definition
+        self.block = block
         self.segment_starts: list = []
         self.finish_time: Optional[float] = None
         self.events: list = []
+
+    def _part(self, step: int) -> Optional[WorkoutSegment]:
+        """The listed segment a step does (block mode), or the segment at that index (today)."""
+        segs = self.definition.segments
+        if self.block is None:
+            return segs[step] if 0 <= step < len(segs) else None
+        if not segs or step < 0:
+            return None
+        limit = self.block.step_limit
+        if limit is not None and step >= limit:
+            return None
+        return segs[step % len(segs)]
+
+    def _block_auto(self):
+        """Block mode (5c): (when the current step ends by itself or None, the step the clock moves
+        to). With an interval, one window is one pass: a part with a seconds target ends on its
+        timer and hands over to the next part, unless the window ends first; the block's last part
+        (its rest, the wait for the next window) ends on the window; at the window end the clock
+        moves to the first part of the next pass, or finishes after the last one. Without an
+        interval: a timed rest ends after its seconds, as today."""
+        from .repeat_block import window_end, window_target_step
+        i = self.current_index
+        nxt = i + 1
+        seg = self.current_segment
+        if not self.is_started or self.is_finished or seg is None:
+            return None, nxt
+        seg_start = self.segment_starts[-1]
+        start = self.start_time
+        timed = seg.target is not None and seg.target.unit == "seconds" and seg.target.value > 0
+        plan = self.block
+        if plan.interval_seconds is None:
+            if seg.kind == "rest" and timed:
+                return seg_start + seg.target.value, nxt
+            return None, nxt
+        window = start + window_end(plan, seg_start - start)
+        last_part = plan.parts > 0 and i % plan.parts == plan.parts - 1
+        if timed and not (seg.kind == "rest" and last_part) and seg_start + seg.target.value < window:
+            return seg_start + seg.target.value, nxt
+        target = window_target_step(plan, i)
+        return window, (target if target is not None else plan.step_limit)
+
+    @property
+    def waiting_for_window(self) -> bool:
+        """Block mode with an interval: the current step is the block's closing rest, the wait for
+        the next window. The athlete's Crown is ignored there (the watch shows a hint); only the
+        clock moves on, so every window starts on the clock. Always False on today's path."""
+        if self.block is None or self.block.interval_seconds is None or not self.is_started or self.is_finished:
+            return False
+        seg = self.current_segment
+        return (seg is not None and seg.kind == "rest" and self.block.parts > 0
+                and self.current_index % self.block.parts == self.block.parts - 1)
+
+    def _is_last_step(self, step: int) -> bool:
+        if self.block is None:
+            return step >= len(self.definition.segments) - 1
+        from .repeat_block import advance_finishes
+        return advance_finishes(self.block, step)
 
     @property
     def is_started(self) -> bool:
@@ -411,15 +477,13 @@ class WorkoutProgress:
     def current_segment(self) -> Optional[WorkoutSegment]:
         if not self.is_started:
             return None
-        i = self.current_index
-        return self.definition.segments[i] if i < len(self.definition.segments) else None
+        return self._part(self.current_index)
 
     @property
     def next_segment(self) -> Optional[WorkoutSegment]:
         if not self.is_started or self.is_finished:
             return None
-        i = self.current_index + 1
-        return self.definition.segments[i] if i < len(self.definition.segments) else None
+        return self._part(self.current_index + 1)
 
     @property
     def start_time(self) -> Optional[float]:
@@ -436,7 +500,9 @@ class WorkoutProgress:
             return False
         if t < self.segment_starts[-1]:
             return False
-        if self.current_index >= len(self.definition.segments) - 1:
+        if source != "auto" and self.waiting_for_window:
+            return False
+        if self._is_last_step(self.current_index):
             self.finish_time = t
             self.events.append(WorkoutEvent(t, "finish", self.current_index, source))
         else:
@@ -478,6 +544,8 @@ class WorkoutProgress:
             return None
         seg_start = self.segment_starts[-1]
         start = self.start_time
+        if self.block is not None:
+            return self._block_auto()[0]
         if seg.kind == "rest" and seg.target is not None and seg.target.unit == "seconds" and seg.target.value > 0:
             return seg_start + seg.target.value
         interval = self.definition.interval_seconds
@@ -491,6 +559,8 @@ class WorkoutProgress:
         workout the first segment of the next set (skipping what is left of this set)."""
         i = self.current_index
         seg = self.current_segment
+        if self.block is not None:
+            return self._block_auto()[1]
         r = self.definition.round_size
         interval = self.definition.interval_seconds
         if seg is None or seg.kind == "rest" or interval is None or interval <= 0 or r is None or r <= 0:
@@ -510,7 +580,13 @@ class WorkoutProgress:
 
     @property
     def cap_time(self) -> Optional[float]:
+        """When the workout finishes by itself at the cap: AMRAP today; in block mode, every plan
+        whose cap ends it (AMRAP, EMOM / Tabata with a cap)."""
         d = self.definition
+        if self.block is not None:
+            if not self.block.cap_ends or self.block.cap_seconds is None or not self.is_started:
+                return None
+            return self.start_time + self.block.cap_seconds
         if d.format != "amrap" or d.time_cap_seconds is None or d.time_cap_seconds <= 0 or not self.is_started:
             return None
         return self.start_time + d.time_cap_seconds
