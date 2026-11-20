@@ -25,7 +25,9 @@ each new detector version can be compared with the previous ones (docs/LABELS.md
 Lifting sessions: barpath.reps.count_reps against the labelled reps of each set. Sets labelled
 from video on a whole session recording (`file` is a .csv, `repTimes` = catch times) are scored
 per rep instead: catch-rule (barpath.catches) and lifting-mode (the watch's own logged lifts: a rep
-is found when its catch lies inside a liftStarted..liftEnded window), match window 0.5 s.
+is found when its catch lies inside a liftStarted..liftEnded window), match window 0.5 s. A set on
+a Lifting-mode .csv without repTimes is scored on the watch's own setEnded counts (its biggest set
+against the label; any other set it logged is reported as false).
 
 Fetch the recordings first: tools/fetch_sessions.py. Labels without recordings are listed and
 skipped.
@@ -161,6 +163,17 @@ def score_lifts(d: dict) -> list:
     rows = []
     for x in d["sets"]:
         p = L.CACHE_DIR / d["id"] / Path(x["file"]).name
+        if p.suffix == ".csv":
+            # a Lifting-mode session CSV without rep times: the watch's own sets (setEnded events)
+            # against the athlete's count; every other set the watch logged is a false set
+            from barpath.recording import load_session_csv
+            sets = [int(e.get("reps", 0)) for e in load_session_csv(p).events if e.get("name") == "setEnded"]
+            n = max(sets) if sets else 0
+            extra = len(sets) - (1 if sets else 0)
+            rows.append((d["id"], f"{x['lift']} {x.get('loadLb', '?')} lb (watch sets: "
+                         f"{' + '.join(map(str, sets)) or 'none'}{f', {extra} false' if extra else ''})",
+                         x["reps"], n, n - x["reps"]))
+            continue
         m = json.load(open(p))["motion"]
         t = np.array(m["t"])
         ua = np.c_[m["ax"], m["ay"], m["az"]]
