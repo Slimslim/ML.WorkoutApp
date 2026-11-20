@@ -95,19 +95,10 @@ struct SessionView: View {
     private func restScreen(since: Date, now: Date) -> some View {
         let rest = Color(red: 1.0, green: 0.84, blue: 0.04)
         return VStack(spacing: 2) {
-            if model.restReminder {
-                // Forgotten Crown (#148): set-like motion at rest; nothing was counted.
-                Text("Turn the Crown?")
-                    .font(.system(size: 18, weight: .heavy, design: .rounded))
-                    .foregroundColor(SegmentPalette.crownForward)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-            } else {
-                Text(restTopLine)
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-            }
+            Text(restTopLine)
+                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
 
             Spacer(minLength: 0)
             Text("REST")

@@ -117,7 +117,6 @@
     ],
     "arms": [],
     "rest": null,
-    "reminders": [],
     "expired": []
    }
   },
@@ -288,9 +287,6 @@
      ]
     ],
     "rest": 55.665,
-    "reminders": [
-     45.995
-    ],
     "expired": []
    }
   },
@@ -436,7 +432,6 @@
      ]
     ],
     "rest": 30.665,
-    "reminders": [],
     "expired": []
    }
   },
@@ -533,7 +528,6 @@
      ]
     ],
     "rest": null,
-    "reminders": [],
     "expired": []
    }
   },
@@ -642,9 +636,6 @@
     ],
     "arms": [],
     "rest": null,
-    "reminders": [
-     50.995
-    ],
     "expired": []
    }
   },
@@ -736,7 +727,6 @@
     ],
     "arms": [],
     "rest": null,
-    "reminders": [],
     "expired": []
    }
   },
@@ -846,9 +836,6 @@
      ]
     ],
     "rest": 20.665,
-    "reminders": [
-     240.995
-    ],
     "expired": [
      220.995
     ]

@@ -32,7 +32,7 @@ final class LiftCycleTests: XCTestCase {
         XCTAssertEqual(c.listeningFrom, 100)
     }
 
-    func testArmedTimeoutAndReminderRules() {
+    func testArmedTimeoutRule() {
         XCTAssertEqual(LiftCycle.armedTimeout, 180.0)
         var c = LiftCycle(startAt: 0)
         XCTAssertFalse(c.expireArmed(at: LiftCycle.armedTimeout - 0.1, busy: false))
@@ -40,20 +40,18 @@ final class LiftCycleTests: XCTestCase {
         XCTAssertTrue(c.expireArmed(at: LiftCycle.armedTimeout, busy: false))
         XCTAssertEqual(c.state, .resting)
         XCTAssertEqual(c.since, 0)
-        XCTAssertTrue(c.remindAtRest())
-        XCTAssertFalse(c.remindAtRest())
         XCTAssertTrue(c.arm(at: 300))
-        XCTAssertFalse(c.remindAtRest())
+        XCTAssertEqual(c.lastRest ?? -1, 300, accuracy: 1e-9)
         XCTAssertTrue(c.expireArmed(at: 480, busy: false))
         XCTAssertEqual(c.since, 0)
-        XCTAssertTrue(c.remindAtRest())
+        XCTAssertFalse(c.expireArmed(at: 700, busy: false))
     }
 
     func testCycleCasesMatchPython() throws {
         XCTAssertNotNil(fixtureURL("lift_cycle_cases", "json"), "lift_cycle_cases.json missing")
         let fixture = try jsonObject(try fixtureData("lift_cycle_cases", "json"))
         let cases = fixture["cases"] as? [String: Any] ?? [:]
-        XCTAssertEqual(cases.count, 6)
+        XCTAssertEqual(cases.count, 5)
         for (name, value) in cases.sorted(by: { $0.key < $1.key }) {
             let c = value as? [String: Any] ?? [:]
             let ops = c["ops"] as? [[Any]] ?? []
@@ -72,7 +70,6 @@ final class LiftCycleTests: XCTestCase {
                 case "setStarted": ok = cycle.setStarted(at: t)
                 case "setEnded": ok = cycle.setEnded(at: t)
                 case "expire": ok = cycle.expireArmed(at: t, busy: flag(op.count > 2 ? op[2] : nil) ?? false)
-                case "remind": ok = cycle.remindAtRest()
                 default:
                     XCTFail("unknown op \(kind)")
                     ok = false
@@ -89,7 +86,6 @@ final class LiftCycleTests: XCTestCase {
                 }
                 XCTAssertEqual(cycle.isListening, flag(want["listening"]), label)
                 XCTAssertEqual(cycle.canShowEndPage, flag(want["canShowEndPage"]), label)
-                XCTAssertEqual(cycle.reminded, flag(want["reminded"]), label)
             }
         }
     }
@@ -155,7 +151,6 @@ final class LiftCycleTests: XCTestCase {
         var live: [Int] = []
         var arms: [(Double, Bool)] = []
         var rest: Double?
-        var reminders: [Double] = []
         var expired: [Double] = []
     }
 
@@ -189,9 +184,6 @@ final class LiftCycleTests: XCTestCase {
             let latest = samples[end - 1].t
             if cycle.expireArmed(at: latest, busy: tracker.detected) {
                 out.expired.append(latest)
-            }
-            if cycle.state == .resting && tracker.restReps >= 2 && cycle.remindAtRest() {
-                out.reminders.append(latest)
             }
             k = end
         }
@@ -237,11 +229,6 @@ final class LiftCycleTests: XCTestCase {
             for (got, want) in zip(r.arms, wantArms) where want.count == 2 {
                 XCTAssertEqual(got.0, number(want[0]) ?? -1, accuracy: 1e-9, name)
                 XCTAssertEqual(got.1, flag(want[1]), name)
-            }
-            let wantReminders = (expected["reminders"] as? [Any] ?? []).compactMap { number($0) }
-            XCTAssertEqual(r.reminders.count, wantReminders.count, name)
-            for (got, want) in zip(r.reminders, wantReminders) {
-                XCTAssertEqual(got, want, accuracy: tol, name)
             }
             let wantExpired = (expected["expired"] as? [Any] ?? []).compactMap { number($0) }
             XCTAssertEqual(r.expired.count, wantExpired.count, name)

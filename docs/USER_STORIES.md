@@ -129,9 +129,8 @@ while resting (walking, shaking out my hands, chalking) to count as a set, so I 
 without hiding on another screen.
 *Done when:* after a set ends the watch shows Rest counting up within 1 s of the set-end
 haptic, with the set's reps and the weight; on device, 2 min of rest with hand shakes, chalking
-and walking around gives 0 sets, 0 rep haptics and no reminder buzz, for a deadlift and an
-Olympic lift; a real set done at rest without turning the Crown gives one buzz and "Turn the
-Crown?", and still 0 sets (owner, 20 Nov).
+and walking around gives 0 sets and 0 rep haptics, for a deadlift and an Olympic lift; a real set
+done at rest without turning the Crown also gives 0 sets (no reminder, owner, 20 Nov).
 
 **L8. Turn the Crown to arm the next set (Now)**
 As a lifter back at the bar, I want one Crown turn to arm detection for the next set, so the

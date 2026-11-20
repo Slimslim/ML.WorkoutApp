@@ -10,8 +10,6 @@ import Foundation
 ///
 /// Armed time-out (owner, 20 Nov): armed with no set for `armedTimeout` s goes back to resting,
 /// unless a rep / lift is under way; the rest keeps counting from where it started.
-/// Forgotten-Crown reminder (owner, 20 Nov): `remindAtRest()` is true at most once per rest; the
-/// caller buzzes and shows "Turn the Crown?". It never counts or records anything.
 public struct LiftCycle: Equatable, Sendable {
     /// Armed with no set for this long (s) goes back to Rest.
     public static let armedTimeout: Double = 180.0
@@ -28,8 +26,6 @@ public struct LiftCycle: Equatable, Sendable {
     public private(set) var armedAt: Double
     /// The rest before the current set (rest start → Crown turn), nil before the first rest.
     public private(set) var lastRest: Double?
-    /// The "Turn the Crown?" reminder already fired in this rest.
-    public private(set) var reminded: Bool = false
     /// Where the rest started before the last Crown turn (an armed time-out resumes it).
     private var restStartBeforeArm: Double?
 
@@ -78,7 +74,6 @@ public struct LiftCycle: Equatable, Sendable {
         state = .resting
         since = t
         restStartBeforeArm = nil
-        reminded = false
         return true
     }
 
@@ -90,15 +85,6 @@ public struct LiftCycle: Equatable, Sendable {
         state = .resting
         since = restStartBeforeArm ?? armedAt
         restStartBeforeArm = nil
-        reminded = false
-        return true
-    }
-
-    /// Set-like motion while resting: true the first time in this rest (buzz and show
-    /// "Turn the Crown?"), false otherwise.
-    public mutating func remindAtRest() -> Bool {
-        guard state == .resting, !reminded else { return false }
-        reminded = true
         return true
     }
 }

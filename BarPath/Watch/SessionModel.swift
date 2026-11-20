@@ -87,8 +87,6 @@ final class SessionModel: ObservableObject {
     @Published private(set) var restStartDate: Date?
     /// The rest taken before the current set (s), nil before the first rest.
     @Published private(set) var lastRestSeconds: Double?
-    /// Set-like motion while resting (#148): show "Turn the Crown?" for the rest of this rest.
-    @Published private(set) var restReminder = false
 
     static let kgPerLb = WeightUnit.kgPerLb
 
@@ -212,9 +210,6 @@ final class SessionModel: ObservableObject {
         }
         recorder.onCycleChange = { [weak self] cycle in
             self?.cycleChanged(cycle)
-        }
-        recorder.onRestReminder = { [weak self] in
-            self?.restReminderFired()
         }
     }
 
@@ -526,14 +521,7 @@ final class SessionModel: ObservableObject {
         }
     }
 
-    private func restReminderFired() {
-        guard phase == .running, cycleState == .resting else { return }
-        restReminder = true
-        playHaptic(.notification, minimumGap: 0)
-    }
-
     private func cycleChanged(_ cycle: LiftCycle) {
-        restReminder = false
         cycleState = cycle.state
         lastRestSeconds = cycle.lastRest
         if cycle.state == .resting {
@@ -546,7 +534,6 @@ final class SessionModel: ObservableObject {
     }
 
     private func resetCycle() {
-        restReminder = false
         cycleState = .armed
         restStartDate = nil
     }

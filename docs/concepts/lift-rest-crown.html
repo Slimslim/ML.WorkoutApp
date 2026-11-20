@@ -119,26 +119,9 @@ the new parts are the Rest screen, the Crown arc (the same as in workouts) and t
   </div>
 </div>
 
-<h2>1b. Forgotten Crown and the armed time-out (owner, 20 Nov)</h2>
-<p>Two safety nets. Neither one ever counts, records or uploads a set.</p>
+<h2>1b. Armed time-out (owner, 20 Nov)</h2>
+<p>Armed with no set for 3 min goes back to Rest. It never counts, records or uploads anything.</p>
 <div class="row">
-  <div class="cell">
-    <div class="watch"><div class="scr">
-      <div class="top" style="color:var(--volt);font-size:18px;font-weight:800">Turn the Crown?</div>
-      <div class="mid">
-        <div class="lbl" style="color:var(--rest)">REST</div>
-        <div class="big" style="color:var(--rest)">1:52</div>
-        <div class="pill" style="margin-top:8px">135 lb</div>
-      </div>
-      <div class="cue">Turn Crown for next set ⟳</div>
-      <div class="dots"><i class="on"></i><i></i></div>
-    </div></div>
-    <div class="cap"><b>Forgotten Crown.</b> Resting, the rep counter keeps watching in the shadow. When two
-    reps <i>would</i> have counted (within 6 s of each other), the watch buzzes once and the top line becomes
-    "Turn the Crown?" until the Crown is turned. At most once per rest. A hand shake is at most one "rep",
-    so it never buzzes. Olympic lifts: a lift start seen at rest.</div>
-  </div>
-  <div class="arrow">→</div>
   <div class="cell">
     <div class="watch"><div class="scr">
       <div class="top">Deadlift · 135 lb</div>
@@ -161,7 +144,7 @@ the new parts are the Rest screen, the Crown arc (the same as in workouts) and t
     </div></div>
     <div class="cap"><b>… back to Rest.</b> The rest keeps counting from the end of the last set
     (2:41 + 3:00). Not while a rep or lift is under way. The time-out is one constant
-    (<code>LiftCycle.armedTimeout</code>, 3 min).</div>
+    (<code>LiftCycle.armedTimeout</code>, 3 min). During rest the detector is ignored: no buzz, no prompt.</div>
   </div>
 </div>
 

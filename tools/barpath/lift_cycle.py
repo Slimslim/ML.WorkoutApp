@@ -13,8 +13,6 @@ counts (`listening_from`, fed to SetTracker as `armedFrom`; the lift detector is
 - Swiping to the End page is allowed except in a set.
 - Armed time-out (owner, 20 Nov): armed with no set for `ARMED_TIMEOUT` s goes back to resting,
   unless a rep / lift is under way (`busy`); the rest keeps counting from where it started.
-- Forgotten-Crown reminder (owner, 20 Nov): `remind_at_rest` is true at most once per rest; the
-  caller buzzes and shows "Turn the Crown?". It never counts or records anything.
 """
 import math
 from dataclasses import dataclass
@@ -31,7 +29,6 @@ class LiftCycle:
     armed_at: float = 0.0
     last_rest: Optional[float] = None
     rest_start_before_arm: Optional[float] = None
-    reminded: bool = False
 
     @classmethod
     def start(cls, t: float) -> "LiftCycle":
@@ -68,7 +65,6 @@ class LiftCycle:
             return False
         self.state, self.since = RESTING, t
         self.rest_start_before_arm = None
-        self.reminded = False
         return True
 
     def expire_armed(self, t: float, busy: bool) -> bool:
@@ -77,24 +73,17 @@ class LiftCycle:
         start = self.rest_start_before_arm
         self.state, self.since = RESTING, (start if start is not None else self.armed_at)
         self.rest_start_before_arm = None
-        self.reminded = False
-        return True
-
-    def remind_at_rest(self) -> bool:
-        if self.state != RESTING or self.reminded:
-            return False
-        self.reminded = True
         return True
 
     def snapshot(self) -> dict:
         return {"state": self.state, "since": self.since, "armedAt": self.armed_at,
                 "lastRest": self.last_rest, "listening": self.is_listening,
-                "canShowEndPage": self.can_show_end_page, "reminded": self.reminded}
+                "canShowEndPage": self.can_show_end_page}
 
 
 def run(ops):
-    """ops: [["start", t] | ["arm", t] | ["setStarted", t] | ["setEnded", t] | ["expire", t, busy]
-    | ["remind", t]] → snapshots with each op's result (True if it changed the state)."""
+    """ops: [["start", t] | ["arm", t] | ["setStarted", t] | ["setEnded", t] | ["expire", t, busy]]
+    → snapshots with each op's result (True if it changed the state)."""
     cycle = None
     out = []
     for op in ops:
@@ -110,8 +99,6 @@ def run(ops):
             ok = cycle.set_ended(t)
         elif name == "expire":
             ok = cycle.expire_armed(t, bool(op[2]))
-        elif name == "remind":
-            ok = cycle.remind_at_rest()
         else:
             raise ValueError(name)
         out.append(dict(cycle.snapshot(), ok=ok))

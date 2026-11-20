@@ -34,8 +34,8 @@ Events from motion before the Crown turn are dropped, and both detectors restart
 motion after it. That is a structural guarantee, not a threshold, so it holds for every lift.
 What remains: (1) a shake after arming but before the set (same as today, for at most the 3 min
 armed time-out); (2) an accidental 0.8-turn Crown turn (sleeve, wrist on the knee) arms; (3)
-forgetting to turn the Crown means the set isn't counted: the "Turn the Crown?" buzz tells the
-athlete, without counting anything.
+forgetting to turn the Crown means the set isn't counted (no reminder, by the owner's choice; the
+Rest screen's Crown cue is the only prompt).
 
 ## Risk to recording
 
@@ -53,11 +53,8 @@ athlete, without counting anything.
 1. Weight at rest: **variant A** (tap the weight, then the Crown). Owner's choice.
 2. Armed time-out: **yes, 3 min** (owner). Armed with no set → back to Rest, the rest counting on from
    the last set; not while a rep / lift is under way. `LiftCycle.armedTimeout`.
-3. Forgotten Crown: **yes** (owner). While resting, the same rule that would start a set runs in the
-   shadow: deadlift = 2 reps that would have counted within 6 s of each other (`SetTracker.restReps`);
-   Olympic = a lift start from a shadow lift detector. The watch buzzes once per rest and shows
-   "Turn the Crown?". Nothing is counted, recorded or uploaded. A hand shake is at most one rep, so
-   it never buzzes. A real single at rest without the Crown doesn't buzz either (deadlift).
+3. Forgotten Crown: **no reminder** (owner correction, 20 Nov). During rest the detector is simply
+   ignored: no buzz, no prompt.
 4. Change lift: **on the End page** (owner OK).
 5. Olympic lifts: **a Crown turn before every single** too (owner).
 
