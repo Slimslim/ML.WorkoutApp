@@ -1,0 +1,9134 @@
+{
+ "note": "E4 engine gate (tools/engine_gate.py): invented rows shaped like the library's fixed lists and written-out rows. Each script must give the same events, step starts, finish and splits with the engine off and on; expected: the engine-off run of the Python reference (events [t, kind, index, source]).",
+ "cases": [
+  {
+   "name": "race-like fixed list, 8 x (run + station)",
+   "definition": {
+    "id": "gate.race",
+    "name": "Gate gate.race",
+    "shortName": "G",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "skiErg",
+      "name": "SkiErg",
+      "target": {
+       "value": 500.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "sledPush",
+      "name": "Sled Push",
+      "target": {
+       "value": 25.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "sledPull",
+      "name": "Sled Pull",
+      "target": {
+       "value": 25.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpeeBroadJumps",
+      "name": "Burpee Broad Jumps",
+      "target": {
+       "value": 40.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 500.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "farmersCarry",
+      "name": "Farmers Carry",
+      "target": {
+       "value": 100.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "sandbagLunges",
+      "name": "Sandbag Lunges",
+      "target": {
+       "value": 50.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "wallBalls",
+      "name": "Wall Balls",
+      "target": {
+       "value": 50.0,
+       "unit": "reps"
+      }
+     }
+    ],
+    "roundSize": 2
+   },
+   "scripts": [
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      37.0,
+      "crown"
+     ],
+     [
+      74.0,
+      "crown"
+     ],
+     [
+      111.0,
+      "crown"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      185.0,
+      "crown"
+     ],
+     [
+      222.0,
+      "crown"
+     ],
+     [
+      259.0,
+      "crown"
+     ],
+     [
+      296.0,
+      "crown"
+     ],
+     [
+      333.0,
+      "crown"
+     ],
+     [
+      370.0,
+      "crown"
+     ],
+     [
+      407.0,
+      "crown"
+     ],
+     [
+      444.0,
+      "crown"
+     ],
+     [
+      481.0,
+      "crown"
+     ],
+     [
+      518.0,
+      "crown"
+     ],
+     [
+      555.0,
+      "crown"
+     ],
+     [
+      592.0,
+      "crown"
+     ],
+     [
+      629.0,
+      "crown"
+     ],
+     [
+      666.0,
+      "crown"
+     ],
+     [
+      703.0,
+      "crown"
+     ],
+     [
+      740.0,
+      "crown"
+     ],
+     [
+      4777.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      13.0,
+      "crown"
+     ],
+     [
+      26.0,
+      "crown"
+     ],
+     [
+      39.0,
+      "crown"
+     ],
+     [
+      52.0,
+      "crown"
+     ],
+     [
+      65.0,
+      "crown"
+     ],
+     [
+      67.5,
+      "undo"
+     ],
+     [
+      80.5,
+      "crown"
+     ],
+     [
+      93.5,
+      "crown"
+     ],
+     [
+      106.5,
+      "crown"
+     ],
+     [
+      119.5,
+      "crown"
+     ],
+     [
+      132.5,
+      "crown"
+     ],
+     [
+      135.0,
+      "undo"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      161.0,
+      "crown"
+     ],
+     [
+      174.0,
+      "crown"
+     ],
+     [
+      187.0,
+      "crown"
+     ],
+     [
+      200.0,
+      "crown"
+     ],
+     [
+      202.5,
+      "undo"
+     ],
+     [
+      215.5,
+      "crown"
+     ],
+     [
+      228.5,
+      "crown"
+     ],
+     [
+      241.5,
+      "crown"
+     ],
+     [
+      254.5,
+      "crown"
+     ],
+     [
+      267.5,
+      "crown"
+     ],
+     [
+      270.0,
+      "undo"
+     ],
+     [
+      283.0,
+      "crown"
+     ],
+     [
+      296.0,
+      "crown"
+     ],
+     [
+      4296.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      6000.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      90.0,
+      "crown"
+     ],
+     [
+      180.0,
+      "crown"
+     ],
+     [
+      270.0,
+      "crown"
+     ],
+     [
+      360.0,
+      "crown"
+     ],
+     [
+      450.0,
+      "crown"
+     ],
+     [
+      540.0,
+      "crown"
+     ],
+     [
+      630.0,
+      "crown"
+     ],
+     [
+      720.0,
+      "crown"
+     ],
+     [
+      810.0,
+      "crown"
+     ],
+     [
+      900.0,
+      "crown"
+     ],
+     [
+      990.0,
+      "crown"
+     ],
+     [
+      1080.0,
+      "crown"
+     ],
+     [
+      1170.0,
+      "crown"
+     ],
+     [
+      1260.0,
+      "crown"
+     ],
+     [
+      1350.0,
+      "crown"
+     ],
+     [
+      1440.0,
+      "crown"
+     ],
+     [
+      1530.0,
+      "crown"
+     ],
+     [
+      1620.0,
+      "crown"
+     ],
+     [
+      5710.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      41.0,
+      "crown"
+     ],
+     [
+      82.0,
+      "crown"
+     ],
+     [
+      150.0,
+      "end"
+     ]
+    ]
+   ],
+   "expected": [
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       37.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       74.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       111.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       148.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       185.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       222.0,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       259.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       296.0,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       333.0,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       370.0,
+       "advance",
+       10,
+       "crown"
+      ],
+      [
+       407.0,
+       "advance",
+       11,
+       "crown"
+      ],
+      [
+       444.0,
+       "advance",
+       12,
+       "crown"
+      ],
+      [
+       481.0,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       518.0,
+       "advance",
+       14,
+       "crown"
+      ],
+      [
+       555.0,
+       "advance",
+       15,
+       "crown"
+      ],
+      [
+       592.0,
+       "finish",
+       15,
+       "crown"
+      ]
+     ],
+     "finish": 592.0,
+     "steps": 16
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       13.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       26.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       39.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       52.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       65.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       67.5,
+       "undo",
+       4,
+       "crown"
+      ],
+      [
+       80.5,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       93.5,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       106.5,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       119.5,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       132.5,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       135.0,
+       "undo",
+       8,
+       "crown"
+      ],
+      [
+       148.0,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       161.0,
+       "advance",
+       10,
+       "crown"
+      ],
+      [
+       174.0,
+       "advance",
+       11,
+       "crown"
+      ],
+      [
+       187.0,
+       "advance",
+       12,
+       "crown"
+      ],
+      [
+       200.0,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       202.5,
+       "undo",
+       12,
+       "crown"
+      ],
+      [
+       215.5,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       228.5,
+       "advance",
+       14,
+       "crown"
+      ],
+      [
+       241.5,
+       "advance",
+       15,
+       "crown"
+      ],
+      [
+       254.5,
+       "finish",
+       15,
+       "crown"
+      ],
+      [
+       270.0,
+       "unfinish",
+       15,
+       null
+      ],
+      [
+       283.0,
+       "finish",
+       15,
+       "crown"
+      ]
+     ],
+     "finish": 283.0,
+     "steps": 16
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ]
+     ],
+     "finish": null,
+     "steps": 1
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       90.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       180.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       270.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       360.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       450.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       540.0,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       630.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       720.0,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       810.0,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       900.0,
+       "advance",
+       10,
+       "crown"
+      ],
+      [
+       990.0,
+       "advance",
+       11,
+       "crown"
+      ],
+      [
+       1080.0,
+       "advance",
+       12,
+       "crown"
+      ],
+      [
+       1170.0,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       1260.0,
+       "advance",
+       14,
+       "crown"
+      ],
+      [
+       1350.0,
+       "advance",
+       15,
+       "crown"
+      ],
+      [
+       1440.0,
+       "finish",
+       15,
+       "crown"
+      ]
+     ],
+     "finish": 1440.0,
+     "steps": 16
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       41.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       82.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       150.0,
+       "finish",
+       2,
+       "button"
+      ]
+     ],
+     "finish": 150.0,
+     "steps": 3
+    }
+   ]
+  },
+  {
+   "name": "doubles race-like",
+   "definition": {
+    "id": "gate.raceDoubles",
+    "name": "Gate gate.raceDoubles",
+    "shortName": "G",
+    "format": "forTime",
+    "team": "doubles",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "skiErg",
+      "name": "SkiErg",
+      "target": {
+       "value": 500.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "sledPush",
+      "name": "Sled Push",
+      "target": {
+       "value": 25.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "sledPull",
+      "name": "Sled Pull",
+      "target": {
+       "value": 25.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpeeBroadJumps",
+      "name": "Burpee Broad Jumps",
+      "target": {
+       "value": 40.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 500.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "farmersCarry",
+      "name": "Farmers Carry",
+      "target": {
+       "value": 100.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "sandbagLunges",
+      "name": "Sandbag Lunges",
+      "target": {
+       "value": 50.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 500.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "wallBalls",
+      "name": "Wall Balls",
+      "target": {
+       "value": 50.0,
+       "unit": "reps"
+      }
+     }
+    ],
+    "roundSize": 2
+   },
+   "scripts": [
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      37.0,
+      "crown"
+     ],
+     [
+      74.0,
+      "crown"
+     ],
+     [
+      111.0,
+      "crown"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      185.0,
+      "crown"
+     ],
+     [
+      222.0,
+      "crown"
+     ],
+     [
+      259.0,
+      "crown"
+     ],
+     [
+      296.0,
+      "crown"
+     ],
+     [
+      333.0,
+      "crown"
+     ],
+     [
+      370.0,
+      "crown"
+     ],
+     [
+      407.0,
+      "crown"
+     ],
+     [
+      444.0,
+      "crown"
+     ],
+     [
+      481.0,
+      "crown"
+     ],
+     [
+      518.0,
+      "crown"
+     ],
+     [
+      555.0,
+      "crown"
+     ],
+     [
+      592.0,
+      "crown"
+     ],
+     [
+      629.0,
+      "crown"
+     ],
+     [
+      666.0,
+      "crown"
+     ],
+     [
+      703.0,
+      "crown"
+     ],
+     [
+      740.0,
+      "crown"
+     ],
+     [
+      4777.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      13.0,
+      "crown"
+     ],
+     [
+      26.0,
+      "crown"
+     ],
+     [
+      39.0,
+      "crown"
+     ],
+     [
+      52.0,
+      "crown"
+     ],
+     [
+      65.0,
+      "crown"
+     ],
+     [
+      67.5,
+      "undo"
+     ],
+     [
+      80.5,
+      "crown"
+     ],
+     [
+      93.5,
+      "crown"
+     ],
+     [
+      106.5,
+      "crown"
+     ],
+     [
+      119.5,
+      "crown"
+     ],
+     [
+      132.5,
+      "crown"
+     ],
+     [
+      135.0,
+      "undo"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      161.0,
+      "crown"
+     ],
+     [
+      174.0,
+      "crown"
+     ],
+     [
+      187.0,
+      "crown"
+     ],
+     [
+      200.0,
+      "crown"
+     ],
+     [
+      202.5,
+      "undo"
+     ],
+     [
+      215.5,
+      "crown"
+     ],
+     [
+      228.5,
+      "crown"
+     ],
+     [
+      241.5,
+      "crown"
+     ],
+     [
+      254.5,
+      "crown"
+     ],
+     [
+      267.5,
+      "crown"
+     ],
+     [
+      270.0,
+      "undo"
+     ],
+     [
+      283.0,
+      "crown"
+     ],
+     [
+      296.0,
+      "crown"
+     ],
+     [
+      4296.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      6000.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      90.0,
+      "crown"
+     ],
+     [
+      180.0,
+      "crown"
+     ],
+     [
+      270.0,
+      "crown"
+     ],
+     [
+      360.0,
+      "crown"
+     ],
+     [
+      450.0,
+      "crown"
+     ],
+     [
+      540.0,
+      "crown"
+     ],
+     [
+      630.0,
+      "crown"
+     ],
+     [
+      720.0,
+      "crown"
+     ],
+     [
+      810.0,
+      "crown"
+     ],
+     [
+      900.0,
+      "crown"
+     ],
+     [
+      990.0,
+      "crown"
+     ],
+     [
+      1080.0,
+      "crown"
+     ],
+     [
+      1170.0,
+      "crown"
+     ],
+     [
+      1260.0,
+      "crown"
+     ],
+     [
+      1350.0,
+      "crown"
+     ],
+     [
+      1440.0,
+      "crown"
+     ],
+     [
+      1530.0,
+      "crown"
+     ],
+     [
+      1620.0,
+      "crown"
+     ],
+     [
+      5710.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      41.0,
+      "crown"
+     ],
+     [
+      82.0,
+      "crown"
+     ],
+     [
+      150.0,
+      "end"
+     ]
+    ]
+   ],
+   "expected": [
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       37.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       74.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       111.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       148.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       185.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       222.0,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       259.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       296.0,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       333.0,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       370.0,
+       "advance",
+       10,
+       "crown"
+      ],
+      [
+       407.0,
+       "advance",
+       11,
+       "crown"
+      ],
+      [
+       444.0,
+       "advance",
+       12,
+       "crown"
+      ],
+      [
+       481.0,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       518.0,
+       "advance",
+       14,
+       "crown"
+      ],
+      [
+       555.0,
+       "advance",
+       15,
+       "crown"
+      ],
+      [
+       592.0,
+       "finish",
+       15,
+       "crown"
+      ]
+     ],
+     "finish": 592.0,
+     "steps": 16
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       13.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       26.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       39.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       52.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       65.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       67.5,
+       "undo",
+       4,
+       "crown"
+      ],
+      [
+       80.5,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       93.5,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       106.5,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       119.5,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       132.5,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       135.0,
+       "undo",
+       8,
+       "crown"
+      ],
+      [
+       148.0,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       161.0,
+       "advance",
+       10,
+       "crown"
+      ],
+      [
+       174.0,
+       "advance",
+       11,
+       "crown"
+      ],
+      [
+       187.0,
+       "advance",
+       12,
+       "crown"
+      ],
+      [
+       200.0,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       202.5,
+       "undo",
+       12,
+       "crown"
+      ],
+      [
+       215.5,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       228.5,
+       "advance",
+       14,
+       "crown"
+      ],
+      [
+       241.5,
+       "advance",
+       15,
+       "crown"
+      ],
+      [
+       254.5,
+       "finish",
+       15,
+       "crown"
+      ],
+      [
+       270.0,
+       "unfinish",
+       15,
+       null
+      ],
+      [
+       283.0,
+       "finish",
+       15,
+       "crown"
+      ]
+     ],
+     "finish": 283.0,
+     "steps": 16
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ]
+     ],
+     "finish": null,
+     "steps": 1
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       90.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       180.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       270.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       360.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       450.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       540.0,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       630.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       720.0,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       810.0,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       900.0,
+       "advance",
+       10,
+       "crown"
+      ],
+      [
+       990.0,
+       "advance",
+       11,
+       "crown"
+      ],
+      [
+       1080.0,
+       "advance",
+       12,
+       "crown"
+      ],
+      [
+       1170.0,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       1260.0,
+       "advance",
+       14,
+       "crown"
+      ],
+      [
+       1350.0,
+       "advance",
+       15,
+       "crown"
+      ],
+      [
+       1440.0,
+       "finish",
+       15,
+       "crown"
+      ]
+     ],
+     "finish": 1440.0,
+     "steps": 16
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       41.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       82.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       150.0,
+       "finish",
+       2,
+       "button"
+      ]
+     ],
+     "finish": 150.0,
+     "steps": 3
+    }
+   ]
+  },
+  {
+   "name": "chipper with a for-time cap",
+   "definition": {
+    "id": "gate.chipper",
+    "name": "Gate gate.chipper",
+    "shortName": "G",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 30.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "wallBalls",
+      "name": "Wall Balls",
+      "target": {
+       "value": 40.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "boxJumps",
+      "name": "Box Jumps",
+      "target": {
+       "value": 30.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 20.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 800.0,
+       "unit": "meters"
+      }
+     }
+    ],
+    "timeCapSeconds": 900.0
+   },
+   "scripts": [
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      37.0,
+      "crown"
+     ],
+     [
+      74.0,
+      "crown"
+     ],
+     [
+      111.0,
+      "crown"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      185.0,
+      "crown"
+     ],
+     [
+      222.0,
+      "crown"
+     ],
+     [
+      259.0,
+      "crown"
+     ],
+     [
+      296.0,
+      "crown"
+     ],
+     [
+      333.0,
+      "crown"
+     ],
+     [
+      4370.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      13.0,
+      "crown"
+     ],
+     [
+      26.0,
+      "crown"
+     ],
+     [
+      39.0,
+      "crown"
+     ],
+     [
+      52.0,
+      "crown"
+     ],
+     [
+      65.0,
+      "crown"
+     ],
+     [
+      67.5,
+      "undo"
+     ],
+     [
+      80.5,
+      "crown"
+     ],
+     [
+      93.5,
+      "crown"
+     ],
+     [
+      106.5,
+      "crown"
+     ],
+     [
+      119.5,
+      "crown"
+     ],
+     [
+      132.5,
+      "crown"
+     ],
+     [
+      135.0,
+      "undo"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      4148.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      6000.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      90.0,
+      "crown"
+     ],
+     [
+      180.0,
+      "crown"
+     ],
+     [
+      270.0,
+      "crown"
+     ],
+     [
+      360.0,
+      "crown"
+     ],
+     [
+      450.0,
+      "crown"
+     ],
+     [
+      540.0,
+      "crown"
+     ],
+     [
+      630.0,
+      "crown"
+     ],
+     [
+      4720.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      41.0,
+      "crown"
+     ],
+     [
+      82.0,
+      "crown"
+     ],
+     [
+      150.0,
+      "end"
+     ]
+    ]
+   ],
+   "expected": [
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       37.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       74.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       111.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       148.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       185.0,
+       "finish",
+       4,
+       "crown"
+      ]
+     ],
+     "finish": 185.0,
+     "steps": 5
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       13.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       26.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       39.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       52.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       65.0,
+       "finish",
+       4,
+       "crown"
+      ],
+      [
+       67.5,
+       "unfinish",
+       4,
+       null
+      ],
+      [
+       80.5,
+       "finish",
+       4,
+       "crown"
+      ],
+      [
+       135.0,
+       "unfinish",
+       4,
+       null
+      ],
+      [
+       148.0,
+       "finish",
+       4,
+       "crown"
+      ]
+     ],
+     "finish": 148.0,
+     "steps": 5
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ]
+     ],
+     "finish": null,
+     "steps": 1
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       90.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       180.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       270.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       360.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       450.0,
+       "finish",
+       4,
+       "crown"
+      ]
+     ],
+     "finish": 450.0,
+     "steps": 5
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       41.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       82.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       150.0,
+       "finish",
+       2,
+       "button"
+      ]
+     ],
+     "finish": 150.0,
+     "steps": 3
+    }
+   ]
+  },
+  {
+   "name": "written-out EMOM 8 x 1:00",
+   "definition": {
+    "id": "gate.emom",
+    "name": "Gate gate.emom",
+    "shortName": "G",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "powerCleans",
+      "name": "Power Cleans",
+      "target": {
+       "value": 3.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleans",
+      "name": "Power Cleans",
+      "target": {
+       "value": 3.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleans",
+      "name": "Power Cleans",
+      "target": {
+       "value": 3.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleans",
+      "name": "Power Cleans",
+      "target": {
+       "value": 3.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleans",
+      "name": "Power Cleans",
+      "target": {
+       "value": 3.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleans",
+      "name": "Power Cleans",
+      "target": {
+       "value": 3.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleans",
+      "name": "Power Cleans",
+      "target": {
+       "value": 3.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "powerCleans",
+      "name": "Power Cleans",
+      "target": {
+       "value": 3.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     }
+    ],
+    "timeCapSeconds": 480.0,
+    "intervalSeconds": 60.0,
+    "roundSize": 2
+   },
+   "scripts": [
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      37.0,
+      "crown"
+     ],
+     [
+      74.0,
+      "crown"
+     ],
+     [
+      111.0,
+      "crown"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      185.0,
+      "crown"
+     ],
+     [
+      222.0,
+      "crown"
+     ],
+     [
+      259.0,
+      "crown"
+     ],
+     [
+      296.0,
+      "crown"
+     ],
+     [
+      333.0,
+      "crown"
+     ],
+     [
+      370.0,
+      "crown"
+     ],
+     [
+      407.0,
+      "crown"
+     ],
+     [
+      444.0,
+      "crown"
+     ],
+     [
+      481.0,
+      "crown"
+     ],
+     [
+      518.0,
+      "crown"
+     ],
+     [
+      555.0,
+      "crown"
+     ],
+     [
+      592.0,
+      "crown"
+     ],
+     [
+      629.0,
+      "crown"
+     ],
+     [
+      666.0,
+      "crown"
+     ],
+     [
+      703.0,
+      "crown"
+     ],
+     [
+      740.0,
+      "crown"
+     ],
+     [
+      4777.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      13.0,
+      "crown"
+     ],
+     [
+      26.0,
+      "crown"
+     ],
+     [
+      39.0,
+      "crown"
+     ],
+     [
+      52.0,
+      "crown"
+     ],
+     [
+      65.0,
+      "crown"
+     ],
+     [
+      67.5,
+      "undo"
+     ],
+     [
+      80.5,
+      "crown"
+     ],
+     [
+      93.5,
+      "crown"
+     ],
+     [
+      106.5,
+      "crown"
+     ],
+     [
+      119.5,
+      "crown"
+     ],
+     [
+      132.5,
+      "crown"
+     ],
+     [
+      135.0,
+      "undo"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      161.0,
+      "crown"
+     ],
+     [
+      174.0,
+      "crown"
+     ],
+     [
+      187.0,
+      "crown"
+     ],
+     [
+      200.0,
+      "crown"
+     ],
+     [
+      202.5,
+      "undo"
+     ],
+     [
+      215.5,
+      "crown"
+     ],
+     [
+      228.5,
+      "crown"
+     ],
+     [
+      241.5,
+      "crown"
+     ],
+     [
+      254.5,
+      "crown"
+     ],
+     [
+      267.5,
+      "crown"
+     ],
+     [
+      270.0,
+      "undo"
+     ],
+     [
+      283.0,
+      "crown"
+     ],
+     [
+      296.0,
+      "crown"
+     ],
+     [
+      4296.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      6000.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      90.0,
+      "crown"
+     ],
+     [
+      180.0,
+      "crown"
+     ],
+     [
+      270.0,
+      "crown"
+     ],
+     [
+      360.0,
+      "crown"
+     ],
+     [
+      450.0,
+      "crown"
+     ],
+     [
+      540.0,
+      "crown"
+     ],
+     [
+      630.0,
+      "crown"
+     ],
+     [
+      720.0,
+      "crown"
+     ],
+     [
+      810.0,
+      "crown"
+     ],
+     [
+      900.0,
+      "crown"
+     ],
+     [
+      990.0,
+      "crown"
+     ],
+     [
+      1080.0,
+      "crown"
+     ],
+     [
+      1170.0,
+      "crown"
+     ],
+     [
+      1260.0,
+      "crown"
+     ],
+     [
+      1350.0,
+      "crown"
+     ],
+     [
+      1440.0,
+      "crown"
+     ],
+     [
+      1530.0,
+      "crown"
+     ],
+     [
+      1620.0,
+      "crown"
+     ],
+     [
+      5710.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      41.0,
+      "crown"
+     ],
+     [
+      82.0,
+      "crown"
+     ],
+     [
+      150.0,
+      "end"
+     ]
+    ]
+   ],
+   "expected": [
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       37.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       60.0,
+       "advance",
+       2,
+       "auto"
+      ],
+      [
+       74.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       111.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       120.0,
+       "advance",
+       5,
+       "auto"
+      ],
+      [
+       120.0,
+       "advance",
+       6,
+       "auto"
+      ],
+      [
+       148.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       180.0,
+       "advance",
+       8,
+       "auto"
+      ],
+      [
+       185.0,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       222.0,
+       "advance",
+       10,
+       "crown"
+      ],
+      [
+       240.0,
+       "advance",
+       11,
+       "auto"
+      ],
+      [
+       240.0,
+       "advance",
+       12,
+       "auto"
+      ],
+      [
+       259.0,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       296.0,
+       "advance",
+       14,
+       "crown"
+      ],
+      [
+       300.0,
+       "advance",
+       15,
+       "auto"
+      ],
+      [
+       300.0,
+       "finish",
+       15,
+       "auto"
+      ]
+     ],
+     "finish": 300.0,
+     "steps": 16
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       13.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       26.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       39.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       52.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       60.0,
+       "advance",
+       5,
+       "auto"
+      ],
+      [
+       60.0,
+       "advance",
+       6,
+       "auto"
+      ],
+      [
+       65.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       67.5,
+       "undo",
+       6,
+       "crown"
+      ],
+      [
+       80.5,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       93.5,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       106.5,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       119.5,
+       "advance",
+       10,
+       "crown"
+      ],
+      [
+       120.0,
+       "advance",
+       11,
+       "auto"
+      ],
+      [
+       120.0,
+       "advance",
+       12,
+       "auto"
+      ],
+      [
+       132.5,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       135.0,
+       "undo",
+       12,
+       "crown"
+      ],
+      [
+       148.0,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       161.0,
+       "advance",
+       14,
+       "crown"
+      ],
+      [
+       174.0,
+       "advance",
+       15,
+       "crown"
+      ],
+      [
+       180.0,
+       "finish",
+       15,
+       "auto"
+      ],
+      [
+       202.5,
+       "unfinish",
+       15,
+       null
+      ],
+      [
+       180.0,
+       "finish",
+       15,
+       "auto"
+      ],
+      [
+       270.0,
+       "unfinish",
+       15,
+       null
+      ],
+      [
+       180.0,
+       "finish",
+       15,
+       "auto"
+      ]
+     ],
+     "finish": 180.0,
+     "steps": 16
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       60.0,
+       "advance",
+       1,
+       "auto"
+      ],
+      [
+       60.0,
+       "advance",
+       2,
+       "auto"
+      ],
+      [
+       120.0,
+       "advance",
+       3,
+       "auto"
+      ],
+      [
+       120.0,
+       "advance",
+       4,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       5,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       6,
+       "auto"
+      ],
+      [
+       240.0,
+       "advance",
+       7,
+       "auto"
+      ],
+      [
+       240.0,
+       "advance",
+       8,
+       "auto"
+      ],
+      [
+       300.0,
+       "advance",
+       9,
+       "auto"
+      ],
+      [
+       300.0,
+       "advance",
+       10,
+       "auto"
+      ],
+      [
+       360.0,
+       "advance",
+       11,
+       "auto"
+      ],
+      [
+       360.0,
+       "advance",
+       12,
+       "auto"
+      ],
+      [
+       420.0,
+       "advance",
+       13,
+       "auto"
+      ],
+      [
+       420.0,
+       "advance",
+       14,
+       "auto"
+      ],
+      [
+       480.0,
+       "advance",
+       15,
+       "auto"
+      ],
+      [
+       480.0,
+       "finish",
+       15,
+       "auto"
+      ]
+     ],
+     "finish": 480.0,
+     "steps": 16
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       60.0,
+       "advance",
+       1,
+       "auto"
+      ],
+      [
+       60.0,
+       "advance",
+       2,
+       "auto"
+      ],
+      [
+       90.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       120.0,
+       "advance",
+       4,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       5,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       6,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       240.0,
+       "advance",
+       8,
+       "auto"
+      ],
+      [
+       270.0,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       300.0,
+       "advance",
+       10,
+       "auto"
+      ],
+      [
+       360.0,
+       "advance",
+       11,
+       "auto"
+      ],
+      [
+       360.0,
+       "advance",
+       12,
+       "auto"
+      ],
+      [
+       360.0,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       420.0,
+       "advance",
+       14,
+       "auto"
+      ],
+      [
+       450.0,
+       "advance",
+       15,
+       "crown"
+      ],
+      [
+       480.0,
+       "finish",
+       15,
+       "auto"
+      ]
+     ],
+     "finish": 480.0,
+     "steps": 16
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       41.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       60.0,
+       "advance",
+       2,
+       "auto"
+      ],
+      [
+       82.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       120.0,
+       "advance",
+       4,
+       "auto"
+      ],
+      [
+       150.0,
+       "finish",
+       4,
+       "button"
+      ]
+     ],
+     "finish": 150.0,
+     "steps": 5
+    }
+   ]
+  },
+  {
+   "name": "written-out Tabata 8 x 30 s",
+   "definition": {
+    "id": "gate.tabata",
+    "name": "Gate gate.tabata",
+    "shortName": "G",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 20.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 10.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 20.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 10.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 20.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 10.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 20.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 10.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 20.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 10.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 20.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 10.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 20.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 10.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 20.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 10.0,
+       "unit": "seconds"
+      }
+     }
+    ],
+    "timeCapSeconds": 240.0,
+    "intervalSeconds": 30.0,
+    "roundSize": 2
+   },
+   "scripts": [
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      37.0,
+      "crown"
+     ],
+     [
+      74.0,
+      "crown"
+     ],
+     [
+      111.0,
+      "crown"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      185.0,
+      "crown"
+     ],
+     [
+      222.0,
+      "crown"
+     ],
+     [
+      259.0,
+      "crown"
+     ],
+     [
+      296.0,
+      "crown"
+     ],
+     [
+      333.0,
+      "crown"
+     ],
+     [
+      370.0,
+      "crown"
+     ],
+     [
+      407.0,
+      "crown"
+     ],
+     [
+      444.0,
+      "crown"
+     ],
+     [
+      481.0,
+      "crown"
+     ],
+     [
+      518.0,
+      "crown"
+     ],
+     [
+      555.0,
+      "crown"
+     ],
+     [
+      592.0,
+      "crown"
+     ],
+     [
+      629.0,
+      "crown"
+     ],
+     [
+      666.0,
+      "crown"
+     ],
+     [
+      703.0,
+      "crown"
+     ],
+     [
+      740.0,
+      "crown"
+     ],
+     [
+      4777.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      13.0,
+      "crown"
+     ],
+     [
+      26.0,
+      "crown"
+     ],
+     [
+      39.0,
+      "crown"
+     ],
+     [
+      52.0,
+      "crown"
+     ],
+     [
+      65.0,
+      "crown"
+     ],
+     [
+      67.5,
+      "undo"
+     ],
+     [
+      80.5,
+      "crown"
+     ],
+     [
+      93.5,
+      "crown"
+     ],
+     [
+      106.5,
+      "crown"
+     ],
+     [
+      119.5,
+      "crown"
+     ],
+     [
+      132.5,
+      "crown"
+     ],
+     [
+      135.0,
+      "undo"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      161.0,
+      "crown"
+     ],
+     [
+      174.0,
+      "crown"
+     ],
+     [
+      187.0,
+      "crown"
+     ],
+     [
+      200.0,
+      "crown"
+     ],
+     [
+      202.5,
+      "undo"
+     ],
+     [
+      215.5,
+      "crown"
+     ],
+     [
+      228.5,
+      "crown"
+     ],
+     [
+      241.5,
+      "crown"
+     ],
+     [
+      254.5,
+      "crown"
+     ],
+     [
+      267.5,
+      "crown"
+     ],
+     [
+      270.0,
+      "undo"
+     ],
+     [
+      283.0,
+      "crown"
+     ],
+     [
+      296.0,
+      "crown"
+     ],
+     [
+      4296.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      6000.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      90.0,
+      "crown"
+     ],
+     [
+      180.0,
+      "crown"
+     ],
+     [
+      270.0,
+      "crown"
+     ],
+     [
+      360.0,
+      "crown"
+     ],
+     [
+      450.0,
+      "crown"
+     ],
+     [
+      540.0,
+      "crown"
+     ],
+     [
+      630.0,
+      "crown"
+     ],
+     [
+      720.0,
+      "crown"
+     ],
+     [
+      810.0,
+      "crown"
+     ],
+     [
+      900.0,
+      "crown"
+     ],
+     [
+      990.0,
+      "crown"
+     ],
+     [
+      1080.0,
+      "crown"
+     ],
+     [
+      1170.0,
+      "crown"
+     ],
+     [
+      1260.0,
+      "crown"
+     ],
+     [
+      1350.0,
+      "crown"
+     ],
+     [
+      1440.0,
+      "crown"
+     ],
+     [
+      1530.0,
+      "crown"
+     ],
+     [
+      1620.0,
+      "crown"
+     ],
+     [
+      5710.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      41.0,
+      "crown"
+     ],
+     [
+      82.0,
+      "crown"
+     ],
+     [
+      150.0,
+      "end"
+     ]
+    ]
+   ],
+   "expected": [
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       30.0,
+       "advance",
+       1,
+       "auto"
+      ],
+      [
+       30.0,
+       "advance",
+       2,
+       "auto"
+      ],
+      [
+       37.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       47.0,
+       "advance",
+       4,
+       "auto"
+      ],
+      [
+       60.0,
+       "advance",
+       5,
+       "auto"
+      ],
+      [
+       60.0,
+       "advance",
+       6,
+       "auto"
+      ],
+      [
+       74.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       84.0,
+       "advance",
+       8,
+       "auto"
+      ],
+      [
+       90.0,
+       "advance",
+       9,
+       "auto"
+      ],
+      [
+       90.0,
+       "advance",
+       10,
+       "auto"
+      ],
+      [
+       111.0,
+       "advance",
+       11,
+       "crown"
+      ],
+      [
+       121.0,
+       "advance",
+       12,
+       "auto"
+      ],
+      [
+       148.0,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       158.0,
+       "advance",
+       14,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       15,
+       "auto"
+      ],
+      [
+       180.0,
+       "finish",
+       15,
+       "auto"
+      ]
+     ],
+     "finish": 180.0,
+     "steps": 16
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       13.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       23.0,
+       "advance",
+       2,
+       "auto"
+      ],
+      [
+       26.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       36.0,
+       "advance",
+       4,
+       "auto"
+      ],
+      [
+       39.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       49.0,
+       "advance",
+       6,
+       "auto"
+      ],
+      [
+       52.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       62.0,
+       "advance",
+       8,
+       "auto"
+      ],
+      [
+       65.0,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       67.5,
+       "undo",
+       8,
+       "crown"
+      ],
+      [
+       80.5,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       90.5,
+       "advance",
+       10,
+       "auto"
+      ],
+      [
+       93.5,
+       "advance",
+       11,
+       "crown"
+      ],
+      [
+       103.5,
+       "advance",
+       12,
+       "auto"
+      ],
+      [
+       106.5,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       116.5,
+       "advance",
+       14,
+       "auto"
+      ],
+      [
+       119.5,
+       "advance",
+       15,
+       "crown"
+      ],
+      [
+       129.5,
+       "finish",
+       15,
+       "auto"
+      ],
+      [
+       135.0,
+       "unfinish",
+       15,
+       null
+      ],
+      [
+       129.5,
+       "finish",
+       15,
+       "auto"
+      ],
+      [
+       202.5,
+       "unfinish",
+       15,
+       null
+      ],
+      [
+       129.5,
+       "finish",
+       15,
+       "auto"
+      ],
+      [
+       270.0,
+       "unfinish",
+       15,
+       null
+      ],
+      [
+       129.5,
+       "finish",
+       15,
+       "auto"
+      ]
+     ],
+     "finish": 129.5,
+     "steps": 16
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       30.0,
+       "advance",
+       1,
+       "auto"
+      ],
+      [
+       30.0,
+       "advance",
+       2,
+       "auto"
+      ],
+      [
+       60.0,
+       "advance",
+       3,
+       "auto"
+      ],
+      [
+       60.0,
+       "advance",
+       4,
+       "auto"
+      ],
+      [
+       90.0,
+       "advance",
+       5,
+       "auto"
+      ],
+      [
+       90.0,
+       "advance",
+       6,
+       "auto"
+      ],
+      [
+       120.0,
+       "advance",
+       7,
+       "auto"
+      ],
+      [
+       120.0,
+       "advance",
+       8,
+       "auto"
+      ],
+      [
+       150.0,
+       "advance",
+       9,
+       "auto"
+      ],
+      [
+       150.0,
+       "advance",
+       10,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       11,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       12,
+       "auto"
+      ],
+      [
+       210.0,
+       "advance",
+       13,
+       "auto"
+      ],
+      [
+       210.0,
+       "advance",
+       14,
+       "auto"
+      ],
+      [
+       240.0,
+       "advance",
+       15,
+       "auto"
+      ],
+      [
+       240.0,
+       "finish",
+       15,
+       "auto"
+      ]
+     ],
+     "finish": 240.0,
+     "steps": 16
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       30.0,
+       "advance",
+       1,
+       "auto"
+      ],
+      [
+       30.0,
+       "advance",
+       2,
+       "auto"
+      ],
+      [
+       60.0,
+       "advance",
+       3,
+       "auto"
+      ],
+      [
+       60.0,
+       "advance",
+       4,
+       "auto"
+      ],
+      [
+       90.0,
+       "advance",
+       5,
+       "auto"
+      ],
+      [
+       90.0,
+       "advance",
+       6,
+       "auto"
+      ],
+      [
+       90.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       100.0,
+       "advance",
+       8,
+       "auto"
+      ],
+      [
+       120.0,
+       "advance",
+       9,
+       "auto"
+      ],
+      [
+       120.0,
+       "advance",
+       10,
+       "auto"
+      ],
+      [
+       150.0,
+       "advance",
+       11,
+       "auto"
+      ],
+      [
+       150.0,
+       "advance",
+       12,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       13,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       14,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       15,
+       "crown"
+      ],
+      [
+       190.0,
+       "finish",
+       15,
+       "auto"
+      ]
+     ],
+     "finish": 190.0,
+     "steps": 16
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       30.0,
+       "advance",
+       1,
+       "auto"
+      ],
+      [
+       30.0,
+       "advance",
+       2,
+       "auto"
+      ],
+      [
+       41.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       51.0,
+       "advance",
+       4,
+       "auto"
+      ],
+      [
+       60.0,
+       "advance",
+       5,
+       "auto"
+      ],
+      [
+       60.0,
+       "advance",
+       6,
+       "auto"
+      ],
+      [
+       82.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       92.0,
+       "advance",
+       8,
+       "auto"
+      ],
+      [
+       120.0,
+       "advance",
+       9,
+       "auto"
+      ],
+      [
+       120.0,
+       "advance",
+       10,
+       "auto"
+      ],
+      [
+       150.0,
+       "advance",
+       11,
+       "auto"
+      ],
+      [
+       150.0,
+       "advance",
+       12,
+       "auto"
+      ],
+      [
+       150.0,
+       "finish",
+       12,
+       "button"
+      ]
+     ],
+     "finish": 150.0,
+     "steps": 13
+    }
+   ]
+  },
+  {
+   "name": "written-out every 3:00 without the last rest",
+   "definition": {
+    "id": "gate.every3",
+    "name": "Gate gate.every3",
+    "shortName": "G",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 12.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "thrusters",
+      "name": "Thrusters",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 12.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "thrusters",
+      "name": "Thrusters",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 12.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "thrusters",
+      "name": "Thrusters",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 12.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "thrusters",
+      "name": "Thrusters",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 12.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "thrusters",
+      "name": "Thrusters",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     }
+    ],
+    "timeCapSeconds": 900.0,
+    "intervalSeconds": 180.0,
+    "roundSize": 3
+   },
+   "scripts": [
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      37.0,
+      "crown"
+     ],
+     [
+      74.0,
+      "crown"
+     ],
+     [
+      111.0,
+      "crown"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      185.0,
+      "crown"
+     ],
+     [
+      222.0,
+      "crown"
+     ],
+     [
+      259.0,
+      "crown"
+     ],
+     [
+      296.0,
+      "crown"
+     ],
+     [
+      333.0,
+      "crown"
+     ],
+     [
+      370.0,
+      "crown"
+     ],
+     [
+      407.0,
+      "crown"
+     ],
+     [
+      444.0,
+      "crown"
+     ],
+     [
+      481.0,
+      "crown"
+     ],
+     [
+      518.0,
+      "crown"
+     ],
+     [
+      555.0,
+      "crown"
+     ],
+     [
+      592.0,
+      "crown"
+     ],
+     [
+      629.0,
+      "crown"
+     ],
+     [
+      666.0,
+      "crown"
+     ],
+     [
+      4703.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      13.0,
+      "crown"
+     ],
+     [
+      26.0,
+      "crown"
+     ],
+     [
+      39.0,
+      "crown"
+     ],
+     [
+      52.0,
+      "crown"
+     ],
+     [
+      65.0,
+      "crown"
+     ],
+     [
+      67.5,
+      "undo"
+     ],
+     [
+      80.5,
+      "crown"
+     ],
+     [
+      93.5,
+      "crown"
+     ],
+     [
+      106.5,
+      "crown"
+     ],
+     [
+      119.5,
+      "crown"
+     ],
+     [
+      132.5,
+      "crown"
+     ],
+     [
+      135.0,
+      "undo"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      161.0,
+      "crown"
+     ],
+     [
+      174.0,
+      "crown"
+     ],
+     [
+      187.0,
+      "crown"
+     ],
+     [
+      200.0,
+      "crown"
+     ],
+     [
+      202.5,
+      "undo"
+     ],
+     [
+      215.5,
+      "crown"
+     ],
+     [
+      228.5,
+      "crown"
+     ],
+     [
+      241.5,
+      "crown"
+     ],
+     [
+      254.5,
+      "crown"
+     ],
+     [
+      267.5,
+      "crown"
+     ],
+     [
+      270.0,
+      "undo"
+     ],
+     [
+      4270.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      6000.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      90.0,
+      "crown"
+     ],
+     [
+      180.0,
+      "crown"
+     ],
+     [
+      270.0,
+      "crown"
+     ],
+     [
+      360.0,
+      "crown"
+     ],
+     [
+      450.0,
+      "crown"
+     ],
+     [
+      540.0,
+      "crown"
+     ],
+     [
+      630.0,
+      "crown"
+     ],
+     [
+      720.0,
+      "crown"
+     ],
+     [
+      810.0,
+      "crown"
+     ],
+     [
+      900.0,
+      "crown"
+     ],
+     [
+      990.0,
+      "crown"
+     ],
+     [
+      1080.0,
+      "crown"
+     ],
+     [
+      1170.0,
+      "crown"
+     ],
+     [
+      1260.0,
+      "crown"
+     ],
+     [
+      1350.0,
+      "crown"
+     ],
+     [
+      1440.0,
+      "crown"
+     ],
+     [
+      5530.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      41.0,
+      "crown"
+     ],
+     [
+      82.0,
+      "crown"
+     ],
+     [
+      150.0,
+      "end"
+     ]
+    ]
+   ],
+   "expected": [
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       37.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       74.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       111.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       148.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       180.0,
+       "advance",
+       5,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       6,
+       "auto"
+      ],
+      [
+       185.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       222.0,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       259.0,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       296.0,
+       "advance",
+       10,
+       "crown"
+      ],
+      [
+       333.0,
+       "advance",
+       11,
+       "crown"
+      ],
+      [
+       360.0,
+       "advance",
+       12,
+       "auto"
+      ],
+      [
+       370.0,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       407.0,
+       "finish",
+       13,
+       "crown"
+      ]
+     ],
+     "finish": 407.0,
+     "steps": 14
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       13.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       26.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       39.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       52.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       65.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       67.5,
+       "undo",
+       4,
+       "crown"
+      ],
+      [
+       80.5,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       93.5,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       106.5,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       119.5,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       132.5,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       135.0,
+       "undo",
+       8,
+       "crown"
+      ],
+      [
+       148.0,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       161.0,
+       "advance",
+       10,
+       "crown"
+      ],
+      [
+       174.0,
+       "advance",
+       11,
+       "crown"
+      ],
+      [
+       180.0,
+       "advance",
+       12,
+       "auto"
+      ],
+      [
+       187.0,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       200.0,
+       "finish",
+       13,
+       "crown"
+      ],
+      [
+       202.5,
+       "unfinish",
+       13,
+       null
+      ],
+      [
+       215.5,
+       "finish",
+       13,
+       "crown"
+      ],
+      [
+       270.0,
+       "unfinish",
+       13,
+       null
+      ],
+      [
+       360.0,
+       "finish",
+       13,
+       "auto"
+      ]
+     ],
+     "finish": 360.0,
+     "steps": 14
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       180.0,
+       "advance",
+       1,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       2,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       3,
+       "auto"
+      ],
+      [
+       360.0,
+       "advance",
+       4,
+       "auto"
+      ],
+      [
+       360.0,
+       "advance",
+       5,
+       "auto"
+      ],
+      [
+       360.0,
+       "advance",
+       6,
+       "auto"
+      ],
+      [
+       540.0,
+       "advance",
+       7,
+       "auto"
+      ],
+      [
+       540.0,
+       "advance",
+       8,
+       "auto"
+      ],
+      [
+       540.0,
+       "advance",
+       9,
+       "auto"
+      ],
+      [
+       720.0,
+       "advance",
+       10,
+       "auto"
+      ],
+      [
+       720.0,
+       "advance",
+       11,
+       "auto"
+      ],
+      [
+       720.0,
+       "advance",
+       12,
+       "auto"
+      ],
+      [
+       900.0,
+       "advance",
+       13,
+       "auto"
+      ],
+      [
+       900.0,
+       "finish",
+       13,
+       "auto"
+      ]
+     ],
+     "finish": 900.0,
+     "steps": 14
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       90.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       180.0,
+       "advance",
+       2,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       3,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       270.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       360.0,
+       "advance",
+       6,
+       "auto"
+      ],
+      [
+       360.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       450.0,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       540.0,
+       "advance",
+       9,
+       "auto"
+      ],
+      [
+       540.0,
+       "advance",
+       10,
+       "crown"
+      ],
+      [
+       630.0,
+       "advance",
+       11,
+       "crown"
+      ],
+      [
+       720.0,
+       "advance",
+       12,
+       "auto"
+      ],
+      [
+       720.0,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       810.0,
+       "finish",
+       13,
+       "crown"
+      ]
+     ],
+     "finish": 810.0,
+     "steps": 14
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       41.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       82.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       150.0,
+       "finish",
+       2,
+       "button"
+      ]
+     ],
+     "finish": 150.0,
+     "steps": 3
+    }
+   ]
+  },
+  {
+   "name": "alternating EMOM, no roundSize",
+   "definition": {
+    "id": "gate.alternating",
+    "name": "Gate gate.alternating",
+    "shortName": "G",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 12.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "kettlebellSwings",
+      "name": "KB Swings",
+      "target": {
+       "value": 15.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 12.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "kettlebellSwings",
+      "name": "KB Swings",
+      "target": {
+       "value": 15.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 12.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "kettlebellSwings",
+      "name": "KB Swings",
+      "target": {
+       "value": 15.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 12.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "kettlebellSwings",
+      "name": "KB Swings",
+      "target": {
+       "value": 15.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 12.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "kettlebellSwings",
+      "name": "KB Swings",
+      "target": {
+       "value": 15.0,
+       "unit": "reps"
+      }
+     }
+    ],
+    "timeCapSeconds": 600.0,
+    "intervalSeconds": 60.0
+   },
+   "scripts": [
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      37.0,
+      "crown"
+     ],
+     [
+      74.0,
+      "crown"
+     ],
+     [
+      111.0,
+      "crown"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      185.0,
+      "crown"
+     ],
+     [
+      222.0,
+      "crown"
+     ],
+     [
+      259.0,
+      "crown"
+     ],
+     [
+      296.0,
+      "crown"
+     ],
+     [
+      333.0,
+      "crown"
+     ],
+     [
+      370.0,
+      "crown"
+     ],
+     [
+      407.0,
+      "crown"
+     ],
+     [
+      444.0,
+      "crown"
+     ],
+     [
+      481.0,
+      "crown"
+     ],
+     [
+      518.0,
+      "crown"
+     ],
+     [
+      4555.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      13.0,
+      "crown"
+     ],
+     [
+      26.0,
+      "crown"
+     ],
+     [
+      39.0,
+      "crown"
+     ],
+     [
+      52.0,
+      "crown"
+     ],
+     [
+      65.0,
+      "crown"
+     ],
+     [
+      67.5,
+      "undo"
+     ],
+     [
+      80.5,
+      "crown"
+     ],
+     [
+      93.5,
+      "crown"
+     ],
+     [
+      106.5,
+      "crown"
+     ],
+     [
+      119.5,
+      "crown"
+     ],
+     [
+      132.5,
+      "crown"
+     ],
+     [
+      135.0,
+      "undo"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      161.0,
+      "crown"
+     ],
+     [
+      174.0,
+      "crown"
+     ],
+     [
+      187.0,
+      "crown"
+     ],
+     [
+      200.0,
+      "crown"
+     ],
+     [
+      202.5,
+      "undo"
+     ],
+     [
+      215.5,
+      "crown"
+     ],
+     [
+      4215.5,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      6000.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      90.0,
+      "crown"
+     ],
+     [
+      180.0,
+      "crown"
+     ],
+     [
+      270.0,
+      "crown"
+     ],
+     [
+      360.0,
+      "crown"
+     ],
+     [
+      450.0,
+      "crown"
+     ],
+     [
+      540.0,
+      "crown"
+     ],
+     [
+      630.0,
+      "crown"
+     ],
+     [
+      720.0,
+      "crown"
+     ],
+     [
+      810.0,
+      "crown"
+     ],
+     [
+      900.0,
+      "crown"
+     ],
+     [
+      990.0,
+      "crown"
+     ],
+     [
+      1080.0,
+      "crown"
+     ],
+     [
+      5170.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      41.0,
+      "crown"
+     ],
+     [
+      82.0,
+      "crown"
+     ],
+     [
+      150.0,
+      "end"
+     ]
+    ]
+   ],
+   "expected": [
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       37.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       74.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       111.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       148.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       185.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       222.0,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       259.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       296.0,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       333.0,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       370.0,
+       "finish",
+       9,
+       "crown"
+      ]
+     ],
+     "finish": 370.0,
+     "steps": 10
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       13.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       26.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       39.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       52.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       65.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       67.5,
+       "undo",
+       4,
+       "crown"
+      ],
+      [
+       80.5,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       93.5,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       106.5,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       119.5,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       132.5,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       135.0,
+       "undo",
+       8,
+       "crown"
+      ],
+      [
+       148.0,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       161.0,
+       "finish",
+       9,
+       "crown"
+      ],
+      [
+       202.5,
+       "unfinish",
+       9,
+       null
+      ],
+      [
+       215.5,
+       "finish",
+       9,
+       "crown"
+      ]
+     ],
+     "finish": 215.5,
+     "steps": 10
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ]
+     ],
+     "finish": null,
+     "steps": 1
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       90.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       180.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       270.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       360.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       450.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       540.0,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       630.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       720.0,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       810.0,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       900.0,
+       "finish",
+       9,
+       "crown"
+      ]
+     ],
+     "finish": 900.0,
+     "steps": 10
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       41.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       82.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       150.0,
+       "finish",
+       2,
+       "button"
+      ]
+     ],
+     "finish": 150.0,
+     "steps": 3
+    }
+   ]
+  },
+  {
+   "name": "written-out AMRAP 3 rounds listed (expanded at START)",
+   "definition": {
+    "id": "gate.amrapWritten",
+    "name": "Gate gate.amrapWritten",
+    "shortName": "G",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pullUps",
+      "name": "Pull-ups",
+      "target": {
+       "value": 5.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 15.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 10.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pullUps",
+      "name": "Pull-ups",
+      "target": {
+       "value": 5.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 15.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 10.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pullUps",
+      "name": "Pull-ups",
+      "target": {
+       "value": 5.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 15.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 10.0,
+       "unit": "calories"
+      }
+     }
+    ],
+    "timeCapSeconds": 720.0,
+    "roundSize": 4
+   },
+   "scripts": [
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      37.0,
+      "crown"
+     ],
+     [
+      74.0,
+      "crown"
+     ],
+     [
+      111.0,
+      "crown"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      185.0,
+      "crown"
+     ],
+     [
+      222.0,
+      "crown"
+     ],
+     [
+      259.0,
+      "crown"
+     ],
+     [
+      296.0,
+      "crown"
+     ],
+     [
+      333.0,
+      "crown"
+     ],
+     [
+      370.0,
+      "crown"
+     ],
+     [
+      407.0,
+      "crown"
+     ],
+     [
+      444.0,
+      "crown"
+     ],
+     [
+      481.0,
+      "crown"
+     ],
+     [
+      518.0,
+      "crown"
+     ],
+     [
+      555.0,
+      "crown"
+     ],
+     [
+      592.0,
+      "crown"
+     ],
+     [
+      4629.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      13.0,
+      "crown"
+     ],
+     [
+      26.0,
+      "crown"
+     ],
+     [
+      39.0,
+      "crown"
+     ],
+     [
+      52.0,
+      "crown"
+     ],
+     [
+      65.0,
+      "crown"
+     ],
+     [
+      67.5,
+      "undo"
+     ],
+     [
+      80.5,
+      "crown"
+     ],
+     [
+      93.5,
+      "crown"
+     ],
+     [
+      106.5,
+      "crown"
+     ],
+     [
+      119.5,
+      "crown"
+     ],
+     [
+      132.5,
+      "crown"
+     ],
+     [
+      135.0,
+      "undo"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      161.0,
+      "crown"
+     ],
+     [
+      174.0,
+      "crown"
+     ],
+     [
+      187.0,
+      "crown"
+     ],
+     [
+      200.0,
+      "crown"
+     ],
+     [
+      202.5,
+      "undo"
+     ],
+     [
+      215.5,
+      "crown"
+     ],
+     [
+      228.5,
+      "crown"
+     ],
+     [
+      241.5,
+      "crown"
+     ],
+     [
+      4241.5,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      6000.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      90.0,
+      "crown"
+     ],
+     [
+      180.0,
+      "crown"
+     ],
+     [
+      270.0,
+      "crown"
+     ],
+     [
+      360.0,
+      "crown"
+     ],
+     [
+      450.0,
+      "crown"
+     ],
+     [
+      540.0,
+      "crown"
+     ],
+     [
+      630.0,
+      "crown"
+     ],
+     [
+      720.0,
+      "crown"
+     ],
+     [
+      810.0,
+      "crown"
+     ],
+     [
+      900.0,
+      "crown"
+     ],
+     [
+      990.0,
+      "crown"
+     ],
+     [
+      1080.0,
+      "crown"
+     ],
+     [
+      1170.0,
+      "crown"
+     ],
+     [
+      1260.0,
+      "crown"
+     ],
+     [
+      5350.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      41.0,
+      "crown"
+     ],
+     [
+      82.0,
+      "crown"
+     ],
+     [
+      150.0,
+      "end"
+     ]
+    ]
+   ],
+   "expected": [
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       37.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       74.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       111.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       148.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       185.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       222.0,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       259.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       296.0,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       333.0,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       370.0,
+       "advance",
+       10,
+       "crown"
+      ],
+      [
+       407.0,
+       "advance",
+       11,
+       "crown"
+      ],
+      [
+       444.0,
+       "advance",
+       12,
+       "crown"
+      ],
+      [
+       481.0,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       518.0,
+       "advance",
+       14,
+       "crown"
+      ],
+      [
+       555.0,
+       "advance",
+       15,
+       "crown"
+      ],
+      [
+       592.0,
+       "advance",
+       16,
+       "crown"
+      ],
+      [
+       720.0,
+       "finish",
+       16,
+       "auto"
+      ]
+     ],
+     "finish": 720.0,
+     "steps": 17
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       13.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       26.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       39.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       52.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       65.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       67.5,
+       "undo",
+       4,
+       "crown"
+      ],
+      [
+       80.5,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       93.5,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       106.5,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       119.5,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       132.5,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       135.0,
+       "undo",
+       8,
+       "crown"
+      ],
+      [
+       148.0,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       161.0,
+       "advance",
+       10,
+       "crown"
+      ],
+      [
+       174.0,
+       "advance",
+       11,
+       "crown"
+      ],
+      [
+       187.0,
+       "advance",
+       12,
+       "crown"
+      ],
+      [
+       200.0,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       202.5,
+       "undo",
+       12,
+       "crown"
+      ],
+      [
+       215.5,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       228.5,
+       "advance",
+       14,
+       "crown"
+      ],
+      [
+       241.5,
+       "advance",
+       15,
+       "crown"
+      ],
+      [
+       720.0,
+       "finish",
+       15,
+       "auto"
+      ]
+     ],
+     "finish": 720.0,
+     "steps": 16
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       720.0,
+       "finish",
+       0,
+       "auto"
+      ]
+     ],
+     "finish": 720.0,
+     "steps": 1
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       90.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       180.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       270.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       360.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       450.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       540.0,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       630.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       720.0,
+       "finish",
+       7,
+       "auto"
+      ]
+     ],
+     "finish": 720.0,
+     "steps": 8
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       41.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       82.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       150.0,
+       "finish",
+       2,
+       "button"
+      ]
+     ],
+     "finish": 150.0,
+     "steps": 3
+    }
+   ]
+  },
+  {
+   "name": "AMRAP listing one round (expanded at START)",
+   "definition": {
+    "id": "gate.amrapOne",
+    "name": "Gate gate.amrapOne",
+    "shortName": "G",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pullUps",
+      "name": "Pull-ups",
+      "target": {
+       "value": 5.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 15.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 10.0,
+       "unit": "calories"
+      }
+     }
+    ],
+    "timeCapSeconds": 600.0
+   },
+   "scripts": [
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      37.0,
+      "crown"
+     ],
+     [
+      74.0,
+      "crown"
+     ],
+     [
+      111.0,
+      "crown"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      185.0,
+      "crown"
+     ],
+     [
+      222.0,
+      "crown"
+     ],
+     [
+      259.0,
+      "crown"
+     ],
+     [
+      296.0,
+      "crown"
+     ],
+     [
+      4333.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      13.0,
+      "crown"
+     ],
+     [
+      26.0,
+      "crown"
+     ],
+     [
+      39.0,
+      "crown"
+     ],
+     [
+      52.0,
+      "crown"
+     ],
+     [
+      65.0,
+      "crown"
+     ],
+     [
+      67.5,
+      "undo"
+     ],
+     [
+      80.5,
+      "crown"
+     ],
+     [
+      93.5,
+      "crown"
+     ],
+     [
+      106.5,
+      "crown"
+     ],
+     [
+      119.5,
+      "crown"
+     ],
+     [
+      132.5,
+      "crown"
+     ],
+     [
+      135.0,
+      "undo"
+     ],
+     [
+      4135.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      6000.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      90.0,
+      "crown"
+     ],
+     [
+      180.0,
+      "crown"
+     ],
+     [
+      270.0,
+      "crown"
+     ],
+     [
+      360.0,
+      "crown"
+     ],
+     [
+      450.0,
+      "crown"
+     ],
+     [
+      540.0,
+      "crown"
+     ],
+     [
+      4630.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      41.0,
+      "crown"
+     ],
+     [
+      82.0,
+      "crown"
+     ],
+     [
+      150.0,
+      "end"
+     ]
+    ]
+   ],
+   "expected": [
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       37.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       74.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       111.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       148.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       185.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       222.0,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       259.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       296.0,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       600.0,
+       "finish",
+       8,
+       "auto"
+      ]
+     ],
+     "finish": 600.0,
+     "steps": 9
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       13.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       26.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       39.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       52.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       65.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       67.5,
+       "undo",
+       4,
+       "crown"
+      ],
+      [
+       80.5,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       93.5,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       106.5,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       119.5,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       132.5,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       135.0,
+       "undo",
+       8,
+       "crown"
+      ],
+      [
+       600.0,
+       "finish",
+       8,
+       "auto"
+      ]
+     ],
+     "finish": 600.0,
+     "steps": 9
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       600.0,
+       "finish",
+       0,
+       "auto"
+      ]
+     ],
+     "finish": 600.0,
+     "steps": 1
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       90.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       180.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       270.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       360.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       450.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       540.0,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       600.0,
+       "finish",
+       6,
+       "auto"
+      ]
+     ],
+     "finish": 600.0,
+     "steps": 7
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       41.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       82.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       150.0,
+       "finish",
+       2,
+       "button"
+      ]
+     ],
+     "finish": 150.0,
+     "steps": 3
+    }
+   ]
+  },
+  {
+   "name": "rounds for time written out with a cap",
+   "definition": {
+    "id": "gate.rounds",
+    "name": "Gate gate.rounds",
+    "shortName": "G",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 400.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "kettlebellSwings",
+      "name": "KB Swings",
+      "target": {
+       "value": 21.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pullUps",
+      "name": "Pull-ups",
+      "target": {
+       "value": 12.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 400.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "kettlebellSwings",
+      "name": "KB Swings",
+      "target": {
+       "value": 21.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pullUps",
+      "name": "Pull-ups",
+      "target": {
+       "value": 12.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 400.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "kettlebellSwings",
+      "name": "KB Swings",
+      "target": {
+       "value": 21.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pullUps",
+      "name": "Pull-ups",
+      "target": {
+       "value": 12.0,
+       "unit": "reps"
+      }
+     }
+    ],
+    "timeCapSeconds": 960.0,
+    "roundSize": 3
+   },
+   "scripts": [
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      37.0,
+      "crown"
+     ],
+     [
+      74.0,
+      "crown"
+     ],
+     [
+      111.0,
+      "crown"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      185.0,
+      "crown"
+     ],
+     [
+      222.0,
+      "crown"
+     ],
+     [
+      259.0,
+      "crown"
+     ],
+     [
+      296.0,
+      "crown"
+     ],
+     [
+      333.0,
+      "crown"
+     ],
+     [
+      370.0,
+      "crown"
+     ],
+     [
+      407.0,
+      "crown"
+     ],
+     [
+      444.0,
+      "crown"
+     ],
+     [
+      481.0,
+      "crown"
+     ],
+     [
+      4518.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      13.0,
+      "crown"
+     ],
+     [
+      26.0,
+      "crown"
+     ],
+     [
+      39.0,
+      "crown"
+     ],
+     [
+      52.0,
+      "crown"
+     ],
+     [
+      65.0,
+      "crown"
+     ],
+     [
+      67.5,
+      "undo"
+     ],
+     [
+      80.5,
+      "crown"
+     ],
+     [
+      93.5,
+      "crown"
+     ],
+     [
+      106.5,
+      "crown"
+     ],
+     [
+      119.5,
+      "crown"
+     ],
+     [
+      132.5,
+      "crown"
+     ],
+     [
+      135.0,
+      "undo"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      161.0,
+      "crown"
+     ],
+     [
+      174.0,
+      "crown"
+     ],
+     [
+      187.0,
+      "crown"
+     ],
+     [
+      200.0,
+      "crown"
+     ],
+     [
+      202.5,
+      "undo"
+     ],
+     [
+      4202.5,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      6000.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      90.0,
+      "crown"
+     ],
+     [
+      180.0,
+      "crown"
+     ],
+     [
+      270.0,
+      "crown"
+     ],
+     [
+      360.0,
+      "crown"
+     ],
+     [
+      450.0,
+      "crown"
+     ],
+     [
+      540.0,
+      "crown"
+     ],
+     [
+      630.0,
+      "crown"
+     ],
+     [
+      720.0,
+      "crown"
+     ],
+     [
+      810.0,
+      "crown"
+     ],
+     [
+      900.0,
+      "crown"
+     ],
+     [
+      990.0,
+      "crown"
+     ],
+     [
+      5080.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      41.0,
+      "crown"
+     ],
+     [
+      82.0,
+      "crown"
+     ],
+     [
+      150.0,
+      "end"
+     ]
+    ]
+   ],
+   "expected": [
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       37.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       74.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       111.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       148.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       185.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       222.0,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       259.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       296.0,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       333.0,
+       "finish",
+       8,
+       "crown"
+      ]
+     ],
+     "finish": 333.0,
+     "steps": 9
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       13.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       26.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       39.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       52.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       65.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       67.5,
+       "undo",
+       4,
+       "crown"
+      ],
+      [
+       80.5,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       93.5,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       106.5,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       119.5,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       132.5,
+       "finish",
+       8,
+       "crown"
+      ],
+      [
+       135.0,
+       "unfinish",
+       8,
+       null
+      ],
+      [
+       148.0,
+       "finish",
+       8,
+       "crown"
+      ],
+      [
+       202.5,
+       "unfinish",
+       8,
+       null
+      ]
+     ],
+     "finish": null,
+     "steps": 9
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ]
+     ],
+     "finish": null,
+     "steps": 1
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       90.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       180.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       270.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       360.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       450.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       540.0,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       630.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       720.0,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       810.0,
+       "finish",
+       8,
+       "crown"
+      ]
+     ],
+     "finish": 810.0,
+     "steps": 9
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       41.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       82.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       150.0,
+       "finish",
+       2,
+       "button"
+      ]
+     ],
+     "finish": 150.0,
+     "steps": 3
+    }
+   ]
+  },
+  {
+   "name": "rounds key but not marked listedOnce: still today's path",
+   "definition": {
+    "id": "gate.roundsUnmarked",
+    "name": "Gate gate.roundsUnmarked",
+    "shortName": "G",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 400.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "kettlebellSwings",
+      "name": "KB Swings",
+      "target": {
+       "value": 21.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pullUps",
+      "name": "Pull-ups",
+      "target": {
+       "value": 12.0,
+       "unit": "reps"
+      }
+     }
+    ],
+    "rounds": 3
+   },
+   "scripts": [
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      37.0,
+      "crown"
+     ],
+     [
+      74.0,
+      "crown"
+     ],
+     [
+      111.0,
+      "crown"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      185.0,
+      "crown"
+     ],
+     [
+      222.0,
+      "crown"
+     ],
+     [
+      259.0,
+      "crown"
+     ],
+     [
+      4296.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      13.0,
+      "crown"
+     ],
+     [
+      26.0,
+      "crown"
+     ],
+     [
+      39.0,
+      "crown"
+     ],
+     [
+      52.0,
+      "crown"
+     ],
+     [
+      65.0,
+      "crown"
+     ],
+     [
+      67.5,
+      "undo"
+     ],
+     [
+      80.5,
+      "crown"
+     ],
+     [
+      93.5,
+      "crown"
+     ],
+     [
+      106.5,
+      "crown"
+     ],
+     [
+      119.5,
+      "crown"
+     ],
+     [
+      4119.5,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      6000.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      90.0,
+      "crown"
+     ],
+     [
+      180.0,
+      "crown"
+     ],
+     [
+      270.0,
+      "crown"
+     ],
+     [
+      360.0,
+      "crown"
+     ],
+     [
+      450.0,
+      "crown"
+     ],
+     [
+      4540.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      41.0,
+      "crown"
+     ],
+     [
+      82.0,
+      "crown"
+     ],
+     [
+      150.0,
+      "end"
+     ]
+    ]
+   ],
+   "expected": [
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       37.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       74.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       111.0,
+       "finish",
+       2,
+       "crown"
+      ]
+     ],
+     "finish": 111.0,
+     "steps": 3
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       13.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       26.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       39.0,
+       "finish",
+       2,
+       "crown"
+      ],
+      [
+       67.5,
+       "unfinish",
+       2,
+       null
+      ],
+      [
+       80.5,
+       "finish",
+       2,
+       "crown"
+      ]
+     ],
+     "finish": 80.5,
+     "steps": 3
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ]
+     ],
+     "finish": null,
+     "steps": 1
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       90.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       180.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       270.0,
+       "finish",
+       2,
+       "crown"
+      ]
+     ],
+     "finish": 270.0,
+     "steps": 3
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       41.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       82.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       150.0,
+       "finish",
+       2,
+       "button"
+      ]
+     ],
+     "finish": 150.0,
+     "steps": 3
+    }
+   ]
+  },
+  {
+   "name": "timed rest between written-out rounds",
+   "definition": {
+    "id": "gate.restRounds",
+    "name": "Gate gate.restRounds",
+    "shortName": "G",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 200.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 60.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 200.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 60.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 200.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     }
+    ],
+    "roundSize": 3
+   },
+   "scripts": [
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      37.0,
+      "crown"
+     ],
+     [
+      74.0,
+      "crown"
+     ],
+     [
+      111.0,
+      "crown"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      185.0,
+      "crown"
+     ],
+     [
+      222.0,
+      "crown"
+     ],
+     [
+      259.0,
+      "crown"
+     ],
+     [
+      296.0,
+      "crown"
+     ],
+     [
+      333.0,
+      "crown"
+     ],
+     [
+      370.0,
+      "crown"
+     ],
+     [
+      407.0,
+      "crown"
+     ],
+     [
+      444.0,
+      "crown"
+     ],
+     [
+      4481.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      13.0,
+      "crown"
+     ],
+     [
+      26.0,
+      "crown"
+     ],
+     [
+      39.0,
+      "crown"
+     ],
+     [
+      52.0,
+      "crown"
+     ],
+     [
+      65.0,
+      "crown"
+     ],
+     [
+      67.5,
+      "undo"
+     ],
+     [
+      80.5,
+      "crown"
+     ],
+     [
+      93.5,
+      "crown"
+     ],
+     [
+      106.5,
+      "crown"
+     ],
+     [
+      119.5,
+      "crown"
+     ],
+     [
+      132.5,
+      "crown"
+     ],
+     [
+      135.0,
+      "undo"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      161.0,
+      "crown"
+     ],
+     [
+      174.0,
+      "crown"
+     ],
+     [
+      187.0,
+      "crown"
+     ],
+     [
+      4187.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      6000.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      90.0,
+      "crown"
+     ],
+     [
+      180.0,
+      "crown"
+     ],
+     [
+      270.0,
+      "crown"
+     ],
+     [
+      360.0,
+      "crown"
+     ],
+     [
+      450.0,
+      "crown"
+     ],
+     [
+      540.0,
+      "crown"
+     ],
+     [
+      630.0,
+      "crown"
+     ],
+     [
+      720.0,
+      "crown"
+     ],
+     [
+      810.0,
+      "crown"
+     ],
+     [
+      900.0,
+      "crown"
+     ],
+     [
+      4990.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      41.0,
+      "crown"
+     ],
+     [
+      82.0,
+      "crown"
+     ],
+     [
+      150.0,
+      "end"
+     ]
+    ]
+   ],
+   "expected": [
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       37.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       74.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       111.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       148.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       185.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       222.0,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       259.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       296.0,
+       "finish",
+       7,
+       "crown"
+      ]
+     ],
+     "finish": 296.0,
+     "steps": 8
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       13.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       26.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       39.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       52.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       65.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       67.5,
+       "undo",
+       4,
+       "crown"
+      ],
+      [
+       80.5,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       93.5,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       106.5,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       119.5,
+       "finish",
+       7,
+       "crown"
+      ],
+      [
+       135.0,
+       "unfinish",
+       7,
+       null
+      ],
+      [
+       148.0,
+       "finish",
+       7,
+       "crown"
+      ]
+     ],
+     "finish": 148.0,
+     "steps": 8
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ]
+     ],
+     "finish": null,
+     "steps": 1
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       90.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       180.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       240.0,
+       "advance",
+       3,
+       "auto"
+      ],
+      [
+       270.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       360.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       420.0,
+       "advance",
+       6,
+       "auto"
+      ],
+      [
+       450.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       540.0,
+       "finish",
+       7,
+       "crown"
+      ]
+     ],
+     "finish": 540.0,
+     "steps": 8
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       41.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       82.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       142.0,
+       "advance",
+       3,
+       "auto"
+      ],
+      [
+       150.0,
+       "finish",
+       3,
+       "button"
+      ]
+     ],
+     "finish": 150.0,
+     "steps": 4
+    }
+   ]
+  },
+  {
+   "name": "open parts (free-like)",
+   "definition": {
+    "id": "gate.free",
+    "name": "Gate gate.free",
+    "shortName": "G",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 1"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 2"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 3"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 4"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 5"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 6"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 7"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 8"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 9"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 10"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 11"
+     },
+     {
+      "kind": "station",
+      "movement": "part",
+      "name": "Part 12"
+     }
+    ]
+   },
+   "scripts": [
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      37.0,
+      "crown"
+     ],
+     [
+      74.0,
+      "crown"
+     ],
+     [
+      111.0,
+      "crown"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      185.0,
+      "crown"
+     ],
+     [
+      222.0,
+      "crown"
+     ],
+     [
+      259.0,
+      "crown"
+     ],
+     [
+      296.0,
+      "crown"
+     ],
+     [
+      333.0,
+      "crown"
+     ],
+     [
+      370.0,
+      "crown"
+     ],
+     [
+      407.0,
+      "crown"
+     ],
+     [
+      444.0,
+      "crown"
+     ],
+     [
+      481.0,
+      "crown"
+     ],
+     [
+      518.0,
+      "crown"
+     ],
+     [
+      555.0,
+      "crown"
+     ],
+     [
+      592.0,
+      "crown"
+     ],
+     [
+      4629.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      13.0,
+      "crown"
+     ],
+     [
+      26.0,
+      "crown"
+     ],
+     [
+      39.0,
+      "crown"
+     ],
+     [
+      52.0,
+      "crown"
+     ],
+     [
+      65.0,
+      "crown"
+     ],
+     [
+      67.5,
+      "undo"
+     ],
+     [
+      80.5,
+      "crown"
+     ],
+     [
+      93.5,
+      "crown"
+     ],
+     [
+      106.5,
+      "crown"
+     ],
+     [
+      119.5,
+      "crown"
+     ],
+     [
+      132.5,
+      "crown"
+     ],
+     [
+      135.0,
+      "undo"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      161.0,
+      "crown"
+     ],
+     [
+      174.0,
+      "crown"
+     ],
+     [
+      187.0,
+      "crown"
+     ],
+     [
+      200.0,
+      "crown"
+     ],
+     [
+      202.5,
+      "undo"
+     ],
+     [
+      215.5,
+      "crown"
+     ],
+     [
+      228.5,
+      "crown"
+     ],
+     [
+      241.5,
+      "crown"
+     ],
+     [
+      4241.5,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      6000.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      90.0,
+      "crown"
+     ],
+     [
+      180.0,
+      "crown"
+     ],
+     [
+      270.0,
+      "crown"
+     ],
+     [
+      360.0,
+      "crown"
+     ],
+     [
+      450.0,
+      "crown"
+     ],
+     [
+      540.0,
+      "crown"
+     ],
+     [
+      630.0,
+      "crown"
+     ],
+     [
+      720.0,
+      "crown"
+     ],
+     [
+      810.0,
+      "crown"
+     ],
+     [
+      900.0,
+      "crown"
+     ],
+     [
+      990.0,
+      "crown"
+     ],
+     [
+      1080.0,
+      "crown"
+     ],
+     [
+      1170.0,
+      "crown"
+     ],
+     [
+      1260.0,
+      "crown"
+     ],
+     [
+      5350.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      41.0,
+      "crown"
+     ],
+     [
+      82.0,
+      "crown"
+     ],
+     [
+      150.0,
+      "end"
+     ]
+    ]
+   ],
+   "expected": [
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       37.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       74.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       111.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       148.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       185.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       222.0,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       259.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       296.0,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       333.0,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       370.0,
+       "advance",
+       10,
+       "crown"
+      ],
+      [
+       407.0,
+       "advance",
+       11,
+       "crown"
+      ],
+      [
+       444.0,
+       "finish",
+       11,
+       "crown"
+      ]
+     ],
+     "finish": 444.0,
+     "steps": 12
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       13.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       26.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       39.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       52.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       65.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       67.5,
+       "undo",
+       4,
+       "crown"
+      ],
+      [
+       80.5,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       93.5,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       106.5,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       119.5,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       132.5,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       135.0,
+       "undo",
+       8,
+       "crown"
+      ],
+      [
+       148.0,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       161.0,
+       "advance",
+       10,
+       "crown"
+      ],
+      [
+       174.0,
+       "advance",
+       11,
+       "crown"
+      ],
+      [
+       187.0,
+       "finish",
+       11,
+       "crown"
+      ],
+      [
+       202.5,
+       "unfinish",
+       11,
+       null
+      ],
+      [
+       215.5,
+       "finish",
+       11,
+       "crown"
+      ]
+     ],
+     "finish": 215.5,
+     "steps": 12
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ]
+     ],
+     "finish": null,
+     "steps": 1
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       90.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       180.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       270.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       360.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       450.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       540.0,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       630.0,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       720.0,
+       "advance",
+       8,
+       "crown"
+      ],
+      [
+       810.0,
+       "advance",
+       9,
+       "crown"
+      ],
+      [
+       900.0,
+       "advance",
+       10,
+       "crown"
+      ],
+      [
+       990.0,
+       "advance",
+       11,
+       "crown"
+      ],
+      [
+       1080.0,
+       "finish",
+       11,
+       "crown"
+      ]
+     ],
+     "finish": 1080.0,
+     "steps": 12
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       41.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       82.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       150.0,
+       "finish",
+       2,
+       "button"
+      ]
+     ],
+     "finish": 150.0,
+     "steps": 3
+    }
+   ]
+  }
+ ]
+}

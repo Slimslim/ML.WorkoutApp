@@ -128,6 +128,17 @@ public enum RepeatBlock {
         return p.kind == .legacy ? nil : p
     }
 
+    /// The progress the watch starts a workout with: block mode with the engine on and a
+    /// listed-once definition (nothing written out); otherwise today's, with the §5a AMRAP
+    /// expansion. Python mirror: `repeat_block.start_progress`. The E4 gate runs every built-in
+    /// and fixed-list fixture through this with the engine off and on.
+    public static func startProgress(for d: WorkoutDefinition, engineOn: Bool) -> WorkoutProgress {
+        if let plan = enginePlan(for: d, engineOn: engineOn) {
+            return WorkoutProgress(definition: d, block: plan)
+        }
+        return WorkoutProgress(definition: d.expandedForAmrap())
+    }
+
     /// (pass, part) of a step; nil for a step before START or past the workout's end.
     public static func position(_ plan: Plan, step: Int) -> (pass: Int, part: Int)? {
         if step < 0 || plan.parts == 0 { return nil }

@@ -117,6 +117,16 @@ def engine_plan(d: WorkoutDefinition, engine: str) -> Optional[BlockPlan]:
     return None if plan.kind == LEGACY else plan
 
 
+def start_progress(d: WorkoutDefinition, engine: str):
+    """The progress the watch starts a workout with (RepeatBlock.startProgress): block mode with the
+    engine on and a listed-once definition; otherwise today's, with the 5a AMRAP expansion."""
+    from .workout import WorkoutProgress, amrap_expanded
+    plan = engine_plan(d, engine)
+    if plan is not None:
+        return WorkoutProgress(d, plan)
+    return WorkoutProgress(amrap_expanded(d))
+
+
 def position(plan: BlockPlan, step: int) -> Tuple[int, int]:
     """(pass, part) of a step. ValueError for a step before START or past the workout's end."""
     if step < 0 or plan.parts == 0:
