@@ -68,6 +68,22 @@ public enum WorkoutHistory {
         return movementSequence(ea) == movementSequence(eb)
     }
 
+    /// The library workout a recorded result belongs to (its card and history page, #137): the
+    /// entry with the result's id; for an id that is no built-in, the first entry that is the same
+    /// workout (`isSameWorkout`). Nil: the result's own definition is used (a built-in, a Free
+    /// Workout, a row deleted from the library or never in it). Whichever definition is used,
+    /// `results(of:in:)` of it includes the result.
+    public static func libraryIndex(for recorded: WorkoutDefinition,
+                                    in library: [WorkoutDefinition]) -> Int? {
+        if let i = library.firstIndex(where: { (d: WorkoutDefinition) -> Bool in d.id == recorded.id }) {
+            return i
+        }
+        if WorkoutLibrary.definition(id: recorded.id) != nil {
+            return nil
+        }
+        return library.firstIndex(where: { (d: WorkoutDefinition) -> Bool in isSameWorkout(d, recorded) })
+    }
+
     /// Results of this workout, newest start first.
     public static func results(of definition: WorkoutDefinition, in results: [WorkoutResult]) -> [WorkoutResult] {
         let matching: [WorkoutResult] = results.filter { (r: WorkoutResult) -> Bool in

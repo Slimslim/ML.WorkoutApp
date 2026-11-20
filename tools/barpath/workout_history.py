@@ -61,6 +61,21 @@ def is_same_workout(a: WorkoutDefinition, b: WorkoutDefinition) -> bool:
     return movement_sequence(ea) == movement_sequence(eb)
 
 
+def library_index(recorded: WorkoutDefinition, library: list) -> Optional[int]:
+    """The library workout a recorded result belongs to (#137): the entry with its id; for an id that
+    is no built-in, the first entry that is the same workout. None: the result's own definition."""
+    from .workout import WorkoutLibrary
+    for i, d in enumerate(library):
+        if d.id == recorded.id:
+            return i
+    if WorkoutLibrary.definition(recorded.id) is not None:
+        return None
+    for i, d in enumerate(library):
+        if is_same_workout(d, recorded):
+            return i
+    return None
+
+
 def results_of(definition: WorkoutDefinition, results: list) -> list:
     """Results of this workout, newest start first."""
     out = [r for r in results if is_same_workout(definition, r.definition)]

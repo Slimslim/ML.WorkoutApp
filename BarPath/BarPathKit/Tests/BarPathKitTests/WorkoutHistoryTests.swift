@@ -38,6 +38,34 @@ final class WorkoutHistoryTests: XCTestCase {
                              totalSeconds: 600, segments: [], events: [])
     }
 
+    /// #137: which library workout a recorded result opens from the calendar; its history always
+    /// contains that result. Same cases as test_library_index_for_calendar_page.
+    func testLibraryIndexForCalendarPage() throws {
+        let seesaw: WorkoutDefinition = try libraryDefinition("lib.example.20261101.seesaw")
+        let pcj: WorkoutDefinition = try libraryDefinition("lib.example.20261101.power-cj-emom")
+        let library: [WorkoutDefinition] = [pcj, seesaw]
+        XCTAssertEqual(WorkoutHistory.libraryIndex(for: seesaw, in: library), 1)
+        XCTAssertEqual(WorkoutHistory.libraryIndex(for: renamed(seesaw, "wod.seesaw"), in: library), 1)
+        let helen: WorkoutDefinition = WorkoutLibrary.helen
+        XCTAssertNil(WorkoutHistory.libraryIndex(for: helen,
+                                                 in: library + [renamed(helen, "lib.x.20261101.helen")]))
+        XCTAssertNil(WorkoutHistory.libraryIndex(for: WorkoutLibrary.free, in: library))
+        var gone: WorkoutDefinition = renamed(seesaw, "lib.gone.20261101.x")
+        gone.name = "Deleted"
+        XCTAssertNil(WorkoutHistory.libraryIndex(for: gone, in: library))
+        for recorded in [seesaw, renamed(seesaw, "wod.seesaw"), helen, WorkoutLibrary.free, gone] {
+            let r: WorkoutResult = result(recorded, day: 10)
+            let page: WorkoutDefinition
+            if let i = WorkoutHistory.libraryIndex(for: recorded, in: library) {
+                page = library[i]
+            } else {
+                page = recorded
+            }
+            XCTAssertEqual(WorkoutHistory.results(of: page, in: [r]).map { (x: WorkoutResult) -> UUID in x.id },
+                           [r.id], recorded.id)
+        }
+    }
+
     func testNormalizedName() {
         XCTAssertEqual(WorkoutHistory.normalizedName("Every 1:00 × 8: Power C&J"), "every 1 00 8 power c j")
         XCTAssertEqual(WorkoutHistory.normalizedName("  SEESAW "), "seesaw")
