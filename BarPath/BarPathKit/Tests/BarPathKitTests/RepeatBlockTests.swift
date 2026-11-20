@@ -42,6 +42,7 @@ final class RepeatBlockTests: XCTestCase {
         let noFinish: [Int]
         let endReasons: [EndCase]
         let windowEnds: [[Double]]
+        let windowTargets: [[Int?]]
         let scores: [[Int]]
     }
 
@@ -98,6 +99,16 @@ final class RepeatBlockTests: XCTestCase {
             if c.windowEnds.isEmpty {
                 XCTAssertNil(RepeatBlock.windowEnd(plan, stepStartElapsed: 10.0), c.name)
             }
+            for w in c.windowTargets {
+                guard w.count == 2, let step = w[0] else {
+                    XCTFail("\(c.name): bad windowTargets row")
+                    continue
+                }
+                XCTAssertEqual(RepeatBlock.windowTargetStep(plan, step: step), w[1], "\(c.name) step \(step)")
+            }
+            if c.windowTargets.isEmpty {
+                XCTAssertNil(RepeatBlock.windowTargetStep(plan, step: 0), c.name)
+            }
             for sc in c.scores {
                 let got: (passes: Int, workParts: Int) = RepeatBlock.score(plan, definition: c.definition,
                                                                           completedSteps: sc[0])
@@ -153,6 +164,32 @@ final class RepeatBlockTests: XCTestCase {
             }
         }
         XCTAssertGreaterThanOrEqual(checked, 3)
+    }
+
+    /// Every interval built-in: as a block of one set, the window target is what WorkoutProgress
+    /// does today (its roundSize is the block), so EMOM / Tabata timing doesn't change.
+    func testTodaysIntervalRowsKeepTheirWindow() {
+        var checked: Int = 0
+        let known: [WorkoutDefinition] = WorkoutLibrary.all + [WorkoutLibrary.amrap20, WorkoutLibrary.quickTest]
+        for d in known {
+            guard let interval = d.intervalSeconds, interval > 0, let rs = d.roundSize, rs > 0,
+                  d.segments.count > rs else { continue }
+            var block: WorkoutDefinition = d
+            block.segments = Array(d.segments.prefix(rs))
+            block.rounds = (d.segments.count + rs - 1) / rs
+            let plan: RepeatBlock.Plan = RepeatBlock.plan(for: block)
+            guard let limit = plan.stepLimit else {
+                XCTFail(d.id)
+                continue
+            }
+            for step in 0..<(d.segments.count - 1) {
+                let today: Int = (step / rs + 1) * rs
+                let want: Int? = today < limit ? today : nil
+                XCTAssertEqual(RepeatBlock.windowTargetStep(plan, step: step), want, "\(d.id) \(step)")
+            }
+            checked += 1
+        }
+        XCTAssertGreaterThanOrEqual(checked, 1)
     }
 
     func testHyroxIsAFixedList() {
