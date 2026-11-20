@@ -484,7 +484,9 @@ final class WorkoutSessionModel: ObservableObject {
     private func resetForStart(definition: WorkoutDefinition, demo: Bool) {
         isDemo = demo
         workoutId = UUID()
-        progress = WorkoutProgress(definition: definition)
+        // An AMRAP's round is written out until it can't run out before the cap (#138); the
+        // checkpoint stores this progress, so a restored workout keeps the expanded list.
+        progress = WorkoutProgress(definition: definition.expandedForAmrap())
         heartRates = []
         sawHeartRate = false
         pedometerSamples = []

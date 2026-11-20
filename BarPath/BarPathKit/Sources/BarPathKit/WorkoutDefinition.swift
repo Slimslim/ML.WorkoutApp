@@ -194,13 +194,18 @@ public struct WorkoutDefinition: Codable, Equatable, Identifiable {
     /// partial (Row + Thrusters has no rest after set 6). Optional in JSON (older files: nil,
     /// and WorkoutSummary detects the pattern).
     public var roundSize: Int?
+    /// Repeating block (WORKOUT_SPEC 5c): passes of the listed block for "rounds for time" and an
+    /// EMOM with a round count. Optional in JSON; builds before 0.18 ignore it. Only RepeatBlock
+    /// reads it so far.
+    public var rounds: Int?
 
     public init(id: String, name: String, shortName: String, format: WorkoutFormat,
                 team: TeamFormat, timeCapSeconds: Double?, healthKitActivity: String,
                 segments: [WorkoutSegment], intervalSeconds: Double? = nil,
-                roundSize: Int? = nil) {
+                roundSize: Int? = nil, rounds: Int? = nil) {
         self.intervalSeconds = intervalSeconds
         self.roundSize = roundSize
+        self.rounds = rounds
         self.id = id
         self.name = name
         self.shortName = shortName

@@ -3,7 +3,7 @@ import XCTest
 @testable import BarPathKit
 
 /// Which results belong to a workout; same cases as tools/tests/test_workout_history.py. The
-/// library seed workouts come from the card parity fixture (they are the PitFIRE rows of Nov 2).
+/// library seed workouts come from the card parity fixture (invented examples, tools/library/seed).
 final class WorkoutHistoryTests: XCTestCase {
 
     private func libraryDefinition(_ id: String) throws -> WorkoutDefinition {
@@ -38,16 +38,44 @@ final class WorkoutHistoryTests: XCTestCase {
                              totalSeconds: 600, segments: [], events: [])
     }
 
+    /// #137: which library workout a recorded result opens from the calendar; its history always
+    /// contains that result. Same cases as test_library_index_for_calendar_page.
+    func testLibraryIndexForCalendarPage() throws {
+        let seesaw: WorkoutDefinition = try libraryDefinition("lib.example.20261101.seesaw")
+        let pcj: WorkoutDefinition = try libraryDefinition("lib.example.20261101.power-cj-emom")
+        let library: [WorkoutDefinition] = [pcj, seesaw]
+        XCTAssertEqual(WorkoutHistory.libraryIndex(for: seesaw, in: library), 1)
+        XCTAssertEqual(WorkoutHistory.libraryIndex(for: renamed(seesaw, "wod.seesaw"), in: library), 1)
+        let helen: WorkoutDefinition = WorkoutLibrary.helen
+        XCTAssertNil(WorkoutHistory.libraryIndex(for: helen,
+                                                 in: library + [renamed(helen, "lib.x.20261101.helen")]))
+        XCTAssertNil(WorkoutHistory.libraryIndex(for: WorkoutLibrary.free, in: library))
+        var gone: WorkoutDefinition = renamed(seesaw, "lib.gone.20261101.x")
+        gone.name = "Deleted"
+        XCTAssertNil(WorkoutHistory.libraryIndex(for: gone, in: library))
+        for recorded in [seesaw, renamed(seesaw, "wod.seesaw"), helen, WorkoutLibrary.free, gone] {
+            let r: WorkoutResult = result(recorded, day: 10)
+            let page: WorkoutDefinition
+            if let i = WorkoutHistory.libraryIndex(for: recorded, in: library) {
+                page = library[i]
+            } else {
+                page = recorded
+            }
+            XCTAssertEqual(WorkoutHistory.results(of: page, in: [r]).map { (x: WorkoutResult) -> UUID in x.id },
+                           [r.id], recorded.id)
+        }
+    }
+
     func testNormalizedName() {
         XCTAssertEqual(WorkoutHistory.normalizedName("Every 1:00 × 8: Power C&J"), "every 1 00 8 power c j")
-        XCTAssertEqual(WorkoutHistory.normalizedName("  FREEDOM "), "freedom")
+        XCTAssertEqual(WorkoutHistory.normalizedName("  SEESAW "), "seesaw")
         XCTAssertEqual(WorkoutHistory.normalizedName("Café  “Game Over”"), "cafe game over")
         XCTAssertEqual(WorkoutHistory.normalizedName(""), "")
     }
 
-    func testFreedomBuiltInIdMatchesLibraryRow() throws {
-        let lib: WorkoutDefinition = try libraryDefinition("lib.pitfire.20261102.freedom")
-        var old: WorkoutDefinition = renamed(lib, "wod.freedom")
+    func testBuiltInIdMatchesLibraryRow() throws {
+        let lib: WorkoutDefinition = try libraryDefinition("lib.example.20261101.seesaw")
+        var old: WorkoutDefinition = renamed(lib, "wod.seesaw")
         for i in 0..<old.segments.count where old.segments[i].load != nil {
             old.segments[i].load = SegmentLoad(85, SegmentLoad.Unit.kg)
         }
@@ -56,12 +84,12 @@ final class WorkoutHistoryTests: XCTestCase {
     }
 
     func testPcjEmomBuiltInIdMatchesLibraryRow() throws {
-        let lib: WorkoutDefinition = try libraryDefinition("lib.pitfire.20261102.pcj-emom")
+        let lib: WorkoutDefinition = try libraryDefinition("lib.example.20261101.power-cj-emom")
         XCTAssertTrue(WorkoutHistory.isSameWorkout(lib, renamed(lib, "wod.pcjEmom")))
     }
 
     func testSameNameOtherMovementsDoNotMatch() throws {
-        let lib: WorkoutDefinition = try libraryDefinition("lib.pitfire.20261102.freedom")
+        let lib: WorkoutDefinition = try libraryDefinition("lib.example.20261101.seesaw")
         var other: WorkoutDefinition = renamed(lib, "wod.other")
         other.segments[1].movement = "thrusters"
         XCTAssertFalse(WorkoutHistory.isSameWorkout(lib, other))
@@ -71,7 +99,7 @@ final class WorkoutHistoryTests: XCTestCase {
     }
 
     func testSameMovementsOtherNameDoNotMatch() throws {
-        let lib: WorkoutDefinition = try libraryDefinition("lib.pitfire.20261102.freedom")
+        let lib: WorkoutDefinition = try libraryDefinition("lib.example.20261101.seesaw")
         var other: WorkoutDefinition = renamed(lib, "wod.liberty")
         other.name = "Liberty"
         XCTAssertFalse(WorkoutHistory.isSameWorkout(lib, other))
@@ -87,17 +115,17 @@ final class WorkoutHistoryTests: XCTestCase {
     }
 
     func testMovementSequence() throws {
-        let lib: WorkoutDefinition = try libraryDefinition("lib.pitfire.20261102.pcj-emom")
+        let lib: WorkoutDefinition = try libraryDefinition("lib.example.20261101.power-cj-emom")
         XCTAssertEqual(Array(WorkoutHistory.movementSequence(lib).prefix(2)),
                        ["station:powerCleanAndJerk", "rest:rest"])
     }
 
     func testResultsNewestFirst() throws {
-        let lib: WorkoutDefinition = try libraryDefinition("lib.pitfire.20261102.freedom")
+        let lib: WorkoutDefinition = try libraryDefinition("lib.example.20261101.seesaw")
         guard let helenDef = WorkoutLibrary.definition(id: "wod.helen") else {
             throw XCTSkip("no Helen")
         }
-        let a: WorkoutResult = result(renamed(lib, "wod.freedom"), day: 2)
+        let a: WorkoutResult = result(renamed(lib, "wod.seesaw"), day: 2)
         let b: WorkoutResult = result(lib, day: 9)
         let helen: WorkoutResult = result(helenDef, day: 5)
         let all: [WorkoutResult] = [a, helen, b]
@@ -106,16 +134,16 @@ final class WorkoutHistoryTests: XCTestCase {
     }
 
     func testSegmentLinesQuantityFirst() throws {
-        let pcj: WorkoutDefinition = try libraryDefinition("lib.pitfire.20261102.pcj-emom")
-        XCTAssertEqual(pcj.segments.prefix(2).map { WorkoutCard.segmentLine($0).full }, ["2 Power C&J", "Rest"])
+        let pcj: WorkoutDefinition = try libraryDefinition("lib.example.20261101.power-cj-emom")
+        XCTAssertEqual(pcj.segments.prefix(2).map { WorkoutCard.segmentLine($0).full }, ["3 Power C&J", "Rest"])
         guard let helen = WorkoutLibrary.definition(id: "wod.helen") else {
             throw XCTSkip("no Helen")
         }
         XCTAssertEqual(helen.segments.prefix(3).map { WorkoutCard.segmentLine($0).full },
                        ["400 m Run", "21 KB Swings", "12 Pull-ups"])
-        let freedom: WorkoutDefinition = try libraryDefinition("lib.pitfire.20261102.freedom")
-        XCTAssertEqual(freedom.segments.prefix(2).map { WorkoutCard.segmentLine($0).full },
-                       ["40 Cal Row", "7 Power Cleans @155 lb"])
+        let seesaw: WorkoutDefinition = try libraryDefinition("lib.example.20261101.seesaw")
+        XCTAssertEqual(seesaw.segments.prefix(2).map { WorkoutCard.segmentLine($0).full },
+                       ["30 Cal Row", "5 Power Cleans @135 lb"])
     }
 
     func testSameMovementsIgnoresTheName() {

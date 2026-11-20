@@ -45,16 +45,16 @@ def test_seed_definitions():
         d, _, _, _, _ = make_row.load_file(f)
         definition = make_row.validate_definition(d)
         by_id[definition.id] = definition
-    freedom = by_id["lib.pitfire.20261102.freedom"]
-    assert freedom.format == "forTime" and freedom.time_cap_seconds == 1200
-    assert [s.target.value for s in freedom.segments if s.movement == "row"] == [40, 30, 20, 30, 40]
-    cleans = [s for s in freedom.segments if s.movement == "powerCleans"]
-    assert len(cleans) == 5 and all(s.target.value == 7 and s.load.value == 155 and s.load.unit == "lb"
+    seesaw = by_id["lib.example.20261101.seesaw"]
+    assert seesaw.format == "forTime" and seesaw.time_cap_seconds == 1080
+    assert [s.target.value for s in seesaw.segments if s.movement == "row"] == [30, 24, 18, 24, 30]
+    cleans = [s for s in seesaw.segments if s.movement == "powerCleans"]
+    assert len(cleans) == 5 and all(s.target.value == 5 and s.load.value == 135 and s.load.unit == "lb"
                                     for s in cleans)
-    emom = by_id["lib.pitfire.20261102.pcj-emom"]
-    assert emom.format == "emom" and emom.interval_seconds == 60 and emom.round_size == 2
-    assert len(emom.segments) == 15
-    assert sum(1 for s in emom.segments if s.kind == "station" and s.target.value == 2) == 8
+    emom = by_id["lib.example.20261101.power-cj-emom"]
+    assert emom.format == "emom" and emom.interval_seconds == 90 and emom.round_size == 2
+    assert len(emom.segments) == 11
+    assert sum(1 for s in emom.segments if s.kind == "station" and s.target.value == 3) == 6
     assert [s.kind for s in emom.segments[:2]] == ["station", "rest"]
 
 
@@ -80,7 +80,7 @@ def base():
 def test_rejects_built_in_and_bad_ids():
     with pytest.raises(make_row.LibraryError, match="built-in"):
         make_row.validate_definition(dict(base(), id="wod.helen"))
-    for bad in ("helen", "lib.", "lib.Mayhem.20261110.x", "lib.only", "lib.a b.c"):
+    for bad in ("helen", "lib.", "lib.Example.20261110.x", "lib.only", "lib.a b.c"):
         with pytest.raises(make_row.LibraryError):
             make_row.validate_definition(dict(base(), id=bad))
     make_row.validate_definition(base())
@@ -113,7 +113,7 @@ def test_rejects_bad_values():
 
 def test_sql_quotes_and_upserts():
     d = dict(base(), name="Murph's day")
-    sql = make_row.make_row(make_row.validate_definition(d), "Blue Republic", "2026-11-10")
+    sql = make_row.make_row(make_row.validate_definition(d), "Test Gym", "2026-11-10")
     assert "Murph''s day" in sql
     assert "on conflict (id) do update" in sql
     assert "'2026-11-10'::date" in sql
@@ -133,13 +133,13 @@ def test_builtin_option(capsys):
 
 def test_gym_rows_carry_the_gym_and_public_rows_stay_unchanged():
     d = make_row.validate_definition(base())
-    public = make_row.make_row(d, "Mayhem", "2026-11-10")
+    public = make_row.make_row(d, "Example", "2026-11-10")
     assert "gym_id" not in public
-    gym = make_row.make_row(d, "Mayhem", "2026-11-10", gym="blue-republic")
+    gym = make_row.make_row(d, "Example", "2026-11-10", gym="test-gym")
     assert "(id, definition, program, scheduled_on, published, gym_id)" in gym
-    assert "'blue-republic')" in gym and "gym_id = excluded.gym_id" in gym
+    assert "'test-gym')" in gym and "gym_id = excluded.gym_id" in gym
     with pytest.raises(make_row.LibraryError, match="slug"):
-        make_row.make_row(d, None, None, gym="Blue Republic")
+        make_row.make_row(d, None, None, gym="Test Gym")
 
 
 OWNER_A = "1a2b3c4d-0000-4000-8000-000000000001"
@@ -160,7 +160,7 @@ def test_owner_rows_need_the_suffix_and_do_not_overwrite_other_owners():
     with pytest.raises(make_row.LibraryError, match="UUID"):
         make_row.validate_definition(base(), "not-a-uuid")
     d = make_row.validate_definition(owner_base(OWNER_A), OWNER_A)
-    sql = make_row.make_row(d, "Mayhem", "2026-11-10", owner=OWNER_A)
+    sql = make_row.make_row(d, "Example", "2026-11-10", owner=OWNER_A)
     assert "(id, definition, program, scheduled_on, published, owner)" in sql
     assert f"'{OWNER_A}'::uuid)" in sql
     assert sql.rstrip().endswith("where public.workout_library.owner = excluded.owner;")
@@ -172,8 +172,8 @@ def test_owner_rows_need_the_suffix_and_do_not_overwrite_other_owners():
 def test_owner_and_gym_are_exclusive_and_public_sql_is_unchanged():
     d = make_row.validate_definition(owner_base(OWNER_A), OWNER_A)
     with pytest.raises(make_row.LibraryError, match="never both"):
-        make_row.make_row(d, None, None, gym="blue-republic", owner=OWNER_A)
-    public = make_row.make_row(make_row.validate_definition(base()), "Mayhem", "2026-11-10")
+        make_row.make_row(d, None, None, gym="test-gym", owner=OWNER_A)
+    public = make_row.make_row(make_row.validate_definition(base()), "Example", "2026-11-10")
     assert "owner" not in public and "where" not in public
 
 
@@ -182,11 +182,11 @@ def test_owner_option_and_json_key(tmp_path, capsys):
             "--program", "Benchmark", "--date", "2026-11-10"]
     assert make_row.main(args + ["--owner", OWNER_A]) == 0
     assert "excluded.owner" in capsys.readouterr().out
-    assert make_row.main(args + ["--owner", OWNER_A, "--gym", "blue-republic"]) == 1
+    assert make_row.main(args + ["--owner", OWNER_A, "--gym", "test-gym"]) == 1
     assert make_row.main(args[:2] + ["lib.benchmark.20261110.helen"] + args[4:] + ["--owner", OWNER_A]) == 1
     capsys.readouterr()
     f = tmp_path / "w.json"
-    f.write_text(json.dumps({"program": "Mayhem", "scheduled_on": "2026-11-10", "owner": OWNER_A,
+    f.write_text(json.dumps({"program": "Example", "scheduled_on": "2026-11-10", "owner": OWNER_A,
                              "definition": owner_base(OWNER_A)}))
     assert make_row.main([str(f)]) == 0
     assert f"'{OWNER_A}'::uuid" in capsys.readouterr().out

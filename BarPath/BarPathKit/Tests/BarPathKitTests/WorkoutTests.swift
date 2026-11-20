@@ -40,7 +40,7 @@ final class WorkoutTests: XCTestCase {
         XCTAssertEqual(a40.segments.count, 60)
         XCTAssertEqual(a40.roundSize, 5)
         XCTAssertEqual(a40.timeCapSeconds, 2400.0)
-        XCTAssertEqual(a40.segments[0].title, "Row / Bike 12 cal")
+        XCTAssertEqual(a40.segments[0].title, "Row / SkiErg 14 cal")
         XCTAssertEqual(a40.segments[4].kind, SegmentKind.rest)
         XCTAssertEqual(a40.segments[4].target?.value, 60.0)
     }

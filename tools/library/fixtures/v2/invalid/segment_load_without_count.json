@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 2,
+  "id": "lib.test.20261118.bad",
+  "name": "Every 1:00 x 4: Air Squats",
+  "shortName": "Squat EMOM",
+  "format": "emom",
+  "team": "solo",
+  "healthKitActivity": "functionalStrengthTraining",
+  "segments": [
+    {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+        "value": 10,
+        "unit": "reps"
+      },
+      "load": {
+        "value": 20,
+        "unit": "kg"
+      }
+    },
+    {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+    },
+    {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+        "value": 10,
+        "unit": "reps"
+      }
+    },
+    {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+    },
+    {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+        "value": 10,
+        "unit": "reps"
+      }
+    },
+    {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+    },
+    {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+        "value": 10,
+        "unit": "reps"
+      }
+    }
+  ],
+  "timeCapSeconds": 240.0,
+  "intervalSeconds": 60.0,
+  "roundSize": 2,
+  "structure": {
+    "score": {
+      "type": "windowsCompleted",
+      "better": "higher"
+    },
+    "body": [
+      {
+        "repeat": {
+          "id": "min",
+          "times": 4,
+          "body": [
+            {
+              "timed": {
+                "id": "w",
+                "seconds": 60,
+                "early": "wait",
+                "late": "cut",
+                "body": [
+                  {
+                    "part": {
+                      "id": "sq",
+                      "kind": "station",
+                      "movement": "airSquats",
+                      "name": "Air Squats",
+                      "target": {
+                        "value": 10,
+                        "unit": "reps"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "fidelity": "exact",
+  "x-sourceTag": "synthetic",
+  "stimulus": {
+    "minutes": [
+      4,
+      4
+    ]
+  }
+}

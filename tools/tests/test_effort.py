@@ -28,7 +28,7 @@ def result(segments, done, finished=True, series=None, partial=None,
                          segments=results, events=[], heart_rate_series=series, partial_reps=partial)
 
 
-def cleans(reps=7.0, load=SegmentLoad(155, "lb")):
+def cleans(reps=5.0, load=SegmentLoad(135, "lb")):
     return WorkoutSegment(kind="station", movement="powerCleans", name="Power Cleans",
                           target=SegmentTarget(reps, "reps"), load=load)
 
@@ -49,6 +49,8 @@ def test_parity_fixture(case):
     assert series_effort(series, case["finish"], case["maxHeartRate"]) == case["effort"]
 
 
+@pytest.mark.skipif(not list(RAW.glob("workout-*.json")),
+                    reason="recording not in data/raw (python3 tools/fetch_corpus.py)")
 def test_real_class():
     results = [WorkoutResult.from_dict(json.loads(p.read_text())) for p in RAW.glob("workout-*.json")]
     assert highest_heart_rate(results) == 176
@@ -65,22 +67,22 @@ def test_max_comes_from_the_stored_max_without_a_series():
 
 def test_weight_lifted():
     r = result([cleans()], [(0, "station")])
-    assert weight_lifted_kg(r) == pytest.approx(7 * 155 * 0.45359237)
+    assert weight_lifted_kg(r) == pytest.approx(5 * 135 * 0.45359237)
     two = SegmentLoad(50, "lb", count=2)
     assert weight_lifted_kg(result([cleans(10, two)], [(0, "station")])) == pytest.approx(
         10 * 100 * 0.45359237)
 
 
 def test_weight_lifted_skips_what_it_cannot_know():
-    cals = WorkoutSegment(kind="station", movement="row", name="Row", target=SegmentTarget(40, "calories"),
-                          load=SegmentLoad(155, "lb"))
+    cals = WorkoutSegment(kind="station", movement="row", name="Row", target=SegmentTarget(30, "calories"),
+                          load=SegmentLoad(135, "lb"))
     assert weight_lifted_kg(result([cals, cleans(load=None)], [(0, "station"), (1, "station")])) == 0
     assert weight_lifted_kg(result([], [])) == 0
 
 
 def test_weight_lifted_unfinished_and_wrapped():
     r = result([cleans()], [(0, "station"), (1, "station")], finished=False, partial=3)
-    assert weight_lifted_kg(r) == pytest.approx((7 + 3) * 155 * 0.45359237)
+    assert weight_lifted_kg(r) == pytest.approx((5 + 3) * 135 * 0.45359237)
 
 
 def test_days_group_by_local_day_and_keep_missing_heart_rate():

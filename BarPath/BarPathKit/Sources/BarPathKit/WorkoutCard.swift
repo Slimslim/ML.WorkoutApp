@@ -6,7 +6,7 @@ import Foundation
 ///     block tag · type tag (top-right; the app adds date · program top-left)
 ///     name, or the format as the name
 ///     time-domain line   "40 min AMRAP · rest 1 min between rounds", "Every 1:00 × 8", "3 rounds"
-///     rep-scheme line    "40-30-20-30-40 Cal", "8 × (1000 m Run + station)"
+///     rep-scheme line    "30-24-18-24-30 Cal", "8 × (1000 m Run + station)"
 ///     movement lines     "qty unit movement @load", one round only
 ///     cap line           "20 min cap" (for-time caps only)
 ///
@@ -48,7 +48,7 @@ public struct WorkoutCard: Equatable {
         }
     }
 
-    /// One movement line: `text` "7 Power Cleans", `load` "155 lb" (shown as "@155 lb").
+    /// One movement line: `text` "5 Power Cleans", `load` "135 lb" (shown as "@135 lb").
     public struct Line: Equatable {
         public let text: String
         public let load: String?
@@ -58,7 +58,7 @@ public struct WorkoutCard: Equatable {
             self.load = load
         }
 
-        /// "7 Power Cleans @155 lb".
+        /// "5 Power Cleans @135 lb".
         public var full: String {
             guard let l = load else { return text }
             return text + " @" + l
@@ -75,7 +75,7 @@ public struct WorkoutCard: Equatable {
     /// One round (or the whole list for chippers), rests left out.
     public let lines: [Line]
     public let capLine: String?
-    /// One line for compact rows: "40-30-20-30-40 Cal Row · 7 Power Cleans @155 lb".
+    /// One line for compact rows: "30-24-18-24-30 Cal Row · 5 Power Cleans @135 lb".
     public let summaryLine: String
 
     public static let freeWorkoutId: String = "free.workout"
@@ -277,7 +277,7 @@ enum CardText {
         return clock(seconds)
     }
 
-    /// "155 lb", "2 × 40 lb" (without the "@").
+    /// "135 lb", "2 × 40 lb" (without the "@").
     static func load(_ segment: WorkoutSegment) -> String? {
         guard let l = segment.load else { return nil }
         let v: String = number(l.value) + " " + l.unit.rawValue
@@ -305,7 +305,7 @@ enum CardText {
         return s.name
     }
 
-    /// "21 KB Swings", "12 Cal Row", "400 m Run", "1:00 Suitcase Hold", "7 Power Cleans" @ "155 lb".
+    /// "21 KB Swings", "12 Cal Row", "400 m Run", "1:00 Suitcase Hold", "5 Power Cleans" @ "135 lb".
     /// Without the quantity (under a shared rep scheme): the singular name.
     static func line(_ s: WorkoutSegment, withQuantity: Bool = true) -> WorkoutCard.Line {
         let l: String? = load(s)
@@ -398,7 +398,7 @@ struct CardShape {
     }
 
     /// Rounds where some positions change only their target value, all in the same sequence
-    /// (40-30-20-30-40 Cal), and the others stay fixed (7 Power Cleans).
+    /// (30-24-18-24-30 Cal), and the others stay fixed (5 Power Cleans).
     private mutating func trySchemeRounds(_ segs: [WorkoutSegment], _ r: Int) -> Bool {
         let count: Int = segs.count / r
         if count < 2 { return false }
@@ -430,7 +430,7 @@ struct CardShape {
         }
         kind = .scheme
         rounds = count
-        // Calories move to the movement line: "40-30-20-30-40" then "Cal Row".
+        // Calories move to the movement line: "30-24-18-24-30" then "Cal Row".
         schemeLine = values.map { (v: Double) -> String in CardText.number(v) }.joined(separator: "-")
             + (unit == .calories ? "" : CardText.unitSuffix(unit))
         for p in 0..<r {

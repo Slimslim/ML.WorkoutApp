@@ -22,8 +22,34 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install numpy pytest
+      - run: pip install numpy pytest jsonschema
       - run: python -m pytest tools/tests -q
+
+  supabase:
+    name: Supabase migration tests
+    runs-on: ubuntu-latest
+    # A throwaway database from Supabase's own Postgres image (auth schema, API roles,
+    # pg_jsonschema); synthetic data only. Never the live project (RFC 7.2.8).
+    services:
+      postgres:
+        image: supabase/postgres:15.8.1.085
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 54322:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -h localhost"
+          --health-interval 5s --health-timeout 5s --health-retries 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install numpy jsonschema
+      - name: Migrations, RLS, schema checks, legacy copy, paging, rollback
+        env:
+          PGURL: postgres://postgres:postgres@localhost:54322/postgres
+        run: supabase/tests/run.sh
 
   swift-linux:
     name: BarPathKit tests (Linux)

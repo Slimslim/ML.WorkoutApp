@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Launch Screen-->
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" image="LaunchYear" translatesAutoresizingMaskIntoConstraints="NO" id="Yr0-0a-001" userLabel="Year 20 over 26">
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                            </imageView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="LaunchLogo" translatesAutoresizingMaskIntoConstraints="NO" id="Lg0-0a-002" userLabel="Logo">
+                                <rect key="frame" x="118" y="402" width="157" height="48"/>
+                            </imageView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" name="LaunchBackground"/>
+                        <constraints>
+                            <constraint firstItem="Yr0-0a-001" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="cY1-0a-001"/>
+                            <constraint firstItem="Yr0-0a-001" firstAttribute="bottom" secondItem="Ze5-6b-2t3" secondAttribute="bottom" id="cY2-0a-002"/>
+                            <constraint firstItem="Yr0-0a-001" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="cY3-0a-003"/>
+                            <constraint firstItem="Yr0-0a-001" firstAttribute="trailing" secondItem="Ze5-6b-2t3" secondAttribute="trailing" id="cY4-0a-004"/>
+                            <constraint firstItem="Lg0-0a-002" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="cL1-0a-009"/>
+                            <constraint firstItem="Lg0-0a-002" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="cL2-0a-010"/>
+                            <constraint firstItem="Lg0-0a-002" firstAttribute="width" constant="157" id="cL3-0a-011"/>
+                            <constraint firstItem="Lg0-0a-002" firstAttribute="height" constant="48" id="cL4-0a-012"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="53" y="375"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="LaunchLogo" width="157" height="48"/>
+        <image name="LaunchYear" width="257.5" height="444"/>
+        <namedColor name="LaunchBackground">
+            <color red="0.94509803921568625" green="0.94117647058823528" blue="0.92549019607843142" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>

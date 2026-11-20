@@ -75,7 +75,7 @@ the tester guide keeps "open the phone app after the session".
 4. **Fix only what breaks** in those sessions; new build number.
 5. **Practical checks:** a 60-min session's watch battery; upload size (Data mode is ~30 MB per
    40 min) and whether uploads wait for Wi-Fi; what happens with no signal in the gym.
-6. **Library:** move the owner's gym programming (Mayhem, Blue Republic, PitFIRE rows) from the shared
+6. **Library:** move the owner's gym and subscription programming rows from the shared
    library to the owner's private rows, so testers only see their own program and public benchmarks.
 7. **Tester guide** (one page, below) sent with the invite; testers do the practice workout first.
 

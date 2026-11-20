@@ -42,7 +42,7 @@ struct LibraryWorkout: Codable, Equatable, Identifiable {
         return date.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day())
     }
 
-    /// "Mayhem · Mon, Nov 2", "Mayhem", "Mon, Nov 2" or nil.
+    /// "Example · Mon, Nov 2", "Example", "Mon, Nov 2" or nil.
     var caption: String? {
         var parts: [String] = []
         if let program = program, !program.isEmpty { parts.append(program) }

@@ -6,7 +6,7 @@ Turns a WorkoutDefinition into the lines of the workout card (docs/concepts/HEAD
     top-left meta (set by the app) ............ block tag · type tag (top-right)
     name (or the format as the name)
     time-domain line   "40 min AMRAP · rest 1 min between rounds", "Every 1:00 × 8", "3 rounds"
-    rep-scheme line    "40-30-20-30-40 Cal", "8 × (1000 m Run + station)"
+    rep-scheme line    "30-24-18-24-30 Cal", "8 × (1000 m Run + station)"
     movement lines     "qty unit movement @load", one round only
     cap line           "20 min cap" (for-time caps only)
 
@@ -103,7 +103,7 @@ def duration_text(seconds: float) -> str:
 
 
 def load_text(seg: WorkoutSegment) -> Optional[str]:
-    """'155 lb', '2 × 40 lb' (without the '@')."""
+    """'135 lb', '2 × 40 lb' (without the '@')."""
     if seg.load is None:
         return None
     v = _number(seg.load.value) + " " + seg.load.unit
@@ -112,8 +112,8 @@ def load_text(seg: WorkoutSegment) -> Optional[str]:
 
 @dataclass
 class CardLine:
-    text: str                    # "7 Power Cleans"
-    load: Optional[str] = None   # "155 lb" (shown as "@155 lb")
+    text: str                    # "5 Power Cleans"
+    load: Optional[str] = None   # "135 lb" (shown as "@135 lb")
 
     @property
     def full(self) -> str:
@@ -134,7 +134,7 @@ class WorkoutCard:
     lines: list = field(default_factory=list)   # CardLine
     cap_line: Optional[str] = None
     summary_line: str = ""
-    # Rep-scheme line goes in front of these lines in the one-line summary (Freedom: "Row").
+    # Rep-scheme line goes in front of these lines in the one-line summary (Seesaw: "Row").
     scheme_line_indices: list = field(default_factory=list)
 
     @property
@@ -218,7 +218,7 @@ def _movement_name(seg: WorkoutSegment, plural: bool) -> str:
 
 
 def movement_line(seg: WorkoutSegment, with_quantity: bool = True) -> CardLine:
-    """'21 KB Swings', '12 Cal Row', '400 m Run', '1:00 Suitcase Hold', '7 Power Cleans' @ '155 lb'."""
+    """'21 KB Swings', '12 Cal Row', '400 m Run', '1:00 Suitcase Hold', '5 Power Cleans' @ '135 lb'."""
     load = load_text(seg)
     t = seg.target
     if t is None:
@@ -288,7 +288,7 @@ class _Shape:
 
     def _try_scheme(self, segs: list, r: int) -> bool:
         """Rounds where some positions change only their target value, all in the same sequence
-        (40-30-20-30-40 Cal), and the others stay fixed (7 Power Cleans)."""
+        (30-24-18-24-30 Cal), and the others stay fixed (5 Power Cleans)."""
         rounds = len(segs) // r
         if rounds < 2:
             return False
@@ -309,7 +309,7 @@ class _Shape:
                 return False
         self.kind = "scheme"
         self.rounds = rounds
-        # Calories move to the movement line: "40-30-20-30-40" then "Cal Row".
+        # Calories move to the movement line: "30-24-18-24-30" then "Cal Row".
         cal = first[0].unit == "calories"
         self.scheme_line = "-".join(_number(t.value) for t in first) + ("" if cal else _unit_suffix(first[0].unit))
         for p in range(r):

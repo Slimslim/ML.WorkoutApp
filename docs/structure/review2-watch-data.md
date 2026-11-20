@@ -5,7 +5,7 @@
 
 ## Required fixes
 
-1. **Motion detection can't find squat sets** (v2 §6, §7, §11 Mayhem walk, §12; decisions 1b).
+1. **Motion detection can't find squat sets** (v2 §6, §7, §11 program-day walk, §12; decisions 1b).
    - `LiftType` is Olympic lifts plus `other`.
    - `OnlineLiftDetector` needs a hanging forearm and a pull from the floor. Each detection is one rep, and nothing groups reps into sets.
    - `LiftAnalyzer` bar path assumes a pull.
@@ -67,9 +67,9 @@
    - Migration (S-07): an old lift session becomes a Session with one Lifting block, and an old result becomes one Metcon block. Old-format files must keep importing.
 
 10. **Score definitions** (M-3).
-    - Mayhem "3675 lbs" for 5×3 @ 245 is **Σ load×reps**, not a sum of loads. Fix mayhem-day.md too.
+    - A program's "total" for 5×3 (e.g. 3375 lb for 5×3 @ 225) is **Σ load×reps**, not a sum of loads.
     - For a "heaviest weight" scheme, the PR is the best set, which feeds the rep-max store.
-    - %1RM needs a base rule: the latest tested 1RM, otherwise the best estimate within 12 months, with the source shown. The 245×3 from 2024 beats the "recent" 3RM of 215.
+    - %1RM needs a base rule: the latest tested 1RM, otherwise the best estimate within 12 months, with the source shown. An old, heavier 3-rep set from 2024 beats a lower "recent" 3RM.
 
 11. **Roxzone vs target shape** (Q2/Q3). No sim has roxzone segments yet. If roxzone is on, the dress-rehearsal sim records it and becomes the shape.
 

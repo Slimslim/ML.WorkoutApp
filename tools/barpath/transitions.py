@@ -494,7 +494,7 @@ AMRAP40_EVEN = ("bike", "pullup", "snatch", "wallwalk", "rest")
 def load_workout(folder):
     """(motion, [{index, movement, label, start, end}]) with times in session seconds. Segment
     bounds come from the workout JSON (Crown presses); AMRAP 40 movements from the owner's labels
-    (odd rounds row/push-ups/C&J/burpees, even rounds bike/pull-ups/snatch/wall walks)."""
+    (two options per slot, alternated by round: AMRAP40_ODD / AMRAP40_EVEN)."""
     folder = Path(folder)
     csv = load_session_csv(glob.glob(str(folder / "session-*.csv"))[0])
     wk = json.load(open(glob.glob(str(folder / "workout-*.json"))[0]))
