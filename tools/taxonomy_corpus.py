@@ -31,21 +31,24 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from barpath import taxonomy as tx  # noqa: E402
 
-AXES = ("modality", "shape", "time_domain", "loading", "scoring")
+AXES = ("modality", "movements", "structure", "time_domain", "loading", "scoring")
 SQL = "select id, definition from public.workout_drafts"
 
 # The import's format -> what the taxonomy should say (checked, not trusted: a mismatch is listed).
-EXPECT_SHAPE = {
-    "emom": "intervals", "tabata": "intervals", "intervals_max_reps": "intervals",
-    "repeat_windows_max_reps": "intervals", "window_buyin_max_reps": "intervals",
-    "station_rotation": "intervals", "strength_sets": "strength_sets", "death_by": "intervals",
+# A loaded low-rep EMOM is strength (structure wins over the clock), so strength is accepted there.
+EXPECT_STRUCTURE = {
+    "emom": ("intervals", "strength"), "tabata": ("intervals",), "intervals_max_reps": ("intervals",),
+    "repeat_windows_max_reps": ("intervals",), "window_buyin_max_reps": ("intervals",),
+    "station_rotation": ("intervals",), "strength_sets": ("strength",), "death_by": ("ladder",),
+    "quality": ("practice",), "amrap_rounds": ("amrap", "ladder"), "amrap_reps": ("amrap", "ladder"),
+    "max_effort_test": ("strength", "for_time", "amrap"),
 }
 EXPECT_SCORING = {
     "for_time": "time", "rft": "time", "amrap_rounds": "rounds_reps", "amrap_reps": "reps",
-    "strength_sets": "load", "rft_each_round_timed": "time",
+    "strength_sets": "load", "rft_each_round_timed": "time", "death_by": "rounds_reps",
 }
 TIMED_FORMATS = ("emom", "tabata", "amrap_rounds", "amrap_reps", "intervals_max_reps",
-                 "repeat_windows_max_reps", "cycles_continued_amrap", "death_by")
+                 "repeat_windows_max_reps", "cycles_continued_amrap")   # death-by ends on failure
 
 
 def load_rows(args) -> list:
@@ -112,14 +115,14 @@ def run(rows, max_ids: int) -> dict:
                 if tx.modality_of(e.movement)[0] is None:
                     unknown_movements += 1
             fmt = base_format(cls)
-            want = EXPECT_SHAPE.get(fmt)
-            if want and c["shape"]["value"] not in (want, "multi_part"):
-                checks["shape_vs_format:%s->%s" % (fmt, c["shape"]["value"])].append(ref)
+            want = EXPECT_STRUCTURE.get(fmt)
+            if want and c["structure"]["value"] not in want + ("multi_part",):
+                checks["structure_vs_format:%s->%s" % (fmt, c["structure"]["value"])].append(ref)
             want = EXPECT_SCORING.get(fmt)
             if want and c["scoring"]["value"] not in (want, tx.UNKNOWN):
                 checks["scoring_vs_format:%s->%s" % (fmt, c["scoring"]["value"])].append(ref)
-            if fmt in TIMED_FORMATS and c["time_domain"]["reasons"][:1] != ["clock"] \
-                    and c["time_domain"]["reasons"][:1] != ["windows"]:
+            if fmt in TIMED_FORMATS and c["time_domain"]["value"] != tx.NA \
+                    and c["time_domain"]["reasons"][:1] not in (["clock"], ["sum_of_pieces"]):
                 checks["timed_format_without_clock:%s" % fmt].append(ref)
             if c["modality"]["value"] == tx.UNKNOWN and w.elements:
                 checks["all_movements_unknown"].append(ref)
