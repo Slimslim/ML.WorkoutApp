@@ -115,6 +115,30 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         }
     }
 
+    /// E2 (0.18): puts the workout engine (`workoutEngine`, "v2" | "legacy") in the application
+    /// context, every other key kept, and sends it as a message too when the watch is reachable.
+    /// Does nothing when the context already has it: a re-delivery to a reinstalled watch rides on
+    /// `PhoneDeviceInfo.send(force: true)`, which follows every call at activation and on watch
+    /// changes and sends the whole context. The watch keeps the last value it received.
+    func sendWorkoutEngine() {
+        guard WCSession.isSupported() else { return }
+        let session = WCSession.default
+        guard session.activationState == .activated, session.isPaired, session.isWatchAppInstalled else { return }
+        let engine: WorkoutEngine = EngineSwitchSetting.shared.engine
+        guard let context = WorkoutEngine.merged(context: session.applicationContext, engine: engine) else { return }
+        do {
+            try session.updateApplicationContext(context)
+        } catch {
+            NSLog("BarPath: could not send the workout engine: %@", error.localizedDescription)
+            return
+        }
+        if session.isReachable {
+            session.sendMessage([WorkoutEngine.contextKey: engine.rawValue], replyHandler: nil) { error in
+                NSLog("BarPath: workout engine message failed (context still queued): %@", error.localizedDescription)
+            }
+        }
+    }
+
     /// Opens BarPath on the paired watch (it comes to the foreground on the start screen).
     /// Uses HKHealthStore.startWatchApp, which works even when the watch app isn't running.
     func launchWatchApp(activityType: HKWorkoutActivityType = .traditionalStrengthTraining) {
@@ -173,6 +197,8 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
             payload[LiftSelection.contextKey] = lift
         }
         payload[PhoneLink.weightUnitKey] = AthleteProfile.shared.weightUnit.rawValue
+        // E2 (0.18): the workout engine, so picking a workout never drops it.
+        payload[WorkoutEngine.contextKey] = EngineSwitchSetting.shared.engine.rawValue
         // W29: phone model / iOS / build for the watch's recording header (new key, kept here).
         payload[PhoneDeviceContext.key] = PhoneDeviceInfo.dictionary()
         do {
@@ -271,6 +297,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         if activationState == .activated {
             DispatchQueue.main.async {
                 self.sendWeightUnit()
+                self.sendWorkoutEngine()
                 // #79: always re-send once per launch; the watch may have lost its copy.
                 PhoneDeviceInfo.send(force: true)
             }
@@ -291,6 +318,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         publishState(session)
         DispatchQueue.main.async {
             self.sendWeightUnit()
+            self.sendWorkoutEngine()
             // #79: the watch app may just have been (re)installed with an empty context.
             PhoneDeviceInfo.send(force: true)
         }

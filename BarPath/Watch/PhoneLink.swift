@@ -201,6 +201,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         handleWorkoutSelection(session.receivedApplicationContext)
         handleLiftSelection(session.receivedApplicationContext)
         handleWeightUnit(session.receivedApplicationContext)
+        WorkoutEngineSwitch.store(from: session.receivedApplicationContext)
         isReachable = session.isReachable
         let queued = queuedUntilActivated
         queuedUntilActivated = []
@@ -354,6 +355,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
             self.handleWorkoutSelection(message)
             self.handleLiftSelection(message)
             self.handleWeightUnit(message)
+            WorkoutEngineSwitch.store(from: message)
         }
     }
 
@@ -362,6 +364,7 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
             self.handleWorkoutSelection(applicationContext)
             self.handleLiftSelection(applicationContext)
             self.handleWeightUnit(applicationContext)
+            WorkoutEngineSwitch.store(from: applicationContext)
         }
     }
 
