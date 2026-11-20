@@ -52,7 +52,10 @@ Rest screen's Crown cue is the only prompt).
 
 1. Weight at rest: **variant A** (tap the weight, then the Crown). Owner's choice.
 2. Armed time-out: **yes, 3 min** (owner). Armed with no set → back to Rest, the rest counting on from
-   the last set; not while a rep / lift is under way. `LiftCycle.armedTimeout`.
+   the last set; not while a rep / lift is under way (deadlift: a rep seen; Olympic: READY at the
+   bar or lifting). A rep that had already started when it fired still counts and turns the rest
+   back into that set (`LiftCycle.listeningUntil`, `SetTracker.armedUntil`; review of #150). The
+   time-out is silent (no haptic). `LiftCycle.armedTimeout`.
 3. Forgotten Crown: **no reminder** (owner correction, 20 Nov). During rest the detector is simply
    ignored: no buzz, no prompt.
 4. Change lift: **on the End page** (owner OK).
