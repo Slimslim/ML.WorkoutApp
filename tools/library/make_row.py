@@ -22,6 +22,13 @@ kinds/units/formats, and have a `lib.` id that no built-in workout uses (the wat
 built-in version for a shared id). A v2 definition is also checked against
 schemas/workout-definition.v2.schema.json (needs `pip install jsonschema`), and its old keys are
 checked like a flat definition.
+
+An AMRAP must list its rounds out (#138): builds before 0.17.1 finish on the last listed segment, so
+a row needs `roundSize` and at least AMRAP_MIN_LISTED_ROUNDS listed rounds. `--repeat-rounds N`
+writes a flat AMRAP out to N rounds (its last full round repeated, roundSize set);
+`--rounds-listed-ok` lets a short AMRAP through on purpose.
+
+    python3 tools/library/make_row.py --repeat-rounds 30 workout.json
 """
 from __future__ import annotations
 
@@ -115,6 +122,51 @@ def validate_definition(d: dict, owner: Optional[str] = None) -> WorkoutDefiniti
     if definition.format == "amrap" and definition.time_cap_seconds is None:
         raise LibraryError("an AMRAP needs timeCapSeconds")
     return definition
+
+
+AMRAP_MIN_LISTED_ROUNDS = 10
+
+
+def check_amrap_rounds(d: dict) -> None:
+    """Raises LibraryError for an AMRAP (old keys) that does not list its rounds out: builds
+    before 0.17.1 offer Finish after the last listed segment, cap or not (#138)."""
+    if d.get("format") != "amrap":
+        return
+    segments = d.get("segments") or []
+    rs = d.get("roundSize")
+    hint = ("; write it out with --repeat-rounds 30, or pass --rounds-listed-ok if the short "
+            "list is on purpose")
+    if rs is None:
+        raise LibraryError("an AMRAP needs roundSize (the watch counts rounds with it)" + hint)
+    rounds = len(segments) // rs if rs > 0 else 0
+    if rounds < AMRAP_MIN_LISTED_ROUNDS:
+        raise LibraryError(f"an AMRAP must list at least {AMRAP_MIN_LISTED_ROUNDS} rounds "
+                           f"(this one lists {rounds}); builds before 0.17.1 finish after the "
+                           "last listed segment" + hint)
+
+
+def repeat_rounds(d: dict, rounds: int) -> dict:
+    """A flat AMRAP written out to `rounds` rounds: its last full round (roundSize segments, or the
+    whole list without roundSize) is repeated, and roundSize set. Already that long: unchanged."""
+    if rounds < 1:
+        raise LibraryError("--repeat-rounds needs a number >= 1")
+    if is_v2(d):
+        raise LibraryError("--repeat-rounds works on flat definitions only (a v2 row repeats "
+                           "through its structure)")
+    if d.get("format") != "amrap":
+        raise LibraryError("--repeat-rounds is for AMRAPs only")
+    segments = list(d.get("segments") or [])
+    if not segments:
+        raise LibraryError("segments must not be empty")
+    rs = d.get("roundSize")
+    r = rs if isinstance(rs, int) and 1 <= rs <= len(segments) else len(segments)
+    if len(segments) % r != 0:
+        raise LibraryError(f"{len(segments)} segments are not whole rounds of {r}: "
+                           "fix roundSize or the list first")
+    listed = len(segments) // r
+    block = segments[-r:]
+    segments += block * max(0, rounds - listed)
+    return dict(d, segments=segments, roundSize=r)
 
 
 def is_v2(d) -> bool:
@@ -337,6 +389,11 @@ def main(argv=None) -> int:
                          "compiler checks them (build 17 item 2), check the old keys against the structure by hand first")
     ap.add_argument("--owner", help="user id (UUID): that user's personal workout, seen only by them; "
                     "the id must end with .u<first 8 hex of the user id> (overrides the file)")
+    ap.add_argument("--repeat-rounds", type=int, metavar="N",
+                    help="AMRAP: write the list out to N rounds (last full round repeated, roundSize set)")
+    ap.add_argument("--rounds-listed-ok", action="store_true",
+                    help="let an AMRAP through without roundSize or with fewer than "
+                         f"{AMRAP_MIN_LISTED_ROUNDS} listed rounds (builds before 0.17.1 finish after them)")
     args = ap.parse_args(argv)
 
     items = []
@@ -366,12 +423,16 @@ def main(argv=None) -> int:
             day = args.date if args.date is not None else day
             published = published and not args.unpublished
             try:
+                if args.repeat_rounds is not None:
+                    d = repeat_rounds(d, args.repeat_rounds)
                 if owner is not None and gym is not None:
                     raise LibraryError("a row has an owner or a gym, never both")
                 if is_v2(d):
                     validate_v2(d, owner)
                     the_id, name = d["id"], d["name"]
                     copy = "legacy copy for builds 15/16" if legacy_copy(d) is not None else "no legacy copy (not exact)"
+                    if legacy_copy(d) is not None and not args.rounds_listed_ok:
+                        check_amrap_rounds(legacy_copy(d))
                     if published and legacy_copy(d) is not None and not args.trust_old_keys:
                         raise LibraryError("a published, exact v2 row is copied to builds 15/16, and nothing "
                                            "checks its old keys against the structure yet (build 17 item 2): "
@@ -379,6 +440,8 @@ def main(argv=None) -> int:
                     row = make_row_v2(d, program, day, published, gym, owner)
                 else:
                     definition = validate_definition(d, owner)
+                    if not args.rounds_listed_ok:
+                        check_amrap_rounds(d)
                     the_id, name, copy = definition.id, definition.name, None
                     row = make_row(definition, program, day, published, gym, owner)
             except LibraryError as e:
