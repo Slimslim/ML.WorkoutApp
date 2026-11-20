@@ -228,6 +228,21 @@ An import label that names two scores ("time or load") is unknown (`score_ambigu
 - **Written-out rows** (today's AMRAPs, Helen-style rounds) are folded by `roundSize` first.
 - **Unknown movement names** fall back to keywords, else stay unknown (`unknown_movements:n`).
 
+### Known limits (documented, not fixed in the spike)
+
+- **`group.load`** fills only the elements whose own load field is empty
+  (`tools/barpath/taxonomy.py`, the `group` branch of the walk). A group load never overrides a
+  load written on the movement itself, and a group with a partial load fills only the fields it
+  names.
+- **A `vary` that names an inner repeat** (by its `id`) is only noted (`vary_repeat_times`). It
+  does not change that repeat's `times`, so its rep and volume counts use the unvaried value.
+- **`override`** on a repeat is only noted (`override_ignored`), not applied.
+- **`work_ratio`** rest is taken as 1:1 (`ratio_assumed_1_to_1`): the import keeps the label but
+  no ratio number, so the work/rest split and the time-domain estimate assume equal work and rest.
+
+Each one leaves a note code on the workout (`notes`), so the corpus pass counts how often it
+happens.
+
 ## 5. Corpus coverage
 
 `tools/taxonomy_corpus.py` reads `workout_drafts`, **read-only**, from a JSON export or with `PGURL`
