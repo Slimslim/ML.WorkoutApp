@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lift Rest Crown</title>
+<!-- Design mockup for #148 (stories L7–L9). Static, no app code. Example data only. -->
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0C0D0F; --card:#16181C; --line:#2E3238; --fg:#F3F4F6; --fg2:#A4A8B0; --fg3:#7A7F88;
+  --screen:#000; --green:#30D158; --orange:#FF9F0A; --red:#FF6961; --volt:#B8FF3C;
+  --rest:#FFD60A; --tile:#3A3A3C; --case:#3A3D43;
+  --round:ui-rounded,"SF Pro Rounded",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.page{max-width:1180px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:26px;margin:0 0 6px}
+h2{font-size:19px;margin:34px 0 4px}
+p{margin:4px 0;color:var(--fg2);max-width:820px}
+.example{display:inline-block;font-size:12px;font-weight:600;color:#000;background:var(--rest);border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+.row{display:flex;flex-wrap:wrap;gap:22px;margin-top:14px;align-items:flex-start}
+.cell{width:206px;display:flex;flex-direction:column;gap:8px}
+.cap{font-size:13px;color:var(--fg2)}
+.cap b{color:var(--fg)}
+.arrow{align-self:center;color:var(--fg3);font-size:22px}
+/* watch: 45 mm, 198 x 242 pt */
+.watch{position:relative;width:206px;height:250px;border-radius:52px;background:var(--case);padding:4px}
+.watch::after{content:"";position:absolute;right:-7px;top:64px;width:8px;height:34px;border-radius:3px;background:#55595f}
+.scr{position:relative;width:198px;height:242px;border-radius:48px;background:var(--screen);overflow:hidden;
+     font-family:var(--round);display:flex;flex-direction:column;align-items:center;padding:16px 12px 12px}
+.top{font-size:14px;font-weight:600;color:var(--fg2);white-space:nowrap}
+.mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.foot{width:100%;display:flex;justify-content:space-between;font-size:15px;font-weight:700;padding:0 6px}
+.foot span:last-child{color:var(--fg2);font-weight:600}
+.big{font-size:56px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.lbl{font-size:15px;font-weight:700;color:var(--fg2)}
+.cue{font-size:13px;font-weight:700;color:var(--volt);display:flex;align-items:center;gap:4px;align-self:flex-end;margin-right:-4px}
+.pill{border-radius:20px;background:var(--tile);font-size:15px;font-weight:700;padding:4px 12px}
+.btn{width:100%;border-radius:22px;min-height:40px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700}
+.dots{position:absolute;left:0;right:0;bottom:4px;display:flex;justify-content:center;gap:4px}
+.dots i{width:5px;height:5px;border-radius:50%;background:#555}
+.dots i.on{background:#ddd}
+.arc{position:absolute;inset:0;pointer-events:none}
+table{border-collapse:collapse;margin-top:10px;font-size:14px;max-width:980px;width:100%}
+td,th{border-top:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+th{color:var(--fg2);font-weight:600}
+.ok{color:var(--green)} .warn{color:var(--orange)}
+.note{background:var(--card);border-left:3px solid var(--rest);padding:10px 12px;border-radius:6px;max-width:860px;margin-top:12px;color:var(--fg2)}
+</style>
+</head>
+<body>
+<div class="page">
+<h1>Lifting: rest, Crown, next set <span class="example">EXAMPLE DATA</span></h1>
+<p>Mockup for #148 (stories L7–L9 in <code>docs/USER_STORIES.md</code>). Static pictures, no app code.
+For every lift. 45 mm watch at 1:1 points. Today's look is kept: black screens, rounded type, green reps;
+the new parts are the Rest screen, the Crown arc (the same as in workouts) and the End page.</p>
+
+<h2>1. The flow</h2>
+<p>Start → armed → set → rest (detection off) → Crown turn → armed → … Swipe left at any time except mid-set → End.</p>
+<div class="row">
+  <!-- Armed -->
+  <div class="cell">
+    <div class="watch"><div class="scr">
+      <div class="top">Deadlift · 135 lb</div>
+      <div class="mid"><div style="font-size:30px;font-weight:800;line-height:1.1">Grip the<br>bar</div></div>
+      <div class="foot"><span>Set 3</span><span>rest 2:41</span></div>
+      <div class="dots"><i class="on"></i><i></i></div>
+    </div></div>
+    <div class="cap"><b>Armed.</b> Detection on. Same screen as today's "Grip the bar" (Olympic lifts: today's
+    "Walk to the bar", then the green READY). The footer keeps the rest just taken. Start haptic when armed.</div>
+  </div>
+  <div class="arrow">→</div>
+  <!-- In set -->
+  <div class="cell">
+    <div class="watch"><div class="scr">
+      <div class="top">Deadlift · 135 lb</div>
+      <div class="mid"><div class="big" style="color:var(--green);font-size:66px">6</div><div class="lbl">reps</div></div>
+      <div class="foot"><span>Set 3</span><span>0:14</span></div>
+    </div></div>
+    <div class="cap"><b>In set.</b> Unchanged: live reps, click per rep. No page dots: the swipe to End is off
+    during a set.</div>
+  </div>
+  <div class="arrow">→</div>
+  <!-- Rest -->
+  <div class="cell">
+    <div class="watch"><div class="scr">
+      <div class="top" style="color:var(--fg)">✓ Set 3 · 8 reps</div>
+      <div class="mid">
+        <div class="lbl" style="color:var(--rest)">REST</div>
+        <div class="big" style="color:var(--rest)">1:07</div>
+        <div class="pill" style="margin-top:8px">135 lb</div>
+      </div>
+      <div class="cue">Turn Crown for next set <span style="font-size:16px">⟳</span></div>
+      <div class="dots"><i class="on"></i><i></i></div>
+    </div></div>
+    <div class="cap"><b>Rest.</b> Counts up from the end of the last rep (it shows about 0:06 when it appears,
+    because a set ends 6 s after the last rep). Detection is off. One signal: the rest time.
+    The Crown cue points at the Crown (moves left if the Crown is on the left).</div>
+  </div>
+  <div class="arrow">→</div>
+  <!-- Crown turning -->
+  <div class="cell">
+    <div class="watch"><div class="scr">
+      <svg class="arc" viewBox="0 0 198 242" aria-hidden="true">
+        <path d="M99 3 H150 A45 45 0 0 1 195 48 V140" fill="none" stroke="var(--volt)" stroke-width="6" stroke-linecap="round"/>
+      </svg>
+      <div class="top" style="color:var(--fg)">✓ Set 3 · 8 reps</div>
+      <div class="mid">
+        <div class="lbl" style="color:var(--rest)">REST</div>
+        <div class="big" style="color:var(--rest)">2:41</div>
+        <div class="pill" style="margin-top:8px">135 lb</div>
+      </div>
+      <div class="cue">Keep turning…</div>
+    </div></div>
+    <div class="cap"><b>Crown turning.</b> The workouts' arc fills on the screen edge; at 0.8 of a turn it
+    arms (start haptic) and shows Armed. Stop early and the arc fades: nothing happens.</div>
+  </div>
+</div>
+
+<h2>2. Changing the weight at rest: two variants</h2>
+<p>The Crown arms the next set, so it can't also change the weight on the Rest screen. A Crown <i>press</i> isn't
+possible: watchOS keeps it for the system (it leaves the app). Pick A or B.</p>
+
+<h2 style="font-size:16px;margin-top:18px">Variant A: tap the weight, then the Crown</h2>
+<div class="row">
+  <div class="cell">
+    <div class="watch"><div class="scr">
+      <div class="top" style="color:var(--fg)">✓ Set 3 · 8 reps</div>
+      <div class="mid">
+        <div class="lbl" style="color:var(--rest)">REST</div>
+        <div class="big" style="color:var(--rest)">1:07</div>
+        <div class="pill" style="margin-top:8px;outline:2px solid #fff">135 lb ✎</div>
+      </div>
+      <div class="cue">Turn Crown for next set ⟳</div>
+    </div></div>
+    <div class="cap">Tap the weight (a 44 pt target).</div>
+  </div>
+  <div class="arrow">→</div>
+  <div class="cell">
+    <div class="watch"><div class="scr">
+      <div class="top">Weight · next set</div>
+      <div class="mid">
+        <div class="big" style="font-size:50px">145 lb</div>
+        <div class="lbl" style="margin-top:4px">Turn the Crown</div>
+      </div>
+      <div class="btn" style="background:var(--tile)">Done · rest 1:12</div>
+    </div></div>
+    <div class="cap">Weight screen: the Crown changes the weight (5 lb / 2.5 kg steps, detent haptic, as on
+    today's Load picker). Done, or 3 s without a turn, goes back to Rest. The rest keeps counting.</div>
+  </div>
+  <div class="cell" style="width:260px">
+    <div class="cap"><b>For:</b> the Crown does both jobs, big jumps are quick (135 → 225 lb is one turn), it
+    matches today's Load picker.<br><b>Against:</b> 1 tap + Crown + (Done or wait); the Crown means two things
+    depending on the screen, so a turn on the wrong screen does the wrong thing (on Rest it arms).</div>
+  </div>
+</div>
+
+<h2 style="font-size:16px;margin-top:18px">Variant B: − / + on the Rest screen</h2>
+<div class="row">
+  <div class="cell">
+    <div class="watch"><div class="scr">
+      <div class="top" style="color:var(--fg)">✓ Set 3 · 8 reps</div>
+      <div class="mid">
+        <div class="lbl" style="color:var(--rest)">REST</div>
+        <div class="big" style="color:var(--rest);font-size:48px">1:07</div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:8px">
+          <div class="pill" style="padding:6px 12px">−</div>
+          <div style="font-size:19px;font-weight:800;min-width:66px">145 lb</div>
+          <div class="pill" style="padding:6px 12px">+</div>
+        </div>
+      </div>
+      <div class="cue">Turn Crown for next set ⟳</div>
+    </div></div>
+    <div class="cap">− / + change the weight by one step per tap; the number updates in place.</div>
+  </div>
+  <div class="cell" style="width:260px">
+    <div class="cap"><b>For:</b> no second screen, the Crown always means "next set", a small change (+10 lb) is
+    2 taps.<br><b>Against:</b> big jumps take many taps (135 → 225 lb = 18 taps); the timer gets smaller; two
+    more things on the Rest screen; small buttons with chalky hands.</div>
+  </div>
+  <div class="cell" style="width:300px">
+    <div class="note" style="margin-top:0">Recommendation: <b>A</b>. Weight changes between sets are often
+    big at the start (warm-ups), the Rest screen keeps one signal, and the Crown already sets the weight
+    today. The risk "Crown turn on Rest arms by mistake" is small: arming needs 0.8 of a turn and shows the arc first.</div>
+  </div>
+</div>
+
+<h2>3. Swipe left → End</h2>
+<div class="row">
+  <div class="cell">
+    <div class="watch"><div class="scr">
+      <div class="top">Session · 24:10</div>
+      <div class="mid" style="gap:8px;width:100%">
+        <div style="font-size:15px;font-weight:700;color:var(--fg2)">3 sets saved</div>
+        <div class="btn" style="background:#1C1C1E;color:var(--red);min-height:44px">End</div>
+        <div class="btn" style="background:var(--tile);min-height:40px">Change lift</div>
+      </div>
+      <div class="dots"><i></i><i class="on"></i></div>
+    </div></div>
+    <div class="cap"><b>End page</b>, one swipe left from Rest or Armed. End opens today's "End session?"
+    (Keep going first). Change lift is today's Change (same workout in Fitness). The page goes back to the main
+    page by itself after 5 s so a set is never missed while it is open.</div>
+  </div>
+  <div class="cell" style="width:300px">
+    <div class="cap">During a set the swipe is off (no dots), so End can't be hit mid-set.
+    Today's Change / End buttons leave the main screen, which keeps one signal per state.</div>
+  </div>
+</div>
+
+<h2>4. Checked against DESIGN_GUIDELINES</h2>
+<table>
+<tr><th>Rule</th><th>How</th></tr>
+<tr><td>No scrolling on the watch</td><td class="ok">Every screen fits 45 mm; on 41 mm the type scales down (minimumScaleFactor), as today. Not yet checked on a 41 mm watch.</td></tr>
+<tr><td>One signal per state</td><td class="ok">Armed: "Grip the bar". Set: reps. Rest: the rest time (yellow). Weight: the weight. End: End.</td></tr>
+<tr><td>Glanceable mid-set</td><td class="ok">The set screen is unchanged. Rest reads from a glance: big yellow timer.</td></tr>
+<tr><td>As few taps as possible</td><td class="ok">Next set: 0 taps (one Crown turn). Weight: A = 1 tap + Crown, B = 1 tap per step. End: swipe + 2 taps (as today).</td></tr>
+<tr><td>The watch stays (§2)</td><td class="warn">New items follow today's style; the owner sees them first (this page). Change / End move from the main screen to the End page.</td></tr>
+<tr><td>Real data only</td><td class="ok">Rest is measured from the last rep's top; no target or countdown yet.</td></tr>
+</table>
+
+<h2>5. Why a hand shake can't become a set</h2>
+<div class="note">During Rest the rep counter and the lift detector get no say: their events are ignored, and when
+the Crown arms they start fresh, counting only motion after the Crown turn. A shake before the Crown turn is
+never seen. Left over: a shake <i>after</i> arming, before the set, is the same risk as today; and a 0.8-turn Crown
+turn by accident (sleeve, wrist pressed on the knee) would arm. The owner's device test covers both.</div>
+</div>
+</body>
+</html>

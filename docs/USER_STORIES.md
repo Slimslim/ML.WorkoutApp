@@ -113,6 +113,44 @@ As a lifter, I want to send "5 × 3 @ 135 lb, rest 3:00" from the phone, so the 
 me: "Set 2 of 5", the rest countdown, then the next set.
 *Done when:* the plan arrives on the watch and the set number moves on automatically.
 
+### Rest between sets and the Crown (#148, design, owner's story of 20 Nov)
+
+The owner's flow for every lift (deadlift, bench, cleans, snatches): start at the bar, do the
+set, drop the bar; rest counts up by itself; change the weight if needed; back at the bar,
+turn the Crown to arm the next set; swipe left to End. Detection runs only after the Crown
+turn, so nothing done at rest can become a set (replaces the detector-only fix for #147).
+Mockups: `docs/concepts/lift-rest-crown.html`. Mapping to the code and open questions:
+`docs/concepts/LIFT_REST_CROWN.md`. These refine L2 (rest timer, count-up only for now) and
+L3 (see the note on L3 below).
+
+**L7. Rest starts by itself, and resting can't start a set (Now)**
+As a lifter, I want the rest timer to start counting up as soon as my set ends, and nothing I do
+while resting (walking, shaking out my hands, chalking) to count as a set, so I can rest
+without hiding on another screen.
+*Done when:* after a set ends the watch shows Rest counting up within 1 s of the set-end
+haptic, with the set's reps and the weight; on device, 2 min of rest with hand shakes, chalking
+and walking around gives 0 sets and 0 rep haptics, for a deadlift and an Olympic lift.
+
+**L8. Turn the Crown to arm the next set (Now)**
+As a lifter back at the bar, I want one Crown turn to arm detection for the next set, so the
+watch only listens when I'm ready, with no taps and no looking down for long.
+*Done when:* one Crown turn (the same 0.8-turn gesture as in workouts, with the same arc) arms
+detection with a start haptic and the armed screen; the set that follows is counted as today;
+the rest time (set end to Crown turn) is kept with the next set; the first set after Start is
+armed without a Crown turn.
+
+**L9. End or change the lift with a swipe (Now)**
+As a lifter, I want to swipe left from the rest screen to End (or change the lift), so the main
+screen stays one signal and I can't end the session by accident mid-set.
+*Done when:* swipe left on Rest or Armed shows End and Change lift; End asks to confirm as today;
+the swipe does nothing while a set is in progress.
+
+*Note on L3 (weight during rest):* the Crown can't both change the weight and arm the next set on
+the same screen. The mockups offer two ways to change the weight at rest (A: tap the weight, then
+turn the Crown on a weight screen; B: −/+ buttons on the rest screen). The owner picks one; L3's
+"turning the Crown on the rest screen" is updated to match. A Crown *press* can't be used: watchOS
+keeps the Crown press for the system (it leaves the app).
+
 ### Progress (both modes)
 
 **P1. See that I'm getting faster (Now, simple version)**
