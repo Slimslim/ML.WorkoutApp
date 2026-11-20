@@ -32,7 +32,7 @@ class BlockPlan:
     rounds: Optional[int]             # passes to do; None = until the clock (or End)
     cap_seconds: Optional[float]      # the definition's cap
     cap_ends: bool                    # the cap finishes the workout (AMRAP, EMOM); for time keeps going (5b)
-    interval_seconds: Optional[float]  # a window is one part (owner default for Q3)
+    interval_seconds: Optional[float]  # one window = one pass of the block (owner, 5c Q3)
 
     @property
     def step_limit(self) -> Optional[int]:
@@ -101,12 +101,27 @@ def end_reason(plan: BlockPlan, step: int, advanced: bool, elapsed: float) -> Op
 
 
 def window_end(plan: BlockPlan, step_start_elapsed: float) -> Optional[float]:
-    """Interval workouts: the elapsed time at which the window holding this step ends (the clock
-    starts the next step there). A window is one part (Q3 default); roundSize plays no part."""
+    """Interval workouts ("Go every ..."): the elapsed time at which the window holding this step
+    ends, i.e. the next multiple of intervalSeconds after the step began. One window is one pass of
+    the block (Q3); the window length comes from intervalSeconds, never from roundSize."""
     if plan.interval_seconds is None:
         return None
     i = plan.interval_seconds
     return (int(step_start_elapsed // i) + 1) * i
+
+
+def window_target_step(plan: BlockPlan, step: int) -> Optional[int]:
+    """Interval workouts: the step the clock moves to at the window's end, the first part of the
+    next pass (what is left of this pass is skipped). None without an interval, or when that pass
+    would be past the last one (the clock then finishes). Today's rows: their roundSize is the
+    block, so this is what the watch does now (WorkoutProgress.autoAdvanceTargetIndex)."""
+    if plan.interval_seconds is None or plan.parts == 0 or step < 0:
+        return None
+    nxt = (step // plan.parts + 1) * plan.parts
+    limit = plan.step_limit
+    if limit is not None and nxt >= limit:
+        return None
+    return nxt
 
 
 def score(plan: BlockPlan, d: WorkoutDefinition, completed_steps: int) -> Tuple[int, int]:

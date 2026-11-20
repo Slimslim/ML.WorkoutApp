@@ -38,6 +38,10 @@ def test_fixture_case(c):
         assert rb.window_end(plan, start) == pytest.approx(end), start
     if not c["windowEnds"]:
         assert rb.window_end(plan, 10.0) is None
+    for step, target in c["windowTargets"]:
+        assert rb.window_target_step(plan, step) == target, step
+    if not c["windowTargets"]:
+        assert rb.window_target_step(plan, 0) is None
     for completed, passes, work in c["scores"]:
         assert rb.score(plan, d, completed) == (passes, work), completed
 
@@ -93,3 +97,23 @@ def test_rounds_key_round_trips_and_is_optional():
     assert WorkoutDefinition.from_dict(d.to_dict()) == d
     old = {k: v for k, v in c["definition"].items() if k != "rounds"}
     assert "rounds" not in WorkoutDefinition.from_dict(old).to_dict()
+
+
+def test_today_s_interval_rows_keep_their_window():
+    """Every interval built-in: the window target equals what WorkoutProgress does today (its
+    roundSize is the block), so EMOM / Tabata timing doesn't change."""
+    from barpath.workout import WorkoutLibrary
+    checked = 0
+    for d in WorkoutLibrary.known:
+        if not d.interval_seconds or not d.round_size:
+            continue
+        # Today's rows list their sets out; as a block of one set they must step the same.
+        block = WorkoutDefinition.from_dict(dict(d.to_dict(), segments=[s.to_dict() for s in d.segments[:d.round_size]],
+                                                 rounds=-(-len(d.segments) // d.round_size)))
+        plan = rb.plan_for(block)
+        for step in range(len(d.segments) - 1):
+            today = (step // d.round_size + 1) * d.round_size
+            want = today if today < plan.step_limit else None
+            assert rb.window_target_step(plan, step) == want, (d.id, step)
+        checked += 1
+    assert checked >= 1

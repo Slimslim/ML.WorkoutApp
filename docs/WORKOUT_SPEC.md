@@ -537,8 +537,12 @@ Questions are marked **[Q1]…[Q8]**.
 - **Q1:** yes, an optional `rounds` key. Rows written out today, such as Helen, stay fixed lists
   until they are migrated.
 - **Q2:** no data change. EMOM and Tabata rows stay written out.
-- **Q3:** a window is one part, so an alternating EMOM of 3 parts is a block of 3 windows. Interval
-  timing doesn't depend on `roundSize`. **Conflict, open:** see the note below Q3.
+- **Q3:** in an interval format, **one window = one pass of the block**. In the owner's words,
+  "Go every … is a block that repeats". The window length comes from `intervalSeconds` and the
+  block, never from `roundSize`. In today's rows `roundSize` *is* the block, so EMOM and Tabata
+  timing doesn't change. An alternating EMOM ("min 1 A, min 2 B") has no form in the new model
+  yet. Those rows keep today's written-out path, which is a later extension; there is no
+  `partsPerWindow`.
 - **Q4:** a rest the cap falls in doesn't count as done (as today).
 - **Q6:** an exact repeat. In ED3D7646 the athlete chose the order; the plan was 200/400/600
   repeating. No `vary` for now.
@@ -595,18 +599,10 @@ Questions are marked **[Q1]…[Q8]**.
   a `roundSize` group, and the clock jumps to the next group. The owner's rule is that the block is
   the whole list and `roundSize` is display only. That makes a window one pass. An "odd minute A,
   even minute B" EMOM would then need A and B as two passes, not one. Which do you want?
-- **Conflict with the Q3 default (window = one part), open.** Today's interval rows put several
-  parts in one window:
-  - built-in *Every 3:00 × 6: Row + Thrusters* (row, thrusters, rest = one window);
-  - every library EMOM row (`roundSize` 2 or 3: work + rest, or two movements + rest).
-
-  With one part per window, these rows would advance every interval on each *part*, which changes
-  their timing. The reference follows the default (`window_end` uses one part per window), but the
-  wiring must not ship it until this is settled. Options:
-  - (a) these rows say how many parts a window holds, with a new key such as `partsPerWindow`
-    (never `roundSize`);
-  - (b) EMOM rows keep today's path, and only new one-part-per-window rows use the block;
-  - (c) migrate the rows.
+- **Answered (Q3):** one window = one pass. At the window's end the clock moves to the first part of
+  the next pass, skipping what is left of this one. The rule is `window_target_step`: next pass
+  start = `(step / P + 1) × P`. It is today's `autoAdvanceTargetIndex` with `roundSize` replaced
+  by the block length P. A test checks that every interval built-in steps the same.
 
 ### Undo across a pass boundary
 - Undo goes back one step, whatever the pass: from pass k, part 0, back to pass k−1, last part. It

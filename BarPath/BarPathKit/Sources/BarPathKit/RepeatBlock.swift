@@ -29,7 +29,7 @@ public enum RepeatBlock {
         public let capSeconds: Double?
         /// The cap finishes the workout (AMRAP, EMOM); for time keeps going (5b).
         public let capEnds: Bool
-        /// A window is one part (5c Q3 default).
+        /// One window = one pass of the block (5c Q3).
         public let intervalSeconds: Double?
 
         public init(kind: Kind, parts: Int, rounds: Int?, capSeconds: Double?, capEnds: Bool,
@@ -112,11 +112,23 @@ public enum RepeatBlock {
         return nil
     }
 
-    /// Interval workouts: the elapsed time at which the window holding this step ends (the clock
-    /// starts the next step there). A window is one part (Q3 default); roundSize plays no part.
+    /// Interval workouts ("Go every ..."): the elapsed time at which the window holding this step
+    /// ends, the next multiple of intervalSeconds after the step began. One window is one pass of
+    /// the block (Q3); the window length comes from intervalSeconds, never from roundSize.
     public static func windowEnd(_ plan: Plan, stepStartElapsed: Double) -> Double? {
         guard let i = plan.intervalSeconds else { return nil }
         return ((stepStartElapsed / i).rounded(.down) + 1.0) * i
+    }
+
+    /// Interval workouts: the step the clock moves to at the window's end, the first part of the
+    /// next pass (what is left of this pass is skipped). Nil without an interval, or when that pass
+    /// would be past the last one (the clock then finishes). For today's rows (roundSize = block)
+    /// this is WorkoutProgress.autoAdvanceTargetIndex.
+    public static func windowTargetStep(_ plan: Plan, step: Int) -> Int? {
+        guard plan.intervalSeconds != nil, plan.parts > 0, step >= 0 else { return nil }
+        let next: Int = (step / plan.parts + 1) * plan.parts
+        if let limit = plan.stepLimit, next >= limit { return nil }
+        return next
     }
 
     /// (complete passes, work parts done in the cut pass) after `completedSteps` finished steps.

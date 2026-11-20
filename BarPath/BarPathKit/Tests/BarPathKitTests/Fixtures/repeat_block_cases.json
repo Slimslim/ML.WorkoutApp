@@ -1,5 +1,5 @@
 {
- "note": "Synthetic definitions for the repeat-block reference (tools/barpath/repeat_block.py) and its Swift port (RepeatBlock.swift), WORKOUT_SPEC 5c. positions: [step, pass, part]. endReasons: [step, advanced, elapsed, reason]. windowEnds: [stepStartElapsed, windowEnd]. scores: [completedSteps, passes, workPartsInCutPass].",
+ "note": "Synthetic definitions for the repeat-block reference (tools/barpath/repeat_block.py) and its Swift port (RepeatBlock.swift), WORKOUT_SPEC 5c. positions: [step, pass, part]. endReasons: [step, advanced, elapsed, reason]. windowEnds: [stepStartElapsed, windowEnd]. windowTargets: [step, step the clock moves to at the window end, or null]. scores: [completedSteps, passes, workPartsInCutPass].",
  "cases": [
   {
    "name": "ladder AMRAP (#138): one block of 6, repeats until the cap",
@@ -166,13 +166,14 @@
      2,
      0
     ]
-   ]
+   ],
+   "windowTargets": []
   },
   {
-   "name": "EMOM, 3 alternating windows of 1:00, cap 9:00",
+   "name": "Go every 3:00 x 6: row, thrusters, rest (one window = one pass)",
    "definition": {
-    "id": "t.emom",
-    "name": "Test t.emom",
+    "id": "t.every3",
+    "name": "Test t.every3",
     "shortName": "T",
     "format": "emom",
     "team": "solo",
@@ -183,14 +184,14 @@
       "movement": "row",
       "name": "Row",
       "target": {
-       "value": 15.0,
-       "unit": "calories"
+       "value": 500.0,
+       "unit": "meters"
       }
      },
      {
       "kind": "station",
-      "movement": "burpees",
-      "name": "Burpees",
+      "movement": "thrusters",
+      "name": "Thrusters",
       "target": {
        "value": 10.0,
        "unit": "reps"
@@ -202,18 +203,19 @@
       "name": "Rest"
      }
     ],
-    "timeCapSeconds": 540.0,
-    "intervalSeconds": 60.0,
-    "roundSize": 3
+    "timeCapSeconds": 1080.0,
+    "intervalSeconds": 180.0,
+    "roundSize": 3,
+    "rounds": 6
    },
    "plan": {
     "kind": "repeat",
     "parts": 3,
-    "rounds": null,
-    "capSeconds": 540.0,
+    "rounds": 6,
+    "capSeconds": 1080.0,
     "capEnds": true,
-    "intervalSeconds": 60.0,
-    "stepLimit": null
+    "intervalSeconds": 180.0,
+    "stepLimit": 18
    },
    "positions": [
     [
@@ -232,24 +234,34 @@
      0
     ],
     [
-     8,
-     2,
+     17,
+     5,
      2
     ]
    ],
    "outOfRange": [
-    -1
+    -1,
+    18
    ],
-   "finishes": [],
+   "finishes": [
+    17
+   ],
    "noFinish": [
     2,
-    8
+    3,
+    16
    ],
    "endReasons": [
     [
-     8,
+     17,
+     true,
+     1000.0,
+     "roundsDone"
+    ],
+    [
+     16,
      false,
-     540.0,
+     1080.0,
      "cap"
     ],
     [
@@ -262,19 +274,49 @@
    "windowEnds": [
     [
      0.0,
-     60.0
+     180.0
     ],
     [
-     59.9,
-     60.0
+     95.0,
+     180.0
     ],
     [
-     60.0,
-     120.0
+     180.0,
+     360.0
     ],
     [
-     475.0,
-     480.0
+     1000.0,
+     1080.0
+    ]
+   ],
+   "windowTargets": [
+    [
+     0,
+     3
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     2,
+     3
+    ],
+    [
+     3,
+     6
+    ],
+    [
+     14,
+     15
+    ],
+    [
+     15,
+     null
+    ],
+    [
+     17,
+     null
     ]
    ],
    "scores": [
@@ -297,11 +339,16 @@
      5,
      2,
      0
+    ],
+    [
+     18,
+     6,
+     0
     ]
    ]
   },
   {
-   "name": "Tabata: 8 rounds of 20 s work + 10 s rest",
+   "name": "Tabata: 8 rounds of 20 s work + 10 s rest, every 0:30",
    "definition": {
     "id": "t.tabata",
     "name": "Test t.tabata",
@@ -330,7 +377,8 @@
      }
     ],
     "timeCapSeconds": 240.0,
-    "rounds": 8
+    "rounds": 8,
+    "intervalSeconds": 30.0
    },
    "plan": {
     "kind": "repeat",
@@ -338,7 +386,7 @@
     "rounds": 8,
     "capSeconds": 240.0,
     "capEnds": true,
-    "intervalSeconds": null,
+    "intervalSeconds": 30.0,
     "stepLimit": 16
    },
    "positions": [
@@ -388,7 +436,20 @@
      "cap"
     ]
    ],
-   "windowEnds": [],
+   "windowEnds": [
+    [
+     0.0,
+     30.0
+    ],
+    [
+     20.0,
+     30.0
+    ],
+    [
+     210.0,
+     240.0
+    ]
+   ],
    "scores": [
     [
      1,
@@ -409,6 +470,24 @@
      16,
      8,
      0
+    ]
+   ],
+   "windowTargets": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     12,
+     14
+    ],
+    [
+     14,
+     null
     ]
    ]
   },
@@ -529,7 +608,8 @@
      5,
      0
     ]
-   ]
+   ],
+   "windowTargets": []
   },
   {
    "name": "fixed list (Hyrox-like): done once, as today",
@@ -633,7 +713,8 @@
     ]
    ],
    "windowEnds": [],
-   "scores": []
+   "scores": [],
+   "windowTargets": []
   },
   {
    "name": "fixed list with a for-time cap: the cap does not end it (5b)",
@@ -706,7 +787,8 @@
     ]
    ],
    "windowEnds": [],
-   "scores": []
+   "scores": [],
+   "windowTargets": []
   }
  ]
 }
