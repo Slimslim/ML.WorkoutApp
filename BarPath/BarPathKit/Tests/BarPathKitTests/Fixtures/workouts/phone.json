@@ -5670,37 +5670,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -5715,37 +5715,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -5760,37 +5760,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -5805,37 +5805,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -5850,37 +5850,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -5895,37 +5895,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -5940,37 +5940,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -5985,37 +5985,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -6030,37 +6030,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -6075,37 +6075,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -6120,37 +6120,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -6165,37 +6165,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -6241,37 +6241,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -6286,37 +6286,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -6331,37 +6331,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -6376,37 +6376,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -6421,37 +6421,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -6466,37 +6466,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -6511,37 +6511,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -6556,37 +6556,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -6601,37 +6601,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -6646,37 +6646,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -6691,37 +6691,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -6736,37 +6736,37 @@
     {
      "kind": "station",
      "movement": "row",
-     "name": "Row / Bike",
+     "name": "Row / SkiErg",
      "target": {
       "unit": "calories",
-      "value": 12
+      "value": 14
      }
     },
     {
      "kind": "station",
-     "movement": "pushUps",
-     "name": "Push-ups / Pull-ups",
+     "movement": "kettlebellSwings",
+     "name": "KB Swings / Wall Balls",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 20
      }
     },
     {
      "kind": "station",
-     "movement": "dumbbellSnatch",
-     "name": "DB C&J / Snatch",
+     "movement": "airSquats",
+     "name": "Air Squats / Lunges",
      "target": {
       "unit": "reps",
-      "value": 12
+      "value": 25
      }
     },
     {
      "kind": "station",
-     "movement": "burpees",
-     "name": "Burpees / Wall Walks",
+     "movement": "pullUps",
+     "name": "Pull-ups / Ring Rows",
      "target": {
       "unit": "reps",
-      "value": 15
+      "value": 10
      }
     },
     {
@@ -6793,10 +6793,10 @@
              "id": "p1",
              "kind": "station",
              "movement": "row",
-             "name": "Row / Bike",
+             "name": "Row / SkiErg",
              "target": {
               "unit": "calories",
-              "value": 12
+              "value": 14
              }
             }
            },
@@ -6804,11 +6804,11 @@
             "part": {
              "id": "p2",
              "kind": "station",
-             "movement": "pushUps",
-             "name": "Push-ups / Pull-ups",
+             "movement": "kettlebellSwings",
+             "name": "KB Swings / Wall Balls",
              "target": {
               "unit": "reps",
-              "value": 15
+              "value": 20
              }
             }
            },
@@ -6816,11 +6816,11 @@
             "part": {
              "id": "p3",
              "kind": "station",
-             "movement": "dumbbellSnatch",
-             "name": "DB C&J / Snatch",
+             "movement": "airSquats",
+             "name": "Air Squats / Lunges",
              "target": {
               "unit": "reps",
-              "value": 12
+              "value": 25
              }
             }
            },
@@ -6828,11 +6828,11 @@
             "part": {
              "id": "p4",
              "kind": "station",
-             "movement": "burpees",
-             "name": "Burpees / Wall Walks",
+             "movement": "pullUps",
+             "name": "Pull-ups / Ring Rows",
              "target": {
               "unit": "reps",
-              "value": 15
+              "value": 10
              }
             }
            },
