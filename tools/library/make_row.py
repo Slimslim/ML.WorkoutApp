@@ -125,17 +125,20 @@ def validate_definition(d: dict, owner: Optional[str] = None) -> WorkoutDefiniti
 
 
 AMRAP_MIN_LISTED_ROUNDS = 10
+# The watch's own expansion (WORKOUT_SPEC 5a) stops at the same size.
+MAX_REPEATED_SEGMENTS = 600
 
 
-def check_amrap_rounds(d: dict) -> None:
+def check_amrap_rounds(d: dict, v2: bool = False) -> None:
     """Raises LibraryError for an AMRAP (old keys) that does not list its rounds out: builds
     before 0.17.1 offer Finish after the last listed segment, cap or not (#138)."""
     if d.get("format") != "amrap":
         return
     segments = d.get("segments") or []
     rs = d.get("roundSize")
-    hint = ("; write it out with --repeat-rounds 30, or pass --rounds-listed-ok if the short "
-            "list is on purpose")
+    fix = ("list the rounds out in its old keys (segments, roundSize) by hand" if v2
+           else "write it out with --repeat-rounds 30")
+    hint = f"; {fix}, or pass --rounds-listed-ok if the short list is on purpose"
     if rs is None:
         raise LibraryError("an AMRAP needs roundSize (the watch counts rounds with it)" + hint)
     rounds = len(segments) // rs if rs > 0 else 0
@@ -159,7 +162,12 @@ def repeat_rounds(d: dict, rounds: int) -> dict:
     if not segments:
         raise LibraryError("segments must not be empty")
     rs = d.get("roundSize")
-    r = rs if isinstance(rs, int) and 1 <= rs <= len(segments) else len(segments)
+    if rs is not None and not (isinstance(rs, int) and 1 <= rs <= len(segments)):
+        raise LibraryError("roundSize must be between 1 and the number of segments")
+    r = rs if rs is not None else len(segments)
+    if max(len(segments), rounds * r) > MAX_REPEATED_SEGMENTS:
+        raise LibraryError(f"{rounds} rounds of {r} segments is more than "
+                           f"{MAX_REPEATED_SEGMENTS} segments")
     if len(segments) % r != 0:
         raise LibraryError(f"{len(segments)} segments are not whole rounds of {r}: "
                            "fix roundSize or the list first")
@@ -390,7 +398,8 @@ def main(argv=None) -> int:
     ap.add_argument("--owner", help="user id (UUID): that user's personal workout, seen only by them; "
                     "the id must end with .u<first 8 hex of the user id> (overrides the file)")
     ap.add_argument("--repeat-rounds", type=int, metavar="N",
-                    help="AMRAP: write the list out to N rounds (last full round repeated, roundSize set)")
+                    help="AMRAP: write the list out to N rounds (last full round repeated, roundSize set); "
+                         "every file must then be a flat AMRAP")
     ap.add_argument("--rounds-listed-ok", action="store_true",
                     help="let an AMRAP through without roundSize or with fewer than "
                          f"{AMRAP_MIN_LISTED_ROUNDS} listed rounds (builds before 0.17.1 finish after them)")
@@ -432,7 +441,7 @@ def main(argv=None) -> int:
                     the_id, name = d["id"], d["name"]
                     copy = "legacy copy for builds 15/16" if legacy_copy(d) is not None else "no legacy copy (not exact)"
                     if legacy_copy(d) is not None and not args.rounds_listed_ok:
-                        check_amrap_rounds(legacy_copy(d))
+                        check_amrap_rounds(legacy_copy(d), v2=True)
                     if published and legacy_copy(d) is not None and not args.trust_old_keys:
                         raise LibraryError("a published, exact v2 row is copied to builds 15/16, and nothing "
                                            "checks its old keys against the structure yet (build 17 item 2): "
