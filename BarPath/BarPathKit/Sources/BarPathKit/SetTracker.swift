@@ -26,6 +26,11 @@ public struct SetTracker {
     public var countWindow: Double = 30.0
     /// Longest set recording (s); a longer set is ended there.
     public var maxHistory: Double = 180.0
+    /// Reps that start before this are never counted (#148). The watch sets it to the Crown-turn
+    /// time when the next set is armed and to +∞ (`greatestFiniteMagnitude`) while resting, so
+    /// motion at rest can't make a set. The sample history is kept, so a set started right after
+    /// the Crown turn still gets its pre-roll.
+    public var armedFrom: Double = -Double.greatestFiniteMagnitude
 
     public private(set) var liveReps: [Rep] = []
     private var samples: [MotionSample] = []
@@ -103,7 +108,9 @@ public struct SetTracker {
         let from = latest - countWindow
         let start = samples.firstIndex(where: { $0.t >= from }) ?? samples.count
         guard start < samples.count else { return [] }
+        let from0 = armedFrom
         return RepCounter.count(MotionSeries(Array(samples[start...])), config: config).reps
+            .filter { $0.start >= from0 }
     }
 
     private mutating func finishSet() -> SetEvent {
