@@ -528,9 +528,22 @@ Python: `for_time_cap_time`, `segment_index_at`, `cap_segment_index(now)`; on th
 
 ## 5c. Repeating blocks and fixed lists (brief, #138, owner decision 20 Nov)
 
-Status: **brief only.** The Python reference and the pure BarPathKit code come next. Nothing is
+Status: **brief, Python reference** (`tools/barpath/repeat_block.py`, fixtures
+`Fixtures/repeat_block_cases.json`) **and a pure BarPathKit port** (`RepeatBlock.swift`). Nothing is
 wired into the watch or phone before 5 Dec. Until then the 0.17.1 stopgap (§5a) stays unchanged.
-Questions for the owner are marked **[Q1]…[Q8]**. They are open; this brief does not decide them.
+Questions are marked **[Q1]…[Q8]**.
+
+**Answers so far (Delivery, 20 Nov).** These are defaults until the owner overrides them:
+- **Q1:** yes, an optional `rounds` key. Rows written out today, such as Helen, stay fixed lists
+  until they are migrated.
+- **Q2:** no data change. EMOM and Tabata rows stay written out.
+- **Q3:** a window is one part, so an alternating EMOM of 3 parts is a block of 3 windows. Interval
+  timing doesn't depend on `roundSize`. **Conflict, open:** see the note below Q3.
+- **Q4:** a rest the cap falls in doesn't count as done (as today).
+- **Q6:** an exact repeat. In ED3D7646 the athlete chose the order; the plan was 200/400/600
+  repeating. No `vary` for now.
+- **Q7:** OK. New results fall back to the stored titles until the wiring PR.
+- **Q5 and Q8:** with the owner. The core doesn't depend on a legacy copy, so either answer for Q8 works.
 
 ### What the owner decided
 - **Two kinds of workout.**
@@ -582,6 +595,18 @@ Questions for the owner are marked **[Q1]…[Q8]**. They are open; this brief do
   a `roundSize` group, and the clock jumps to the next group. The owner's rule is that the block is
   the whole list and `roundSize` is display only. That makes a window one pass. An "odd minute A,
   even minute B" EMOM would then need A and B as two passes, not one. Which do you want?
+- **Conflict with the Q3 default (window = one part), open.** Today's interval rows put several
+  parts in one window:
+  - built-in *Every 3:00 × 6: Row + Thrusters* (row, thrusters, rest = one window);
+  - every library EMOM row (`roundSize` 2 or 3: work + rest, or two movements + rest).
+
+  With one part per window, these rows would advance every interval on each *part*, which changes
+  their timing. The reference follows the default (`window_end` uses one part per window), but the
+  wiring must not ship it until this is settled. Options:
+  - (a) these rows say how many parts a window holds, with a new key such as `partsPerWindow`
+    (never `roundSize`);
+  - (b) EMOM rows keep today's path, and only new one-part-per-window rows use the block;
+  - (c) migrate the rows.
 
 ### Undo across a pass boundary
 - Undo goes back one step, whatever the pass: from pass k, part 0, back to pass k−1, last part. It
