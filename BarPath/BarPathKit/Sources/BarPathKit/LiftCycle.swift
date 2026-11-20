@@ -9,7 +9,10 @@ import Foundation
 /// (`listeningFrom`, fed to `SetTracker.armedFrom`; the lift detector is reset).
 ///
 /// Armed time-out (owner, 20 Nov): armed with no set for `armedTimeout` s goes back to resting,
-/// unless a rep / lift is under way; the rest keeps counting from where it started.
+/// unless a rep / lift is under way; the rest keeps counting from where it started. A rep that
+/// had already started before the time-out still counts (review of #150): reps starting in
+/// [armedAt, lateUntil) stay listened to (`listeningUntil`), and the first one confirmed
+/// (`setStarted(at: repStart)`) turns the rest back into that set.
 public struct LiftCycle: Equatable, Sendable {
     /// Armed with no set for this long (s) goes back to Rest.
     public static let armedTimeout: Double = 180.0
@@ -28,6 +31,8 @@ public struct LiftCycle: Equatable, Sendable {
     public private(set) var lastRest: Double?
     /// Where the rest started before the last Crown turn (an armed time-out resumes it).
     private var restStartBeforeArm: Double?
+    /// After a time-out: reps / lifts starting before this still count.
+    private var lateUntil: Double?
 
     /// The block starts armed: the athlete starts the watch at the bar.
     public init(startAt t: Double) {
@@ -41,7 +46,12 @@ public struct LiftCycle: Equatable, Sendable {
 
     /// Reps / lifts that start before this are not counted (+∞ while resting).
     public var listeningFrom: Double {
-        return isListening ? armedAt : Double.greatestFiniteMagnitude
+        return isListening || lateUntil != nil ? armedAt : Double.greatestFiniteMagnitude
+    }
+
+    /// Reps / lifts that start at or after this are not counted (+∞ unless just timed out).
+    public var listeningUntil: Double {
+        return lateUntil ?? Double.greatestFiniteMagnitude
     }
 
     /// The End page (swipe left) is offered except in a set.
@@ -53,18 +63,28 @@ public struct LiftCycle: Equatable, Sendable {
         guard state == .resting else { return false }
         lastRest = max(0.0, t - since)
         restStartBeforeArm = since
+        lateUntil = nil
         state = .armed
         since = t
         armedAt = t
         return true
     }
 
-    /// First rep counted / lift started: armed → in set. Ignored otherwise.
+    /// First rep counted / lift started at `t` (the first rep's start): armed → in set. Also
+    /// undoes a time-out when that rep started before it. Ignored otherwise.
     @discardableResult
     public mutating func setStarted(at t: Double) -> Bool {
-        guard state == .armed else { return false }
-        state = .inSet
-        return true
+        if state == .armed {
+            state = .inSet
+            return true
+        }
+        if state == .resting, let late = lateUntil, t >= armedAt, t < late {
+            state = .inSet
+            since = armedAt
+            lateUntil = nil
+            return true
+        }
+        return false
     }
 
     /// Set saved / lift ended at `t` (the last rep's top or the lift's end): → resting since `t`.
@@ -74,6 +94,7 @@ public struct LiftCycle: Equatable, Sendable {
         state = .resting
         since = t
         restStartBeforeArm = nil
+        lateUntil = nil
         return true
     }
 
@@ -85,6 +106,7 @@ public struct LiftCycle: Equatable, Sendable {
         state = .resting
         since = restStartBeforeArm ?? armedAt
         restStartBeforeArm = nil
+        lateUntil = t
         return true
     }
 }

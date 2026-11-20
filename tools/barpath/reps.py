@@ -132,7 +132,9 @@ class SetTracker:
     `armedFrom` (#148): reps that start before it are never counted. The watch sets it to the
     Crown-turn time when the next set is armed, and to +inf while resting, so motion at rest
     (a hand shake) can't make a set; the sample history is kept, so the set recording still
-    gets its pre-roll from before the Crown turn. `detected`: a rep after armedFrom was seen in
+    gets its pre-roll from before the Crown turn. `armedUntil`: reps that start at or after it are
+    not counted either (+inf except just after an armed time-out, when a rep already under way
+    still counts). `detected`: a rep after armedFrom was seen in
     the last batch, confirmed or not (the armed time-out waits for it)."""
     cfg: RepConfig = RepConfig()
     setEndGap: float = 6.0
@@ -142,6 +144,7 @@ class SetTracker:
     countWindow: float = 30.0
     maxHistory: float = 180.0
     armedFrom: float = -np.inf
+    armedUntil: float = np.inf
 
     def __post_init__(self):
         self.live: List[Rep] = []
@@ -166,7 +169,7 @@ class SetTracker:
         i = self.idx[t[self.idx] >= latest - self.countWindow]
         reps = count_reps(t[i], ua[i], g[i], self.cfg).reps
         after = self.live[-1].end if self.live else -np.inf
-        reps = [r for r in reps if r.start >= self.armedFrom]
+        reps = [r for r in reps if self.armedFrom <= r.start < self.armedUntil]
         self.detected = any(r.start > after for r in reps)
         new = [r for r in reps if r.start > after and r.end <= latest - self.settle]
         if new:
@@ -187,7 +190,7 @@ class SetTracker:
             i = i[t[i] >= latest - self.countWindow]
             after = self.live[-1].end if self.live else -np.inf
             self.live += [r for r in count_reps(t[i], ua[i], g[i], self.cfg).reps
-                          if r.start > after and r.start >= self.armedFrom]
+                          if r.start > after and self.armedFrom <= r.start < self.armedUntil]
         return self._finish() if self.live else None
 
     def _finish(self):

@@ -45,13 +45,23 @@ final class LiftCycleTests: XCTestCase {
         XCTAssertTrue(c.expireArmed(at: 480, busy: false))
         XCTAssertEqual(c.since, 0)
         XCTAssertFalse(c.expireArmed(at: 700, busy: false))
+
+        // A rep under way at the time-out still counts.
+        var d = LiftCycle(startAt: 0)
+        XCTAssertTrue(d.expireArmed(at: 180, busy: false))
+        XCTAssertEqual(d.listeningFrom, 0)
+        XCTAssertEqual(d.listeningUntil, 180)
+        XCTAssertFalse(d.setStarted(at: 180))
+        XCTAssertTrue(d.setStarted(at: 179))
+        XCTAssertEqual(d.state, .inSet)
+        XCTAssertEqual(d.listeningUntil, Double.greatestFiniteMagnitude)
     }
 
     func testCycleCasesMatchPython() throws {
         XCTAssertNotNil(fixtureURL("lift_cycle_cases", "json"), "lift_cycle_cases.json missing")
         let fixture = try jsonObject(try fixtureData("lift_cycle_cases", "json"))
         let cases = fixture["cases"] as? [String: Any] ?? [:]
-        XCTAssertEqual(cases.count, 5)
+        XCTAssertEqual(cases.count, 6)
         for (name, value) in cases.sorted(by: { $0.key < $1.key }) {
             let c = value as? [String: Any] ?? [:]
             let ops = c["ops"] as? [[Any]] ?? []
@@ -86,6 +96,10 @@ final class LiftCycleTests: XCTestCase {
                 }
                 XCTAssertEqual(cycle.isListening, flag(want["listening"]), label)
                 XCTAssertEqual(cycle.canShowEndPage, flag(want["canShowEndPage"]), label)
+                XCTAssertEqual(cycle.listeningFrom,
+                               number(want["listeningFrom"]) ?? Double.greatestFiniteMagnitude, label)
+                XCTAssertEqual(cycle.listeningUntil,
+                               number(want["listeningUntil"]) ?? Double.greatestFiniteMagnitude, label)
             }
         }
     }
@@ -166,7 +180,7 @@ final class LiftCycleTests: XCTestCase {
             switch e {
             case .repCounted(let n):
                 out.live.append(n)
-                cycle.setStarted(at: 0)
+                cycle.setStarted(at: tracker.liveReps.first?.start ?? 0)
             case .setEnded(let start, _, _, let lastRepEnd, let reps):
                 out.sets.append((start, reps))
                 cycle.setEnded(at: lastRepEnd)
@@ -179,6 +193,7 @@ final class LiftCycleTests: XCTestCase {
                 out.arms.append((a, cycle.arm(at: a)))
             }
             tracker.armedFrom = cycle.listeningFrom
+            tracker.armedUntil = cycle.listeningUntil
             let end = min(samples.count, k + 200)
             tracker.process(Array(samples[k..<end])).forEach(handle)
             let latest = samples[end - 1].t
@@ -188,6 +203,7 @@ final class LiftCycleTests: XCTestCase {
             k = end
         }
         tracker.armedFrom = cycle.listeningFrom
+        tracker.armedUntil = cycle.listeningUntil
         if let last = tracker.flush() {
             handle(last)
         }
@@ -200,7 +216,7 @@ final class LiftCycleTests: XCTestCase {
         let fixture = try jsonObject(try fixtureData("rest_arm_cases", "json"))
         let tol = number(fixture["tolerance"]) ?? 0.006
         let cases = fixture["cases"] as? [String: Any] ?? [:]
-        XCTAssertEqual(cases.count, 7)
+        XCTAssertEqual(cases.count, 8)
         func rows(_ x: Any?) -> [[Double]] {
             return (x as? [Any] ?? []).map { row in (row as? [Any] ?? []).compactMap { number($0) } }
         }

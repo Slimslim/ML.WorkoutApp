@@ -31,6 +31,9 @@ public struct SetTracker {
     /// motion at rest can't make a set. The sample history is kept, so a set started right after
     /// the Crown turn still gets its pre-roll.
     public var armedFrom: Double = -Double.greatestFiniteMagnitude
+    /// Reps that start at or after this are not counted either (+∞ except just after an armed
+    /// time-out, when a rep already under way still counts).
+    public var armedUntil: Double = Double.greatestFiniteMagnitude
     /// A rep after `armedFrom` was seen in the last batch, confirmed or not (the armed time-out
     /// waits for it).
     public private(set) var detected = false
@@ -109,14 +112,16 @@ public struct SetTracker {
         return finishSet()
     }
 
-    /// RepCounter on the last `countWindow` s; reps starting before `armedFrom` are dropped.
+    /// RepCounter on the last `countWindow` s; reps starting outside [armedFrom, armedUntil) are
+    /// dropped.
     private func countRecent(latest: Double) -> [Rep] {
         let from = latest - countWindow
         let start = samples.firstIndex(where: { $0.t >= from }) ?? samples.count
         guard start < samples.count else { return [] }
         let from0 = armedFrom
+        let until0 = armedUntil
         return RepCounter.count(MotionSeries(Array(samples[start...])), config: config).reps
-            .filter { $0.start >= from0 }
+            .filter { $0.start >= from0 && $0.start < until0 }
     }
 
     private mutating func finishSet() -> SetEvent {

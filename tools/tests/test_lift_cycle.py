@@ -35,6 +35,11 @@ CYCLE_CASES = {
                       ["arm", 470.0], ["expire", 649.0, False], ["expire", 650.0, False],
                       ["arm", 700.0]],
     "first_set_timeout": [["start", 10.0], ["expire", 190.0, False], ["arm", 200.0]],
+    # a rep that started before the time-out still counts and undoes it; a later one doesn't
+    "rep_under_way_at_timeout": [["start", 0.0], ["setStarted", 2.0], ["setEnded", 10.0],
+                                 ["arm", 40.0], ["expire", 220.0, False], ["setStarted", 219.0],
+                                 ["setEnded", 240.0], ["arm", 300.0], ["expire", 480.0, False],
+                                 ["setStarted", 481.0], ["setStarted", 39.0]],
 }
 
 
@@ -58,6 +63,11 @@ def test_armed_timeout_rule():
     assert c.arm(300.0) and c.last_rest == 300.0
     assert c.expire_armed(480.0, False) and c.since == 0.0     # rest keeps counting from 0
     assert not c.expire_armed(700.0, False)                    # only while armed
+    # a rep under way at the time-out
+    c = LiftCycle.start(0.0)
+    assert c.expire_armed(180.0, False) and c.listening_from == 0.0 and c.listening_until == 180.0
+    assert not c.set_started(180.0)                             # started after it: no
+    assert c.set_started(179.0) and c.state == "inSet" and c.listening_until == math.inf
 
 
 def test_cycle_parity_fixture_is_current():
@@ -110,18 +120,18 @@ def watch_replay(t, ua, g, arms):
         while todo and todo[0] <= t[k]:
             a = todo.pop(0)
             applied.append([a, cycle.arm(a)])
-        tr.armedFrom = cycle.listening_from
+        tr.armedFrom, tr.armedUntil = cycle.listening_from, cycle.listening_until
         for e in tr.process(t, ua, g, np.arange(k, min(len(t), k + 200))):
             if e[0] == "rep":
                 live.append(e[1])
-                cycle.set_started(e[2])
+                cycle.set_started(tr.live[0].start)
             else:
                 sets.append(e)
                 cycle.set_ended(e[3][-1].end)
         latest = float(t[min(len(t), k + 200) - 1])
         if cycle.expire_armed(latest, tr.detected):
             expired.append(round(latest, 4))
-    tr.armedFrom = cycle.listening_from
+    tr.armedFrom, tr.armedUntil = cycle.listening_from, cycle.listening_until
     last = tr.flush(t, ua, g)
     if last:
         sets.append(last)
@@ -157,6 +167,10 @@ ARM_CASES = {
     # armed 3 min with no set: back to rest; then a set without the Crown counts nothing
     "armed_timeout": dict(pulls=_pulls(5, 2.5, 8.0) + _pulls(4, 2.5, 235.0), shakes=[],
                           total=260.0, arms=[40.0]),
+    # review of #150: the first rep is under way, not yet detected, when the time-out fires
+    # (arm 40 s + 180 s; checked at the 1 s batch end, 220.995 s)
+    "rep_under_way_at_timeout": dict(pulls=_pulls(5, 2.5, 8.0) + _pulls(5, 2.5, 220.3), shakes=[],
+                                     total=245.0, arms=[40.0]),
 }
 
 
@@ -193,6 +207,14 @@ def test_armed_timeout_goes_back_to_rest():
     assert r["arms"] == [[40.0, True]]
     assert len(r["expired"]) == 1 and 220.0 <= r["expired"][0] < 221.5
     assert [len(s["reps"]) for s in r["sets"]] == [5]          # the pulls after it: not a set
+
+
+def test_rep_under_way_at_timeout_still_counts():
+    r = _run_arm_case(ARM_CASES["rep_under_way_at_timeout"])
+    assert len(r["expired"]) == 1 and 220.0 <= r["expired"][0] < 221.5
+    assert [len(s["reps"]) for s in r["sets"]] == [5, 5]
+    assert r["sets"][1]["reps"][0][0] < r["expired"][0]
+    assert r["live"] == [1, 2, 3, 4, 5, 1, 2, 3, 4, 5]
 
 
 def test_resting_tracker_counts_nothing():
