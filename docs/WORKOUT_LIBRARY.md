@@ -88,7 +88,7 @@ python3 tools/library/make_row.py --builtin wod.helen --id lib.benchmark.2026111
 cap or not, so `make_row.py` refuses an AMRAP without `roundSize` or with fewer than 10 listed
 rounds. `--repeat-rounds 30` writes a flat AMRAP out (its last full round repeated, `roundSize`
 set); `--rounds-listed-ok` lets a short one through on purpose. Check what round 2 is before
-repeating a ladder. From 0.17.1 the watch also repeats an AMRAP's round itself (#140, WORKOUT_SPEC §5a once merged).
+repeating a ladder. From 0.17.1 the watch also repeats an AMRAP's round itself (WORKOUT_SPEC §5a).
 
 ## Id convention
 
