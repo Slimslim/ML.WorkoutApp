@@ -351,6 +351,8 @@ final class SessionModel: ObservableObject {
         marksCount = 0
         repCount = 0
         resetCycle()
+        // A new block (after Change lift): the previous block's rest is not this one's.
+        lastRestSeconds = nil
         phase = .running
         sendStatus()
     }

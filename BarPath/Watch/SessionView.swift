@@ -13,6 +13,8 @@ struct SessionView: View {
     @State private var confirmEnd = false
     @State private var editWeight = false
     @State private var page = 0
+    /// Bumped on each page change, so only the latest End-page visit's timer sends it back.
+    @State private var endPageVisit = 0
     @StateObject private var crown = CrownAdvanceController()
     @FocusState private var crownFocused: Bool
 
@@ -42,13 +44,15 @@ struct SessionView: View {
             }
         }
         .onChange(of: page) { _, newPage in
+            endPageVisit += 1
             if newPage == 0 {
                 crownFocused = true
                 return
             }
+            let visit = endPageVisit
             Task { @MainActor in
                 try? await Task.sleep(nanoseconds: UInt64(SessionView.endPageTimeout * 1_000_000_000))
-                if page == newPage && !confirmEnd {
+                if endPageVisit == visit && page == newPage && !confirmEnd {
                     page = 0
                 }
             }
@@ -67,6 +71,7 @@ struct SessionView: View {
                 model.end()
             } onKeepGoing: {
                 confirmEnd = false
+                page = 0
             }
         }
     }
@@ -104,8 +109,10 @@ struct SessionView: View {
             Text("REST")
                 .font(.system(size: 15, weight: .bold, design: .rounded))
                 .foregroundColor(rest)
-            Text(SessionModel.formatElapsed(now.timeIntervalSince(since)))
+            // A system timer: keeps counting in Always-On, where the TimelineView slows down.
+            Text(timerInterval: since...Date.distantFuture, countsDown: false)
                 .font(.system(size: 52, weight: .heavy, design: .rounded).monospacedDigit())
+                .multilineTextAlignment(.center)
                 .foregroundColor(rest)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
@@ -172,6 +179,10 @@ struct SessionView: View {
 
     private var restTopLine: String {
         let n = model.liftCount
+        if n == 0 {
+            // Armed time-out before the first set: nothing saved yet.
+            return model.liftType.displayName + (model.useLoad ? " \u{00B7} " + model.loadText : "")
+        }
         if model.isRepMode {
             if let reps = model.lastSetReps {
                 return "\u{2713} Set \(n) \u{00B7} \(reps) rep\(reps == 1 ? "" : "s")"

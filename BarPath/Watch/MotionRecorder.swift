@@ -123,6 +123,7 @@ final class MotionRecorder {
         // The block starts armed: the athlete starts the watch at the bar.
         cycle = LiftCycle(startAt: ProcessInfo.processInfo.systemUptime)
         setTracker.armedFrom = cycle.listeningFrom
+        setTracker.armedUntil = cycle.listeningUntil
         pending = []
         currentLift = nil
         liftCount = liftIndexOffset
@@ -206,6 +207,7 @@ final class MotionRecorder {
         let now = ProcessInfo.processInfo.systemUptime
         guard cycle.arm(at: now) else { return false }
         setTracker.armedFrom = cycle.listeningFrom
+        setTracker.armedUntil = cycle.listeningUntil
         detector.reset()
         currentLift = nil
         let state = detector.state
@@ -359,15 +361,21 @@ final class MotionRecorder {
         }
         if repMode {
             setTracker.armedFrom = cycle.listeningFrom
+            setTracker.armedUntil = cycle.listeningUntil
             for event in setTracker.process(accepted) {
                 handleSet(event)
             }
         }
         // Armed with no set for LiftCycle.armedTimeout: back to Rest.
         if let latest = accepted.last?.t {
-            let busy = repMode ? setTracker.detected : detector.state == .lifting
+            // Not while a rep / lift is under way: rep mode, a rep seen; Olympic, READY at the bar
+            // or lifting. A rep that started before the time-out still counts (listeningUntil).
+            let busy = repMode
+                ? setTracker.detected
+                : (detector.state == .lifting || detector.state == .armed)
             if cycle.expireArmed(at: latest, busy: busy) {
                 setTracker.armedFrom = cycle.listeningFrom
+                setTracker.armedUntil = cycle.listeningUntil
                 detector.reset()
                 currentLift = nil
                 Log.motion.info("Armed with no set: back to rest")
@@ -431,7 +439,7 @@ final class MotionRecorder {
     private func handleSet(_ event: SetEvent) {
         switch event {
         case .repCounted(let n):
-            if cycle.setStarted(at: setTracker.latestTime ?? 0) {
+            if cycle.setStarted(at: setTracker.liveReps.first?.start ?? 0) {
                 onCycleChange?(cycle)
             }
             onRepCount?(n)
@@ -441,6 +449,7 @@ final class MotionRecorder {
                 onCycleChange?(cycle)
             }
             setTracker.armedFrom = cycle.listeningFrom
+            setTracker.armedUntil = cycle.listeningUntil
             liftCount += 1
             let t0 = csvWriter?.t0 ?? 0
             csvWriter?.appendEvent(atUptime: end,
