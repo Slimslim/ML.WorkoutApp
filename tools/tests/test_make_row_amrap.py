@@ -78,7 +78,24 @@ def test_repeat_rounds_refusals():
         make_row.repeat_rounds(dict(amrap(), format="forTime"), 10)
     with pytest.raises(make_row.LibraryError, match="whole rounds"):
         make_row.repeat_rounds(dict(amrap(rounds=3), roundSize=4), 10)
+    for bad in (0, -1, 7):
+        with pytest.raises(make_row.LibraryError, match="between 1"):
+            make_row.repeat_rounds(dict(amrap(rounds=3), roundSize=bad), 10)
+    with pytest.raises(make_row.LibraryError, match="more than 600"):
+        make_row.repeat_rounds(amrap(rounds=1), 301)
     with pytest.raises(make_row.LibraryError, match=">= 1"):
         make_row.repeat_rounds(amrap(), 0)
     with pytest.raises(make_row.LibraryError, match="flat"):
         make_row.repeat_rounds(dict(amrap(), schemaVersion=2), 10)
+
+
+def test_v2_hint_names_a_fix_that_works():
+    with pytest.raises(make_row.LibraryError) as e:
+        make_row.check_amrap_rounds(amrap(rounds=1), v2=True)
+    assert "--repeat-rounds" not in str(e.value) and "by hand" in str(e.value)
+
+
+def test_repeat_rounds_with_rounds_listed_ok_and_a_small_n(tmp_path):
+    path = write(tmp_path, amrap(rounds=1))
+    assert make_row.main(["--repeat-rounds", "3", path]) == 1          # 3 rounds: still short
+    assert make_row.main(["--repeat-rounds", "3", "--rounds-listed-ok", path]) == 0
