@@ -103,8 +103,8 @@ private struct EmomSet {
             if spans.isEmpty {
                 spans = [(Swift.max(0, st.start - mark), Swift.min(interval, st.end - mark))]
             }
-            let defs: [WorkoutSegment] = result.definition.segments
-            let load: SegmentLoad? = st.index < defs.count ? defs[st.index].load : nil
+            // Block results (5c): a step finds its part.
+            let load: SegmentLoad? = result.definitionSegment(forIndex: st.index)?.load
             return EmomSet(number: item.offset + 1, interval: interval, station: st, load: load,
                            spans: spans, found: !lifts.isEmpty)
         }

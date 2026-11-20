@@ -42,13 +42,18 @@ public struct SegmentResult: Codable, Equatable {
     /// Each lift found in this segment, [start, end] in seconds since 1970. Optional in JSON
     /// (absent unless the motion analysis ran).
     public var lifts: [[Double]]?
+    /// WORKOUT_SPEC 5c, block mode only (a listed-once definition run as a repeating block):
+    /// the pass this step belongs to; its part is `index % definition.segments.count`. Optional in
+    /// JSON, absent on today's path and in older files (read as one pass).
+    public var pass: Int?
 
     public init(index: Int, kind: SegmentKind, movement: String, title: String,
                 start: Double, end: Double, duration: Double,
                 heartRateAvg: Double? = nil, heartRateMax: Double? = nil,
                 steps: Double? = nil, distance: Double? = nil,
                 cadence: Double? = nil, paceSecondsPerKm: Double? = nil,
-                heartRateMin: Double? = nil, lifts: [[Double]]? = nil) {
+                heartRateMin: Double? = nil, lifts: [[Double]]? = nil, pass: Int? = nil) {
+        self.pass = pass
         self.index = index
         self.kind = kind
         self.movement = movement
@@ -173,8 +178,9 @@ public enum SplitStats {
 
         var out: [SegmentResult] = []
         for split in progress.splits(now: now) {
-            let seg: WorkoutSegment? = split.index < progress.definition.segments.count
-                ? progress.definition.segments[split.index] : nil
+            // Block mode (5c): a step does part step % P; today a segment index is the segment.
+            let seg: WorkoutSegment? = progress.part(atStep: split.index)
+            let pass: Int? = progress.block == nil ? nil : progress.position(ofStep: split.index)?.pass
             let kind: SegmentKind = seg?.kind ?? .station
             let movement: String = seg?.movement ?? ""
             let title: String = seg?.title ?? "Segment \(split.index + 1)"
@@ -215,7 +221,7 @@ public enum SplitStats {
                                      heartRateAvg: hrAvg, heartRateMax: hrMax,
                                      steps: steps, distance: distance,
                                      cadence: cadence, paceSecondsPerKm: pace,
-                                     heartRateMin: hrMin))
+                                     heartRateMin: hrMin, pass: pass))
         }
         return out
     }
@@ -277,6 +283,10 @@ public struct WorkoutResult: Codable, Equatable, Identifiable {
     /// "classic"), read once at the start. Optional in JSON (absent before 0.18). A string, not the
     /// enum, so a result from a later engine still decodes.
     public var engine: String?
+    /// WORKOUT_SPEC 5c, block mode only: passes started. `index` of each segment is then the step
+    /// and the definition is the listed block, never copied. Optional in JSON, absent on today's
+    /// path and in older files.
+    public var passes: Int?
 
     public init(version: Int = WorkoutResult.currentVersion, id: UUID = UUID(), definition: WorkoutDefinition,
                 startDate: Date, finishDate: Date?, endDate: Date, totalSeconds: Double,
@@ -284,7 +294,8 @@ public struct WorkoutResult: Codable, Equatable, Identifiable {
                 heartRateAvg: Double? = nil, heartRateMax: Double? = nil,
                 recordingFileName: String? = nil, heartRateSeries: HeartRateSeries? = nil,
                 partialReps: Int? = nil, editedAt: Date? = nil, repsAtCap: Int? = nil,
-                engine: String? = nil) {
+                engine: String? = nil, passes: Int? = nil) {
+        self.passes = passes
         self.version = version
         self.id = id
         self.definition = definition
@@ -302,6 +313,41 @@ public struct WorkoutResult: Codable, Equatable, Identifiable {
         self.editedAt = editedAt
         self.repsAtCap = repsAtCap
         self.engine = engine
+    }
+
+    /// A result of a listed-once definition run as a repeating block (5c): segment indices are
+    /// steps and the definition lists the block once.
+    public var isBlockResult: Bool {
+        return passes != nil && definition.listedOnce == true && !definition.segments.isEmpty
+    }
+
+    /// The definition segment a result segment index did: the part `index % P` for a block
+    /// result, else the segment at that index. Nil out of range.
+    public func definitionSegment(forIndex index: Int) -> WorkoutSegment? {
+        let segs: [WorkoutSegment] = definition.segments
+        if index < 0 || segs.isEmpty { return nil }
+        if isBlockResult { return segs[index % segs.count] }
+        return index < segs.count ? segs[index] : nil
+    }
+
+    /// For views written for written-out lists (summary, report, insights): a block result's
+    /// definition with the block written out to the steps actually done (at least one pass) and
+    /// `roundSize` = the block length, so a step index finds its part. Derived on the fly, never
+    /// stored; today's results return their definition unchanged.
+    public var displayDefinition: WorkoutDefinition {
+        guard isBlockResult else { return definition }
+        let segs: [WorkoutSegment] = definition.segments
+        var maxIndex: Int = -1
+        for s in segments where s.index > maxIndex {
+            maxIndex = s.index
+        }
+        let count: Int = Swift.max(segs.count, maxIndex + 1)
+        var d: WorkoutDefinition = definition
+        d.segments = (0..<count).map { (i: Int) -> WorkoutSegment in segs[i % segs.count] }
+        d.roundSize = segs.count
+        d.listedOnce = nil
+        d.rounds = nil
+        return d
     }
 
     /// Pretty JSON, ISO8601 dates (same helpers as LiftRecording).

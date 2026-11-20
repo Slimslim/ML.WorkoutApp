@@ -200,6 +200,10 @@ struct WorkoutSessionView: View {
         let p = model.progress
         let count = p.definition.segments.count
         let demo: String = model.isDemo ? "Demo · " : ""
+        // Block mode (5c): the round is the pass; the listed block is never written out.
+        if let round = WorkoutBlockText.round(p) {
+            return demo + (p.isFinished ? "Finished · " + round : round)
+        }
         // An AMRAP's list is written out at START (#138): its length is not a target.
         if p.definition.format == .amrap, let size = p.definition.roundSize, size >= 1 {
             let round: String = "Round \(p.currentIndex / size + 1)"
@@ -418,6 +422,7 @@ struct WorkoutMainPage: View {
     /// "Round 4 · 2/4" for workouts with a repeating round, else nil.
     private func roundText() -> String? {
         let p = model.progress
+        if p.block != nil { return WorkoutBlockText.roundAndPart(p) }
         guard let size = p.definition.roundSize, p.isStarted else { return nil }
         let i = p.currentIndex
         // One-part AMRAP rounds (#138): the round alone, never "7/30" of the written-out list.
@@ -651,6 +656,10 @@ struct WorkoutMainPage: View {
     }
 
     private var nextText: String {
+        // Block mode with an interval (5c): the Crown is ignored in the wait for the next window.
+        if model.progress.isWaitingForWindow {
+            return "Next set on the clock"
+        }
         if let next = model.progress.nextSegment {
             return "Next: " + next.title
         }
@@ -1135,5 +1144,27 @@ struct WorkoutEndConfirmView: View {
             .buttonStyle(.plain)
         }
         .padding(.horizontal, 4)
+    }
+}
+
+/// Round text in block mode (WORKOUT_SPEC 5c): the pass is the round. Nil on today's path and for a
+/// listed-once fixed list.
+enum WorkoutBlockText {
+    /// "Round 3", or "Round 3/5" when the round count is known.
+    static func round(_ p: WorkoutProgress) -> String? {
+        guard let plan = p.block, plan.kind == .repeating, p.isStarted,
+              let pos = p.position(ofStep: p.currentIndex) else { return nil }
+        if let r = plan.rounds {
+            return "Round \(pos.pass + 1)/\(r)"
+        }
+        return "Round \(pos.pass + 1)"
+    }
+
+    /// "Round 3 · 2/4" (part of the block), or the round alone for a one-part block.
+    static func roundAndPart(_ p: WorkoutProgress) -> String? {
+        guard let plan = p.block, let round = round(p),
+              let pos = p.position(ofStep: p.currentIndex) else { return nil }
+        if plan.parts <= 1 { return round }
+        return round + " · \(pos.part + 1)/\(plan.parts)"
     }
 }

@@ -24,6 +24,13 @@ struct WorkoutStartView: View {
                         .font(.caption2)
                         .foregroundColor(.secondary)
                 }
+                // E3 (0.18, QA): the new engine is on for the next START (phone Settings).
+                if WorkoutEngineSwitch.current() == .v2 {
+                    Text("NEW")
+                        .font(.system(size: 10, weight: .heavy, design: .rounded))
+                        .foregroundColor(.green)
+                        .accessibilityLabel("New workout engine on")
+                }
                 Spacer()
                 Button {
                     model.dataMode.toggle()

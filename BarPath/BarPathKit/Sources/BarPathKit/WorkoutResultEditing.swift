@@ -84,9 +84,8 @@ extension WorkoutResult {
     /// that segment has no reps target (or there are no segments).
     public var partialRepsLimit: Int? {
         guard let last = segments.last else { return nil }
-        let i: Int = last.index
-        if i < 0 || i >= definition.segments.count { return nil }
-        guard let target = definition.segments[i].target, target.unit == .reps else { return nil }
+        guard let segment = definitionSegment(forIndex: last.index),
+              let target = segment.target, target.unit == .reps else { return nil }
         return Swift.max(0, Int(target.value.rounded()))
     }
 
@@ -126,7 +125,8 @@ extension WorkoutResult {
     /// segments and the same run/station/rest pattern (only targets, names, loads may differ).
     public func canApplyDefinition(_ definition: WorkoutDefinition) -> Bool {
         let old = self.definition
-        guard definition.id == old.id, definition != old,
+        // A block result (5c) maps steps to parts; swapping its definition is not offered.
+        guard !isBlockResult, definition.id == old.id, definition != old,
               definition.segments.count == old.segments.count,
               segments.count <= definition.segments.count else { return false }
         for i in 0..<old.segments.count where old.segments[i].kind != definition.segments[i].kind {

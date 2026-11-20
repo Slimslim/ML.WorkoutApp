@@ -146,6 +146,11 @@ final class WorkoutSessionModel: ObservableObject {
     /// Screen demo (`startDemo`): the real screen with mock HR / run distance (WorkoutDemo).
     /// No HealthKit, motion, pedometer, CSV, result, phone transfer or summary.
     @Published private(set) var isDemo = false
+    /// E2/E3 (0.18): the engine this workout runs on, read once at START from the phone's switch
+    /// (`WorkoutEngineSwitch.current()`) and kept for the whole workout. Block mode (WORKOUT_SPEC
+    /// 5c) runs only when it is .v2 and the definition is marked listedOnce; anything else is
+    /// today's path. Recorded in the result (`engine`) and the CSV header (`engine=`).
+    @Published private(set) var engine: WorkoutEngine = WorkoutEngine.watchDefault
 
     private var workout: WorkoutManager
     private let recorder: WorkoutMotionRecorder
@@ -216,6 +221,8 @@ final class WorkoutSessionModel: ObservableObject {
         var recordedCSV: Bool
         /// End press, seconds since 1970: splits, HR average and the CSV end here.
         var endT: Double
+        /// E3: `WorkoutEngine.recordName` of the engine read at START ("new" | "classic").
+        var engine: String?
     }
 
     fileprivate struct BackgroundRecovery {
@@ -380,9 +387,16 @@ final class WorkoutSessionModel: ObservableObject {
     private func resetForStart(definition: WorkoutDefinition, demo: Bool) {
         isDemo = demo
         workoutId = UUID()
-        // An AMRAP's round is written out until it can't run out before the cap (#138); the
-        // checkpoint stores this progress, so a restored workout keeps the expanded list.
-        progress = WorkoutProgress(definition: definition.expandedForAmrap())
+        // E3: the engine is read once here and kept for the whole workout.
+        engine = WorkoutEngineSwitch.current()
+        if let plan = RepeatBlock.enginePlan(for: definition, engineOn: engine == .v2) {
+            // Block mode (5c): the listed block repeats lazily; nothing is written out.
+            progress = WorkoutProgress(definition: definition, block: plan)
+        } else {
+            // Today's path. An AMRAP's round is written out until it can't run out before the
+            // cap (#138); the checkpoint stores this progress, so a recovered result keeps it.
+            progress = WorkoutProgress(definition: definition.expandedForAmrap())
+        }
         heartRates = []
         sawHeartRate = false
         pedometerSamples = []
@@ -514,8 +528,7 @@ final class WorkoutSessionModel: ObservableObject {
     var repsAtCapSegment: WorkoutSegment? {
         guard progress.isFinished, let finish = progress.finishTime,
               let i = progress.capSegmentIndex(now: finish),
-              i >= 0, i < progress.definition.segments.count else { return nil }
-        let segment: WorkoutSegment = progress.definition.segments[i]
+              let segment = progress.part(atStep: i) else { return nil }
         if segment.kind == .rest || segment.kind == .run { return nil }
         if let target = segment.target, target.unit == .meters || target.unit == .seconds { return nil }
         return segment
@@ -628,7 +641,7 @@ final class WorkoutSessionModel: ObservableObject {
             // Rate chosen once for the whole session: 200 Hz only if the plan has a barbell /
             // dumbbell / kettlebell movement (RecordingProfile) and HealthKit is running now.
             // W29: battery monitoring on for the session; header pairs read now.
-            let infoHeader: String = recordingInfo.begin()
+            let infoHeader: String = recordingInfo.begin() + ", " + engine.headerPair
             recorder.start(sessionId: workoutId, definitionId: progress.definition.id,
                            planned: RecordingProfile.profile(for: progress.definition),
                            healthKitRunning: healthKitRunning, gpsOn: gpsOn, extraHeader: infoHeader)
@@ -641,7 +654,7 @@ final class WorkoutSessionModel: ObservableObject {
         startClock()
         startPedometer(from: Date(timeIntervalSince1970: t))
         play(kind == .run ? .start : .directionUp)
-        workoutLog.info("Workout started: \(self.progress.definition.id, privacy: .public), HK \(self.healthKitRunning), data \(self.dataMode)")
+        workoutLog.info("Workout started: \(self.progress.definition.id, privacy: .public), HK \(self.healthKitRunning), data \(self.dataMode), engine \(self.engine.rawValue, privacy: .public), block \(self.progress.block != nil)")
     }
 
     // MARK: - Clock (timed rests, AMRAP cap, for-time cap announcement)
@@ -1335,7 +1348,7 @@ final class WorkoutSessionModel: ObservableObject {
         let input = ResultInput(id: workoutId, progress: progress, heartRates: hr,
                                 pedometer: pedometerSamples,
                                 partialReps: progress.isFinished ? partialReps : nil,
-                                recordedCSV: recordedCSV, endT: endT)
+                                recordedCSV: recordedCSV, endT: endT, engine: engine.recordName)
         lastResultInput = input
         let result: WorkoutResult = WorkoutSessionModel.makeResult(input, recordingEndT: endT)
         // W23: a workout of 2 min or more with no heart rate turns the start screen banner on.
@@ -1375,7 +1388,8 @@ final class WorkoutSessionModel: ObservableObject {
                                            pedometer: pedometerSamples,
                                            partialReps: partialReps,
                                            recordedCSV: isRecordingCSV,
-                                           savedAt: Date().timeIntervalSince1970)
+                                           savedAt: Date().timeIntervalSince1970,
+                                           engine: engine.recordName)
         WorkoutCheckpoint.save(checkpoint)
     }
 
@@ -1407,7 +1421,7 @@ final class WorkoutSessionModel: ObservableObject {
                                 heartRates: checkpoint.heartRates,
                                 pedometer: checkpoint.pedometer,
                                 partialReps: recovered.isFinished ? checkpoint.partialReps : nil,
-                                recordedCSV: checkpoint.recordedCSV, endT: endT)
+                                recordedCSV: checkpoint.recordedCSV, endT: endT, engine: checkpoint.engine)
         let result: WorkoutResult = WorkoutSessionModel.makeResult(input, recordingEndT: endT)
         // W23: same rule as a normal end, so the watch flag agrees with the phone, which reads
         // this recovered result.
@@ -1474,6 +1488,11 @@ final class WorkoutSessionModel: ObservableObject {
                                    heartRateMax: hrMax,
                                    recordingFileName: input.recordedCSV ? "session-\(input.id.uuidString).csv" : nil,
                                    heartRateSeries: hrSeries)
+        result.engine = input.engine
+        if p.block != nil {
+            // Block mode (5c): segment indices are steps; record how many passes were started.
+            result.passes = (p.position(ofStep: p.currentIndex)?.pass ?? 0) + 1
+        }
         if p.isFinished, let reps = input.partialReps {
             // Entered on the watch: not an edit, so editedAt stays nil. For time past the cap
             // the picker asked the reps at the cap (§5b); AMRAP: the reps of the cut segment.

@@ -515,7 +515,9 @@ struct SummaryContext {
 
     init(result: WorkoutResult, previous: WorkoutResult?) {
         self.result = result
-        self.definition = result.definition
+        // A block result (5c) shows its block written out to the steps done (never stored).
+        let shown: WorkoutDefinition = result.displayDefinition
+        self.definition = shown
         let sorted: [SegmentResult] = result.segments.sorted(by: { (a: SegmentResult, b: SegmentResult) -> Bool in
             a.index < b.index
         })
@@ -535,8 +537,8 @@ struct SummaryContext {
             duration = Swift.max(duration, last.end - origin)
         }
         self.duration = Swift.max(0, duration)
-        self.isFinished = result.finishDate != nil && sorted.count >= result.definition.segments.count
-        self.roundSize = WorkoutSummary.effectiveRoundSize(result.definition)
+        self.isFinished = result.finishDate != nil && sorted.count >= shown.segments.count
+        self.roundSize = WorkoutSummary.effectiveRoundSize(shown)
     }
 
     func rel(_ t: Double) -> Double {

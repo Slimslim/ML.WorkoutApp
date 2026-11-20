@@ -678,6 +678,16 @@ is E3. The 0.17.1 stopgap (§5a) stays unchanged on the legacy route. Questions 
   - `WorkoutResult.passes`, the number of passes started.
   - Old files have neither, and read as one pass, as today.
 - The definition in the result is the listed block (P parts), never copied.
+- **Built (E3, 0.18):** `SegmentResult.pass` and `WorkoutResult.passes` (block mode only), and
+  `WorkoutResult.engine` ("new" | "classic", E2). Views written for written-out lists use
+  `WorkoutResult.definitionSegment(forIndex:)` (a step's part) or `displayDefinition` (the block
+  written out to the steps done, `roundSize` = P, derived on the fly and never stored): the summary,
+  the report's set loads, the partial-reps and cap limits. A block result is not offered a
+  definition swap. The watch reads the engine once at START (`WorkoutEngineSwitch.current()`), runs
+  block mode only with the engine on and a listed-once definition (no §5a expansion then), keeps
+  the plan and the engine in the crash checkpoint, writes `engine=new|classic` in the CSV header,
+  shows "Round k · part/P" (or "Round k/N") and "Next set on the clock" while waiting for a
+  window, and a small "NEW" on START when the switch is on.
 - **[Q7] Phone views written for written-out lists.** Some views index `definition.segments` with
   a step number. They guard `index < count` and then fall back to the stored title (checked: the
   summary, insights, the report rows). Those guards would show steps past P without their target

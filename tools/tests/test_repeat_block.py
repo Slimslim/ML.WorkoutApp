@@ -233,3 +233,53 @@ def test_block_mode_is_never_on_without_a_plan():
     p.advance(10.0, "crown")
     p.advance(20.0, "crown")
     assert not p.waiting_for_window
+
+
+# ---- E3: results of block mode (index = step, with pass) ---------------------------------------
+
+def _capped_amrap():
+    from barpath.workout import split_stats
+    c = next(c for c in progress_cases() if c["definition"]["id"] == "p.amrapUndo")
+    d = WorkoutDefinition.from_dict(c["definition"])
+    p = WorkoutProgress(d, rb.engine_plan(d, rb.ENGINE_V2))
+    rb.run_script(p, c["script"])
+    return d, p, split_stats(p, p.finish_time, [], [])
+
+
+def test_block_splits_store_steps_with_pass_and_part():
+    d, p, segs = _capped_amrap()
+    assert [s.index for s in segs] == [0, 1, 2, 3]
+    assert [s.pass_ for s in segs] == [0, 0, 1, 1]
+    assert [s.movement for s in segs] == ["burpees", "airSquats", "burpees", "airSquats"]
+    assert segs[0].to_dict()["pass"] == 0
+
+
+def test_block_result_display_definition_and_round_trip():
+    from datetime import datetime, timezone
+    from barpath.workout import WorkoutResult
+    d, p, segs = _capped_amrap()
+    t0 = datetime.fromtimestamp(p.start_time, tz=timezone.utc)
+    r = WorkoutResult(d, t0, t0, t0, 300.0, segs, p.events, engine="new", passes=2)
+    assert r.is_block_result and r.definition_segment(3).movement == "airSquats"
+    shown = r.display_definition
+    assert len(shown.segments) == 4 and shown.round_size == 2 and not shown.listed_once
+    back = WorkoutResult.from_dict(r.to_dict())
+    assert back.passes == 2 and [s.pass_ for s in back.segments] == [0, 0, 1, 1]
+
+
+def test_today_s_results_have_no_pass_and_show_their_definition():
+    from barpath.workout import split_stats
+    p = WorkoutProgress(WorkoutLibrary.helen)
+    p.start(0.0)
+    p.advance(60.0, "crown")
+    segs = split_stats(p, 90.0, [], [])
+    assert all(s.pass_ is None for s in segs) and "pass" not in segs[0].to_dict()
+
+
+def test_block_result_partial_reps_limit_is_the_part_target():
+    from datetime import datetime, timezone
+    from barpath.workout import WorkoutResult
+    d, p, segs = _capped_amrap()
+    t0 = datetime.fromtimestamp(p.start_time, tz=timezone.utc)
+    r = WorkoutResult(d, t0, t0, t0, 300.0, segs, p.events, passes=2)
+    assert r.partial_reps_limit == 20
