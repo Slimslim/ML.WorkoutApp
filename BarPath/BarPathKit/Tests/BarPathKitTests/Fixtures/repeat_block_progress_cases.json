@@ -1,0 +1,1846 @@
+{
+ "note": "Scripted WorkoutProgress runs in block mode (WORKOUT_SPEC 5c), written by tools/make_repeat_block_progress_cases.py from the Python reference. script: [t, start|crown|undo|end|tick], the clock runs between actions (cap first on a tie). events: [t, kind, step, source].",
+ "cases": [
+  {
+   "name": "AMRAP 6:00 of a couplet: the Crown on the last part starts the next pass; the cap ends it in the current step",
+   "definition": {
+    "id": "p.amrap",
+    "name": "Test p.amrap",
+    "shortName": "T",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 20.0,
+       "unit": "reps"
+      }
+     }
+    ],
+    "listedOnce": true,
+    "timeCapSeconds": 360.0
+   },
+   "script": [
+    [
+     0,
+     "start"
+    ],
+    [
+     40,
+     "crown"
+    ],
+    [
+     80,
+     "crown"
+    ],
+    [
+     120,
+     "crown"
+    ],
+    [
+     160,
+     "crown"
+    ],
+    [
+     200,
+     "crown"
+    ],
+    [
+     240,
+     "crown"
+    ],
+    [
+     280,
+     "crown"
+    ],
+    [
+     320,
+     "crown"
+    ],
+    [
+     400,
+     "tick"
+    ]
+   ],
+   "events": [
+    [
+     0,
+     "start",
+     0,
+     null
+    ],
+    [
+     40,
+     "advance",
+     1,
+     "crown"
+    ],
+    [
+     80,
+     "advance",
+     2,
+     "crown"
+    ],
+    [
+     120,
+     "advance",
+     3,
+     "crown"
+    ],
+    [
+     160,
+     "advance",
+     4,
+     "crown"
+    ],
+    [
+     200,
+     "advance",
+     5,
+     "crown"
+    ],
+    [
+     240,
+     "advance",
+     6,
+     "crown"
+    ],
+    [
+     280,
+     "advance",
+     7,
+     "crown"
+    ],
+    [
+     320,
+     "advance",
+     8,
+     "crown"
+    ],
+    [
+     360.0,
+     "finish",
+     8,
+     "auto"
+    ]
+   ],
+   "finished": true,
+   "finishTime": 360.0,
+   "currentStep": 8,
+   "steps": 9
+  },
+  {
+   "name": "AMRAP: undo across a pass boundary, then the Crown starts that step again",
+   "definition": {
+    "id": "p.amrapUndo",
+    "name": "Test p.amrapUndo",
+    "shortName": "T",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 20.0,
+       "unit": "reps"
+      }
+     }
+    ],
+    "listedOnce": true,
+    "timeCapSeconds": 300.0
+   },
+   "script": [
+    [
+     0,
+     "start"
+    ],
+    [
+     40,
+     "crown"
+    ],
+    [
+     80,
+     "crown"
+    ],
+    [
+     90,
+     "undo"
+    ],
+    [
+     100,
+     "crown"
+    ],
+    [
+     130,
+     "crown"
+    ],
+    [
+     300,
+     "tick"
+    ]
+   ],
+   "events": [
+    [
+     0,
+     "start",
+     0,
+     null
+    ],
+    [
+     40,
+     "advance",
+     1,
+     "crown"
+    ],
+    [
+     80,
+     "advance",
+     2,
+     "crown"
+    ],
+    [
+     90,
+     "undo",
+     1,
+     "crown"
+    ],
+    [
+     100,
+     "advance",
+     2,
+     "crown"
+    ],
+    [
+     130,
+     "advance",
+     3,
+     "crown"
+    ],
+    [
+     300.0,
+     "finish",
+     3,
+     "auto"
+    ]
+   ],
+   "finished": true,
+   "finishTime": 300.0,
+   "currentStep": 3,
+   "steps": 4
+  },
+  {
+   "name": "Rounds for time x 3 with a timed rest after each round: the rest ends by itself, Finish on the last work part of round 3 (no rest after it)",
+   "definition": {
+    "id": "p.roundsRest",
+    "name": "Test p.roundsRest",
+    "shortName": "T",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 400.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 15.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 60.0,
+       "unit": "seconds"
+      }
+     }
+    ],
+    "listedOnce": true,
+    "rounds": 3
+   },
+   "script": [
+    [
+     0,
+     "start"
+    ],
+    [
+     100,
+     "crown"
+    ],
+    [
+     160,
+     "crown"
+    ],
+    [
+     300,
+     "crown"
+    ],
+    [
+     360,
+     "crown"
+    ],
+    [
+     500,
+     "crown"
+    ],
+    [
+     560,
+     "crown"
+    ]
+   ],
+   "events": [
+    [
+     0,
+     "start",
+     0,
+     null
+    ],
+    [
+     100,
+     "advance",
+     1,
+     "crown"
+    ],
+    [
+     160,
+     "advance",
+     2,
+     "crown"
+    ],
+    [
+     220.0,
+     "advance",
+     3,
+     "auto"
+    ],
+    [
+     300,
+     "advance",
+     4,
+     "crown"
+    ],
+    [
+     360,
+     "advance",
+     5,
+     "crown"
+    ],
+    [
+     420.0,
+     "advance",
+     6,
+     "auto"
+    ],
+    [
+     500,
+     "advance",
+     7,
+     "crown"
+    ],
+    [
+     560,
+     "finish",
+     7,
+     "crown"
+    ]
+   ],
+   "finished": true,
+   "finishTime": 560,
+   "currentStep": 7,
+   "steps": 8
+  },
+  {
+   "name": "Rounds for time x 2: undo after the Finish unfinishes, the Crown finishes again",
+   "definition": {
+    "id": "p.roundsUnfinish",
+    "name": "Test p.roundsUnfinish",
+    "shortName": "T",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "pullUps",
+      "name": "Pull-ups",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pushUps",
+      "name": "Push-ups",
+      "target": {
+       "value": 20.0,
+       "unit": "reps"
+      }
+     }
+    ],
+    "listedOnce": true,
+    "timeCapSeconds": 600.0,
+    "rounds": 2
+   },
+   "script": [
+    [
+     0,
+     "start"
+    ],
+    [
+     30,
+     "crown"
+    ],
+    [
+     60,
+     "crown"
+    ],
+    [
+     90,
+     "crown"
+    ],
+    [
+     120,
+     "crown"
+    ],
+    [
+     125,
+     "undo"
+    ],
+    [
+     130,
+     "crown"
+    ]
+   ],
+   "events": [
+    [
+     0,
+     "start",
+     0,
+     null
+    ],
+    [
+     30,
+     "advance",
+     1,
+     "crown"
+    ],
+    [
+     60,
+     "advance",
+     2,
+     "crown"
+    ],
+    [
+     90,
+     "advance",
+     3,
+     "crown"
+    ],
+    [
+     120,
+     "finish",
+     3,
+     "crown"
+    ],
+    [
+     125,
+     "unfinish",
+     3,
+     null
+    ],
+    [
+     130,
+     "finish",
+     3,
+     "crown"
+    ]
+   ],
+   "finished": true,
+   "finishTime": 130,
+   "currentStep": 3,
+   "steps": 4
+  },
+  {
+   "name": "Every 3:00 x 6 (row, thrusters, rest): one window = one pass; a set not finished jumps to the next window; the last window keeps its rest and the cap ends it",
+   "definition": {
+    "id": "p.every3",
+    "name": "Test p.every3",
+    "shortName": "T",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 15.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "thrusters",
+      "name": "Thrusters",
+      "target": {
+       "value": 12.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     }
+    ],
+    "listedOnce": true,
+    "timeCapSeconds": 1080.0,
+    "intervalSeconds": 180.0,
+    "rounds": 6
+   },
+   "script": [
+    [
+     0,
+     "start"
+    ],
+    [
+     60,
+     "crown"
+    ],
+    [
+     110,
+     "crown"
+    ],
+    [
+     250,
+     "crown"
+    ],
+    [
+     400,
+     "crown"
+    ],
+    [
+     450,
+     "crown"
+    ],
+    [
+     600,
+     "crown"
+    ],
+    [
+     700,
+     "crown"
+    ],
+    [
+     940,
+     "crown"
+    ],
+    [
+     990,
+     "crown"
+    ],
+    [
+     1100,
+     "tick"
+    ]
+   ],
+   "events": [
+    [
+     0,
+     "start",
+     0,
+     null
+    ],
+    [
+     60,
+     "advance",
+     1,
+     "crown"
+    ],
+    [
+     110,
+     "advance",
+     2,
+     "crown"
+    ],
+    [
+     180.0,
+     "advance",
+     3,
+     "auto"
+    ],
+    [
+     250,
+     "advance",
+     4,
+     "crown"
+    ],
+    [
+     360.0,
+     "advance",
+     5,
+     "auto"
+    ],
+    [
+     360.0,
+     "advance",
+     6,
+     "auto"
+    ],
+    [
+     400,
+     "advance",
+     7,
+     "crown"
+    ],
+    [
+     450,
+     "advance",
+     8,
+     "crown"
+    ],
+    [
+     540.0,
+     "advance",
+     9,
+     "auto"
+    ],
+    [
+     600,
+     "advance",
+     10,
+     "crown"
+    ],
+    [
+     700,
+     "advance",
+     11,
+     "crown"
+    ],
+    [
+     720.0,
+     "advance",
+     12,
+     "auto"
+    ],
+    [
+     900.0,
+     "advance",
+     13,
+     "auto"
+    ],
+    [
+     900.0,
+     "advance",
+     14,
+     "auto"
+    ],
+    [
+     900.0,
+     "advance",
+     15,
+     "auto"
+    ],
+    [
+     940,
+     "advance",
+     16,
+     "crown"
+    ],
+    [
+     990,
+     "advance",
+     17,
+     "crown"
+    ],
+    [
+     1080.0,
+     "finish",
+     17,
+     "auto"
+    ]
+   ],
+   "finished": true,
+   "finishTime": 1080.0,
+   "currentStep": 17,
+   "steps": 18
+  },
+  {
+   "name": "Tabata 8 x (20 s work, 10 s rest) every 0:30, no Crown: 16 steps on the clock, 4:00 exactly",
+   "definition": {
+    "id": "p.tabata",
+    "name": "Test p.tabata",
+    "shortName": "T",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 20.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 10.0,
+       "unit": "seconds"
+      }
+     }
+    ],
+    "listedOnce": true,
+    "timeCapSeconds": 240.0,
+    "intervalSeconds": 30.0,
+    "rounds": 8
+   },
+   "script": [
+    [
+     0,
+     "start"
+    ],
+    [
+     260,
+     "tick"
+    ]
+   ],
+   "events": [
+    [
+     0,
+     "start",
+     0,
+     null
+    ],
+    [
+     20.0,
+     "advance",
+     1,
+     "auto"
+    ],
+    [
+     30.0,
+     "advance",
+     2,
+     "auto"
+    ],
+    [
+     50.0,
+     "advance",
+     3,
+     "auto"
+    ],
+    [
+     60.0,
+     "advance",
+     4,
+     "auto"
+    ],
+    [
+     80.0,
+     "advance",
+     5,
+     "auto"
+    ],
+    [
+     90.0,
+     "advance",
+     6,
+     "auto"
+    ],
+    [
+     110.0,
+     "advance",
+     7,
+     "auto"
+    ],
+    [
+     120.0,
+     "advance",
+     8,
+     "auto"
+    ],
+    [
+     140.0,
+     "advance",
+     9,
+     "auto"
+    ],
+    [
+     150.0,
+     "advance",
+     10,
+     "auto"
+    ],
+    [
+     170.0,
+     "advance",
+     11,
+     "auto"
+    ],
+    [
+     180.0,
+     "advance",
+     12,
+     "auto"
+    ],
+    [
+     200.0,
+     "advance",
+     13,
+     "auto"
+    ],
+    [
+     210.0,
+     "advance",
+     14,
+     "auto"
+    ],
+    [
+     230.0,
+     "advance",
+     15,
+     "auto"
+    ],
+    [
+     240.0,
+     "finish",
+     15,
+     "auto"
+    ]
+   ],
+   "finished": true,
+   "finishTime": 240.0,
+   "currentStep": 15,
+   "steps": 16
+  },
+  {
+   "name": "Tabata with an early Crown in the work and in the rest: the window still starts on the clock",
+   "definition": {
+    "id": "p.tabataCrown",
+    "name": "Test p.tabataCrown",
+    "shortName": "T",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 20.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 10.0,
+       "unit": "seconds"
+      }
+     }
+    ],
+    "listedOnce": true,
+    "timeCapSeconds": 240.0,
+    "intervalSeconds": 30.0,
+    "rounds": 8
+   },
+   "script": [
+    [
+     0,
+     "start"
+    ],
+    [
+     15,
+     "crown"
+    ],
+    [
+     40,
+     "crown"
+    ],
+    [
+     45,
+     "crown"
+    ],
+    [
+     260,
+     "tick"
+    ]
+   ],
+   "events": [
+    [
+     0,
+     "start",
+     0,
+     null
+    ],
+    [
+     15,
+     "advance",
+     1,
+     "crown"
+    ],
+    [
+     30.0,
+     "advance",
+     2,
+     "auto"
+    ],
+    [
+     40,
+     "advance",
+     3,
+     "crown"
+    ],
+    [
+     60.0,
+     "advance",
+     4,
+     "auto"
+    ],
+    [
+     80.0,
+     "advance",
+     5,
+     "auto"
+    ],
+    [
+     90.0,
+     "advance",
+     6,
+     "auto"
+    ],
+    [
+     110.0,
+     "advance",
+     7,
+     "auto"
+    ],
+    [
+     120.0,
+     "advance",
+     8,
+     "auto"
+    ],
+    [
+     140.0,
+     "advance",
+     9,
+     "auto"
+    ],
+    [
+     150.0,
+     "advance",
+     10,
+     "auto"
+    ],
+    [
+     170.0,
+     "advance",
+     11,
+     "auto"
+    ],
+    [
+     180.0,
+     "advance",
+     12,
+     "auto"
+    ],
+    [
+     200.0,
+     "advance",
+     13,
+     "auto"
+    ],
+    [
+     210.0,
+     "advance",
+     14,
+     "auto"
+    ],
+    [
+     230.0,
+     "advance",
+     15,
+     "auto"
+    ],
+    [
+     240.0,
+     "finish",
+     15,
+     "auto"
+    ]
+   ],
+   "finished": true,
+   "finishTime": 240.0,
+   "currentStep": 15,
+   "steps": 16
+  },
+  {
+   "name": "Tabata: undo back into a rest whose window has passed, then the Crown moves on (never stuck)",
+   "definition": {
+    "id": "p.tabataUndoPast",
+    "name": "Test p.tabataUndoPast",
+    "shortName": "T",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 20.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 10.0,
+       "unit": "seconds"
+      }
+     }
+    ],
+    "listedOnce": true,
+    "timeCapSeconds": 240.0,
+    "intervalSeconds": 30.0,
+    "rounds": 8
+   },
+   "script": [
+    [
+     0,
+     "start"
+    ],
+    [
+     35,
+     "tick"
+    ],
+    [
+     36,
+     "undo"
+    ],
+    [
+     40,
+     "crown"
+    ],
+    [
+     260,
+     "tick"
+    ]
+   ],
+   "events": [
+    [
+     0,
+     "start",
+     0,
+     null
+    ],
+    [
+     20.0,
+     "advance",
+     1,
+     "auto"
+    ],
+    [
+     30.0,
+     "advance",
+     2,
+     "auto"
+    ],
+    [
+     36,
+     "undo",
+     1,
+     "crown"
+    ],
+    [
+     40,
+     "advance",
+     2,
+     "crown"
+    ],
+    [
+     60.0,
+     "advance",
+     3,
+     "auto"
+    ],
+    [
+     60.0,
+     "advance",
+     4,
+     "auto"
+    ],
+    [
+     80.0,
+     "advance",
+     5,
+     "auto"
+    ],
+    [
+     90.0,
+     "advance",
+     6,
+     "auto"
+    ],
+    [
+     110.0,
+     "advance",
+     7,
+     "auto"
+    ],
+    [
+     120.0,
+     "advance",
+     8,
+     "auto"
+    ],
+    [
+     140.0,
+     "advance",
+     9,
+     "auto"
+    ],
+    [
+     150.0,
+     "advance",
+     10,
+     "auto"
+    ],
+    [
+     170.0,
+     "advance",
+     11,
+     "auto"
+    ],
+    [
+     180.0,
+     "advance",
+     12,
+     "auto"
+    ],
+    [
+     200.0,
+     "advance",
+     13,
+     "auto"
+    ],
+    [
+     210.0,
+     "advance",
+     14,
+     "auto"
+    ],
+    [
+     230.0,
+     "advance",
+     15,
+     "auto"
+    ],
+    [
+     240.0,
+     "finish",
+     15,
+     "auto"
+    ]
+   ],
+   "finished": true,
+   "finishTime": 240.0,
+   "currentStep": 15,
+   "steps": 16
+  },
+  {
+   "name": "Every 1:00 with an early Crown on the work: rest until the window, the next pass starts on the clock",
+   "definition": {
+    "id": "p.emomEarly",
+    "name": "Test p.emomEarly",
+    "shortName": "T",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "powerCleans",
+      "name": "Power Cleans",
+      "target": {
+       "value": 3.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     }
+    ],
+    "listedOnce": true,
+    "timeCapSeconds": 180.0,
+    "intervalSeconds": 60.0,
+    "rounds": 3
+   },
+   "script": [
+    [
+     0,
+     "start"
+    ],
+    [
+     20,
+     "crown"
+    ],
+    [
+     70,
+     "crown"
+    ],
+    [
+     75,
+     "undo"
+    ],
+    [
+     80,
+     "crown"
+    ],
+    [
+     130,
+     "crown"
+    ],
+    [
+     200,
+     "tick"
+    ]
+   ],
+   "events": [
+    [
+     0,
+     "start",
+     0,
+     null
+    ],
+    [
+     20,
+     "advance",
+     1,
+     "crown"
+    ],
+    [
+     60.0,
+     "advance",
+     2,
+     "auto"
+    ],
+    [
+     70,
+     "advance",
+     3,
+     "crown"
+    ],
+    [
+     75,
+     "undo",
+     2,
+     "crown"
+    ],
+    [
+     80,
+     "advance",
+     3,
+     "crown"
+    ],
+    [
+     120.0,
+     "advance",
+     4,
+     "auto"
+    ],
+    [
+     130,
+     "advance",
+     5,
+     "crown"
+    ],
+    [
+     180.0,
+     "finish",
+     5,
+     "auto"
+    ]
+   ],
+   "finished": true,
+   "finishTime": 180.0,
+   "currentStep": 5,
+   "steps": 6
+  },
+  {
+   "name": "EMOM with a timed rest in the middle of the block: the rest hands over to the next part",
+   "definition": {
+    "id": "p.midRestTimed",
+    "name": "Test p.midRestTimed",
+    "shortName": "T",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 30.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 15.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     }
+    ],
+    "listedOnce": true,
+    "timeCapSeconds": 240.0,
+    "intervalSeconds": 120.0,
+    "rounds": 2
+   },
+   "script": [
+    [
+     0,
+     "start"
+    ],
+    [
+     40,
+     "crown"
+    ],
+    [
+     100,
+     "crown"
+    ],
+    [
+     160,
+     "crown"
+    ],
+    [
+     190,
+     "crown"
+    ],
+    [
+     250,
+     "tick"
+    ]
+   ],
+   "events": [
+    [
+     0,
+     "start",
+     0,
+     null
+    ],
+    [
+     40,
+     "advance",
+     1,
+     "crown"
+    ],
+    [
+     70.0,
+     "advance",
+     2,
+     "auto"
+    ],
+    [
+     100,
+     "advance",
+     3,
+     "crown"
+    ],
+    [
+     120.0,
+     "advance",
+     4,
+     "auto"
+    ],
+    [
+     160,
+     "advance",
+     5,
+     "crown"
+    ],
+    [
+     190.0,
+     "advance",
+     6,
+     "auto"
+    ],
+    [
+     190,
+     "advance",
+     7,
+     "crown"
+    ],
+    [
+     240.0,
+     "finish",
+     7,
+     "auto"
+    ]
+   ],
+   "finished": true,
+   "finishTime": 240.0,
+   "currentStep": 7,
+   "steps": 8
+  },
+  {
+   "name": "EMOM with an untimed rest in the middle: the window end skips the rest of the pass (5c, differs from today's next-segment rule)",
+   "definition": {
+    "id": "p.midRestOpen",
+    "name": "Test p.midRestOpen",
+    "shortName": "T",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 15.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     }
+    ],
+    "listedOnce": true,
+    "timeCapSeconds": 240.0,
+    "intervalSeconds": 120.0,
+    "rounds": 2
+   },
+   "script": [
+    [
+     0,
+     "start"
+    ],
+    [
+     40,
+     "crown"
+    ],
+    [
+     250,
+     "tick"
+    ]
+   ],
+   "events": [
+    [
+     0,
+     "start",
+     0,
+     null
+    ],
+    [
+     40,
+     "advance",
+     1,
+     "crown"
+    ],
+    [
+     120.0,
+     "advance",
+     2,
+     "auto"
+    ],
+    [
+     120.0,
+     "advance",
+     3,
+     "auto"
+    ],
+    [
+     120.0,
+     "advance",
+     4,
+     "auto"
+    ],
+    [
+     240.0,
+     "finish",
+     4,
+     "auto"
+    ]
+   ],
+   "finished": true,
+   "finishTime": 240.0,
+   "currentStep": 4,
+   "steps": 5
+  },
+  {
+   "name": "EMOM 10:00 every 1:00, no round count: windows until the cap",
+   "definition": {
+    "id": "p.emomCap",
+    "name": "Test p.emomCap",
+    "shortName": "T",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "kettlebellSwings",
+      "name": "KB Swings",
+      "target": {
+       "value": 15.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     }
+    ],
+    "listedOnce": true,
+    "timeCapSeconds": 600.0,
+    "intervalSeconds": 60.0
+   },
+   "script": [
+    [
+     0,
+     "start"
+    ],
+    [
+     30,
+     "crown"
+    ],
+    [
+     95,
+     "crown"
+    ],
+    [
+     150,
+     "crown"
+    ],
+    [
+     620,
+     "tick"
+    ]
+   ],
+   "events": [
+    [
+     0,
+     "start",
+     0,
+     null
+    ],
+    [
+     30,
+     "advance",
+     1,
+     "crown"
+    ],
+    [
+     60.0,
+     "advance",
+     2,
+     "auto"
+    ],
+    [
+     95,
+     "advance",
+     3,
+     "crown"
+    ],
+    [
+     120.0,
+     "advance",
+     4,
+     "auto"
+    ],
+    [
+     150,
+     "advance",
+     5,
+     "crown"
+    ],
+    [
+     180.0,
+     "advance",
+     6,
+     "auto"
+    ],
+    [
+     240.0,
+     "advance",
+     7,
+     "auto"
+    ],
+    [
+     240.0,
+     "advance",
+     8,
+     "auto"
+    ],
+    [
+     300.0,
+     "advance",
+     9,
+     "auto"
+    ],
+    [
+     300.0,
+     "advance",
+     10,
+     "auto"
+    ],
+    [
+     360.0,
+     "advance",
+     11,
+     "auto"
+    ],
+    [
+     360.0,
+     "advance",
+     12,
+     "auto"
+    ],
+    [
+     420.0,
+     "advance",
+     13,
+     "auto"
+    ],
+    [
+     420.0,
+     "advance",
+     14,
+     "auto"
+    ],
+    [
+     480.0,
+     "advance",
+     15,
+     "auto"
+    ],
+    [
+     480.0,
+     "advance",
+     16,
+     "auto"
+    ],
+    [
+     540.0,
+     "advance",
+     17,
+     "auto"
+    ],
+    [
+     540.0,
+     "advance",
+     18,
+     "auto"
+    ],
+    [
+     600.0,
+     "finish",
+     18,
+     "auto"
+    ]
+   ],
+   "finished": true,
+   "finishTime": 600.0,
+   "currentStep": 18,
+   "steps": 19
+  },
+  {
+   "name": "Fixed list marked listedOnce (for time, no rounds): done once, as today",
+   "definition": {
+    "id": "p.fixed",
+    "name": "Test p.fixed",
+    "shortName": "T",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 800.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 30.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 800.0,
+       "unit": "meters"
+      }
+     }
+    ],
+    "listedOnce": true
+   },
+   "script": [
+    [
+     0,
+     "start"
+    ],
+    [
+     200,
+     "crown"
+    ],
+    [
+     300,
+     "crown"
+    ],
+    [
+     310,
+     "undo"
+    ],
+    [
+     320,
+     "crown"
+    ],
+    [
+     500,
+     "crown"
+    ]
+   ],
+   "events": [
+    [
+     0,
+     "start",
+     0,
+     null
+    ],
+    [
+     200,
+     "advance",
+     1,
+     "crown"
+    ],
+    [
+     300,
+     "advance",
+     2,
+     "crown"
+    ],
+    [
+     310,
+     "undo",
+     1,
+     "crown"
+    ],
+    [
+     320,
+     "advance",
+     2,
+     "crown"
+    ],
+    [
+     500,
+     "finish",
+     2,
+     "crown"
+    ]
+   ],
+   "finished": true,
+   "finishTime": 500,
+   "currentStep": 2,
+   "steps": 3
+  }
+ ]
+}

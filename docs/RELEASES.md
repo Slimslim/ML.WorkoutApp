@@ -212,6 +212,19 @@ dump before any database change: `docs/BACKUP.md`, `tools/backup/`. Status: in r
 ([#123](https://github.com/Slimslim/ML.WorkoutApp/pull/123)). Device-tested 19 Nov on the NAS: first
 backup OK (6.2 MB, 73 s), restore test OK (39 tables, every row).
 
+## Release 0.18: race release, engine only (owner, 20 Nov)
+
+`claude/release-18-race`, cut from release 17.2 (001bf8b), `MARKETING_VERSION` 0.18. Only the new
+workout engine, behind a phone Settings switch (default on the watch: classic). rc1 Mon 24 Nov.
+
+| Ticket | What | Status |
+|---|---|---|
+| E1 | Engine core: repeat block (WORKOUT_SPEC 5c) only for definitions marked `listedOnce`; every stored row on the legacy route; block mode in WorkoutProgress; Python reference + Swift port + parity fixtures | in PR [#156](https://github.com/Slimslim/ML.WorkoutApp/pull/156) |
+| E2 | Engine switch: phone Settings → watch `workoutEngine` key, read at workout start | merged ([#155](https://github.com/Slimslim/ML.WorkoutApp/pull/155)) |
+| E3 | Watch wiring: block mode when the switch is on and the definition is marked; results by step with pass; engine in result and header; "NEW" on START | building |
+| E4 | Gate: every built-in and fixed-list fixture identical with the engine off and on, in CI | building |
+| E5 | Listed-once test workouts (AMRAP, EMOM, Tabata, rounds × 5) and a Hyrox simulation as a fixed list; invented, no database change | building |
+
 ## Backlog (after the beta; owner picks at the review)
 
 | Feature | Story | Status | Note |

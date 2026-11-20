@@ -1,0 +1,1043 @@
+{
+ "note": "Synthetic definitions for the repeat-block reference (tools/barpath/repeat_block.py) and its Swift port (RepeatBlock.swift), WORKOUT_SPEC 5c. positions: [step, pass, part]. endReasons: [step, advanced, elapsed, reason]. windowEnds: [stepStartElapsed, windowEnd]. windowTargets: [step, step the clock moves to at the window end, or null]. scores: [completedSteps, passes, workPartsInCutPass]. Only definitions marked listedOnce repeat; unmarked rows are kind legacy (today's WorkoutProgress).",
+ "cases": [
+  {
+   "name": "ladder AMRAP (#138): one block of 6, repeats until the cap",
+   "definition": {
+    "id": "t.ladder",
+    "name": "Test t.ladder",
+    "shortName": "T",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 200.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airBike",
+      "name": "Air Bike",
+      "target": {
+       "value": 20.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 400.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airBike",
+      "name": "Air Bike",
+      "target": {
+       "value": 20.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 600.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airBike",
+      "name": "Air Bike",
+      "target": {
+       "value": 20.0,
+       "unit": "calories"
+      }
+     }
+    ],
+    "timeCapSeconds": 1440.0,
+    "listedOnce": true
+   },
+   "plan": {
+    "kind": "repeat",
+    "parts": 6,
+    "rounds": null,
+    "capSeconds": 1440.0,
+    "capEnds": true,
+    "intervalSeconds": null,
+    "stepLimit": null,
+    "trailingRests": 0
+   },
+   "positions": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     5,
+     0,
+     5
+    ],
+    [
+     6,
+     1,
+     0
+    ],
+    [
+     11,
+     1,
+     5
+    ],
+    [
+     12,
+     2,
+     0
+    ],
+    [
+     71,
+     11,
+     5
+    ]
+   ],
+   "outOfRange": [
+    -1
+   ],
+   "finishes": [],
+   "noFinish": [
+    5,
+    6,
+    11,
+    600
+   ],
+   "endReasons": [
+    [
+     5,
+     true,
+     700.0,
+     null
+    ],
+    [
+     11,
+     false,
+     1440.0,
+     "cap"
+    ],
+    [
+     11,
+     false,
+     1439.9,
+     null
+    ]
+   ],
+   "windowEnds": [],
+   "scores": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     5,
+     0,
+     5
+    ],
+    [
+     6,
+     1,
+     0
+    ],
+    [
+     11,
+     1,
+     5
+    ],
+    [
+     12,
+     2,
+     0
+    ]
+   ],
+   "windowTargets": []
+  },
+  {
+   "name": "Go every 3:00 x 6: row, thrusters, rest (one window = one pass)",
+   "definition": {
+    "id": "t.every3",
+    "name": "Test t.every3",
+    "shortName": "T",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 500.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "thrusters",
+      "name": "Thrusters",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     }
+    ],
+    "timeCapSeconds": 1080.0,
+    "intervalSeconds": 180.0,
+    "roundSize": 3,
+    "rounds": 6,
+    "listedOnce": true
+   },
+   "plan": {
+    "kind": "repeat",
+    "parts": 3,
+    "rounds": 6,
+    "capSeconds": 1080.0,
+    "capEnds": true,
+    "intervalSeconds": 180.0,
+    "stepLimit": 18,
+    "trailingRests": 0
+   },
+   "positions": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     2,
+     0,
+     2
+    ],
+    [
+     3,
+     1,
+     0
+    ],
+    [
+     17,
+     5,
+     2
+    ]
+   ],
+   "outOfRange": [
+    -1,
+    18
+   ],
+   "finishes": [
+    17
+   ],
+   "noFinish": [
+    2,
+    3,
+    16
+   ],
+   "endReasons": [
+    [
+     17,
+     true,
+     1000.0,
+     "roundsDone"
+    ],
+    [
+     16,
+     false,
+     1080.0,
+     "cap"
+    ],
+    [
+     2,
+     true,
+     170.0,
+     null
+    ]
+   ],
+   "windowEnds": [
+    [
+     0.0,
+     180.0
+    ],
+    [
+     95.0,
+     180.0
+    ],
+    [
+     180.0,
+     360.0
+    ],
+    [
+     1000.0,
+     1080.0
+    ]
+   ],
+   "windowTargets": [
+    [
+     0,
+     3
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     2,
+     3
+    ],
+    [
+     3,
+     6
+    ],
+    [
+     14,
+     15
+    ],
+    [
+     15,
+     null
+    ],
+    [
+     17,
+     null
+    ]
+   ],
+   "scores": [
+    [
+     1,
+     0,
+     1
+    ],
+    [
+     2,
+     1,
+     0
+    ],
+    [
+     3,
+     1,
+     0
+    ],
+    [
+     5,
+     2,
+     0
+    ],
+    [
+     18,
+     6,
+     0
+    ]
+   ]
+  },
+  {
+   "name": "Tabata: 8 rounds of 20 s work + 10 s rest, every 0:30",
+   "definition": {
+    "id": "t.tabata",
+    "name": "Test t.tabata",
+    "shortName": "T",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 20.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 10.0,
+       "unit": "seconds"
+      }
+     }
+    ],
+    "timeCapSeconds": 240.0,
+    "rounds": 8,
+    "intervalSeconds": 30.0,
+    "listedOnce": true
+   },
+   "plan": {
+    "kind": "repeat",
+    "parts": 2,
+    "rounds": 8,
+    "capSeconds": 240.0,
+    "capEnds": true,
+    "intervalSeconds": 30.0,
+    "stepLimit": 16,
+    "trailingRests": 0
+   },
+   "positions": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     0,
+     1
+    ],
+    [
+     2,
+     1,
+     0
+    ],
+    [
+     15,
+     7,
+     1
+    ]
+   ],
+   "outOfRange": [
+    -1,
+    16
+   ],
+   "finishes": [
+    15
+   ],
+   "noFinish": [
+    1,
+    14
+   ],
+   "endReasons": [
+    [
+     15,
+     true,
+     239.0,
+     "roundsDone"
+    ],
+    [
+     14,
+     false,
+     240.0,
+     "cap"
+    ]
+   ],
+   "windowEnds": [
+    [
+     0.0,
+     30.0
+    ],
+    [
+     20.0,
+     30.0
+    ],
+    [
+     210.0,
+     240.0
+    ]
+   ],
+   "scores": [
+    [
+     1,
+     1,
+     0
+    ],
+    [
+     2,
+     1,
+     0
+    ],
+    [
+     15,
+     8,
+     0
+    ],
+    [
+     16,
+     8,
+     0
+    ]
+   ],
+   "windowTargets": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     12,
+     14
+    ],
+    [
+     14,
+     null
+    ]
+   ]
+  },
+  {
+   "name": "Rounds for time x 5 (rounds key), cap does not end it",
+   "definition": {
+    "id": "t.rft",
+    "name": "Test t.rft",
+    "shortName": "T",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 400.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "kbSwings",
+      "name": "KB Swings",
+      "target": {
+       "value": 21.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pullUps",
+      "name": "Pull-ups",
+      "target": {
+       "value": 12.0,
+       "unit": "reps"
+      }
+     }
+    ],
+    "timeCapSeconds": 1200.0,
+    "roundSize": 3,
+    "rounds": 5,
+    "listedOnce": true
+   },
+   "plan": {
+    "kind": "repeat",
+    "parts": 3,
+    "rounds": 5,
+    "capSeconds": 1200.0,
+    "capEnds": false,
+    "intervalSeconds": null,
+    "stepLimit": 15,
+    "trailingRests": 0
+   },
+   "positions": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     3,
+     1,
+     0
+    ],
+    [
+     14,
+     4,
+     2
+    ]
+   ],
+   "outOfRange": [
+    -1,
+    15
+   ],
+   "finishes": [
+    14
+   ],
+   "noFinish": [
+    2,
+    5,
+    13
+   ],
+   "endReasons": [
+    [
+     14,
+     true,
+     1300.0,
+     "roundsDone"
+    ],
+    [
+     10,
+     false,
+     1300.0,
+     null
+    ],
+    [
+     2,
+     true,
+     100.0,
+     null
+    ]
+   ],
+   "windowEnds": [],
+   "scores": [
+    [
+     2,
+     0,
+     2
+    ],
+    [
+     3,
+     1,
+     0
+    ],
+    [
+     15,
+     5,
+     0
+    ]
+   ],
+   "windowTargets": []
+  },
+  {
+   "name": "fixed list (Hyrox-like): done once, as today",
+   "definition": {
+    "id": "t.fixed",
+    "name": "Test t.fixed",
+    "shortName": "T",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 1000.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "skiErg",
+      "name": "SkiErg",
+      "target": {
+       "value": 1000.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 1000.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 1000.0,
+       "unit": "meters"
+      }
+     }
+    ],
+    "roundSize": 2,
+    "listedOnce": true
+   },
+   "plan": {
+    "kind": "fixed",
+    "parts": 4,
+    "rounds": 1,
+    "capSeconds": null,
+    "capEnds": false,
+    "intervalSeconds": null,
+    "stepLimit": 4,
+    "trailingRests": 0
+   },
+   "positions": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     0,
+     1
+    ],
+    [
+     3,
+     0,
+     3
+    ]
+   ],
+   "outOfRange": [
+    -1,
+    4
+   ],
+   "finishes": [
+    3
+   ],
+   "noFinish": [
+    0,
+    1,
+    2
+   ],
+   "endReasons": [
+    [
+     3,
+     true,
+     5000.0,
+     "listDone"
+    ],
+    [
+     2,
+     true,
+     5000.0,
+     null
+    ]
+   ],
+   "windowEnds": [],
+   "scores": [],
+   "windowTargets": []
+  },
+  {
+   "name": "fixed list with a for-time cap: the cap does not end it (5b)",
+   "definition": {
+    "id": "t.fixedcap",
+    "name": "Test t.fixedcap",
+    "shortName": "T",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "thrusters",
+      "name": "Thrusters",
+      "target": {
+       "value": 21.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pullUps",
+      "name": "Pull-ups",
+      "target": {
+       "value": 21.0,
+       "unit": "reps"
+      }
+     }
+    ],
+    "timeCapSeconds": 600.0,
+    "listedOnce": true
+   },
+   "plan": {
+    "kind": "fixed",
+    "parts": 2,
+    "rounds": 1,
+    "capSeconds": 600.0,
+    "capEnds": false,
+    "intervalSeconds": null,
+    "stepLimit": 2,
+    "trailingRests": 0
+   },
+   "positions": [
+    [
+     1,
+     0,
+     1
+    ]
+   ],
+   "outOfRange": [
+    2
+   ],
+   "finishes": [
+    1
+   ],
+   "noFinish": [
+    0
+   ],
+   "endReasons": [
+    [
+     0,
+     false,
+     700.0,
+     null
+    ],
+    [
+     1,
+     true,
+     700.0,
+     "listDone"
+    ]
+   ],
+   "windowEnds": [],
+   "scores": [],
+   "windowTargets": []
+  },
+  {
+   "name": "Rounds for time x 3 with a rest after each round: no rest after the last round",
+   "definition": {
+    "id": "t.roundsRest",
+    "name": "Test t.roundsRest",
+    "shortName": "T",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "listedOnce": true,
+    "rounds": 3,
+    "segments": [
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 400.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 15.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 60.0,
+       "unit": "seconds"
+      }
+     }
+    ]
+   },
+   "plan": {
+    "kind": "repeat",
+    "parts": 3,
+    "rounds": 3,
+    "capSeconds": null,
+    "capEnds": false,
+    "intervalSeconds": null,
+    "trailingRests": 1,
+    "stepLimit": 8
+   },
+   "positions": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     2,
+     0,
+     2
+    ],
+    [
+     3,
+     1,
+     0
+    ],
+    [
+     7,
+     2,
+     1
+    ]
+   ],
+   "outOfRange": [
+    -1,
+    8
+   ],
+   "finishes": [
+    7
+   ],
+   "noFinish": [
+    2,
+    5,
+    6
+   ],
+   "endReasons": [
+    [
+     7,
+     true,
+     900.0,
+     "roundsDone"
+    ],
+    [
+     6,
+     true,
+     800.0,
+     null
+    ]
+   ],
+   "windowEnds": [],
+   "windowTargets": [],
+   "scores": [
+    [
+     2,
+     1,
+     0
+    ],
+    [
+     3,
+     1,
+     0
+    ],
+    [
+     7,
+     2,
+     1
+    ],
+    [
+     8,
+     3,
+     0
+    ]
+   ]
+  },
+  {
+   "name": "unmarked row (every row stored today): legacy route, whatever its format",
+   "definition": {
+    "id": "t.legacy",
+    "name": "Test t.legacy",
+    "shortName": "T",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "timeCapSeconds": 360.0,
+    "intervalSeconds": 60.0,
+    "roundSize": 2,
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     }
+    ]
+   },
+   "plan": {
+    "kind": "legacy",
+    "parts": 6,
+    "rounds": 1,
+    "capSeconds": 360.0,
+    "capEnds": false,
+    "intervalSeconds": 60.0,
+    "trailingRests": 0,
+    "stepLimit": 6
+   },
+   "positions": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     5,
+     0,
+     5
+    ]
+   ],
+   "outOfRange": [
+    -1,
+    6
+   ],
+   "finishes": [
+    5
+   ],
+   "noFinish": [
+    0,
+    4
+   ],
+   "endReasons": [
+    [
+     5,
+     true,
+     300.0,
+     "listDone"
+    ],
+    [
+     4,
+     false,
+     400.0,
+     null
+    ]
+   ],
+   "windowEnds": [
+    [
+     0.0,
+     60.0
+    ]
+   ],
+   "windowTargets": [],
+   "scores": []
+  }
+ ]
+}
