@@ -675,3 +675,132 @@ def test_corpus_ids_are_opt_in_and_errors_counted(capsys):
     stats = taxonomy_corpus.run(rows)
     assert stats["pieces"] >= 1 and stats["classifier_error"]["count"] >= 1
     assert "lib.test" not in str(stats)
+
+
+# ---- corpus rerun at a9fda39 (Data chat, 20 Nov): regressions and top patterns ----------------
+# Every fixture is invented: no draft ids, programme names or programme text.
+
+def test_strength_sets_without_a_parsed_load_stay_strength():
+    # an unknown accessory in sets, scored by load, no load parsed: strength, loaded (not bodyweight)
+    w = tx.from_draft_piece(draft("strength_sets", [], header="Zottman curl 10-10-10-10", scoring="load",
+                                  clock=["none (rest between sets)"]))
+    assert len(w.elements) == 1 and w.passes == 4
+    c = tx.classify(w)
+    assert c["structure"]["value"] == "strength" and c["movements"]["value"] == "single"
+    assert c["loading"]["value"] == tx.UNKNOWN and c["loading"]["value"] != "bodyweight"
+    # the import's strength kind alone, even scored by time
+    k = tx.classify(tx.from_draft_piece(draft("strength_sets", [{"name": "Goblet Squat", "reps": "8"}],
+                                              rounds=4, scoring="time")))
+    assert k["structure"]["value"] == "strength"
+
+
+def test_implement_word_means_loaded_and_w():
+    c = tx.classify(tx.from_draft_piece(draft("strength_sets", [{"name": "DB Bulgarian Split Squat", "reps": "10"}],
+                                              rounds=3, scoring="load")))
+    assert c["modality"]["value"] == "W" and c["loading"]["value"] != "bodyweight"
+    assert tx.modality_of("Kettlebell Squat")[0] == "W"
+    assert tx.modality_of("Sandbag Squat")[0] == "W"
+    # a vest or "weighted" gymnastics stays G
+    assert tx.modality_of("Weighted Pull-ups")[0] == "G"
+    assert tx.modality_of("Vest Push-ups")[0] == "G"
+
+
+def test_load_on_an_unknown_name_is_w():
+    c = tx.classify(tx.from_draft_piece(draft("for_time", [{"name": "Zorb toss", "reps": "20", "load": "20 kg"}])))
+    assert c["modality"]["value"] == "W"
+
+
+def test_heaviest_means_loaded():
+    w = tx.from_draft_piece(draft("for_time", [{"name": "Zorb lift", "reps": "1"}], header="Find your heaviest single",
+                                  scoring="time"))
+    assert tx.classify(w)["loading"]["value"] == tx.UNKNOWN
+
+
+def test_nothing_loaded_and_unknown_is_bodyweight():
+    c = tx.classify(tx.from_draft_piece(draft("for_time", [{"name": "Zorbing", "reps": "30"}])))
+    assert c["loading"]["value"] == "bodyweight" and c["loading"]["confidence"] == "low"
+
+
+def test_for_distance_minutes_are_a_clock_not_a_cap():
+    # 30 min for distance: 30 min, even though the work estimate is shorter
+    w = tx.from_draft_piece(draft("for_distance", [{"name": "Row", "distance": "1000 m"}],
+                                  header="30 min for distance", scoring="distance"))
+    c = tx.classify(w)["time_domain"]
+    assert c["seconds"] == 1800 and c["value"] == "long" and c["reasons"] == ["clock_not_cap"]
+    # a time-scored piece keeps the cap as an upper bound
+    t = tx.classify(tx.from_draft_piece(draft("for_time", [{"name": "Burpees", "reps": "30"}],
+                                              header="30 min cap", scoring="time")))["time_domain"]
+    assert t["reasons"] == ["estimated_under_cap"]
+
+
+def test_rounds_each_window():
+    c = tx.classify(tx.from_draft_piece(draft("repeat_windows_max_reps", [{"name": "Burpees", "reps": "max"}],
+                                              header="5 rounds, 1 min each", rounds=5, scoring="reps")))
+    assert c["structure"]["value"] == "intervals" and c["time_domain"]["seconds"] == 300
+
+
+def test_tabata_defaults_and_custom():
+    c = tx.classify(tx.from_draft_piece(draft("tabata", [{"name": "Air Squats", "reps": "max"}], scoring="reps")))
+    assert c["time_domain"]["seconds"] == 240 and c["time_domain"]["work_bout"] == "short"
+    custom = tx.from_draft_piece(draft("tabata", [{"name": "Air Squats", "reps": "max"}], rounds=6,
+                                       header="Tabata 40 sec on / 20 sec rest", scoring="reps"))
+    assert custom.window_s == 60 and custom.work_s_per_window == 40 and custom.windows == 6
+    assert tx.classify(custom)["time_domain"]["seconds"] == 360
+
+
+def test_death_by_rule_lines_are_not_movements():
+    w = tx.from_draft_piece(draft("death_by", [{"name": "Burpees"}, {"name": "1 rep in the 1st minute"},
+                                                {"name": "2 reps in the 2nd minute"}], window_s=60,
+                                  scoring="rounds+reps"))
+    c = tx.classify(w)
+    assert c["movements"]["value"] == "single" and "death_by_line" in w.notes
+
+
+def test_cardio_is_m_and_drag_curl_is_known():
+    assert tx.modality_of("Cardio of choice")[0] == "M"
+    assert tx.modality_of("Swim")[0] == "M"
+    assert tx.movement_id("Drag Curl") == "dragCurl" and tx.modality_of("Drag Curl")[0] == "W"
+
+
+def test_db_clean_and_jerk_standard():
+    c = tx.classify(tx.from_draft_piece(draft("for_time", [{"name": "DB Clean and Jerk", "reps": "30",
+                                                           "load": "50/35 lbs"}])))
+    assert c["loading"]["value"] == "moderate" and "vs_standard" in c["loading"]["reasons"]
+
+
+def test_header_distance_gives_a_time_estimate():
+    w = tx.from_draft_piece(draft("for_time", [{"name": "Run 5k"}]))
+    assert w.elements[0].unit == "meters" and w.elements[0].value == 5000
+    assert tx.classify(w)["time_domain"]["value"] != tx.UNKNOWN
+
+
+def test_repeated_amrap_segments_are_intervals():
+    cls = draft("amrap_rounds", [], scoring="rounds+reps")
+    cls["parsed"][0]["segments"] = [
+        {"header": "AMRAP 4", "movements": [{"name": "Burpees", "reps": "5"}, {"name": "Air Squats", "reps": "10"}]},
+        {"header": "AMRAP 4", "movements": [{"name": "Push-ups", "reps": "10"}, {"name": "Sit-ups", "reps": "10"}]},
+        {"header": "AMRAP 4", "movements": [{"name": "Lunges", "reps": "10"}, {"name": "Box Jumps", "reps": "10"}]}]
+    c = tx.classify(tx.from_draft_piece(cls))
+    assert c["structure"]["value"] == "intervals" and c["time_domain"]["seconds"] == 720
+
+
+def test_until_failure_emom_is_an_open_ladder():
+    c = tx.classify(tx.from_draft_piece(draft("emom", [{"name": "Burpees", "reps": "3"}], window_s=60,
+                                              header="EMOM until failure, add a rep each minute",
+                                              scoring="rounds+reps")))
+    assert c["structure"]["value"] == "ladder"
+
+
+def test_hold_is_scored_by_time():
+    c = tx.classify(tx.from_draft_piece(draft("max_effort_test", [{"name": "Plank hold", "time": "max"}],
+                                              scoring="load")))
+    assert c["scoring"]["value"] == "time"
+
+
+def test_amrap_buy_in_is_not_a_movement():
+    w = tx.from_draft_piece(draft("amrap_rounds", [{"name": "Run", "distance": "800 m"},
+                                                    {"name": "Burpees", "reps": "10"},
+                                                    {"name": "Air Squats", "reps": "15"}],
+                                  window_s=900, scoring="rounds+reps", flags=["buyin_cashout_named"]))
+    c = tx.classify(w)
+    assert c["movements"]["value"] == "couplet" and "buy_in" in c["structure"]["modifiers"]

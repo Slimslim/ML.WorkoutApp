@@ -262,7 +262,28 @@ python3 tools/taxonomy_corpus.py --export drafts.json --ids 20        # id lists
 The Data chat runs it and cross-checks the misclassifications. Its `--ids 0` summary table goes
 here:
 
-> _Summary table for the fixed head: pending the Data chat's rerun._
+**Rerun at a9fda39** (Data chat, read-only, aggregates only). Unknown rate: modality 4.6 %, time 7.2 %,
+loading 39 %, scoring 0 %. Lexicon misses 5.8 %. A hand check of 51 pieces × 6 axes found 21 % of the
+labels wrong (34 % at the baseline). It also found regressions against the baseline, fixed in the round
+after it:
+
+- **Strength:** a piece scored by load, or of the import's strength kind, is strength even with no
+  parsed load; an unknown name that is only in the header still counts as one movement; an implement
+  word or "heaviest" means loaded (the number unknown), not bodyweight.
+- **Distance pieces:** minutes on a piece scored by distance, calories or reps are its clock; the cap
+  rule (an upper bound) applies only to pieces scored by time.
+- **Modality:** "weighted stays G" only for vests and weighted gymnastics; a DB / KB / sandbag /
+  barbell word, or a load on an unknown name, makes a movement W.
+
+The same round handles the top remaining patterns: "N rounds, X each" windows, Tabata (8 × 30 s by
+default, custom work/rest from the header or notes), nothing loaded with only unknown names →
+bodyweight (low confidence), Death-by rule lines, "cardio" → M, a DB clean-and-jerk standard, drag
+curls, a distance in a name or header ("run 5k") → a time estimate, repeated AMRAP / fixed-start
+segments → intervals, an until-failure EMOM → open ladder, a hold scored by time, and an AMRAP buy-in
+left out of the movement count. Not done: summing 1-min stations (needs a corpus example of the
+import's shape). Every fix has a test with an invented equivalent (`tools/tests/test_taxonomy.py`).
+
+> _Summary table for the fix round: pending the Data chat's next rerun (`--ids 0` only)._
 
 **Baseline at 72dcfa2** (the first head, five axes, before the reviews; Data chat, read-only, all
 2,518 drafts → 3,038 pieces, none crashed). Unknown rate: modality 21.7 %, shape 1.3 %, time 30.0 %,

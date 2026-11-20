@@ -92,6 +92,7 @@ MOVEMENTS = {
     "dumbbellWalkingLunges": "W", "frontRackLunges": "W", "medBallBoxStepOvers": "W",
     "sledPush": "W", "sledPull": "W", "farmersCarry": "W", "sandbagLunges": "W",
     "sandbagToShoulder": "W", "stoneToShoulder": "W", "yokeCarry": "W",
+    "dragCurl": "W", "curls": "W",
 }
 HYROX_STATIONS = ("skiErg", "sledPush", "sledPull", "burpeeBroadJumps", "row", "farmersCarry",
                   "sandbagLunges", "wallBalls")
@@ -125,6 +126,7 @@ STANDARDS = {
     ("kettlebellSwings", "kettlebell"): (24.0, 16.0), ("gobletSquats", "kettlebell"): (24.0, 16.0),
     ("cleans", "kettlebell"): (24.0, 16.0), ("snatches", "kettlebell"): (24.0, 16.0),
     ("wallBalls", "medball"): (9.0, 6.0), ("cleans", "medball"): (9.0, 6.0),
+    ("cleanAndJerks", "dumbbell"): (22.5, 15.0), ("cleanAndJerks", "dumbbell_pair"): (22.5, 15.0),
 }
 # Hyrox race divisions: (open men, open women, pro men, pro women) in kg. CHECK THE CURRENT HYROX
 # RULEBOOK before relying on these; sled figures are the total sled weight.
@@ -175,12 +177,18 @@ _NAME_RULES = (
     (r"back\s+squat", "backSquat"), (r"push\s+press", "pushPress"), (r"push\s+jerk|\bjerk\b", "pushJerk"),
     (r"(strict|shoulder)\s+press", "shoulderPress"),
     (r"air\s+squat|\bsquats?\b", "airSquats"), (r"lunge", "lunges"),
+    (r"drag\s+curls?", "dragCurl"), (r"\bcurls?\b", "curls"),
 )
 _W_WORDS = re.compile(r"\b(barbell|bb|dumbbell|db|kettlebell|kb|sandbag|med\s*ball|medball|weighted|"
                       r"plate|sled|yoke|press|squat|deadlift|clean|snatch|jerk|carry|goblet)\b")
-_M_WORDS = re.compile(r"\b(ergs?|cals?|calories|meters?|metres?|km|miles?)\b")
+_M_WORDS = re.compile(r"\b(ergs?|cals?|calories|meters?|metres?|km|miles?|cardio|swim(s|ming)?)\b")
 _G_WORDS = re.compile(r"\b(hang(s|ing)?|kip(s|ping)?|rings?|bars?|handstands?|walk(s|ing)?|crawl(s|ing)?|"
                       r"jump(s|ing)?|holds?|tucks?|l-sits?|planks?)\b")
+# An implement in the name makes a G lexicon match W (a DB split squat is not an air squat). A vest
+# or "weighted" gymnastics stays G: the load is a loading matter (Data chat corpus pass, 0.18).
+_W_IMPLEMENT = re.compile(r"\b(barbell|bb|dumbbells?|dbs?|kettlebells?|kbs?|sandbags?|d-?balls?|"
+                          r"med\s*balls?|medballs?|plates?)\b", re.I)
+_HEAVIEST = re.compile(r"\bheaviest\b|\bheavy\s+single|\b1\s*rm\b|\bmax\s+(load|weight)\b", re.I)
 _IMPLEMENT_WORDS = (
     (re.compile(r"\b(single\s+arm|single|1)\s*(db|dumbbell)\b|\b(db|dumbbell)\s+single\b", re.I), "dumbbell"),
     (re.compile(r"\b(db|dumbbell)s?\b", re.I), "dumbbell_pair"),
@@ -225,11 +233,14 @@ def implement_of(name: str) -> Optional[str]:
 
 
 def modality_of(name) -> tuple:
-    """(modality or None, reason). Weighted bodyweight stays G: the load is a loading matter."""
+    """(modality or None, reason). Weighted bodyweight (a vest, "weighted pull-ups") stays G: the
+    load is a loading matter. An implement word (DB, KB, sandbag, barbell...) makes it W."""
     mid = movement_id(name)
-    if mid is not None:
-        return MOVEMENTS[mid], "lexicon"
     s = (name or "").lower() if isinstance(name, str) else ""
+    if mid is not None:
+        if MOVEMENTS[mid] == "G" and name not in MOVEMENTS and _W_IMPLEMENT.search(s):
+            return "W", "implement_word"
+        return MOVEMENTS[mid], "lexicon"
     if _W_WORDS.search(s):
         return "W", "keyword_w"
     if _M_WORDS.search(s):
@@ -280,6 +291,7 @@ class Workout:
     partner: Optional[str] = None       # split type, "unknown" when only flagged
     team: Optional[str] = None          # solo / doubles / team
     max_effort: bool = False
+    import_strength: bool = False       # the import's kind is strength_sets / max_effort_test
     practice: bool = False
     complex: bool = False
     per_round_movements: bool = False
@@ -674,6 +686,12 @@ _DRAFT_SCORE = {
 _MIN_RE = re.compile(r"(\d+)\s*(?:min|mins|minutes|')(?![a-z])", re.I)
 _FOR_MIN_RE = re.compile(r"\bfor\s*(\d+)\s*(?:min|mins|minutes)(?![a-z])", re.I)
 _AMRAP_RE = re.compile(r"\bamrap\s*(\d+)\b", re.I)
+_EACH_RE = re.compile(r"(\d+)\s*(sec|secs|seconds|s|min|mins|minutes)\s+each\b|(\d+):(\d\d)\s+each\b", re.I)
+_TABATA_RE = re.compile(r"(\d+)\s*(?:s|sec|secs|seconds)\s*(?:on|work)\W+(\d+)\s*(?:s|sec|secs|seconds)\s*(?:off|rest)",
+                        re.I)
+_UNTIL_FAIL_RE = re.compile(r"until\s+(you\s+)?fail|until\s+failure|until\s+you\s+can'?t", re.I)
+_DEATH_BY_LINE_RE = re.compile(r"\bmin(ute)?s?\b|\b\d+(st|nd|rd|th)\b", re.I)
+_DIST_IN_RE = re.compile(r"(\d+(?:\.\d+)?)\s*(km|k|mi|miles?|m|meters?|metres?)\b", re.I)
 _EVERY_RE = re.compile(r"\bevery\s*(\d+)\s*(min|mins|minutes|sec|secs|seconds)(?![a-z])|\bevery\s*(\d+):(\d\d)\b"
                        r"|\be(\d)mom\b", re.I)
 
@@ -690,6 +708,14 @@ def header_clock(text: str) -> tuple:
             window = int(m.group(3)) * 60 + int(m.group(4))
         else:
             window = int(m.group(5)) * 60
+    if window is None:
+        m = _EACH_RE.search(text)        # "5 rounds, 1 min each": the window
+        if m:
+            if m.group(1):
+                window = float(m.group(1)) * (60 if m.group(2).lower().startswith("m") else 1)
+            else:
+                window = int(m.group(3)) * 60 + int(m.group(4))
+            return total, window
     m = _FOR_MIN_RE.search(text) or _AMRAP_RE.search(text)
     if m:
         total = float(m.group(1)) * 60
@@ -761,6 +787,19 @@ def _distance_m(text) -> Optional[float]:
     return v
 
 
+def _distance_in(text: str) -> Optional[float]:
+    """Meters from a distance written in a name or header ("Run 5k", "Swim 800 m"), or None."""
+    m = _DIST_IN_RE.search(text or "")
+    if not m:
+        return None
+    v, u = float(m.group(1)), m.group(2).lower()
+    if u in ("km", "k"):
+        return v * 1000
+    if u.startswith("mi"):
+        return v * 1609.344
+    return v
+
+
 def _seconds(text) -> Optional[float]:
     s = str(text).lower()
     mult = 1.0
@@ -792,7 +831,13 @@ def _draft_score(label: str, kind: str, w: Workout, strengthy: bool) -> Optional
         return "load" if strengthy or any(_loaded(e) for e in w.elements) else "totalReps"
     if label == "none or max reps":
         return "totalReps" if "max" in units else "none"
-    return _DRAFT_SCORE.get(label)
+    mapped = _DRAFT_SCORE.get(label)
+    holds = [e for e in w.elements if e.unit == "seconds" or re.search(r"\bhold|plank|l-?sit|\bhang\b",
+                                                                       e.movement, re.I)]
+    if mapped == "load" and w.elements and len(holds) == len(w.elements) \
+            and not any(_loaded(e) for e in w.elements):
+        return "longestHold"                            # a hold is scored by its time, not a load
+    return mapped
 
 
 def _draft_piece(piece: dict, base: str, flags: set, label: Optional[str], clock: list, rest: list) -> Workout:
@@ -806,6 +851,8 @@ def _draft_piece(piece: dict, base: str, flags: set, label: Optional[str], clock
         w.intervals = _DRAFT_INTERVAL_KINDS[kind]
     if kind == "max_effort_test":
         w.max_effort = True
+    if kind in _STRENGTH_KINDS:
+        w.import_strength = True
     if kind in _AMRAP_KINDS:
         w.unbounded = True
         w.clock_is_duration = True
@@ -821,9 +868,24 @@ def _draft_piece(piece: dict, base: str, flags: set, label: Optional[str], clock
         w.rest_ratio = 1.0
         w.notes.append("ratio_assumed_1_to_1")
     lines = [mv for mv in (piece.get("movements") or []) if isinstance(mv, dict)]
-    for seg in piece.get("segments") or []:
-        if isinstance(seg, dict):
-            lines += [mv for mv in (seg.get("movements") or []) if isinstance(mv, dict)]
+    segs = [seg for seg in (piece.get("segments") or []) if isinstance(seg, dict)]
+    for seg in segs:
+        lines += [mv for mv in (seg.get("movements") or []) if isinstance(mv, dict)]
+    seg_heads = [str(seg.get("header") or "") for seg in segs]
+    if len(segs) >= 2 and (kind in _AMRAP_KINDS or any(_AMRAP_RE.search(h) or _EVERY_RE.search(h) or
+                                                        re.search(r"fixed|start", h, re.I) for h in seg_heads)):
+        # repeated AMRAP / fixed-start segments: windows, not one chipper
+        seg_total = header_clock(seg_heads[0])[0] if seg_heads else None
+        w.intervals, w.unbounded, w.clock_is_duration = "windows", False, True
+        if seg_total and not window:
+            window = seg_total
+        rounds = rounds if rounds and rounds > len(segs) else len(segs)
+        w.per_round_movements = True
+        w.notes.append("segments_as_windows")
+    text_all = " ".join([str(piece.get("header") or ""), str(piece.get("notes") or "")] + clock)
+    if kind == "emom" and _UNTIL_FAIL_RE.search(text_all):
+        w.open_ladder = w.unbounded = True              # an until-failure EMOM is an open ladder
+        w.notes.append("until_failure")
     header = " ".join([str(piece.get("header") or "")] +
                       [str(mv.get("name") or "") for mv in lines
                        if not any(mv.get(k) for k in ("reps", "load", "distance", "time"))])
@@ -837,6 +899,19 @@ def _draft_piece(piece: dict, base: str, flags: set, label: Optional[str], clock
         w.window_s = h_window
         w.windows = half_up(h_total / h_window) if h_total else rounds
         w.notes.append("window_from_header")
+    if kind == "tabata":
+        m = _TABATA_RE.search(text_all)
+        if m:                                         # custom work/rest from the header or notes
+            w.window_s, w.work_s_per_window = float(m.group(1)) + float(m.group(2)), float(m.group(1))
+            w.notes.append("tabata_custom")
+        elif not w.window_s:
+            w.window_s, w.work_s_per_window = 30.0, 20.0   # the classic 20 s on / 10 s off
+        else:
+            w.work_s_per_window = w.work_s_per_window or (w.window_s * 2.0 / 3.0)
+        if not w.windows:
+            w.windows = rounds or 8
+            if not rounds:
+                w.notes.append("tabata_default_8")
     if w.window_s and not w.intervals and not w.unbounded:
         w.intervals = "every"                         # every N min, fixed starts, each round timed
     if w.window_s and w.windows:
@@ -862,6 +937,9 @@ def _draft_piece(piece: dict, base: str, flags: set, label: Optional[str], clock
         if not has_num and tx_is_instruction(name):
             w.notes.append("instruction_line")
             skipped.append(name)
+            continue
+        if kind == "death_by" and _DEATH_BY_LINE_RE.search(name) and re.search(r"\breps?\b", name, re.I):
+            w.notes.append("death_by_line")           # "N reps in the Nth minute": the rule
             continue
         names, cx, sets = split_line(name)
         if cx or (len(names) > 1 and strengthy):
@@ -889,6 +967,8 @@ def _draft_piece(piece: dict, base: str, flags: set, label: Optional[str], clock
             elif set_scheme(name):
                 sch = set_scheme(name)
                 e.unit, e.value = "reps", sum(sch) / len(sch)
+            elif _distance_in(nm):                    # "Run 5k" with no number fields
+                e.unit, e.value = "meters", _distance_in(nm)
             for k, v in parse_load(mv.get("load")).items():
                 setattr(e, k, v)
             w.elements.append(e)
@@ -905,13 +985,29 @@ def _draft_piece(piece: dict, base: str, flags: set, label: Optional[str], clock
                 w.rep_scheme = _ladder_of_values(sch)
             if cx or len(known) > 1:
                 w.complex = strengthy or cx or w.complex
+            dist = None if sch else _distance_in(text)
             for n in known:
-                w.elements.append(Element(movement=n, unit="reps" if sch else None,
-                                          value=(sum(sch) / len(sch)) if sch else None,
+                unit = "reps" if sch else ("meters" if dist else None)
+                value = (sum(sch) / len(sch)) if sch else dist
+                w.elements.append(Element(movement=n, unit=unit, value=value,
                                           rounds=w.passes or w.windows or 1,
                                           group="cx" if w.complex and len(known) > 1 else None))
             w.notes.append("movement_from_header")
             break
+    if not w.elements and strengthy:
+        # a strength piece whose only movement name is unknown: still one movement (its name is
+        # kept in memory only, never written out)
+        head = str(piece.get("header") or "").strip() or (skipped[0] if skipped else "")
+        if head:
+            sch = set_scheme(head)
+            if sch and not w.passes and not w.windows:
+                w.passes = len(sch)
+            w.elements.append(Element(movement=split_line(head)[0][0], unit="reps" if sch else None,
+                                      value=(sum(sch) / len(sch)) if sch else None,
+                                      rounds=w.passes or w.windows or 1))
+            w.notes.append("unknown_movement_from_header")
+    if _HEAVIEST.search(str(piece.get("header") or "")):
+        w.notes.append("heaviest")
     if "ladder_ascending" in flags:
         w.rep_scheme = "ascending"
     elif "ladder_descending" in flags:
@@ -923,6 +1019,8 @@ def _draft_piece(piece: dict, base: str, flags: set, label: Optional[str], clock
         w.partner = UNKNOWN
     if "buyin_cashout_named" in flags or kind == "window_buyin_max_reps":
         w.buy_in = True
+    if w.buy_in and w.unbounded and len(w.elements) >= 2 and w.elements[0].main:
+        w.elements[0].main = False                    # the AMRAP's buy-in is not one of its movements
     if "complex_lift" in flags:
         w.complex = True
     if label is not None:
@@ -992,7 +1090,10 @@ def element_modality(e: Element) -> tuple:
     """(modality or None, reason) of an element; a movement choice uses its shared modality."""
     if e.movement.startswith("choice:"):
         return (e.modality_hint, "movement_choice") if e.modality_hint else (None, "movement_choice")
-    return modality_of(e.movement)
+    mod, why = modality_of(e.movement)
+    if mod is None and _loaded(e):
+        return "W", "loaded_unknown"
+    return mod, why
 
 
 def _loaded(e: Element) -> bool:
@@ -1015,6 +1116,14 @@ def _strength(w: Workout) -> tuple:
     main = [e for e in w.elements if e.main]
     if not main or w.practice or (w.unbounded and w.score != "load"):
         return False, None
+    if w.score == "load" or w.import_strength:
+        # the lift's load is the score, or the import says strength: strength even when the load
+        # wasn't parsed (Data chat corpus pass: 170 of 518 strength_sets pieces regressed)
+        if w.complex or len(_work_movements(w)) > 1:
+            return True, "complex" if w.complex else "scored_by_load"
+        if w.max_effort:
+            return True, "max_effort"
+        return True, "scored_by_load" if w.score == "load" else "import_strength"
     loaded = [e for e in main if _loaded(e) or (implement_of(e.movement) and element_modality(e)[0] == "W"
                                                and e.unit in ("reps", None))]
     if len(loaded) != len(main):
@@ -1156,6 +1265,9 @@ def work_seconds(w: Workout) -> tuple:
 def estimated_seconds(w: Workout) -> tuple:
     """(seconds or None, source, confidence). A clock (AMRAP, windows) is the duration; a for-time
     cap is only an upper bound (the estimated work is used when shorter)."""
+    if w.cap_s and not w.clock_is_duration and w.score not in (None, "time"):
+        # minutes on a piece scored by distance, calories or reps are its clock, not a cap
+        return w.cap_s, "clock_not_cap", "high"
     if w.cap_s and not w.clock_is_duration:
         work, conf = work_seconds(w)
         if work is not None and work < w.cap_s:
@@ -1270,8 +1382,16 @@ def classify_loading(w: Workout, athlete_max_kg: Optional[dict] = None, sex: str
         if "no_reference" in reasons or "pick_load" in reasons:
             conf = "low"
         return _axis(best, conf, reasons)
-    if not any_load and all(element_modality(e)[0] in ("G", "M") for e in w.elements) and w.elements:
-        return _axis("bodyweight", "high", ["no_external_load"])
+    if not any_load and w.elements:
+        mods = [element_modality(e)[0] for e in w.elements]
+        # an implement word, "heaviest", a W movement or a load score: loaded, the number unknown
+        implement = any(_W_IMPLEMENT.search(e.movement) or _HEAVIEST.search(e.movement) for e in w.elements)
+        if implement or "W" in mods or w.score == "load" or w.import_strength or "heaviest" in w.notes:
+            return _axis(UNKNOWN, UNKNOWN, reasons or ["loaded_without_number"])
+        if all(m in ("G", "M") for m in mods):
+            return _axis("bodyweight", "high", ["no_external_load"])
+        # nothing loaded, only unknown names: bodyweight, low confidence (Data chat corpus pass)
+        return _axis("bodyweight", "low", ["no_external_load", "unknown_movements_assumed_bodyweight"])
     return _axis(UNKNOWN, UNKNOWN, reasons or ["no_load"])
 
 
