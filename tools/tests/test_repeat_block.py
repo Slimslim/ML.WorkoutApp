@@ -95,17 +95,38 @@ def _script_for(d: WorkoutDefinition) -> list:
 
 
 @pytest.mark.parametrize("bid", BUILT_IN_IDS)
-def test_engine_on_gives_today_s_run_for_every_built_in(bid):
-    """With the engine switch on, a stored built-in runs exactly as today: same steps, window
-    targets, finish and score (it is today's WorkoutProgress, block None)."""
-    from barpath.workout import amrap_expanded
-    d = amrap_expanded(next(x for x in WorkoutLibrary.known if x.id == bid))
-    off = WorkoutProgress(d, rb.engine_plan(d, rb.ENGINE_LEGACY))
-    on = WorkoutProgress(d, rb.engine_plan(d, rb.ENGINE_V2))
-    assert on.block is None
-    script = _script_for(d)
-    assert rb.run_script(on, script) == rb.run_script(off, script)
-    assert on.finish_time == off.finish_time and on.segment_starts == off.segment_starts
+def test_engine_on_routes_every_stored_built_in_to_today_s_progress(bid):
+    """Routing only: a stored built-in never gets a block plan (the E4 gate compares behaviour)."""
+    d = next(x for x in WorkoutLibrary.known if x.id == bid)
+    assert rb.start_progress(d, rb.ENGINE_V2).block is None
+
+
+# Marking Row + Thrusters makes another workout: its block does not end with a rest (legacy route).
+MARKED_SAME_AS_TODAY = [i for i in BUILT_IN_IDS if i != "wod.rowThrusters"]
+
+
+@pytest.mark.parametrize("bid", MARKED_SAME_AS_TODAY)
+def test_a_built_in_marked_listed_once_runs_exactly_as_today_in_block_mode(bid):
+    """Behaviour, not routing: the built-in marked listedOnce and run in block mode with the engine
+    on (fixed lists as FIXED, the AMRAPs as REPEAT) gives the same events as the stored row today."""
+    import dataclasses
+    d = next(x for x in WorkoutLibrary.known if x.id == bid)
+    marked = dataclasses.replace(d, listed_once=True)
+    on = rb.start_progress(marked, rb.ENGINE_V2)
+    assert on.block is not None
+    assert on.block.kind in (rb.FIXED, rb.REPEAT)
+    for script in (_script_for(d), [[0.0, "start"], [6000.0, "tick"]]):
+        today = rb.start_progress(d, rb.ENGINE_LEGACY)
+        block = rb.start_progress(marked, rb.ENGINE_V2)
+        assert rb.run_script(block, script) == rb.run_script(today, script), bid
+        assert block.segment_starts == today.segment_starts and block.finish_time == today.finish_time
+
+
+def test_row_thrusters_marked_falls_back_to_the_legacy_route():
+    import dataclasses
+    marked = dataclasses.replace(WorkoutLibrary.rowThrusters, listed_once=True)
+    assert rb.listed_once_problems(marked) == ["interval block does not end with a rest"]
+    assert rb.start_progress(marked, rb.ENGINE_V2).block is None
 
 
 def test_row_thrusters_window_targets_are_today_s():
@@ -283,3 +304,49 @@ def test_block_result_partial_reps_limit_is_the_part_target():
     t0 = datetime.fromtimestamp(p.start_time, tz=timezone.utc)
     r = WorkoutResult(d, t0, t0, t0, 300.0, segs, p.events, passes=2)
     assert r.partial_reps_limit == 20
+
+
+# ---- Classic route for listed-once definitions (written out like today's rows) ------------------
+
+def _case(cid):
+    return WorkoutDefinition.from_dict(next(c for c in cases() if c["definition"]["id"] == cid)["definition"])
+
+
+@pytest.mark.parametrize("cid,segments,round_size", [
+    ("t.ladder", 6, 6),          # AMRAP: unmarked with roundSize = P; the 5a expansion at START
+    ("t.every3", 18, 3),         # Every 3:00 x 6: six windows, the last keeps its rest
+    ("t.tabata", 16, 2),         # Tabata 8 x 30 s: 16 segments
+    ("t.rft", 15, 3),            # Rounds for time x 5
+    ("t.roundsRest", 8, 3),      # x 3 with a rest after each round: none after the last
+    ("t.fixed", 4, 2),           # a marked fixed list: unchanged except the mark (its roundSize kept)
+])
+def test_classic_writes_a_listed_once_block_out(cid, segments, round_size):
+    d = _case(cid)
+    out = rb.written_out(d)
+    assert len(out.segments) == segments and out.round_size == round_size
+    assert not out.listed_once and out.rounds is None
+    assert rb.written_out(out) == out                      # unmarked: unchanged
+
+
+def test_classic_runs_every_pass_not_one():
+    """The #138 bug must not come back on Classic: rounds x 5 finishes after the 15th part, an
+    AMRAP repeats until its cap, a Tabata runs its 8 windows."""
+    rounds = rb.start_progress(_case("t.rft"), rb.ENGINE_LEGACY)
+    rb.run_script(rounds, [[0.0, "start"]] + [[30.0 * (k + 1), "crown"] for k in range(16)])
+    assert rounds.is_finished and len(rounds.segment_starts) == 15 and rounds.finish_time == 450.0
+    amrap = rb.start_progress(_case("t.ladder"), rb.ENGINE_LEGACY)
+    rb.run_script(amrap, [[0.0, "start"]] + [[60.0 * (k + 1), "crown"] for k in range(20)] + [[2000.0, "tick"]])
+    assert amrap.finish_time == 1440.0 and len(amrap.segment_starts) == 21
+    tabata = rb.start_progress(_case("t.tabata"), rb.ENGINE_LEGACY)
+    rb.run_script(tabata, [[0.0, "start"]] + [[30.0 * k + 20, "crown"] for k in range(8)] + [[300.0, "tick"]])
+    assert tabata.is_finished and len(tabata.segment_starts) == 16
+
+
+def test_insights_of_a_block_result_use_its_parts():
+    from datetime import datetime, timezone
+    from barpath.result_insights import insights
+    from barpath.workout import WorkoutResult
+    d, p, segs = _capped_amrap()
+    t0 = datetime.fromtimestamp(p.start_time, tz=timezone.utc)
+    r = WorkoutResult(d, t0, t0, t0, 300.0, segs, p.events, passes=2)
+    assert insights(r) == insights(r, r.display_definition)

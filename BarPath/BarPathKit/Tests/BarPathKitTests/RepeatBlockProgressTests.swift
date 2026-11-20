@@ -59,14 +59,25 @@ final class RepeatBlockProgressTests: XCTestCase {
         let cases: [Case]
     }
 
-    /// The clock up to `now`: the cap first on a tie, then the segment changes (repeat_block.tick).
-    static func tick(_ p: inout WorkoutProgress, now: Double) {
+    /// What the watch's undo suppresses (WorkoutSessionModel.undo): an auto change whose time has
+    /// already passed (per step start) and a cap already passed.
+    struct Suppress {
+        var autoStart: Double? = nil
+        var cap: Bool = false
+    }
+
+    /// The clock up to `now`: the cap first on a tie, then the segment changes (repeat_block.tick),
+    /// skipping what an undo suppressed (WorkoutSessionModel.nextClockEvent).
+    static func tick(_ p: inout WorkoutProgress, now: Double, suppress: Suppress) {
         var guardCount: Int = 0
         while guardCount < 10_000 {
             guardCount += 1
             guard p.isStarted, !p.isFinished, let last = p.segmentStarts.last else { return }
-            let cap: Double? = p.capTime
-            let auto: Double? = p.autoAdvanceTime()
+            let cap: Double? = suppress.cap ? nil : p.capTime
+            var auto: Double? = p.autoAdvanceTime()
+            if auto != nil, let s = suppress.autoStart, last == s {
+                auto = nil
+            }
             if let c = cap, c <= now, auto == nil || c <= auto! {
                 p.finish(at: Swift.max(c, last), source: .auto)
                 return
@@ -78,12 +89,21 @@ final class RepeatBlockProgressTests: XCTestCase {
     }
 
     static func run(_ p: inout WorkoutProgress, script: [Action]) -> [Event] {
+        var suppress = Suppress()
         for a in script {
-            tick(&p, now: a.t)
+            tick(&p, now: a.t, suppress: suppress)
             switch a.action {
             case "start": p.start(at: a.t)
             case "crown": p.advance(at: a.t, source: .crown)
-            case "undo": p.undo(at: a.t, source: .crown)
+            case "undo":
+                if p.undo(at: a.t, source: .crown) {
+                    if let auto = p.autoAdvanceTime(), auto <= a.t {
+                        suppress.autoStart = p.segmentStarts.last
+                    }
+                    if let cap = p.capTime, cap <= a.t {
+                        suppress.cap = true
+                    }
+                }
             case "end": p.finish(at: a.t, source: .button)
             default: break
             }
