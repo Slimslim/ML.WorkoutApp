@@ -36,6 +36,7 @@
      "lastRest": null,
      "listening": true,
      "canShowEndPage": true,
+     "reminded": false,
      "ok": true
     },
     {
@@ -45,6 +46,7 @@
      "lastRest": null,
      "listening": true,
      "canShowEndPage": false,
+     "reminded": false,
      "ok": true
     },
     {
@@ -54,6 +56,7 @@
      "lastRest": null,
      "listening": false,
      "canShowEndPage": true,
+     "reminded": false,
      "ok": true
     },
     {
@@ -63,6 +66,7 @@
      "lastRest": 120.5,
      "listening": true,
      "canShowEndPage": true,
+     "reminded": false,
      "ok": true
     },
     {
@@ -72,6 +76,7 @@
      "lastRest": 120.5,
      "listening": true,
      "canShowEndPage": false,
+     "reminded": false,
      "ok": true
     },
     {
@@ -81,6 +86,7 @@
      "lastRest": 120.5,
      "listening": false,
      "canShowEndPage": true,
+     "reminded": false,
      "ok": true
     }
    ]
@@ -132,6 +138,7 @@
      "lastRest": null,
      "listening": true,
      "canShowEndPage": true,
+     "reminded": false,
      "ok": true
     },
     {
@@ -141,6 +148,7 @@
      "lastRest": null,
      "listening": true,
      "canShowEndPage": false,
+     "reminded": false,
      "ok": true
     },
     {
@@ -150,6 +158,7 @@
      "lastRest": null,
      "listening": false,
      "canShowEndPage": true,
+     "reminded": false,
      "ok": true
     },
     {
@@ -159,6 +168,7 @@
      "lastRest": null,
      "listening": false,
      "canShowEndPage": true,
+     "reminded": false,
      "ok": false
     },
     {
@@ -168,6 +178,7 @@
      "lastRest": null,
      "listening": false,
      "canShowEndPage": true,
+     "reminded": false,
      "ok": false
     },
     {
@@ -177,6 +188,7 @@
      "lastRest": 30.0,
      "listening": true,
      "canShowEndPage": true,
+     "reminded": false,
      "ok": true
     },
     {
@@ -186,6 +198,7 @@
      "lastRest": 30.0,
      "listening": true,
      "canShowEndPage": true,
+     "reminded": false,
      "ok": false
     },
     {
@@ -195,6 +208,7 @@
      "lastRest": 30.0,
      "listening": true,
      "canShowEndPage": false,
+     "reminded": false,
      "ok": true
     },
     {
@@ -204,6 +218,7 @@
      "lastRest": 30.0,
      "listening": true,
      "canShowEndPage": false,
+     "reminded": false,
      "ok": false
     }
    ]
@@ -231,6 +246,7 @@
      "lastRest": null,
      "listening": true,
      "canShowEndPage": true,
+     "reminded": false,
      "ok": true
     },
     {
@@ -240,6 +256,7 @@
      "lastRest": null,
      "listening": false,
      "canShowEndPage": true,
+     "reminded": false,
      "ok": true
     },
     {
@@ -249,7 +266,383 @@
      "lastRest": 0.0,
      "listening": true,
      "canShowEndPage": true,
+     "reminded": false,
      "ok": true
+    }
+   ]
+  },
+  "armed_timeout": {
+   "ops": [
+    [
+     "start",
+     0.0
+    ],
+    [
+     "expire",
+     179.0,
+     false
+    ],
+    [
+     "expire",
+     200.0,
+     true
+    ],
+    [
+     "setStarted",
+     201.0
+    ],
+    [
+     "expire",
+     400.0,
+     false
+    ],
+    [
+     "setEnded",
+     410.0
+    ],
+    [
+     "arm",
+     470.0
+    ],
+    [
+     "expire",
+     649.0,
+     false
+    ],
+    [
+     "expire",
+     650.0,
+     false
+    ],
+    [
+     "arm",
+     700.0
+    ]
+   ],
+   "expected": [
+    {
+     "state": "armed",
+     "since": 0.0,
+     "armedAt": 0.0,
+     "lastRest": null,
+     "listening": true,
+     "canShowEndPage": true,
+     "reminded": false,
+     "ok": true
+    },
+    {
+     "state": "armed",
+     "since": 0.0,
+     "armedAt": 0.0,
+     "lastRest": null,
+     "listening": true,
+     "canShowEndPage": true,
+     "reminded": false,
+     "ok": false
+    },
+    {
+     "state": "armed",
+     "since": 0.0,
+     "armedAt": 0.0,
+     "lastRest": null,
+     "listening": true,
+     "canShowEndPage": true,
+     "reminded": false,
+     "ok": false
+    },
+    {
+     "state": "inSet",
+     "since": 0.0,
+     "armedAt": 0.0,
+     "lastRest": null,
+     "listening": true,
+     "canShowEndPage": false,
+     "reminded": false,
+     "ok": true
+    },
+    {
+     "state": "inSet",
+     "since": 0.0,
+     "armedAt": 0.0,
+     "lastRest": null,
+     "listening": true,
+     "canShowEndPage": false,
+     "reminded": false,
+     "ok": false
+    },
+    {
+     "state": "resting",
+     "since": 410.0,
+     "armedAt": 0.0,
+     "lastRest": null,
+     "listening": false,
+     "canShowEndPage": true,
+     "reminded": false,
+     "ok": true
+    },
+    {
+     "state": "armed",
+     "since": 470.0,
+     "armedAt": 470.0,
+     "lastRest": 60.0,
+     "listening": true,
+     "canShowEndPage": true,
+     "reminded": false,
+     "ok": true
+    },
+    {
+     "state": "armed",
+     "since": 470.0,
+     "armedAt": 470.0,
+     "lastRest": 60.0,
+     "listening": true,
+     "canShowEndPage": true,
+     "reminded": false,
+     "ok": false
+    },
+    {
+     "state": "resting",
+     "since": 410.0,
+     "armedAt": 470.0,
+     "lastRest": 60.0,
+     "listening": false,
+     "canShowEndPage": true,
+     "reminded": false,
+     "ok": true
+    },
+    {
+     "state": "armed",
+     "since": 700.0,
+     "armedAt": 700.0,
+     "lastRest": 290.0,
+     "listening": true,
+     "canShowEndPage": true,
+     "reminded": false,
+     "ok": true
+    }
+   ]
+  },
+  "first_set_timeout": {
+   "ops": [
+    [
+     "start",
+     10.0
+    ],
+    [
+     "expire",
+     190.0,
+     false
+    ],
+    [
+     "arm",
+     200.0
+    ]
+   ],
+   "expected": [
+    {
+     "state": "armed",
+     "since": 10.0,
+     "armedAt": 10.0,
+     "lastRest": null,
+     "listening": true,
+     "canShowEndPage": true,
+     "reminded": false,
+     "ok": true
+    },
+    {
+     "state": "resting",
+     "since": 10.0,
+     "armedAt": 10.0,
+     "lastRest": null,
+     "listening": false,
+     "canShowEndPage": true,
+     "reminded": false,
+     "ok": true
+    },
+    {
+     "state": "armed",
+     "since": 200.0,
+     "armedAt": 200.0,
+     "lastRest": 190.0,
+     "listening": true,
+     "canShowEndPage": true,
+     "reminded": false,
+     "ok": true
+    }
+   ]
+  },
+  "reminder": {
+   "ops": [
+    [
+     "start",
+     0.0
+    ],
+    [
+     "remind",
+     1.0
+    ],
+    [
+     "setStarted",
+     2.0
+    ],
+    [
+     "remind",
+     3.0
+    ],
+    [
+     "setEnded",
+     10.0
+    ],
+    [
+     "remind",
+     40.0
+    ],
+    [
+     "remind",
+     50.0
+    ],
+    [
+     "arm",
+     60.0
+    ],
+    [
+     "remind",
+     61.0
+    ],
+    [
+     "expire",
+     240.0,
+     false
+    ],
+    [
+     "remind",
+     250.0
+    ],
+    [
+     "remind",
+     260.0
+    ]
+   ],
+   "expected": [
+    {
+     "state": "armed",
+     "since": 0.0,
+     "armedAt": 0.0,
+     "lastRest": null,
+     "listening": true,
+     "canShowEndPage": true,
+     "reminded": false,
+     "ok": true
+    },
+    {
+     "state": "armed",
+     "since": 0.0,
+     "armedAt": 0.0,
+     "lastRest": null,
+     "listening": true,
+     "canShowEndPage": true,
+     "reminded": false,
+     "ok": false
+    },
+    {
+     "state": "inSet",
+     "since": 0.0,
+     "armedAt": 0.0,
+     "lastRest": null,
+     "listening": true,
+     "canShowEndPage": false,
+     "reminded": false,
+     "ok": true
+    },
+    {
+     "state": "inSet",
+     "since": 0.0,
+     "armedAt": 0.0,
+     "lastRest": null,
+     "listening": true,
+     "canShowEndPage": false,
+     "reminded": false,
+     "ok": false
+    },
+    {
+     "state": "resting",
+     "since": 10.0,
+     "armedAt": 0.0,
+     "lastRest": null,
+     "listening": false,
+     "canShowEndPage": true,
+     "reminded": false,
+     "ok": true
+    },
+    {
+     "state": "resting",
+     "since": 10.0,
+     "armedAt": 0.0,
+     "lastRest": null,
+     "listening": false,
+     "canShowEndPage": true,
+     "reminded": true,
+     "ok": true
+    },
+    {
+     "state": "resting",
+     "since": 10.0,
+     "armedAt": 0.0,
+     "lastRest": null,
+     "listening": false,
+     "canShowEndPage": true,
+     "reminded": true,
+     "ok": false
+    },
+    {
+     "state": "armed",
+     "since": 60.0,
+     "armedAt": 60.0,
+     "lastRest": 50.0,
+     "listening": true,
+     "canShowEndPage": true,
+     "reminded": true,
+     "ok": true
+    },
+    {
+     "state": "armed",
+     "since": 60.0,
+     "armedAt": 60.0,
+     "lastRest": 50.0,
+     "listening": true,
+     "canShowEndPage": true,
+     "reminded": true,
+     "ok": false
+    },
+    {
+     "state": "resting",
+     "since": 10.0,
+     "armedAt": 60.0,
+     "lastRest": 50.0,
+     "listening": false,
+     "canShowEndPage": true,
+     "reminded": false,
+     "ok": true
+    },
+    {
+     "state": "resting",
+     "since": 10.0,
+     "armedAt": 60.0,
+     "lastRest": 50.0,
+     "listening": false,
+     "canShowEndPage": true,
+     "reminded": true,
+     "ok": true
+    },
+    {
+     "state": "resting",
+     "since": 10.0,
+     "armedAt": 60.0,
+     "lastRest": 50.0,
+     "listening": false,
+     "canShowEndPage": true,
+     "reminded": true,
+     "ok": false
     }
    ]
   }

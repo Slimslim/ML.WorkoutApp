@@ -31,10 +31,20 @@ public struct SetTracker {
     /// motion at rest can't make a set. The sample history is kept, so a set started right after
     /// the Crown turn still gets its pre-roll.
     public var armedFrom: Double = -Double.greatestFiniteMagnitude
+    /// While resting (`armedFrom` = +∞) the counter still runs in the shadow: reps that *would*
+    /// have counted after the last set, chained no more than `setEndGap` apart. Nothing is
+    /// counted or recorded; the watch shows "Turn the Crown?" at 2 (a lone hand shake makes at
+    /// most one). Mirrors `restReps` in reps.py.
+    public var restReps: Int { return restShadow.count }
+    /// A rep after `armedFrom` was seen in the last batch, confirmed or not (the armed time-out
+    /// waits for it).
+    public private(set) var detected = false
 
     public private(set) var liveReps: [Rep] = []
     private var samples: [MotionSample] = []
     private var floorTime = -Double.greatestFiniteMagnitude
+    private var restShadow: [Rep] = []
+    private var restAfter = -Double.greatestFiniteMagnitude
 
     public init(config: RepConfig = RepConfig()) {
         self.config = config
@@ -48,6 +58,9 @@ public struct SetTracker {
         liveReps = []
         samples = []
         floorTime = -Double.greatestFiniteMagnitude
+        restShadow = []
+        restAfter = -Double.greatestFiniteMagnitude
+        detected = false
     }
 
     /// Samples in [t0, t1] still held (for cutting the set recording).
@@ -71,9 +84,13 @@ public struct SetTracker {
         drop(before: keepFrom)
 
         var events: [SetEvent] = []
-        let reps = countRecent(latest: latest)
+        let allReps = countAll(latest: latest)
+        let from0 = armedFrom
+        let reps = allReps.filter { $0.start >= from0 }
+        shadow(allReps, latest: latest)
         let after = liveReps.last?.end ?? -Double.greatestFiniteMagnitude
         let fresh = reps.filter { $0.start > after }
+        detected = !fresh.isEmpty
         let confirmed = fresh.filter { $0.end <= latest - settle }
         if !confirmed.isEmpty {
             liveReps += confirmed
@@ -105,12 +122,35 @@ public struct SetTracker {
     }
 
     private func countRecent(latest: Double) -> [Rep] {
+        let from0 = armedFrom
+        return countAll(latest: latest).filter { $0.start >= from0 }
+    }
+
+    private func countAll(latest: Double) -> [Rep] {
         let from = latest - countWindow
         let start = samples.firstIndex(where: { $0.t >= from }) ?? samples.count
         guard start < samples.count else { return [] }
-        let from0 = armedFrom
         return RepCounter.count(MotionSeries(Array(samples[start...])), config: config).reps
-            .filter { $0.start >= from0 }
+    }
+
+    private var isResting: Bool { return armedFrom >= Double.greatestFiniteMagnitude }
+
+    /// The shadow count at rest (see `restReps`).
+    private mutating func shadow(_ allReps: [Rep], latest: Double) {
+        guard isResting, liveReps.isEmpty else {
+            restShadow = []
+            return
+        }
+        if let last = restShadow.last, latest - last.end >= setEndGap {
+            restShadow = []
+        }
+        for r in allReps where r.start > restAfter && r.end <= latest - settle {
+            if let last = restShadow.last, r.start - last.end > setEndGap {
+                restShadow = []
+            }
+            restShadow.append(r)
+            restAfter = r.end
+        }
     }
 
     private mutating func finishSet() -> SetEvent {

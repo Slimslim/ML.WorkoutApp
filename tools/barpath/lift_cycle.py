@@ -11,12 +11,17 @@ counts (`listening_from`, fed to SetTracker as `armedFrom`; the lift detector is
   lift's end, not the moment the set-end rule fired).
 - `arm(t)` (a Crown turn) works only while resting; the rest just taken is kept in `last_rest`.
 - Swiping to the End page is allowed except in a set.
+- Armed time-out (owner, 20 Nov): armed with no set for `ARMED_TIMEOUT` s goes back to resting,
+  unless a rep / lift is under way (`busy`); the rest keeps counting from where it started.
+- Forgotten-Crown reminder (owner, 20 Nov): `remind_at_rest` is true at most once per rest; the
+  caller buzzes and shows "Turn the Crown?". It never counts or records anything.
 """
 import math
 from dataclasses import dataclass
 from typing import Optional
 
 ARMED, IN_SET, RESTING = "armed", "inSet", "resting"
+ARMED_TIMEOUT = 180.0   # s
 
 
 @dataclass
@@ -25,6 +30,8 @@ class LiftCycle:
     since: float = 0.0              # armed: arm time; resting: rest start; in set: arm time
     armed_at: float = 0.0
     last_rest: Optional[float] = None
+    rest_start_before_arm: Optional[float] = None
+    reminded: bool = False
 
     @classmethod
     def start(cls, t: float) -> "LiftCycle":
@@ -46,6 +53,7 @@ class LiftCycle:
         if self.state != RESTING:
             return False
         self.last_rest = max(0.0, t - self.since)
+        self.rest_start_before_arm = self.since
         self.state, self.since, self.armed_at = ARMED, t, t
         return True
 
@@ -59,20 +67,38 @@ class LiftCycle:
         if self.state == RESTING:
             return False
         self.state, self.since = RESTING, t
+        self.rest_start_before_arm = None
+        self.reminded = False
+        return True
+
+    def expire_armed(self, t: float, busy: bool) -> bool:
+        if self.state != ARMED or busy or t - self.armed_at < ARMED_TIMEOUT:
+            return False
+        start = self.rest_start_before_arm
+        self.state, self.since = RESTING, (start if start is not None else self.armed_at)
+        self.rest_start_before_arm = None
+        self.reminded = False
+        return True
+
+    def remind_at_rest(self) -> bool:
+        if self.state != RESTING or self.reminded:
+            return False
+        self.reminded = True
         return True
 
     def snapshot(self) -> dict:
         return {"state": self.state, "since": self.since, "armedAt": self.armed_at,
                 "lastRest": self.last_rest, "listening": self.is_listening,
-                "canShowEndPage": self.can_show_end_page}
+                "canShowEndPage": self.can_show_end_page, "reminded": self.reminded}
 
 
 def run(ops):
-    """ops: [["start", t] | ["arm", t] | ["setStarted", t] | ["setEnded", t]] → snapshots with
-    each op's result (True if it changed the state)."""
+    """ops: [["start", t] | ["arm", t] | ["setStarted", t] | ["setEnded", t] | ["expire", t, busy]
+    | ["remind", t]] → snapshots with each op's result (True if it changed the state)."""
     cycle = None
     out = []
-    for name, t in ops:
+    for op in ops:
+        name, t = op[0], op[1]
         if name == "start":
             cycle = LiftCycle.start(t)
             ok = True
@@ -82,6 +108,10 @@ def run(ops):
             ok = cycle.set_started(t)
         elif name == "setEnded":
             ok = cycle.set_ended(t)
+        elif name == "expire":
+            ok = cycle.expire_armed(t, bool(op[2]))
+        elif name == "remind":
+            ok = cycle.remind_at_rest()
         else:
             raise ValueError(name)
         out.append(dict(cycle.snapshot(), ok=ok))

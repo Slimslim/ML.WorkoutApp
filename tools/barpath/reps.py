@@ -132,7 +132,13 @@ class SetTracker:
     `armedFrom` (#148): reps that start before it are never counted. The watch sets it to the
     Crown-turn time when the next set is armed, and to +inf while resting, so motion at rest
     (a hand shake) can't make a set; the sample history is kept, so the set recording still
-    gets its pre-roll from before the Crown turn."""
+    gets its pre-roll from before the Crown turn.
+
+    While resting (armedFrom = +inf) the counter still runs in the shadow: `restReps` is the
+    number of reps that *would* have counted, chained no more than `setEndGap` apart, after the
+    last set. Nothing is counted or recorded; the watch buzzes "Turn the Crown?" at 2 (a lone
+    hand shake makes at most one). `detected`: a rep after armedFrom was seen, confirmed or not
+    (the armed time-out waits for it)."""
     cfg: RepConfig = RepConfig()
     setEndGap: float = 6.0
     preRoll: float = 3.0
@@ -146,6 +152,13 @@ class SetTracker:
         self.live: List[Rep] = []
         self.idx = np.zeros(0, int)   # indices into the session arrays
         self.floor = -np.inf
+        self.rest_shadow: List[Rep] = []
+        self.rest_after = -np.inf
+        self.detected = False
+
+    @property
+    def restReps(self) -> int:
+        return len(self.rest_shadow)
 
     @property
     def settle(self):
@@ -162,9 +175,11 @@ class SetTracker:
         self.idx = self.idx[t[self.idx] >= keep]
         ev = []
         i = self.idx[t[self.idx] >= latest - self.countWindow]
-        reps = count_reps(t[i], ua[i], g[i], self.cfg).reps
+        all_reps = count_reps(t[i], ua[i], g[i], self.cfg).reps
         after = self.live[-1].end if self.live else -np.inf
-        reps = [r for r in reps if r.start >= self.armedFrom]
+        reps = [r for r in all_reps if r.start >= self.armedFrom]
+        self._shadow(all_reps, latest)
+        self.detected = any(r.start > after for r in reps)
         new = [r for r in reps if r.start > after and r.end <= latest - self.settle]
         if new:
             self.live += new
@@ -175,6 +190,19 @@ class SetTracker:
             if latest - last_end >= self.setEndGap or too_long:
                 ev.append(self._finish())
         return ev
+
+    def _shadow(self, all_reps, latest):
+        if not (np.isinf(self.armedFrom) and self.armedFrom > 0) or self.live:
+            self.rest_shadow = []
+            return
+        if self.rest_shadow and latest - self.rest_shadow[-1].end >= self.setEndGap:
+            self.rest_shadow = []
+        for r in all_reps:
+            if r.start > self.rest_after and r.end <= latest - self.settle:
+                if self.rest_shadow and r.start - self.rest_shadow[-1].end > self.setEndGap:
+                    self.rest_shadow = []
+                self.rest_shadow.append(r)
+                self.rest_after = r.end
 
     def flush(self, t, ua, g):
         """End a set in progress now (session end / Change); None if no rep."""

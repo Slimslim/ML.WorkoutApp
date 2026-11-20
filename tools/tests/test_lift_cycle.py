@@ -9,7 +9,7 @@ import pathlib
 
 import numpy as np
 
-from barpath.lift_cycle import LiftCycle, run
+from barpath.lift_cycle import ARMED_TIMEOUT, LiftCycle, run
 from barpath.reps import SetTracker
 
 FIX = pathlib.Path(__file__).resolve().parents[2] / "BarPath/BarPathKit/Tests/BarPathKitTests/Fixtures"
@@ -28,6 +28,17 @@ CYCLE_CASES = {
                             ["arm", 41.0], ["setStarted", 42.0], ["arm", 43.0]],
     # set end before any rep (a flush with nothing) still goes to rest
     "end_while_armed": [["start", 5.0], ["setEnded", 9.0], ["arm", 9.0]],
+    # armed 3 min with no set: back to rest, the rest counting from where it started; not while
+    # a rep is under way; never in a set
+    "armed_timeout": [["start", 0.0], ["expire", 179.0, False], ["expire", 200.0, True],
+                      ["setStarted", 201.0], ["expire", 400.0, False], ["setEnded", 410.0],
+                      ["arm", 470.0], ["expire", 649.0, False], ["expire", 650.0, False],
+                      ["arm", 700.0]],
+    "first_set_timeout": [["start", 10.0], ["expire", 190.0, False], ["arm", 200.0]],
+    # the reminder: at most once per rest, never while armed or in a set
+    "reminder": [["start", 0.0], ["remind", 1.0], ["setStarted", 2.0], ["remind", 3.0],
+                 ["setEnded", 10.0], ["remind", 40.0], ["remind", 50.0], ["arm", 60.0],
+                 ["remind", 61.0], ["expire", 240.0, False], ["remind", 250.0], ["remind", 260.0]],
 }
 
 
@@ -40,6 +51,19 @@ def test_cycle_basics():
     assert not c.is_listening and c.listening_from == math.inf and c.can_show_end_page
     assert not c.set_started(12.0) and c.state == "resting"   # a "rep" at rest is ignored
     assert c.arm(100.0) and c.last_rest == 90.0 and c.listening_from == 100.0
+
+
+def test_armed_timeout_and_reminder_rules():
+    c = LiftCycle.start(0.0)
+    assert ARMED_TIMEOUT == 180.0
+    assert not c.expire_armed(ARMED_TIMEOUT - 0.1, False)
+    assert not c.expire_armed(ARMED_TIMEOUT + 5, True)          # a rep under way
+    assert c.expire_armed(ARMED_TIMEOUT, False) and c.state == "resting" and c.since == 0.0
+    assert c.remind_at_rest() and not c.remind_at_rest()       # once per rest
+    assert c.arm(300.0) and c.last_rest == 300.0
+    assert not c.remind_at_rest()                              # armed: no reminder
+    assert c.expire_armed(480.0, False) and c.since == 0.0     # rest keeps counting from 0
+    assert c.remind_at_rest()
 
 
 def test_cycle_parity_fixture_is_current():
@@ -87,7 +111,7 @@ def watch_replay(t, ua, g, arms):
     cycle = LiftCycle.start(float(t[0]))
     tr = SetTracker()
     todo = sorted(arms)
-    sets, live, applied = [], [], []
+    sets, live, applied, reminders, expired = [], [], [], [], []
     for k in range(0, len(t), 200):
         while todo and todo[0] <= t[k]:
             a = todo.pop(0)
@@ -100,6 +124,11 @@ def watch_replay(t, ua, g, arms):
             else:
                 sets.append(e)
                 cycle.set_ended(e[3][-1].end)
+        latest = float(t[min(len(t), k + 200) - 1])
+        if cycle.expire_armed(latest, tr.detected):
+            expired.append(round(latest, 4))
+        if cycle.state == "resting" and tr.restReps >= 2 and cycle.remind_at_rest():
+            reminders.append(round(latest, 4))
     tr.armedFrom = cycle.listening_from
     last = tr.flush(t, ua, g)
     if last:
@@ -107,7 +136,8 @@ def watch_replay(t, ua, g, arms):
         cycle.set_ended(last[3][-1].end)
     return {"sets": [{"start": round(s[1], 4), "reps": [[round(r.start, 4), round(r.end, 4)] for r in s[3]]}
                      for s in sets],
-            "live": live, "arms": applied, "rest": cycle.last_rest}
+            "live": live, "arms": applied, "rest": cycle.last_rest,
+            "reminders": reminders, "expired": expired}
 
 
 def _pulls(n, period, t0, rom=0.6, up=1.0, down=1.0):
@@ -127,6 +157,15 @@ ARM_CASES = {
                                   shakes=[], total=75.0, arms=[50.0]),
     # a Crown turn mid-set does nothing
     "crown_mid_set": dict(pulls=_pulls(6, 2.5, 8.0), shakes=[], total=35.0, arms=[12.0]),
+    # forgotten Crown: a real set at rest buzzes once, counts nothing
+    "set_without_crown": dict(pulls=_pulls(5, 2.5, 8.0) + _pulls(5, 2.5, 45.0), shakes=[],
+                              total=70.0, arms=[]),
+    # two hand shakes 15 s apart: no reminder (each is at most one shadow rep)
+    "two_shakes_at_rest": dict(pulls=_pulls(5, 2.5, 8.0), shakes=[[45.0] + SHAKE, [60.0] + SHAKE],
+                               total=80.0, arms=[]),
+    # armed 3 min with no set: back to rest; then a set without the Crown buzzes, counts nothing
+    "armed_timeout": dict(pulls=_pulls(5, 2.5, 8.0) + _pulls(4, 2.5, 235.0), shakes=[],
+                          total=260.0, arms=[40.0]),
 }
 
 
@@ -148,6 +187,27 @@ def test_rest_and_crown_cases():
     c = ARM_CASES["crown_mid_set"]
     r = watch_replay(*_signal(c["pulls"], c["shakes"], c["total"]), c["arms"])
     assert [len(s["reps"]) for s in r["sets"]] == [6] and r["arms"] == [[12.0, False]]
+    assert r["reminders"] == [] and r["expired"] == []
+
+
+def test_forgotten_crown_reminder():
+    r = _run_arm_case(ARM_CASES["set_without_crown"])
+    assert [len(s["reps"]) for s in r["sets"]] == [5] and r["live"] == [1, 2, 3, 4, 5]
+    assert len(r["reminders"]) == 1 and 45.0 < r["reminders"][0] < 52.0   # after rep 2
+    # a hand shake never buzzes, alone or twice
+    assert _run_arm_case(ARM_CASES["shake_at_rest"])["reminders"] == []
+    assert _run_arm_case(ARM_CASES["two_shakes_at_rest"])["reminders"] == []
+    # the pulls at rest in this case buzz once; the set after the Crown doesn't
+    assert len(_run_arm_case(ARM_CASES["pulls_at_rest_then_crown"])["reminders"]) == 1
+    assert _run_arm_case(ARM_CASES["set_right_after_crown"])["reminders"] == []
+
+
+def test_armed_timeout_goes_back_to_rest():
+    r = _run_arm_case(ARM_CASES["armed_timeout"])
+    assert r["arms"] == [[40.0, True]]
+    assert len(r["expired"]) == 1 and 220.0 <= r["expired"][0] < 221.5
+    assert [len(s["reps"]) for s in r["sets"]] == [5]          # the pulls after it: not a set
+    assert len(r["reminders"]) == 1 and r["reminders"][0] > 235.0
 
 
 def test_resting_tracker_counts_nothing():
