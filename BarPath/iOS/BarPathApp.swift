@@ -56,6 +56,7 @@ struct BarPathApp: App {
                 .environmentObject(link)
                 .environmentObject(cloud)
                 .tint(Theme.accent)
+                .modifier(LaunchCover())
                 .onAppear {
                     store.loadIfNeeded()
                     workoutStore.loadIfNeeded()
