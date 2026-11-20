@@ -38,6 +38,8 @@ final class MotionRecorder {
     var onRepCount: (@MainActor (Int) -> Void)?
     /// Strength mode: a set ended (set index, reps).
     var onSetEnded: (@MainActor (Int, Int) -> Void)?
+    /// Rest / armed / in set changed (#148).
+    var onCycleChange: (@MainActor (LiftCycle) -> Void)?
 
     // MARK: Settings for the next lift
 
@@ -56,6 +58,9 @@ final class MotionRecorder {
     var csvSamples: Int { csvWriter?.samplesWritten ?? lastCSVSamples }
     var isRecordingCSV: Bool { csvWriter != nil }
     var detectorState: DetectorState { detector.state }
+    /// Armed → in set → resting → (Crown) → armed (#148). Detection listens only while armed or
+    /// in a set; recording (CSV, ring buffers, per-set uploads) does not depend on it.
+    private(set) var cycle = LiftCycle(startAt: 0)
 
     private let batchedManager = CMBatchedSensorManager()
     private let fallbackManager = CMMotionManager()
@@ -115,6 +120,9 @@ final class MotionRecorder {
         lastPublishedState = detector.state
         setTracker.reset()
         repMode = liftType.countsReps
+        // The block starts armed: the athlete starts the watch at the bar.
+        cycle = LiftCycle(startAt: ProcessInfo.processInfo.systemUptime)
+        setTracker.armedFrom = cycle.listeningFrom
         pending = []
         currentLift = nil
         liftCount = liftIndexOffset
@@ -188,6 +196,27 @@ final class MotionRecorder {
         csvWriter = nil
         Log.motion.info("Recorder stopped: \(self.motionSampleCount) motion, \(self.accelSampleCount) accel samples, \(self.liftCount) lifts")
         return csvURL
+    }
+
+    /// Crown turn while resting: arms detection for the next set. Only motion from now on can
+    /// count (motion timestamps are on the same uptime clock). False if not resting.
+    @discardableResult
+    func armNextSet() -> Bool {
+        guard isRunning else { return false }
+        let now = ProcessInfo.processInfo.systemUptime
+        guard cycle.arm(at: now) else { return false }
+        setTracker.armedFrom = cycle.listeningFrom
+        detector.reset()
+        currentLift = nil
+        let state = detector.state
+        if state != lastPublishedState {
+            lastPublishedState = state
+            onDetectorStateChange?(state)
+        }
+        let rest: Double = cycle.lastRest ?? 0
+        Log.motion.info("Next set armed after \(rest, format: .fixed(precision: 1)) s rest")
+        onCycleChange?(cycle)
+        return true
     }
 
     /// Appends a user marker to the debug CSV (no-op when not recording a CSV).
@@ -319,14 +348,17 @@ final class MotionRecorder {
         csvWriter?.append(accepted)
         motionSampleCount += accepted.count
 
-        // 2. Ring buffer + detector (strength mode: the set tracker instead).
+        // 2. Ring buffer + detector (strength mode: the set tracker instead). While resting
+        //    (#148) the lift detector is not fed and the set tracker counts no rep, so nothing
+        //    at rest can start a set; the buffers keep filling for the next pre-roll.
         for s in accepted {
             motionBuffer.append(s)
-            if !repMode, let event = detector.process(s) {
+            if !repMode && cycle.isListening && s.t >= cycle.armedAt, let event = detector.process(s) {
                 handle(event, sample: s)
             }
         }
         if repMode {
+            setTracker.armedFrom = cycle.listeningFrom
             for event in setTracker.process(accepted) {
                 handleSet(event)
             }
@@ -352,6 +384,9 @@ final class MotionRecorder {
         case .disarmed:
             csvWriter?.appendEvent(atUptime: sample.t, description: "name=disarmed")
         case .liftStarted(let homingTime):
+            if cycle.setStarted(at: homingTime) {
+                onCycleChange?(cycle)
+            }
             currentLift = LiftContext(homingTime: homingTime, liftType: liftType, loadKg: loadKg)
             csvWriter?.appendEvent(atUptime: sample.t,
                                    description: String(format: "name=liftStarted homing=%.3f", homingTime - t0))
@@ -372,6 +407,10 @@ final class MotionRecorder {
             csvWriter?.appendEvent(atUptime: sample.t,
                                    description: String(format: "name=liftEnded homing=%.3f end=%.3f reason=",
                                                        homingTime - t0, endTime - t0) + reason.rawValue)
+            // Rest starts at the lift's end; the detector is not fed again until the Crown.
+            if cycle.setEnded(at: endTime) {
+                onCycleChange?(cycle)
+            }
         }
         onDetectorEvent?(event)
     }
@@ -381,8 +420,16 @@ final class MotionRecorder {
     private func handleSet(_ event: SetEvent) {
         switch event {
         case .repCounted(let n):
+            if cycle.setStarted(at: setTracker.latestTime ?? 0) {
+                onCycleChange?(cycle)
+            }
             onRepCount?(n)
         case .setEnded(let start, let end, let firstRepStart, let lastRepEnd, let reps):
+            // Rest starts at the last rep's top; no rep counts again until the Crown (#148).
+            if cycle.setEnded(at: lastRepEnd) {
+                onCycleChange?(cycle)
+            }
+            setTracker.armedFrom = cycle.listeningFrom
             liftCount += 1
             let t0 = csvWriter?.t0 ?? 0
             csvWriter?.appendEvent(atUptime: end,
