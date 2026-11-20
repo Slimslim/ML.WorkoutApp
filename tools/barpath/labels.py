@@ -106,6 +106,8 @@ def validate(d: dict) -> List[str]:
                 errs += _check_flag(s["flag"], ctx)
             if "console" in s:
                 errs += _check_console(s["console"], ctx)
+            if "video" in s and not isinstance(s["video"], bool):
+                errs.append(f"{ctx}: 'video' should be true or false")
     else:
         sets = need("sets", list) or []
         for i, x in enumerate(sets):

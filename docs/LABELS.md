@@ -78,6 +78,8 @@ Times are **session seconds**: the watch CSV's `t` column (0 = START on the watc
   "view": "summary", "timeSeconds": 91.4, "calories": 20, "distanceMeters": 945, "rpmAvg": 61,
   "calPerHour": 1631}`. Numbers exactly as shown (keys checked by `labels._check_console`); what the
   motion says goes next to it (`motion`), never into it. First use: `2026-11-19-bike-20cal`.
+- `video: true` (optional, on a segment or a set): its count and times were checked on a video
+  (tier A in datasets, `tools/barpath/tiers.py`). A note that only says a video exists is not this.
 - `training: false` (optional, on a segment): keep the segment for timing but do not use its reps
   as training data (the athlete is not sure of the count and it cannot be checked).
 - Lifting sessions (`"kind": "lifts"`) have `sets` instead of `segments`: `{file, lift, loadLb,

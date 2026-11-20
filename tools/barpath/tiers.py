@@ -9,8 +9,8 @@ A unit of work is one row of a dataset index:
   - lifts labels: one per set.
 
 Tier of a unit (first rule that applies):
-  A  the segment has a `console` block (the machine's own numbers), or the set has `repTimes`
-     and the label's notes mention "video" (rep times checked against video);
+  A  the segment has a `console` block (the machine's own numbers), or the segment or the set
+     says `"video": true` (its count and times were checked on a video);
   B  the count comes from the athlete: segment `source` == "athlete", or the label is a lifts label;
   C  the segment's `source` == "motion" (read from the motion data);
   D  anything else (Crown taps only).
@@ -28,6 +28,7 @@ NON_WORK = ("rest", "transition")
 # Different names for one movement -> the name used in datasets and coverage.
 ALIASES = {
     "assaultBike": "airBike",
+    "hangPowerClean": "hangPowerCleans",   # the lift id and the workout movement id
 }
 
 TIERS = ("A", "B", "C", "D")
@@ -44,16 +45,12 @@ def athlete(label: dict) -> str:
     return "A"
 
 
-def notes_mention_video(label: dict) -> bool:
-    return any("video" in str(n).lower() for n in label.get("notes", []) or [])
-
-
 def tier(label: dict, segment: Optional[dict] = None, set_: Optional[dict] = None) -> str:
     """Tier of one unit: a workout segment (with one of its sets, or none), or a lifts set
     (segment None). Rule in the module docstring."""
     if segment is not None and isinstance(segment.get("console"), dict):
         return "A"
-    if set_ is not None and set_.get("repTimes") and notes_mention_video(label):
+    if (segment is not None and segment.get("video") is True) or (set_ is not None and set_.get("video") is True):
         return "A"
     if label.get("kind") == "lifts" or (segment is not None and segment.get("source") == "athlete"):
         return "B"

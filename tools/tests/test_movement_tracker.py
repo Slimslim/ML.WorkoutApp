@@ -24,7 +24,7 @@ LABELS = [
         seg("airBike", 12, 20, reps=10, unit="calories",
             console={"machine": "assault bike", "calories": 10}),
         seg("wallBalls", 20, 40, source="crown", reps=5, unit="reps",
-            sets=[{"start": 21, "end": 28, "reps": 3, "repTimes": [22, 24, 26]},
+            sets=[{"start": 21, "end": 28, "reps": 3, "repTimes": [22, 24, 26], "video": True},
                   {"start": 30, "end": 38, "reps": 2}]),
     ], notes=["rep times from the video"]),
     label("2026-11-02-b-tester-b", [

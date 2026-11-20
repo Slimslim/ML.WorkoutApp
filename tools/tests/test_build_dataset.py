@@ -30,7 +30,7 @@ def workout_label(lid="2026-11-01-test-amrap", **extra):
     d = {
         "version": 1, "id": lid, "date": "2026-11-01", "kind": "workout", "name": "test",
         "files": {"csv": "Debug/session-AAA.csv", "result": "Workouts/AAA.json"},
-        "notes": ["counts checked on video"],
+        "notes": ["a video exists"],
         "segments": [
             {"movement": "assaultBike", "round": 1, "start": 1.0, "end": 10.0, "reps": 10,
              "unit": "calories", "source": "motion",
@@ -38,7 +38,7 @@ def workout_label(lid="2026-11-01-test-amrap", **extra):
             {"movement": "rest", "start": 10.0, "end": 12.0, "source": "motion"},
             {"movement": "wallBalls", "round": 1, "start": 12.0, "end": 30.0, "reps": 5,
              "unit": "reps", "loadLb": 20, "source": "crown",
-             "sets": [{"start": 13.0, "end": 20.0, "reps": 3, "repTimes": [14.0, 16.0, 18.0]},
+             "sets": [{"start": 13.0, "end": 20.0, "reps": 3, "repTimes": [14.0, 16.0, 18.0], "video": True},
                       {"start": 22.0, "end": 29.0, "reps": 2}]},
             {"movement": "run", "round": 1, "start": 31.0, "end": 50.0, "source": "athlete",
              "flag": {"motion": 1, "athlete": 2, "reason": "x", "check": "athlete"},
@@ -80,7 +80,7 @@ def test_tier_rule():
     assert [u["movement"] for u in units] == ["airBike", "wallBalls", "wallBalls", "run"]
     assert [u["tier"] for u in units] == ["A", "A", "D", "B"]
     assert [u["split"] for u in units] == ["test", "test", "dev", "dev"]
-    lab["notes"] = ["no footage"]
+    del lab["segments"][2]["sets"][0]["video"]      # a note about a video is not a check on it
     assert [u["tier"] for u in tiers.work_units(lab)] == ["A", "D", "D", "B"]
     assert {u["tier"] for u in tiers.work_units(lifts_label())} == {"B"}
     assert tiers.athlete({"id": "x-tester-b"}) == "B" and tiers.athlete({"id": "x"}) == "A"
