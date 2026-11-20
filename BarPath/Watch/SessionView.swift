@@ -1,5 +1,10 @@
 import SwiftUI
+import os
 import BarPathKit
+
+/// Crown focus on the session screen (#152): logged so a device test can tell "never taken"
+/// from "taken, then lost". Log only; nothing here writes focus back.
+private let crownFocusLog = Logger(subsystem: "BarPathWatch", category: "crown")
 
 /// Session screen, no scrolling and display-only: one signal per state. Only READY fills
 /// the screen (green); every other state is black with text. Between sets (#148) the Rest
@@ -74,10 +79,13 @@ struct SessionView: View {
                 page = 0
             }
         }
-        // Every transition into Rest or Armed (set / lift ended, Crown, Change), for both lift
-        // kinds: take the Crown back once the page set has settled.
+        // Every cycle change (into Rest after a set / lift, into Armed after the Crown or Change,
+        // into a set), for both lift kinds: take the Crown back once the page set has settled.
         .onChange(of: model.cycleState) { _, _ in
             refocusCrown()
+        }
+        .onChange(of: crownFocused) { _, focused in
+            crownFocusLog.info("crown focus \(focused ? "taken" : "lost", privacy: .public) page \(page) cycle \(model.cycleState.rawValue, privacy: .public)")
         }
         .onChange(of: page) { _, newPage in
             endPageVisit += 1
@@ -125,6 +133,9 @@ struct SessionView: View {
         DispatchQueue.main.async {
             if page == 0 && !editWeight && !confirmEnd {
                 crownFocused = true
+                crownFocusLog.info("refocus applied, cycle \(model.cycleState.rawValue, privacy: .public)")
+            } else {
+                crownFocusLog.info("refocus skipped: page \(page) editWeight \(editWeight) confirmEnd \(confirmEnd)")
             }
         }
     }
