@@ -781,15 +781,15 @@ def test_distance_text_keeps_miles_as_miles():
     assert [distance_text(m) for m in (200, 400, 800, 1000, 1600)] == ["200 m", "400 m", "800 m", "1000 m", "1600 m"]
 
 
-def test_result_workout_engine_is_optional():
-    """E2 (0.18): workoutEngine ("v2" | "legacy") round-trips; absent in older results."""
+def test_result_engine_is_optional():
+    """E2 (0.18): engine ("new" | "classic") round-trips; absent in older results."""
     start = datetime.fromtimestamp(1_800_000_000, tz=timezone.utc)
     r = WorkoutResult(WorkoutLibrary.quickTest, start, start, start, 10.0, [], [])
-    assert r.workout_engine is None
+    assert r.engine is None
     d = r.to_dict()
-    assert "workoutEngine" not in d
-    assert WorkoutResult.from_dict(d).workout_engine is None
-    r.workout_engine = "v2"
+    assert "engine" not in d
+    assert WorkoutResult.from_dict(d).engine is None
+    r.engine = "new"
     d = r.to_dict()
-    assert d["workoutEngine"] == "v2"
-    assert WorkoutResult.from_dict(json.loads(json.dumps(d))).workout_engine == "v2"
+    assert d["engine"] == "new"
+    assert WorkoutResult.from_dict(json.loads(json.dumps(d))).engine == "new"

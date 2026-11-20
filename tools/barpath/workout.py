@@ -752,7 +752,7 @@ class HeartRateSeries:
 
 RESULT_VERSION = 2  # 2 adds heartRateSeries, heartRateMin per segment, definition.roundSize (all optional)
 # partialReps / editedAt (§5) and repsAtCap (§5b) are optional too and need no version bump, as is
-# workoutEngine (E2, 0.18: "v2" | "legacy", the engine the watch ran; absent before 0.18).
+# engine (E2, 0.18: "new" | "classic", the engine the watch ran; absent before 0.18).
 
 
 def _swift_round(v: float) -> float:
@@ -811,7 +811,7 @@ class WorkoutResult:
     partial_reps: Optional[int] = None        # §5: reps done in the segment cut by the cap / end
     edited_at: Optional[datetime] = None      # §5: when the athlete corrected the result
     reps_at_cap: Optional[int] = None         # §5b: for time, reps of the segment running at the cap
-    workout_engine: Optional[str] = None      # E2 (0.18): "v2" | "legacy", the engine the watch ran
+    engine: Optional[str] = None              # E2 (0.18): "new" | "classic", the engine the watch ran
 
     @property
     def run_seconds(self) -> float:
@@ -843,8 +843,8 @@ class WorkoutResult:
             d["editedAt"] = format_iso8601(self.edited_at)
         if self.reps_at_cap is not None:
             d["repsAtCap"] = self.reps_at_cap
-        if self.workout_engine is not None:
-            d["workoutEngine"] = self.workout_engine
+        if self.engine is not None:
+            d["engine"] = self.engine
         return d
 
     @classmethod
@@ -871,7 +871,7 @@ class WorkoutResult:
             partial_reps=None if d.get("partialReps") is None else int(d["partialReps"]),
             edited_at=parse_iso8601(edited) if edited else None,
             reps_at_cap=None if d.get("repsAtCap") is None else int(d["repsAtCap"]),
-            workout_engine=d.get("workoutEngine"))
+            engine=d.get("engine"))
 
     # ---- corrections (WORKOUT_SPEC §5, WorkoutResultEditing.swift) ----
 

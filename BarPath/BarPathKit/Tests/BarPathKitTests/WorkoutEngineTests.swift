@@ -64,6 +64,19 @@ final class WorkoutEngineTests: XCTestCase {
         XCTAssertEqual(back.count, context.count + 1)
     }
 
+    /// What a recording and a result call the engine (QA): new / classic.
+    func testRecordNames() {
+        XCTAssertEqual(WorkoutEngine.v2.recordName, "new")
+        XCTAssertEqual(WorkoutEngine.legacy.recordName, "classic")
+        XCTAssertEqual(WorkoutEngine.v2.headerPair, "engine=new")
+        XCTAssertEqual(WorkoutEngine.legacy.headerPair, "engine=classic")
+        for engine in WorkoutEngine.allCases {
+            XCTAssertEqual(WorkoutEngine.fromRecordName(engine.recordName), engine)
+        }
+        XCTAssertNil(WorkoutEngine.fromRecordName(nil))
+        XCTAssertNil(WorkoutEngine.fromRecordName("v2"))
+    }
+
     /// The result records the engine; older results (no key) still decode, and nil is not written.
     func testResultFieldIsOptional() throws {
         let start: Date = Date(timeIntervalSince1970: 1_793_846_845)
@@ -71,16 +84,19 @@ final class WorkoutEngineTests: XCTestCase {
                                    finishDate: start.addingTimeInterval(10),
                                    endDate: start.addingTimeInterval(10),
                                    totalSeconds: 10, segments: [], events: [])
-        XCTAssertNil(result.workoutEngine)
+        XCTAssertNil(result.engine)
         let plain = try result.encoded()
         let plainText = String(data: plain, encoding: .utf8) ?? ""
-        XCTAssertFalse(plainText.contains("workoutEngine"))
-        XCTAssertNil(try WorkoutResult.decode(from: plain).workoutEngine)
+        XCTAssertFalse(plainText.contains("\"engine\""))
+        XCTAssertNil(try WorkoutResult.decode(from: plain).engine)
 
-        result.workoutEngine = WorkoutEngine.v2.rawValue
-        let tagged = try WorkoutResult.decode(from: try result.encoded())
-        XCTAssertEqual(tagged.workoutEngine, "v2")
-        XCTAssertEqual(WorkoutEngine.resolve(tagged.workoutEngine), .v2)
+        result.engine = WorkoutEngine.v2.recordName
+        let data = try result.encoded()
+        let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+        XCTAssertEqual(json?["engine"] as? String, "new")
+        let tagged = try WorkoutResult.decode(from: data)
+        XCTAssertEqual(tagged.engine, "new")
+        XCTAssertEqual(WorkoutEngine.fromRecordName(tagged.engine), .v2)
         XCTAssertEqual(tagged, result)
     }
 }

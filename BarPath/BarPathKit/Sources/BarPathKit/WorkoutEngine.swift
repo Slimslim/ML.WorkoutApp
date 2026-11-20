@@ -33,6 +33,27 @@ public enum WorkoutEngine: String, Codable, Equatable, Sendable, CaseIterable {
         return WorkoutEngine(rawValue: text)
     }
 
+    /// How a recording and a result name the engine that ran (QA, 0.18): "new" or "classic". The
+    /// result's `engine` field and the recording CSV header's `engine=` pair use it.
+    public var recordName: String {
+        switch self {
+        case .v2: return "new"
+        case .legacy: return "classic"
+        }
+    }
+
+    /// The recording CSV header pair, e.g. "engine=new".
+    public var headerPair: String { return "engine=" + recordName }
+
+    /// The engine a `recordName` stands for, nil for anything else.
+    public static func fromRecordName(_ name: String?) -> WorkoutEngine? {
+        switch name {
+        case "new": return .v2
+        case "classic": return .legacy
+        default: return nil
+        }
+    }
+
     /// The application context with `engine` set and every other key kept, or nil when it is
     /// already set to that value (nothing to send).
     public static func merged(context: [String: Any], engine: WorkoutEngine) -> [String: Any]? {
