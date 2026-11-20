@@ -127,6 +127,7 @@ def validate_definition(d: dict, owner: Optional[str] = None) -> WorkoutDefiniti
 AMRAP_MIN_LISTED_ROUNDS = 10
 # The watch's own expansion (WORKOUT_SPEC 5a) stops at the same size.
 MAX_REPEATED_SEGMENTS = 600
+MAX_REPEATED_ROUNDS = 30
 
 
 def check_amrap_rounds(d: dict, v2: bool = False) -> None:
@@ -153,6 +154,9 @@ def repeat_rounds(d: dict, rounds: int) -> dict:
     whole list without roundSize) is repeated, and roundSize set. Already that long: unchanged."""
     if rounds < 1:
         raise LibraryError("--repeat-rounds needs a number >= 1")
+    if rounds > MAX_REPEATED_ROUNDS:
+        raise LibraryError(f"--repeat-rounds is at most {MAX_REPEATED_ROUNDS} "
+                           "(the watch writes an AMRAP out to 30 rounds itself)")
     if is_v2(d):
         raise LibraryError("--repeat-rounds works on flat definitions only (a v2 row repeats "
                            "through its structure)")

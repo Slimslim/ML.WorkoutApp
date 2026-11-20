@@ -81,8 +81,11 @@ def test_repeat_rounds_refusals():
     for bad in (0, -1, 7):
         with pytest.raises(make_row.LibraryError, match="between 1"):
             make_row.repeat_rounds(dict(amrap(rounds=3), roundSize=bad), 10)
+    with pytest.raises(make_row.LibraryError, match="at most 30"):
+        make_row.repeat_rounds(amrap(rounds=1), 31)
+    long_round = amrap(rounds=1, per_round=amrap(rounds=25)["segments"])     # 50 segments
     with pytest.raises(make_row.LibraryError, match="more than 600"):
-        make_row.repeat_rounds(amrap(rounds=1), 301)
+        make_row.repeat_rounds(long_round, 30)
     with pytest.raises(make_row.LibraryError, match=">= 1"):
         make_row.repeat_rounds(amrap(), 0)
     with pytest.raises(make_row.LibraryError, match="flat"):
@@ -99,3 +102,19 @@ def test_repeat_rounds_with_rounds_listed_ok_and_a_small_n(tmp_path):
     path = write(tmp_path, amrap(rounds=1))
     assert make_row.main(["--repeat-rounds", "3", path]) == 1          # 3 rounds: still short
     assert make_row.main(["--repeat-rounds", "3", "--rounds-listed-ok", path]) == 0
+
+
+def test_v2_legacy_copy_is_checked(tmp_path, monkeypatch, capsys):
+    """An exact v2 row is copied to builds 15/16, so its old keys are checked like a flat AMRAP.
+    The v2 schema check is bypassed here: this test is about the legacy-copy path only."""
+    monkeypatch.setattr(make_row, "validate_v2", lambda d, owner=None: d)
+    v2 = dict(amrap(rounds=1), schemaVersion=2, fidelity="exact")
+    path = write(tmp_path, v2)
+    assert make_row.legacy_copy(v2) is not None
+    assert make_row.main(["--trust-old-keys", path]) == 1
+    err = capsys.readouterr().err
+    assert "by hand" in err and "--repeat-rounds" not in err
+    assert make_row.main(["--trust-old-keys", "--rounds-listed-ok", path]) == 0
+    # not exact: no legacy copy, nothing for builds 15/16 to finish early
+    approx = write(tmp_path, dict(v2, fidelity="approx"), "approx.json")
+    assert make_row.main([approx]) == 0
