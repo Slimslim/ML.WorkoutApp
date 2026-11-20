@@ -31,8 +31,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from barpath import labels as L  # noqa: E402
 from barpath import pattern_blocks as PB  # noqa: E402
 
-TESTS = ["2026-11-05-amrap20", "2026-11-08-sunyay", "2026-11-09-freedom-snatch-burpee-c2b",
-         "2026-11-10-freedom-flipped", "2026-11-14-partner-hpc-burpees",
+TESTS = ["2026-11-05-amrap20", "2026-11-08-amrap40-run", "2026-11-09-snatch-burpee-c2b",
+         "2026-11-10-situps-runs", "2026-11-14-partner-hpc-burpees",
          "2026-11-14-partner-hpc-burpees-tester-b", "2026-11-15-sunday-part1-tester-b",
          "2026-11-15-sunday-part2", "2026-11-16-row-hspu-lunges", "2026-11-04-november-challenge", "2026-11-18-barbara"]
 TOL = 5.0
