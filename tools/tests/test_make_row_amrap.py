@@ -86,9 +86,14 @@ def test_repeat_rounds_refusals():
     distinct = [{"kind": "station", "movement": f"m{i}", "name": f"M{i}",
                  "target": {"value": 1.0, "unit": "reps"}} for i in range(50)]
     long_round = amrap(rounds=1, per_round=distinct)                          # one round of 50
-    with pytest.raises(make_row.LibraryError, match="repeat-rounds 12 fits"):
-        make_row.repeat_rounds(long_round, 30)
-    assert len(make_row.repeat_rounds(long_round, 12)["segments"]) == 600
+    assert len(make_row.repeat_rounds(long_round, 30)["segments"]) == 600     # capped, as the watch
+    make_row.check_amrap_rounds(make_row.repeat_rounds(long_round, 30))      # 12 rounds: passes
+    # a round of 61: 9 rounds fit in 600, below the minimum; the hint says how to get it through
+    r61 = amrap(rounds=1, per_round=[dict(s, movement=f"y{i}") for i, s in enumerate((distinct * 2)[:61])])
+    out = make_row.repeat_rounds(r61, 30)
+    assert len(out["segments"]) == 549 and out["roundSize"] == 61
+    with pytest.raises(make_row.LibraryError, match="fits only 9 rounds.*--rounds-listed-ok"):
+        make_row.check_amrap_rounds(out)
     # a list already longer than 600 is left as it is when nothing is added
     big = amrap(rounds=1, per_round=[dict(s, movement=f"x{i}") for i, s in enumerate(distinct * 13)])
     assert make_row.repeat_rounds(big, 1)["segments"] == big["segments"]
@@ -145,6 +150,7 @@ def test_parity_with_the_watch_expansion():
     from barpath.workout import WorkoutDefinition, amrap_expanded
     fixture = (TOOLS.parent / "BarPath/BarPathKit/Tests/BarPathKitTests/Fixtures"
                / "amrap_expand_cases.json")
+    checked = []
     for c in json.loads(fixture.read_text(encoding="utf-8"))["cases"]:
         d = dict(c["input"], segments=c["pattern"] * c["times"])
         if d["format"] != "amrap" or not d.get("timeCapSeconds"):
@@ -154,12 +160,16 @@ def test_parity_with_the_watch_expansion():
             continue                      # make_row refuses what the watch falls back on
         n = len(d["segments"])
         r = rs or make_row._exact_repeat_period(d["segments"])
-        if n % r or r * 30 > 600:
-            continue                      # refused by make_row, left alone/capped by the watch
+        if n % r:
+            continue                      # refused by make_row, left alone by the watch
         ours = make_row.repeat_rounds(d, 30)
+        checked.append(c["name"])
         watch = amrap_expanded(WorkoutDefinition.from_dict(d)).to_dict()
         assert ours.get("roundSize") == watch.get("roundSize"), c["name"]
         assert ours["segments"] == watch["segments"], c["name"]
+    assert "3 rounds of 4, no roundSize: rounds of 4" in checked
+    assert "long round: capped at 600 segments" in checked
+    assert len(checked) >= 10
 
 
 def test_interval_amrap_without_round_size(tmp_path):

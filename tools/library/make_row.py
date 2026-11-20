@@ -167,6 +167,11 @@ def check_amrap_rounds(d: dict, v2: bool = False) -> None:
     r = rs if rs is not None else _exact_repeat_period(segments)
     rounds = len(segments) // r if isinstance(r, int) and r > 0 else 0
     if rounds < AMRAP_MIN_LISTED_ROUNDS:
+        if isinstance(r, int) and r > 0 and MAX_REPEATED_SEGMENTS // r < AMRAP_MIN_LISTED_ROUNDS:
+            # A long round: --repeat-rounds can't reach the minimum within the segment limit.
+            hint = (f"; a round of {r} segments fits only {max(1, MAX_REPEATED_SEGMENTS // r)} "
+                    f"rounds in {MAX_REPEATED_SEGMENTS} segments: write it out with "
+                    f"--repeat-rounds {MAX_REPEATED_ROUNDS} --rounds-listed-ok")
         raise LibraryError(f"an AMRAP must list at least {AMRAP_MIN_LISTED_ROUNDS} rounds "
                            f"(this one lists {rounds}); builds before 0.17.1 finish after the "
                            "last listed segment" + hint)
@@ -175,8 +180,9 @@ def check_amrap_rounds(d: dict, v2: bool = False) -> None:
 def repeat_rounds(d: dict, rounds: int) -> dict:
     """A flat AMRAP written out to `rounds` rounds, as the watch does it (WORKOUT_SPEC 5a): its last
     full round is repeated. The round is roundSize segments, or without roundSize the list's exact
-    repeat (3 identical rounds of 2 -> rounds of 2), else the whole list. roundSize is set, except
-    on an interval AMRAP without one. Already that long: unchanged."""
+    repeat (3 identical rounds of 2 -> rounds of 2), else the whole list. A long round gets fewer
+    rounds (at most MAX_REPEATED_SEGMENTS segments, never fewer than listed). roundSize is set,
+    except on an interval AMRAP without one. Already that long: unchanged."""
     if rounds < 1:
         raise LibraryError("--repeat-rounds needs a number >= 1")
     if rounds > MAX_REPEATED_ROUNDS:
@@ -198,13 +204,11 @@ def repeat_rounds(d: dict, rounds: int) -> dict:
         raise LibraryError(f"{len(segments)} segments are not whole rounds of {r}: "
                            "fix roundSize or the list first")
     listed = len(segments) // r
-    if rounds > listed and rounds * r > MAX_REPEATED_SEGMENTS:
-        fits = MAX_REPEATED_SEGMENTS // r
-        more = (f"--repeat-rounds {fits} fits" if fits > listed else "no more rounds fit")
-        raise LibraryError(f"{rounds} rounds of {r} segments is more than {MAX_REPEATED_SEGMENTS} "
-                           f"segments: {more}; pass --rounds-listed-ok for a shorter list")
+    # As the watch: a long round gets fewer rounds (at most MAX_REPEATED_SEGMENTS segments), never
+    # fewer than listed.
+    target = max(listed, min(rounds, max(1, MAX_REPEATED_SEGMENTS // r)))
     block = segments[-r:]
-    segments += block * max(0, rounds - listed)
+    segments += block * (target - listed)
     out = dict(d, segments=segments)
     if rs is not None or not _has_interval(d):
         out["roundSize"] = r
