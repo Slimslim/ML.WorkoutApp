@@ -194,4 +194,19 @@ final class EngineGateTests: XCTestCase {
         XCTAssertEqual(t.finish, 240)
         XCTAssertFalse(r.block || e.block || t.block)
     }
+
+    /// Every listed-once interval test workout ends with a rest (the wait for the next window).
+    func testEveryListedOnceIntervalTestWorkoutEndsWithARest() {
+        for d in WorkoutLibrary.engineTests where d.listedOnce == true && (d.intervalSeconds ?? 0) > 0 {
+            XCTAssertEqual(d.segments.last?.kind, SegmentKind.rest, d.id)
+        }
+    }
+
+    /// A marked AMRAP with an interval keeps roundSize unset on Classic, as §5a does.
+    func testMarkedAmrapWithAnIntervalKeepsRoundSizeUnset() {
+        var d: WorkoutDefinition = WorkoutLibrary.engineAmrap
+        d.intervalSeconds = 60
+        XCTAssertNil(RepeatBlock.writtenOut(d).roundSize)
+        XCTAssertEqual(RepeatBlock.writtenOut(WorkoutLibrary.engineAmrap).roundSize, 3)
+    }
 }

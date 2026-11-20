@@ -116,7 +116,7 @@ final class RepeatBlockProgressTests: XCTestCase {
     func testProgressCases() throws {
         let data: Data = try fixtureData("repeat_block_progress_cases", "json")
         let cases: [Case] = try JSONDecoder().decode(Fixture.self, from: data).cases
-        XCTAssertGreaterThanOrEqual(cases.count, 10)
+        XCTAssertEqual(cases.count, 13)   // a truncated fixture fails here
         for c in cases {
             guard let plan = RepeatBlock.enginePlan(for: c.definition, engineOn: true) else {
                 XCTFail("\(c.name): no block plan")

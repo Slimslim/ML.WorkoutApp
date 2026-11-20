@@ -175,7 +175,9 @@ public enum RepeatBlock {
         }
         var out: WorkoutDefinition = d
         out.segments = segs
-        if passes != nil || (d.format == .amrap && cap != nil) {
+        // An AMRAP with an interval keeps roundSize unset, as the §5a expansion does (work segments
+        // then don't jump at the window).
+        if passes != nil || (d.format == .amrap && cap != nil && interval == nil) {
             out.roundSize = n
         }
         out.listedOnce = nil

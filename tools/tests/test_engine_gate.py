@@ -125,3 +125,9 @@ def test_engine_test_workouts_run_every_pass_on_classic():
     amrap = _run_classic(WorkoutLibrary.engineAmrap, [[0.0, "start"]] + [[40.0 * (k + 1), "crown"] for k in range(11)]
                          + [[500.0, "tick"]])
     assert amrap.finish_time == 480.0 and len(amrap.segment_starts) == 12
+
+
+@pytest.mark.parametrize("d", WorkoutLibrary.engine_tests, ids=lambda d: d.id)
+def test_every_listed_once_interval_test_workout_ends_with_a_rest(d):
+    if d.listed_once and d.interval_seconds:
+        assert d.segments[-1].kind == "rest", d.id

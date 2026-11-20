@@ -147,7 +147,9 @@ def written_out(d: WorkoutDefinition) -> WorkoutDefinition:
             tr = _trailing_rests(d)
             if tr:
                 segs = segs[:-tr]
-    repeats = passes is not None or (d.format == "amrap" and cap is not None)
+    # An AMRAP with an interval keeps roundSize unset, as the 5a expansion does (work segments then
+    # don't jump at the window).
+    repeats = passes is not None or (d.format == "amrap" and cap is not None and interval is None)
     return dataclasses.replace(d, segments=segs, round_size=n if repeats else d.round_size,
                                listed_once=False, rounds=None)
 

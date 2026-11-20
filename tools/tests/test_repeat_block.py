@@ -350,3 +350,16 @@ def test_insights_of_a_block_result_use_its_parts():
     t0 = datetime.fromtimestamp(p.start_time, tz=timezone.utc)
     r = WorkoutResult(d, t0, t0, t0, 300.0, segs, p.events, passes=2)
     assert insights(r) == insights(r, r.display_definition)
+
+
+def test_marked_amrap_with_an_interval_keeps_round_size_unset():
+    import dataclasses
+    d = dataclasses.replace(_case("t.ladder"), interval_seconds=60.0)
+    assert rb.written_out(d).round_size is None
+
+
+def test_marked_row_thrusters_is_written_out_on_the_fallback():
+    import dataclasses
+    marked = dataclasses.replace(WorkoutLibrary.rowThrusters, listed_once=True)
+    p = rb.start_progress(marked, rb.ENGINE_V2)
+    assert p.block is None and len(p.definition.segments) == 6 * 17 and p.definition.round_size == 17
