@@ -110,6 +110,13 @@ build, PR checks included, so it jumps); our docs ignore it. `CURRENT_PROJECT_VE
   `release-X.Y.Z` (`release-0.17.1`) goes on that merge commit. It is a bookmark only: it doesn't
   start with `v`, so it builds nothing. Older releases keep their tags (`build-15`, `build-16`,
   `build-16.1`). (Builds 7-14 came from an unmerged branch; never again.)
+- **One-time switch from Version 1.0 to 0.x (owner, 19 Nov).** TestFlight treats 1.0 as newer than
+  0.17.x, so while any 1.0 build is live, testers are not offered 0.x and must install it by hand
+  (TestFlight app, Rx Lab, Previous Builds). Order for the first 0.x release to external testers:
+  1. add the approved RC build to the external group; 2. wait until it shows "Testing" (green) for
+  that group (Beta App Review); 3. only then expire every 1.0 build (App Store Connect, TestFlight,
+  each build, Expire Build; irreversible); 4. from then on, each new Version is the newest and
+  updates normally. Never expire 1.0 before step 2, or testers have no working build.
 - **Who pushes tags:** cloud chats can push branches but not tags (GitHub refuses the push from this
   environment, HTTP 403). Delivery names the commit; the owner creates the tag, either on GitHub
   (Releases, then "Draft a new release", new tag, target the release branch, tick "Set as a
