@@ -84,6 +84,8 @@ def test_tier_rule():
     assert [u["tier"] for u in tiers.work_units(lab)] == ["A", "D", "D", "B"]
     assert {u["tier"] for u in tiers.work_units(lifts_label())} == {"B"}
     assert tiers.athlete({"id": "x-tester-b"}) == "B" and tiers.athlete({"id": "x"}) == "A"
+    assert tiers.athlete({"id": "2026-11-20-row-tester-c"}) == "C"
+    assert tiers.athlete({"id": "x", "athlete": "tester-d"}) == "D"
 
 
 def test_build(tmp_path):

@@ -16,8 +16,8 @@ Tier of a unit (first rule that applies):
   D  anything else (Crown taps only).
 Split: "test" for tier A, "dev" otherwise.
 
-Athlete: "B" when the label id contains "tester-b" (or the label says `"athlete": "tester-b"`),
-else "A". Movements are folded through ALIASES (assaultBike and airBike are one movement).
+Athlete: the tester's letter when the label id contains "tester-<letter>" (or the label says
+`"athlete": "tester-<letter>"`), else "A" (the owner). Movements are folded through ALIASES (assaultBike and airBike are one movement).
 """
 from __future__ import annotations
 
@@ -39,10 +39,11 @@ def canonical_movement(name: str) -> str:
 
 
 def athlete(label: dict) -> str:
-    lid = str(label.get("id", ""))
-    if "tester-b" in lid or label.get("athlete") == "tester-b":
-        return "B"
-    return "A"
+    """"A" for the owner, else the tester's letter: from `"athlete": "tester-c"` or a label id
+    ending in "-tester-c" (any letter)."""
+    import re
+    m = re.search(r"tester-([a-z])\b", str(label.get("athlete") or label.get("id", "")))
+    return m.group(1).upper() if m else "A"
 
 
 def tier(label: dict, segment: Optional[dict] = None, set_: Optional[dict] = None) -> str:
