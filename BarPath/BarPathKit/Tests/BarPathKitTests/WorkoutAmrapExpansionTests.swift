@@ -14,6 +14,7 @@ final class WorkoutAmrapExpansionTests: XCTestCase {
         let team: TeamFormat
         let healthKitActivity: String
         let timeCapSeconds: Double?
+        let intervalSeconds: Double?
         let roundSize: Int?
     }
 
@@ -26,6 +27,7 @@ final class WorkoutAmrapExpansionTests: XCTestCase {
         let segmentCount: Int
         let roundSize: Int?
         let blockStart: Int?
+        let roundLength: Int?
 
         var definition: WorkoutDefinition {
             var segments: [WorkoutSegment] = []
@@ -36,7 +38,7 @@ final class WorkoutAmrapExpansionTests: XCTestCase {
                                      format: input.format, team: input.team,
                                      timeCapSeconds: input.timeCapSeconds,
                                      healthKitActivity: input.healthKitActivity,
-                                     segments: segments, intervalSeconds: nil,
+                                     segments: segments, intervalSeconds: input.intervalSeconds,
                                      roundSize: input.roundSize)
         }
     }
@@ -62,7 +64,7 @@ final class WorkoutAmrapExpansionTests: XCTestCase {
             }
             XCTAssertEqual(after.segments.count, c.segmentCount, c.name)
             XCTAssertEqual(after.roundSize, c.roundSize, c.name)
-            guard let r = c.roundSize, let start = c.blockStart else {
+            guard let r = c.roundSize ?? c.roundLength, let start = c.blockStart else {
                 XCTFail("missing roundSize/blockStart: \(c.name)")
                 continue
             }
@@ -129,6 +131,20 @@ final class WorkoutAmrapExpansionTests: XCTestCase {
         XCTAssertNotEqual(ran.segments.count, lib.segments.count)
         XCTAssertTrue(WorkoutHistory.isSameWorkout(lib, ran))
         XCTAssertTrue(WorkoutHistory.isSameWorkout(ran, lib))
+    }
+
+    func testHistoryStillMatchesWhenOnlyRoundSizeDiffers() throws {
+        let cases: [Case] = try loadCases()
+        guard let c = cases.first(where: { (c: Case) -> Bool in c.name.hasPrefix("3 rounds of 4") }) else {
+            XCTFail("case missing")
+            return
+        }
+        let without: WorkoutDefinition = c.definition
+        var withRoundSize: WorkoutDefinition = without
+        withRoundSize.id = "t.rs"
+        withRoundSize.roundSize = 4
+        XCTAssertTrue(WorkoutHistory.isSameWorkout(without, withRoundSize))
+        XCTAssertTrue(WorkoutHistory.isSameWorkout(withRoundSize, without.expandedForAmrap()))
     }
 
     func testBuiltInsOnlyAmrapsChange() {

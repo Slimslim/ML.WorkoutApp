@@ -15,15 +15,16 @@ extension WorkoutDefinition {
 
     /// For an AMRAP with a time cap: the definition with its last full round repeated until it
     /// lists `amrapMinListedRounds` rounds (fewer when that would pass `amrapMaxSegments`), and
-    /// `roundSize` set. The round is `roundSize` segments, or the whole list when `roundSize` is
-    /// missing or out of range. Unchanged: other formats, no cap, an empty list, a list that is
+    /// `roundSize` set (not when an interval is set without one). The round is `roundSize`
+    /// segments; when `roundSize` is missing or out of range, the smallest exact repeat of the
+    /// list (`exactRepeatPeriod`), else the whole list. Unchanged: other formats, no cap, an empty list, a list that is
     /// not whole rounds (no clear repeating unit), or a list that is already long enough with
     /// its `roundSize` set. Expanding twice gives the same result (safe on restore).
     public func expandedForAmrap() -> WorkoutDefinition {
         guard format == .amrap, let cap = timeCapSeconds, cap > 0 else { return self }
         let n: Int = segments.count
         if n == 0 { return self }
-        var r: Int = n
+        var r: Int = WorkoutDefinition.exactRepeatPeriod(segments)
         if let rs = roundSize, rs >= 1, rs <= n {
             r = rs
         }
@@ -42,7 +43,27 @@ extension WorkoutDefinition {
         }
         var d: WorkoutDefinition = self
         d.segments = expanded
-        d.roundSize = r
+        // With an interval and no roundSize, setting one would turn on the interval jump for
+        // work segments (WorkoutProgress.autoAdvanceTime): keep it unset there.
+        if roundSize != nil || (intervalSeconds ?? 0) <= 0 {
+            d.roundSize = r
+        }
         return d
+    }
+
+    /// Smallest p that divides the list into at least two identical rounds (segments equal,
+    /// targets included), else the whole list. A ladder without roundSize is one round.
+    static func exactRepeatPeriod(_ segments: [WorkoutSegment]) -> Int {
+        let n: Int = segments.count
+        if n < 2 { return n }
+        for p in 1...(n / 2) where n % p == 0 {
+            var same: Bool = true
+            for i in p..<n where segments[i] != segments[i % p] {
+                same = false
+                break
+            }
+            if same { return p }
+        }
+        return n
     }
 }

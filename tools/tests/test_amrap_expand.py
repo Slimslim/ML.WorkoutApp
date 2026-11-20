@@ -33,7 +33,7 @@ def test_fixture_cases():
         assert len(after.segments) == c["segmentCount"], name
         assert after.round_size == c["roundSize"], name
         n = len(before.segments)
-        r = c["roundSize"]
+        r = c["roundSize"] or c["roundLength"]
         start = c["blockStart"]
         assert after.segments[:n] == before.segments, name
         for i in range(n, len(after.segments)):
@@ -88,3 +88,12 @@ def test_history_matches_an_expanded_result_to_its_library_amrap():
     assert len(ran.segments) != len(lib.segments)
     assert is_same_workout(lib, ran)
     assert is_same_workout(ran, lib)
+
+
+def test_history_still_matches_when_only_round_size_differs():
+    from barpath.workout_history import is_same_workout
+    c = next(c for c in cases() if c["name"].startswith("3 rounds of 4"))
+    without = case_input(c)
+    with_rs = WorkoutDefinition.from_dict(dict(without.to_dict(), id="t.rs", roundSize=4))
+    assert is_same_workout(without, with_rs)
+    assert is_same_workout(with_rs, amrap_expanded(without))

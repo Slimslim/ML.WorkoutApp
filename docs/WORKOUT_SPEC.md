@@ -442,8 +442,12 @@ The watch's progress finishes on the last listed segment whatever the format, an
 not make the list repeat. A library AMRAP that listed one pass offered Finish after it, with minutes
 left on the cap. Since 0.17.1 the watch expands an AMRAP at START
 (`WorkoutDefinition.expandedForAmrap()`, Python `amrap_expanded`):
-- Only `format: amrap` with a time cap. The round is `roundSize` segments, or the whole list when
-  `roundSize` is missing or out of range; a list that is not whole rounds is left alone.
+- Only `format: amrap` with a time cap. The round is `roundSize` segments; without a valid
+  `roundSize`, the smallest exact repeat of the list (3 identical rounds of 4 → rounds of 4), else
+  the whole list (a ladder written once is one round). A list that is not whole rounds (e.g. a
+  final rest dropped) is left alone and can still run out: list such workouts in whole rounds.
+- With `intervalSeconds` and no `roundSize`, the list is written out but `roundSize` stays unset
+  (setting it would turn on the interval jump for work segments).
 - The **last full round** is repeated until the list holds 30 rounds (fewer when that would pass
   600 segments; never fewer than listed), and `roundSize` is set. A ladder written out round by
   round therefore stays on its top rung after the listed rounds (it does not keep climbing). The

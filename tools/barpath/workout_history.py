@@ -47,13 +47,16 @@ def is_same_workout(a: WorkoutDefinition, b: WorkoutDefinition) -> bool:
     """Same id, or same normalized (non-empty) name and the same segment kinds and movements."""
     if a.id == b.id:
         return True
-    # A result's AMRAP is written out at START (#138): compare both as the watch runs them.
-    ea = amrap_expanded(a) if a.format == "amrap" else a
-    eb = amrap_expanded(b) if b.format == "amrap" else b
-    if len(ea.segments) != len(eb.segments):  # cheap check first
-        return False
-    name_a = normalized_name(a.name)
+    name_a = normalized_name(a.name)  # cheap check first
     if not name_a or name_a != normalized_name(b.name):
+        return False
+    if len(a.segments) == len(b.segments) and movement_sequence(a) == movement_sequence(b):
+        return True
+    # A result's AMRAP is written out at START (#138): compare both as the watch runs them.
+    if a.format != "amrap" and b.format != "amrap":
+        return False
+    ea, eb = amrap_expanded(a), amrap_expanded(b)
+    if len(ea.segments) != len(eb.segments):
         return False
     return movement_sequence(ea) == movement_sequence(eb)
 

@@ -223,7 +223,7 @@ def amrap_expanded(d: "WorkoutDefinition") -> "WorkoutDefinition":
     n = len(d.segments)
     if n == 0:
         return d
-    r = n
+    r = _exact_repeat_period(d.segments)
     if d.round_size is not None and 1 <= d.round_size <= n:
         r = d.round_size
     if n % r != 0:
@@ -231,11 +231,24 @@ def amrap_expanded(d: "WorkoutDefinition") -> "WorkoutDefinition":
     listed = n // r
     fit = max(1, AMRAP_MAX_SEGMENTS // r)
     target = max(listed, min(AMRAP_MIN_LISTED_ROUNDS, fit))
-    if target == listed and d.round_size == r:
+    if target == listed and (d.round_size == r or (d.round_size is None and d.interval_seconds
+                                                    is not None and d.interval_seconds > 0)):
         return d
     block = d.segments[n - r:]
     segments = list(d.segments) + list(block) * (target - listed)
-    return replace(d, segments=segments, round_size=r)
+    # With an interval and no roundSize, setting one would turn on the interval jump for work
+    # segments: keep it unset there.
+    keep_unset = d.round_size is None and d.interval_seconds is not None and d.interval_seconds > 0
+    return replace(d, segments=segments, round_size=None if keep_unset else r)
+
+
+def _exact_repeat_period(segments: list) -> int:
+    """Smallest p splitting the list into at least two identical rounds, else the whole list."""
+    n = len(segments)
+    for p in range(1, n // 2 + 1):
+        if n % p == 0 and all(segments[i] == segments[i % p] for i in range(p, n)):
+            return p
+    return n
 
 
 # ---- library ----------------------------------------------------------------------------------
