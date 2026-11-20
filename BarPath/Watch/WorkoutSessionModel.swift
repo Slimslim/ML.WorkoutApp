@@ -389,14 +389,12 @@ final class WorkoutSessionModel: ObservableObject {
         workoutId = UUID()
         // E3: the engine is read once here and kept for the whole workout.
         engine = WorkoutEngineSwitch.current()
-        if let plan = RepeatBlock.enginePlan(for: definition, engineOn: engine == .v2) {
-            // Block mode (5c): the listed block repeats lazily; nothing is written out.
-            progress = WorkoutProgress(definition: definition, block: plan)
-        } else {
-            // Today's path. An AMRAP's round is written out until it can't run out before the
-            // cap (#138); the checkpoint stores this progress, so a recovered result keeps it.
-            progress = WorkoutProgress(definition: definition.expandedForAmrap())
-        }
+        // Block mode (5c) only with the engine on and a listed-once definition (the block repeats
+        // lazily). Otherwise today's path (Classic): a listed-once block is written out first, and an
+        // AMRAP's round is written out until it can't run out before the cap (#138). The
+        // checkpoint stores this progress and the engine; a recovered result never re-reads the
+        // switch. One rule for the watch, Python and the E4 gate.
+        progress = RepeatBlock.startProgress(for: definition, engine: engine)
         heartRates = []
         sawHeartRate = false
         pedometerSamples = []

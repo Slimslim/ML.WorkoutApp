@@ -43,7 +43,12 @@ public enum ResultInsights {
     static let startedHardFraction: Double = 0.08
     static let ladderFraction: Double = 0.20
 
-    public static func insights(result: WorkoutResult, definition: WorkoutDefinition) -> [ResultInsight] {
+    public static func insights(result: WorkoutResult, definition given: WorkoutDefinition) -> [ResultInsight] {
+        // A block result (5c) indexes steps: look its parts up in the block written out to the
+        // steps done (derived, never stored), so no step past the listed parts is dropped or read
+        // out of range.
+        let definition: WorkoutDefinition = result.isBlockResult && given == result.definition
+            ? result.displayDefinition : given
         let ctx: InsightContext = InsightContext(result: result, definition: definition)
         let format: WorkoutFormat = definition.format
 

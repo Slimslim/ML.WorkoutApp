@@ -106,4 +106,13 @@ final class WorkoutBlockResultTests: XCTestCase {
         newer.name = "Renamed"
         XCTAssertFalse(r.canApplyDefinition(newer))
     }
+
+    /// Insights on a block result read each step's part (the block written out, never stored).
+    func testInsightsOfABlockResultUseItsParts() {
+        let r: WorkoutResult = result(cappedProgress())
+        let viaResult: [ResultInsight] = ResultInsights.insights(result: r, definition: r.definition)
+        let viaShown: [ResultInsight] = ResultInsights.insights(result: r, definition: r.displayDefinition)
+        XCTAssertEqual(viaResult.map { (i: ResultInsight) -> String in i.id },
+                       viaShown.map { (i: ResultInsight) -> String in i.id })
+    }
 }
