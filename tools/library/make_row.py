@@ -44,7 +44,8 @@ from typing import Optional
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from barpath.workout import (  # noqa: E402
-    SEGMENT_KINDS, TARGET_UNITS, WorkoutDefinition, WorkoutLibrary)
+    AMRAP_MAX_SEGMENTS, AMRAP_MIN_LISTED_ROUNDS as AMRAP_MIN_LISTED_ROUNDS_WATCH, SEGMENT_KINDS,
+    TARGET_UNITS, WorkoutDefinition, WorkoutLibrary)
 
 FORMATS = ("forTime", "amrap", "emom")
 TEAMS = ("solo", "doubles", "team")
@@ -125,24 +126,46 @@ def validate_definition(d: dict, owner: Optional[str] = None) -> WorkoutDefiniti
 
 
 AMRAP_MIN_LISTED_ROUNDS = 10
-# The watch's own expansion (WORKOUT_SPEC 5a) stops at the same size.
-MAX_REPEATED_SEGMENTS = 600
-MAX_REPEATED_ROUNDS = 30
+# The watch's own expansion (WORKOUT_SPEC 5a) uses the same limits.
+MAX_REPEATED_SEGMENTS = AMRAP_MAX_SEGMENTS
+MAX_REPEATED_ROUNDS = AMRAP_MIN_LISTED_ROUNDS_WATCH
+
+
+def _has_interval(d: dict) -> bool:
+    v = d.get("intervalSeconds")
+    return isinstance(v, (int, float)) and v > 0
+
+
+def _exact_repeat_period(segments: list) -> int:
+    """As the watch (tools/barpath/workout.py `_exact_repeat_period`): the smallest p splitting
+    the list into at least two identical rounds, else the whole list."""
+    n = len(segments)
+    for p in range(1, n // 2 + 1):
+        if n % p == 0 and all(segments[i] == segments[i % p] for i in range(p, n)):
+            return p
+    return n
+
+
+def _valid_round_size(rs, n: int) -> bool:
+    return isinstance(rs, int) and not isinstance(rs, bool) and 1 <= rs <= n
 
 
 def check_amrap_rounds(d: dict, v2: bool = False) -> None:
     """Raises LibraryError for an AMRAP (old keys) that does not list its rounds out: builds
-    before 0.17.1 offer Finish after the last listed segment, cap or not (#138)."""
+    before 0.17.1 offer Finish after the last listed segment, cap or not (#138). An interval
+    AMRAP may leave roundSize unset (setting it turns on the interval jump for work segments);
+    its rounds are counted by the list's exact repeat, as the watch does."""
     if d.get("format") != "amrap":
         return
     segments = d.get("segments") or []
     rs = d.get("roundSize")
     fix = ("list the rounds out in its old keys (segments, roundSize) by hand" if v2
-           else "write it out with --repeat-rounds 30")
+           else f"write it out with --repeat-rounds {MAX_REPEATED_ROUNDS}")
     hint = f"; {fix}, or pass --rounds-listed-ok if the short list is on purpose"
-    if rs is None:
+    if rs is None and not _has_interval(d):
         raise LibraryError("an AMRAP needs roundSize (the watch counts rounds with it)" + hint)
-    rounds = len(segments) // rs if rs > 0 else 0
+    r = rs if rs is not None else _exact_repeat_period(segments)
+    rounds = len(segments) // r if isinstance(r, int) and r > 0 else 0
     if rounds < AMRAP_MIN_LISTED_ROUNDS:
         raise LibraryError(f"an AMRAP must list at least {AMRAP_MIN_LISTED_ROUNDS} rounds "
                            f"(this one lists {rounds}); builds before 0.17.1 finish after the "
@@ -150,13 +173,15 @@ def check_amrap_rounds(d: dict, v2: bool = False) -> None:
 
 
 def repeat_rounds(d: dict, rounds: int) -> dict:
-    """A flat AMRAP written out to `rounds` rounds: its last full round (roundSize segments, or the
-    whole list without roundSize) is repeated, and roundSize set. Already that long: unchanged."""
+    """A flat AMRAP written out to `rounds` rounds, as the watch does it (WORKOUT_SPEC 5a): its last
+    full round is repeated. The round is roundSize segments, or without roundSize the list's exact
+    repeat (3 identical rounds of 2 -> rounds of 2), else the whole list. roundSize is set, except
+    on an interval AMRAP without one. Already that long: unchanged."""
     if rounds < 1:
         raise LibraryError("--repeat-rounds needs a number >= 1")
     if rounds > MAX_REPEATED_ROUNDS:
         raise LibraryError(f"--repeat-rounds is at most {MAX_REPEATED_ROUNDS} "
-                           "(the watch writes an AMRAP out to 30 rounds itself)")
+                           f"(the watch writes an AMRAP out to {MAX_REPEATED_ROUNDS} rounds itself)")
     if is_v2(d):
         raise LibraryError("--repeat-rounds works on flat definitions only (a v2 row repeats "
                            "through its structure)")
@@ -166,19 +191,24 @@ def repeat_rounds(d: dict, rounds: int) -> dict:
     if not segments:
         raise LibraryError("segments must not be empty")
     rs = d.get("roundSize")
-    if rs is not None and not (isinstance(rs, int) and 1 <= rs <= len(segments)):
+    if rs is not None and not _valid_round_size(rs, len(segments)):
         raise LibraryError("roundSize must be between 1 and the number of segments")
-    r = rs if rs is not None else len(segments)
-    if max(len(segments), rounds * r) > MAX_REPEATED_SEGMENTS:
-        raise LibraryError(f"{rounds} rounds of {r} segments is more than "
-                           f"{MAX_REPEATED_SEGMENTS} segments")
+    r = rs if rs is not None else _exact_repeat_period(segments)
     if len(segments) % r != 0:
         raise LibraryError(f"{len(segments)} segments are not whole rounds of {r}: "
                            "fix roundSize or the list first")
     listed = len(segments) // r
+    if rounds > listed and rounds * r > MAX_REPEATED_SEGMENTS:
+        fits = MAX_REPEATED_SEGMENTS // r
+        more = (f"--repeat-rounds {fits} fits" if fits > listed else "no more rounds fit")
+        raise LibraryError(f"{rounds} rounds of {r} segments is more than {MAX_REPEATED_SEGMENTS} "
+                           f"segments: {more}; pass --rounds-listed-ok for a shorter list")
     block = segments[-r:]
     segments += block * max(0, rounds - listed)
-    return dict(d, segments=segments, roundSize=r)
+    out = dict(d, segments=segments)
+    if rs is not None or not _has_interval(d):
+        out["roundSize"] = r
+    return out
 
 
 def is_v2(d) -> bool:

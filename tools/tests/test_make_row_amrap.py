@@ -83,9 +83,15 @@ def test_repeat_rounds_refusals():
             make_row.repeat_rounds(dict(amrap(rounds=3), roundSize=bad), 10)
     with pytest.raises(make_row.LibraryError, match="at most 30"):
         make_row.repeat_rounds(amrap(rounds=1), 31)
-    long_round = amrap(rounds=1, per_round=amrap(rounds=25)["segments"])     # 50 segments
-    with pytest.raises(make_row.LibraryError, match="more than 600"):
+    distinct = [{"kind": "station", "movement": f"m{i}", "name": f"M{i}",
+                 "target": {"value": 1.0, "unit": "reps"}} for i in range(50)]
+    long_round = amrap(rounds=1, per_round=distinct)                          # one round of 50
+    with pytest.raises(make_row.LibraryError, match="repeat-rounds 12 fits"):
         make_row.repeat_rounds(long_round, 30)
+    assert len(make_row.repeat_rounds(long_round, 12)["segments"]) == 600
+    # a list already longer than 600 is left as it is when nothing is added
+    big = amrap(rounds=1, per_round=[dict(s, movement=f"x{i}") for i, s in enumerate(distinct * 13)])
+    assert make_row.repeat_rounds(big, 1)["segments"] == big["segments"]
     with pytest.raises(make_row.LibraryError, match=">= 1"):
         make_row.repeat_rounds(amrap(), 0)
     with pytest.raises(make_row.LibraryError, match="flat"):
@@ -118,3 +124,51 @@ def test_v2_legacy_copy_is_checked(tmp_path, monkeypatch, capsys):
     # not exact: no legacy copy, nothing for builds 15/16 to finish early
     approx = write(tmp_path, dict(v2, fidelity="approx"), "approx.json")
     assert make_row.main([approx]) == 0
+
+
+def test_repeat_rounds_uses_the_exact_repeat_like_the_watch():
+    """Without roundSize the round is the list's exact repeat (as expandedForAmrap): 3 identical
+    rounds of 2 become 30 rounds of 2, not 30 rounds of 6."""
+    three = amrap(rounds=3)
+    out = make_row.repeat_rounds(three, 30)
+    assert out["roundSize"] == 2 and len(out["segments"]) == 60
+    # a ladder written once is one round
+    ladder = amrap(rounds=1, per_round=[
+        {"kind": "station", "movement": "squat", "name": "Squat", "target": {"value": 5.0, "unit": "reps"}},
+        {"kind": "station", "movement": "squat", "name": "Squat", "target": {"value": 10.0, "unit": "reps"}},
+    ])
+    assert make_row.repeat_rounds(ladder, 10)["roundSize"] == 2
+
+
+def test_parity_with_the_watch_expansion():
+    """make_row's round choice matches barpath.workout.amrap_expanded on the shared cases."""
+    from barpath.workout import WorkoutDefinition, amrap_expanded
+    fixture = (TOOLS.parent / "BarPath/BarPathKit/Tests/BarPathKitTests/Fixtures"
+               / "amrap_expand_cases.json")
+    for c in json.loads(fixture.read_text(encoding="utf-8"))["cases"]:
+        d = dict(c["input"], segments=c["pattern"] * c["times"])
+        if d["format"] != "amrap" or not d.get("timeCapSeconds"):
+            continue
+        rs = d.get("roundSize")
+        if rs is not None and not 1 <= rs <= len(d["segments"]):
+            continue                      # make_row refuses what the watch falls back on
+        n = len(d["segments"])
+        r = rs or make_row._exact_repeat_period(d["segments"])
+        if n % r or r * 30 > 600:
+            continue                      # refused by make_row, left alone/capped by the watch
+        ours = make_row.repeat_rounds(d, 30)
+        watch = amrap_expanded(WorkoutDefinition.from_dict(d)).to_dict()
+        assert ours.get("roundSize") == watch.get("roundSize"), c["name"]
+        assert ours["segments"] == watch["segments"], c["name"]
+
+
+def test_interval_amrap_without_round_size(tmp_path):
+    """As the watch: an interval AMRAP keeps roundSize unset (setting it turns on the interval
+    jump for work segments), and its listed rounds are counted by the exact repeat."""
+    one = dict(amrap(rounds=1), intervalSeconds=180.0)
+    out = make_row.repeat_rounds(one, 30)
+    assert "roundSize" not in out and len(out["segments"]) == 60
+    make_row.check_amrap_rounds(out)
+    with pytest.raises(make_row.LibraryError, match="lists 1"):
+        make_row.check_amrap_rounds(one)
+    assert make_row.main(["--repeat-rounds", "30", write(tmp_path, one)]) == 0
