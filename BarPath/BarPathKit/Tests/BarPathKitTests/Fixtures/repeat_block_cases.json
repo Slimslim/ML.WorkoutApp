@@ -1,0 +1,712 @@
+{
+ "note": "Synthetic definitions for the repeat-block reference (tools/barpath/repeat_block.py) and its Swift port (RepeatBlock.swift), WORKOUT_SPEC 5c. positions: [step, pass, part]. endReasons: [step, advanced, elapsed, reason]. windowEnds: [stepStartElapsed, windowEnd]. scores: [completedSteps, passes, workPartsInCutPass].",
+ "cases": [
+  {
+   "name": "ladder AMRAP (#138): one block of 6, repeats until the cap",
+   "definition": {
+    "id": "t.ladder",
+    "name": "Test t.ladder",
+    "shortName": "T",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 200.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airBike",
+      "name": "Air Bike",
+      "target": {
+       "value": 20.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 400.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airBike",
+      "name": "Air Bike",
+      "target": {
+       "value": 20.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 600.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airBike",
+      "name": "Air Bike",
+      "target": {
+       "value": 20.0,
+       "unit": "calories"
+      }
+     }
+    ],
+    "timeCapSeconds": 1440.0
+   },
+   "plan": {
+    "kind": "repeat",
+    "parts": 6,
+    "rounds": null,
+    "capSeconds": 1440.0,
+    "capEnds": true,
+    "intervalSeconds": null,
+    "stepLimit": null
+   },
+   "positions": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     5,
+     0,
+     5
+    ],
+    [
+     6,
+     1,
+     0
+    ],
+    [
+     11,
+     1,
+     5
+    ],
+    [
+     12,
+     2,
+     0
+    ],
+    [
+     71,
+     11,
+     5
+    ]
+   ],
+   "outOfRange": [
+    -1
+   ],
+   "finishes": [],
+   "noFinish": [
+    5,
+    6,
+    11,
+    600
+   ],
+   "endReasons": [
+    [
+     5,
+     true,
+     700.0,
+     null
+    ],
+    [
+     11,
+     false,
+     1440.0,
+     "cap"
+    ],
+    [
+     11,
+     false,
+     1439.9,
+     null
+    ]
+   ],
+   "windowEnds": [],
+   "scores": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     5,
+     0,
+     5
+    ],
+    [
+     6,
+     1,
+     0
+    ],
+    [
+     11,
+     1,
+     5
+    ],
+    [
+     12,
+     2,
+     0
+    ]
+   ]
+  },
+  {
+   "name": "EMOM, 3 alternating windows of 1:00, cap 9:00",
+   "definition": {
+    "id": "t.emom",
+    "name": "Test t.emom",
+    "shortName": "T",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 15.0,
+       "unit": "calories"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 10.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest"
+     }
+    ],
+    "timeCapSeconds": 540.0,
+    "intervalSeconds": 60.0,
+    "roundSize": 3
+   },
+   "plan": {
+    "kind": "repeat",
+    "parts": 3,
+    "rounds": null,
+    "capSeconds": 540.0,
+    "capEnds": true,
+    "intervalSeconds": 60.0,
+    "stepLimit": null
+   },
+   "positions": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     2,
+     0,
+     2
+    ],
+    [
+     3,
+     1,
+     0
+    ],
+    [
+     8,
+     2,
+     2
+    ]
+   ],
+   "outOfRange": [
+    -1
+   ],
+   "finishes": [],
+   "noFinish": [
+    2,
+    8
+   ],
+   "endReasons": [
+    [
+     8,
+     false,
+     540.0,
+     "cap"
+    ],
+    [
+     2,
+     true,
+     170.0,
+     null
+    ]
+   ],
+   "windowEnds": [
+    [
+     0.0,
+     60.0
+    ],
+    [
+     59.9,
+     60.0
+    ],
+    [
+     60.0,
+     120.0
+    ],
+    [
+     475.0,
+     480.0
+    ]
+   ],
+   "scores": [
+    [
+     1,
+     0,
+     1
+    ],
+    [
+     2,
+     1,
+     0
+    ],
+    [
+     3,
+     1,
+     0
+    ],
+    [
+     5,
+     2,
+     0
+    ]
+   ]
+  },
+  {
+   "name": "Tabata: 8 rounds of 20 s work + 10 s rest",
+   "definition": {
+    "id": "t.tabata",
+    "name": "Test t.tabata",
+    "shortName": "T",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 20.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 10.0,
+       "unit": "seconds"
+      }
+     }
+    ],
+    "timeCapSeconds": 240.0,
+    "rounds": 8
+   },
+   "plan": {
+    "kind": "repeat",
+    "parts": 2,
+    "rounds": 8,
+    "capSeconds": 240.0,
+    "capEnds": true,
+    "intervalSeconds": null,
+    "stepLimit": 16
+   },
+   "positions": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     0,
+     1
+    ],
+    [
+     2,
+     1,
+     0
+    ],
+    [
+     15,
+     7,
+     1
+    ]
+   ],
+   "outOfRange": [
+    -1,
+    16
+   ],
+   "finishes": [
+    15
+   ],
+   "noFinish": [
+    1,
+    14
+   ],
+   "endReasons": [
+    [
+     15,
+     true,
+     239.0,
+     "roundsDone"
+    ],
+    [
+     14,
+     false,
+     240.0,
+     "cap"
+    ]
+   ],
+   "windowEnds": [],
+   "scores": [
+    [
+     1,
+     1,
+     0
+    ],
+    [
+     2,
+     1,
+     0
+    ],
+    [
+     15,
+     8,
+     0
+    ],
+    [
+     16,
+     8,
+     0
+    ]
+   ]
+  },
+  {
+   "name": "Rounds for time x 5 (rounds key), cap does not end it",
+   "definition": {
+    "id": "t.rft",
+    "name": "Test t.rft",
+    "shortName": "T",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 400.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "kbSwings",
+      "name": "KB Swings",
+      "target": {
+       "value": 21.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pullUps",
+      "name": "Pull-ups",
+      "target": {
+       "value": 12.0,
+       "unit": "reps"
+      }
+     }
+    ],
+    "timeCapSeconds": 1200.0,
+    "roundSize": 3,
+    "rounds": 5
+   },
+   "plan": {
+    "kind": "repeat",
+    "parts": 3,
+    "rounds": 5,
+    "capSeconds": 1200.0,
+    "capEnds": false,
+    "intervalSeconds": null,
+    "stepLimit": 15
+   },
+   "positions": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     3,
+     1,
+     0
+    ],
+    [
+     14,
+     4,
+     2
+    ]
+   ],
+   "outOfRange": [
+    -1,
+    15
+   ],
+   "finishes": [
+    14
+   ],
+   "noFinish": [
+    2,
+    5,
+    13
+   ],
+   "endReasons": [
+    [
+     14,
+     true,
+     1300.0,
+     "roundsDone"
+    ],
+    [
+     10,
+     false,
+     1300.0,
+     null
+    ],
+    [
+     2,
+     true,
+     100.0,
+     null
+    ]
+   ],
+   "windowEnds": [],
+   "scores": [
+    [
+     2,
+     0,
+     2
+    ],
+    [
+     3,
+     1,
+     0
+    ],
+    [
+     15,
+     5,
+     0
+    ]
+   ]
+  },
+  {
+   "name": "fixed list (Hyrox-like): done once, as today",
+   "definition": {
+    "id": "t.fixed",
+    "name": "Test t.fixed",
+    "shortName": "T",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 1000.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "skiErg",
+      "name": "SkiErg",
+      "target": {
+       "value": 1000.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "run",
+      "movement": "run",
+      "name": "Run",
+      "target": {
+       "value": 1000.0,
+       "unit": "meters"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "row",
+      "name": "Row",
+      "target": {
+       "value": 1000.0,
+       "unit": "meters"
+      }
+     }
+    ],
+    "roundSize": 2
+   },
+   "plan": {
+    "kind": "fixed",
+    "parts": 4,
+    "rounds": 1,
+    "capSeconds": null,
+    "capEnds": false,
+    "intervalSeconds": null,
+    "stepLimit": 4
+   },
+   "positions": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     0,
+     1
+    ],
+    [
+     3,
+     0,
+     3
+    ]
+   ],
+   "outOfRange": [
+    -1,
+    4
+   ],
+   "finishes": [
+    3
+   ],
+   "noFinish": [
+    0,
+    1,
+    2
+   ],
+   "endReasons": [
+    [
+     3,
+     true,
+     5000.0,
+     "listDone"
+    ],
+    [
+     2,
+     true,
+     5000.0,
+     null
+    ]
+   ],
+   "windowEnds": [],
+   "scores": []
+  },
+  {
+   "name": "fixed list with a for-time cap: the cap does not end it (5b)",
+   "definition": {
+    "id": "t.fixedcap",
+    "name": "Test t.fixedcap",
+    "shortName": "T",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "thrusters",
+      "name": "Thrusters",
+      "target": {
+       "value": 21.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pullUps",
+      "name": "Pull-ups",
+      "target": {
+       "value": 21.0,
+       "unit": "reps"
+      }
+     }
+    ],
+    "timeCapSeconds": 600.0
+   },
+   "plan": {
+    "kind": "fixed",
+    "parts": 2,
+    "rounds": 1,
+    "capSeconds": 600.0,
+    "capEnds": false,
+    "intervalSeconds": null,
+    "stepLimit": 2
+   },
+   "positions": [
+    [
+     1,
+     0,
+     1
+    ]
+   ],
+   "outOfRange": [
+    2
+   ],
+   "finishes": [
+    1
+   ],
+   "noFinish": [
+    0
+   ],
+   "endReasons": [
+    [
+     0,
+     false,
+     700.0,
+     null
+    ],
+    [
+     1,
+     true,
+     700.0,
+     "listDone"
+    ]
+   ],
+   "windowEnds": [],
+   "scores": []
+  }
+ ]
+}
