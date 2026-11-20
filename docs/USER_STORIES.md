@@ -94,8 +94,8 @@ down and buzzes at zero.
 **L3. Change the weight between sets in one move (Now)**
 As a lifter, I want to adjust the weight during the rest, so each set is logged at the
 right weight.
-*Done when:* turning the Crown on the rest screen changes the weight for the next set, with
-no menus.
+*Done when:* tapping the weight on the rest screen and turning the Crown changes the weight for
+the next set, with no menus (#148, variant A).
 
 **L4. Log my session (Now)**
 As a lifter, I want the phone to keep my sets, reps and weights, so I have a training log
@@ -136,8 +136,8 @@ As a lifter back at the bar, I want one Crown turn to arm detection for the next
 watch only listens when I'm ready, with no taps and no looking down for long.
 *Done when:* one Crown turn (the same 0.8-turn gesture as in workouts, with the same arc) arms
 detection with a start haptic and the armed screen; the set that follows is counted as today;
-the rest time (set end to Crown turn) is kept with the next set; the first set after Start is
-armed without a Crown turn.
+the rest just taken (set end to Crown turn) shows on the armed screen; the first set after
+Start is armed without a Crown turn. (Storing the rest with the set's recording comes with L4.)
 
 **L9. End or change the lift with a swipe (Now)**
 As a lifter, I want to swipe left from the rest screen to End (or change the lift), so the main
@@ -145,11 +145,11 @@ screen stays one signal and I can't end the session by accident mid-set.
 *Done when:* swipe left on Rest or Armed shows End and Change lift; End asks to confirm as today;
 the swipe does nothing while a set is in progress.
 
-*Note on L3 (weight during rest):* the Crown can't both change the weight and arm the next set on
-the same screen. The mockups offer two ways to change the weight at rest (A: tap the weight, then
-turn the Crown on a weight screen; B: −/+ buttons on the rest screen). The owner picks one; L3's
-"turning the Crown on the rest screen" is updated to match. A Crown *press* can't be used: watchOS
-keeps the Crown press for the system (it leaves the app).
+*Note on L3 (weight during rest), decided 20 Nov (#150):* the Crown can't both change the weight
+and arm the next set on the same screen. The owner chose **variant A**: tap the weight on the Rest
+screen, turn the Crown on the Weight screen, then Done (or 3 s without a turn) goes back to Rest.
+L3's "turning the Crown on the rest screen" now reads "tap the weight, then turn the Crown". A
+Crown *press* can't be used: watchOS keeps the Crown press for the system (it leaves the app).
 
 ### Progress (both modes)
 

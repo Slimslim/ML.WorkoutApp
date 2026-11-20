@@ -588,6 +588,13 @@ start (e.g. jumping forward into the catch) and clean & jerks recorded with the 
   (success haptic). One `LiftRecording` per set: liftType `deadlift`, motion from the first rep
   − 3 s to the last rep + 2 s, no 800 Hz accel, homing/end = first rep start / last rep top.
   The debug CSV gets `name=setEnded start= end= reps=` events.
+- **Rest and the Crown (#148, 0.17.2, all lifts):** the block starts armed; a set (deadlift) or lift
+  (Olympic) ends → **Rest** counts up from the last rep's top / the lift's end, and detection is
+  off; a Crown turn (0.8 turn, as in workouts) arms the next set. `LiftCycle` (BarPathKit,
+  reference `lift_cycle.py`) holds the state; `SetTracker.armedFrom` drops reps that start before
+  the Crown turn (+∞ while resting) but keeps the sample history for the pre-roll; the lift
+  detector is not fed at rest and is reset on arming. Recording (CSV, ring buffers, uploads) is
+  unchanged. This replaces detector tuning for #147 (a hand shake at rest made a 1-rep set).
 - **Phone**: sets show count, velocity loss and a per-rep table (ROM, mean, peak) instead of
   the bar path.
 - **Validation** (2026-10-29, 275 / 300 lb × 6, filmed): 6/6 and 6/6 reps, one set each when

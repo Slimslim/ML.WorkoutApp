@@ -1,6 +1,6 @@
 # Lifting: rest timer, Crown arms the next set (#148), design note
 
-Status: **design, for the owner's approval. No app code.** Stories L7–L9 in
+Status: **approved 20 Nov (#150), built for 0.17.2.** Weight at rest: **variant A**. Stories L7–L9 in
 `docs/USER_STORIES.md`; mockups in `docs/concepts/lift-rest-crown.html`. Replaces the
 detector-only fix for #147 (shaking the hands at rest counted as a 1-rep set).
 
@@ -17,19 +17,16 @@ detector-only fix for #147 (shaking the hands at rest counted as a 1-rep set).
 The first set after Start (and after Change → Continue) is **Armed** straight away: the owner
 starts the watch at the bar. Swiping is off during In set.
 
-## How it maps to today's code
+## How it is built (0.17.2)
 
-| Piece | Today | With #148 |
+| Piece | Before | Now |
 |---|---|---|
-| `SessionModel.Phase` | idle / starting / running / paused / ending | unchanged. Rest and Armed are sub-states of `running` (a new `LiftCycle` enum: `armed`, `inSet`, `resting(since:)`), so the HealthKit workout and Change are not touched. |
-| `SessionModel.Status` | `.waitingForSet`, `.reps`, `.ready`, `.lifting`, `.saved`, `.walkToBar` … | adds `.resting(since: Date)`; `.saved` banner folds into the Rest screen's top line. |
-| `SessionView` | one screen; Change / End buttons on "walk to the bar" / "grip the bar" | main page + End page in a `TabView(.page)`; paging disabled while In set. Rest screen and the Crown arc are new; the arc reuses `CrownArcView` and `CrownAdvanceController` (0.8 turn, lockout) from workouts. |
-| Weight at rest | Load picker on the setup screen (Change) | A: a Weight screen reusing `LoadPickerView`'s Crown binding; B: −/+ on Rest using `stepLoad`. Either way `recorder.loadKg` is set for the **next** set only. |
-| `MotionRecorder` | always feeds `OnlineLiftDetector` / `SetTracker` while running | keeps reading motion and writing the session CSV the whole time (unchanged). New: `arm(at:)` / `disarm()`. While disarmed, detector and tracker events are dropped; `arm(at:)` resets them and sets a floor so only reps / lifts **starting after the arm time** can count. |
-| `SetTracker` (BarPathKit) | floor = last set end + post-roll | adds an "ignore reps starting before t" floor that keeps the sample history, so the set recording's 3 s pre-roll still works when the first rep comes < 3 s after the Crown turn. Python reference + parity test (`tools/barpath/reps.py`) first, per CLAUDE.md. |
-| `OnlineLiftDetector` | arms itself when the watch is still | unchanged inside; `MotionRecorder` resets it on `arm` and ignores its events while disarmed. Its 30 s ring buffer keeps filling, so snippets keep their pre-roll. |
-| Rest time | not stored | rest = last rep top (or lift end) → Crown turn, stored with the next set's recording as an optional field (new key; old builds ignore it). The phone can show it later (L4). |
-| Phone status message | `repCount`, `liftCount`, `phase`, … | adds new keys only (`cycle`, `restStartedAt`); none removed or reused. |
+| `LiftCycle` (BarPathKit, new; reference `tools/barpath/lift_cycle.py`, fixture `lift_cycle_cases.json`) | — | armed / inSet / resting; `arm(at:)` only from resting; `listeningFrom` = arm time, +∞ while resting; `lastRest`; `canShowEndPage`. Pure, tested. |
+| `SetTracker.armedFrom` (BarPathKit + `reps.py`, fixture `rest_arm_cases.json`) | — | reps that start before it are never counted. The sample history is kept, so the set recording still gets its 3 s pre-roll from before the Crown turn. |
+| `MotionRecorder` | always fed the detector / tracker | owns the `LiftCycle`. CSV and ring buffers are fed exactly as before. The lift detector is fed only while listening and only samples from the arm time; the set tracker always gets samples but counts reps only from `armedFrom`. `armNextSet()` (Crown) arms and resets the lift detector. `liftStarted` / first rep → in set; `liftEnded` / `setEnded` → resting since the lift's end / last rep's top. |
+| `SessionModel` | Status without rest | `cycleState`, `restStartDate` (motion clock → wall clock), `lastRestSeconds`, `armNextSet()` (start haptic), `canShowEndPage`, `Status.resting(since:)`. Phase and the HealthKit workout unchanged. |
+| `SessionView` | one page, Change / End buttons on "walk to the bar" | `TabView(.page)`: main page + End page (End, Change lift; only when not in a set; back to the main page after 5 s). Rest screen: top line (✓ Set N · reps / Lift N saved), REST timer, weight button, Crown cue on the Crown's side, the workouts' Crown controller and arc (0.8 turn). Weight sheet (variant A): Crown changes the weight, Done or 3 s idle. |
+| Recording | — | **unchanged**: HealthKit workout, session CSV, per-set / per-lift uploads and their format. The rest time is not stored yet (L4). No new phone↔watch keys. |
 
 ## Why a shake at rest can't become a set
 
@@ -50,16 +47,13 @@ set isn't counted. For (3) the Rest screen's cue is the reminder; see open quest
   reps counted), a set started < 3 s after the Crown turn (pre-roll), variant A/B weight change
   lands on the next set, End page not reachable mid-set, Crown on the left.
 
-## Open questions for the owner
+## Decisions (20 Nov, #150)
 
-1. **Weight at rest: A (tap the weight, then the Crown) or B (−/+)?** Recommendation: A.
-2. **Armed time-out:** should Armed go back to Rest after, say, 3 min without a set? (Proposal: no,
-   keep it simple for the first build.)
-3. **Forgotten Crown:** if a full set happens while resting, should the watch buzz "Turn the Crown?"
-   Proposal: not in the first build; it would bring back the false-set detection the flow avoids.
-4. **Change lift on the End page**, or keep Change only on the setup flow? Proposal: on the End page.
-5. **Olympic singles:** a Crown turn before every single. OK, or should Olympic lifts re-arm by
-   themselves after a short rest? (The owner's story says all lifts.)
+1. Weight at rest: **variant A** (tap the weight, then the Crown). Owner's choice.
+2. Armed time-out: **none** (default; the owner can change it after the device test).
+3. Forgotten Crown: **no buzz** (default).
+4. Change lift: **on the End page** (default).
+5. Olympic lifts: **a Crown turn before every single** too (default).
 
 ## Not in this build
 
