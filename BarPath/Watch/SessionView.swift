@@ -26,6 +26,37 @@ struct SessionView: View {
             TimelineView(.periodic(from: Date(), by: 1.0)) { context in
                 content(now: context.date)
             }
+            // The Crown lives on page 0's container, which stays in place across armed / set /
+            // rest, not on the Rest view, which is rebuilt each time (#152: after an Olympic lift
+            // the Rest view's own focus request was lost). It only acts while resting.
+            .overlay {
+                if !isLuminanceReduced && model.cycleState == .resting && !crown.isBackward {
+                    CrownArcView(fraction: crown.fraction, isBackward: false)
+                        .ignoresSafeArea()
+                }
+            }
+            .focusable(!editWeight && !confirmEnd)
+            .focused($crownFocused)
+            .focusEffectDisabled()
+            .digitalCrownRotation($crown.crownValue,
+                                  from: CrownAdvanceController.rangeMin,
+                                  through: CrownAdvanceController.rangeMax,
+                                  by: nil,
+                                  sensitivity: CrownAdvanceController.sensitivity,
+                                  isContinuous: true,
+                                  isHapticFeedbackEnabled: false)
+            .onChange(of: crown.crownValue) { _, newValue in
+                if editWeight || confirmEnd || page != 0 || !crownArmsNow {
+                    crown.ignore(newValue)
+                } else {
+                    crown.crownChanged(to: newValue, onAdvance: {
+                        model.armNextSet()
+                    }, onUndo: {})
+                }
+            }
+            .onAppear {
+                refocusCrown()
+            }
             .tag(0)
             if model.canShowEndPage {
                 EndPageView(onEnd: {
@@ -43,10 +74,15 @@ struct SessionView: View {
                 page = 0
             }
         }
+        // Every transition into Rest or Armed (set / lift ended, Crown, Change), for both lift
+        // kinds: take the Crown back once the page set has settled.
+        .onChange(of: model.cycleState) { _, _ in
+            refocusCrown()
+        }
         .onChange(of: page) { _, newPage in
             endPageVisit += 1
             if newPage == 0 {
-                crownFocused = true
+                refocusCrown()
                 return
             }
             let visit = endPageVisit
@@ -58,20 +94,37 @@ struct SessionView: View {
             }
         }
         .sheet(isPresented: $editWeight, onDismiss: {
-            crownFocused = true
+            refocusCrown()
         }, content: {
             RestWeightView {
                 editWeight = false
             }
             .environmentObject(model)
         })
-        .sheet(isPresented: $confirmEnd) {
+        .sheet(isPresented: $confirmEnd, onDismiss: {
+            refocusCrown()
+        }) {
             EndConfirmView(liftCount: model.liftCount) {
                 confirmEnd = false
                 model.end()
             } onKeepGoing: {
                 confirmEnd = false
                 page = 0
+            }
+        }
+    }
+
+    /// A Crown turn arms the next set only on the Rest screen of a running block.
+    private var crownArmsNow: Bool {
+        return model.phase == .running && model.cycleState == .resting
+    }
+
+    /// Gives the Crown back to page 0 on the next run-loop pass, after SwiftUI has applied the
+    /// change that called it (pages added or removed, a sheet closing, the screen switching).
+    private func refocusCrown() {
+        DispatchQueue.main.async {
+            if page == 0 && !editWeight && !confirmEnd {
+                crownFocused = true
             }
         }
     }
@@ -145,34 +198,6 @@ struct SessionView: View {
             }
         }
         .padding(.horizontal, 2)
-        .overlay {
-            if !isLuminanceReduced && !crown.isBackward {
-                CrownArcView(fraction: crown.fraction, isBackward: false)
-                    .ignoresSafeArea()
-            }
-        }
-        .focusable(!editWeight)
-        .focused($crownFocused)
-        .focusEffectDisabled()
-        .digitalCrownRotation($crown.crownValue,
-                              from: CrownAdvanceController.rangeMin,
-                              through: CrownAdvanceController.rangeMax,
-                              by: nil,
-                              sensitivity: CrownAdvanceController.sensitivity,
-                              isContinuous: true,
-                              isHapticFeedbackEnabled: false)
-        .onChange(of: crown.crownValue) { _, newValue in
-            if editWeight || page != 0 {
-                crown.ignore(newValue)
-            } else {
-                crown.crownChanged(to: newValue, onAdvance: {
-                    model.armNextSet()
-                }, onUndo: {})
-            }
-        }
-        .onAppear {
-            crownFocused = true
-        }
     }
 
     private var restTopLine: String {

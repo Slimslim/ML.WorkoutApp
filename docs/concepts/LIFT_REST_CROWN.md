@@ -45,7 +45,9 @@ Rest screen's Crown cue is the only prompt).
   (variant A gives the Crown to the Weight screen only while it is shown).
 - **To test on device:** rest with hand shakes (0 sets), normal sets after a Crown turn (all
   reps counted), a set started < 3 s after the Crown turn (pre-roll), variant A/B weight change
-  lands on the next set, End page not reachable mid-set, Crown on the left.
+  lands on the next set, End page not reachable mid-set, Crown on the left; Olympic: the Crown
+  arms on Rest right after a lift, with no swipe (#152: the Crown now lives on page 0's container
+  and is re-focused on every cycle change, page return and sheet close).
 
 ## Decisions (20 Nov, #150)
 
