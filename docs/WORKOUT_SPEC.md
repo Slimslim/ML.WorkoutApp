@@ -436,6 +436,22 @@ changes or a new app build is installed (every build checks each file once). Eve
 adds carry `source: "edit"`. Results deleted on the phone are not brought back. Keys this build does not know (e.g. `rx`) are
 dropped from the phone's copy when it is written; the cloud copy keeps them.
 
+## 5a. An AMRAP never runs out of list (added 2026-11-20, #138)
+
+The watch's progress finishes on the last listed segment whatever the format, and `roundSize` does
+not make the list repeat. A library AMRAP that listed one pass offered Finish after it, with minutes
+left on the cap. Since 0.17.1 the watch expands an AMRAP at START
+(`WorkoutDefinition.expandedForAmrap()`, Python `amrap_expanded`):
+- Only `format: amrap` with a time cap. The round is `roundSize` segments, or the whole list when
+  `roundSize` is missing or out of range; a list that is not whole rounds is left alone.
+- The **last full round** is repeated until the list holds 30 rounds (fewer when that would pass
+  600 segments; never fewer than listed), and `roundSize` is set. The watch then shows "Round n",
+  and the result and summary count rounds.
+- The result carries the expanded definition, and the crash checkpoint stores it inside the
+  progress, so a restored workout keeps it. Expanding twice changes nothing.
+- Builds before 0.17.1 still finish after the listed rounds: library AMRAPs must list their rounds
+  out (`make_row.py` checks this).
+
 ## 5b. For-time caps: keep going past the cap (added 2026-11-03, W7)
 
 Owner, 2026-11-03: "For time with a cap: if you are not done within the cap, I don't want the

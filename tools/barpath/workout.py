@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 import uuid as _uuid
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -205,6 +205,37 @@ class WorkoutDefinition:
     @classmethod
     def from_json(cls, text: str) -> "WorkoutDefinition":
         return cls.from_dict(json.loads(text))
+
+
+# ---- AMRAP expansion (#138) -------------------------------------------------------------------
+
+AMRAP_MIN_LISTED_ROUNDS = 30
+AMRAP_MAX_SEGMENTS = 600
+
+
+def amrap_expanded(d: "WorkoutDefinition") -> "WorkoutDefinition":
+    """Mirror of BarPathKit's WorkoutDefinition.expandedForAmrap(): an AMRAP with a cap gets its
+    last full round (roundSize segments, or the whole list) repeated until it lists
+    AMRAP_MIN_LISTED_ROUNDS rounds (fewer past AMRAP_MAX_SEGMENTS), and roundSize set.
+    Unchanged: other formats, no cap, empty list, not whole rounds, already long enough."""
+    if d.format != "amrap" or d.time_cap_seconds is None or not d.time_cap_seconds > 0:
+        return d
+    n = len(d.segments)
+    if n == 0:
+        return d
+    r = n
+    if d.round_size is not None and 1 <= d.round_size <= n:
+        r = d.round_size
+    if n % r != 0:
+        return d
+    listed = n // r
+    fit = max(1, AMRAP_MAX_SEGMENTS // r)
+    target = max(listed, min(AMRAP_MIN_LISTED_ROUNDS, fit))
+    if target == listed and d.round_size == r:
+        return d
+    block = d.segments[n - r:]
+    segments = list(d.segments) + list(block) * (target - listed)
+    return replace(d, segments=segments, round_size=r)
 
 
 # ---- library ----------------------------------------------------------------------------------
