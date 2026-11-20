@@ -357,26 +357,35 @@ def test_built_ins_classify_without_unknown_scoring():
                                       ("Chest-to-Bar Pull-ups", "chestToBar"), ("DB Snatch", "dumbbellSnatch"),
                                       ("Kettlebell Swings", "kettlebellSwings"), ("Wall-Ball Shots", "wallBalls"),
                                       ("Double-Unders", "doubleUnders"), ("Sled Push", "sledPush"),
-                                      ("Ring Rows", "ringRows"), ("Bent-over Row", None),
+                                      ("Ring Rows", "ringRows"), ("Bent-over Row", "barbellRow"),
                                       ("SDHP", "sumoDeadliftHighPull"), ("GHD Sit-ups", "ghdSitUps"),
                                       ("Wall Walks", "wallWalks"), ("Toes-to-Ring", "toesToRing"),
                                       ("Sandbag to Shoulder", "sandbagToShoulder"), ("Yoke Carry", "yokeCarry"),
                                       ("Bear Crawl", "bearCrawl"), ("Shuttle Runs", "shuttleRun"),
                                       ("Front-Rack Lunges", "frontRackLunges"), ("Goblet Squats", "gobletSquats")])
 def test_movement_names(name, mid):
-    got = tx.movement_id(name)
-    if mid is None:
-        assert got != "row"
-    else:
-        assert got == mid
+    assert tx.movement_id(name) == mid
+
+
+@pytest.mark.parametrize("name,mid", [("400m Runs", "run"), ("Running", "run"), ("Rowing", "row"),
+                                      ("Assault Bikes", "bike")])
+def test_plurals_and_ing(name, mid):
+    assert tx.movement_id(name) == mid
+
+
+def test_keyword_fallback_plurals():
+    assert tx.modality_of("Invented Walks")[0] == "G"
+    assert tx.modality_of("Invented Jumping")[0] == "G"
 
 
 @pytest.mark.parametrize("text,expect", [("95/65 lbs", {"load_kg": 95 / tx.LB_PER_KG, "load_kg_f": 65 / tx.LB_PER_KG}),
-                                         ("24/16 kg", {"load_kg": 24.0}),
+                                         ("24/16 kg", {"load_kg": 24.0, "load_kg_f": 16.0}),
                                          ("75% 1RM", {"load_pct": 75.0, "load_basis": "1RM"}),
-                                         ("pick load", {"pick_load": True}), ("", {})])
+                                         ("pick load", {"pick_load": True}), ("", {}),
+                                         ({"value": 43, "valueF": 29, "unit": "kg"}, {"load_kg": 43.0, "load_kg_f": 29.0})])
 def test_parse_load(text, expect):
     got = tx.parse_load(text)
+    assert set(got) == set(expect)
     for k, v in expect.items():
         assert got[k] == pytest.approx(v) if isinstance(v, float) else got[k] == v
 
@@ -395,7 +404,7 @@ def test_draft_piece_adapter():
     c = tx.classify(tx.from_draft_piece(amrap))
     assert c["structure"]["value"] == "ladder" and c["time_domain"]["value"] == "medium"
     assert c["scoring"]["value"] == "rounds_reps" and c["modality"]["value"] == "GM"
-    unknown = {"format": "for_time", "flags": [], "scoring": ["time or load"],
+    unknown = {"format": "for_time", "flags": [], "scoring": ["invented unknown label"],
                "parsed": [{"kind": "for_time", "movements": [{"name": "Zorbing", "reps": "10"}]}]}
     c = tx.classify(tx.from_draft_piece(unknown))
     assert c["scoring"]["value"] == tx.UNKNOWN and c["modality"]["value"] == tx.UNKNOWN
@@ -455,3 +464,214 @@ def test_corpus_script_prints_aggregates_only(tmp_path, capsys):
     assert stats["counts"]["structure"] == {"for_time": 1, "intervals": 1}
     assert stats["counts"]["movements"] == {"couplet": 1, "single": 1}
     assert stats["movements"]["unknown"] == 1
+
+
+# ---- architect review: RFC-valid inputs, v1 rule, determinism ----------------------------------
+
+def test_movement_choice_never_throws():
+    cardio = v2([repeat(5, [{"part": {"movement": {"choice": ["row", "bike", "skiErg"]},
+                                      "target": {"unit": "calories", "value": 15}}}])], "time")
+    c = tx.classify_definition(cardio)
+    assert c["modality"]["value"] == "M" and "movement_choice" in c["notes"]
+    any_cardio = v2([part("burpees", "reps", 10), {"part": {"movement": {"choice": "anyCardio"},
+                                                             "target": {"unit": "calories", "value": 10}}}], "time")
+    assert tx.classify_definition(any_cardio)["modality"]["value"] == "GM"
+    mixed = v2([{"part": {"movement": {"choice": ["row", "thrusters"]}, "target": {"unit": "reps", "value": 10}}}], "time")
+    c = tx.classify_definition(mixed)["modality"]
+    assert c["value"] == tx.UNKNOWN and "movement_choice" in c["reasons"]
+
+
+def test_pieces_come_from_the_body_not_the_score_type():
+    two = {"schemaVersion": 2, "structure": {"score": {"type": "none", "combine": "sum"}, "body": [
+        timed(300, [repeat(None, [part("burpees", "reps", 5)])]),
+        timed(300, [repeat(None, [part("pullUps", "reps", 5)])])]}}
+    c = tx.classify_definition(two)
+    assert c["structure"]["value"] == "multi_part" and c["structure"]["pieces"] == ["amrap", "amrap"]
+    assert c["scoring"]["value"] == "per_piece" and "combine:sum" in c["scoring"]["reasons"]
+
+
+def test_per_piece_uses_the_metric():
+    doc = {"schemaVersion": 2, "structure": {"score": {"type": "perPiece", "of": "r", "metric": "distance"},
+                                             "body": [{"repeat": {"id": "r", "times": 5, "body": [
+                                                 timed(120, [part("row", "meters", None)]), rest(60)]}}]}}
+    assert tx.classify_definition(doc)["scoring"]["value"] == "calories_distance"
+
+
+def test_v1_chipper_is_not_a_ladder():
+    segs = [{"movement": m, "target": {"unit": "reps", "value": v}}
+            for m, v in (("wallBalls", 50), ("boxJumps", 40), ("burpees", 30), ("pullUps", 20))]
+    c = tx.classify_definition({"format": "forTime", "segments": segs, "roundSize": 2})
+    assert c["structure"]["value"] == "chipper" and c["structure"]["modifiers"] == []
+    assert "legacy_written_out" not in c["notes"]
+
+
+def test_v1_written_out_rounds_fold_without_round_size():
+    one = [("run", "meters", 400), ("kettlebellSwings", "reps", 21), ("pullUps", "reps", 12)]
+    segs = [{"movement": m, "target": {"unit": u, "value": v}} for _ in range(3) for m, u, v in one]
+    c = tx.classify_definition({"format": "forTime", "segments": segs, "roundSize": 1})
+    assert c["structure"]["value"] == "rounds" and c["movements"]["value"] == "triplet"
+    assert c["structure"]["confidence"] == "medium" and "legacy_written_out" in c["structure"]["reasons"]
+    ladder = [{"movement": m, "target": {"unit": "reps", "value": v}}
+              for v in (21, 15, 9) for m in ("thrusters", "pullUps")]
+    c = tx.classify_definition({"format": "forTime", "segments": ladder})
+    assert "reps_descending" in c["structure"]["modifiers"]
+
+
+def test_counted_climb_uses_times():
+    doc = v2([repeat(10, [part("pushUps", "reps", 1, pid="a")], vary={"a": {"from": 1, "step": 1}})], "time")
+    w = tx.from_v2(doc)
+    assert w.elements[0].value == pytest.approx(5.5)
+    assert "reps_ascending" in tx.classify(w)["structure"]["modifiers"]
+
+
+def test_women_value_from_v2_value_f():
+    doc = v2([repeat(5, [part("thrusters", "reps", 10, load={"value": 43, "valueF": 29, "unit": "kg"})])], "time")
+    assert values(doc, sex="f")["loading"] == "moderate" and values(doc, sex="m")["loading"] == "moderate"
+
+
+def test_loading_confidence_drops_with_an_unreferenced_load():
+    doc = v2([part("thrusters", "reps", 30, load=kg(43)), part("backSquat", "reps", 30, load=kg(100))], "time")
+    c = tx.classify_definition(doc)["loading"]
+    assert c["value"] == "moderate" and c["confidence"] == "low"
+
+
+def test_all_unknown_movements_say_so():
+    c = tx.classify_definition(v2([part("inventedMove", "reps", 10), part("otherMove", "reps", 5)], "time"))
+    assert c["modality"]["reasons"] == ["unknown_movements:2"]
+
+
+def test_rfc_features_leave_a_trace():
+    doc = v2([{"repeat": {"times": 3, "override": [{"round": 3}], "body": [part("run", "ft", 600)]}}], "time")
+    c = tx.classify_definition(doc)
+    assert "override_ignored" in c["notes"] and "distance_converted" in c["notes"]
+    w = tx.from_v2(doc)
+    assert w.elements[0].unit == "meters" and w.elements[0].value == pytest.approx(182.88)
+
+
+def test_classification_is_deterministic():
+    import json
+    doc = v2([timed(900, [part("run", "meters", 800), repeat(None, [part("pullUps", "reps", 5),
+                                                                    part("thrusters", "reps", 10, load=kg(40))])])],
+             "roundsReps")
+    a = json.dumps(tx.classify_definition(doc), sort_keys=True)
+    b = json.dumps(tx.classify_definition(doc), sort_keys=True)
+    shuffled = json.loads(json.dumps(doc), object_pairs_hook=lambda kv: dict(reversed(kv)))
+    assert a == b == json.dumps(tx.classify_definition(shuffled), sort_keys=True)
+
+
+@pytest.mark.parametrize("doc", [
+    {}, {"schemaVersion": 2}, {"schemaVersion": 2, "structure": {"body": "x"}},
+    {"schemaVersion": 2, "structure": {"body": [None, 3, {"part": None}, {"part": {"movement": 7}}]}},
+    {"schemaVersion": 2, "structure": {"body": [{"repeat": {"times": "x", "body": [{"timed": {"seconds": "1:00"}}]}}]}},
+    {"schemaVersion": 2, "structure": {"body": [{"repeat": {"until": "athlete", "vary": {"a": {"step": "x"}},
+                                                            "body": [part("burpees", "reps", "ten", pid="a")]}}]}},
+    {"schemaVersion": 2, "structure": {"body": [{"group": {"asStep": True, "load": {"percent": "x"},
+                                                           "body": [part("cleans", "reps", 1)]}}]}},
+    {"format": "amrap", "segments": [None, {"movement": {"choice": "anyCardio"}}], "timeCapSeconds": "x"},
+])
+def test_never_throws(doc):
+    c = tx.classify_definition(doc)
+    assert set(c) >= set(AXES)
+
+
+# ---- Data chat corpus findings (invented equivalents) ------------------------------------------
+
+def draft(kind, movements, header="", rounds=None, window_s=None, scoring="time", flags=(), clock=(), rest=(), fmt=None):
+    piece = {"kind": kind, "rounds": rounds, "header": header, "movements": movements}
+    if window_s is not None:
+        piece["window_s"] = window_s
+    return {"format": fmt or kind, "flags": list(flags), "scoring": [scoring], "clock": list(clock),
+            "rest": list(rest), "parsed": [piece]}
+
+
+def test_amrap_window_is_its_clock():
+    c = tx.classify(tx.from_draft_piece(draft("amrap_rounds", [{"name": "Burpees", "reps": "10"}],
+                                              window_s=720, scoring="rounds+reps")))
+    assert c["structure"]["value"] == "amrap" and c["time_domain"]["seconds"] == 720
+    assert c["time_domain"]["reasons"] == ["clock"]
+
+
+def test_interval_windows_from_header_total():
+    c = tx.classify(tx.from_draft_piece(draft("intervals_max_reps", [{"name": "Burpees", "reps": "max"}],
+                                              header="Every 2 mins for 12 mins", window_s=120, scoring="reps")))
+    assert c["structure"]["value"] == "intervals" and c["time_domain"]["seconds"] == 720
+
+
+def test_strength_movement_from_the_header():
+    w = tx.from_draft_piece(draft("strength_sets", [{"name": "Build across the sets, rest as needed between each one"}],
+                                  header="Back Squat 5-5-3-3-1", scoring="load", clock=["none (rest between sets)"]))
+    assert [tx.movement_id(e.movement) for e in w.elements] == ["backSquat"]
+    assert w.passes == 5 and w.elements[0].value == pytest.approx(3.4)
+    c = tx.classify(w)
+    assert c["modality"]["value"] == "W" and c["structure"]["value"] == "strength"
+
+
+def test_bracketed_complex_line():
+    w = tx.from_draft_piece(draft("strength_sets", [{"name": "4x [Power Clean + Front Squat + Push Jerk]",
+                                                     "load": "70% 1RM"}], scoring="load"))
+    assert len(w.elements) == 3 and w.complex and w.passes == 4
+    c = tx.classify(w)
+    assert c["structure"]["value"] == "strength" and "complex" in c["structure"]["modifiers"]
+
+
+def test_two_movements_on_one_line():
+    w = tx.from_draft_piece(draft("for_time", [{"name": "Thrusters + Pull-ups", "reps": "15"}]))
+    assert [tx.movement_id(e.movement) for e in w.elements] == ["thrusters", "pullUps"]
+
+
+def test_every_n_minutes_is_intervals_not_ratio_rest():
+    c = tx.classify(tx.from_draft_piece(draft("rft_each_round_timed", [
+        {"name": "Row", "reps": "15", "unit": "cal"}, {"name": "Burpees", "reps": "10"}],
+        header="Every 3 mins x 5", rounds=5, clock=["athlete per round; rest ratio from clock"])))
+    assert c["structure"]["value"] == "intervals" and "ratio_rest" not in c["structure"]["modifiers"]
+    assert c["time_domain"]["seconds"] == 900
+
+
+def test_combined_scoring_labels_are_split():
+    hold = tx.from_draft_piece(draft("max_effort_test", [{"name": "Plank", "time": "max"}],
+                                     scoring="load, reps or hold time"))
+    hold.elements[0].unit = "seconds"
+    assert tx._draft_score("load, reps or hold time", "max_effort_test", hold, False) == "longestHold"
+    lift = draft("max_effort_test", [{"name": "Deadlift", "reps": "1", "load": "pick load"}], scoring="time or load")
+    assert tx.classify(tx.from_draft_piece(lift))["scoring"]["value"] == "load"
+    metcon = draft("for_time", [{"name": "Burpees", "reps": "50"}], scoring="time or load")
+    assert tx.classify(tx.from_draft_piece(metcon))["scoring"]["value"] == "time"
+    fail_out = draft("emom", [{"name": "Burpees", "reps": "10"}], rounds=10, window_s=60, scoring="none",
+                     clock=["clock (miss a minute and you are out)"])
+    assert tx.classify(tx.from_draft_piece(fail_out))["scoring"]["value"] == "pass_fail"
+
+
+def test_repeated_timed_pieces_are_one_set_of_windows():
+    piece = {"kind": "amrap_reps", "rounds": None, "header": "AMRAP 4", "movements": [{"name": "Burpees", "reps": "5"}]}
+    cls = {"format": "amrap_reps", "flags": [], "scoring": ["reps"], "parsed": [dict(piece), dict(piece), dict(piece)]}
+    c = tx.classify(tx.from_draft_piece(cls))
+    assert c["structure"]["value"] == "intervals" and c["time_domain"]["seconds"] == 720
+
+
+def test_single_buy_in_window_is_an_amrap_with_a_buy_in():
+    c = tx.classify(tx.from_draft_piece(draft("window_buyin_max_reps", [
+        {"name": "Run", "distance": "400 m"}, {"name": "Wall Balls", "reps": "max"}], window_s=600, scoring="reps")))
+    assert c["structure"]["value"] == "amrap" and "buy_in" in c["structure"]["modifiers"]
+
+
+def test_rest_lines_and_target_heights():
+    w = tx.from_draft_piece(draft("rft", [{"name": "Wall Balls", "reps": "20", "distance": "10/9 ft"},
+                                          {"name": "Rest", "time": "60 secs"}], rounds=3))
+    assert [e.unit for e in w.elements] == ["reps"] and w.rest_s == 180
+    assert "height_not_distance" in w.notes
+
+
+def test_corpus_ids_are_opt_in_and_errors_counted(capsys):
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    import taxonomy_corpus
+    rows = [("lib.test.a", {"scales": [{"classification": draft("for_time", [{"name": "Burpees", "reps": "5"}])}]}),
+            ("lib.test.b", "not a dict"),
+            ("lib.test.c", {"scales": [{"classification": {"format": "emom", "parsed": [{"window_s": {"x": 1}}]}}]})]
+    for n in (-1, -5, 0):
+        stats = taxonomy_corpus.run(rows, n)
+        assert "lib.test" not in str(stats)
+    stats = taxonomy_corpus.run(rows)
+    assert stats["pieces"] >= 1 and stats["classifier_error"]["count"] >= 1
+    assert "lib.test" not in str(stats)

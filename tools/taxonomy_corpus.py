@@ -14,9 +14,10 @@ Read-only. Two ways to feed it:
     # 2. straight from Postgres (needs psycopg 3 or psycopg2); the session is read-only:
     PGURL=postgres://... python3 tools/taxonomy_corpus.py --pg
 
-Options: --markdown (default) or --json; --ids N caps the draft ids listed per check (default 20);
---ids 0 leaves the ids out. Draft ids embed program slugs, so only an `--ids 0` summary may be
-committed; keep the export and the id lists outside the repo.
+Options: --markdown (default) or --json; --ids N lists up to N draft ids per check (default 0: no
+ids; negative values count as 0). Draft ids embed program slugs, so only an `--ids 0` summary may
+be committed; keep the export and any id lists outside the repo. A piece the classifier cannot read
+is counted as `classifier_error`, never stops the run.
 """
 from __future__ import annotations
 
@@ -42,6 +43,8 @@ EXPECT_STRUCTURE = {
     "station_rotation": ("intervals",), "strength_sets": ("strength",), "death_by": ("ladder",),
     "quality": ("practice",), "amrap_rounds": ("amrap", "ladder"), "amrap_reps": ("amrap", "ladder"),
     "max_effort_test": ("strength", "for_time", "amrap"),
+    "rft_each_round_timed": ("intervals", "rounds"), "rft": ("rounds", "strength"),
+    "for_time": ("for_time", "chipper", "rounds"), "repeat_efforts": ("intervals", "rounds", "strength"),
 }
 EXPECT_SCORING = {
     "for_time": "time", "rft": "time", "amrap_rounds": "rounds_reps", "amrap_reps": "reps",
@@ -58,12 +61,15 @@ def load_rows(args) -> list:
     url = os.environ.get("PGURL")
     if not url:
         sys.exit("set PGURL or pass --export")
+    ro = "-c default_transaction_read_only=on"
     try:
         import psycopg  # type: ignore
-        conn = psycopg.connect(url)
+        conn = psycopg.connect(url, options=ro)
+        conn.read_only = True
     except ImportError:
         import psycopg2 as psycopg  # type: ignore
-        conn = psycopg.connect(url)
+        conn = psycopg.connect(url, options=ro)
+        conn.set_session(readonly=True)
     with conn:
         with conn.cursor() as cur:
             cur.execute("set transaction read only")
@@ -87,7 +93,10 @@ def base_format(cls: dict) -> str:
     return str(cls.get("format") or "").split("(")[0].replace("multi_part:", "").split("+")[0]
 
 
-def run(rows, max_ids: int) -> dict:
+def run(rows, max_ids: int = 0) -> dict:
+    max_ids = max(0, int(max_ids))
+    errors = []
+    notes = Counter()
     counts = {a: Counter() for a in AXES}
     confidence = {a: Counter() for a in AXES}
     unknown_reasons = {a: Counter() for a in AXES}
@@ -97,17 +106,26 @@ def run(rows, max_ids: int) -> dict:
     n = 0
     stations = Counter()
     for rid, definition in rows:
+        if not isinstance(definition, dict):
+            errors.append(str(rid))
+            continue
         for i, cls in pieces(definition):
             n += 1
             ref = "%s#%d" % (rid, i)
-            w = tx.from_draft_piece(cls)
-            c = tx.classify(w)
+            try:
+                w = tx.from_draft_piece(cls)
+                c = tx.classify(w)
+            except Exception:   # noqa: BLE001 - one bad draft must not stop the run
+                errors.append(ref)
+                continue
+            for x in set(c.get("notes", [])):
+                notes[x.split(":")[0]] += 1
             for a in AXES:
                 counts[a][c[a]["value"]] += 1
                 confidence[a][c[a]["confidence"]] += 1
                 if c[a]["value"] == tx.UNKNOWN:
-                    for r in c[a]["reasons"] or ["(none)"]:
-                        unknown_reasons[a][r.split(":")[0]] += 1
+                    r = (c[a]["reasons"] or ["(none)"])[0]     # the primary reason, once per piece
+                    unknown_reasons[a][r.split(":")[0]] += 1
             for s in c["modality"].get("stations", []):
                 stations[s] += 1
             for e in w.elements:
@@ -135,6 +153,8 @@ def run(rows, max_ids: int) -> dict:
         "movements": {"total": total_movements, "unknown": unknown_movements,
                       "unknown_rate": round(unknown_movements / total_movements, 3) if total_movements else 0.0},
         "hyrox_stations": dict(stations.most_common()),
+        "classifier_error": {"count": len(errors), "ids": errors[:max_ids]},
+        "adapter_notes": dict(notes.most_common()),
         "checks": {k: {"count": len(v), "ids": v[:max_ids]}
                    for k, v in sorted(checks.items(), key=lambda kv: -len(kv[1]))},
     }
@@ -164,7 +184,12 @@ def markdown(stats: dict) -> str:
     out.append("| check | pieces | first ids |")
     out.append("|---|---|---|")
     for k, v in stats["checks"].items():
-        out.append("| %s | %d | %s |" % (k, v["count"], " ".join(v["ids"][:5]) or "-"))
+        out.append("| %s | %d | %s |" % (k, v["count"], " ".join(v["ids"]) or "-"))
+    e = stats["classifier_error"]
+    out.append("")
+    out.append("Classifier errors: %d %s" % (e["count"], " ".join(e["ids"])))
+    out.append("")
+    out.append("Adapter notes: " + (", ".join("%s %d" % kv for kv in stats["adapter_notes"].items()) or "none"))
     return "\n".join(out) + "\n"
 
 
@@ -174,7 +199,7 @@ def main(argv=None) -> int:
     src.add_argument("--export", help="JSON export: [{\"id\", \"definition\"}] (%s)" % SQL)
     src.add_argument("--pg", action="store_true", help="read PGURL (read-only transaction)")
     ap.add_argument("--json", action="store_true", help="print JSON instead of markdown")
-    ap.add_argument("--ids", type=int, default=20, help="draft ids listed per check")
+    ap.add_argument("--ids", type=int, default=0, help="draft ids listed per check (default 0: none)")
     args = ap.parse_args(argv)
     stats = run(load_rows(args), args.ids)
     sys.stdout.write(json.dumps(stats, indent=1) + "\n" if args.json else markdown(stats))

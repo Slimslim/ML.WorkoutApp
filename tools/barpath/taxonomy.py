@@ -69,7 +69,8 @@ METERS_PER_SECOND = {          # distance work
 }
 METERS_PER_SECOND_DEFAULT = 1.2
 ROXZONE_S = 25.0              # Hyrox transition allowance per run <-> station change
-STRENGTH_REST_S = 120.0       # rest between strength sets when none is stated
+DISTANCE_METERS = {"meters": 1.0, "m": 1.0, "ft": 0.3048, "yd": 0.9144, "mi": 1609.344, "km": 1000.0}
+CHOICE_CATEGORIES = {"anyCardio": "M"}   # RFC 3.3 movement {"choice": "anyCardio"}
 
 # ---- movements ---------------------------------------------------------------------------------
 # id -> modality. Implements and loads are resolved separately (IMPLEMENT_OF, STANDARDS).
@@ -144,11 +145,11 @@ _NAME_RULES = (
     (r"wall\s*-?\s*walk", "wallWalks"),
     (r"wall\s*-?\s*ball", "wallBalls"),
     (r"bike\s*-?\s*erg", "bikeErg"),
-    (r"\b(echo|assault|air)\s*bike\b|\bbike\b", "bike"),
+    (r"\b(echo|assault|air)\s*bikes?\b|\bbikes?\b|\bbiking\b", "bike"),
     (r"\bring\s+rows?\b", "ringRows"),
     (r"\b(bent|pendlay|renegade|upright|barbell|bb|db|dumbbell|kb|kettlebell|seal)\b.*\brows?\b", "barbellRow"),
-    (r"\brow(ing|er)?\b", "row"),
-    (r"\brun(ning)?\b|\bjog\b|\bsprint", "run"), (r"\bswim", "swim"),
+    (r"\brows?\b|\browing\b|\brower\b", "row"),
+    (r"\bruns?\b|\brunning\b|\bjog(s|ging)?\b|\bsprint", "run"), (r"\bswim", "swim"),
     (r"double\s*-?\s*under|\bdus?\b", "doubleUnders"), (r"single\s*-?\s*under|jump\s*rope", "singleUnders"),
     (r"chest\s*-?\s*to\s*-?\s*bar|\bc2b\b", "chestToBar"),
     (r"bar\s+muscle", "barMuscleUps"), (r"muscle\s*-?\s*up", "muscleUps"),
@@ -177,8 +178,9 @@ _NAME_RULES = (
 )
 _W_WORDS = re.compile(r"\b(barbell|bb|dumbbell|db|kettlebell|kb|sandbag|med\s*ball|medball|weighted|"
                       r"plate|sled|yoke|press|squat|deadlift|clean|snatch|jerk|carry|goblet)\b")
-_M_WORDS = re.compile(r"\b(erg|cal|calories|meters?|km|mile|miles)\b")
-_G_WORDS = re.compile(r"\b(hang|kip|ring|bar|handstand|walk|crawl|jump|hold|tuck|l-sit|plank)\b")
+_M_WORDS = re.compile(r"\b(ergs?|cals?|calories|meters?|metres?|km|miles?)\b")
+_G_WORDS = re.compile(r"\b(hang(s|ing)?|kip(s|ping)?|rings?|bars?|handstands?|walk(s|ing)?|crawl(s|ing)?|"
+                      r"jump(s|ing)?|holds?|tucks?|l-sits?|planks?)\b")
 _IMPLEMENT_WORDS = (
     (re.compile(r"\b(single\s+arm|single|1)\s*(db|dumbbell)\b|\b(db|dumbbell)\s+single\b", re.I), "dumbbell"),
     (re.compile(r"\b(db|dumbbell)s?\b", re.I), "dumbbell_pair"),
@@ -191,7 +193,7 @@ _IMPLEMENT_WORDS = (
 
 def movement_id(name) -> Optional[str]:
     """Known movement id for an id or a free-text name, or None."""
-    if not isinstance(name, str) or not name:
+    if not isinstance(name, str) or not name or name.startswith("choice:"):
         return None
     if name in MOVEMENTS:
         return name
@@ -206,6 +208,8 @@ def implement_of(name: str) -> Optional[str]:
     """barbell / dumbbell / dumbbell_pair / kettlebell / medball / sandbag / stone / sled / yoke, or
     None for bodyweight and monostructural movements."""
     mid = movement_id(name)
+    if mid is None:
+        return None
     if isinstance(name, str) and name not in MOVEMENTS:
         for rx, imp in _IMPLEMENT_WORDS:
             if rx.search(name):
@@ -252,6 +256,7 @@ class Element:
     main: bool = True                   # False for buy-in / cash-out
     who: Optional[str] = None           # v2 who: me / partner / together / shared
     group: Optional[str] = None         # complex (one bar, unbroken)
+    modality_hint: Optional[str] = None # a movement choice whose options share one modality
 
 
 @dataclass
@@ -288,6 +293,27 @@ _PCT_RE = re.compile(r"(\d+(?:\.\d+)?)\s*%\s*(?:of\s*)?(?:(\d)\s*(rm)|(tm))?", r
 _NUM_RE = re.compile(r"(\d+(?:\.\d+)?)")
 
 
+def _float(v) -> Optional[float]:
+    """A number from a JSON value, or None (never throws)."""
+    if isinstance(v, bool):
+        return None
+    if isinstance(v, (int, float)):
+        return float(v)
+    if isinstance(v, str):
+        m = re.fullmatch(r"\s*(\d+):(\d\d)\s*", v)
+        if m:
+            return float(int(m.group(1)) * 60 + int(m.group(2)))
+        m = _NUM_RE.search(v)
+        return float(m.group(1)) if m else None
+    return None
+
+
+def half_up(x: float) -> int:
+    """Round half away from zero (matches Swift .rounded()); Python round() is half-to-even."""
+    import math
+    return int(math.floor(x + 0.5)) if x >= 0 else -int(math.floor(-x + 0.5))
+
+
 def parse_load(text) -> dict:
     """'95/65 lbs' -> load_kg (men) and load_kg_f (women); '75% 1RM' -> load_pct, basis;
     'pick load' -> pick_load. A v2 load dict {value, unit} or {percent, basis}."""
@@ -295,12 +321,16 @@ def parse_load(text) -> dict:
     if text is None:
         return out
     if isinstance(text, dict):
-        if "percent" in text:
-            out["load_pct"] = float(text["percent"])
+        if "percent" in text and _float(text["percent"]) is not None:
+            out["load_pct"] = _float(text["percent"])
             out["load_basis"] = text.get("basis", "1RM")
         elif "value" in text:
-            v = float(text["value"])
-            out["load_kg"] = v / LB_PER_KG if text.get("unit") == "lb" else v
+            k = 1 / LB_PER_KG if text.get("unit") == "lb" else 1.0
+            out["load_kg"] = _float(text["value"]) * k if _float(text["value"]) is not None else None
+            if _float(text.get("valueF")) is not None:
+                out["load_kg_f"] = _float(text["valueF"]) * k
+            if out["load_kg"] is None:
+                del out["load_kg"]
         return out
     s = str(text)
     m = _PCT_RE.search(s)
@@ -337,39 +367,54 @@ def _ladder_of_values(values) -> Optional[str]:
 
 # ---- adapter: today's flat definition ----------------------------------------------------------
 
+def _period(keys: list) -> Optional[int]:
+    """Smallest p with keys[i] == keys[i % p] for all i and at least two full passes."""
+    n = len(keys)
+    for p in range(1, n // 2 + 1):
+        if all(keys[i] == keys[i % p] for i in range(n)):
+            return p
+    return None
+
+
 def from_v1(d: dict) -> Workout:
-    """Today's flat definition. A written-out list that repeats by roundSize is folded back into one
-    block; when its targets change by round, that is a rep scheme (21-15-9)."""
+    """Today's flat definition. The block is the whole listed list (#138, owner 20 Nov: roundSize
+    only groups for display). Legacy rows that wrote rounds out are folded back by the period of
+    repetition of their movements (heuristic: reason legacy_written_out, lower confidence); a target
+    that changes by round for the same movement and unit is a rep scheme (21-15-9)."""
     w = Workout(source="v1", team=d.get("team"))
-    allsegs = d.get("segments", [])
+    allsegs = [s for s in (d.get("segments") or []) if isinstance(s, dict)]
     fmt = d.get("format")
     cap = d.get("timeCapSeconds")
-    w.cap_s = float(cap) if cap else None
-    interval = d.get("intervalSeconds")
-    rs = d.get("roundSize")
+    w.cap_s = _float(cap) or None
+    interval = _float(d.get("intervalSeconds"))
     n_all = len(allsegs)
-    passes = d.get("rounds")
+    passes = d.get("rounds") if isinstance(d.get("rounds"), int) and d.get("rounds") > 0 else None
     block = allsegs
-    if rs and 0 < rs < n_all and not passes and \
-            all(allsegs[i]["movement"] == allsegs[i % rs]["movement"] for i in range(n_all)):
+    rs = n_all
+    keys = [(s.get("movement") or s.get("kind"), (s.get("target") or {}).get("unit")) for s in allsegs]
+    period = _period(keys) if not passes else None
+    if period:
+        rs = period
         block = allsegs[:rs]
-        passes = -(-n_all // rs)
-        w.notes.append("folded_written_out_rounds")
+        passes = n_all // rs
+        w.notes.append("legacy_written_out")
         for p in range(rs):
             vals = [(allsegs[i].get("target") or {}).get("value") for i in range(p, n_all, rs)]
-            scheme = _ladder_of_values(vals) if len(set(vals)) > 1 else None
+            scheme = _ladder_of_values(vals) if len(set(map(str, vals))) > 1 else None
             if scheme and allsegs[p].get("kind") != "rest":
                 w.rep_scheme = scheme
     for i, s in enumerate(block):
         t = s.get("target") or {}
         if s.get("kind") == "rest":
             if t.get("unit") == "seconds":
-                w.rest_s += float(t.get("value") or 0) * (passes or 1)
+                w.rest_s += (_float(t.get("value")) or 0.0) * (passes or 1)
             continue
-        vals = [(allsegs[j].get("target") or {}).get("value") for j in range(i, n_all, rs)] if block is not allsegs else [t.get("value")]
-        nums = [v for v in vals if isinstance(v, (int, float))]
-        e = Element(movement=s.get("movement", ""), unit=t.get("unit"),
+        vals = [(allsegs[j].get("target") or {}).get("value") for j in range(i, n_all, rs)]
+        nums = [v for v in (_float(x) for x in vals) if v is not None]
+        mv = s.get("movement")
+        e = Element(movement=mv if isinstance(mv, str) else "", unit=t.get("unit"),
                     value=(sum(nums) / len(nums)) if nums else None, rounds=passes or 1)
+        _to_meters(e)
         for k, v in parse_load(s.get("load")).items():
             setattr(e, k, v)
         w.elements.append(e)
@@ -382,7 +427,7 @@ def from_v1(d: dict) -> Workout:
         w.intervals = "emom" if interval else "every"
         w.window_s = float(interval) if interval else None
         if w.window_s and w.cap_s:
-            w.windows = int(round(w.cap_s / w.window_s))
+            w.windows = half_up(w.cap_s / w.window_s)
         w.clock_is_duration = True
         w.score = "none"            # today's EMOM rows record nothing but completion
     else:
@@ -404,10 +449,10 @@ def _is_race(w: Workout) -> bool:
 
 # ---- adapter: v2 structure ----------------------------------------------------------------------
 
-def _vary_values(spec):
+def _vary_values(spec, times: Optional[int] = None):
     if isinstance(spec, dict) and "step" in spec:
-        start, step = spec.get("from", 0), spec["step"]
-        return [start, start + step, start + 2 * step]
+        start, step = _float(spec.get("from")) or 0.0, _float(spec["step"]) or 0.0
+        return [start + k * step for k in range(times if times else 3)]
     if isinstance(spec, list):
         if all(isinstance(v, (int, float)) for v in spec):
             return list(spec)
@@ -424,45 +469,91 @@ def _node(wrapper):
     return node_kind(wrapper)
 
 
+def _to_meters(e: Element):
+    if e.unit in DISTANCE_METERS and e.unit != "meters" and e.value is not None:
+        e.value, e.unit = e.value * DISTANCE_METERS[e.unit], "meters"
+
+
 def from_v2(doc: dict) -> Workout:
-    st = doc.get("structure") or {}
-    if not st and isinstance(doc.get("scales"), list) and doc["scales"]:
+    """Pieces are counted from the body (RFC 5): more than one top-level timed / repeat is a
+    multi-part entry, whatever the score type; `combine` says how their scores add up."""
+    st = doc.get("structure") if isinstance(doc.get("structure"), dict) else {}
+    if not st and isinstance(doc.get("scales"), list) and doc["scales"] and isinstance(doc["scales"][0], dict):
         st = doc["scales"][0].get("structure") or {}
-    score = (st.get("score") or {})
-    body = st.get("body") or []
+    score = st.get("score") if isinstance(st.get("score"), dict) else {}
+    body = st.get("body") if isinstance(st.get("body"), list) else []
     tops = [n for n in body if _node(n)[0] in ("timed", "repeat")]
-    if len(tops) > 1 and score.get("type") == "perPiece":
-        w = Workout(source="v2", team=doc.get("team"), score="perPiece")
+    if len(tops) > 1:
+        top_type = score.get("type")
+        w = Workout(source="v2", team=doc.get("team"), score="perPiece" if top_type in (None, "none", "perPiece") else top_type)
+        sub_score = {"type": top_type if top_type not in (None, "none", "perPiece") else None}
         for n in tops:
-            sub = _v2_workout([n], {"type": score.get("metric")}, doc.get("team"))
+            sub = _v2_workout([n], sub_score, doc.get("team"))
             w.pieces.append(sub)
             w.elements.extend(sub.elements)
+            w.notes.extend(x for x in sub.notes if x not in w.notes)
+        if score.get("combine"):
+            w.notes.append("combine:" + str(score["combine"]))
         return w
     return _v2_workout(body, score, doc.get("team"))
 
 
 def _v2_workout(body, score: dict, team) -> Workout:
     w = Workout(source="v2", team=team, score=score.get("type"))
+    if w.score == "perPiece":
+        # RFC 5: one round of the repeat named by `of`, measured by `metric`
+        w.score = {"distance": "distance", "reps": "totalReps"}.get(score.get("metric"), "time")
+        w.notes.append("per_piece_of_round")
+
+    def note(x):
+        if x not in w.notes:
+            w.notes.append(x)
+
+    def movement_of(c: dict) -> tuple:
+        mv = c.get("movement")
+        if isinstance(mv, str):
+            return mv, None
+        if isinstance(mv, dict) and "choice" in mv:
+            note("movement_choice")
+            ch = mv["choice"]
+            if isinstance(ch, str):
+                return "choice:" + ch, CHOICE_CATEGORIES.get(ch)
+            if isinstance(ch, list):
+                opts = [o for o in ch if isinstance(o, str)]
+                mods = {modality_of(o)[0] for o in opts}
+                return "choice:" + "|".join(opts), (mods.pop() if len(mods) == 1 and None not in mods else None)
+        note("movement_invalid")
+        return "", None
 
     def add_part(c: dict, passes, vary: dict, main: bool, group: Optional[str]):
         spec = vary.get(c.get("id")) if c.get("id") else None
         who = c.get("who")
+        name, hint = movement_of(c)
+        if isinstance(c.get("target"), dict) and c["target"].get("unit") in DISTANCE_METERS \
+                and c["target"]["unit"] != "meters":
+            note("distance_converted")
         if isinstance(spec, list) and any(isinstance(v, dict) and "movement" in v for v in spec):
             w.per_round_movements = True
             for v in spec:
-                t = v.get("target") or c.get("target") or {}
-                w.elements.append(Element(movement=v.get("movement", c.get("movement", "")),
-                                          unit=t.get("unit"), value=t.get("value"), rounds=1,
-                                          main=main, who=who, group=group))
+                if not isinstance(v, dict):
+                    continue
+                t = v.get("target") if isinstance(v.get("target"), dict) else (c.get("target") or {})
+                vm = v.get("movement")
+                e = Element(movement=vm if isinstance(vm, str) else name, unit=t.get("unit"),
+                            value=_float(t.get("value")), rounds=1, main=main, who=who, group=group,
+                            modality_hint=None if isinstance(vm, str) else hint)
+                _to_meters(e)
+                w.elements.append(e)
             return
-        t = c.get("target") or {}
-        e = Element(movement=c.get("movement", ""), unit=t.get("unit"), value=t.get("value"),
-                    rounds=passes or 1, main=main, who=who, group=group)
+        t = c.get("target") if isinstance(c.get("target"), dict) else {}
+        e = Element(movement=name, unit=t.get("unit"), value=_float(t.get("value")),
+                    rounds=passes or 1, main=main, who=who, group=group, modality_hint=hint)
         vals = _vary_values(spec) if spec is not None else None
         if vals:
             e.value = sum(vals) / len(vals)
         for k, v in parse_load(c.get("load")).items():
             setattr(e, k, v)
+        _to_meters(e)
         w.elements.append(e)
 
     def walk(nodes, passes, depth, inside_window, vary, main=True, group=None):
@@ -482,10 +573,10 @@ def _v2_workout(body, score: dict, team) -> Workout:
                         w.cash_out = True
                 add_part(c, passes, vary, main and not outside, group)
             elif kind == "rest":
-                if "ratio" in c:
-                    w.rest_ratio = float(c["ratio"])
+                if _float(c.get("ratio")) is not None:
+                    w.rest_ratio = _float(c["ratio"])
                 else:
-                    w.rest_s += float(c.get("seconds") or 0) * (passes or 1)
+                    w.rest_s += (_float(c.get("seconds")) or 0.0) * (passes or 1)
             elif kind == "group":
                 g = c.get("id") or "g" if c.get("asStep") else group
                 if c.get("asStep"):
@@ -496,8 +587,17 @@ def _v2_workout(body, score: dict, team) -> Workout:
                         if e.group == g and getattr(e, k) is None:
                             setattr(e, k, v)
             elif kind == "repeat":
-                times = c.get("times")
-                rv = c.get("vary") or {}
+                times = c.get("times") if isinstance(c.get("times"), int) and c.get("times") > 0 else None
+                rv = c.get("vary") if isinstance(c.get("vary"), dict) else {}
+                if c.get("override"):
+                    note("override_ignored")
+                if c.get("until") == "athlete":
+                    note("until_athlete")
+                if c.get("id") and c.get("id") in vary:
+                    note("vary_repeat_times")
+                if times:   # a {from, step} climb over a counted repeat has `times` values
+                    rv = {k: (_vary_values(v, times) if isinstance(v, dict) and "step" in v else v)
+                          for k, v in rv.items()}
                 if times is None:
                     w.unbounded = True
                     if any(isinstance(s, dict) and "step" in s for s in rv.values()):
@@ -523,7 +623,7 @@ def _v2_workout(body, score: dict, team) -> Workout:
                 walk(c.get("body") or [], (passes or 1) * times if times else passes, depth + 1,
                      inside_window, inner, main)
             elif kind == "timed":
-                secs = float(c.get("seconds") or 0)
+                secs = _float(c.get("seconds")) or 0.0
                 if not inside_window and depth == 0:
                     w.cap_s = (w.cap_s or 0) + secs
                     w.clock_is_duration = c.get("late") in ("end", None) and score.get("type") != "time"
@@ -568,8 +668,8 @@ _DRAFT_SCORE = {
     "rounds+reps": "roundsReps", "rounds + reps": "roundsReps", "rounds+reps cumulative": "roundsReps",
     "reps": "totalReps", "total reps": "totalReps", "reps per window": "totalReps",
     "reps (total or per interval)": "totalReps", "reps after buy-in (time if not finished?)": "totalReps",
-    "load": "load", "load, reps or hold time": "load", "distance": "distance",
-    "distance per effort": "distance", "none": "none", "none or max reps": "none",
+    "load": "load", "distance": "distance", "distance per effort": "distance", "none": "none",
+    "windowscompleted": "windowsCompleted",   # set by the "miss a minute" clock label
 }
 _MIN_RE = re.compile(r"(\d+)\s*(?:min|mins|minutes|')(?![a-z])", re.I)
 _FOR_MIN_RE = re.compile(r"\bfor\s*(\d+)\s*(?:min|mins|minutes)(?![a-z])", re.I)
@@ -600,13 +700,46 @@ def header_clock(text: str) -> tuple:
     return total, window
 
 
+_COMPLEX_LINE = re.compile(r"^\s*(\d+)\s*x\s*\[(.*?)\]?\s*$", re.I)
+_SETS_X_REPS = re.compile(r"\b(\d{1,2})\s*x\s*(\d{1,2})\b", re.I)
+_REP_SCHEME = re.compile(r"(?<![\d:/.])(\d{1,2}(?:\s*-\s*\d{1,2}){2,})(?![\d:/])")
+HEIGHT_MOVEMENTS = ("wallBalls", "boxJumps", "stepOvers", "medBallBoxStepOvers")
+
+
 def tx_is_instruction(name: str) -> bool:
-    """A parsed 'movement' that is really an instruction line: long, or a clock phrase."""
+    """A parsed 'movement' that is really an instruction line: long, or a clock phrase. An
+    'Nx [ ... ]' complex line is not an instruction."""
+    if _COMPLEX_LINE.match(name):
+        return False
     return len(name.split()) > 6 or bool(_EVERY_RE.search(name) or _FOR_MIN_RE.search(name))
 
 
+def set_scheme(text: str) -> Optional[list]:
+    """Reps per set from '5-5-3-3-1' or '4x8' in a line or header, or None."""
+    m = _REP_SCHEME.search(text)
+    if m:
+        return [int(x) for x in re.split(r"\s*-\s*", m.group(1))]
+    m = _SETS_X_REPS.search(text)
+    if m and 1 <= int(m.group(1)) <= 20:
+        return [int(m.group(2))] * int(m.group(1))
+    return None
+
+
+def split_line(name: str) -> tuple:
+    """(movement names, is a complex, sets or None) of one parsed line: 'Nx [A + B]' is a complex
+    of A and B done N times; 'A + B' is two movements when both are known."""
+    sets, inner, cx = None, name, False
+    m = _COMPLEX_LINE.match(name)
+    if m:
+        sets, inner, cx = int(m.group(1)), m.group(2), True
+    parts = [x for x in re.split(r"\s*(?:\+|&)\s*", inner) if x.strip()]
+    if len(parts) > 1 and all(movement_id(x) for x in parts):
+        return parts, True if cx else None, sets
+    return [inner.strip() or name], cx, sets
+
+
 def _num(v) -> Optional[float]:
-    if v is None:
+    if v is None or isinstance(v, bool):
         return None
     m = _NUM_RE.search(str(v))
     return float(m.group(1)) if m else None
@@ -619,83 +752,166 @@ def _distance_m(text) -> Optional[float]:
     s = str(text).lower()
     if "km" in s:
         return v * 1000
-    if "mi" in s:
+    if re.search(r"\bmi\b|mile", s):
         return v * 1609.344
-    if "ft" in s:
+    if "ft" in s or "feet" in s:
         return v * 0.3048
+    if "yd" in s or "yard" in s:
+        return v * 0.9144
     return v
 
 
 def _seconds(text) -> Optional[float]:
     s = str(text).lower()
+    mult = 1.0
+    m = re.match(r"\s*(\d+)\s*x\s*(.*)", s)
+    if m:
+        mult, s = float(m.group(1)), m.group(2)
     m = re.search(r"(\d+):(\d\d)", s)
     if m:
-        return int(m.group(1)) * 60 + int(m.group(2))
+        return mult * (int(m.group(1)) * 60 + int(m.group(2)))
     v = _num(s)
     if v is None:
         return None
-    return v * 60 if "min" in s else v
+    return mult * (v * 60 if "min" in s else v)
 
 
-def _draft_piece(piece: dict, base: str, flags: set, score: Optional[str]) -> Workout:
-    w = Workout(source="draft", score=score)
-    kind = piece.get("kind") or base
-    rounds = piece.get("rounds")
-    rounds = int(rounds) if isinstance(rounds, (int, float)) and rounds > 0 else None
+_STRENGTH_KINDS = ("strength_sets", "max_effort_test")
+_AMRAP_KINDS = ("amrap_rounds", "amrap_reps", "cycles_continued_amrap")
+
+
+def _draft_score(label: str, kind: str, w: Workout, strengthy: bool) -> Optional[str]:
+    """The import's scoring label -> a score type. Combined labels are split by the piece's kind
+    and the movements' units."""
+    units = {e.unit for e in w.elements}
+    if label == "time or load":
+        return "load" if strengthy or w.max_effort else "time"
+    if label == "load, reps or hold time":
+        if "seconds" in units and not any(_loaded(e) for e in w.elements):
+            return "longestHold"
+        return "load" if strengthy or any(_loaded(e) for e in w.elements) else "totalReps"
+    if label == "none or max reps":
+        return "totalReps" if "max" in units else "none"
+    return _DRAFT_SCORE.get(label)
+
+
+def _draft_piece(piece: dict, base: str, flags: set, label: Optional[str], clock: list, rest: list) -> Workout:
+    w = Workout(source="draft")
+    kind = str(piece.get("kind") or base)
+    rounds = _float(piece.get("rounds"))
+    rounds = int(rounds) if rounds and rounds > 0 else None
+    window = _float(piece.get("window_s")) or None
+    strengthy = kind in _STRENGTH_KINDS or any("rest between sets" in c for c in clock)
     if kind in _DRAFT_INTERVAL_KINDS:
         w.intervals = _DRAFT_INTERVAL_KINDS[kind]
-    if kind in ("max_effort_test",):
+    if kind == "max_effort_test":
         w.max_effort = True
-    if kind in ("amrap_rounds", "amrap_reps", "cycles_continued_amrap"):
+    if kind in _AMRAP_KINDS:
         w.unbounded = True
         w.clock_is_duration = True
-    if kind == "rft_each_round_timed":
-        w.rest_ratio = 1.0
     if kind == "quality":
         w.practice = True
     if kind == "death_by":
         w.open_ladder = True
         w.unbounded = True
+    if kind == "window_buyin_max_reps" and not (rounds and rounds > 1):
+        # one window: a buy-in, then max work until the clock (an AMRAP with a buy-in)
+        w.intervals, w.unbounded, w.clock_is_duration, w.buy_in = None, True, True, True
+    if "work_ratio" in rest:
+        w.rest_ratio = 1.0
+        w.notes.append("ratio_assumed_1_to_1")
+    lines = [mv for mv in (piece.get("movements") or []) if isinstance(mv, dict)]
+    for seg in piece.get("segments") or []:
+        if isinstance(seg, dict):
+            lines += [mv for mv in (seg.get("movements") or []) if isinstance(mv, dict)]
     header = " ".join([str(piece.get("header") or "")] +
-                      [str(mv.get("name") or "") for mv in piece.get("movements") or []
+                      [str(mv.get("name") or "") for mv in lines
                        if not any(mv.get(k) for k in ("reps", "load", "distance", "time"))])
     h_total, h_window = header_clock(header)
-    if piece.get("window_s"):
-        w.window_s = float(piece["window_s"])
-        if rounds:
-            w.windows = rounds
+    if window and w.unbounded and not w.intervals:
+        w.cap_s = window                              # the AMRAP's length
+    elif window:
+        w.window_s = window
+        w.windows = rounds or (half_up(h_total / window) if h_total else None)
     elif h_window:
         w.window_s = h_window
-        w.windows = int(round(h_total / h_window)) if h_total else rounds
+        w.windows = half_up(h_total / h_window) if h_total else rounds
         w.notes.append("window_from_header")
+    if w.window_s and not w.intervals and not w.unbounded:
+        w.intervals = "every"                         # every N min, fixed starts, each round timed
     if w.window_s and w.windows:
         w.cap_s = w.window_s * w.windows
         w.clock_is_duration = True
-    elif h_total:
+    elif h_total and not w.cap_s:
         w.cap_s = h_total
         w.clock_is_duration = w.unbounded
         w.notes.append("minutes_from_header")
     if rounds and not w.windows:
         w.passes = rounds
-    for mv in piece.get("movements") or []:
-        if not any(mv.get(k) for k in ("reps", "load", "distance", "time", "unit")) and \
-                tx_is_instruction(str(mv.get("name") or "")):
-            w.notes.append("instruction_line")
+    if any("miss a minute" in c for c in clock):
+        label = "windowscompleted"
+    skipped = []
+    for mv in lines:
+        name = str(mv.get("name") or "")
+        has_num = any(mv.get(k) for k in ("reps", "load", "distance", "time", "unit"))
+        if re.match(r"\s*rest\b", name, re.I):
+            t = _seconds(mv.get("time") or name)
+            if t:
+                w.rest_s += t * (w.passes or w.windows or 1)
             continue
-        e = Element(movement=str(mv.get("name") or ""), rounds=rounds or 1)
-        if mv.get("distance"):
-            e.unit, e.value = "meters", _distance_m(mv["distance"])
-        elif str(mv.get("unit") or "").lower().startswith("cal"):
-            e.unit, e.value = "calories", _num(mv.get("reps"))
-        elif mv.get("time"):
-            e.unit, e.value = "seconds", _seconds(mv["time"])
-        elif str(mv.get("reps") or "").lower() == "max":
-            e.unit = "max"
-        elif mv.get("reps") is not None:
-            e.unit, e.value = "reps", _num(mv.get("reps"))
-        for k, v in parse_load(mv.get("load")).items():
-            setattr(e, k, v)
-        w.elements.append(e)
+        if not has_num and tx_is_instruction(name):
+            w.notes.append("instruction_line")
+            skipped.append(name)
+            continue
+        names, cx, sets = split_line(name)
+        if cx or (len(names) > 1 and strengthy):
+            w.complex = True
+        if sets and not w.passes and not w.windows:
+            w.passes = sets
+        for nm in names:
+            e = Element(movement=nm, rounds=w.passes or w.windows or 1, group="cx" if w.complex and len(names) > 1 else None)
+            mid = movement_id(nm)
+            dist = mv.get("distance")
+            if dist and mid in HEIGHT_MOVEMENTS and mv.get("reps"):
+                dist = None                           # a target height, not a distance
+                w.notes.append("height_not_distance")
+            reps = str(mv.get("reps") or "").strip().lower()
+            if dist:
+                e.unit, e.value = "meters", _distance_m(dist)
+            elif str(mv.get("unit") or "").lower().startswith("cal"):
+                e.unit, e.value = "calories", _num(mv.get("reps"))
+            elif reps == "max":
+                e.unit, e.value = "max", _seconds(mv["time"]) if mv.get("time") else None
+            elif mv.get("time"):
+                e.unit, e.value = "seconds", _seconds(mv["time"])
+            elif reps:
+                e.unit, e.value = "reps", _num(reps)
+            elif set_scheme(name):
+                sch = set_scheme(name)
+                e.unit, e.value = "reps", sum(sch) / len(sch)
+            for k, v in parse_load(mv.get("load")).items():
+                setattr(e, k, v)
+            w.elements.append(e)
+    if not w.elements:
+        # the movement is only in the header or an instruction line (a strength piece, a test)
+        for text in [str(piece.get("header") or "")] + skipped:
+            names, cx, sets = split_line(text)
+            known = [n for n in names if movement_id(n)]
+            if not known:
+                continue
+            sch = set_scheme(text)
+            if sch and not w.passes and not w.windows:
+                w.passes = len(sch)
+                w.rep_scheme = _ladder_of_values(sch)
+            if cx or len(known) > 1:
+                w.complex = strengthy or cx or w.complex
+            for n in known:
+                w.elements.append(Element(movement=n, unit="reps" if sch else None,
+                                          value=(sum(sch) / len(sch)) if sch else None,
+                                          rounds=w.passes or w.windows or 1,
+                                          group="cx" if w.complex and len(known) > 1 else None))
+            w.notes.append("movement_from_header")
+            break
     if "ladder_ascending" in flags:
         w.rep_scheme = "ascending"
     elif "ladder_descending" in flags:
@@ -709,29 +925,51 @@ def _draft_piece(piece: dict, base: str, flags: set, score: Optional[str]) -> Wo
         w.buy_in = True
     if "complex_lift" in flags:
         w.complex = True
+    if label is not None:
+        w.score = _draft_score(label, kind, w, strengthy)
+        if w.score is None:
+            w.notes.append("score_ambiguous")
     return w
 
 
+def _signature(w: Workout) -> tuple:
+    return (tuple(movement_id(e.movement) or e.movement.lower() for e in w.elements), w.window_s, w.cap_s,
+            w.unbounded, w.intervals)
+
+
 def from_draft_piece(cls: dict) -> Workout:
-    """One scale classification of a workout_drafts row (format, flags, scoring, parsed pieces)."""
+    """One scale classification of a workout_drafts row (format, flags, clock, rest, scoring,
+    parsed pieces). Identical timed pieces in a row are one set of repeated windows."""
     fmt = str(cls.get("format") or "")
-    flags = set(cls.get("flags") or [])
-    parsed = cls.get("parsed") or []
-    scoring = [str(s).strip().lower() for s in (cls.get("scoring") or [])]
+    flags = {str(f) for f in (cls.get("flags") or []) if isinstance(f, (str, int))}
+    clock = [str(c).lower() for c in (cls.get("clock") or []) if isinstance(c, str)]
+    rest = [str(r).lower() for r in (cls.get("rest") or []) if isinstance(r, str)]
+    parsed = [p for p in (cls.get("parsed") or []) if isinstance(p, dict)]
+    scoring = [str(x).strip().lower() for x in (cls.get("scoring") or [])]
     base = fmt.split("(")[0].replace("multi_part:", "").split("+")[0]
-    scores = [_DRAFT_SCORE.get(s) for s in scoring]
-    subs = [_draft_piece(p, base, flags, scores[min(i, len(scores) - 1)] if scores else None)
+    subs = [_draft_piece(p, base, flags, scoring[min(i, len(scoring) - 1)] if scoring else None, clock, rest)
             for i, p in enumerate(parsed)]
-    if len(subs) > 1:
+    if len(subs) > 1 and (subs[0].cap_s or subs[0].window_s) and subs[0].elements \
+            and all(_signature(x) == _signature(subs[0]) for x in subs):
+        w = subs[0]
+        n = len(subs)
+        if w.window_s:
+            w.windows = (w.windows or 1) * n
+        else:
+            w.window_s, w.windows, w.unbounded = w.cap_s, n, False
+        w.intervals = w.intervals or "windows"
+        w.cap_s = w.window_s * w.windows
+        w.clock_is_duration = True
+        w.notes.append("merged_repeated_windows")
+    elif len(subs) > 1:
         w = Workout(source="draft", score="perPiece", pieces=subs)
-        for s in subs:
-            w.elements.extend(s.elements)
+        for x in subs:
+            w.elements.extend(x.elements)
+            w.notes.extend(x.notes)
     elif subs:
         w = subs[0]
     else:
-        w = Workout(source="draft", score=scores[0] if scores else None)
-    if scoring and scores and scores[0] is None:
-        w.notes.append("score_ambiguous")
+        w = Workout(source="draft", score=_DRAFT_SCORE.get(scoring[0]) if scoring else None)
     w.notes.append("format:" + base)
     if "hyrox_track" in flags:
         w.notes.append("hyrox_track")
@@ -748,6 +986,13 @@ def _axis(value, confidence, reasons, **extra):
     out = {"value": value, "confidence": confidence, "reasons": list(reasons)}
     out.update(extra)
     return out
+
+
+def element_modality(e: Element) -> tuple:
+    """(modality or None, reason) of an element; a movement choice uses its shared modality."""
+    if e.movement.startswith("choice:"):
+        return (e.modality_hint, "movement_choice") if e.modality_hint else (None, "movement_choice")
+    return modality_of(e.movement)
 
 
 def _loaded(e: Element) -> bool:
@@ -770,7 +1015,7 @@ def _strength(w: Workout) -> tuple:
     main = [e for e in w.elements if e.main]
     if not main or w.practice or (w.unbounded and w.score != "load"):
         return False, None
-    loaded = [e for e in main if _loaded(e) or (implement_of(e.movement) and modality_of(e.movement)[0] == "W"
+    loaded = [e for e in main if _loaded(e) or (implement_of(e.movement) and element_modality(e)[0] == "W"
                                                and e.unit in ("reps", None))]
     if len(loaded) != len(main):
         return False, None
@@ -819,7 +1064,7 @@ def _modifiers(w: Workout, structure: str, strength_reason: Optional[str]) -> li
         mods.append("run_interleaved")
     if any(movement_id(e.movement) in ODD_OBJECTS for e in w.elements):
         mods.append("odd_object")
-    if any(_loaded(e) and modality_of(e.movement)[0] == "G" for e in w.elements):
+    if any(_loaded(e) and element_modality(e)[0] == "G" for e in w.elements):
         mods.append("loaded_bodyweight")
     return mods
 
@@ -849,6 +1094,8 @@ def classify_structure(w: Workout) -> dict:
         v, conf, reasons = "for_time", "high", ["one_pass"]
     else:
         return _axis(UNKNOWN, UNKNOWN, ["no_movements"], modifiers=[])
+    if "legacy_written_out" in w.notes:
+        conf, reasons = ("medium" if conf == "high" else conf), reasons + ["legacy_written_out"]
     return _axis(v, conf, reasons, modifiers=_modifiers(w, v, why if is_strength else None))
 
 
@@ -864,8 +1111,8 @@ def _heavy(e: Element) -> bool:
 def element_seconds(e: Element) -> Optional[float]:
     """Estimated seconds of one pass of an element, or None."""
     mid = movement_id(e.movement)
-    mod = modality_of(e.movement)[0] or "G"
-    if e.unit == "seconds" and e.value:
+    mod = element_modality(e)[0] or "G"
+    if e.unit in ("seconds", "max") and e.value:    # "max reps in 1 min" lasts the minute
         return e.value
     if e.unit == "meters" and e.value:
         return e.value / METERS_PER_SECOND.get(mid, METERS_PER_SECOND_DEFAULT)
@@ -945,11 +1192,11 @@ def classify_time_domain(w: Workout, structure: Optional[str] = None) -> dict:
             return _axis(UNKNOWN, UNKNOWN, ["pieces_without_estimate"], seconds=None)
         secs = sum(known)
         return _axis(_bucket(secs), "low" if len(known) < len(parts) else "medium", ["sum_of_pieces"],
-                     seconds=round(secs))
+                     seconds=half_up(secs))
     secs, src, conf = estimated_seconds(w)
     if secs is None:
         return _axis(UNKNOWN, UNKNOWN, [src], seconds=None)
-    out = _axis(_bucket(secs), conf, [src], seconds=round(secs))
+    out = _axis(_bucket(secs), conf, [src], seconds=half_up(secs))
     if w.intervals:
         bout = w.work_s_per_window
         if bout is None:
@@ -1020,8 +1267,10 @@ def classify_loading(w: Workout, athlete_max_kg: Optional[dict] = None, sex: str
         if level and (best is None or _ORDER[level] > _ORDER[best]):
             best, conf = level, c
     if best is not None:
+        if "no_reference" in reasons or "pick_load" in reasons:
+            conf = "low"
         return _axis(best, conf, reasons)
-    if not any_load and all(modality_of(e.movement)[0] in ("G", "M") for e in w.elements) and w.elements:
+    if not any_load and all(element_modality(e)[0] in ("G", "M") for e in w.elements) and w.elements:
         return _axis("bodyweight", "high", ["no_external_load"])
     return _axis(UNKNOWN, UNKNOWN, reasons or ["no_load"])
 
@@ -1032,9 +1281,11 @@ def classify_modality(w: Workout) -> dict:
     present, stations, reasons, unknown = [], [], [], 0
     share = {"G": 0.0, "W": 0.0, "M": 0.0}
     for e in w.elements:
-        mod, why = modality_of(e.movement)
+        mod, why = element_modality(e)
         if mod is None:
             unknown += 1
+            if why == "movement_choice" and why not in reasons:
+                reasons.append(why)
             continue
         if mod not in present:
             present.append(mod)
@@ -1045,13 +1296,14 @@ def classify_modality(w: Workout) -> dict:
             reasons.append(why)
         share[mod] += (element_seconds(e) or 0.0) * (e.rounds or 1)
     if not present:
-        return _axis(UNKNOWN, UNKNOWN, reasons or ["no_movements"], primary=None, stations=[], loaded=False)
+        why = reasons + (["unknown_movements:%d" % unknown] if unknown else ["no_movements"])
+        return _axis(UNKNOWN, UNKNOWN, why, primary=None, stations=[], loaded=False)
     if unknown:
         reasons.append("unknown_movements:%d" % unknown)
     total = sum(share.values())
     primary = max(share, key=share.get) if total > 0 else present[0]
     conf = "high" if unknown == 0 and reasons == ["lexicon"] else ("medium" if unknown == 0 else "low")
-    loaded = any(_loaded(e) and modality_of(e.movement)[0] == "G" for e in w.elements)
+    loaded = any(_loaded(e) and element_modality(e)[0] == "G" for e in w.elements)
     return _axis("".join(m for m in ("G", "W", "M") if m in present), conf, reasons,
                  primary=primary, stations=stations, loaded=loaded)
 
@@ -1067,7 +1319,9 @@ _SCORE_MAP = {"perPiece": "per_piece", "time": "time", "roundsReps": "rounds_rep
 def classify_scoring(w: Workout) -> dict:
     if w.pieces:
         per = [classify_scoring(p)["value"] for p in w.pieces]
-        return _axis("per_piece", "high", ["pieces:%d" % len(w.pieces)], pieces=per)
+        top = _SCORE_MAP.get(w.score) if w.score not in (None, "perPiece") else None
+        why = ["pieces:%d" % len(w.pieces)] + [n for n in w.notes if n.startswith("combine:")]
+        return _axis(top or "per_piece", "high", why, pieces=per)
     if w.score is None:
         return _axis(UNKNOWN, UNKNOWN, ["no_score"] + [n for n in w.notes if n == "score_ambiguous"])
     if w.open_ladder and w.intervals and w.score in ("roundsReps", "windowsCompleted"):
@@ -1090,6 +1344,7 @@ def classify(w: Workout, athlete_max_kg: Optional[dict] = None, sex: str = "m") 
         "loading": classify_loading(w, athlete_max_kg, sex, structure["value"]),
         "scoring": classify_scoring(w),
         "source": w.source,
+        "notes": sorted(set(w.notes)),     # adapter codes (legacy_written_out, override_ignored, ...)
     }
     if w.pieces:
         out["pieces"] = [classify(p, athlete_max_kg, sex) for p in w.pieces]

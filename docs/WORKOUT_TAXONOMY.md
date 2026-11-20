@@ -3,7 +3,8 @@
 Status: **spike, docs + Python only.** Nothing runs on the watch or the phone. Code:
 `tools/barpath/taxonomy.py` (pure classifier), `tools/taxonomy_corpus.py` (read-only corpus
 coverage), tests in `tools/tests/test_taxonomy.py`. Every example in this document and in the
-tests is invented. Revised after the coach review of #154.
+tests is invented. Revised after the coach review, the architecture review and the Data chat's
+corpus pass of #154.
 
 ## 1. What it is for
 
@@ -14,8 +15,9 @@ with runs interleaved; its stations are only extra tags.
 
 **Rule: derived, never stored.** The labels are computed from the workout's structure (RFC #55,
 `docs/WORKOUT_MODEL_RFC.md` §3: piece, `timed` window, `repeat`, `group`, `part`, `rest`) and from
-the #138 round decisions (`docs/WORKOUT_SPEC.md` §5c). They are never saved as a second description
-of the workout. If the structure changes, the labels change with it. Any cache must be keyed by the
+the #138 round decision (owner, 20 Nov, on issue #138: the block is the whole listed list;
+`roundSize` only groups parts for display). They are never saved as a second description of the
+workout. If the structure changes, the labels change with it. Any cache must be keyed by the
 structure hash (RFC §4 rule 11).
 
 ## 2. How it plugs in
@@ -27,8 +29,14 @@ import parse (drafts)    ─┘
 ```
 
 - **`from_v2(doc)`** walks `structure.body`:
-  - `part` becomes an element: movement, target, load (`value`/`unit` or `percent`/`basis`), `who`.
+  - **Pieces come from the body** (RFC §5): more than one top-level `timed`/`repeat` is a
+    multi-part entry, whatever the score type; `score.combine` is kept as a reason.
+  - `part` becomes an element: movement, target, load (`value`/`valueF`/`unit` or
+    `percent`/`basis`), `who`. A movement `{"choice": [...]}` takes the modality its options share
+    (row / bike / ski → M; `anyCardio` → M), else unknown (`movement_choice`). Targets in ft / yd /
+    mi are converted to metres.
   - `repeat.times` gives the passes; `times: null` is unbounded (only a clock or failure ends it).
+    A `{from, step}` climb over a counted repeat has `times` values.
   - `repeat.vary`:
     - a numeric list that rises, falls or peaks is a **rep scheme** (21-15-9, 1-to-10, pyramid);
     - a `{from, step}` climb in an unbounded repeat is an **open ladder**;
@@ -37,19 +45,40 @@ import parse (drafts)    ─┘
   - `group` with `asStep` is a complex (one implement, one load on the group).
   - `rest.seconds` and `rest.ratio`.
   - Parts before or after the main repeat are the buy-in and cash-out.
-  - `score.type`; a `perPiece` workout with several top-level pieces is classified per piece.
+  - `score.type`; `perPiece` (one round of the repeat named by `of`) is scored by its `metric`.
+  - Features the classifier does not use yet leave a code in `notes` (`override_ignored`,
+    `until_athlete`, `vary_repeat_times`, `distance_converted`), so the corpus pass can count them.
 - **`from_v1(definition)`** reads today's flat rows (`format`, `segments`, `timeCapSeconds`,
-  `intervalSeconds`, `roundSize`, `rounds`). A written-out list that repeats by `roundSize` is
-  folded back into one block; targets that change by round become the rep scheme.
+  `intervalSeconds`; and `rounds` when present, a proposal parked in #145). The block is the listed
+  list; `roundSize` is never used. Legacy rows that wrote their rounds out are folded back by the
+  period of repetition of their movements and units, as a heuristic: reason `legacy_written_out`,
+  structure confidence at most medium. A target that changes by round for the same movement and unit
+  is a rep scheme; values across different movements never are (a 50-40-30-20 chipper is a chipper).
 - **`from_draft_piece(classification)`** reads one scale of a `workout_drafts` row as the import
-  parsed it (`format`, `flags`, `scoring`, each piece's `kind`, `rounds`, `window_s`, movements).
-  It takes only numbers from the header ("AMRAP 12", "every 3 min for 15 min") and keeps no text.
-  Instruction lines parsed as movements are skipped.
+  parsed it (`format`, `flags`, `clock`, `rest`, `scoring`; each piece's `kind`, `rounds`,
+  `window_s`, `segments`, movements). It keeps no text:
+  - numbers from the header ("AMRAP 12", "every 3 min for 15 min"); an AMRAP's `window_s` is its
+    clock; interval windows without `rounds` are the header total ÷ the window;
+  - a header window makes intervals ("every N min", fixed starts); a ratio rest only when the
+    import says `work_ratio`;
+  - instruction lines are skipped, but "N× [A + B + C]" is a complex and "A + B" two movements;
+  - when no line names a movement, the header (and skipped lines) are searched, with set schemes
+    ("5-5-3-3-1", "4x8");
+  - "Rest" lines add rest; a wall-ball or box height is not a distance;
+  - combined scoring labels are split by the piece's kind and units ("time or load": load for a
+    strength piece, else time); "miss a minute and you are out" is pass/fail;
+  - identical timed pieces in a row are one set of repeated windows.
+
+**What gets ported to Swift:** `from_v2` and the six axes only. `from_v1` stays until the legacy
+rows are gone. The draft adapter, `header_clock` and the free-text `_NAME_RULES` are import-side and
+stay Python. Rounding is half away from zero (`half_up`, the same as Swift `.rounded()`), not
+Python's half-to-even.
 
 Every axis returns `{value, confidence, reasons}`:
 - `confidence` is `high`, `medium` or `low`;
 - `value: unknown` always has confidence `unknown`; `value: n/a` (does not apply) has `high`;
-- `reasons` are short codes (`lexicon`, `vs_standard`, `cap_upper_bound`, …), never workout text.
+- `reasons` are short codes (`lexicon`, `vs_standard`, `cap_upper_bound`, …), never workout text;
+- the result also has `notes`: the adapter's codes (`legacy_written_out`, `movement_choice`, …).
 
 ## 3. The six axes
 
@@ -61,8 +90,10 @@ Every axis returns `{value, confidence, reasons}`:
   carries, odd objects.
 - **M**, monostructural: run, row, bike, ski, swim, double-unders.
 
-Per element: the lexicon (`MOVEMENTS`), else a free-text name matched by keyword (`_NAME_RULES`;
-"Bent-over Row" is a barbell row, not the rower), else keyword fallbacks, else unknown.
+Per element: the lexicon (`MOVEMENTS`), else a free-text name matched by keyword (`_NAME_RULES`,
+plurals and -ing forms included; "Bent-over Row" is a barbell row, not the rower), else keyword
+fallbacks, else unknown. When nothing is known the reason is `unknown_movements:n`, and
+`no_movements` only when there are none.
 **Weighted bodyweight stays G** (a vest, a weighted pull-up): the axis carries `loaded: true` and
 the structure gets the `loaded_bodyweight` modifier; the load is a loading matter.
 
@@ -135,7 +166,7 @@ Sources, in order:
 4. **Unknown:** an unbounded repeat with no clock (ends on failure), or no numbers at all.
 
 Intervals also get **`work_bout`**: `short` up to 1:00, `medium` up to 3:00, `long` beyond, from the
-work in one window.
+work in one window. A Tabata's clock is its windows including the rest (8 × 30 s = 4:00).
 
 Invented checks: a 3-round triplet of 400 m run, 21 swings and 12 pull-ups under a 20:00 cap comes
 out at about 9 min (medium), not at the cap; a full Hyrox Open race comes out at about 75 min
@@ -157,7 +188,8 @@ heaviest loaded element decides. The reference, in order:
    barbell one; a goblet squat is a kettlebell. In a Hyrox workout, the stations are compared with
    the race divisions (`HYROX_DIVISIONS`: Open moderate, Pro heavy; check the current rulebook).
 4. **Unknown:** loaded with no reference (`no_reference`, e.g. a sandbag clean, or a back squat by
-   kg with no max), or "pick a load" (`pick_load`).
+   kg with no max), or "pick a load" (`pick_load`). When the heaviest referenced part sets the
+   level but another loaded part has no reference, the confidence drops to low.
 
 `n/a` for `practice`.
 
@@ -179,7 +211,7 @@ heaviest loaded element decides. The reference, in order:
 | `calories_distance` | `distance`, `calories`, `maxHeight` |
 | `pass_fail` | `windowsCompleted` only: a fail-out or "complete every window" |
 | `none` | `none`; **an EMOM by default** |
-| `per_piece` | a multi-part workout; each piece has its own |
+| `per_piece` | a multi-part workout scored `none` or per piece; each piece has its own (`pieces`) |
 
 An import label that names two scores ("time or load") is unknown (`score_ambiguous`).
 
@@ -215,7 +247,15 @@ python3 tools/taxonomy_corpus.py --export drafts.json --ids 20        # id lists
 The Data chat runs it and cross-checks the misclassifications. Its `--ids 0` summary table goes
 here:
 
-> _Summary table: pending the Data chat's run._
+> _Summary table for the fixed head: pending the Data chat's rerun._
+
+**Baseline at 72dcfa2** (the first head, five axes, before the reviews; Data chat, read-only, all
+2,518 drafts → 3,038 pieces, none crashed). Unknown rate: modality 21.7 %, shape 1.3 %, time 30.0 %,
+loading 70.4 %, scoring 0.6 %. Lexicon misses 9.9 % (1,033 of 10,451 movements). A hand check of 39
+pieces weighted to suspects found 34 % of the labels wrong. Hyrox stations seen: row 376, wall
+balls 171, SkiErg 129, farmers carry 114, sled pull 47, sled push 46, burpee broad jumps 28,
+sandbag lunges 4. The causes found (lost clocks, movements only in headers, plurals, implements,
+"every N min" pieces, combined scoring labels) are fixed in the adapter above.
 
 For reference, the import's own format labels over the 3,038 pieces (labels only, counted
 20 Nov): strength sets 518, quality 511, EMOM 482, rounds for time 396, for time 333, AMRAP rounds
