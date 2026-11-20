@@ -422,7 +422,7 @@ struct WorkoutMainPage: View {
     /// "Round 4 · 2/4" for workouts with a repeating round, else nil.
     private func roundText() -> String? {
         let p = model.progress
-        if p.block != nil { return WorkoutBlockText.roundAndPart(p) }
+        if p.isRepeatingBlock { return WorkoutBlockText.roundAndPart(p) }
         guard let size = p.definition.roundSize, p.isStarted else { return nil }
         let i = p.currentIndex
         // One-part AMRAP rounds (#138): the round alone, never "7/30" of the written-out list.
@@ -439,7 +439,9 @@ struct WorkoutMainPage: View {
 
     /// The current segment's colour (name, border slice, NOW flash): see `SegmentPalette`.
     private var currentColor: Color {
-        return SegmentPalette.color(forSegmentAt: model.progress.currentIndex, in: model.progress.definition)
+        // A repeating block (5c): the colour of the step's part, so pass 2 keeps its colours.
+        let p: WorkoutProgress = model.progress
+        return SegmentPalette.color(forSegmentAt: p.partIndex(ofStep: p.currentIndex), in: p.definition)
     }
 
     /// Run with a metre target: pedometer distance into the segment / target (0…1). Nil when
@@ -497,8 +499,9 @@ struct WorkoutMainPage: View {
                                              tick: tick,
                                              color: SegmentPalette.elapsed)
         }
+        // A repeating block: one slice per part of the block, the current part filling.
         return RaceBorderState.segments(colors: SegmentPalette.segmentColors(for: definition),
-                                        currentIndex: p.currentIndex,
+                                        currentIndex: p.partIndex(ofStep: p.currentIndex),
                                         currentFraction: currentSegmentFraction(now: now))
     }
 
@@ -627,6 +630,9 @@ struct WorkoutMainPage: View {
         let nowT: Double = now.timeIntervalSince1970
         if let cap = p.capTime {
             let left: String = SessionModel.formatElapsed(max(0, cap - nowT).rounded(.up)) + " left"
+            if p.isRepeatingBlock, let pos = p.position(ofStep: p.currentIndex) {
+                return "R\(pos.pass + 1) · " + left
+            }
             if let size = p.definition.roundSize, size > 1 {
                 return "R\(p.currentIndex / size + 1) · " + left
             }
@@ -658,7 +664,7 @@ struct WorkoutMainPage: View {
     private var nextText: String {
         // Block mode with an interval (5c): the Crown is ignored in the wait for the next window.
         if model.progress.isWaitingForWindow {
-            return "Next set on the clock"
+            return model.progress.nextSegment == nil ? "Finishes on the clock" : "Next set on the clock"
         }
         if let next = model.progress.nextSegment {
             return "Next: " + next.title
@@ -1152,7 +1158,7 @@ struct WorkoutEndConfirmView: View {
 enum WorkoutBlockText {
     /// "Round 3", or "Round 3/5" when the round count is known.
     static func round(_ p: WorkoutProgress) -> String? {
-        guard let plan = p.block, plan.kind == .repeating, p.isStarted,
+        guard let plan = p.block, p.isRepeatingBlock, p.isStarted,
               let pos = p.position(ofStep: p.currentIndex) else { return nil }
         if let r = plan.rounds {
             return "Round \(pos.pass + 1)/\(r)"

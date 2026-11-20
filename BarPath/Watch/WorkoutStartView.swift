@@ -12,6 +12,8 @@ struct WorkoutStartView: View {
     /// back to the foreground (Settings changed) and when the practice or a workout writes the flag.
     @State private var sensorBanner: SensorBanner? = WorkoutSensorBanner.current()
     @Environment(\.scenePhase) private var scenePhase
+    /// E2/E3: the stored engine switch, observed so "NEW" follows a change from the phone.
+    @AppStorage(WorkoutEngineSwitch.storageKey) private var engineRaw: String = ""
 
     var body: some View {
         VStack(spacing: 6) {
@@ -25,7 +27,7 @@ struct WorkoutStartView: View {
                         .foregroundColor(.secondary)
                 }
                 // E3 (0.18, QA): the new engine is on for the next START (phone Settings).
-                if WorkoutEngineSwitch.current() == .v2 {
+                if WorkoutEngine.resolve(engineRaw.isEmpty ? nil : engineRaw) == .v2 {
                     Text("NEW")
                         .font(.system(size: 10, weight: .heavy, design: .rounded))
                         .foregroundColor(.green)

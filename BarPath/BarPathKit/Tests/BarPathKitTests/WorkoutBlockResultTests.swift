@@ -115,4 +115,45 @@ final class WorkoutBlockResultTests: XCTestCase {
         XCTAssertEqual(viaResult.map { (i: ResultInsight) -> String in i.id },
                        viaShown.map { (i: ResultInsight) -> String in i.id })
     }
+
+    /// A listed-once fixed list (Hyrox marked) on the new engine stores today's result: same splits,
+    /// no passes, no pass numbers (the E3 review blocker).
+    func testAMarkedFixedListStoresTodaysResultOnTheNewEngine() {
+        var marked: WorkoutDefinition = WorkoutLibrary.hyroxSolo
+        marked.listedOnce = true
+        var onNew: WorkoutProgress = RepeatBlock.startProgress(for: marked, engine: .v2)
+        var classic: WorkoutProgress = RepeatBlock.startProgress(for: WorkoutLibrary.hyroxSolo, engine: .legacy)
+        XCTAssertEqual(onNew.block?.kind, RepeatBlock.Kind.fixed)
+        XCTAssertFalse(onNew.isRepeatingBlock)
+        let t0: Double = 1_800_000_000
+        onNew.start(at: t0)
+        classic.start(at: t0)
+        for k in 1...5 {
+            onNew.advance(at: t0 + Double(60 * k), source: .crown)
+            classic.advance(at: t0 + Double(60 * k), source: .crown)
+        }
+        XCTAssertNil(onNew.passesStarted)
+        XCTAssertEqual(onNew.partIndex(ofStep: 5), 5)
+        let a: [SegmentResult] = SplitStats.compute(progress: onNew, now: t0 + 400, heartRates: [], pedometer: [])
+        let b: [SegmentResult] = SplitStats.compute(progress: classic, now: t0 + 400, heartRates: [], pedometer: [])
+        XCTAssertEqual(a, b)
+        XCTAssertTrue(a.allSatisfy { (s: SegmentResult) -> Bool in s.pass == nil })
+    }
+
+    func testPartIndexAndPassesOfARepeatingBlock() {
+        let p: WorkoutProgress = cappedProgress()
+        XCTAssertTrue(p.isRepeatingBlock)
+        XCTAssertEqual(p.partIndex(ofStep: 3), 1)
+        XCTAssertEqual(p.passesStarted, 2)
+        var legacy = WorkoutProgress(definition: WorkoutLibrary.helen)
+        legacy.start(at: 0)
+        XCTAssertEqual(legacy.partIndex(ofStep: 7), 7)
+        XCTAssertNil(legacy.passesStarted)
+    }
+
+    func testDisplayDefinitionIsClampedForACorruptIndex() {
+        var r: WorkoutResult = result(cappedProgress())
+        r.segments[3].index = 1_000_000
+        XCTAssertLessThanOrEqual(r.displayDefinition.segments.count, r.segments.count + r.definition.segments.count)
+    }
 }
