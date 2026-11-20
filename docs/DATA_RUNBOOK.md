@@ -16,6 +16,7 @@ this text: recordings, labels, datasets, videos and notes stay in private Storag
 | `Corpus/eval/` | score history | the Data chat |
 | `Corpus/datasets/v<N>/` | versioned datasets (`tools/build_dataset.py`); never overwritten | the Data chat |
 | `Corpus/tracker/movements.json` | coverage per movement (`tools/movement_tracker.py`) | the Data chat |
+| `Corpus/state/athletes.json` | which storage folder is which athlete (A = owner, B, C, ... testers); the evening check lists every folder in it, and a new folder is added with the next letter | the Data chat |
 | `Corpus/state/last_check.json` | `{"checkedAt": ISO time, "done": [result ids]}` | the Data chat |
 
 Videos are deleted from the inbox once their times are in a label.
