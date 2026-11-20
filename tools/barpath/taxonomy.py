@@ -11,7 +11,7 @@ Pure functions, no I/O. The classification is never stored; it is recomputed fro
     loading       light / moderate / heavy / bodyweight, relative to the athlete: their max, a stated
                   %RM, else the standard for that implement, scale and sex (a proxy); unknown when
                   loaded without a reference; n/a for practice
-    scoring       time, rounds_reps, reps, load, calories_distance, pass_fail, none
+    scoring       time, rounds_reps, reps, load, calories_distance, pass_fail, none, per_piece
 
 Every axis returns {"value", "confidence", "reasons"}; confidence is high / medium / low, value
 "unknown" has confidence "unknown", value "n/a" has confidence "high". Reasons are short codes.
@@ -41,6 +41,7 @@ RX_LIGHT_MAX = 0.75           # load / standard below which a load is light
 RX_HEAVY_MIN = 1.10           # from here heavy
 STRENGTH_MAX_REPS = 6         # reps per set at or below which loaded sets are strength
 CHIPPER_MIN_MOVEMENTS = 4
+TABATA_MAX_WORK_S = 30        # timed windows with a rest are Tabata-style only up to this much work
 
 LB_PER_KG = 2.20462
 UNKNOWN = "unknown"
@@ -379,6 +380,12 @@ def _ladder_of_values(values) -> Optional[str]:
 
 # ---- adapter: today's flat definition ----------------------------------------------------------
 
+def _tgt(seg: dict) -> dict:
+    """A v1 segment's target, {} when missing or not an object (never throws)."""
+    t = seg.get("target")
+    return t if isinstance(t, dict) else {}
+
+
 def _period(keys: list) -> Optional[int]:
     """Smallest p with keys[i] == keys[i % p] for all i and at least two full passes."""
     n = len(keys)
@@ -403,7 +410,7 @@ def from_v1(d: dict) -> Workout:
     passes = d.get("rounds") if isinstance(d.get("rounds"), int) and d.get("rounds") > 0 else None
     block = allsegs
     rs = n_all
-    keys = [(s.get("movement") or s.get("kind"), (s.get("target") or {}).get("unit")) for s in allsegs]
+    keys = [(s.get("movement") or s.get("kind"), _tgt(s).get("unit")) for s in allsegs]
     period = _period(keys) if not passes else None
     if period:
         rs = period
@@ -411,17 +418,17 @@ def from_v1(d: dict) -> Workout:
         passes = n_all // rs
         w.notes.append("legacy_written_out")
         for p in range(rs):
-            vals = [(allsegs[i].get("target") or {}).get("value") for i in range(p, n_all, rs)]
+            vals = [_tgt(allsegs[i]).get("value") for i in range(p, n_all, rs)]
             scheme = _ladder_of_values(vals) if len(set(map(str, vals))) > 1 else None
             if scheme and allsegs[p].get("kind") != "rest":
                 w.rep_scheme = scheme
     for i, s in enumerate(block):
-        t = s.get("target") or {}
+        t = _tgt(s)
         if s.get("kind") == "rest":
             if t.get("unit") == "seconds":
                 w.rest_s += (_float(t.get("value")) or 0.0) * (passes or 1)
             continue
-        vals = [(allsegs[j].get("target") or {}).get("value") for j in range(i, n_all, rs)]
+        vals = [_tgt(allsegs[j]).get("value") for j in range(i, n_all, rs)]
         nums = [v for v in (_float(x) for x in vals) if v is not None]
         mv = s.get("movement")
         e = Element(movement=mv if isinstance(mv, str) else "", unit=t.get("unit"),
@@ -461,10 +468,19 @@ def _is_race(w: Workout) -> bool:
 
 # ---- adapter: v2 structure ----------------------------------------------------------------------
 
+VARY_MAX_VALUES = 1000   # a longer {from, step} climb is summarised by its first, mean and last value
+
+
 def _vary_values(spec, times: Optional[int] = None):
     if isinstance(spec, dict) and "step" in spec:
         start, step = _float(spec.get("from")) or 0.0, _float(spec["step"]) or 0.0
-        return [start + k * step for k in range(times if times else 3)]
+        n = times if times else 3
+        if n > VARY_MAX_VALUES:   # never build a list from an absurd `times` (review round 2)
+            return [start, start + step * (n - 1) / 2.0, start + step * (n - 1)]
+        return [start + k * step for k in range(n)]
+    if isinstance(spec, str):     # "21-15-9"
+        m = _REP_SCHEME.search(spec)
+        return [int(x) for x in re.split(r"\s*-\s*", m.group(1))] if m else None
     if isinstance(spec, list):
         if all(isinstance(v, (int, float)) for v in spec):
             return list(spec)
@@ -491,14 +507,18 @@ def from_v2(doc: dict) -> Workout:
     multi-part entry, whatever the score type; `combine` says how their scores add up."""
     st = doc.get("structure") if isinstance(doc.get("structure"), dict) else {}
     if not st and isinstance(doc.get("scales"), list) and doc["scales"] and isinstance(doc["scales"][0], dict):
-        st = doc["scales"][0].get("structure") or {}
+        st = doc["scales"][0].get("structure")
+        st = st if isinstance(st, dict) else {}
     score = st.get("score") if isinstance(st.get("score"), dict) else {}
     body = st.get("body") if isinstance(st.get("body"), list) else []
     tops = [n for n in body if _node(n)[0] in ("timed", "repeat")]
     if len(tops) > 1:
         top_type = score.get("type")
         w = Workout(source="v2", team=doc.get("team"), score="perPiece" if top_type in (None, "none", "perPiece") else top_type)
-        sub_score = {"type": top_type if top_type not in (None, "none", "perPiece") else None}
+        if top_type == "perPiece":   # each piece keeps the metric (review round 2)
+            sub_score = {"type": "perPiece", "metric": score.get("metric")}
+        else:
+            sub_score = {"type": top_type if top_type not in (None, "none") else None}
         for n in tops:
             sub = _v2_workout([n], sub_score, doc.get("team"))
             w.pieces.append(sub)
@@ -590,16 +610,22 @@ def _v2_workout(body, score: dict, team) -> Workout:
                 else:
                     w.rest_s += (_float(c.get("seconds")) or 0.0) * (passes or 1)
             elif kind == "group":
-                g = c.get("id") or "g" if c.get("asStep") else group
+                g = (c.get("id") or "g%d" % len(w.elements)) if c.get("asStep") else group
                 if c.get("asStep"):
                     w.complex = True
+                start = len(w.elements)
                 walk(c.get("body") or [], passes, depth, inside_window, vary, main, g)
+                # only the elements this group added get its load (review round 2: it leaked)
                 for k, v in parse_load(c.get("load")).items():
-                    for e in w.elements:
-                        if e.group == g and getattr(e, k) is None:
+                    for e in w.elements[start:]:
+                        if getattr(e, k) is None:
                             setattr(e, k, v)
             elif kind == "repeat":
-                times = c.get("times") if isinstance(c.get("times"), int) and c.get("times") > 0 else None
+                raw_times = c.get("times")
+                times = raw_times if isinstance(raw_times, int) and not isinstance(raw_times, bool) \
+                    and raw_times > 0 else None
+                if raw_times is not None and times is None:
+                    note("times_invalid")
                 rv = c.get("vary") if isinstance(c.get("vary"), dict) else {}
                 if c.get("override"):
                     note("override_ignored")
@@ -626,8 +652,9 @@ def _v2_workout(body, score: dict, team) -> Workout:
                     w.intervals = w.intervals or "windows"
                     w.windows = times
                     rests = [_node(x)[1] for x in c["body"] if _node(x)[0] == "rest"]
-                    if rests and "seconds" in rests[0]:
-                        w.intervals = "tabata"
+                    work = [_float(_node(x)[1].get("seconds")) or 0.0 for x in c["body"] if _node(x)[0] == "timed"]
+                    if rests and "seconds" in rests[0] and work and max(work) <= TABATA_MAX_WORK_S:
+                        w.intervals = "tabata"        # short work windows with a rest: Tabata-style
                 elif "rest" in inner_kinds and times and times >= 2:
                     w.intervals = w.intervals or "work_rest"
                 inner = dict(vary)
@@ -661,8 +688,8 @@ def _v2_workout(body, score: dict, team) -> Workout:
         w.partner = "synchro"
     elif team in ("doubles", "team"):
         w.partner = "stations_split" if _is_race(w) else UNKNOWN
-    if score.get("type") == "none" and not w.cap_s and not w.intervals:
-        w.practice = True
+    if score.get("type") == "none" and not w.cap_s and not w.intervals and not _strength(w)[0]:
+        w.practice = True       # %RM or low reps in counted sets stay strength (review round 2)
     if score.get("type") == "load" and any(e.unit == "max" or (e.unit == "reps" and e.value == 1)
                                            for e in w.elements):
         w.max_effort = True
@@ -1352,6 +1379,9 @@ def classify_loading(w: Workout, athlete_max_kg: Optional[dict] = None, sex: str
     structure = structure or classify_structure(w)["value"]
     if structure == "practice":
         return _axis(NA, "high", ["practice"])
+    sex = "f" if str(sex or "m").lower().startswith("f") else "m"
+    maxes = {k: float(v) for k, v in (athlete_max_kg or {}).items()
+             if isinstance(v, (int, float)) and not isinstance(v, bool) and v > 0}
     best, reasons, conf = None, [], "high"
     any_load = any(_loaded(e) for e in w.elements)
     hyrox = _is_race(w) or "hyrox_track" in w.notes
@@ -1361,8 +1391,8 @@ def classify_loading(w: Workout, athlete_max_kg: Optional[dict] = None, sex: str
         level, why, c = None, None, "high"
         if e.load_pct is not None:
             level, why = _level_pct(e.load_pct), "percent_of_max"
-        elif kg is not None and athlete_max_kg and mid in athlete_max_kg:
-            level, why = _level_pct(100.0 * kg / athlete_max_kg[mid]), "athlete_max"
+        elif kg is not None and mid in maxes:
+            level, why = _level_pct(100.0 * kg / maxes[mid]), "athlete_max"
         elif kg is not None and mid in HYROX_DIVISIONS and (hyrox or not _standard(e, sex)):
             om, of, pm, pf = HYROX_DIVISIONS[mid]
             open_ref, pro_ref = (om, pm) if sex == "m" else (of, pf)

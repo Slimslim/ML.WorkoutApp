@@ -568,6 +568,11 @@ def test_classification_is_deterministic():
     {"schemaVersion": 2, "structure": {"body": [{"group": {"asStep": True, "load": {"percent": "x"},
                                                            "body": [part("cleans", "reps", 1)]}}]}},
     {"format": "amrap", "segments": [None, {"movement": {"choice": "anyCardio"}}], "timeCapSeconds": "x"},
+    # review round 2 (S5): a scale structure that is not an object; v1 targets that are not objects
+    {"schemaVersion": 2, "scales": [{"structure": "x"}]},
+    {"format": "forTime", "segments": [{"movement": "burpees", "target": "x"}, {"movement": "run", "target": 5}]},
+    {"schemaVersion": 2, "structure": {"body": [{"repeat": {"times": 10 ** 9, "vary": {"a": {"from": 1, "step": 1}},
+                                                            "body": [part("burpees", "reps", 1, pid="a")]}}]}},
 ])
 def test_never_throws(doc):
     c = tx.classify_definition(doc)
@@ -804,3 +809,71 @@ def test_amrap_buy_in_is_not_a_movement():
                                   window_s=900, scoring="rounds+reps", flags=["buyin_cashout_named"]))
     c = tx.classify(w)
     assert c["movements"]["value"] == "couplet" and "buy_in" in c["structure"]["modifiers"]
+
+
+
+# ---- architecture review round 2 (a9fda39) -----------------------------------------------------
+
+def test_percent_sets_without_rest_are_strength_not_practice():
+    doc = v2([repeat(5, [part("backSquat", "reps", 5, load={"percent": 80, "basis": "1RM"})])], "none")
+    v = values(doc)
+    assert v["structure"] == "strength" and v["loading"] == "heavy"
+
+
+def test_group_load_stays_in_its_group():
+    doc = v2([part("run", "meters", 400), group([part("cleans", "reps", 3)], load=kg(60), as_step=False)], "time")
+    w = tx.from_v2(doc)
+    run, cleans = w.elements
+    assert run.load_kg is None and cleans.load_kg == 60
+    # two asStep groups keep their own loads
+    two = v2([group([part("cleans", "reps", 1)], load=kg(60)), group([part("snatches", "reps", 1)], load=kg(40))],
+             "load")
+    a, b = tx.from_v2(two).elements
+    assert (a.load_kg, b.load_kg) == (60, 40)
+
+
+def test_corpus_survives_scales_that_are_not_a_list():
+    import importlib.util
+    import pathlib
+    spec = importlib.util.spec_from_file_location(
+        "taxonomy_corpus", pathlib.Path(__file__).resolve().parents[1] / "taxonomy_corpus.py")
+    corpus = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(corpus)
+    stats = corpus.run([("lib.test.20260101.a", {"scales": 5}), ("lib.test.20260101.b", {"scales": "x"})], 0)
+    assert stats["pieces"] == 0
+
+
+def test_athlete_max_that_is_not_positive_is_ignored():
+    doc = v2([part("backSquat", "reps", 5, load=kg(100))], "time")
+    for maxes in ({"backSquat": 0}, {"backSquat": None}, {"backSquat": -5}, {"backSquat": "x"}):
+        assert tx.classify_definition(doc, athlete_max_kg=maxes)["loading"]["value"] == tx.UNKNOWN
+
+
+def test_sex_is_normalised():
+    doc = v2([part("thrusters", "reps", 21, load={"value": 43, "valueF": 29, "unit": "kg"})], "time")
+    assert values(doc, sex="F")["loading"] == values(doc, sex="f")["loading"]
+    assert values(doc, sex="x")["loading"] == values(doc, sex="m")["loading"]
+
+
+def test_long_windows_with_rest_are_windows_not_tabata():
+    doc = v2([repeat(4, [timed(240, [part("burpees", "reps", 10)]), rest(60)])], "totalReps")
+    c = tx.classify_definition(doc)["structure"]
+    assert c["value"] == "intervals" and c["reasons"] == ["intervals:windows"]
+
+
+def test_invalid_times_leave_a_note():
+    doc = v2([{"repeat": {"times": 3.0, "body": [part("burpees", "reps", 5)]}}], "time")
+    assert "times_invalid" in tx.from_v2(doc).notes
+
+
+def test_per_piece_metric_reaches_the_pieces():
+    doc = {"schemaVersion": 2, "structure": {
+        "score": {"type": "perPiece", "metric": "distance"},
+        "body": [timed(300, [part("row", "meters", None)]), timed(300, [part("row", "meters", None)])]}}
+    c = tx.classify_definition(doc)["scoring"]
+    assert c["pieces"] == ["calories_distance", "calories_distance"]
+
+
+def test_string_vary_is_a_rep_scheme():
+    doc = v2([repeat(3, [part("thrusters", "reps", None, pid="a")], vary={"a": "21-15-9"})], "time")
+    assert tx.from_v2(doc).rep_scheme == "descending"

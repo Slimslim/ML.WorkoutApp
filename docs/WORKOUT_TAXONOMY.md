@@ -213,7 +213,9 @@ heaviest loaded element decides. The reference, in order:
 | `none` | `none`; **an EMOM by default** |
 | `per_piece` | a multi-part workout scored `none` or per piece; each piece has its own (`pieces`) |
 
-An import label that names two scores ("time or load") is unknown (`score_ambiguous`).
+An import label that names two scores ("time or load") is split by the piece's kind and units where
+it can be, else unknown (`score_ambiguous`). With a top-level `perPiece`, each piece is scored by its
+`metric`.
 
 ## 4. Edge cases
 
@@ -225,7 +227,12 @@ An import label that names two scores ("time or load") is unknown (`score_ambigu
 - **Buy-in + AMRAP + cash-out:** structure `amrap` with `buy_in`/`cash_out`; the movement count is
   the AMRAP's.
 - **A cap on a for-time workout** never sets the domain when the estimate is shorter.
-- **Written-out rows** (today's AMRAPs, Helen-style rounds) are folded by `roundSize` first.
+- **Written-out rows** (legacy AMRAPs and rounds listed out) are folded by the period of repetition
+  (`legacy_written_out`, medium confidence), never by `roundSize`. A known false positive: two
+  consecutive parts of the same movement (run 400 m, then run 800 m) fold into 2 rounds with an
+  ascending rep scheme.
+- **Tabata-style** intervals: timed windows with a rest in seconds, at most 30 s of work each
+  (`TABATA_MAX_WORK_S`); longer windows with a rest are `windows`. The clock is windows × (work + rest).
 - **Unknown movement names** fall back to keywords, else stay unknown (`unknown_movements:n`).
 
 ### Known limits (documented, not fixed in the spike)

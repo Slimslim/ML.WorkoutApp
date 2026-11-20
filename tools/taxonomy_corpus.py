@@ -83,7 +83,8 @@ def load_rows(args) -> list:
 
 def pieces(definition: dict):
     """(scale index, classification) for each scale of a draft that carries one."""
-    for i, scale in enumerate(definition.get("scales") or []):
+    scales = definition.get("scales")
+    for i, scale in enumerate(scales if isinstance(scales, list) else []):
         cls = scale.get("classification") if isinstance(scale, dict) else None
         if isinstance(cls, dict):
             yield i, cls
@@ -106,8 +107,8 @@ def run(rows, max_ids: int = 0) -> dict:
     n = 0
     stations = Counter()
     for rid, definition in rows:
-        if not isinstance(definition, dict):
-            errors.append(str(rid))
+        if not isinstance(definition, dict) or not isinstance(definition.get("scales", []), list):
+            errors.append(str(rid))   # one bad draft is counted, never stops the run
             continue
         for i, cls in pieces(definition):
             n += 1
