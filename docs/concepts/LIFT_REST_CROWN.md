@@ -32,9 +32,10 @@ starts the watch at the bar. Swiping is off during In set.
 
 Events from motion before the Crown turn are dropped, and both detectors restart counting only
 motion after it. That is a structural guarantee, not a threshold, so it holds for every lift.
-What remains: (1) a shake after arming but before the set (same as today); (2) an accidental
-0.8-turn Crown turn (sleeve, wrist on the knee) arms; (3) forgetting to turn the Crown means the
-set isn't counted. For (3) the Rest screen's cue is the reminder; see open question Q3.
+What remains: (1) a shake after arming but before the set (same as today, for at most the 3 min
+armed time-out); (2) an accidental 0.8-turn Crown turn (sleeve, wrist on the knee) arms; (3)
+forgetting to turn the Crown means the set isn't counted: the "Turn the Crown?" buzz tells the
+athlete, without counting anything.
 
 ## Risk to recording
 
@@ -50,10 +51,15 @@ set isn't counted. For (3) the Rest screen's cue is the reminder; see open quest
 ## Decisions (20 Nov, #150)
 
 1. Weight at rest: **variant A** (tap the weight, then the Crown). Owner's choice.
-2. Armed time-out: **none** (default; the owner can change it after the device test).
-3. Forgotten Crown: **no buzz** (default).
-4. Change lift: **on the End page** (default).
-5. Olympic lifts: **a Crown turn before every single** too (default).
+2. Armed time-out: **yes, 3 min** (owner). Armed with no set → back to Rest, the rest counting on from
+   the last set; not while a rep / lift is under way. `LiftCycle.armedTimeout`.
+3. Forgotten Crown: **yes** (owner). While resting, the same rule that would start a set runs in the
+   shadow: deadlift = 2 reps that would have counted within 6 s of each other (`SetTracker.restReps`);
+   Olympic = a lift start from a shadow lift detector. The watch buzzes once per rest and shows
+   "Turn the Crown?". Nothing is counted, recorded or uploaded. A hand shake is at most one rep, so
+   it never buzzes. A real single at rest without the Crown doesn't buzz either (deadlift).
+4. Change lift: **on the End page** (owner OK).
+5. Olympic lifts: **a Crown turn before every single** too (owner).
 
 ## Not in this build
 
