@@ -154,7 +154,7 @@ The + opens a standard iOS menu: Record a lift, Start a workout. Log a result jo
 | Lifts: choose lift and load, send | + › Record a lift | Keep "Log load" and the on-watch row |
 | Workouts: Next workout bar, Choose | Workouts tab; Today's Send to watch | Keep the library, search, history, refresh and offline cache |
 | Workouts: result list | Log | Merged with lifting history |
-| Workout detail, share, Fix splits | Report, from Log or Today | Fix splits is a sheet, unchanged |
+| Workout detail, share, Fix splits | Report, from Log; from Today via the workout page (card + Your results, #137) | Fix splits is a sheet, unchanged |
 | History: sessions, lifts, delete | Log | Keep delete with confirmation |
 | Debug: account section | Avatar menu and Settings | Sign out in the menu; Upload now and Delete account in Settings |
 | Debug: recordings, files, config, connection | Settings › For testing › Debug tools | Keep in TestFlight builds |

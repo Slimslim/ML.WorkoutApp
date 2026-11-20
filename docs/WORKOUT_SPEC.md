@@ -526,6 +526,144 @@ Python: `for_time_cap_time`, `segment_index_at`, `cap_segment_index(now)`; on th
 - Overview hero: the context line above (WorkoutSummary), no view change.
 - Fix splits: "Reps at the cap · <segment>" stepper when the result is capped (setRepsAtCap).
 
+## 5c. Repeating blocks and fixed lists (brief, #138, owner decision 20 Nov)
+
+Status: **brief only.** The Python reference and the pure BarPathKit code come next. Nothing is
+wired into the watch or phone before 5 Dec. Until then the 0.17.1 stopgap (§5a) stays unchanged.
+Questions for the owner are marked **[Q1]…[Q8]**. They are open; this brief does not decide them.
+
+### What the owner decided
+- **Two kinds of workout.**
+  - *Repeating block*: Rounds for time, AMRAP, EMOM, Tabata, "Go every …". The definition lists
+    one block, once, and the watch repeats it.
+  - *Fixed list*: everything else (for time, chipper, Hyrox). The parts are done once.
+- **The block is the whole listed list.** `roundSize` only groups parts for display. It never
+  decides what repeats.
+- **Nothing is copied into the definition.** The next pass of the block starts when the athlete
+  reaches the end of the current one ("lazy rounds"). The result stores what was actually done.
+- **Fixed lists behave exactly as today.** Hyrox and every other fixed list keep today's path.
+
+### Words
+- **Part**: one listed segment of the definition, `segments[p]`, with `p` in `0..<P` (`P = segments.count`).
+- **Pass**: one time through the block. A pass is a round, or an interval set.
+- **Step**: one part as it is actually done, numbered `0, 1, 2, …` from START. Step `s` is pass
+  `s / P` and part `s % P`. A fixed list has exactly `P` steps. Today's watch counts steps the same
+  way (`WorkoutProgress.segmentStarts`), so a fixed list's step numbers are its segment indices.
+
+### Which formats repeat (proposed classification)
+| Definition today | Kind | Ends |
+|---|---|---|
+| `format: amrap` with a cap | repeating, no round count | the cap (or End) |
+| `format: emom` (EMOM, Tabata, "Go every …") | repeating | the cap, or after N passes when a round count is given |
+| `format: forTime` with a round count (new key, [Q1]) | repeating, N passes | Finish on the last part of pass N; the cap per §5b ("keep going") |
+| `format: forTime` without a round count (Hyrox, chipper, Helen as listed today) | fixed list | as today |
+| `format: amrap` without a cap | invalid today (`make_row.py` refuses it); the reference treats it as a fixed list | as today |
+
+- **[Q1] How does "Rounds for time × N" say N?** The flat v1 definition has no round count. Today
+  Helen lists its 3 rounds out (`roundSize: 3`). The proposal is a new optional key, `rounds: Int`,
+  that old builds ignore.
+  - With `rounds`, a forTime definition lists one round, which repeats N times.
+  - Without it, nothing changes: every forTime row in the library today stays a fixed list.
+  - v2 already has `repeat.times` (RFC §2), and its compiler would fill this key.
+- **[Q2] EMOM and Tabata rows that are already written out.** Every live EMOM row lists its windows
+  out (16 segments for 8 × 30 s, for example), with a cap equal to windows × interval.
+  - As a repeating block, such a row would repeat the whole written-out list. The cap ends it
+    before the list runs out, so the athlete sees no change.
+  - Should these rows also be rewritten to list one window? That is a data change, so it needs your OK.
+
+### What ends a repeating block
+- **AMRAP:** only the cap (`finishByCap`) or End. The Crown on the last part never offers Finish;
+  it starts the next pass. This is the #138 bug fixed without copying anything.
+- **Rounds for time × N:** the Crown on the last part of pass N finishes. Before that, the last
+  part of a pass moves on to part 0 of the next pass. The cap behaves as in §5b.
+- **EMOM with N given:** after N passes, or at the cap, whichever comes first. With an interval,
+  the clock moves windows on as today (`autoAdvanceTime`).
+- **[Q3] In an interval workout, is a window one pass of the block or one part?** Today a window is
+  a `roundSize` group, and the clock jumps to the next group. The owner's rule is that the block is
+  the whole list and `roundSize` is display only. That makes a window one pass. An "odd minute A,
+  even minute B" EMOM would then need A and B as two passes, not one. Which do you want?
+
+### Undo across a pass boundary
+- Undo goes back one step, whatever the pass: from pass k, part 0, back to pass k−1, last part. It
+  keeps that step's start time, as today. Undo on step 0 does nothing.
+- Unfinish after a Finish works as today. For an AMRAP the only Finish is the cap, and an unfinish
+  after the cap follows §5's existing rule (10 s on the watch, then the phone).
+- Nothing is ever "un-generated": the next pass only exists once its first step has started. After
+  an undo the next Crown press starts that step again with a new time.
+
+### Cap during a part, partial reps, score
+- The cap finishes in the current step. `partialReps` keeps meaning the reps done in that step's part
+  (the "Reps of <part>?" question, §5). The limit is that part's target.
+- **AMRAP score:** completed passes plus the parts done in the cut pass, plus partial reps. For
+  example: "5 rounds + Run 200 + 12 cal".
+- **[Q4] Should a rest still count as done** when the cap falls inside it? Today a rest doesn't
+  score (`makeAmrap`): a round counts as complete once its work is done. The proposal keeps that.
+
+### Finish on the last listed part
+- **Fixed list:** Finish, as today.
+- **Repeating with no count (AMRAP):** no Finish; the next pass starts. The watch's second line
+  shows "Round k".
+- **Repeating with N:** Finish only on the last part of pass N.
+- **[Q5] Ending an AMRAP early on purpose** stays on End (page 2), which needs no confirmation
+  change. Is that enough, or do you want a Crown-hold Finish as well?
+
+### Ladders and blocks that change by round
+- **#138's row** (Run 200, Bike, Run 400, Bike, Run 600, Bike) is one block of 6 parts, so pass 2
+  is 200 / 400 / 600 again.
+- **[Q6] The owner's actual workout was different:** 200 / 400 / 600, then 200 / 600 / 400, ending
+  on 4 cal (GPS reconstruction on #138). Pass 2 did *not* repeat the listed order.
+  - With the repeating block, the watch would show "Run 400" while the athlete runs 600.
+  - Was this workout meant to repeat exactly (and pass 2 was the athlete's choice), or does it need
+    per-round targets (v2 `vary`)?
+  - The reference only repeats the block exactly; per-round changes are out of scope here.
+
+### How a result stores what was done
+- `SegmentResult.index` becomes the **step** number. Today it is the segment index, which is the
+  same thing for a fixed list. Each stored segment already carries its own `kind`, `movement` and
+  `title`, so a step past the listed parts still reads correctly.
+- New optional fields, decoded with `decodeIfPresent` (written only for repeating blocks):
+  - `SegmentResult.pass`, with the part as `index % P`;
+  - `WorkoutResult.passes`, the number of passes started.
+  - Old files have neither, and read as one pass, as today.
+- The definition in the result is the listed block (P parts), never copied.
+- **[Q7] Phone views written for written-out lists.** Some views index `definition.segments` with
+  a step number. They guard `index < count` and then fall back to the stored title (checked: the
+  summary, insights, the report rows). Those guards would show steps past P without their target
+  (for example, the run distance for pace).
+  - The wiring PR must map step → part (`index % P`) wherever a target is looked up.
+  - Until then, a new result shown on 0.17.x falls back to the stored titles and measured distance.
+    Is that acceptable for testers, or should new-format results wait for the phone side?
+
+### Old results and old builds
+- **Old results** (written-out lists, no `pass`) read exactly as today, because step = segment
+  index. The #140 stopgap's expanded definitions are written-out lists too, so they read the same.
+- **Builds 15, 16 and 0.17.x** see a definition that lists one block. They finish after one pass:
+  the #138 behaviour, now for every repeating row.
+- **[Q8] Library rows for old builds.** The options:
+  - keep the library's legacy copy written out for builds ≤ 0.17 (the database could write that
+    copy, as it already writes the v2 legacy copy);
+  - keep repeating rows written out until testers are on 0.18;
+  - accept the bug on old builds.
+  #140 (0.17.1) already handles a one-pass AMRAP on 0.17.1. Builds 15, 16 and 0.17.0 have no fix.
+
+### Fixed lists don't change (must hold)
+- Same steps, same Finish on the last part, same undo, same `WorkoutResult` fields and values.
+- The reference and the Swift port must give, for every fixed-list built-in (Hyrox Solo, Doubles,
+  Half, partner WODs, Helen, Quick test, Free) and every fixed fixture, exactly the steps the
+  current `WorkoutProgress` gives. A test proves it.
+
+### What gets built before 5 Dec (no wiring)
+1. **Python reference** in `tools/barpath`, as pure functions:
+   - the kind of a definition (fixed or repeating, with its round count and cap);
+   - step → (pass, part);
+   - whether a Crown advance from step s finishes;
+   - the end reason (list done, rounds done, cap).
+2. **Shared fixtures:** the #138 ladder, an EMOM, a Tabata, Rounds for time × N, and a fixed list
+   that must not change.
+3. **BarPathKit Swift port** with parity tests against the same fixtures. It is not called from the
+   watch or the phone.
+4. **A test** that every fixed-list built-in steps exactly as `WorkoutProgress` does today.
+
 ## 6. Heart-rate recovery after the finish (added 2026-11-01)
 
 Motivation: after the last segment the athlete stays on the done screen until End (Partner WOD 1,

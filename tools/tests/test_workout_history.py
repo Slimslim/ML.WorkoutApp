@@ -118,7 +118,7 @@ def test_library_index_for_calendar_page():
     assert library_index(gone, library) is None
     # whichever definition is used, the result is in its history
     for recorded in [seesaw, renamed(seesaw, "wod.seesaw"), helen,
-                     WorkoutLibrary.free]:
+                     WorkoutLibrary.free, gone]:
         r = result(recorded, 10)
         i = library_index(recorded, library)
         page = library[i] if i is not None else recorded
