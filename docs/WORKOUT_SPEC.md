@@ -445,12 +445,15 @@ left on the cap. Since 0.17.1 the watch expands an AMRAP at START
 - Only `format: amrap` with a time cap. The round is `roundSize` segments, or the whole list when
   `roundSize` is missing or out of range; a list that is not whole rounds is left alone.
 - The **last full round** is repeated until the list holds 30 rounds (fewer when that would pass
-  600 segments; never fewer than listed), and `roundSize` is set. The watch then shows "Round n",
-  and the result and summary count rounds.
+  600 segments; never fewer than listed), and `roundSize` is set. A ladder written out round by
+  round therefore stays on its top rung after the listed rounds (it does not keep climbing). The
+  watch then shows "Round n" (not "n/count" of the written-out list), and the result and summary
+  count rounds. History matches a result to its library workout as expanded
+  (`WorkoutHistory.isSameWorkout`).
 - The result carries the expanded definition, and the crash checkpoint stores it inside the
   progress, so a restored workout keeps it. Expanding twice changes nothing.
 - Builds before 0.17.1 still finish after the listed rounds: library AMRAPs must list their rounds
-  out (`make_row.py` checks this).
+  out (the `make_row.py` check is PR #139).
 
 ## 5b. For-time caps: keep going past the cap (added 2026-11-03, W7)
 

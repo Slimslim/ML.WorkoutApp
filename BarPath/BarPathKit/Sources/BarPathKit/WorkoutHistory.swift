@@ -50,15 +50,18 @@ public enum WorkoutHistory {
         if a.id == b.id {
             return true
         }
+        // A result's AMRAP is written out at START (#138): compare both as the watch runs them.
+        let ea: WorkoutDefinition = a.format == .amrap ? a.expandedForAmrap() : a
+        let eb: WorkoutDefinition = b.format == .amrap ? b.expandedForAmrap() : b
         // Cheap check first: Choose compares every definition with every result.
-        if a.segments.count != b.segments.count {
+        if ea.segments.count != eb.segments.count {
             return false
         }
         let nameA: String = normalizedName(a.name)
         if nameA.isEmpty || nameA != normalizedName(b.name) {
             return false
         }
-        return movementSequence(a) == movementSequence(b)
+        return movementSequence(ea) == movementSequence(eb)
     }
 
     /// Results of this workout, newest start first.

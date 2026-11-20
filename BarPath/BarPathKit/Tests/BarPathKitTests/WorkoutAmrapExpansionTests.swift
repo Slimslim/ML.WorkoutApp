@@ -118,6 +118,19 @@ final class WorkoutAmrapExpansionTests: XCTestCase {
         XCTAssertEqual(restored.definition.expandedForAmrap(), restored.definition)
     }
 
+    /// A result carries the expanded list; history still matches it to the library AMRAP when
+    /// the ids differ (same name, same movements as the watch runs them).
+    func testHistoryMatchesAnExpandedResultToItsLibraryAmrap() throws {
+        let cases: [Case] = try loadCases()
+        let lib: WorkoutDefinition = cases[0].definition
+        var renamed: WorkoutDefinition = lib
+        renamed.id = "t.other"
+        let ran: WorkoutDefinition = renamed.expandedForAmrap()
+        XCTAssertNotEqual(ran.segments.count, lib.segments.count)
+        XCTAssertTrue(WorkoutHistory.isSameWorkout(lib, ran))
+        XCTAssertTrue(WorkoutHistory.isSameWorkout(ran, lib))
+    }
+
     func testBuiltInsOnlyAmrapsChange() {
         for d in WorkoutLibrary.all {
             let after: WorkoutDefinition = d.expandedForAmrap()

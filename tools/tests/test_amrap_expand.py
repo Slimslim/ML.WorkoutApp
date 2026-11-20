@@ -78,3 +78,13 @@ def test_builtins_unchanged_except_amraps():
         else:
             assert len(after.segments) >= len(d.segments)
             assert after.segments[:len(d.segments)] == d.segments
+
+
+def test_history_matches_an_expanded_result_to_its_library_amrap():
+    from barpath.workout_history import is_same_workout
+    lib = case_input(cases()[0])
+    renamed = WorkoutDefinition.from_dict(dict(lib.to_dict(), id="t.other"))
+    ran = amrap_expanded(renamed)
+    assert len(ran.segments) != len(lib.segments)
+    assert is_same_workout(lib, ran)
+    assert is_same_workout(ran, lib)

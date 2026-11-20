@@ -11,7 +11,7 @@ from __future__ import annotations
 import unicodedata
 from typing import Optional
 
-from .workout import WorkoutDefinition, WorkoutResult
+from .workout import WorkoutDefinition, WorkoutResult, amrap_expanded
 
 
 def normalized_name(name: str) -> str:
@@ -47,12 +47,15 @@ def is_same_workout(a: WorkoutDefinition, b: WorkoutDefinition) -> bool:
     """Same id, or same normalized (non-empty) name and the same segment kinds and movements."""
     if a.id == b.id:
         return True
-    if len(a.segments) != len(b.segments):  # cheap check first
+    # A result's AMRAP is written out at START (#138): compare both as the watch runs them.
+    ea = amrap_expanded(a) if a.format == "amrap" else a
+    eb = amrap_expanded(b) if b.format == "amrap" else b
+    if len(ea.segments) != len(eb.segments):  # cheap check first
         return False
     name_a = normalized_name(a.name)
     if not name_a or name_a != normalized_name(b.name):
         return False
-    return movement_sequence(a) == movement_sequence(b)
+    return movement_sequence(ea) == movement_sequence(eb)
 
 
 def results_of(definition: WorkoutDefinition, results: list) -> list:
