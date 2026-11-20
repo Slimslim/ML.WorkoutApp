@@ -250,6 +250,20 @@ it can be, else unknown (`score_ambiguous`). With a top-level `perPiece`, each p
 Each one leaves a note code on the workout (`notes`), so the corpus pass counts how often it
 happens.
 
+### Next round (found by the round-3 corpus pass, after the race)
+
+- An implement used as an obstacle or a target ("burpee over" an object) is read as W.
+- A bodyweight max-effort test becomes `strength`, with loading unknown.
+- Hang lifts can be scored as a hold.
+- "For M:SS" totals are not read as the clock.
+- Rest lines and per-station time limits are left out of time estimates.
+- Some repeated windows and fixed-start segments are still read as an AMRAP or a chipper.
+- Standards for single-dumbbell and single-kettlebell variants are missing.
+- A load suffix, a buy-in or a Death-by minute line is sometimes counted as a movement.
+- A 1RM test named only in the header is not always found.
+- Loading is `unknown` when the athlete picks the load (716 pieces in round 3). That is expected:
+  the axis is relative to the athlete and there is no number to compare.
+
 ## 5. Corpus coverage
 
 `tools/taxonomy_corpus.py` reads `workout_drafts`, **read-only**, from a JSON export or with `PGURL`
@@ -290,7 +304,37 @@ segments → intervals, an until-failure EMOM → open ladder, a hold scored by 
 left out of the movement count. Not done: summing 1-min stations (needs a corpus example of the
 import's shape). Every fix has a test with an invented equivalent (`tools/tests/test_taxonomy.py`).
 
-> _Summary table for the fix round: pending the Data chat's next rerun (`--ids 0` only)._
+**Round 3 at 66c2afb** (Data chat, read-only, `--ids 0`, aggregates only, 0 classifier errors).
+
+| Unknown rate | 72dcfa2 | a9fda39 | 66c2afb |
+|---|---|---|---|
+| modality | 21.7 % | 4.6 % | 2.3 % |
+| movements | – | 2.7 % | 0.2 % |
+| structure | 1.3 % | 2.5 % | 0.0 % |
+| time domain | 30.0 % | 7.2 % | 1.0 % |
+| loading | 70.4 % | 38.7 % | 39.8 % |
+| scoring | 0.6 % | 0.0 % | 0.0 % |
+| lexicon misses | 9.9 % | 5.8 % | 5.6 % |
+| hand-check labels wrong | 34 % | 21 % | 16 % (240 labels) |
+
+The round-3 hand check by axis: modality 15 %, movements 8 %, structure 15 %, time 28 %, loading 20 %,
+scoring 10 %. Loading stays near 40 % unknown on purpose: 716 pieces are loaded with no number
+(`loaded_without_number`, mostly "pick your load"), and the loading axis is relative to the athlete,
+so those stay unknown until the athlete's own maxes are known.
+
+Value counts at 66c2afb:
+
+- **Modality:** W 953, GW 568, GWM 503, G 338, WM 254, M 179, GM 172, unknown 71.
+- **Movements:** single 878, triplet 829, couplet 712, 4plus 614, unknown 5.
+- **Structure:** intervals 694, strength 675, practice 511, rounds 429, for_time 258, amrap 223,
+  chipper 138, ladder 68, multi_part 42.
+- **Time domain:** n/a 1,186, medium 651, short 568, long 486, very_long 118, unknown 29.
+- **Loading:** unknown 1,209, n/a 511, moderate 502, bodyweight 460, heavy 251, light 105.
+- **Scoring:** none 984, time 913, load 572, reps 295, rounds_reps 190, per_piece 42,
+  calories_distance 42.
+- **Movements listed:** 12,044, of which 674 unknown names (5.6 %).
+- **Hyrox stations:** row 404, wall balls 177, SkiErg 132, farmers carry 116, sled pull 50, sled
+  push 49, burpee broad jumps 30, sandbag lunges 4.
 
 **Baseline at 72dcfa2** (the first head, five axes, before the reviews; Data chat, read-only, all
 2,518 drafts → 3,038 pieces, none crashed). Unknown rate: modality 21.7 %, shape 1.3 %, time 30.0 %,
