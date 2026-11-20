@@ -104,6 +104,8 @@ def validate(d: dict) -> List[str]:
                     errs.append(f"{ctx}: sets add up to {total}, segment says {s['reps']}")
             if "flag" in s:
                 errs += _check_flag(s["flag"], ctx)
+            if "console" in s:
+                errs += _check_console(s["console"], ctx)
     else:
         sets = need("sets", list) or []
         for i, x in enumerate(sets):
@@ -130,6 +132,27 @@ def _check_flag(f, ctx: str) -> List[str]:
             if not isinstance(f.get(k), t)]
     if f.get("check") not in FLAG_CHECKS:
         errs.append(f"{ctx}: flag check must be one of {FLAG_CHECKS}")
+    return errs
+
+
+CONSOLE_NUMBERS = ("timeSeconds", "calories", "distanceMeters", "rpmAvg", "calPerHour", "wattsAvg",
+                   "strokeRate", "meters", "pace500mSeconds")
+
+
+def _check_console(c, ctx: str) -> List[str]:
+    """What the machine itself showed for this segment (an erg console or its app): truth that does
+    not come from the watch's motion. {"machine": str, "app": str (optional), "view": "summary" |
+    "perSecond", numbers from CONSOLE_NUMBERS}. Numbers only as the console showed them."""
+    if not isinstance(c, dict):
+        return [f"{ctx}: console should be an object"]
+    errs = [] if isinstance(c.get("machine"), str) else [f"{ctx}: console needs 'machine' (str)"]
+    for k, v in c.items():
+        if k in ("machine", "app", "view"):
+            continue
+        if k not in CONSOLE_NUMBERS:
+            errs.append(f"{ctx}: console key '{k}' unknown (one of {CONSOLE_NUMBERS})")
+        elif not isinstance(v, (int, float)) or v < 0:
+            errs.append(f"{ctx}: console '{k}' should be a number >= 0")
     return errs
 
 

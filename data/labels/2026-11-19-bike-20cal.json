@@ -1,0 +1,63 @@
+{
+ "version": 1,
+ "id": "2026-11-19-bike-20cal",
+ "date": "2026-11-19",
+ "kind": "workout",
+ "name": "20 cal assault bike, one bout (before the evening class workout)",
+ "format": "forTime",
+ "rx": true,
+ "files": {
+  "csv": "Debug/session-174BCA41-1C4D-4D12-8AC4-01C5E21EF8E5.csv",
+  "result": "Workouts/174BCA41-1C4D-4D12-8AC4-01C5E21EF8E5.json"
+ },
+ "score": "1:31.4 for 20 cal (console)",
+ "notes": [
+  "Free Workout recording of one bout, 30 min before the class workout (separate recording, not labelled here).",
+  "Sync test: the athlete clapped once before the first stroke and 3 times after the last: 10-13 g spikes at 4.09 s and 99.70 / 101.03 / 102.38 s (pedalling stays under 1.6 g). Crown turned at 109.1 s, about 10 s after the last stroke.",
+  "Bike segment from motion, bracketed by the claps: first effort 4.30 s, last arm cycle 99.30 s, effort ends 99.50 s. 98 arm cycles (forearm angle, one per revolution), 61.7 rpm mean, 61-64 in every 20 s.",
+  "Console values from the athlete (ErgZone summary screen), independent of the motion: see the segment's console block. Per-second data not available: the console's 91.4 s cannot be placed exactly inside the 95.2 s of motion.",
+  "Watch vs console: time 95.2 s of motion (first to last arm cycle 94.3 s) vs 91.4 s; cadence 61.7 vs 61 rpm; 94 arm cycles in any 91.4 s window vs 92.9 revolutions implied by 61 rpm x 91.4 s. The watch has no calorie or distance estimate for a bike; its pedometer reads 2.8 steps.",
+  "1631 cal/h is not the bout's average (20 cal in 91.4 s = 788 cal/h): probably the reading at the end or the peak (not stated)."
+ ],
+ "segments": [
+  {
+   "movement": "transition",
+   "start": 0.0,
+   "end": 4.3,
+   "source": "motion",
+   "note": "standing, clap at 4.09 s"
+  },
+  {
+   "movement": "airBike",
+   "round": 1,
+   "start": 4.3,
+   "end": 99.5,
+   "source": "motion",
+   "reps": 20,
+   "unit": "calories",
+   "console": {
+    "machine": "assault bike",
+    "app": "ErgZone",
+    "view": "summary",
+    "timeSeconds": 91.4,
+    "calories": 20,
+    "distanceMeters": 945,
+    "rpmAvg": 61,
+    "calPerHour": 1631
+   },
+   "motion": {
+    "armCycles": 98,
+    "rpmMean": 61.7,
+    "firstCycle": 5.02,
+    "lastCycle": 99.3
+   }
+  },
+  {
+   "movement": "transition",
+   "start": 99.5,
+   "end": 130.3,
+   "source": "motion",
+   "note": "claps at 99.70, 101.03, 102.38 s; Crown at 109.1 s; end at 130.3 s"
+  }
+ ]
+}

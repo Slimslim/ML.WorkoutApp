@@ -95,3 +95,11 @@ def test_a_flag_keeps_the_athletes_count_and_says_what_to_check():
     d["segments"][0]["flag"] = dict(motion=13, reason="x", check="guess")
     errs = L.validate(d)
     assert any("athlete" in e for e in errs) and any("check must be" in e for e in errs)
+
+
+def test_console_block_is_checked():
+    from barpath.labels import _check_console
+    assert _check_console({"machine": "assault bike", "timeSeconds": 91.4, "calories": 20}, "s") == []
+    assert _check_console({"timeSeconds": 91.4}, "s")                    # machine missing
+    assert _check_console({"machine": "bike", "speed": 3}, "s")          # unknown key
+    assert _check_console({"machine": "bike", "calories": "20"}, "s")    # not a number

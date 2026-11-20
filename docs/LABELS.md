@@ -73,6 +73,11 @@ Times are **session seconds**: the watch CSV's `t` column (0 = START on the watc
   athlete's count stays the label; nothing is decided from the motion alone. Flags are listed by
   `tools/score_labels.py` and settled later by video (owner, 2026-11-10), or by asking the athlete
   again when there is no video (`"check": "athlete"`).
+- `console` (optional, on a segment): what the machine itself showed (an erg console or its app),
+  truth that does not come from the watch's motion: `{"machine": "assault bike", "app": "ErgZone",
+  "view": "summary", "timeSeconds": 91.4, "calories": 20, "distanceMeters": 945, "rpmAvg": 61,
+  "calPerHour": 1631}`. Numbers exactly as shown (keys checked by `labels._check_console`); what the
+  motion says goes next to it (`motion`), never into it. First use: `2026-11-19-bike-20cal`.
 - `training: false` (optional, on a segment): keep the segment for timing but do not use its reps
   as training data (the athlete is not sure of the count and it cannot be checked).
 - Lifting sessions (`"kind": "lifts"`) have `sets` instead of `segments`: `{file, lift, loadLb,
