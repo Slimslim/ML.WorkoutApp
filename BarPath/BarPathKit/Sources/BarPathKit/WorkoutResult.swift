@@ -245,7 +245,8 @@ public enum SplitStats {
 public struct WorkoutResult: Codable, Equatable, Identifiable {
     /// Version written by this build. 2 adds `heartRateSeries`, `heartRateMin` per segment and
     /// `definition.roundSize` (all optional); version 1 files decode unchanged. `partialReps`
-    /// and `editedAt` (§5) and `repsAtCap` (§5b) are optional too and need no version bump.
+    /// and `editedAt` (§5) and `repsAtCap` (§5b) are optional too and need no version bump, as is
+    /// `workoutEngine` (E2, 0.18).
     public static let currentVersion: Int = 2
 
     public var version: Int
@@ -272,13 +273,18 @@ public struct WorkoutResult: Codable, Equatable, Identifiable {
     /// entered on the watch after the finish or with `setRepsAtCap(_:now:)`. Optional in JSON
     /// (absent in older files and when not asked); see WorkoutResultCap.swift.
     public var repsAtCap: Int?
+    /// E2 (0.18): the engine the watch ran this workout on, `WorkoutEngine.rawValue` ("v2" or
+    /// "legacy"), read once at the start. Optional in JSON (absent before 0.18). A string, not the
+    /// enum, so a result from a later engine still decodes.
+    public var workoutEngine: String?
 
     public init(version: Int = WorkoutResult.currentVersion, id: UUID = UUID(), definition: WorkoutDefinition,
                 startDate: Date, finishDate: Date?, endDate: Date, totalSeconds: Double,
                 segments: [SegmentResult], events: [WorkoutEvent],
                 heartRateAvg: Double? = nil, heartRateMax: Double? = nil,
                 recordingFileName: String? = nil, heartRateSeries: HeartRateSeries? = nil,
-                partialReps: Int? = nil, editedAt: Date? = nil, repsAtCap: Int? = nil) {
+                partialReps: Int? = nil, editedAt: Date? = nil, repsAtCap: Int? = nil,
+                workoutEngine: String? = nil) {
         self.version = version
         self.id = id
         self.definition = definition
@@ -295,6 +301,7 @@ public struct WorkoutResult: Codable, Equatable, Identifiable {
         self.partialReps = partialReps
         self.editedAt = editedAt
         self.repsAtCap = repsAtCap
+        self.workoutEngine = workoutEngine
     }
 
     /// Pretty JSON, ISO8601 dates (same helpers as LiftRecording).
