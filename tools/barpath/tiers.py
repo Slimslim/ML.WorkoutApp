@@ -68,7 +68,8 @@ def work_units(label: dict) -> Iterator[dict]:
     """Every unit of work in a label, in order, as a dict:
     {index, movement, round, start, end, amount, unit, load_lb, tier, split, training,
      rep_times (list or None), flagged, file (lifts: the set's file; workouts: None),
-     segment (the segment dict or None), set (the set dict or None)}.
+     segment (the segment dict or None), set (the set dict or None),
+     rest_before (workout sets: seconds from the previous set's end in the same segment, else None)}.
     start / end are session seconds (None for a lifts set: they come from its recording)."""
     i = 0
     if label.get("kind") == "lifts":
@@ -91,6 +92,7 @@ def work_units(label: dict) -> Iterator[dict]:
         seg_training = bool(s.get("training", True))
         flagged = isinstance(s.get("flag"), dict)
         sets = s.get("sets") or [None]
+        prev_end = None
         for x in sets:
             t = tier(label, s, x)
             src = x if x is not None else s
@@ -103,7 +105,12 @@ def work_units(label: dict) -> Iterator[dict]:
                 "training": seg_training and bool((x or {}).get("training", True)),
                 "rep_times": (x or {}).get("repTimes") or None, "flagged": flagged,
                 "file": None, "segment": s, "set": x,
+                # rest inside the movement: from the previous set's end to this set's start
+                "rest_before": (round(float(x["start"]) - prev_end, 2)
+                                if x is not None and prev_end is not None else None),
             }
+            if x is not None:
+                prev_end = float(x["end"])
             i += 1
 
 

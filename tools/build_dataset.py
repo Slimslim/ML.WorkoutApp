@@ -55,7 +55,8 @@ REPO = Path(__file__).resolve().parents[1]
 PAD = 2.0  # seconds of motion kept before the start and after the end of every row
 
 INDEX_COLUMNS = ("row_id", "label_id", "athlete", "date", "movement", "round", "start", "end",
-                 "amount", "unit", "load_lb", "tier", "split", "training", "has_rep_times", "flagged")
+                 "amount", "unit", "load_lb", "tier", "split", "training", "has_rep_times", "flagged",
+                 "rest_before")
 MOTION_FIELDS = ("q", "user_accel", "gravity", "rotation_rate")
 
 
@@ -221,6 +222,7 @@ def build(out: Path, version: str, labels_dir: Path, cache: Path, commit: Option
                 "amount": u["amount"], "unit": u["unit"], "load_lb": u["load_lb"],
                 "tier": u["tier"], "split": u["split"], "training": u["training"],
                 "has_rep_times": bool(u["rep_times"]), "flagged": u["flagged"],
+                "rest_before": u.get("rest_before"),
             })
 
     dest.mkdir(parents=True)
