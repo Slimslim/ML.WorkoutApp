@@ -200,6 +200,54 @@ public enum WorkoutLibrary {
                                  healthKitActivity: "crossTraining", segments: parts)
     }()
 
+    // MARK: Engine test workouts (0.18, E5)
+
+    /// Invented test workouts for the new engine (WORKOUT_SPEC 5c). The first four list their block
+    /// once (`listedOnce`): with the engine switch on they repeat lazily, with it off they take
+    /// today's path (and finish after one pass, as any one-pass row would). The Hyrox simulation is
+    /// a plain fixed list and must run identically either way (the E4 gate checks it). Picked on the
+    /// phone (chooser group "Engine test"); off the watch's 3×3 grid; never in the database.
+    public static let engineAmrap: WorkoutDefinition = WorkoutDefinition(
+        id: "engine.amrap", name: "Engine test: AMRAP 8", shortName: "AMRAP 8",
+        format: .amrap, team: .solo, timeCapSeconds: 480.0, healthKitActivity: "crossTraining",
+        segments: [station(Movement.burpees, 10, .reps), station(Movement.airSquats, 15, .reps),
+                   runSegment(200)],
+        listedOnce: true)
+
+    public static let engineEmom: WorkoutDefinition = WorkoutDefinition(
+        id: "engine.emom", name: "Engine test: EMOM 6 × 1:00", shortName: "EMOM 6",
+        format: .emom, team: .solo, timeCapSeconds: 360.0, healthKitActivity: "crossTraining",
+        segments: [station(Movement.kettlebellSwings, 12, .reps), restSegment()],
+        intervalSeconds: 60.0, rounds: 6, listedOnce: true)
+
+    public static let engineTabata: WorkoutDefinition = WorkoutDefinition(
+        id: "engine.tabata", name: "Engine test: Tabata air squats", shortName: "Tabata",
+        format: .emom, team: .solo, timeCapSeconds: 240.0, healthKitActivity: "crossTraining",
+        segments: [station(Movement.airSquats, 20, .seconds),
+                   WorkoutSegment(kind: .rest, movement: Movement.rest, name: Movement.displayName(Movement.rest),
+                                  target: SegmentTarget(10, .seconds))],
+        intervalSeconds: 30.0, rounds: 8, listedOnce: true)
+
+    public static let engineRounds5: WorkoutDefinition = WorkoutDefinition(
+        id: "engine.rounds5", name: "Engine test: 5 rounds for time", shortName: "5 Rounds",
+        format: .forTime, team: .solo, timeCapSeconds: 900.0, healthKitActivity: "crossTraining",
+        segments: [runSegment(200), station(Movement.pushUps, 10, .reps), station(Movement.burpees, 5, .reps)],
+        rounds: 5, listedOnce: true)
+
+    public static let engineHyroxSim: WorkoutDefinition = WorkoutDefinition(
+        id: "engine.hyroxSim", name: "Engine test: Hyrox simulation", shortName: "Hyrox Sim",
+        format: .forTime, team: .solo, timeCapSeconds: nil, healthKitActivity: "mixedCardio",
+        segments: runsAndStations(runMeters: 500, stations: [
+            station(Movement.skiErg, 250, .meters), station(Movement.sledPush, 25, .meters),
+            station(Movement.row, 250, .meters), station(Movement.wallBalls, 25, .reps)
+        ]),
+        roundSize: 2)
+
+    /// E5 test workouts, resolvable by `definition(id:)`; not in `all` or `known`.
+    public static let engineTests: [WorkoutDefinition] = [
+        engineAmrap, engineEmom, engineTabata, engineRounds5, engineHyroxSim
+    ]
+
     /// Exactly 9, in this order (fills the watch's 3×3 picker). quickTest stays defined but is
     /// off the grid since 2026-11-01 (Screen demo replaces it); amrap20 made room for Free.
     public static let all: [WorkoutDefinition] = [
@@ -211,6 +259,9 @@ public enum WorkoutLibrary {
     public static let known: [WorkoutDefinition] = all + [amrap20, quickTest]
 
     public static func definition(id: String) -> WorkoutDefinition? {
-        return known.first(where: { (d: WorkoutDefinition) -> Bool in d.id == id })
+        if let d = known.first(where: { (d: WorkoutDefinition) -> Bool in d.id == id }) {
+            return d
+        }
+        return engineTests.first(where: { (d: WorkoutDefinition) -> Bool in d.id == id })
     }
 }

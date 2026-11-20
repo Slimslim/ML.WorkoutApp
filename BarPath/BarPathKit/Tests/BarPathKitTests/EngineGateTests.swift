@@ -127,4 +127,44 @@ final class EngineGateTests: XCTestCase {
         }
         XCTAssertTrue(differs)
     }
+
+    // MARK: E5 engine test workouts
+
+    func testEngineTestsResolveButStayOffTheGridAndKnown() {
+        let ids: [String] = WorkoutLibrary.engineTests.map { (d: WorkoutDefinition) -> String in d.id }
+        XCTAssertEqual(ids, ["engine.amrap", "engine.emom", "engine.tabata", "engine.rounds5", "engine.hyroxSim"])
+        let known: Set<String> = Set(WorkoutLibrary.known.map { (d: WorkoutDefinition) -> String in d.id })
+        for id in ids {
+            XCTAssertNotNil(WorkoutLibrary.definition(id: id), id)
+            XCTAssertFalse(known.contains(id), id)
+        }
+        XCTAssertEqual(WorkoutLibrary.all.count, 9)
+    }
+
+    func testListedOnceTestWorkoutsRunAsABlockWithTheEngineOn() {
+        for d in WorkoutLibrary.engineTests where d.listedOnce == true {
+            XCTAssertEqual(RepeatBlock.listedOnceProblems(d), [], d.id)
+            XCTAssertEqual(RepeatBlock.plan(for: d).kind, RepeatBlock.Kind.repeating, d.id)
+            XCTAssertNotNil(RepeatBlock.startProgress(for: d, engineOn: true).block, d.id)
+            XCTAssertNil(RepeatBlock.startProgress(for: d, engineOn: false).block, d.id)
+        }
+    }
+
+    func testHyroxSimulationIsIdenticalWithTheEngineOn() throws {
+        let d: WorkoutDefinition = WorkoutLibrary.engineHyroxSim
+        XCTAssertNil(d.listedOnce)
+        for (i, script) in try EngineGateTests.scripts(for: d).enumerated() {
+            XCTAssertEqual(EngineGateTests.run(d, engineOn: true, script: script),
+                           EngineGateTests.run(d, engineOn: false, script: script), "script \(i)")
+        }
+    }
+
+    func testTabataTestWorkoutIsSixteenStepsAndFourMinutes() throws {
+        let raw: [[Any]] = [[0.0, "start"], [300.0, "tick"]]
+        let script: [Action] = try JSONDecoder().decode([Action].self,
+                                                        from: JSONSerialization.data(withJSONObject: raw, options: []))
+        let on: Run = EngineGateTests.run(WorkoutLibrary.engineTabata, engineOn: true, script: script)
+        XCTAssertEqual(on.starts.count, 16)
+        XCTAssertEqual(on.finish, 240)
+    }
 }

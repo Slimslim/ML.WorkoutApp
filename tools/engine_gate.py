@@ -207,7 +207,8 @@ def main(argv=None) -> int:
         return 0 if FIXTURE.exists() and FIXTURE.read_text(encoding="utf-8") == fixture_text() else 1
     stats = check_export(args.export, args.ids)
     sys.stdout.write(json.dumps(stats, indent=1) + "\n")
-    builtins_bad = [d.id for d in WorkoutLibrary.known if compare(d)]
+    builtins_bad = [d.id for d in WorkoutLibrary.known + WorkoutLibrary.engine_tests
+                    if not d.listed_once and compare(d)]
     return 1 if stats["differing"] or builtins_bad else 0
 
 
