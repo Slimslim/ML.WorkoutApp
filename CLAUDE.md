@@ -4,6 +4,10 @@ BarPath is an Apple Watch + iPhone app: Olympic-lift bar paths, strength rep cou
 (velocity-based training) and workout tracking (Hyrox / CrossFit). Several Claude Code
 chats work on it in parallel. These rules keep them from stepping on each other.
 The repo is public: **never commit videos, video frames, photos or personal data.**
+**No recordings, photos, videos or raw sensor data in the repo, ever. They live in private Storage**
+(older corpus: `tools/fetch_corpus.py`, docs/LABELS.md). Exception: small test fixtures under
+`BarPathKit/Tests/.../Fixtures` and `tools/tests`, cut to the minimum the test needs, with no names,
+locations or other personal details.
 
 ## Branches
 

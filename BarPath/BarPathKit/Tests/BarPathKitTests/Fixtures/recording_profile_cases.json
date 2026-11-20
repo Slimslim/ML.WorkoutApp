@@ -1057,9 +1057,9 @@
    "profile": "standard"
   },
   {
-   "id": "lib.pitfire.20261102.freedom",
+   "id": "lib.example.20261101.seesaw",
    "source": "seed",
-   "file": "freedom.json",
+   "file": "seesaw.json",
    "segments": [
     {
      "kind": "station",
@@ -1076,9 +1076,9 @@
    "profile": "high"
   },
   {
-   "id": "lib.pitfire.20261102.pcj-emom",
+   "id": "lib.example.20261101.power-cj-emom",
    "source": "seed",
-   "file": "pcj_emom.json",
+   "file": "power_cj_emom.json",
    "segments": [
     {
      "kind": "station",

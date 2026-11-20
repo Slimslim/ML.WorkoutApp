@@ -1,17 +1,17 @@
 """Which saved results belong to a workout: reference for BarPathKit's WorkoutHistory.swift.
 
 The same workout can reach the phone under more than one id: a built-in on a branch that was never
-merged ("wod.freedom") and the library row of the same day ("lib.pitfire.20261102.freedom"). Two
+merged ("wod.seesaw") and the library row of the same day ("lib.example.20261101.seesaw"). Two
 definitions are the same workout when their ids are equal, or when their names match once
 normalized AND their segments have the same kinds and movements in the same order. Targets and
-loads are left out on purpose: a load typed differently (85 kg vs 155 lb) is still the workout.
+loads are left out on purpose: a load typed differently (60 kg vs 135 lb) is still the workout.
 """
 from __future__ import annotations
 
 import unicodedata
 from typing import Optional
 
-from .workout import WorkoutDefinition, WorkoutResult
+from .workout import WorkoutDefinition, WorkoutResult, amrap_expanded
 
 
 def normalized_name(name: str) -> str:
@@ -47,12 +47,33 @@ def is_same_workout(a: WorkoutDefinition, b: WorkoutDefinition) -> bool:
     """Same id, or same normalized (non-empty) name and the same segment kinds and movements."""
     if a.id == b.id:
         return True
-    if len(a.segments) != len(b.segments):  # cheap check first
-        return False
-    name_a = normalized_name(a.name)
+    name_a = normalized_name(a.name)  # cheap check first
     if not name_a or name_a != normalized_name(b.name):
         return False
-    return movement_sequence(a) == movement_sequence(b)
+    if len(a.segments) == len(b.segments) and movement_sequence(a) == movement_sequence(b):
+        return True
+    # A result's AMRAP is written out at START (#138): compare both as the watch runs them.
+    if a.format != "amrap" and b.format != "amrap":
+        return False
+    ea, eb = amrap_expanded(a), amrap_expanded(b)
+    if len(ea.segments) != len(eb.segments):
+        return False
+    return movement_sequence(ea) == movement_sequence(eb)
+
+
+def library_index(recorded: WorkoutDefinition, library: list) -> Optional[int]:
+    """The library workout a recorded result belongs to (#137): the entry with its id; for an id that
+    is no built-in, the first entry that is the same workout. None: the result's own definition."""
+    from .workout import WorkoutLibrary
+    for i, d in enumerate(library):
+        if d.id == recorded.id:
+            return i
+    if WorkoutLibrary.definition(recorded.id) is not None:
+        return None
+    for i, d in enumerate(library):
+        if is_same_workout(d, recorded):
+            return i
+    return None
 
 
 def results_of(definition: WorkoutDefinition, results: list) -> list:

@@ -1,0 +1,1191 @@
+{
+ "note": "Synthetic AMRAP definitions for WorkoutDefinition.expandedForAmrap() (Swift) and amrap_expanded (Python), #138. blockStart: index in the input where the repeated round starts. Input segments = pattern repeated `times` times. roundLength: the repeated round's length when roundSize stays unset.",
+ "cases": [
+  {
+   "name": "one pass, no roundSize",
+   "input": {
+    "id": "t.onepass",
+    "name": "Test t.onepass",
+    "shortName": "T",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "timeCapSeconds": 1440.0
+   },
+   "unchanged": false,
+   "segmentCount": 180,
+   "roundSize": 6,
+   "blockStart": 0,
+   "pattern": [
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 400.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 600.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    }
+   ],
+   "times": 1
+  },
+  {
+   "name": "12 rounds listed, roundSize 2",
+   "input": {
+    "id": "t.listed12",
+    "name": "Test t.listed12",
+    "shortName": "T",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "timeCapSeconds": 900.0,
+    "roundSize": 2
+   },
+   "unchanged": false,
+   "segmentCount": 60,
+   "roundSize": 2,
+   "blockStart": 22,
+   "pattern": [
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    }
+   ],
+   "times": 12
+  },
+  {
+   "name": "already 30 rounds",
+   "input": {
+    "id": "t.listed30",
+    "name": "Test t.listed30",
+    "shortName": "T",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "timeCapSeconds": 1200.0,
+    "roundSize": 3
+   },
+   "unchanged": true,
+   "segmentCount": 90,
+   "roundSize": 3,
+   "pattern": [
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    }
+   ],
+   "times": 30
+  },
+  {
+   "name": "40 rounds listed is kept",
+   "input": {
+    "id": "t.listed40",
+    "name": "Test t.listed40",
+    "shortName": "T",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "timeCapSeconds": 600.0,
+    "roundSize": 1
+   },
+   "unchanged": true,
+   "segmentCount": 40,
+   "roundSize": 1,
+   "pattern": [
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    }
+   ],
+   "times": 40
+  },
+  {
+   "name": "for time is not touched",
+   "input": {
+    "id": "t.fortime",
+    "name": "Test t.fortime",
+    "shortName": "T",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "timeCapSeconds": 1440.0
+   },
+   "unchanged": true,
+   "segmentCount": 6,
+   "roundSize": null,
+   "pattern": [
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 400.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 600.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    }
+   ],
+   "times": 1
+  },
+  {
+   "name": "AMRAP without a cap is not touched",
+   "input": {
+    "id": "t.nocap",
+    "name": "Test t.nocap",
+    "shortName": "T",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining"
+   },
+   "unchanged": true,
+   "segmentCount": 6,
+   "roundSize": null,
+   "pattern": [
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 400.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 600.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    }
+   ],
+   "times": 1
+  },
+  {
+   "name": "not whole rounds is not touched",
+   "input": {
+    "id": "t.partial",
+    "name": "Test t.partial",
+    "shortName": "T",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "timeCapSeconds": 600.0,
+    "roundSize": 3
+   },
+   "unchanged": true,
+   "segmentCount": 7,
+   "roundSize": 3,
+   "pattern": [
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    }
+   ],
+   "times": 1
+  },
+  {
+   "name": "roundSize out of range means the whole list",
+   "input": {
+    "id": "t.badrs",
+    "name": "Test t.badrs",
+    "shortName": "T",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "timeCapSeconds": 600.0,
+    "roundSize": 9
+   },
+   "unchanged": false,
+   "segmentCount": 90,
+   "roundSize": 3,
+   "blockStart": 0,
+   "pattern": [
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    }
+   ],
+   "times": 1
+  },
+  {
+   "name": "ladder repeats its last round",
+   "input": {
+    "id": "t.ladder",
+    "name": "Test t.ladder",
+    "shortName": "T",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "timeCapSeconds": 1200.0,
+    "roundSize": 2
+   },
+   "unchanged": false,
+   "segmentCount": 60,
+   "roundSize": 2,
+   "blockStart": 2,
+   "pattern": [
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 5.0,
+      "unit": "reps"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    }
+   ],
+   "times": 1
+  },
+  {
+   "name": "no roundSize, list repeats: the repeat is the round",
+   "input": {
+    "id": "t.long",
+    "name": "Test t.long",
+    "shortName": "T",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "timeCapSeconds": 2400.0
+   },
+   "unchanged": false,
+   "segmentCount": 150,
+   "roundSize": 5,
+   "blockStart": 45,
+   "pattern": [
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    }
+   ],
+   "times": 10
+  },
+  {
+   "name": "no roundSize, already more than 30 rounds: roundSize only",
+   "input": {
+    "id": "t.huge",
+    "name": "Test t.huge",
+    "shortName": "T",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "timeCapSeconds": 2400.0
+   },
+   "unchanged": false,
+   "segmentCount": 700,
+   "roundSize": 2,
+   "blockStart": 698,
+   "pattern": [
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    }
+   ],
+   "times": 350
+  },
+  {
+   "name": "long round: capped at 600 segments",
+   "input": {
+    "name": "Test",
+    "shortName": "T",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "id": "t.long25",
+    "timeCapSeconds": 2400.0
+   },
+   "pattern": [
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "row",
+     "name": "Row",
+     "target": {
+      "value": 15.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "row",
+     "name": "Row",
+     "target": {
+      "value": 15.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "row",
+     "name": "Row",
+     "target": {
+      "value": 15.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "row",
+     "name": "Row",
+     "target": {
+      "value": 15.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "row",
+     "name": "Row",
+     "target": {
+      "value": 15.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "row",
+     "name": "Row",
+     "target": {
+      "value": 15.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "row",
+     "name": "Row",
+     "target": {
+      "value": 15.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "row",
+     "name": "Row",
+     "target": {
+      "value": 15.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "row",
+     "name": "Row",
+     "target": {
+      "value": 15.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "row",
+     "name": "Row",
+     "target": {
+      "value": 15.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "row",
+     "name": "Row",
+     "target": {
+      "value": 15.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "row",
+     "name": "Row",
+     "target": {
+      "value": 15.0,
+      "unit": "calories"
+     }
+    }
+   ],
+   "times": 1,
+   "unchanged": false,
+   "segmentCount": 600,
+   "roundSize": 25,
+   "blockStart": 25
+  },
+  {
+   "name": "3 rounds of 4, no roundSize: rounds of 4",
+   "input": {
+    "name": "Test",
+    "shortName": "T",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "id": "t.threefour",
+    "timeCapSeconds": 1200.0
+   },
+   "pattern": [
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "row",
+     "name": "Row",
+     "target": {
+      "value": 15.0,
+      "unit": "calories"
+     }
+    }
+   ],
+   "times": 3,
+   "unchanged": false,
+   "segmentCount": 120,
+   "roundSize": 4,
+   "blockStart": 8
+  },
+  {
+   "name": "interval without roundSize: written out, roundSize stays unset",
+   "input": {
+    "name": "Test",
+    "shortName": "T",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "id": "t.interval",
+    "timeCapSeconds": 600.0,
+    "intervalSeconds": 60.0
+   },
+   "pattern": [
+    {
+     "kind": "run",
+     "movement": "run",
+     "name": "Run",
+     "target": {
+      "value": 200.0,
+      "unit": "meters"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "bike",
+     "name": "Bike",
+     "target": {
+      "value": 20.0,
+      "unit": "calories"
+     }
+    },
+    {
+     "kind": "station",
+     "movement": "squat",
+     "name": "Squat",
+     "target": {
+      "value": 10.0,
+      "unit": "reps"
+     }
+    }
+   ],
+   "times": 1,
+   "unchanged": false,
+   "segmentCount": 90,
+   "roundSize": null,
+   "blockStart": 0,
+   "roundLength": 3
+  }
+ ]
+}

@@ -156,7 +156,7 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
         <li><b>Date · source</b> on the left; <b>block tag</b> (Metcon, Strength, Accessory) and <b>type tag</b> on the right.</li>
         <li><b>Name</b>, 2 lines max. Open workouts get the "Open" prefix; no name: the format is the name ("Every 3:00 × 3").</li>
         <li><b>Time domain line</b>, first and on its own: <code style="font:400 12px var(--f-mono)">7 min AMREP</code>, <code style="font:400 12px var(--f-mono)">40 min AMRAP</code>, <code style="font:400 12px var(--f-mono)">Every 1:00 × 8</code>, <code style="font:400 12px var(--f-mono)">5 rounds</code>. For-time caps go at the bottom (<code style="font:400 12px var(--f-mono)">20 min cap</code>).</li>
-        <li><b>Rep scheme</b> once on top when it is shared (21-15-9), then <b>movements</b>, one line each, no dividers: <code style="font:400 12px var(--f-mono)">12 DB C&amp;J @40 lb</code>.</li>
+        <li><b>Rep scheme</b> once on top when it is shared (21-15-9), then <b>movements</b>, one line each, no dividers: <code style="font:400 12px var(--f-mono)">20 KB Swings @53 lb</code>.</li>
         <li><b>Cap</b> at the bottom, under the movements.</li>
         <li><b>Score</b> after the workout, under one thin rule: score · Rx/Scaled · one comparison. Logged lifts: one line per set with load and bar speed.</li>
         <li><b>See details</b> opens the original card with the Rx M/F weights.</li>
@@ -165,13 +165,13 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
     <div class="panel">
       <span class="eyebrow">Workout type vocabulary (fixed)</span>
       <div class="vocab">
-        <span class="tag type">Chipper</span><span class="ex">Long list, each movement once. <i>Unladen swallow</i></span>
+        <span class="tag type">Chipper</span><span class="ex">Long list, each movement once. <i>Very long name</i></span>
         <span class="tag type">EMOM</span><span class="ex">Every minute, also E2MOM, E3MOM. <i>Power snatch, power C&amp;J, Every 3:00 × 3</i></span>
         <span class="tag type">AMRAP</span><span class="ex">As many rounds as possible. <i>AMRAP 40, The Chief</i></span>
         <span class="tag type">AMREP</span><span class="ex">As many reps as possible, usually a ladder. <i>Open 13.4</i></span>
         <span class="tag type">Death by</span><span class="ex">Add a rep every minute until you can't.</span>
         <span class="tag type">Ladder</span><span class="ex">Reps go up or down a fixed step, for time.</span>
-        <span class="tag type">RFT</span><span class="ex">Rounds for time, rep schemes like 21-15-9. <i>Diane, "GAME OVER", Freedom</i></span>
+        <span class="tag type">RFT</span><span class="ex">Rounds for time, rep schemes like 21-15-9. <i>Diane, "LAST CALL", Seesaw</i></span>
         <span class="tag type">Complex</span><span class="ex">Several lifts in one set without dropping the bar.</span>
         <span class="sub">Other variations</span>
         <span class="tag type">Sets × reps</span><span class="ex">Lift days. <i>Front squat 5×3</i></span>
@@ -193,11 +193,11 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
       <div class="rules">
         <div><b>No notes</b><span>Nothing from the coach's text: no strategy, stimulus, scaling advice, targets, RPE or stories. The header is a log of what was done.</span></div>
         <div><b>Date</b><span><code>Today</code>, <code>Yesterday</code>, <code>Mon Nov 2</code>, older years <code>Mar 2023</code>.</span></div>
-        <div><b>Source</b><span>One short label: <code>Mayhem</code>, <code>Class</code>, <code>Benchmark</code>, <code>Open</code>, <code>Your library</code>.</span></div>
+        <div><b>Source</b><span>One short label: <code>Program</code>, <code>Class</code>, <code>Benchmark</code>, <code>Open</code>, <code>Your library</code>.</span></div>
         <div><b>Two tags</b><span>Block first (neutral fill), type second (outlined, the one accent). Always both, always in that order.</span></div>
         <div><b>Name</b><span>2 lines max, then "…". Quoted names keep their quotes. CrossFit Open: <code>Open 13.4</code>. Lift titles split: <code>Front Squat : 3-3-3-3-3</code> → name <code>Front Squat</code>. No name → the format is the name: <code>Every 3:00 × 3</code>.</span></div>
-        <div><b>Rep scheme on top</b><span>A scheme shared by all movements is written once, above them: <code>21-15-9</code>, <code>3-3-3-3-3</code>, <code>40-30-20-30-40 Cal</code>. Movements below it carry no reps; a movement with its own fixed reps keeps them (<code>7 Power Cleans @155 lb</code>).</span></div>
-        <div><b>Writing</b><span>One movement per line, written the way you write it: quantity, unit, movement, <code>@load</code>. <code>12 Cal Row</code>, <code>15 Push-ups</code>, <code>12 DB C&amp;J @40 lb</code>, <code>1:00 Suitcase Hold @pick</code>, <code>50 ft Front-Rack Carry</code>. Loads are always inline after "@", never in a column.</span></div>
+        <div><b>Rep scheme on top</b><span>A scheme shared by all movements is written once, above them: <code>21-15-9</code>, <code>3-3-3-3-3</code>, <code>30-24-18-24-30 Cal</code>. Movements below it carry no reps; a movement with its own fixed reps keeps them (<code>5 Power Cleans @135 lb</code>).</span></div>
+        <div><b>Writing</b><span>One movement per line, written the way you write it: quantity, unit, movement, <code>@load</code>. <code>14 Cal Row</code>, <code>20 KB Swings @53 lb</code>, <code>25 Air Squats</code>, <code>1:00 Suitcase Hold @pick</code>, <code>50 ft Front-Rack Carry</code>. Loads are always inline after "@", never in a column.</span></div>
         <div><b>Your load, Rx/Scaled</b><span>Loads come from your profile (man/woman, no manual pick; try the toggle above): <code>225/155 lb</code> → <code>@225 lb</code> or <code>@155 lb</code>. "See details" shows the original Rx M/F card. After logging the app asks "Rx or scaled?" and lets you edit loads and reps; the score then says <code>Scaled</code>. Abbreviate: HSPU, T2B, C&amp;J, DB, KB, DU; <code>ALT</code> for alternating, <code>Double DB</code> for two dumbbells; heights in inches, runs in m; <code>lb</code>, never lbs.</span></div>
         <div><b>Cap and logged sets</b><span>Cap goes at the bottom: <code>8 min cap</code>. Planned lifts stay simple (<code>5×3 Front Squat @165–190 lb</code>); logged lifts get one line per set or minute with load and average bar speed: <code>3 Front Squats @200 lb · 0.60 m/s</code>.</span></div>
         <div><b>Score</b><span>Time, rounds + reps, reps, heaviest set (volume second), or "Done". Then Rx/Scaled, then one comparison: last time or the cap.</span></div>
@@ -240,36 +240,36 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
     { label: "Open 13.4", note: "Open prefix, AMREP: score = total reps", src: "Open archive", date: "Thu Nov 5", source: "Open", block: "Metcon", type: "AMREP",
       name: "Open 13.4", fmt: ["7 min AMREP"], scheme: "3-6-9-12…", moves: [["C&J", { m: "135 lb", f: "95 lb" }], ["T2B"]],
       orig: "7 min, as many reps as possible: 3 C&J 135/95 lb, 3 T2B, then 6 and 6, 9 and 9, 12 and 12 … Score: total reps" },
-    { label: "“GAME OVER”", note: "Quoted name, cap at the bottom", src: "Mayhem", date: "Fri Nov 6", source: "Mayhem", block: "Metcon", type: "RFT",
-      name: "“GAME OVER”", scheme: "21-15-9", moves: [["Deadlift", { m: "225 lb", f: "155 lb" }], ["T2B"]], cap: "8 min",
-      orig: "For time 21-15-9: deadlift 225/155 lb, toes-to-bar. Cap 8 min" },
-    { label: "Unladen swallow", note: "Very long name, 22 movements, team of 2", src: "Mayhem", date: "Sat Nov 7", source: "Mayhem", block: "Metcon", type: "Chipper", ill: "Movement names illustrative",
-      name: "“What is the air-speed velocity of an unladen swallow?”", fmt: ["Team of 2"], scheme: "22 each",
-      moves: [["Thrusters", { m: "95 lb", f: "65 lb" }], ["KB Swings", { m: "53 lb", f: "35 lb" }], ["Box Jumps", { m: "24 in", f: "20 in" }], ["Wall Balls", { m: "20 lb", f: "14 lb" }]], more: 18, cap: "60 min" },
-    { label: "No name", note: "Format used as the name", src: "Mayhem", date: "Today", source: "Mayhem", block: "Accessory", type: "EMOM",
-      name: "Every 3:00 × 3", moves: [["50 DU"], ["25 AbMat Sit-ups"]] },
-    { label: "Front Squat 5×3", note: "Lift: simple plan, logged one line per set + bar speed", src: "Mayhem", date: "Today", source: "Mayhem", block: "Strength", type: "Sets × reps", ill: "Logged loads and speeds are examples",
-      name: "Front Squat", moves: [["5×3 Front Squat", "165–190 lb (65–75 %)"]], last: "Last time 205 lb best set · 2,655 lb total",
-      done: { date: "Today", n: "215 lb", u: "best set", rx: "Rx", good: "+10 lb", vs: "vs last time (205) · 2,805 lb total · bar speed is your wrist estimate", ex: true,
-        moves: [["3 Front Squats", "165 lb", "0.71 m/s"], ["3 Front Squats", "185 lb", "0.66 m/s"], ["3 Front Squats", "200 lb", "0.60 m/s"], ["3 Front Squats", "210 lb", "0.55 m/s"], ["3 Front Squats", "215 lb", "0.51 m/s"]] } },
-    { label: "Power Snatch EMOM", note: "Logged one line per minute + bar speed", src: "Mayhem", date: "Mon Nov 9", source: "Mayhem", block: "Strength", type: "EMOM", ill: "Logged loads and speeds are examples",
-      name: "Power Snatch", fmt: ["Every 1:00 × 15"], moves: [["5 Power Snatches", "your pick (1RM 135 lb)"]],
-      done: { date: "Mon Nov 9", n: "115 lb", u: "top set · 75/75 reps", rx: "15/15 min", vs: "Built 85 → 115 lb · clean peak speed per minute (wrist estimate)", ex: true,
-        moves: [["5 Power Snatches", "85 lb", "2.31 m/s"], ["5 Power Snatches", "85 lb", "2.29 m/s"], ["5 Power Snatches", "95 lb", "2.22 m/s"], ["5 Power Snatches", "95 lb", "2.20 m/s"], ["5 Power Snatches", "95 lb", "2.18 m/s"], ["5 Power Snatches", "105 lb", "2.10 m/s"], ["5 Power Snatches", "105 lb", "2.08 m/s"], ["5 Power Snatches", "105 lb", "2.05 m/s"], ["5 Power Snatches", "105 lb", "2.03 m/s"], ["5 Power Snatches", "110 lb", "1.98 m/s"], ["5 Power Snatches", "110 lb", "1.95 m/s"], ["5 Power Snatches", "110 lb", "1.93 m/s"], ["5 Power Snatches", "115 lb", "1.88 m/s"], ["5 Power Snatches", "115 lb", "1.86 m/s"], ["5 Power Snatches", "115 lb", "1.83 m/s"]] } },
-    { label: "Core Work", note: "Units between number and movement", src: "Mayhem", date: "Mon Nov 9", source: "Mayhem", block: "Accessory", type: "For quality",
-      name: "Core Work", fmt: ["3 rounds"], moves: [["1/side Turkish Get-up", "pick"], ["1:00 Suitcase Hold", "pick"], ["50 ft Front-Rack Carry"]] },
-    { label: "Freedom (yours)", note: "Real result, done Scaled: Rx 185 lb, you 155 lb", src: "Your data · Nov 2", date: "Mon Nov 2", source: "Your library", block: "Metcon", type: "RFT",
-      name: "Freedom", fmt: ["5 rounds"], scheme: "40-30-20-30-40 Cal", moves: [["Row"], ["7 Power Cleans", "185 lb"]], cap: "20 min",
-      orig: "Row 40-30-20-30-40 cal, 7 power cleans 185 lb after each row. Cap 20 min",
-      done: { date: "Mon Nov 2", n: "19:37", rx: "Scaled", vs: "0:23 under the cap · Rx 185 lb, you did 155 lb", moves: [["Row"], ["7 Power Cleans", "155 lb"]], ask: true } },
-    { label: "Power C&J EMOM (yours)", note: "Real: one line per minute, load + speed", src: "Your data · Nov 2", date: "Mon Nov 2", source: "Your library", block: "Strength", type: "EMOM", doneOnly: true,
-      name: "Power Clean & Jerk", fmt: ["Every 1:00 × 8"], moves: [["2 Power C&J", "125 → 175 lb"]],
-      done: { date: "Mon Nov 2", n: "175 lb", u: "top set · 16/16 reps", rx: "8/8 min", vs: "Clean peak speed per minute, wrist estimate",
-        moves: [["2 Power C&J", "125 lb", "1.95 m/s"], ["2 Power C&J", "135 lb", "1.84 m/s"], ["2 Power C&J", "145 lb", "1.89 m/s"], ["2 Power C&J", "145 lb", "1.88 m/s"], ["2 Power C&J", "155 lb", "1.97 m/s"], ["2 Power C&J", "155 lb", "1.80 m/s"], ["2 Power C&J", "165 lb", "1.70 m/s"], ["2 Power C&J", "175 lb", "1.62 m/s"]] } },
-    { label: "AMRAP 40 (yours)", note: "Done only: alternating A/B rounds", src: "Your data · Nov 1", date: "Sun Nov 1", source: "Class", block: "Metcon", type: "AMRAP", doneOnly: true,
+    { label: "“LAST CALL”", note: "Quoted name, cap at the bottom", src: "Example program", date: "Fri Nov 6", source: "Program", block: "Metcon", type: "RFT", ill: "Invented example",
+      name: "“LAST CALL”", scheme: "21-15-9", moves: [["Deadlift", { m: "205 lb", f: "145 lb" }], ["Box Jumps", { m: "24 in", f: "20 in" }]], cap: "9 min",
+      orig: "For time 21-15-9: deadlift 205/145 lb, box jumps 24/20 in. Cap 9 min" },
+    { label: "Very long name", note: "Very long name, 22 movements, team of 2", src: "Example program", date: "Sat Nov 7", source: "Program", block: "Metcon", type: "Chipper", ill: "Invented example",
+      name: "“Everybody gets a turn, even the people standing at the very back”", fmt: ["Team of 2"], scheme: "20 each",
+      moves: [["Thrusters", { m: "95 lb", f: "65 lb" }], ["KB Swings", { m: "53 lb", f: "35 lb" }], ["Box Jumps", { m: "24 in", f: "20 in" }], ["Wall Balls", { m: "20 lb", f: "14 lb" }]], more: 18, cap: "50 min" },
+    { label: "No name", note: "Format used as the name", src: "Example program", date: "Today", source: "Program", block: "Accessory", type: "EMOM", ill: "Invented example",
+      name: "Every 3:00 × 3", moves: [["40 DU"], ["20 GHD Sit-ups"]] },
+    { label: "Front Squat 5×3", note: "Lift: simple plan, logged one line per set + bar speed", src: "Example program", date: "Today", source: "Program", block: "Strength", type: "Sets × reps", ill: "Invented example; loads and speeds are examples",
+      name: "Front Squat", moves: [["5×3 Front Squat", "160–185 lb (70–80 %)"]], last: "Last time 195 lb best set · 2,550 lb total",
+      done: { date: "Today", n: "205 lb", u: "best set", rx: "Rx", good: "+10 lb", vs: "vs last time (195) · 2,790 lb total · bar speed is your wrist estimate", ex: true,
+        moves: [["3 Front Squats", "160 lb", "0.72 m/s"], ["3 Front Squats", "175 lb", "0.67 m/s"], ["3 Front Squats", "190 lb", "0.62 m/s"], ["3 Front Squats", "200 lb", "0.57 m/s"], ["3 Front Squats", "205 lb", "0.52 m/s"]] } },
+    { label: "Power Snatch EMOM", note: "Logged one line per minute + bar speed", src: "Example program", date: "Mon Nov 9", source: "Program", block: "Strength", type: "EMOM", ill: "Invented example; loads and speeds are examples",
+      name: "Power Snatch", fmt: ["Every 1:00 × 12"], moves: [["3 Power Snatches", "your pick (1RM 130 lb)"]],
+      done: { date: "Mon Nov 9", n: "115 lb", u: "top set · 36/36 reps", rx: "12/12 min", vs: "Built 75 → 115 lb · clean peak speed per minute (wrist estimate)", ex: true,
+        moves: [["3 Power Snatches", "75 lb", "2.30 m/s"], ["3 Power Snatches", "75 lb", "2.26 m/s"], ["3 Power Snatches", "85 lb", "2.22 m/s"], ["3 Power Snatches", "85 lb", "2.18 m/s"], ["3 Power Snatches", "85 lb", "2.14 m/s"], ["3 Power Snatches", "95 lb", "2.10 m/s"], ["3 Power Snatches", "95 lb", "2.06 m/s"], ["3 Power Snatches", "95 lb", "2.02 m/s"], ["3 Power Snatches", "105 lb", "1.98 m/s"], ["3 Power Snatches", "105 lb", "1.94 m/s"], ["3 Power Snatches", "105 lb", "1.90 m/s"], ["3 Power Snatches", "115 lb", "1.86 m/s"]] } },
+    { label: "Core Work", note: "Units between number and movement", src: "Example program", date: "Mon Nov 9", source: "Program", block: "Accessory", type: "For quality", ill: "Invented example",
+      name: "Core Work", fmt: ["3 rounds"], moves: [["1:00 Plank Hold"], ["10/side Side Plank Dips"], ["50 ft Farmer Carry", "pick"]] },
+    { label: "Seesaw (example)", note: "Example result, done Scaled: Rx 135 lb, you 115 lb", src: "Example", date: "Mon Nov 2", source: "Your library", block: "Metcon", type: "RFT", ill: "Invented example",
+      name: "Seesaw", fmt: ["5 rounds"], scheme: "30-24-18-24-30 Cal", moves: [["Row"], ["5 Power Cleans", "135 lb"]], cap: "18 min",
+      orig: "Row 30-24-18-24-30 cal, 5 power cleans 135 lb after each row. Cap 18 min",
+      done: { date: "Mon Nov 2", n: "16:41", rx: "Scaled", vs: "1:19 under the cap · Rx 135 lb, you did 115 lb", moves: [["Row"], ["5 Power Cleans", "115 lb"]], ask: true } },
+    { label: "Power C&J EMOM (example)", note: "Example: one line per round, load + speed", src: "Example", date: "Mon Nov 2", source: "Your library", block: "Strength", type: "EMOM", doneOnly: true, ill: "Invented example",
+      name: "Power Clean & Jerk", fmt: ["Every 1:30 × 6"], moves: [["3 Power C&J", "95 → 135 lb"]],
+      done: { date: "Mon Nov 2", n: "135 lb", u: "top set · 18/18 reps", rx: "6/6 rounds", vs: "Clean peak speed per round, wrist estimate",
+        moves: [["3 Power C&J", "95 lb", "1.95 m/s"], ["3 Power C&J", "105 lb", "1.89 m/s"], ["3 Power C&J", "115 lb", "1.83 m/s"], ["3 Power C&J", "125 lb", "1.77 m/s"], ["3 Power C&J", "130 lb", "1.71 m/s"], ["3 Power C&J", "135 lb", "1.65 m/s"]] } },
+    { label: "AMRAP 40 (example)", note: "Done only: alternating A/B rounds", src: "Example", date: "Sun Nov 1", source: "Built-in", block: "Metcon", type: "AMRAP", doneOnly: true, ill: "Invented example",
       name: "AMRAP 40", fmt: ["40 min AMRAP", "rest 1 min between rounds"],
-      moves: [{ g: "A rounds" }, ["12 Cal Row"], ["15 Push-ups"], ["12 ALT DB C&J", "40 lb"], ["15 Burpees"], { g: "B rounds" }, ["12 Cal Bike"], ["6 Strict Pull-ups"], ["12 ALT DB Snatches", "40 lb"], ["3 Wall Walks"]],
-      done: { date: "Sun Nov 1", n: "7", u: "rounds + 0", rx: "Rx", vs: "First time logged" } }
+      moves: [{ g: "A rounds" }, ["14 Cal Row"], ["20 KB Swings", "53 lb"], ["25 Air Squats"], ["10 Pull-ups"], { g: "B rounds" }, ["14 Cal SkiErg"], ["20 Wall Balls", "20 lb"], ["25 Lunges"], ["10 Ring Rows"]],
+      done: { date: "Sun Nov 1", n: "6", u: "rounds + 0", rx: "Rx", vs: "First time logged" } }
   ];
 
   var division = "m";
@@ -297,7 +297,7 @@ ol.qs { margin: 0; padding-left: 20px; display: flex; flex-direction: column; ga
   }
   function askSheet() {
     return '<div class="ask"><b>Rx or scaled?</b><div class="seg"><span>Rx</span><span class="on">Scaled</span></div>' +
-      '<div class="edit">7 Power Cleans <s>@185 lb</s> → <b>@155 lb</b> <span>edit</span></div><div class="edit">Row 40-30-20-30-40 Cal <span>as written</span></div></div>';
+      '<div class="edit">5 Power Cleans <s>@135 lb</s> → <b>@115 lb</b> <span>edit</span></div><div class="edit">Row 30-24-18-24-30 Cal <span>as written</span></div></div>';
   }
 
   function render() {

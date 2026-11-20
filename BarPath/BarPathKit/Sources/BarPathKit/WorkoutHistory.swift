@@ -4,10 +4,10 @@ import Foundation
 /// score on the Choose rows).
 ///
 /// The same workout can reach the phone under more than one id: a built-in on a branch that was
-/// never merged ("wod.freedom") and the library row of the same day ("lib.pitfire.20261102.freedom").
+/// never merged ("wod.seesaw") and the library row of the same day ("lib.example.20261101.seesaw").
 /// Two definitions are the same workout when their ids are equal, or when their names match once
 /// normalized AND their segments have the same kinds and movements in the same order. Targets and
-/// loads are left out on purpose: a load typed differently (85 kg vs 155 lb) is still the workout.
+/// loads are left out on purpose: a load typed differently (60 kg vs 135 lb) is still the workout.
 ///
 /// Port of tools/barpath/workout_history.py.
 public enum WorkoutHistory {
@@ -51,14 +51,37 @@ public enum WorkoutHistory {
             return true
         }
         // Cheap check first: Choose compares every definition with every result.
-        if a.segments.count != b.segments.count {
-            return false
-        }
         let nameA: String = normalizedName(a.name)
         if nameA.isEmpty || nameA != normalizedName(b.name) {
             return false
         }
-        return movementSequence(a) == movementSequence(b)
+        if a.segments.count == b.segments.count && movementSequence(a) == movementSequence(b) {
+            return true
+        }
+        // A result's AMRAP is written out at START (#138): compare both as the watch runs them.
+        guard a.format == .amrap || b.format == .amrap else { return false }
+        let ea: WorkoutDefinition = a.expandedForAmrap()
+        let eb: WorkoutDefinition = b.expandedForAmrap()
+        if ea.segments.count != eb.segments.count {
+            return false
+        }
+        return movementSequence(ea) == movementSequence(eb)
+    }
+
+    /// The library workout a recorded result belongs to (its card and history page, #137): the
+    /// entry with the result's id; for an id that is no built-in, the first entry that is the same
+    /// workout (`isSameWorkout`). Nil: the result's own definition is used (a built-in, a Free
+    /// Workout, a row deleted from the library or never in it). Whichever definition is used,
+    /// `results(of:in:)` of it includes the result.
+    public static func libraryIndex(for recorded: WorkoutDefinition,
+                                    in library: [WorkoutDefinition]) -> Int? {
+        if let i = library.firstIndex(where: { (d: WorkoutDefinition) -> Bool in d.id == recorded.id }) {
+            return i
+        }
+        if WorkoutLibrary.definition(id: recorded.id) != nil {
+            return nil
+        }
+        return library.firstIndex(where: { (d: WorkoutDefinition) -> Bool in isSameWorkout(d, recorded) })
     }
 
     /// Results of this workout, newest start first.

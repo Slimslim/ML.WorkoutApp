@@ -436,6 +436,29 @@ changes or a new app build is installed (every build checks each file once). Eve
 adds carry `source: "edit"`. Results deleted on the phone are not brought back. Keys this build does not know (e.g. `rx`) are
 dropped from the phone's copy when it is written; the cloud copy keeps them.
 
+## 5a. An AMRAP never runs out of list (added 2026-11-20, #138)
+
+The watch's progress finishes on the last listed segment whatever the format, and `roundSize` does
+not make the list repeat. A library AMRAP that listed one pass offered Finish after it, with minutes
+left on the cap. Since 0.17.1 the watch expands an AMRAP at START
+(`WorkoutDefinition.expandedForAmrap()`, Python `amrap_expanded`):
+- Only `format: amrap` with a time cap. The round is `roundSize` segments; without a valid
+  `roundSize`, the smallest exact repeat of the list (3 identical rounds of 4 → rounds of 4), else
+  the whole list (a ladder written once is one round). A list that is not whole rounds (e.g. a
+  final rest dropped) is left alone and can still run out: list such workouts in whole rounds.
+- With `intervalSeconds` and no `roundSize`, the list is written out but `roundSize` stays unset
+  (setting it would turn on the interval jump for work segments).
+- The **last full round** is repeated until the list holds 30 rounds (fewer when that would pass
+  600 segments; never fewer than listed), and `roundSize` is set. A ladder written out round by
+  round therefore stays on its top rung after the listed rounds (it does not keep climbing). The
+  watch then shows "Round n" (not "n/count" of the written-out list), and the result and summary
+  count rounds. History matches a result to its library workout as expanded
+  (`WorkoutHistory.isSameWorkout`).
+- The result carries the expanded definition, and the crash checkpoint stores it inside the
+  progress, so a restored workout keeps it. Expanding twice changes nothing.
+- Builds before 0.17.1 still finish after the listed rounds: library AMRAPs must list their rounds
+  out (the `make_row.py` check is PR #139).
+
 ## 5b. For-time caps: keep going past the cap (added 2026-11-03, W7)
 
 Owner, 2026-11-03: "For time with a cap: if you are not done within the cap, I don't want the
@@ -444,7 +467,7 @@ full workout. At the end ask how many reps I did on that movement before the tim
 know how far I was. If I want to stop I can stop — it's my decision."
 
 AMRAP caps are unchanged (the clock finishes the workout, `capTime`, `partialReps`, §5). This
-section is for `format == .forTime` with `timeCapSeconds > 0` (Freedom 20:00, Helen 16:00,
+section is for `format == .forTime` with `timeCapSeconds > 0` (Seesaw 18:00, Helen 16:00,
 Partner WOD 1 30:00).
 
 ### Result format (no version bump, one new optional key)
@@ -478,7 +501,7 @@ Python: `for_time_cap_time`, `segment_index_at`, `cap_segment_index(now)`; on th
 `cap_position_text`. Finishing exactly on the cap is not capped (strictly greater).
 
 ### Score format
-- The big score is always the time for the full workout: "19:37" under the cap, "18:20" past it.
+- The big score is always the time for the full workout: "14:52" under the cap, "18:20" past it.
 - Under the cap the context line is unchanged: "3 rounds for time · 0:23 under the 16:00 cap".
 - Past the cap: "3 rounds for time · 2:20 over the 16:00 cap · at the cap: 7/12 Pull-ups (R3)".
 - `capPositionText`: "7/12 Pull-ups (R3)" (reps / target), "7 Burpees" (no reps target),

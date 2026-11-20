@@ -390,7 +390,7 @@ final class WorkoutSummaryTests: XCTestCase {
             return XCTFail("expected amrapClock, got \(s.story)")
         }
         XCTAssertEqual(a.completedRounds, 1)
-        XCTAssertEqual(a.extraReps, 27)                 // 12 cal + 15
+        XCTAssertEqual(a.extraReps, 34)                 // 14 cal + 20
     }
 
     func testAmrapPartialRound() {

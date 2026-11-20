@@ -2,7 +2,7 @@ import XCTest
 @testable import BarPathKit
 
 final class WorkoutEffortTests: XCTestCase {
-    private func cleans(reps: Double = 7, load: SegmentLoad? = SegmentLoad(155, .lb)) -> WorkoutSegment {
+    private func cleans(reps: Double = 5, load: SegmentLoad? = SegmentLoad(135, .lb)) -> WorkoutSegment {
         return WorkoutSegment(kind: .station, movement: "powerCleans", name: "Power Cleans",
                               target: SegmentTarget(reps, .reps), load: load)
     }
@@ -112,14 +112,14 @@ final class WorkoutEffortTests: XCTestCase {
 
     func testWeightLifted() {
         let lb: Double = 0.45359237
-        XCTAssertEqual(result([cleans()], done: [(0, .station)]).weightLiftedKg, 7 * 155 * lb, accuracy: 1e-9)
+        XCTAssertEqual(result([cleans()], done: [(0, .station)]).weightLiftedKg, 5 * 135 * lb, accuracy: 1e-9)
         let pair = cleans(reps: 10, load: SegmentLoad(50, .lb, count: 2))
         XCTAssertEqual(result([pair], done: [(0, .station)]).weightLiftedKg, 10 * 100 * lb, accuracy: 1e-9)
     }
 
     func testWeightLiftedSkipsWhatItCannotKnow() {
         let row = WorkoutSegment(kind: .station, movement: "row", name: "Row",
-                                 target: SegmentTarget(40, .calories), load: SegmentLoad(155, .lb))
+                                 target: SegmentTarget(30, .calories), load: SegmentLoad(135, .lb))
         let r = result([row, cleans(load: nil)], done: [(0, .station), (1, .station)])
         XCTAssertEqual(r.weightLiftedKg, 0)
         XCTAssertEqual(result([], done: []).weightLiftedKg, 0)
@@ -127,7 +127,7 @@ final class WorkoutEffortTests: XCTestCase {
 
     func testWeightLiftedUnfinishedAndWrapped() {
         let r = result([cleans()], done: [(0, .station), (1, .station)], finished: false, partial: 3)
-        XCTAssertEqual(r.weightLiftedKg, (7 + 3) * 155 * 0.45359237, accuracy: 1e-9)
+        XCTAssertEqual(r.weightLiftedKg, (5 + 3) * 135 * 0.45359237, accuracy: 1e-9)
     }
 
     func testDaysGroupByLocalDayAndKeepMissingHeartRate() throws {

@@ -1,5 +1,7 @@
 """Ground-truth labels (data/labels, docs/LABELS.md): every label file is well formed, and the
-switch / set-end / matching rules the scores rely on. No recordings needed (they are not in git)."""
+switch / set-end / matching rules the scores rely on. No recordings needed. The labels themselves
+live in private Storage (python3 tools/fetch_corpus.py --kind labels); without them the per-file
+checks are skipped and the invented fixtures (tools/tests/fixtures/labels) are checked instead."""
 import pytest
 
 from barpath import labels as L
@@ -7,8 +9,9 @@ from barpath import labels as L
 FILES = L.all_label_files()
 
 
+@pytest.mark.skipif(not FILES, reason="labels not in data/labels (python3 tools/fetch_corpus.py --kind labels)")
 def test_there_are_labels():
-    assert FILES, "data/labels/ is empty"
+    assert FILES
 
 
 @pytest.mark.parametrize("path", FILES, ids=lambda p: p.stem)

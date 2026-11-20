@@ -50,7 +50,7 @@ def test_library():
     assert WorkoutLibrary.definition("wod.nightmareAmrap") is WorkoutLibrary.amrap20
     a40 = WorkoutLibrary.amrap40
     assert len(a40.segments) == 60 and a40.round_size == 5 and a40.time_cap_seconds == 2400
-    assert a40.segments[0].title == "Row / Bike 12 cal"
+    assert a40.segments[0].title == "Row / SkiErg 14 cal"
     assert a40.segments[4].kind == "rest" and a40.segments[4].target.value == 60
     solo = WorkoutLibrary.hyroxSolo
     assert len(solo.segments) == 16 and solo.run_count == 8 and solo.station_count == 8

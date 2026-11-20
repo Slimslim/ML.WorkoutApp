@@ -1,7 +1,7 @@
 # Context for the Rx Lab structure review
 
 ## The athlete / owner
-Non-developer hybrid athlete (CrossFit box "Blue Republic", class WODs incl. Hero/benchmarks, strength + Olympic lifting, HYROX Anaheim Dec 3-6 2026, partner/doubles WODs on Saturdays). Apple Watch Series 12 + iPhone. Will share with 2-3 friends via TestFlight (one in Switzerland), App Store later.
+Non-developer hybrid athlete (a CrossFit box, class WODs incl. Hero/benchmarks, strength + Olympic lifting, HYROX Anaheim Dec 3-6 2026, partner/doubles WODs on Saturdays). Apple Watch Series 12 + iPhone. Will share with 2-3 friends via TestFlight (one in Switzerland), App Store later.
 Vision (repo docs/VISION.md): one app that MEASURES every workout (HYROX, CrossFit benchmarks/Hero/class WODs, strength & Olympic lifting) and turns data into insights/recommendations ("a second opinion on every workout"). Working name "Rx Lab". BarPath = the lifting analysis feature.
 Likes Beyond the Whiteboard (btwb): Fitness Level (0-100, avg of 8 categories: power lifts, Olympic lifts, speed, endurance, metcon bodyweight/light/heavy/long), workout level 1-99 with a pre-workout slider, imbalances, benchmarks/PRs/badges, calendar. Our edge: the watch measures (splits by Crown turn, HR + recovery, run pace via pedometer, bar path/velocity, later reps/work-rest) instead of manual entry.
 HYROX friend feedback: racers watch the clock vs target times and want ahead/behind.

@@ -6,10 +6,12 @@ import Foundation
 /// The phone's `WCSession.applicationContext` is what the phone last *sent*, and it outlives
 /// app launches and watch app reinstalls. A reinstalled watch app starts with an empty received
 /// context, so "skip when the phone's copy already has the same values" never re-sends it.
-/// `force` sends anyway (on activation and watch-state changes), and every send carries a fresh
+/// `force` sends anyway (on activation, watch-state changes and when the phone app becomes
+/// active, #82), and every send carries a fresh
 /// `sentAt`, so WatchConnectivity sees a changed dictionary and delivers it.
 public enum PhoneDeviceContext {
-    /// Application context key (read by the watch's `WorkoutRecordingInfo`).
+    /// Application context key, used by both the phone (`PhoneDeviceInfo`, `PhoneLink`) and the
+    /// watch (`WorkoutRecordingInfo`).
     public static let key = "phoneDevice"
     /// Field inside the `phoneDevice` entry: milliseconds since 1970 when it was sent, as a string.
     /// The watch ignores it; it only makes each send a new dictionary.

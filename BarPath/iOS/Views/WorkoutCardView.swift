@@ -18,7 +18,7 @@ enum WorkoutCardTheme {
 
 /// Top-left meta of a card and rows.
 enum WorkoutCardMeta {
-    /// Library: "Today · PitFIRE", "Mon, Nov 2 · PitFIRE", "PitFIRE"; built-in: "Built-in".
+    /// Library: "Today · Example", "Mon, Nov 2 · Example", "Example"; built-in: "Built-in".
     static func text(_ library: LibraryWorkout?) -> String {
         guard let w = library else { return "Built-in" }
         var parts: [String] = []
@@ -107,10 +107,10 @@ struct WorkoutRxBadgeView: View {
     }
 }
 
-/// The score line of a done card: "19:37", unit, Rx / Scaled badge, the context ("3:13 under the
+/// The score line of a done card: "17:45", unit, Rx / Scaled badge, the context ("3:13 under the
 /// 16:00 cap") and the change vs the last attempt.
 struct WorkoutCardScore {
-    /// "19:37", "7 + 12", "8 / 8".
+    /// "17:45", "7 + 12", "8 / 8".
     let value: String
     /// "rounds + reps", "sets".
     let unit: String?
@@ -160,11 +160,11 @@ struct WorkoutCardView: View {
     }
 
     let card: WorkoutCard
-    /// Full: "Mon, Nov 2 · PitFIRE" or "Built-in". Compact: an optional date put before
+    /// Full: "Mon, Nov 2 · Example" or "Built-in". Compact: an optional date put before
     /// "block · type".
     var meta: String? = nil
     var style: Style = Style.full
-    /// Compact: the last score of this workout ("19:37", "7 rds").
+    /// Compact: the last score of this workout ("17:45", "7 rds").
     var lastScore: String? = nil
     /// Compact: this workout is the one on the watch.
     var isSent: Bool = false
@@ -263,7 +263,7 @@ struct WorkoutCardView: View {
         .padding(.top, 2)
     }
 
-    /// "7 Power Cleans" then "@155 lb" in the secondary colour; the load never breaks inside.
+    /// "5 Power Cleans" then "@135 lb" in the secondary colour; the load never breaks inside.
     static func lineText(_ line: WorkoutCard.Line) -> Text {
         var text: Text = Text(line.text)
         if let load = line.load {
@@ -383,9 +383,9 @@ struct WorkoutCardView: View {
     }
 }
 
-/// Last score of each workout for the Choose rows, written like the score line ("19:37", "7 rds",
+/// Last score of each workout for the Choose rows, written like the score line ("17:45", "7 rds",
 /// "7 + 12", "8 sets"). The newest result of the same workout (WorkoutHistory: same id, or same
-/// name and movements, so a result saved as "wod.freedom" counts for the library's Freedom).
+/// name and movements, so a result saved as "wod.seesaw" counts for the library's Seesaw).
 enum WorkoutLastScore {
     /// Keyed by definition id.
     static func byDefinition(_ definitions: [WorkoutDefinition], results: [WorkoutResult]) -> [String: String] {
@@ -398,7 +398,7 @@ enum WorkoutLastScore {
         return out
     }
 
-    /// Score of each result for the Log rows ("19:37", "7 rds"), keyed by result id.
+    /// Score of each result for the Log rows ("17:45", "7 rds"), keyed by result id.
     static func byResult(_ results: [WorkoutResult]) -> [UUID: WorkoutCardScore] {
         var out: [UUID: WorkoutCardScore] = [:]
         for r in results {
@@ -428,20 +428,34 @@ enum WorkoutLastScore {
 
 /// The card of a logged workout: the definition to draw it from and its program. A result keeps
 /// the definition it was recorded with; when the library has the same workout (same id, or, for an
-/// id that is no built-in any more such as "wod.freedom", the same name and movements) the
+/// id that is no built-in any more such as "wod.seesaw", the same name and movements) the
 /// library's current version and program are used.
 enum WorkoutResultCard {
     static func resolve(_ result: WorkoutResult, library: [LibraryWorkout]) -> (definition: WorkoutDefinition, program: String?) {
-        let id: String = result.definition.id
-        if let w = library.first(where: { (w: LibraryWorkout) -> Bool in w.id == id }) {
-            return (w.definition, WorkoutResultCard.clean(w.program))
-        }
-        if WorkoutLibrary.definition(id: id) == nil,
-           let w = library.first(where: { (w: LibraryWorkout) -> Bool in
-               WorkoutHistory.isSameWorkout(w.definition, result.definition) }) {
+        if let w = libraryWorkout(result, library: library) {
             return (w.definition, WorkoutResultCard.clean(w.program))
         }
         return (result.definition, nil)
+    }
+
+    /// The library entry of a logged workout (WorkoutHistory.libraryIndex), nil when it is a
+    /// built-in or no longer in the library.
+    static func libraryWorkout(_ result: WorkoutResult, library: [LibraryWorkout]) -> LibraryWorkout? {
+        let definitions: [WorkoutDefinition] = library.map { (w: LibraryWorkout) -> WorkoutDefinition in w.definition }
+        guard let i = WorkoutHistory.libraryIndex(for: result.definition, in: definitions) else { return nil }
+        return library[i]
+    }
+
+    /// The workout page (card, Send to watch, history) a logged workout opens from the calendar
+    /// (#137): the library's current version when it has the workout, else the definition the
+    /// result was recorded with. Meta as on Choose; "Built-in" only for a built-in, nothing for a
+    /// workout that is no longer in the library.
+    static func page(_ result: WorkoutResult, library: [LibraryWorkout]) -> (definition: WorkoutDefinition, meta: String?) {
+        if let w = libraryWorkout(result, library: library) {
+            return (w.definition, WorkoutCardMeta.text(w))
+        }
+        let builtIn: Bool = WorkoutLibrary.definition(id: result.definition.id) != nil
+        return (result.definition, builtIn ? WorkoutCardMeta.text(nil) : nil)
     }
 
     /// "Mon, Nov 2".
@@ -449,14 +463,14 @@ enum WorkoutResultCard {
         return date.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day())
     }
 
-    /// Log row: "Mon, Nov 2 · PitFIRE" or "Mon, Nov 2".
+    /// Log row: "Mon, Nov 2 · Example" or "Mon, Nov 2".
     static func logMeta(_ result: WorkoutResult, program: String?) -> String {
         var parts: [String] = [dateLabel(result.startDate)]
         if let p = program { parts.append(p) }
         return parts.joined(separator: " \u{00B7} ")
     }
 
-    /// Report card: "Mon, Nov 2 · PitFIRE", "Thu, Oct 29 · Built-in".
+    /// Report card: "Mon, Nov 2 · Example", "Thu, Oct 29 · Built-in".
     static func reportMeta(_ result: WorkoutResult, program: String?) -> String {
         var parts: [String] = [dateLabel(result.startDate)]
         if let p = program {

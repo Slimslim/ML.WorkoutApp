@@ -29,30 +29,30 @@ def result(d: WorkoutDefinition, day: int, seconds: float = 600.0) -> WorkoutRes
 
 def test_normalized_name():
     assert normalized_name("Every 1:00 × 8: Power C&J") == "every 1 00 8 power c j"
-    assert normalized_name("  FREEDOM ") == "freedom"
+    assert normalized_name("  SEESAW ") == "seesaw"
     assert normalized_name("Café  “Game Over”") == "cafe game over"
     assert normalized_name("") == ""
 
 
-def test_freedom_built_in_id_matches_library_row():
-    lib = seed("freedom")
-    # The owner's result: id of a built-in that was never merged, loads written as 85 kg.
-    old = renamed(lib, "wod.freedom")
+def test_built_in_id_matches_library_row():
+    lib = seed("seesaw")
+    # A result saved under the id of a built-in that was never merged, loads written in kg.
+    old = renamed(lib, "wod.seesaw")
     for s in old.segments:
         if s.load is not None:
             s.load = SegmentLoad(85, "kg", 1)
-    assert lib.id == "lib.pitfire.20261102.freedom"
+    assert lib.id == "lib.example.20261101.seesaw"
     assert is_same_workout(lib, old)
     assert is_same_workout(old, lib)
 
 
 def test_pcj_emom_built_in_id_matches_library_row():
-    lib = seed("pcj_emom")
+    lib = seed("power_cj_emom")
     assert is_same_workout(lib, renamed(lib, "wod.pcjEmom"))
 
 
 def test_same_name_other_movements_do_not_match():
-    lib = seed("freedom")
+    lib = seed("seesaw")
     other = renamed(lib, "wod.other")
     other.segments[1].movement = "thrusters"
     assert not is_same_workout(lib, other)
@@ -62,7 +62,7 @@ def test_same_name_other_movements_do_not_match():
 
 
 def test_same_movements_other_name_do_not_match():
-    lib = seed("freedom")
+    lib = seed("seesaw")
     other = renamed(lib, "wod.liberty")
     other.name = "Liberty"
     assert not is_same_workout(lib, other)
@@ -76,12 +76,12 @@ def test_same_id_always_matches():
 
 
 def test_movement_sequence():
-    assert movement_sequence(seed("pcj_emom"))[:2] == ["station:powerCleanAndJerk", "rest:rest"]
+    assert movement_sequence(seed("power_cj_emom"))[:2] == ["station:powerCleanAndJerk", "rest:rest"]
 
 
 def test_results_newest_first():
-    lib = seed("freedom")
-    a = result(renamed(lib, "wod.freedom"), 2)
+    lib = seed("seesaw")
+    a = result(renamed(lib, "wod.seesaw"), 2)
     b = result(lib, 9)
     helen = result(WorkoutLibrary.definition("wod.helen"), 5)
     found = results_of(lib, [a, helen, b])
@@ -91,9 +91,35 @@ def test_results_newest_first():
 
 def test_segment_lines_quantity_first():
     """The preview's "All segments" list uses the card line (WorkoutCard.segmentLine in Swift)."""
-    pcj = seed("pcj_emom")
-    assert [movement_line(s).full for s in pcj.segments[:2]] == ["2 Power C&J", "Rest"]
+    pcj = seed("power_cj_emom")
+    assert [movement_line(s).full for s in pcj.segments[:2]] == ["3 Power C&J", "Rest"]
     helen = WorkoutLibrary.definition("wod.helen")
     assert [movement_line(s).full for s in helen.segments[:3]] == ["400 m Run", "21 KB Swings", "12 Pull-ups"]
-    freedom = seed("freedom")
-    assert [movement_line(s).full for s in freedom.segments[:2]] == ["40 Cal Row", "7 Power Cleans @155 lb"]
+    seesaw = seed("seesaw")
+    assert [movement_line(s).full for s in seesaw.segments[:2]] == ["30 Cal Row", "5 Power Cleans @135 lb"]
+
+
+def test_library_index_for_calendar_page():
+    """#137: which library workout a recorded result opens from the calendar, and its history
+    always contains that result."""
+    from barpath.workout_history import library_index
+    seesaw, pcj = seed("seesaw"), seed("power_cj_emom")
+    library = [pcj, seesaw]
+    # same id
+    assert library_index(seesaw, library) == 1
+    # an old id that is no built-in, same workout -> the library row
+    assert library_index(renamed(seesaw, "wod.seesaw"), library) == 1
+    # a built-in id is never swapped for a library row, even if it looks the same
+    helen = WorkoutLibrary.definition("wod.helen")
+    assert library_index(helen, library + [renamed(helen, "lib.x.20261101.helen")]) is None
+    # Free Workout, a deleted or personal row (not in the library): its own definition
+    assert library_index(WorkoutLibrary.free, library) is None
+    gone = WorkoutDefinition.from_dict(dict(seesaw.to_dict(), id="lib.gone.20261101.x", name="Deleted"))
+    assert library_index(gone, library) is None
+    # whichever definition is used, the result is in its history
+    for recorded in [seesaw, renamed(seesaw, "wod.seesaw"), helen,
+                     WorkoutLibrary.free]:
+        r = result(recorded, 10)
+        i = library_index(recorded, library)
+        page = library[i] if i is not None else recorded
+        assert r in results_of(page, [r]), recorded.id

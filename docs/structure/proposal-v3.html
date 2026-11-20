@@ -97,8 +97,8 @@ figcaption{font-size:13px;color:var(--muted);text-align:center;max-width:250px}
 <header style="display:flex;flex-direction:column;gap:14px">
   <span class="kicker">Proposal · draft 3 · 1 Nov 2026 · after two review rounds and a check of the real code</span>
   <h1>Rx Lab app structure</h1>
-  <p class="lede">How the iPhone and Watch apps should be organised for all your training: HYROX, CrossFit benchmarks and class WODs, Mayhem programming days, strength and Olympic lifting. This version answers two rounds of reviews and puts only race-critical work before Anaheim.</p>
-  <p class="note">Every decision, with its reason, is in <strong>decisions.md</strong> in the same folder. All numbers in the mock screens are illustrative, except the Mayhem "previous result" and "recent maxes", which come from your own screenshots.</p>
+  <p class="lede">How the iPhone and Watch apps should be organised for all your training: HYROX, CrossFit benchmarks and class WODs, subscription programming days, strength and Olympic lifting. This version answers two rounds of reviews and puts only race-critical work before Anaheim.</p>
+  <p class="note">Every decision, with its reason, is in <strong>decisions.md</strong> in the same folder. All numbers in the mock screens are illustrative.</p>
 </header>
 
 <section>
@@ -141,7 +141,7 @@ figcaption{font-size:13px;color:var(--muted);text-align:center;max-width:250px}
   <div class="box verdict">
     <span class="tag">Decision</span>
     <h3>Bar path stays inside Rx Lab, as the analysis of every lift. Not a tab, not a separate app.</h3>
-    <p>You see it when you open a lift: path, bar speed, pull and catch heights. Each lift type has one Lift page (Library › Lifts) with best lifts, your recent maxes (3RM, 5RM, 10RM) and later speed by load. A Mayhem day with squats and a metcon stays one entry, with heart rate across both. "BarPath analysis, by Rx Lab" stays the feature name.</p>
+    <p>You see it when you open a lift: path, bar speed, pull and catch heights. Each lift type has one Lift page (Library › Lifts) with best lifts, your recent maxes (3RM, 5RM, 10RM) and later speed by load. A program day with squats and a metcon stays one entry, with heart rate across both. "BarPath analysis, by Rx Lab" stays the feature name.</p>
   </div>
 </section>
 
@@ -151,7 +151,7 @@ figcaption{font-size:13px;color:var(--muted);text-align:center;max-width:250px}
     <thead><tr><th>Tab</th><th>Job</th><th>Replaces today's</th></tr></thead>
     <tbody>
       <tr><td><strong>Today</strong></td><td>Today's session as block cards (each with Log / Start on watch), the newest result with PR badge, a sync chip when something is waiting on the watch.</td><td>Live</td></tr>
-      <tr><td><strong>Library</strong></td><td>Things you can start: Benchmarks · HYROX · Programs (imported days, e.g. Mayhem) · Mine · Lifts.</td><td>Choose workout</td></tr>
+      <tr><td><strong>Library</strong></td><td>Things you can start: Benchmarks · HYROX · Programs (imported days, e.g. a subscription program) · Mine · Lifts.</td><td>Choose workout</td></tr>
       <tr><td><strong>Log</strong></td><td>Everything you did, one row per day/session, with search and filters.</td><td>Workouts list + History</td></tr>
       <tr><td class="dim" style="color:var(--muted)">Insights <em>(later)</em></td><td>Appears as tab 4 when the "10 workouts" phase ships. Until then, insights live on the report and as one card on Today.</td><td>new</td></tr>
     </tbody></table></div>
@@ -188,7 +188,7 @@ figcaption{font-size:13px;color:var(--muted);text-align:center;max-width:250px}
 ├─ Search · filters <i>(type, time, equipment, done / not done)</i>
 ├─ Benchmarks: Girls · Heroes · Open → Workout preview
 ├─ HYROX: Solo · Doubles · Half · sims <i>(division sets loads)</i> → Workout preview
-├─ Programs: Mayhem days, box days <i>(imported)</i> → Session preview
+├─ Programs: program days, box days <i>(imported)</i> → Session preview
 ├─ Mine <i>(created, favourites; filter "from gym")</i> → Workout preview
 └─ Lifts: Back squat · Snatch … → Lift page
      └─ recent maxes (1/3/5/10RM) · best lifts · history → Lift report
@@ -231,8 +231,8 @@ Workout / Session preview <i>(shared page)</i>
   <h2><span class="n">6</span>Watch page tree and sync states</h2>
 <pre class="tree"><b>Watch home</b> <i>(one labelled list; status line on top: "Phone ●" or "Phone offline · ↑2")</i>
 ├─ TODAY: session name → its timed blocks, in order
-│    ├─ Metcon · For time · cap 17 [START]
-│    └─ V-ups 100 · cap 7 [START]    <i>(lifting blocks start from the phone; warm-up, cool-down, notes are not started)</i>
+│    ├─ Metcon · For time · cap 18 [START]
+│    └─ V-ups 50 · cap 5 [START]    <i>(lifting blocks start from the phone; warm-up, cool-down, notes are not started)</i>
 ├─ Free workout [START]   <i>(timer + HR + Crown laps; name it later on the phone)</i>
 ├─ Lift session → lift → load (plate steps) → START   <i>(stand-alone, no phone)</i>
 ├─ Workouts → Recent · Favourites · Built-ins · HYROX → START
@@ -242,7 +242,7 @@ Workout / Session preview <i>(shared page)</i>
 <b>In session</b>: segment · clock · metric + HR · <b>±delta vs target</b> <i>(if not switched off)</i> · progress border
 ├─ Crown = next · side button = undo · swipe → End <i>(asks "End workout?")</i>
 ├─ Always-On: segment, clock, ±delta
-└─ Done: score · recovery clock · "Saved ✓ · ↑ sending" · [Next: V-ups 100] <i>(next timed block of today's session)</i>
+└─ Done: score · recovery clock · "Saved ✓ · ↑ sending" · [Next: V-ups 50] <i>(next timed block of today's session)</i>
 
 <b>Phone-controlled lifting</b> <i>(starts by itself when you tap Start lifting on the phone)</i>
 ├─ lift name · "Set 3 of 5" · ♥ HR · red ● recording
@@ -305,18 +305,18 @@ Workout / Session preview <i>(shared page)</i>
 <section>
   <h2><span class="n">8</span>The data model in plain words</h2>
   <div class="two">
-    <div class="box"><h3>Workout (definition)</h3><p>The plan: blocks, movements, reps, loads in two columns when the source has them (e.g. 185/125 lb; you pick your column once in Profile), cap, instructions, the original text or photo. Editing makes a new version; old results keep pointing at the version they did. "My version of Murph" links to Murph but is never compared as Rx.</p></div>
-    <div class="box"><h3>Block</h3><p>One part of a day, with its own type and score: <em>Warm-up</em> (no score) · <em>Strength</em> (load per set, e.g. 5×3 at 65–75%) · <em>Metcon</em> (time, or rounds + reps at the cap) · <em>Skill/Gymnastics</em> (e.g. 100 V-ups, cap 7) · <em>Accessory</em> ("2 rounds for quality", done / not done) · <em>Cool-down</em> · <em>Reference</em> (a note or link, e.g. the scaling guide).</p></div>
+    <div class="box"><h3>Workout (definition)</h3><p>The plan: blocks, movements, reps, loads in two columns when the source has them (e.g. 135/95 lb; you pick your column once in Profile), cap, instructions, the original text or photo. Editing makes a new version; old results keep pointing at the version they did. "My version of Murph" links to Murph but is never compared as Rx.</p></div>
+    <div class="box"><h3>Block</h3><p>One part of a day, with its own type and score: <em>Warm-up</em> (no score) · <em>Strength</em> (load per set, e.g. 5×3 at 70–80%) · <em>Metcon</em> (time, or rounds + reps at the cap) · <em>Skill/Gymnastics</em> (e.g. 50 V-ups, cap 5) · <em>Accessory</em> ("2 rounds for quality", done / not done) · <em>Cool-down</em> · <em>Reference</em> (a note or link, e.g. the scaling guide).</p></div>
     <div class="box"><h3>Session</h3><p>One training day or visit: date, time zone, gym. It holds the results of its blocks. One Session = one row in the Log, even though Apple Health gets <strong>one workout per active block</strong> (e.g. lifting block, metcon, V-ups test). Planned days carry a session ID and block IDs to the watch, and the watch sends them back with each result, so grouping is exact. Only unplanned workouts are grouped by date (you can split them). Old files become Sessions too: an old lift session = one lifting block, an old workout result = one metcon block.</p></div>
     <div class="box"><h3>Lifting block</h3><p>Run from the phone. Strength blocks that follow each other (back squat, then front squat) run as <strong>one lifting block</strong>: one recording, one Apple strength workout, but <strong>each lift keeps its own result</strong>. Start lifting on the first card includes the next ones. Sets are marked by you (Double Tap on the watch, Set done on the phone as backup); each set gets an ID from the watch and its own slice of motion data, which also becomes training data (§7).</p></div>
-    <div class="box"><h3>Scores for lifts</h3><p>"Heaviest weight you can for each set" scores the <strong>best set</strong> (e.g. 3 reps at 245 lb), and that set updates your rep maxes. Total volume (load × reps, added up: Mayhem's "3675 lb" = 5 sets × 3 × 245 lb) is shown as a second number, never as the score.</p></div>
+    <div class="box"><h3>Scores for lifts</h3><p>"Heaviest weight you can for each set" scores the <strong>best set</strong> (e.g. 3 reps at 225 lb), and that set updates your rep maxes. Total volume (load × reps, added up: e.g. "3375 lb" = 5 sets × 3 × 225 lb) is shown as a second number, never as the score.</p></div>
     <div class="box"><h3>Result</h3><p>What you did in one block: score (and its type), <strong>Rx / Scaled / Foundations / custom</strong>, which "this or that" option you chose, actual loads, team score, notes, RPE (how hard, 1–10), source (watch, typed in, official), "incomplete" flag.</p></div>
     <div class="box"><h3>Recording</h3><p>The raw watch data of one active block (segment times or lift/set markers, heart rate, steps, bar motion). Never changed after the workout.</p></div>
     <div class="box"><h3>Edits</h3><p>Fixes are kept separate from the raw recording: moved splits, trimmed end, scaling, date, and loads/make-miss typed on the phone (linked to the watch's set ID). A result sent again by the watch can't erase them. Each result file has a revision number; the phone keeps the newest. "Restore original" removes the fixes. PRs and trends are recalculated after every edit.</p></div>
     <div class="box"><h3>Partner splits</h3><p>A partner or doubles result keeps the team score. Each split can be tagged <em>me / partner / together</em>. Heart-rate and effort insights only use "me" and "together". Time while your partner works counts as rest.</p></div>
-    <div class="box"><h3>Maxes and units</h3><p>Rep maxes per lift (1RM, 3RM, 5RM, 10RM, with dates). "70% 1RM" becomes a suggested load, rounded to your plates. Base: your latest <em>tested</em> 1RM; otherwise the best estimate from a rep max in the last 12 months, shown with its source ("from 3RM 215 lb, Feb 26 · est. 1RM ~230"). Older results are shown greyed ("over a year ago") and not used. Stored in kg, metres and seconds plus the unit you typed, so 95 lb never shows as 43.09 kg.</p></div>
+    <div class="box"><h3>Maxes and units</h3><p>Rep maxes per lift (1RM, 3RM, 5RM, 10RM, with dates). "70% 1RM" becomes a suggested load, rounded to your plates. Base: your latest <em>tested</em> 1RM; otherwise the best estimate from a rep max in the last 12 months, shown with its source ("from 3RM 200 lb, Mar 3 · est. 1RM ~230"). Older results are shown greyed ("over a year ago") and not used. Stored in kg, metres and seconds plus the unit you typed, so 95 lb never shows as 43.09 kg.</p></div>
   </div>
-  <p class="note">PRs compare like with like: same workout, same scaling level, same score type. Scaled PRs count too. A capped result reads "82 reps at cap (7:00)" everywhere, never "CAP+82".</p>
+  <p class="note">PRs compare like with like: same workout, same scaling level, same score type. Scaled PRs count too. A capped result reads "42 reps at cap (5:00)" everywhere, never "CAP+82".</p>
 </section>
 
 <section>
@@ -324,7 +324,7 @@ Workout / Session preview <i>(shared page)</i>
   <div class="box">
     <h3>The Add sheet</h3>
     <ul>
-      <li><strong>Photo / screenshots</strong>: one or several images (a whiteboard, 6 Mayhem cards). Text is read on the iPhone itself, so weak gym Wi-Fi doesn't matter.</li>
+      <li><strong>Photo / screenshots</strong>: one or several images (a whiteboard, 6 program cards). Text is read on the iPhone itself, so weak gym Wi-Fi doesn't matter.</li>
       <li><strong>Paste text</strong>: from WhatsApp, Instagram, a programming app.</li>
       <li><strong>Build</strong>: the same confirm screen, starting empty. Formats: For time (+cap) · AMRAP · EMOM / Every N:00 · Rounds with rest · Intervals / Tabata · Strength sets (% or load) · Distance run · HYROX.</li>
       <li><strong>Log a result</strong>: no watch. Pick or describe the workout, enter score, scaling, notes.</li>
@@ -339,7 +339,7 @@ Workout / Session preview <i>(shared page)</i>
       <li>Your original image or text sits on top; you can always look back at it.</li>
       <li>The day is shown as <strong>blocks</strong>, each with its type and score type (you can change both, merge or split blocks).</li>
       <li>Each line shows what it was matched to: "T2B → Toes-to-bar". Unsure lines get a ⚑ flag <em>and</em> the word "check"; unknown movements stay as free text and still show on the watch.</li>
-      <li>Tracks: if the source has Rx / Scaled / Foundations, you pick one. Two-column loads ("185/125") use the column you chose in Profile; until you choose, the screen asks.</li>
+      <li>Tracks: if the source has Rx / Scaled / Foundations, you pick one. Two-column loads ("135/95") use the column you chose in Profile; until you choose, the screen asks.</li>
       <li>"%1RM" lines show the suggested loads from your maxes, with the source. A "target score" in the instructions is kept and can later be your ahead/behind target.</li>
       <li>One tap at the end: <strong>Save</strong>, or <strong>Save and send to watch</strong>.</li>
     </ul>
@@ -369,7 +369,7 @@ Workout / Session preview <i>(shared page)</i>
     <div class="box"><h3>Empty states (one action each)</h3><ul>
       <li><strong>Today:</strong> "Nothing planned. [+ Add today's workout] or start a Free workout on your watch."</li>
       <li><strong>Log:</strong> "Your first workout shows up here a minute after you press End."</li>
-      <li><strong>Library › Mine:</strong> "Import your box's whiteboard or a Mayhem day."</li>
+      <li><strong>Library › Mine:</strong> "Import your box's whiteboard or a program day."</li>
       <li><strong>Lift page:</strong> "Add a recent max so we can suggest loads."</li>
       <li><strong>Watch, no phone set up:</strong> Free workout and Lift session work; results wait on the watch.</li></ul></div>
   </div>
@@ -379,18 +379,18 @@ Workout / Session preview <i>(shared page)</i>
   <h2><span class="n">12</span>Key scenarios, step by step</h2>
   <p class="note">IDs refer to scenarios.md. The coloured label says when it works.</p>
 
-  <div class="box walk"><h3>A Mayhem day, start to finish <span class="ids">S-20 · S-33 · S-35 · S-36 · S-63 · new</span> <span class="stage s2">Before TestFlight</span></h3><ol>
-    <li>Evening before: in the Mayhem app, screenshot the 6 cards. In Rx Lab: + Add › Photo / screenshots › select all 6.</li>
-    <li>Confirm screen shows one session with 7 blocks: Warm-up · Back squat 3-3-3-3-3 @ 65–75% · Front squat 3-3-3-3-3 @ 68–70% · "It's just a flesh wound!" for time, cap 17 · Core 2 rounds for quality · 100 V-ups, cap 7 · Cool-down. The scaling guide becomes a Reference block.</li>
-    <li>The metcon shows the row ladder 40-30-20-30-40 cal with 7 power cleans after each, in the load column you chose in Profile. You tap Schedule › Tomorrow.</li>
-    <li>Next morning, the timed blocks are sent to the watch automatically (or tap <strong>Send day to watch</strong> on Today). Today shows the block cards. Back squat: recent maxes 3RM 215 lb (11 Feb 2026) and 10RM 135 lb; last time 5 sets of 3 at 245 lb, Rx'd, 6 Dec 2024, shown greyed "over a year ago" <span class="note">(your real numbers from the screenshot)</span>. Suggested loads 150–170 lb "from 3RM 215 · est. 1RM ~230" <span class="note">(estimate)</span>.</li>
+  <div class="box walk"><h3>A program day, start to finish <span class="ids">S-20 · S-33 · S-35 · S-36 · S-63 · new</span> <span class="stage s2">Before TestFlight</span></h3><ol>
+    <li>Evening before: in the programming app, screenshot the 6 cards. In Rx Lab: + Add › Photo / screenshots › select all 6.</li>
+    <li>Confirm screen shows one session with 7 blocks: Warm-up · Back squat 3-3-3-3-3 @ 70–80% · Front squat 3-3-3-3-3 @ 70–75% · "Seesaw" for time, cap 18 · Core 2 rounds for quality · 50 V-ups, cap 5 · Cool-down. The scaling guide becomes a Reference block.</li>
+    <li>The metcon shows the row ladder 30-24-18-24-30 cal with 5 power cleans after each, in the load column you chose in Profile. You tap Schedule › Tomorrow.</li>
+    <li>Next morning, the timed blocks are sent to the watch automatically (or tap <strong>Send day to watch</strong> on Today). Today shows the block cards. Back squat: recent maxes 3RM 200 lb (3 Mar 2026) and 10RM 145 lb; last time 5 sets of 3 at 225 lb, Rx'd, 2 Oct 2024, shown greyed "over a year ago" <span class="note">(illustrative)</span>. Suggested loads 150–170 lb "from 3RM 200 · est. 1RM ~215" <span class="note">(estimate)</span>.</li>
     <li>Warm-up: read it on the phone, nothing to start.</li>
     <li>Squats: on the phone, Back squat card › <strong>Start lifting</strong> (it includes the front squat block that follows). The watch starts recording by itself: "Back squat · Set 1 of 5 · ♥ · ●".</li>
     <li>Each set: <strong>Double Tap</strong> on the watch at unrack and again at rerack (or tap <strong>Set done</strong> on the phone). Confirm reps and load on the phone. Motion for that set is stored with it and counts toward the ~25 marked sets the squat detector needs.</li>
     <li>Phone: <strong>Next lift: Front squat</strong>; same again. Then <strong>End lifting</strong>: one Apple strength workout is saved; back squat and front squat each get their own result (best set + volume).</li>
-    <li>Metcon: Watch › Today › Metcon › START. Crown at each change; at 17:00 the cap asks for the reps done; End = second Apple workout. The done screen offers <strong>Next: V-ups 100</strong>.</li>
-    <li>Core: on the phone tap [Log] › "done", optional note. V-ups: START from the done screen; Crown at the end, or the cap ("82 reps at cap (7:00)", illustrative).</li>
-    <li>Log shows one row "Mayhem · Sat" with <strong>5 scored blocks</strong> (back squat, front squat, metcon, core, V-ups); Apple Fitness shows 3 workouts (lifting, metcon, V-ups). Warm-up and cool-down are not in any score.</li></ol></div>
+    <li>Metcon: Watch › Today › Metcon › START. Crown at each change; at 18:00 the cap asks for the reps done; End = second Apple workout. The done screen offers <strong>Next: V-ups 50</strong>.</li>
+    <li>Core: on the phone tap [Log] › "done", optional note. V-ups: START from the done screen; Crown at the end, or the cap ("42 reps at cap (5:00)", illustrative).</li>
+    <li>Log shows one row "Program · Sat" with <strong>5 scored blocks</strong> (back squat, front squat, metcon, core, V-ups); Apple Fitness shows 3 workouts (lifting, metcon, V-ups). Warm-up and cool-down are not in any score.</li></ol></div>
 
   <div class="box walk"><h3>Setting the Anaheim target <span class="ids">S-77 · S-13</span> <span class="stage s0">Before Anaheim</span></h3><ol>
     <li>On today's app: Workouts tab › Choose › your race workout › preview › <strong>Race plan</strong>.</li>
@@ -454,12 +454,12 @@ Workout / Session preview <i>(shared page)</i>
     <figure>
       <div class="phone">
         <div class="ph-top"><span class="av">SG</span>Today <span class="addb">+ Add</span></div>
-        <div class="c"><span class="lbl">Sat · Mayhem day · 7 blocks</span><div class="btn g">Send day to watch</div></div>
+        <div class="c"><span class="lbl">Sat · Program day · 7 blocks</span><div class="btn g">Send day to watch</div></div>
         <div class="c blk off"><div class="row"><span>Warm-up</span><span class="dim">read only</span></div></div>
-        <div class="c blk lift"><span class="lbl">Strength</span><span class="big">Back squat 5×3</span><span class="dim">65–75% · suggested 150–170 lb</span><span class="dim">from 3RM 215 (Feb 26) · est. 1RM ~230</span>
-          <span class="dim" style="opacity:.55">Last: 5×3 @ 245 lb · Rx'd · over a year ago</span><span class="dim">+ Front squat 5×3 follows</span>
+        <div class="c blk lift"><span class="lbl">Strength</span><span class="big">Back squat 5×3</span><span class="dim">70–80% · suggested 150–170 lb</span><span class="dim">from 3RM 200 (Mar 3) · est. 1RM ~215</span>
+          <span class="dim" style="opacity:.55">Last: 5×3 @ 225 lb · Rx'd · over a year ago</span><span class="dim">+ Front squat 5×3 follows</span>
           <div class="mini"><div class="btn g">Log</div><div class="btn">Start lifting</div></div></div>
-        <div class="c blk met"><span class="lbl">Metcon · for time · cap 17</span><span class="big">Flesh wound</span><div class="mini"><div class="btn g">Log</div><div class="btn g">On watch ✓</div></div></div>
+        <div class="c blk met"><span class="lbl">Metcon · for time · cap 18</span><span class="big">Seesaw</span><div class="mini"><div class="btn g">Log</div><div class="btn g">On watch ✓</div></div></div>
         <div class="c blk core"><div class="row"><span>Core · 2 rounds quality</span><span class="chip">Log</span></div></div>
         <div class="tabs t3"><span class="on">Today</span><span>Library</span><span>Log</span></div>
       </div>
@@ -468,8 +468,8 @@ Workout / Session preview <i>(shared page)</i>
     <figure>
       <div class="phone">
         <div class="ph-top" style="font-size:18px">Lifting <span class="chip" style="color:#FF6B61">● Watch · ♥ 128</span></div>
-        <div class="c blk lift"><span class="lbl">Lift 1 of 2 · 65–75% 1RM</span><span class="big">Back squat 3-3-3-3-3</span>
-          <span class="dim">Maxes: 3RM 215 (11 Feb 26) · 10RM 135 · est. 1RM ~230</span><span class="dim" style="opacity:.55">Last: 5×3 @ 245 lb · Rx'd · over a year ago</span></div>
+        <div class="c blk lift"><span class="lbl">Lift 1 of 2 · 70–80% 1RM</span><span class="big">Back squat 3-3-3-3-3</span>
+          <span class="dim">Maxes: 3RM 200 (3 Mar 26) · 10RM 145 · est. 1RM ~215</span><span class="dim" style="opacity:.55">Last: 5×3 @ 225 lb · Rx'd · over a year ago</span></div>
         <div class="c">
           <div class="row"><span>Set 1 · 3 reps</span><span>150 lb ✓</span></div>
           <div class="row"><span>Set 2 · 3 reps</span><span>160 lb ✓</span></div>
@@ -477,7 +477,7 @@ Workout / Session preview <i>(shared page)</i>
           <div class="row dim"><span>Set 4</span><span>170 lb</span></div>
           <div class="row dim"><span>Set 5</span><span>170 lb</span></div>
           <div class="btn g">Set done (backup)</div><span class="dim">Double Tap on watch = start / end · 8 of ~25 sets collected</span></div>
-        <div class="c"><div class="row"><span class="dim">Next</span><span>Front squat 5×3 · 68–70%</span></div></div>
+        <div class="c"><div class="row"><span class="dim">Next</span><span>Front squat 5×3 · 70–75%</span></div></div>
         <div class="mini"><div class="btn g">Next lift ›</div><div class="btn g">End lifting</div></div>
       </div>
       <figcaption>Lifting block on the phone: sets marked by Double Tap on the watch, Set done as backup. Prescription, last result and maxes are yours; the 1RM is an estimate; set loads are illustrative.</figcaption>
@@ -488,11 +488,11 @@ Workout / Session preview <i>(shared page)</i>
         <div class="c" style="padding:6px 10px"><span class="dim">Search name or movement</span></div>
         <div class="row"><span class="chip" style="background:var(--phone-volt);color:#0C0D0F">All</span><span class="chip">Races</span><span class="chip">WODs</span><span class="chip">Lifts</span></div>
         <div class="c"><span class="lbl">Today</span><div class="row"><span class="dim">⌚ 1 result waiting on watch</span></div></div>
-        <div class="c"><span class="lbl">Sat · Mayhem · 5 scored</span>
+        <div class="c"><span class="lbl">Sat · Program · 5 scored</span>
           <div class="row"><span><span class="dot" style="background:#B8FF3C"></span>Back squat</span><b>170 ×3</b></div>
-          <div class="row"><span><span class="dot" style="background:#B8FF3C"></span>Front squat</span><b>185 ×3</b></div>
-          <div class="row"><span><span class="dot" style="background:#FF7A1A"></span>Flesh wound</span><b>14:52</b></div>
-          <div class="row"><span><span class="dot" style="background:#B48CFF"></span>V-ups 100</span><b>82 at cap 7:00</b></div></div>
+          <div class="row"><span><span class="dot" style="background:#B8FF3C"></span>Front squat</span><b>175 ×3</b></div>
+          <div class="row"><span><span class="dot" style="background:#FF7A1A"></span>Seesaw</span><b>14:52</b></div>
+          <div class="row"><span><span class="dot" style="background:#B48CFF"></span>V-ups 50</span><b>42 at cap 5:00</b></div></div>
         <div class="c"><span class="lbl">Thu · Box</span><div class="row"><span><span class="dot" style="background:#4D8EFF"></span>Helen · Scaled</span><b>12:47</b></div></div>
         <div class="c"><span class="lbl">Wed · HYROX sim</span><div class="row"><span><span class="dot" style="background:#4D8EFF"></span>Half HYROX <span class="flag">⚑ incomplete</span></span><b>41:12</b></div></div>
         <div class="tabs t3"><span>Today</span><span>Library</span><span class="on">Log</span></div>
@@ -502,11 +502,11 @@ Workout / Session preview <i>(shared page)</i>
     <figure>
       <div class="phone">
         <div class="ph-top" style="font-size:18px">Check day <span class="dim" style="font:500 11px var(--body)">Save</span></div>
-        <div class="c"><span class="lbl">From 6 screenshots</span><span class="dim">Back Squat 3-3-3-3-3 · 65–75% 1RM … For time: 40/32 Row Calories · 7 Power Cleans, 185/125 lbs …</span></div>
-        <div class="c"><div class="row"><span class="lbl">Block 2 · Strength</span><span class="chip">load per set</span></div><span>Back squat 5 × 3 @ 65–75%</span><span class="dim">→ 150–170 lb from 3RM 215 (Feb 26)</span></div>
-        <div class="c"><div class="row"><span class="lbl">Block 4 · Metcon</span><span class="chip">For time · cap 17:00</span></div>
-          <div class="row"><span>Row cal 40-30-20-30-40</span><span class="chip">your column</span></div>
-          <div class="row"><span>+ 7 power cleans after each</span><span class="chip">Rx</span></div>
+        <div class="c"><span class="lbl">From 6 screenshots</span><span class="dim">Back Squat 3-3-3-3-3 · 70–80% 1RM … For time: 30/24 Row Calories · 5 Power Cleans, 135/95 lb …</span></div>
+        <div class="c"><div class="row"><span class="lbl">Block 2 · Strength</span><span class="chip">load per set</span></div><span>Back squat 5 × 3 @ 70–80%</span><span class="dim">→ 150–170 lb from 3RM 200 (Mar 3)</span></div>
+        <div class="c"><div class="row"><span class="lbl">Block 4 · Metcon</span><span class="chip">For time · cap 18:00</span></div>
+          <div class="row"><span>Row cal 30-24-18-24-30</span><span class="chip">your column</span></div>
+          <div class="row"><span>+ 5 power cleans after each</span><span class="chip">Rx</span></div>
           <div class="row"><span class="flag">⚑ check: load column not set yet</span></div></div>
         <div class="c"><div class="row"><span class="lbl">Block 5 · Core</span><span class="chip">no score</span></div></div>
         <div class="btn">Save and send to watch</div>
@@ -530,7 +530,7 @@ Workout / Session preview <i>(shared page)</i>
     <figure>
       <div class="watch">
         <span class="lbl" style="color:#8F98A3">Phone offline · ↑1</span>
-        <div class="wl hi"><span>Today · Mayhem</span><span>›</span></div>
+        <div class="wl hi"><span>Today · Program</span><span>›</span></div>
         <div class="wl"><span>Free workout</span><span class="dim">▶</span></div>
         <div class="wl"><span>Lift session</span><span class="dim">›</span></div>
         <div class="wl"><span>Workouts</span><span class="dim">›</span></div>
@@ -573,7 +573,7 @@ Workout / Session preview <i>(shared page)</i>
         <div class="wbig">14:52</div>
         <span class="dim">Recovery 1:40 · ♥ −28</span>
         <span>Saved ✓ · ↑ sending</span>
-        <div class="wl"><span>Next: V-ups 100</span><span class="dim">›</span></div>
+        <div class="wl"><span>Next: V-ups 50</span><span class="dim">›</span></div>
       </div>
       <figcaption>Done screen with sync state and the next timed block of the day (Before TestFlight). Illustrative.</figcaption>
     </figure>
@@ -623,7 +623,7 @@ Workout / Session preview <i>(shared page)</i>
     <li><strong>Race target:</strong> a goal finish time shaped by your best full sim, or "beat my best sim" as-is? Default: goal time.</li>
     <li><strong>Test build Sun 15 Nov + full trial sim that week, freeze Sun 22 Nov, half sim on the frozen build</strong> — fits your training? Default: yes.</li>
     <li><strong>Lifts and a WOD on the same day = one Log entry?</strong> Default: yes; planned days are grouped exactly, unplanned ones by date, and you can split them.</li>
-    <li><strong>Where do most workouts come from</strong> — Mayhem screenshots, whiteboard photo, or pasted text? Default: screenshots/photo first, paste second, Share Sheet third.</li>
+    <li><strong>Where do most workouts come from</strong> — program screenshots, whiteboard photo, or pasted text? Default: screenshots/photo first, paste second, Share Sheet third.</li>
   </ol>
 </section>
 

@@ -56,6 +56,7 @@ struct BarPathApp: App {
                 .environmentObject(link)
                 .environmentObject(cloud)
                 .tint(Theme.accent)
+                .modifier(LaunchCover())
                 .onAppear {
                     store.loadIfNeeded()
                     workoutStore.loadIfNeeded()
@@ -63,6 +64,11 @@ struct BarPathApp: App {
                 }
                 .onChange(of: scenePhase) { _, phase in
                     if phase == .active {
+                        // #82: a watch app reinstalled while this app was suspended may have
+                        // missed the watch-state change; send the phone info once more. One
+                        // send per activation, same guards as on launch (activated, paired,
+                        // watch app installed).
+                        PhoneDeviceInfo.send(force: true)
                         openWatchAppSoon()
                         cloud.syncSoon()
                     } else if phase == .background {

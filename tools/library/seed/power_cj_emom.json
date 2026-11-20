@@ -1,0 +1,97 @@
+{
+  "program": "Example",
+  "scheduled_on": "2026-11-01",
+  "published": true,
+  "definition": {
+    "id": "lib.example.20261101.power-cj-emom",
+    "name": "Every 1:30 × 6: Power C&J",
+    "shortName": "PC&J EMOM",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "functionalStrengthTraining",
+    "segments": [
+      {
+        "kind": "station",
+        "movement": "powerCleanAndJerk",
+        "name": "Power C&J",
+        "target": {
+          "value": 3,
+          "unit": "reps"
+        }
+      },
+      {
+        "kind": "rest",
+        "movement": "rest",
+        "name": "Rest"
+      },
+      {
+        "kind": "station",
+        "movement": "powerCleanAndJerk",
+        "name": "Power C&J",
+        "target": {
+          "value": 3,
+          "unit": "reps"
+        }
+      },
+      {
+        "kind": "rest",
+        "movement": "rest",
+        "name": "Rest"
+      },
+      {
+        "kind": "station",
+        "movement": "powerCleanAndJerk",
+        "name": "Power C&J",
+        "target": {
+          "value": 3,
+          "unit": "reps"
+        }
+      },
+      {
+        "kind": "rest",
+        "movement": "rest",
+        "name": "Rest"
+      },
+      {
+        "kind": "station",
+        "movement": "powerCleanAndJerk",
+        "name": "Power C&J",
+        "target": {
+          "value": 3,
+          "unit": "reps"
+        }
+      },
+      {
+        "kind": "rest",
+        "movement": "rest",
+        "name": "Rest"
+      },
+      {
+        "kind": "station",
+        "movement": "powerCleanAndJerk",
+        "name": "Power C&J",
+        "target": {
+          "value": 3,
+          "unit": "reps"
+        }
+      },
+      {
+        "kind": "rest",
+        "movement": "rest",
+        "name": "Rest"
+      },
+      {
+        "kind": "station",
+        "movement": "powerCleanAndJerk",
+        "name": "Power C&J",
+        "target": {
+          "value": 3,
+          "unit": "reps"
+        }
+      }
+    ],
+    "timeCapSeconds": 540.0,
+    "intervalSeconds": 90.0,
+    "roundSize": 2
+  }
+}

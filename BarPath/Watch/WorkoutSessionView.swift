@@ -200,6 +200,11 @@ struct WorkoutSessionView: View {
         let p = model.progress
         let count = p.definition.segments.count
         let demo: String = model.isDemo ? "Demo · " : ""
+        // An AMRAP's list is written out at START (#138): its length is not a target.
+        if p.definition.format == .amrap, let size = p.definition.roundSize, size >= 1 {
+            let round: String = "Round \(p.currentIndex / size + 1)"
+            return demo + (p.isFinished ? "Finished · " + round : round)
+        }
         if p.isFinished { return demo + "Finished · \(count)/\(count)" }
         return demo + "Segment \(p.currentIndex + 1)/\(count)"
     }
@@ -413,8 +418,11 @@ struct WorkoutMainPage: View {
     /// "Round 4 · 2/4" for workouts with a repeating round, else nil.
     private func roundText() -> String? {
         let p = model.progress
-        guard let size = p.definition.roundSize, size > 1, p.isStarted else { return nil }
+        guard let size = p.definition.roundSize, p.isStarted else { return nil }
         let i = p.currentIndex
+        // One-part AMRAP rounds (#138): the round alone, never "7/30" of the written-out list.
+        if size == 1 && p.definition.format == .amrap { return "Round \(i + 1)" }
+        guard size > 1 else { return nil }
         return "Round \(i / size + 1) · \(i % size + 1)/\(size)"
     }
 
