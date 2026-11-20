@@ -447,8 +447,9 @@ class WorkoutProgress:
     @property
     def waiting_for_window(self) -> bool:
         """Block mode with an interval: the current step is the block's closing rest, the wait for
-        the next window. The athlete's Crown is ignored there (the watch shows a hint); only the
-        clock moves on, so every window starts on the clock. Always False on today's path."""
+        the next window. The athlete's Crown is ignored there until the window ends (the watch
+        shows a hint); the clock moves on, so every window starts on the clock. After an undo into
+        a rest whose window has already passed, the Crown moves on. Always False on today's path."""
         if self.block is None or self.block.interval_seconds is None or not self.is_started or self.is_finished:
             return False
         seg = self.current_segment
@@ -501,7 +502,11 @@ class WorkoutProgress:
         if t < self.segment_starts[-1]:
             return False
         if source != "auto" and self.waiting_for_window:
-            return False
+            # Ignored only while the window is still ahead: after an undo back into a rest whose
+            # window has passed, the Crown moves on (the clock no longer will).
+            window = self.auto_advance_time()
+            if window is None or t < window:
+                return False
         if self._is_last_step(self.current_index):
             self.finish_time = t
             self.events.append(WorkoutEvent(t, "finish", self.current_index, source))

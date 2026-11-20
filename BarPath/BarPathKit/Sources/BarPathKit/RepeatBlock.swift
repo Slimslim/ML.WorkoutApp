@@ -37,6 +37,7 @@ public enum RepeatBlock {
         /// One window = one pass of the block (5c Q3).
         public let intervalSeconds: Double?
         /// Rests after the block's last work part, skipped on the last pass (no interval only).
+        /// Any field added to Plan later must be optional: the plan is stored in checkpoints.
         public let trailingRests: Int
 
         public init(kind: Kind, parts: Int, rounds: Int?, capSeconds: Double?, capEnds: Bool,
@@ -126,6 +127,76 @@ public enum RepeatBlock {
         if !engineOn { return nil }
         let p: Plan = plan(for: d)
         return p.kind == .legacy ? nil : p
+    }
+
+    /// `enginePlan(for:engineOn:)` with E2's switch value.
+    public static func enginePlan(for d: WorkoutDefinition, engine: WorkoutEngine) -> Plan? {
+        return enginePlan(for: d, engineOn: engine == .v2)
+    }
+
+    /// The Classic route for a definition marked listedOnce: its block written out the way today's
+    /// stored rows are, so the legacy progress runs it fully (not one pass, the #138 bug). Rounds
+    /// for time × N: N passes, no rest after the last round. EMOM / Tabata: the round count, else
+    /// ceil(cap / interval) windows. AMRAP: unmarked with roundSize = P, then the §5a expansion.
+    /// A repeating block gets roundSize = P; a marked fixed list keeps its own. The mark and
+    /// `rounds` are dropped. Unmarked definitions are unchanged.
+    /// Python mirror: `repeat_block.written_out`.
+    public static func writtenOut(_ d: WorkoutDefinition) -> WorkoutDefinition {
+        if d.listedOnce != true || d.segments.isEmpty { return d }
+        let n: Int = d.segments.count
+        let cap: Double? = positive(d.timeCapSeconds)
+        let interval: Double? = positive(d.intervalSeconds)
+        var rounds: Int? = nil
+        if let r = d.rounds, r > 0 {
+            rounds = r
+        }
+        var passes: Int? = nil
+        if d.format == .forTime, let r = rounds {
+            passes = r
+        } else if d.format == .emom {
+            if let r = rounds {
+                passes = r
+            } else if let i = interval, let c = cap {
+                passes = Swift.max(1, Int((c / i - 1e-9).rounded(.up)))
+            }
+        }
+        var segs: [WorkoutSegment] = d.segments
+        if let k = passes {
+            segs = []
+            for _ in 0..<k {
+                segs.append(contentsOf: d.segments)
+            }
+            if interval == nil {
+                let tr: Int = trailingRests(d)
+                if tr > 0 {
+                    segs.removeLast(tr)
+                }
+            }
+        }
+        var out: WorkoutDefinition = d
+        out.segments = segs
+        if passes != nil || (d.format == .amrap && cap != nil) {
+            out.roundSize = n
+        }
+        out.listedOnce = nil
+        out.rounds = nil
+        return out
+    }
+
+    /// The progress the watch starts a workout with: block mode with the engine on and a
+    /// listed-once definition (nothing written out); otherwise today's progress (Classic), on the
+    /// definition written out (`writtenOut`, listed-once only) with the §5a AMRAP expansion.
+    /// Python mirror: `repeat_block.start_progress`.
+    public static func startProgress(for d: WorkoutDefinition, engineOn: Bool) -> WorkoutProgress {
+        if let plan = enginePlan(for: d, engineOn: engineOn) {
+            return WorkoutProgress(definition: d, block: plan)
+        }
+        return WorkoutProgress(definition: writtenOut(d).expandedForAmrap())
+    }
+
+    /// `startProgress(for:engineOn:)` with E2's switch value.
+    public static func startProgress(for d: WorkoutDefinition, engine: WorkoutEngine) -> WorkoutProgress {
+        return startProgress(for: d, engineOn: engine == .v2)
     }
 
     /// (pass, part) of a step; nil for a step before START or past the workout's end.

@@ -547,6 +547,15 @@ is E3. The 0.17.1 stopgap (§5a) stays unchanged on the legacy route. Questions 
   `WorkoutProgress(definition:block:)` with `block == nil` runs exactly today's code.
 - A marked definition the block can't run (no segments, only rests, an interval block that does
   not end with a rest) falls back to the legacy route (`listed_once_problems`).
+- **Classic (engine off) with a marked definition:** the block is written out first, the way
+  today's stored rows are (`written_out` / `RepeatBlock.writtenOut`): Rounds for time × N gets N
+  passes with no rest after the last round; EMOM / Tabata gets the round count, else
+  ceil(cap / interval) windows; an AMRAP gets `roundSize` = P and then the §5a expansion. So a
+  listed-once workout never runs one pass on Classic (the #138 bug). A marked fixed list only
+  loses the mark. One START rule for the watch, Python and the E4 gate:
+  `RepeatBlock.startProgress(for:engine:)` / `start_progress`.
+- **Marked built-ins behave as today:** every built-in marked listedOnce and run in block mode
+  (fixed lists as fixed, the AMRAPs as a repeating block) gives exactly today's events (test).
 
 ### Timing in block mode (E1)
 - **Interval blocks (EMOM, Tabata, "Go every"):** one window = one pass. The block must end with a
@@ -561,6 +570,10 @@ is E3. The 0.17.1 stopgap (§5a) stays unchanged on the legacy route. Questions 
   the last pass ends on its last work part: a rest after the last round is not done.
 - **The cap** ends AMRAP and interval blocks that have one (`capTime` in block mode); for time
   keeps going (§5b). Undo crosses back into the previous pass; undo after a Finish unfinishes.
+- **Undo in an interval block once its timers have passed:** after an undo back into a step whose
+  timer or window has already ended, the clock does not fire that past change again (the watch
+  suppresses it, as today), and the Crown moves on even in the closing rest. The Crown is ignored
+  in the closing rest only while its window end is still ahead, so the athlete is never stuck.
 
 **Answers so far (Delivery, 20 Nov).** These are defaults until the owner overrides them:
 - **Q1:** yes, an optional `rounds` key. Rows written out today, such as Helen, stay on the

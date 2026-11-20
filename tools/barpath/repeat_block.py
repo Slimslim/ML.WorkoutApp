@@ -117,6 +117,52 @@ def engine_plan(d: WorkoutDefinition, engine: str) -> Optional[BlockPlan]:
     return None if plan.kind == LEGACY else plan
 
 
+def written_out(d: WorkoutDefinition) -> WorkoutDefinition:
+    """The Classic route for a definition marked listedOnce: its block written out the way today's
+    stored rows are, so the legacy progress runs it fully (not one pass, the #138 bug). Rounds for
+    time x N: N passes, no rest after the last round. EMOM / Tabata: the round count, else
+    ceil(cap / interval) windows. AMRAP: unmarked with roundSize = P, then the 5a expansion at
+    START. A repeating block gets roundSize = P; a marked fixed list keeps its own. The mark and
+    `rounds` are dropped. Unmarked definitions are unchanged."""
+    import dataclasses
+    import math
+    if not d.listed_once or not d.segments:
+        return d
+    n = len(d.segments)
+    cap = d.time_cap_seconds if _positive(d.time_cap_seconds) else None
+    interval = d.interval_seconds if _positive(d.interval_seconds) else None
+    rounds = d.rounds if _positive(d.rounds) else None
+    passes = None
+    if d.format == "forTime" and rounds is not None:
+        passes = rounds
+    elif d.format == "emom":
+        if rounds is not None:
+            passes = rounds
+        elif interval is not None and cap is not None:
+            passes = max(1, math.ceil(cap / interval - 1e-9))
+    segs = list(d.segments)
+    if passes is not None:
+        segs = segs * passes
+        if interval is None:
+            tr = _trailing_rests(d)
+            if tr:
+                segs = segs[:-tr]
+    repeats = passes is not None or (d.format == "amrap" and cap is not None)
+    return dataclasses.replace(d, segments=segs, round_size=n if repeats else d.round_size,
+                               listed_once=False, rounds=None)
+
+
+def start_progress(d: WorkoutDefinition, engine: str):
+    """The progress the watch starts a workout with (RepeatBlock.startProgress): block mode with
+    the engine on and a listed-once definition; otherwise today's progress (Classic), on the
+    definition written out (`written_out`, listed-once only) with the 5a AMRAP expansion."""
+    from .workout import WorkoutProgress, amrap_expanded
+    plan = engine_plan(d, engine)
+    if plan is not None:
+        return WorkoutProgress(d, plan)
+    return WorkoutProgress(amrap_expanded(written_out(d)))
+
+
 def position(plan: BlockPlan, step: int) -> Tuple[int, int]:
     """(pass, part) of a step. ValueError for a step before START or past the workout's end."""
     if step < 0 or plan.parts == 0:
@@ -195,14 +241,27 @@ def score(plan: BlockPlan, d: WorkoutDefinition, completed_steps: int) -> Tuple[
 
 # ---- script driver (tests, shared progress fixtures, the E4 engine gate) -----------------------
 
-def tick(progress, now: float) -> None:
+class _Suppress:
+    """What the watch's undo suppresses (WorkoutSessionModel.undo): an auto change whose time has
+    already passed (`autoSuppressedStart`, per step start) and a cap already passed (`capSuppressed`)."""
+
+    def __init__(self):
+        self.auto_start = None
+        self.cap = False
+
+
+def tick(progress, now: float, suppress: "Optional[_Suppress]" = None) -> None:
     """Applies everything the clock does up to `now`, in time order: the cap that finishes the
-    workout (`cap_time`) and the segment changes (`auto_advance_time`). The cap wins a tie."""
+    workout (`cap_time`) and the segment changes (`auto_advance_time`). The cap wins a tie. Mirrors
+    WorkoutSessionModel.nextClockEvent, including what an undo suppressed."""
+    sup = suppress or _Suppress()
     for _ in range(10000):
         if not progress.is_started or progress.is_finished:
             return
-        cap = progress.cap_time
+        cap = None if sup.cap else progress.cap_time
         auto = progress.auto_advance_time()
+        if auto is not None and progress.segment_starts[-1] == sup.auto_start:
+            auto = None
         if cap is not None and cap <= now and (auto is None or cap <= auto):
             progress.finish(max(cap, progress.segment_starts[-1]), "auto")
             return
@@ -216,14 +275,21 @@ def tick(progress, now: float) -> None:
 def run_script(progress, script) -> list:
     """Replays [[t, action], ...] (start / crown / undo / end / tick) on a WorkoutProgress, letting
     the clock run between actions. Returns the events as [t, kind, index, source] lists."""
+    sup = _Suppress()
     for t, action in script:
-        tick(progress, t)
+        tick(progress, t, sup)
         if action == "start":
             progress.start(t)
         elif action == "crown":
             progress.advance(t, "crown")
         elif action == "undo":
-            progress.undo(t, "crown")
+            if progress.undo(t, "crown"):
+                auto = progress.auto_advance_time()
+                if auto is not None and auto <= t:
+                    sup.auto_start = progress.segment_starts[-1]
+                cap = progress.cap_time
+                if cap is not None and cap <= t:
+                    sup.cap = True
         elif action == "end":
             progress.finish(t, "button")
         elif action != "tick":
