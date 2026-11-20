@@ -230,4 +230,94 @@ final class RepeatBlockTests: XCTestCase {
         let oldJSON: String = String(data: try JSONEncoder().encode(old), encoding: .utf8) ?? ""
         XCTAssertFalse(oldJSON.contains("\"rounds\""))
     }
+
+    // MARK: Marked built-ins behave as today; Classic writes a listed-once block out
+
+    /// [[t, action]] -> the progress test's Action list.
+    static func actions(_ raw: [[Any]]) throws -> [RepeatBlockProgressTests.Action] {
+        let data: Data = try JSONSerialization.data(withJSONObject: raw, options: [])
+        return try JSONDecoder().decode([RepeatBlockProgressTests.Action].self, from: data)
+    }
+
+    /// Crowns every 37 s with an undo after the fourth, then the clock (test_repeat_block._script_for).
+    static func steadyScript(_ d: WorkoutDefinition) throws -> [RepeatBlockProgressTests.Action] {
+        var raw: [[Any]] = [[0.0, "start"]]
+        var t: Double = 0
+        for k in 0..<(d.segments.count + 4) {
+            t += 37.0
+            raw.append([t, "crown"])
+            if k == 3 {
+                raw.append([t + 5.0, "undo"])
+                t += 5.0
+            }
+        }
+        raw.append([t + 4000.0, "tick"])
+        return try actions(raw)
+    }
+
+    /// Behaviour, not routing: every built-in marked listedOnce and run in block mode with the
+    /// engine on gives the same events as the stored row today (Row + Thrusters excepted: its block
+    /// does not end with a rest, so marked it takes the legacy route).
+    func testABuiltInMarkedListedOnceRunsExactlyAsTodayInBlockMode() throws {
+        for id in RepeatBlockTests.builtInIds where id != "wod.rowThrusters" {
+            guard let d = WorkoutLibrary.definition(id: id) else {
+                XCTFail("missing \(id)")
+                continue
+            }
+            var marked: WorkoutDefinition = d
+            marked.listedOnce = true
+            let scripts: [[RepeatBlockProgressTests.Action]] = [
+                try RepeatBlockTests.steadyScript(d),
+                try RepeatBlockTests.actions([[0.0, "start"], [6000.0, "tick"]])
+            ]
+            for script in scripts {
+                var today: WorkoutProgress = RepeatBlock.startProgress(for: d, engineOn: false)
+                var block: WorkoutProgress = RepeatBlock.startProgress(for: marked, engineOn: true)
+                XCTAssertNotNil(block.block, id)
+                let a = RepeatBlockProgressTests.run(&block, script: script)
+                let b = RepeatBlockProgressTests.run(&today, script: script)
+                XCTAssertEqual(a, b, id)
+                XCTAssertEqual(block.segmentStarts, today.segmentStarts, id)
+                XCTAssertEqual(block.finishTime, today.finishTime, id)
+            }
+        }
+        var rt: WorkoutDefinition = WorkoutLibrary.rowThrusters
+        rt.listedOnce = true
+        XCTAssertEqual(RepeatBlock.listedOnceProblems(rt), ["interval block does not end with a rest"])
+        XCTAssertNil(RepeatBlock.startProgress(for: rt, engine: .v2).block)
+    }
+
+    func testClassicWritesAListedOnceBlockOut() throws {
+        let expected: [String: (Int, Int)] = ["t.ladder": (6, 6), "t.every3": (18, 3), "t.tabata": (16, 2),
+                                             "t.rft": (15, 3), "t.roundsRest": (8, 3), "t.fixed": (4, 2)]
+        let cases: [Case] = try loadCases()
+        for (id, want) in expected {
+            guard let c = cases.first(where: { (c: Case) -> Bool in c.definition.id == id }) else {
+                XCTFail("missing \(id)")
+                continue
+            }
+            let out: WorkoutDefinition = RepeatBlock.writtenOut(c.definition)
+            XCTAssertEqual(out.segments.count, want.0, id)
+            XCTAssertEqual(out.roundSize, want.1, id)
+            XCTAssertNil(out.listedOnce, id)
+            XCTAssertNil(out.rounds, id)
+            XCTAssertEqual(RepeatBlock.writtenOut(out), out, id)
+        }
+    }
+
+    /// The #138 bug must not come back on Classic: rounds × 5 finishes after the 15th part.
+    func testClassicRunsEveryPassNotOne() throws {
+        guard let c = try loadCases().first(where: { (c: Case) -> Bool in c.definition.id == "t.rft" }) else {
+            XCTFail("missing t.rft")
+            return
+        }
+        var raw: [[Any]] = [[0.0, "start"]]
+        for k in 0..<16 { raw.append([30.0 * Double(k + 1), "crown"]) }
+        var p: WorkoutProgress = RepeatBlock.startProgress(for: c.definition, engine: .legacy)
+        XCTAssertNil(p.block)
+        _ = RepeatBlockProgressTests.run(&p, script: try RepeatBlockTests.actions(raw))
+        XCTAssertTrue(p.isFinished)
+        XCTAssertEqual(p.segmentStarts.count, 15)
+        XCTAssertEqual(p.finishTime, 450)
+    }
 }

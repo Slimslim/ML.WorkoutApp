@@ -76,8 +76,9 @@ public struct WorkoutProgress: Codable, Equatable {
     }
 
     /// Block mode with an interval: the current step is the block's closing rest, the wait for the
-    /// next window. The athlete's Crown is ignored there (the watch shows a hint); only the clock
-    /// moves on, so every window starts on the clock. Always false on today's path.
+    /// next window. The athlete's Crown is ignored there until the window ends (the watch shows a
+    /// hint); the clock moves on, so every window starts on the clock. After an undo into a rest
+    /// whose window has already passed, the Crown moves on. Always false on today's path.
     public var isWaitingForWindow: Bool {
         guard let plan = block, plan.intervalSeconds != nil, isStarted, !isFinished,
               let segment = currentSegment, segment.kind == .rest, plan.parts > 0 else { return false }
@@ -145,7 +146,11 @@ public struct WorkoutProgress: Codable, Equatable {
     public mutating func advance(at t: Double, source: AdvanceSource) -> Bool {
         guard isStarted, !isFinished, let last = segmentStarts.last else { return false }
         if t < last { return false }
-        if source != .auto && isWaitingForWindow { return false }
+        if source != .auto && isWaitingForWindow {
+            // Ignored only while the window is still ahead: after an undo back into a rest whose
+            // window has passed, the Crown moves on (the clock no longer will).
+            guard let window = autoAdvanceTime(), t >= window else { return false }
+        }
         if isLastStep(currentIndex) {
             finishTime = t
             events.append(WorkoutEvent(t: t, kind: .finish, segmentIndex: currentIndex, source: source))

@@ -1022,6 +1022,183 @@
    "steps": 16
   },
   {
+   "name": "Tabata: undo back into a rest whose window has passed, then the Crown moves on (never stuck)",
+   "definition": {
+    "id": "p.tabataUndoPast",
+    "name": "Test p.tabataUndoPast",
+    "shortName": "T",
+    "format": "emom",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 20.0,
+       "unit": "seconds"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 10.0,
+       "unit": "seconds"
+      }
+     }
+    ],
+    "listedOnce": true,
+    "timeCapSeconds": 240.0,
+    "intervalSeconds": 30.0,
+    "rounds": 8
+   },
+   "script": [
+    [
+     0,
+     "start"
+    ],
+    [
+     35,
+     "tick"
+    ],
+    [
+     36,
+     "undo"
+    ],
+    [
+     40,
+     "crown"
+    ],
+    [
+     260,
+     "tick"
+    ]
+   ],
+   "events": [
+    [
+     0,
+     "start",
+     0,
+     null
+    ],
+    [
+     20.0,
+     "advance",
+     1,
+     "auto"
+    ],
+    [
+     30.0,
+     "advance",
+     2,
+     "auto"
+    ],
+    [
+     36,
+     "undo",
+     1,
+     "crown"
+    ],
+    [
+     40,
+     "advance",
+     2,
+     "crown"
+    ],
+    [
+     60.0,
+     "advance",
+     3,
+     "auto"
+    ],
+    [
+     60.0,
+     "advance",
+     4,
+     "auto"
+    ],
+    [
+     80.0,
+     "advance",
+     5,
+     "auto"
+    ],
+    [
+     90.0,
+     "advance",
+     6,
+     "auto"
+    ],
+    [
+     110.0,
+     "advance",
+     7,
+     "auto"
+    ],
+    [
+     120.0,
+     "advance",
+     8,
+     "auto"
+    ],
+    [
+     140.0,
+     "advance",
+     9,
+     "auto"
+    ],
+    [
+     150.0,
+     "advance",
+     10,
+     "auto"
+    ],
+    [
+     170.0,
+     "advance",
+     11,
+     "auto"
+    ],
+    [
+     180.0,
+     "advance",
+     12,
+     "auto"
+    ],
+    [
+     200.0,
+     "advance",
+     13,
+     "auto"
+    ],
+    [
+     210.0,
+     "advance",
+     14,
+     "auto"
+    ],
+    [
+     230.0,
+     "advance",
+     15,
+     "auto"
+    ],
+    [
+     240.0,
+     "finish",
+     15,
+     "auto"
+    ]
+   ],
+   "finished": true,
+   "finishTime": 240.0,
+   "currentStep": 15,
+   "steps": 16
+  },
+  {
    "name": "Every 1:00 with an early Crown on the work: rest until the window, the next pass starts on the clock",
    "definition": {
     "id": "p.emomEarly",
