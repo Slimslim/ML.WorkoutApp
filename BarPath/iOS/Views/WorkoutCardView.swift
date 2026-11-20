@@ -432,16 +432,30 @@ enum WorkoutLastScore {
 /// library's current version and program are used.
 enum WorkoutResultCard {
     static func resolve(_ result: WorkoutResult, library: [LibraryWorkout]) -> (definition: WorkoutDefinition, program: String?) {
-        let id: String = result.definition.id
-        if let w = library.first(where: { (w: LibraryWorkout) -> Bool in w.id == id }) {
-            return (w.definition, WorkoutResultCard.clean(w.program))
-        }
-        if WorkoutLibrary.definition(id: id) == nil,
-           let w = library.first(where: { (w: LibraryWorkout) -> Bool in
-               WorkoutHistory.isSameWorkout(w.definition, result.definition) }) {
+        if let w = libraryWorkout(result, library: library) {
             return (w.definition, WorkoutResultCard.clean(w.program))
         }
         return (result.definition, nil)
+    }
+
+    /// The library entry of a logged workout (WorkoutHistory.libraryIndex), nil when it is a
+    /// built-in or no longer in the library.
+    static func libraryWorkout(_ result: WorkoutResult, library: [LibraryWorkout]) -> LibraryWorkout? {
+        let definitions: [WorkoutDefinition] = library.map { (w: LibraryWorkout) -> WorkoutDefinition in w.definition }
+        guard let i = WorkoutHistory.libraryIndex(for: result.definition, in: definitions) else { return nil }
+        return library[i]
+    }
+
+    /// The workout page (card, Send to watch, history) a logged workout opens from the calendar
+    /// (#137): the library's current version when it has the workout, else the definition the
+    /// result was recorded with. Meta as on Choose; "Built-in" only for a built-in, nothing for a
+    /// workout that is no longer in the library.
+    static func page(_ result: WorkoutResult, library: [LibraryWorkout]) -> (definition: WorkoutDefinition, meta: String?) {
+        if let w = libraryWorkout(result, library: library) {
+            return (w.definition, WorkoutCardMeta.text(w))
+        }
+        let builtIn: Bool = WorkoutLibrary.definition(id: result.definition.id) != nil
+        return (result.definition, builtIn ? WorkoutCardMeta.text(nil) : nil)
     }
 
     /// "Mon, Nov 2".

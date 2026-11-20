@@ -97,3 +97,29 @@ def test_segment_lines_quantity_first():
     assert [movement_line(s).full for s in helen.segments[:3]] == ["400 m Run", "21 KB Swings", "12 Pull-ups"]
     seesaw = seed("seesaw")
     assert [movement_line(s).full for s in seesaw.segments[:2]] == ["30 Cal Row", "5 Power Cleans @135 lb"]
+
+
+def test_library_index_for_calendar_page():
+    """#137: which library workout a recorded result opens from the calendar, and its history
+    always contains that result."""
+    from barpath.workout_history import library_index
+    seesaw, pcj = seed("seesaw"), seed("power_cj_emom")
+    library = [pcj, seesaw]
+    # same id
+    assert library_index(seesaw, library) == 1
+    # an old id that is no built-in, same workout -> the library row
+    assert library_index(renamed(seesaw, "wod.seesaw"), library) == 1
+    # a built-in id is never swapped for a library row, even if it looks the same
+    helen = WorkoutLibrary.definition("wod.helen")
+    assert library_index(helen, library + [renamed(helen, "lib.x.20261101.helen")]) is None
+    # Free Workout, a deleted or personal row (not in the library): its own definition
+    assert library_index(WorkoutLibrary.free, library) is None
+    gone = WorkoutDefinition.from_dict(dict(seesaw.to_dict(), id="lib.gone.20261101.x", name="Deleted"))
+    assert library_index(gone, library) is None
+    # whichever definition is used, the result is in its history
+    for recorded in [seesaw, renamed(seesaw, "wod.seesaw"), helen,
+                     WorkoutLibrary.free]:
+        r = result(recorded, 10)
+        i = library_index(recorded, library)
+        page = library[i] if i is not None else recorded
+        assert r in results_of(page, [r]), recorded.id
