@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 import uuid as _uuid
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -205,6 +205,50 @@ class WorkoutDefinition:
     @classmethod
     def from_json(cls, text: str) -> "WorkoutDefinition":
         return cls.from_dict(json.loads(text))
+
+
+# ---- AMRAP expansion (#138) -------------------------------------------------------------------
+
+AMRAP_MIN_LISTED_ROUNDS = 30
+AMRAP_MAX_SEGMENTS = 600
+
+
+def amrap_expanded(d: "WorkoutDefinition") -> "WorkoutDefinition":
+    """Mirror of BarPathKit's WorkoutDefinition.expandedForAmrap(): an AMRAP with a cap gets its
+    last full round (roundSize segments, or the whole list) repeated until it lists
+    AMRAP_MIN_LISTED_ROUNDS rounds (fewer past AMRAP_MAX_SEGMENTS), and roundSize set.
+    Unchanged: other formats, no cap, empty list, not whole rounds, already long enough."""
+    if d.format != "amrap" or d.time_cap_seconds is None or not d.time_cap_seconds > 0:
+        return d
+    n = len(d.segments)
+    if n == 0:
+        return d
+    r = _exact_repeat_period(d.segments)
+    if d.round_size is not None and 1 <= d.round_size <= n:
+        r = d.round_size
+    if n % r != 0:
+        return d
+    listed = n // r
+    fit = max(1, AMRAP_MAX_SEGMENTS // r)
+    target = max(listed, min(AMRAP_MIN_LISTED_ROUNDS, fit))
+    if target == listed and (d.round_size == r or (d.round_size is None and d.interval_seconds
+                                                    is not None and d.interval_seconds > 0)):
+        return d
+    block = d.segments[n - r:]
+    segments = list(d.segments) + list(block) * (target - listed)
+    # With an interval and no roundSize, setting one would turn on the interval jump for work
+    # segments: keep it unset there.
+    keep_unset = d.round_size is None and d.interval_seconds is not None and d.interval_seconds > 0
+    return replace(d, segments=segments, round_size=None if keep_unset else r)
+
+
+def _exact_repeat_period(segments: list) -> int:
+    """Smallest p splitting the list into at least two identical rounds, else the whole list."""
+    n = len(segments)
+    for p in range(1, n // 2 + 1):
+        if n % p == 0 and all(segments[i] == segments[i % p] for i in range(p, n)):
+            return p
+    return n
 
 
 # ---- library ----------------------------------------------------------------------------------
