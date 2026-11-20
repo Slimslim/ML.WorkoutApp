@@ -9,7 +9,10 @@ Writes data/datasets/<version>/ (an existing version folder is never overwritten
                          (with the reason), counts per movement, rows without a cached recording
   <movement>/index.csv   one row per unit of work (barpath.tiers.work_units): workout labels one
                          per set where the segment has sets, else one per working segment; lifts
-                         labels one per set. Columns: INDEX_COLUMNS.
+                         labels one per set (kind "set"); plus one row per rest between two sets of
+                         the same movement (barpath.tiers.rest_units, kind "rest", amount = its
+                         seconds). Time in a segment outside its sets and rests (set-up, kick-up,
+                         walking over) is never a row. Columns: INDEX_COLUMNS.
   <movement>/motion.npz  per row the motion from start - 2 s to end + 2 s (clipped to the recording),
                          keys "<row_id>/t" (seconds relative to the row start), "<row_id>/q",
                          "<row_id>/user_accel", "<row_id>/gravity", "<row_id>/rotation_rate".
@@ -54,7 +57,7 @@ from barpath.recording import MotionSeries, load_recording, load_session_csv  # 
 REPO = Path(__file__).resolve().parents[1]
 PAD = 2.0  # seconds of motion kept before the start and after the end of every row
 
-INDEX_COLUMNS = ("row_id", "label_id", "athlete", "date", "movement", "round", "start", "end",
+INDEX_COLUMNS = ("row_id", "label_id", "athlete", "date", "movement", "kind", "round", "start", "end",
                  "amount", "unit", "load_lb", "tier", "split", "training", "has_rep_times", "flagged",
                  "rest_before")
 MOTION_FIELDS = ("q", "user_accel", "gravity", "rotation_rate")
@@ -190,7 +193,7 @@ def build(out: Path, version: str, labels_dir: Path, cache: Path, commit: Option
         if errs:
             skipped.append({"id": lid, "reason": f"invalid: {errs[0]}"})
             continue
-        units = list(tiers.work_units(label))
+        units = list(tiers.work_units(label)) + list(tiers.rest_units(label))
         if not units:
             skipped.append({"id": lid, "reason": "no units of work"})
             continue
@@ -218,7 +221,7 @@ def build(out: Path, version: str, labels_dir: Path, cache: Path, commit: Option
                 reps.setdefault(mv, []).append((row_id, j, float(t)))
             rows.setdefault(mv, []).append({
                 "row_id": row_id, "label_id": lid, "athlete": who, "date": label.get("date"),
-                "movement": mv, "round": u["round"], "start": start, "end": end,
+                "movement": mv, "kind": u.get("kind", "set"), "round": u["round"], "start": start, "end": end,
                 "amount": u["amount"], "unit": u["unit"], "load_lb": u["load_lb"],
                 "tier": u["tier"], "split": u["split"], "training": u["training"],
                 "has_rep_times": bool(u["rep_times"]), "flagged": u["flagged"],

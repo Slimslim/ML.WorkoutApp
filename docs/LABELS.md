@@ -78,6 +78,13 @@ Times are **session seconds**: the watch CSV's `t` column (0 = START on the watc
   "view": "summary", "timeSeconds": 91.4, "calories": 20, "distanceMeters": 945, "rpmAvg": 61,
   "calPerHour": 1631}`. Numbers exactly as shown (keys checked by `labels._check_console`); what the
   motion says goes next to it (`motion`), never into it. First use: `2026-11-19-bike-20cal`.
+- **Sets, rests and what is discarded** (inside one working segment): the labelled `sets` are where
+  the reps happen; the time between two sets is rest inside the movement (a dataset row of kind
+  `rest`, `tools/barpath/tiers.rest_units`); the time before the first set and after the last
+  (walking over, set-up, kick-up, coming down) is neither and is never used. So a set's start is
+  its first rep and its end its last rep: for handstand push-ups the first press after the kick-up
+  (hands planted, upside down) to the last before coming down; for cleans the first pull to the
+  last stand-up. Label every set of a segment when any is known, or the rests are wrong.
 - `video: true` (optional, on a segment or a set): its count and times were checked on a video
   (tier A in datasets, `tools/barpath/tiers.py`). A note that only says a video exists is not this.
 - `training: false` (optional, on a segment): keep the segment for timing but do not use its reps

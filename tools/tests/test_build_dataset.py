@@ -108,7 +108,9 @@ def test_build(tmp_path):
                                                      "manifest.json", "run", "wallBalls"]
 
     wb = read_csv(dest / "wallBalls" / "index.csv")
-    assert [r["row_id"] for r in wb] == [f"{w['id']}-001", f"{w['id']}-002"]
+    assert [r["row_id"] for r in wb] == [f"{w['id']}-001", f"{w['id']}-002", f"{w['id']}-1000"]
+    assert [r["kind"] for r in wb] == ["set", "set", "rest"] and wb[2]["amount"] == "2"
+    wb = wb[:2]
     assert wb[0]["tier"] == "A" and wb[0]["split"] == "test" and wb[0]["has_rep_times"] == "true"
     assert wb[1]["tier"] == "D" and wb[1]["amount"] == "2" and wb[1]["load_lb"] == "20"
     assert wb[0]["start"] == "13" and wb[0]["end"] == "20" and wb[0]["athlete"] == "A"
@@ -170,3 +172,16 @@ def test_main_refuses_existing_version(tmp_path, capsys):
     ld, cache = setup(tmp_path, [])
     assert B.main(["--out", str(tmp_path / "ds"), "--version", "v1", "--labels", str(ld),
                    "--cache", str(cache)]) == 1
+
+
+def test_rests_between_sets_are_their_own_units():
+    lab = workout_label()
+    rests = list(tiers.rest_units(lab))
+    assert len(rests) == 1                                  # wall balls: 13-20, then 22-29
+    r = rests[0]
+    assert (r["start"], r["end"], r["amount"], r["kind"], r["movement"]) == (20.0, 22.0, 2.0, "rest", "wallBalls")
+    assert r["tier"] == "D"                                 # the less certain of the two sets
+    assert all(u["kind"] == "set" for u in tiers.work_units(lab))
+    lab["segments"][2]["sets"][1]["start"] = 20.5           # a 0.5 s gap is not a rest
+    assert list(tiers.rest_units(lab)) == []
+    assert list(tiers.rest_units(lifts_label())) == []

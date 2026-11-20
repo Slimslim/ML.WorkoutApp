@@ -81,7 +81,7 @@ def work_units(label: dict) -> Iterator[dict]:
                 "amount": x.get("reps"), "unit": "reps", "load_lb": x.get("loadLb"),
                 "tier": t, "split": split(t), "training": bool(x.get("training", True)),
                 "rep_times": x.get("repTimes") or None, "flagged": isinstance(x.get("flag"), dict),
-                "file": x.get("file"), "segment": None, "set": x,
+                "file": x.get("file"), "segment": None, "set": x, "kind": "set",
             }
             i += 1
         return
@@ -106,11 +106,46 @@ def work_units(label: dict) -> Iterator[dict]:
                 "rep_times": (x or {}).get("repTimes") or None, "flagged": flagged,
                 "file": None, "segment": s, "set": x,
                 # rest inside the movement: from the previous set's end to this set's start
+                "kind": "set",
                 "rest_before": (round(float(x["start"]) - prev_end, 2)
                                 if x is not None and prev_end is not None else None),
             }
             if x is not None:
                 prev_end = float(x["end"])
+            i += 1
+
+
+MIN_REST = 1.0   # s: a shorter gap between two sets is not a rest
+
+
+def rest_units(label: dict) -> Iterator[dict]:
+    """The rests inside each movement: from the end of one labelled set to the start of the next
+    set of the same segment (gaps of MIN_REST s or more). Inside a working segment, sets are where
+    the reps happen, these gaps are rest, and the time before the first set and after the last
+    (walking over, set-up, kick-up, coming down) belongs to neither and is never used. A rest's
+    tier is the less certain of the two sets around it. Same dict shape as work_units, with
+    kind "rest", unit "seconds" and amount = its length."""
+    if label.get("kind") == "lifts":
+        return
+    i = 1000
+    for s in label.get("segments", []) or []:
+        mv = s.get("movement")
+        sets = s.get("sets") or []
+        if mv in NON_WORK or mv is None or len(sets) < 2:
+            continue
+        for a, b in zip(sets, sets[1:]):
+            gap = float(b["start"]) - float(a["end"])
+            if gap < MIN_REST:
+                continue
+            t = max(tier(label, s, a), tier(label, s, b))     # "D" is the least certain
+            yield {
+                "index": i, "movement": canonical_movement(mv), "round": s.get("round"),
+                "start": float(a["end"]), "end": float(b["start"]),
+                "amount": round(gap, 2), "unit": "seconds", "load_lb": None,
+                "tier": t, "split": split(t), "training": bool(s.get("training", True)),
+                "rep_times": None, "flagged": isinstance(s.get("flag"), dict),
+                "file": None, "segment": s, "set": None, "kind": "rest", "rest_before": None,
+            }
             i += 1
 
 
