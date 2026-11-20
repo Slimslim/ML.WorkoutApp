@@ -21,6 +21,7 @@ struct SettingsView: View {
             Section("Watch") {
                 LabeledContent("Apple Watch", value: link.watchStatusText)
             }
+            EngineSwitchSection()
             AboutYouSection()
             HeartRateSection()
             if cloud.isSignedIn {
