@@ -30,3 +30,7 @@ videos/
 
 # Recordings downloaded for scoring (tools/fetch_sessions.py); never committed
 data/cache/
+
+# labels and score history live in private storage (docs/LABELS.md); local copies only
+data/labels/
+data/eval/
