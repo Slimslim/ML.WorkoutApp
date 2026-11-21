@@ -412,3 +412,16 @@ def test_a_marked_fixed_list_with_an_interval_keeps_today_s_path():
     import dataclasses
     d = dataclasses.replace(_case("t.fixed"), interval_seconds=60.0)
     assert rb.plan_for(d).kind == rb.LEGACY and rb.start_progress(d, rb.ENGINE_V2).block is None
+
+
+def test_cap_text_of_a_capped_rounds_block_keeps_its_round():
+    import dataclasses
+    from datetime import datetime, timezone
+    from barpath.workout import WorkoutResult, split_stats
+    d = dataclasses.replace(_case("t.rft"), time_cap_seconds=100.0)   # 5 rounds of 3 parts, cap 1:40
+    p = rb.start_progress(d, rb.ENGINE_V2)
+    rb.run_script(p, [[0.0, "start"]] + [[20.0 * (k + 1), "crown"] for k in range(7)] + [[150.0, "end"]])
+    t0 = datetime.fromtimestamp(0, tz=timezone.utc)
+    r = WorkoutResult(d, t0, None, t0, 150.0, split_stats(p, 150.0, [], []), p.events, passes=p.passes_started)
+    assert r.cap_segment_index == 5                         # step 5 = pass 1, part 2 at 1:40
+    assert r.cap_position_text.endswith("(R2)"), r.cap_position_text

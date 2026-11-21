@@ -175,4 +175,25 @@ final class WorkoutBlockResultTests: XCTestCase {
         XCTAssertEqual(r.displayDefinition.segments.count, 10)
         XCTAssertEqual(r.displayDefinition.roundSize, 2)
     }
+
+    /// A capped rounds-for-time block: the cap text keeps its round ("(R2)"), as Classic does.
+    func testCapTextOfACappedRoundsBlockKeepsItsRound() {
+        var d: WorkoutDefinition = amrap()
+        d.format = .forTime
+        d.timeCapSeconds = 100
+        d.rounds = 5
+        d.segments.append(station(Movement.pushUps, 10))   // 3 parts
+        var p: WorkoutProgress = RepeatBlock.startProgress(for: d, engine: .v2)
+        p.start(at: 0)
+        for k in 1...7 {
+            p.advance(at: Double(20 * k), source: .crown)
+        }
+        p.finish(at: 150, source: .button)
+        let segs: [SegmentResult] = SplitStats.compute(progress: p, now: 150, heartRates: [], pedometer: [])
+        let r = WorkoutResult(definition: d, startDate: Date(timeIntervalSince1970: 0), finishDate: nil,
+                              endDate: Date(timeIntervalSince1970: 150), totalSeconds: 150,
+                              segments: segs, events: p.events, passes: p.passesStarted)
+        XCTAssertEqual(r.capSegmentIndex, 5)
+        XCTAssertEqual(r.capPositionText?.hasSuffix("(R2)"), true, r.capPositionText ?? "nil")
+    }
 }
