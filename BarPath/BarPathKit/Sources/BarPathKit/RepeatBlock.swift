@@ -57,7 +57,10 @@ public enum RepeatBlock {
         public var stepLimit: Int? {
             if kind != .repeating { return parts }
             guard let r = rounds else { return nil }
-            return r * parts - trailingRests
+            // Bounded like plan(for:), overflow-safe for a plan read back from a corrupt checkpoint.
+            let passes: Int = Swift.min(Swift.max(r, 0), RepeatBlock.maxPlannedPasses)
+            let (steps, overflow) = passes.multipliedReportingOverflow(by: parts)
+            return overflow ? Int.max : steps - trailingRests
         }
     }
 
@@ -98,7 +101,8 @@ public enum RepeatBlock {
         let interval: Double? = positive(d.intervalSeconds)
         var rounds: Int? = nil
         if let r = d.rounds, r > 0 {
-            rounds = r
+            // Bounded (a corrupt-file guard): a huge `rounds` must not overflow the step limit.
+            rounds = Swift.min(r, maxPlannedPasses)
         }
         if d.listedOnce != true || !listedOnceProblems(d).isEmpty {
             return Plan(kind: .legacy, parts: n, rounds: 1, capSeconds: cap, capEnds: false,

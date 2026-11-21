@@ -370,6 +370,18 @@ final class RepeatBlockTests: XCTestCase {
         XCTAssertNil(RepeatBlock.plannedSteps(tiny))
         XCTAssertEqual(RepeatBlock.writtenOut(tiny).segments.count,
                        tiny.segments.count * RepeatBlock.maxPlannedPasses)
+        // The plan's step limit is bounded too: a huge `rounds` on a marked definition, or in a
+        // plan read back from a checkpoint, must not trap on rounds * parts.
+        var absurd: WorkoutDefinition = rft
+        absurd.rounds = Int.max
+        let plan: RepeatBlock.Plan = RepeatBlock.plan(for: absurd)
+        XCTAssertEqual(plan.rounds, RepeatBlock.maxPlannedPasses)
+        XCTAssertEqual(plan.stepLimit, RepeatBlock.maxPlannedPasses * plan.parts - plan.trailingRests)
+        let stored: RepeatBlock.Plan = RepeatBlock.Plan(kind: plan.kind, parts: plan.parts, rounds: Int.max,
+                                                        capSeconds: plan.capSeconds, capEnds: plan.capEnds,
+                                                        intervalSeconds: plan.intervalSeconds,
+                                                        trailingRests: plan.trailingRests)
+        XCTAssertEqual(stored.stepLimit, plan.stepLimit)
         for bad in [0.0, -60.0] {
             var zero: WorkoutDefinition = wide
             zero.timeCapSeconds = 600
