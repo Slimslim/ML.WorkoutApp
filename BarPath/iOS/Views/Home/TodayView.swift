@@ -306,7 +306,11 @@ struct TodayView: View {
         } else {
             VStack(alignment: .leading, spacing: 22) {
                 ForEach(done) { (r: WorkoutResult) in
-                    NavigationLink(value: WorkoutRoute(id: r.id)) {
+                    // The workout's page (card, Send to watch, its results), as from Workouts;
+                    // the result opens from its history (#137).
+                    NavigationLink {
+                        workoutPage(r)
+                    } label: {
                         doneBlock(r)
                     }
                     .buttonStyle(.plain)
@@ -364,6 +368,12 @@ struct TodayView: View {
                     .lineLimit(1)
             }
         }
+    }
+
+    private func workoutPage(_ r: WorkoutResult) -> WorkoutPreviewView {
+        let page: (definition: WorkoutDefinition, meta: String?) =
+            WorkoutResultCard.page(r, library: library.workouts)
+        return WorkoutPreviewView(definition: page.definition, meta: page.meta)
     }
 
     private func doneBlock(_ r: WorkoutResult) -> some View {

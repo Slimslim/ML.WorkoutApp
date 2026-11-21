@@ -6,48 +6,48 @@ of every workout — the header.
 
 ## What the header must hold (owner)
 - Date
-- Name (the workout's title, e.g. "Freedom", "Every 1:00 × 8: Power C&J", "AMRAP 40")
+- Name (the workout's title, e.g. "Seesaw", "Every 1:30 × 6: Power C&J", "AMRAP 40")
 - Movements
 - Summary (format, score)
 
 ## Method
-1. Owner provides screenshots of many workouts from different programs (Mayhem, class
+1. Owner provides screenshots of many workouts from different programs (a subscription program, class
    whiteboards, benchmarks/Hero WODs, HYROX, lifting days, partner WODs…). Not committed to the
    repo (public): only a written inventory.
 2. Inventory: for each workout, how the source writes the title, format line, movement list,
-   loads (M/F, %1RM), rep schemes (21-15-9, 3-3-3-3-3, 40/32), caps, rests, scaling notes.
+   loads (M/F, %1RM), rep schemes (21-15-9, 3-3-3-3-3, 30/24), caps, rests, scaling notes.
 3. Find the patterns and the hard cases (no name, long Hero names, multi-block days, "this or
    that" movements, EMOM with loads per set).
 4. Propose 2–3 header variants that work for all of them, mock them with real examples, owner picks.
 
-## Inventory, batch 1 (2026-11-03, 16 screenshots: Mayhem app + a benchmark/logbook app)
+## Inventory, batch 1 (2026-11-03, 16 screenshots: a subscription programming app + a benchmark/logbook app)
 
-| # | Source title (as written) | Kind of title | Format line | Movements / loads | Meta | Score type |
-|---|---|---|---|---|---|---|
-| 1 | Double Unders, AbMat Sit-ups | none → movement list | E3MOM, ping pong, 3 rounds | 50 DU, 25 AbMat sit-ups | "not a timed workout" | none / done |
-| 2 | 13.4 - CrossFit Games Open | competition code | AMREP 7:00, ladder 3-6-9-12-15… (C&J + T2B each rung) | C&J 135/95 lb, T2B | levels (58 reps = level 50), ages | total reps |
-| 3 | The Chief | named benchmark | 5 cycles × AMRAP 3 min, rest 1 min, restart each cycle | 3 power cleans 135/95, 6 push-ups, 9 air squats | long dedication story | total rounds |
-| 4 | Diane | named benchmark | 21-15-9, for time | deadlift 225/155, HSPU | levels, previous 8:54 Rx'd (2023) | time |
-| 5 | "GAME OVER" (1/2 versions) | quoted fun name | for time 21-15-9, cap 8 min | deadlift 225/155, T2B | strategy/scaling behind "Read more" | time or reps at cap |
-| 6 | "CHEAT CODE" (1/2) | quoted fun name | AMRAP 8, ladder +2 reps/round | alt DB snatch 70/50, lateral burpee double jumps | movement standard note | reps |
-| 7 | Weighted Strict Pull-up : 1X3 | lift + scheme | 1×3 heaviest; 10 min, ≥5 sets to a 3RM | weighted strict pull-up | recent maxes (5RM 30 lb) | load |
-| 8 | "What is the air-speed velocity of an unlade…" | very long quoted name (truncated) | for time, 22 movements × 22 reps; team of 2 split; cap 60 | 22 movements, loads 95/65, KB 53/35, box 24/20 in | target sub 40, RPE 8, scaling version "Mission 22", dedication | time |
-| 9 | Push Press : 75 Reps For Time | lift + scheme | 75 reps for time, sets AMRAP(−1), 30 s mandatory rest | push press 75/55 | rest rule | time |
-| 10 | Knee Health | block purpose | 3 rounds for quality | backward sled drag 100 ft (pick load), 40 calf raises, 20 tibia raises | — | none |
-| 11 | Complex: Tall Jerks, Jerk Balances, Jerks, A… | complex (truncated) | 3 × [3+3+3+3], heaviest, rest as needed | 4 jerk variations | RPE 5/10 | load |
-| 12 | "Your mother was a hamster and your fathe…" | very long quoted name | for time chipper 20/30 alternating, cap 14 | DB snatch 50/35, T2B, burpee-to-target | target 9–11 min, RPE 8.5, strategy per movement, scaling | time |
-| 14 | Every 1 min for 15 mins: Power Snatch | interval + lift | EMOM 15, 5 power snatches, pick load | power snatch | recent maxes 1RM 135, 3RM 105 lb | load per minute / none |
-| 15 | Front Squat : 3-3-3-3-3 | lift + scheme | 5 × 3, heaviest each set; 3–5 sets at 65–75 % 1RM | front squat | previous result "2655 lbs" = Σ load × reps (150→205 lb), Rx'd; recent maxes 5RM 235, 10RM 185 | heaviest set / volume |
-| 13 | Core Work ("3 RFQ: Turkish Get-ups, …") | block purpose + subtitle | 3 rounds for quality | TGU (pick load), suitcase hold 1 min, front rack carry 50 ft | per-side notes | none |
+Public benchmarks are named; the subscription program's workouts are described by kind only
+(their titles, prescriptions and notes are the program's content and stay out of this public repo).
 
-Note on lift blocks (14, 15): the app's "previous result" leads with total volume (2655 lb),
-which is hard to read; the heaviest set and the maxes are what the athlete looks at. Our header
-should lead with the heaviest set (205 lb) and show volume second, and turn %1RM into real loads.
+| # | Source title (kind) | Format line (kind) | Movements / loads (kind) | Meta | Score type |
+|---|---|---|---|---|---|
+| 1 | none → movement list | E3MOM, a few rounds | two skill movements | "not a timed workout" | none / done |
+| 2 | competition code (13.4, CrossFit Games Open) | AMREP 7:00, ladder 3-6-9-12-15… (C&J + T2B each rung) | C&J 135/95 lb, T2B | levels, ages | total reps |
+| 3 | named benchmark (The Chief) | 5 cycles × AMRAP 3 min, rest 1 min, restart each cycle | 3 power cleans 135/95, 6 push-ups, 9 air squats | long dedication story | total rounds |
+| 4 | named benchmark (Diane) | 21-15-9, for time | deadlift 225/155, HSPU | levels, previous result | time |
+| 5-6 | quoted fun name | for time with a cap; AMRAP with a ladder | barbell or DB + gymnastics, M/F loads | strategy/scaling behind "Read more", movement standards | time or reps at cap; reps |
+| 7 | lift + scheme ("Lift : 1X3") | heaviest single set, several attempts | weighted gymnastics lift | recent maxes | load |
+| 8, 12 | very long quoted name (truncated) | long for-time chipper, partner split, cap | many movements, M/F loads, box heights | target time, RPE, scaling version, dedication | time |
+| 9 | lift + scheme ("Lift : N Reps For Time") | reps for time with a rest rule | one barbell lift, M/F load | rest rule | time |
+| 10, 13 | block purpose (+ subtitle) | rounds for quality | accessory movements, "pick load", holds, carries in ft | per-side notes | none |
+| 11 | complex (truncated) | sets of a multi-movement complex, heaviest | jerk variations | RPE | load |
+| 14 | interval + lift ("Every N min for M mins: Lift") | EMOM, pick load | one Olympic lift | recent maxes | load per minute / none |
+| 15 | lift + scheme ("Lift : 3-3-3-3-3") | 5 × 3, heaviest each set; sets at a % of 1RM | one squat | previous result as total volume (Σ load × reps), recent maxes | heaviest set / volume |
+
+Note on lift blocks (14, 15): the app's "previous result" leads with total volume, which is hard
+to read; the heaviest set and the maxes are what the athlete looks at. Our header should lead
+with the heaviest set and show volume second, and turn %1RM into real loads.
 
 ### Patterns
 - **Titles come in five kinds:** named benchmark (Diane, The Chief) · competition code (13.4) ·
-  quoted fun name, often very long and truncated · lift + scheme ("Push Press : 75 reps for time",
-  "Weighted strict pull-up : 1x3") · block purpose ("Core work", "Knee health"). Some have none,
+  quoted fun name, often very long and truncated · lift + scheme ("Lift : N reps for time",
+  "Lift : 1x3") · block purpose ("Core work", "Mobility"). Some have none,
   and the app falls back to the movement list.
 - **The format line carries the real meaning** and has a small grammar: for time / AMRAP N /
   N rounds for quality / EMOM–E3MOM / cycles × AMRAP + rest / rep scheme (21-15-9, 3-3-3-3-3,
@@ -77,7 +77,7 @@ decisions, now binding for the header ("D", mocked in `header-study.html`, round
    (reps · movement · your load).
 2. **Keep the block tag:** Metcon · Strength · Accessory.
 3. **Add a workout-type tag from a fixed vocabulary:** Chipper, EMOM (incl. E2MOM/E3MOM),
-   AMRAP, AMREP (as many reps as possible, e.g. 13.4 / "Cheat Code" ladders), Death by, Ladder,
+   AMRAP, AMREP (as many reps as possible, e.g. 13.4 / ladder AMRAPs), Death by, Ladder,
    RFT (rounds for time), Complex, plus other variations: For quality, Cycles (e.g. The Chief),
    Sets × reps (lift days). "Each RFT" (owner's term) is **pending an example** from the owner:
    not in the legend or on any card until then.
@@ -102,17 +102,17 @@ a new workout doesn't fit.
    `21-15-9` / `Deadlift @225 lb` / `Handstand Push-up`. Same for `3-3-3-3-3`, ladders
    (`3-3, 6-6, 9-9 …`), `22 each`.
 2. **Mixed schemes:** the shared part goes on top with its unit, movements with their own fixed
-   reps keep them. Freedom: `40-30-20-30-40 Cal` / `Row` / `7 Power Cleans @155 lb`.
+   reps keep them. Seesaw: `30-24-18-24-30 Cal` / `Row` / `5 Power Cleans @135 lb`.
 3. **One movement per line:** quantity, unit, movement, `@load`.
-   `12 Cal Row` · `15 Push-ups` · `12 DB C&J @40 lb` · `50 ft Front-Rack Carry` ·
+   `14 Cal Row` · `20 KB Swings @53 lb` · `25 Air Squats` · `50 ft Front-Rack Carry` ·
    `1:00 Suitcase Hold @pick`. Number first; the unit (`Cal`, `m`, `ft`, `s`, `1:00`) sits
    between the number and the movement; the load goes last after `@`.
 4. **Loads inline, never in a right-aligned column** (picked for round 3, applied to every card).
-5. Movement names in Title Case, plural when the quantity is more than 1 (`7 Power Cleans`).
+5. Movement names in Title Case, plural when the quantity is more than 1 (`5 Power Cleans`).
 6. **Abbreviate** the common names: HSPU, T2B, C&J, DB, KB, DU (round 4).
 7. **Units:** heights in inches (`Box Jumps @24 in`), run distances in m (miles only when the
    workout says so), `lb` never `lbs`.
-8. **Alternating** = `ALT` (`12 ALT DB Snatches @40 lb`); two dumbbells = `Double DB`.
+8. **Alternating** = `ALT` (`10 ALT DB Snatches @50 lb`); two dumbbells = `Double DB`.
 9. **Cap at the bottom** of the card, under the movements: `8 min cap`. Not in the time-domain line.
 10. **CrossFit Open** workouts get the `Open` prefix. `Open 13.4` is an **AMREP** (tag AMREP, not
     AMRAP): `7 min AMREP` / `3-6-9-12…` / `C&J @135 lb` (F 95 lb) / `T2B`; score = total reps.
@@ -126,7 +126,7 @@ a new workout doesn't fit.
 
 14. **Time domain on its own first line, written `<N> min <TYPE>`:** `7 min AMREP` (Open 13.4,
     then `3-6-9-12…` on its own line, then `C&J @135 lb`, `T2B`), `40 min AMRAP`,
-    `8 min AMREP` ("Cheat Code"), `5 × 3 min AMRAP · rest 1 min` (The Chief). EMOMs keep
+    `8 min AMREP` (a ladder), `5 × 3 min AMRAP · rest 1 min` (The Chief). EMOMs keep
     `Every 1:00 × 8`; rounds for time keep `5 rounds`. For-time caps stay at the bottom, written
     `20 min cap` (was `Cap 20:00`).
 
@@ -171,6 +171,6 @@ program days, logged lifts). Built from the decisions and writing conventions ab
   its kind: **mean** concentric velocity for strength lifts (squats, presses, deadlifts, pull-ups)
   `mean 0.62 m/s`, **peak** velocity for Olympic / ballistic lifts (snatch, clean, jerk, C&J)
   `peak 1.95 m/s` (VBT practice; owner, 2026-11-03).
-- **Decided (owner answers):** bar speed mean vs peak as above; Freedom Rx was **185 lb**, so the
-  owner's 19:37 @155 lb is **Scaled** ("Rx 185 lb · you 155 lb"); program days go block by block.
+- **Decided (owner answers):** bar speed mean vs peak as above; a result below the Rx load is
+  **Scaled** ("Rx 135 lb · you 115 lb"); program days go block by block.
 - **Still open:** Rx/Scaled for AMRAP 40 and Helen (shown as `?`); final colours.

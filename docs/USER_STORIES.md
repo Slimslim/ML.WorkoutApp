@@ -94,8 +94,8 @@ down and buzzes at zero.
 **L3. Change the weight between sets in one move (Now)**
 As a lifter, I want to adjust the weight during the rest, so each set is logged at the
 right weight.
-*Done when:* turning the Crown on the rest screen changes the weight for the next set, with
-no menus.
+*Done when:* tapping the weight on the rest screen and turning the Crown changes the weight for
+the next set, with no menus (#148, variant A).
 
 **L4. Log my session (Now)**
 As a lifter, I want the phone to keep my sets, reps and weights, so I have a training log
@@ -112,6 +112,46 @@ detail.
 As a lifter, I want to send "5 × 3 @ 135 lb, rest 3:00" from the phone, so the watch guides
 me: "Set 2 of 5", the rest countdown, then the next set.
 *Done when:* the plan arrives on the watch and the set number moves on automatically.
+
+### Rest between sets and the Crown (#148, design, owner's story of 20 Nov)
+
+The owner's flow for every lift (deadlift, bench, cleans, snatches): start at the bar, do the
+set, drop the bar; rest counts up by itself; change the weight if needed; back at the bar,
+turn the Crown to arm the next set; swipe left to End. Detection runs only after the Crown
+turn, so nothing done at rest can become a set (replaces the detector-only fix for #147).
+Mockups: `docs/concepts/lift-rest-crown.html`. Mapping to the code and open questions:
+`docs/concepts/LIFT_REST_CROWN.md`. These refine L2 (rest timer, count-up only for now) and
+L3 (see the note on L3 below).
+
+**L7. Rest starts by itself, and resting can't start a set (Now)**
+As a lifter, I want the rest timer to start counting up as soon as my set ends, and nothing I do
+while resting (walking, shaking out my hands, chalking) to count as a set, so I can rest
+without hiding on another screen.
+*Done when:* after a set ends the watch shows Rest counting up within 1 s of the set-end
+haptic, with the set's reps and the weight; on device, 2 min of rest with hand shakes, chalking
+and walking around gives 0 sets and 0 rep haptics, for a deadlift and an Olympic lift; a real set
+done at rest without turning the Crown also gives 0 sets (no reminder, owner, 20 Nov).
+
+**L8. Turn the Crown to arm the next set (Now)**
+As a lifter back at the bar, I want one Crown turn to arm detection for the next set, so the
+watch only listens when I'm ready, with no taps and no looking down for long.
+*Done when:* one Crown turn (the same 0.8-turn gesture as in workouts, with the same arc) arms
+detection with a start haptic and the armed screen; the set that follows is counted as today;
+the rest just taken (set end to Crown turn) shows on the armed screen; the first set after
+Start is armed without a Crown turn; armed stays armed until a set or End (time-out: removed,
+revisit if it's a problem in the gym). (Storing the rest with the set's recording comes with L4.)
+
+**L9. End or change the lift with a swipe (Now)**
+As a lifter, I want to swipe left from the rest screen to End (or change the lift), so the main
+screen stays one signal and I can't end the session by accident mid-set.
+*Done when:* swipe left on Rest or Armed shows End and Change lift; End asks to confirm as today;
+the swipe does nothing while a set is in progress.
+
+*Note on L3 (weight during rest), decided 20 Nov (#150):* the Crown can't both change the weight
+and arm the next set on the same screen. The owner chose **variant A**: tap the weight on the Rest
+screen, turn the Crown on the Weight screen, then Done (or 3 s without a turn) goes back to Rest.
+L3's "turning the Crown on the rest screen" now reads "tap the weight, then turn the Crown". A
+Crown *press* can't be used: watchOS keeps the Crown press for the system (it leaves the app).
 
 ### Progress (both modes)
 
@@ -173,7 +213,7 @@ bar speed can be compared with the load.
 **W5. Transition vs work time (Later)**
 As an athlete, I want each split shown as setup + work, with total time in transitions, so I
 see the time I lose walking and setting up.
-*Done when:* on the AMRAP 40 and Freedom files, transitions match the motion analysis within
+*Done when:* on the 2026-11-01 and 2026-11-02 recordings, transitions match the motion analysis within
 5 s for 80 % of segments (docs/TRANSITIONS.md).
 
 ### Recovery after the finish
@@ -235,13 +275,13 @@ whiteboard (name, `3 rounds` / `40 min AMRAP` / `Every 1:00 × 8`, one movement 
 load, the cap at the bottom), so I can tell what it is at a glance and check it before I start.
 *Done when:* every row in Choose shows the name, `block · type`, one line of movements and my
 last score when I have one; the preview shows the full card (date · program or Built-in, block
-and type tags, time domain, rep scheme, movements, cap) above Send to watch; Freedom reads
-`5 rounds` / `40-30-20-30-40 Cal` / `Row` / `7 Power Cleans @155 lb` / `20 min cap`. The card text
+and type tags, time domain, rep scheme, movements, cap) above Send to watch; Seesaw (an invented
+example) reads `5 rounds` / `30-24-18-24-30 Cal` / `Row` / `5 Power Cleans @135 lb` / `18 min cap`. The card text
 comes from one model (Python reference + Swift port with a parity test).
 
 **W12. Find a workout by searching (Now)**
 As an athlete with a growing library, I want a search button at the top right of Choose, so I
-can find "Freedom", every workout with KB swings, or every EMOM without scrolling through
+can find "Seesaw", every workout with KB swings, or every EMOM without scrolling through
 programs.
 *Done when:* the magnifying glass opens a search field; typing filters Today, every program and
 the built-ins together, matching the name, short name, program or group, movement names (as
@@ -255,9 +295,9 @@ know the score to beat and can open how it went last time.
 *Done when:* under the card a "Your results" list shows each past result newest first (date,
 score, Rx / Scaled once that is recorded, average heart rate), three at first with "Show all";
 tapping one opens its report. A result counts for the workout when it has the same id, or the
-same name and the same segment kinds and movements in order (my Freedom saved as `wod.freedom`
-shows under the library's PitFIRE Freedom; the PC&J EMOM saved as `wod.pcjEmom` likewise). The
-"last" score on the Choose rows uses the same rule (Freedom shows 19:37). Matcher in BarPathKit
+same name and the same segment kinds and movements in order (a Seesaw saved as `wod.seesaw`
+shows under the library's Seesaw; a PC&J EMOM saved as `wod.pcjEmom` likewise). The
+"last" score on the Choose rows uses the same rule. Matcher in BarPathKit
 (WorkoutHistory) with a Python reference and tests in both.
 
 **W14. A log of done cards (Now)**
@@ -318,11 +358,11 @@ shows the dashed `?` as today; older results without the key still open unchange
 
 **W20. An AMRAP that ends on a run scores the distance (Now)**
 As an athlete whose time cap hits during a run, I want the score to say how far I got on that run
-(e.g. "5 rounds + 44 reps + 41 m"), so I don't have to make up a rep count for a run.
+(e.g. "3 rounds + 20 reps + 150 m"), so I don't have to make up a rep count for a run.
 *Done when:* when the cap ends a run segment, the watch does not ask "Reps of …?"; the result keeps
 the run's measured distance (pedometer, or GPS once runs use it) as the partial and the score reads
 "+ <m> m" on the watch done screen, the report and the done card; for a station the reps question
-stays as today. (SunYay 2026-11-08: the cap hit 21 s and 41 m into the run; 11 "reps" were entered.)
+stays as today. (Seen in testing: the cap hit during a run and a made-up rep count was entered.)
 
 ### First workout (MVP, from the first tester: 2026-11-10)
 
@@ -439,7 +479,7 @@ switch to the right sensors and analysis for whatever comes next in the plan, so
 measured properly (a snatch gets bar speed, height and catch; a run gets GPS; a bike doesn't waste
 battery) without me choosing modes.
 *Done when:* in one session that has a barbell piece and a metcon (e.g. power snatch every 1:00 x 10,
-then Freedom), with one START:
+then a metcon), with one START:
 - **Olympic lifts** record 200 Hz motion + 800 Hz accel and give each lift its peak pull speed, max
   bar height and catch height, also without a still moment before the lift (the 2026-11-09 EMOM:
   today only 6 of 20 snatches could be analysed); **strength lifts** count reps with speed per rep;

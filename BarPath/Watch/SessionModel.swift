@@ -26,6 +26,8 @@ final class SessionModel: ObservableObject {
         // Strength mode (deadlift)
         case waitingForSet
         case reps(Int)
+        /// Between sets (#148): rest counting up since the date; detection off until the Crown.
+        case resting(since: Date)
     }
 
     // MARK: Settings (persisted)
@@ -79,6 +81,12 @@ final class SessionModel: ObservableObject {
     /// Strength mode: live reps in the set in progress, and the last finished set's reps.
     @Published private(set) var repCount = 0
     @Published private(set) var lastSetReps: Int?
+    /// Armed / in set / resting (#148), from the recorder.
+    @Published private(set) var cycleState: LiftCycle.State = .armed
+    /// Wall-clock start of the current rest (the last rep's top or the lift's end).
+    @Published private(set) var restStartDate: Date?
+    /// The rest taken before the current set (s), nil before the first rest.
+    @Published private(set) var lastRestSeconds: Double?
 
     static let kgPerLb = WeightUnit.kgPerLb
 
@@ -200,6 +208,9 @@ final class SessionModel: ObservableObject {
         recorder.onSetEnded = { [weak self] index, reps in
             self?.setEnded(index: index, reps: reps)
         }
+        recorder.onCycleChange = { [weak self] cycle in
+            self?.cycleChanged(cycle)
+        }
     }
 
     private func wireWorkoutCallbacks() {
@@ -280,6 +291,8 @@ final class SessionModel: ObservableObject {
         isRecordingCSV = false
         repCount = 0
         lastSetReps = nil
+        resetCycle()
+        lastRestSeconds = nil
         phase = .starting
         // Workouts area (W6): a workout's background recovery recording holds a HealthKit
         // session and only one can run; it is stopped first (at most ~1 s).
@@ -337,6 +350,9 @@ final class SessionModel: ObservableObject {
         detectorState = .idle
         marksCount = 0
         repCount = 0
+        resetCycle()
+        // A new block (after Change lift): the previous block's rest is not this one's.
+        lastRestSeconds = nil
         phase = .running
         sendStatus()
     }
@@ -362,6 +378,19 @@ final class SessionModel: ObservableObject {
         }
     }
 
+    /// Crown turn on the Rest screen (#148): arms detection for the next set. Start haptic.
+    func armNextSet() {
+        guard phase == .running, cycleState == .resting else { return }
+        if recorder.armNextSet() {
+            playHaptic(.start, minimumGap: 0)
+        }
+    }
+
+    /// Swipe left to the End page: everywhere except in a set (#148).
+    var canShowEndPage: Bool {
+        return phase != .running || cycleState != .inSet
+    }
+
     /// User marker in the debug CSV ("lift now", "bad rep", ...).
     func mark(label: String = "mark") {
         if let n = recorder.addMark(label: label) {
@@ -383,6 +412,9 @@ final class SessionModel: ObservableObject {
         case .starting: return .starting
         case .ending: return .ending
         case .running: break
+        }
+        if cycleState == .resting {
+            return .resting(since: restStartDate ?? date)
         }
         if isRepMode {
             if repCount > 0 { return .reps(repCount) }
@@ -489,6 +521,23 @@ final class SessionModel: ObservableObject {
         case .liftStarted, .disarmed:
             break
         }
+    }
+
+    private func cycleChanged(_ cycle: LiftCycle) {
+        cycleState = cycle.state
+        lastRestSeconds = cycle.lastRest
+        if cycle.state == .resting {
+            // Motion clock (uptime) → wall clock.
+            let ago = ProcessInfo.processInfo.systemUptime - cycle.since
+            restStartDate = Date().addingTimeInterval(-max(0, ago))
+        } else {
+            restStartDate = nil
+        }
+    }
+
+    private func resetCycle() {
+        cycleState = .armed
+        restStartDate = nil
     }
 
     private func repCountChanged(_ n: Int) {

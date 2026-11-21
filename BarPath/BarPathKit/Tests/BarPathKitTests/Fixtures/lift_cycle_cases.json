@@ -1,0 +1,257 @@
+{
+ "note": "LiftCycle cases (#148), from tools/tests/test_lift_cycle.py.",
+ "cases": {
+  "two_sets": {
+   "ops": [
+    [
+     "start",
+     0.0
+    ],
+    [
+     "setStarted",
+     3.0
+    ],
+    [
+     "setEnded",
+     20.0
+    ],
+    [
+     "arm",
+     140.5
+    ],
+    [
+     "setStarted",
+     143.0
+    ],
+    [
+     "setEnded",
+     160.0
+    ]
+   ],
+   "expected": [
+    {
+     "state": "armed",
+     "since": 0.0,
+     "armedAt": 0.0,
+     "lastRest": null,
+     "listening": true,
+     "canShowEndPage": true,
+     "ok": true
+    },
+    {
+     "state": "inSet",
+     "since": 0.0,
+     "armedAt": 0.0,
+     "lastRest": null,
+     "listening": true,
+     "canShowEndPage": false,
+     "ok": true
+    },
+    {
+     "state": "resting",
+     "since": 20.0,
+     "armedAt": 0.0,
+     "lastRest": null,
+     "listening": false,
+     "canShowEndPage": true,
+     "ok": true
+    },
+    {
+     "state": "armed",
+     "since": 140.5,
+     "armedAt": 140.5,
+     "lastRest": 120.5,
+     "listening": true,
+     "canShowEndPage": true,
+     "ok": true
+    },
+    {
+     "state": "inSet",
+     "since": 140.5,
+     "armedAt": 140.5,
+     "lastRest": 120.5,
+     "listening": true,
+     "canShowEndPage": false,
+     "ok": true
+    },
+    {
+     "state": "resting",
+     "since": 160.0,
+     "armedAt": 140.5,
+     "lastRest": 120.5,
+     "listening": false,
+     "canShowEndPage": true,
+     "ok": true
+    }
+   ]
+  },
+  "rest_ignores_events": {
+   "ops": [
+    [
+     "start",
+     0.0
+    ],
+    [
+     "setStarted",
+     2.0
+    ],
+    [
+     "setEnded",
+     10.0
+    ],
+    [
+     "setStarted",
+     30.0
+    ],
+    [
+     "setEnded",
+     31.0
+    ],
+    [
+     "arm",
+     40.0
+    ],
+    [
+     "arm",
+     41.0
+    ],
+    [
+     "setStarted",
+     42.0
+    ],
+    [
+     "arm",
+     43.0
+    ]
+   ],
+   "expected": [
+    {
+     "state": "armed",
+     "since": 0.0,
+     "armedAt": 0.0,
+     "lastRest": null,
+     "listening": true,
+     "canShowEndPage": true,
+     "ok": true
+    },
+    {
+     "state": "inSet",
+     "since": 0.0,
+     "armedAt": 0.0,
+     "lastRest": null,
+     "listening": true,
+     "canShowEndPage": false,
+     "ok": true
+    },
+    {
+     "state": "resting",
+     "since": 10.0,
+     "armedAt": 0.0,
+     "lastRest": null,
+     "listening": false,
+     "canShowEndPage": true,
+     "ok": true
+    },
+    {
+     "state": "resting",
+     "since": 10.0,
+     "armedAt": 0.0,
+     "lastRest": null,
+     "listening": false,
+     "canShowEndPage": true,
+     "ok": false
+    },
+    {
+     "state": "resting",
+     "since": 10.0,
+     "armedAt": 0.0,
+     "lastRest": null,
+     "listening": false,
+     "canShowEndPage": true,
+     "ok": false
+    },
+    {
+     "state": "armed",
+     "since": 40.0,
+     "armedAt": 40.0,
+     "lastRest": 30.0,
+     "listening": true,
+     "canShowEndPage": true,
+     "ok": true
+    },
+    {
+     "state": "armed",
+     "since": 40.0,
+     "armedAt": 40.0,
+     "lastRest": 30.0,
+     "listening": true,
+     "canShowEndPage": true,
+     "ok": false
+    },
+    {
+     "state": "inSet",
+     "since": 40.0,
+     "armedAt": 40.0,
+     "lastRest": 30.0,
+     "listening": true,
+     "canShowEndPage": false,
+     "ok": true
+    },
+    {
+     "state": "inSet",
+     "since": 40.0,
+     "armedAt": 40.0,
+     "lastRest": 30.0,
+     "listening": true,
+     "canShowEndPage": false,
+     "ok": false
+    }
+   ]
+  },
+  "end_while_armed": {
+   "ops": [
+    [
+     "start",
+     5.0
+    ],
+    [
+     "setEnded",
+     9.0
+    ],
+    [
+     "arm",
+     9.0
+    ]
+   ],
+   "expected": [
+    {
+     "state": "armed",
+     "since": 5.0,
+     "armedAt": 5.0,
+     "lastRest": null,
+     "listening": true,
+     "canShowEndPage": true,
+     "ok": true
+    },
+    {
+     "state": "resting",
+     "since": 9.0,
+     "armedAt": 5.0,
+     "lastRest": null,
+     "listening": false,
+     "canShowEndPage": true,
+     "ok": true
+    },
+    {
+     "state": "armed",
+     "since": 9.0,
+     "armedAt": 9.0,
+     "lastRest": 0.0,
+     "listening": true,
+     "canShowEndPage": true,
+     "ok": true
+    }
+   ]
+  }
+ }
+}

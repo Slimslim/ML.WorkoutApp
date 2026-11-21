@@ -54,10 +54,11 @@ What runs where:
   `BarPath/Package.resolved` and commit it. Until it is committed, the Xcode Cloud build stops in
   `ci_post_clone.sh` with a message that says so.
 
-Build numbers: Xcode Cloud sets the build number of every build it ships to TestFlight, so
-`CURRENT_PROJECT_VERSION` in `BarPath/project.yml` doesn't decide TestFlight numbers. The setting is
-in App Store Connect > Xcode Cloud > Settings > Build Number. It takes a whole number, so the next
-build is 17.
+Versions and build numbers (owner, 19 Nov): **the release name lives in the Version**
+(`MARKETING_VERSION` in `BarPath/project.yml`): release 17 = `0.17`, release 17.1 = `0.17.1`,
+release 18 = `0.18`. The **build number is only Xcode Cloud's counter** (it counts every Xcode Cloud
+build, PR checks included, so it jumps); our docs ignore it. `CURRENT_PROJECT_VERSION` in
+`project.yml` is not used for TestFlight.
 
 ## Rules
 
@@ -71,7 +72,7 @@ build is 17.
 | `ready` | approved, can be built |
 | `building` | claimed: a branch exists (`who` = branch, `claimed` = date) |
 | `in PR` | CI green + independent review done + a "not tested" list in the PR |
-| `in build N` | build N is on TestFlight, built from `main` |
+| `in 0.N` | release 0.N (the Version) is on TestFlight, built from `main` |
 | `device-tested` | the owner ticked the PR's device checklist (**only the owner sets it**) |
 | `with testers` | invites sent for that build |
 
@@ -86,18 +87,30 @@ build is 17.
   current build is merged.
 - **`main` is protected:** changes only through a PR with CI green (Python tests, BarPathKit tests +
   app builds); no force push, no deletion. Only the owner merges into `main`.
-- **Hotfix:** a crash in a build testers have goes on a short branch from that build's tag
-  (`claude/hotfix-16-<name>` from `build-16`), PR into `main` (review + CI), shipped as the next build
-  number; merge `main` into the open release branch afterwards.
-- **Builds come from `main` only.** The commit a TestFlight build is made from gets a git tag
-  (`build-15`). (Builds 7-14 came from an unmerged branch; never again.)
-- **Release branch (owner, 13 Nov):** each build has one branch cut from `main` (`claude/release-16`;
-  build 15 is `claude/funny-faraday-1adqio`). Workers branch from it and open PRs into it; the Scrum Master has each
-  reviewed by an independent reviewer and merges it into the build branch when CI is green and the
-  review says merge, otherwise the findings go back to the worker. The owner device-tests the build
-  branch and merges it into `main`; TestFlight is built from `main`.
-- **Build numbers:** `CURRENT_PROJECT_VERSION` in `BarPath/project.yml` (shared file), set once by
-  the PR that owns the build (named in the build's heading). Never reuse a number.
+- **Hotfix:** a crash in a release testers have goes on a short branch from that release's tag
+  (`claude/hotfix-0.17-<name>` from `v0.17`), PR into `main` (review + CI), shipped as the next patch
+  Version (`0.17.2`); merge `main` into the open release branch afterwards.
+- **Release candidates are tags (owner, 19 Nov).** When a release branch is ready for the owner's
+  test, the tag `vX.Y.Z-rcN` goes on its head (`v0.17.1-rc1`, then `-rc2` after fixes). Xcode Cloud's
+  TestFlight workflow builds every tag that starts with `v` and ships it to **internal testers only**.
+  The owner tests the RC. A new RC is needed after any change to the branch.
+- **Release (owner, 19 Nov).** After the owner approves an RC, the release branch is merged into
+  `main` and the tag `vX.Y.Z` (`v0.17.1`) goes on that merge commit; that build is the one for
+  external testers. Older releases keep their tags (`build-15`, `build-16`, `build-16.1`). (Builds
+  7-14 came from an unmerged branch; never again.)
+- **Who pushes tags:** cloud chats can push branches but not tags (GitHub refuses the push from this
+  environment, HTTP 403). Delivery names the commit; the owner creates the tag, either on GitHub
+  (Releases, then "Draft a new release", new tag, target the release branch, tick "Set as a
+  pre-release" for an RC) or on the Mac (`git tag -a v0.17.1-rc1 <sha> -m "0.17.1-rc1"` then
+  `git push origin v0.17.1-rc1`).
+- **Release branch (owner, 13 Nov):** each release has one branch cut from `main`
+  (`claude/release-17.1`; build 15 is `claude/funny-faraday-1adqio`). Workers branch from it and open
+  PRs into it; the Scrum Master has each reviewed by an independent reviewer and merges it into the
+  release branch when CI is green and the review says merge, otherwise the findings go back to the
+  worker. The owner tests an RC tag, then the branch is merged into `main` and tagged.
+- **Versions:** `MARKETING_VERSION` in `BarPath/project.yml` (shared file) is set once on the release
+  branch when it is cut (`0.17.1` on `claude/release-17.1`), in its own commit. Never reuse a Version.
+  Build numbers belong to Xcode Cloud; don't write them in docs, tickets or tester notes.
 - **Freeze:** a build freezes when its PR says so; after that only fixes from the owner's device
   test. Any other change needs the owner's OK and is listed under "Exceptions" in that build.
 - **Story ids:** take the next id free on `main` **and** in open PRs. A brief may use provisional
@@ -174,6 +187,8 @@ Order: W28 -> W27 -> W23. Dependencies:
   %/h. Recording only, no screen change. Status: in review (branch `claude/w29-recording-metadata`, [#77](https://github.com/Slimslim/ML.WorkoutApp/pull/77)), build 16.
   Not device-tested yet. Bug #79 (device test: phone fields always `unknown`): the phone skipped
   re-sending `phoneDevice` after a watch app reinstall; fix in review on `claude/w29-phone-device-fix`.
+  Follow-up [#82](https://github.com/Slimslim/ML.WorkoutApp/issues/82) (reinstall while the phone app is
+  suspended): build 17, the phone also re-sends when it becomes active; in review on `claude/b17-phone-active`.
 - **W23** needs a rule change before it is built: iOS does not say whether heart-rate read access was
   refused, so the banner follows "the last session received no heart rate" (`lastSessionReceivedHeartRate.v1`,
   written by the practice today; the real workout must write it too). Mockup approved 13 Nov.
@@ -190,6 +205,12 @@ The brief `docs/BUILD_17.md`: UI/UX design review with the
 testers' feedback, "add a workout from a photo or text" (server function, movement table, import
 log). Provisional labels R1-R2, I1-I6, M1 until the owner approves the brief. Email sign-up must be
 closed before the import ships. Builds 18+ during the beta: fixes only.
+
+Backend v2 (#70) goes live only after the database has a backup (owner, 19 Nov: Free plan, so no
+Supabase backups). Nightly dump to the owner's NAS, 14 nights kept, monthly restore test, a manual
+dump before any database change: `docs/BACKUP.md`, `tools/backup/`. Status: in review
+([#123](https://github.com/Slimslim/ML.WorkoutApp/pull/123)). Device-tested 19 Nov on the NAS: first
+backup OK (6.2 MB, 73 s), restore test OK (39 tables, every row).
 
 ## Backlog (after the beta; owner picks at the review)
 
@@ -210,7 +231,7 @@ closed before the import ships. Builds 18+ during the beta: fixes only.
 
 ## Data and server state (not code)
 
-- Gyms migration run on 11 Nov. Gym `blue-republic`: owner and tester B are members; 18 class rows
+- Gyms migration run on 11 Nov. The owner's gym: owner and tester B are members; 18 class rows
   belong to it; 2 training-data rows are private to the owner.
 - Email sign-up is still open (accepted for TestFlight); close it before any AI import ships.
 - Testers' programs are entered as private rows; gym programming only for gym members.

@@ -2,6 +2,21 @@
 
 Newest first. Paste the latest entry into "What to Test" for the build in App Store Connect.
 
+From release 17 on, an entry is named by its **Version** as testers see it in TestFlight
+(`0.17`, `0.17.1`, `0.18`). The build number in TestFlight is just Xcode Cloud's counter; ignore it.
+Older entries keep their build names (15, 16, 16.1).
+
+## 0.17.1
+
+(Draft: filled in when 0.17.1 is ready for testers.)
+- New app icon on iPhone (light, dark and tinted) and on Apple Watch.
+- Results page: your score, how it compares with last time, and up to three facts about your workout
+  (in progress).
+
+## 0.17
+
+(Draft: filled in after the owner's device test.)
+
 ## Build 16.1
 
 Same as build 16, plus:

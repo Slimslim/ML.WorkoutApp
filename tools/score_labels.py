@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Score detectors against the ground-truth labels in data/labels/ (docs/LABELS.md).
 
-    python3 tools/score_labels.py            # every label whose recordings are in data/cache/
-    python3 tools/score_labels.py --tol 5    # match window in seconds (default 3)
+    python3 tools/fetch_corpus.py --kind labels   # the labels live in private Storage, not in git
+    python3 tools/fetch_sessions.py               # their recordings, into data/cache/
+    python3 tools/score_labels.py                 # every label whose recordings are in data/cache/
+    python3 tools/score_labels.py --tol 5         # match window in seconds (default 3)
+    python3 tools/score_labels.py --labels DIR --cache DIR   # other folders (the CI fixture)
 
 Workout sessions, two questions:
   switches  - does the detector put a "new movement" boundary where the athlete really changed
@@ -146,13 +149,25 @@ def has_cache(d: dict) -> bool:
     return all(L.cache_path(d, k).exists() for k in ("csv", "result"))
 
 
-def main() -> int:
+def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--tol", type=float, default=3.0, help="match window, seconds")
     ap.add_argument("--record", action="store_true", help="append the scores to data/eval/history.jsonl")
-    args = ap.parse_args()
+    ap.add_argument("--labels", type=Path, default=L.LABELS_DIR, help="label folder (default data/labels)")
+    ap.add_argument("--cache", type=Path, default=None, help="recordings folder (default data/cache)")
+    args = ap.parse_args(argv)
+    if args.record and Path(args.labels).resolve() != L.LABELS_DIR.resolve():
+        print("--record only scores the real labels (data/labels): refusing with --labels", file=sys.stderr)
+        return 2
+    if args.cache is not None:
+        L.CACHE_DIR = args.cache
+    files = L.all_label_files(args.labels)
+    if not files:
+        print(f"No labels in {args.labels}: they live in private Storage. "
+              "Fetch them with: python3 tools/fetch_corpus.py --kind labels")
+        return 0
     work, lifts, missing, records, flagged = [], [], [], [], []
-    for p in L.all_label_files():
+    for p in files:
         d = L.load(p)
         errs = L.validate(d)
         if errs:

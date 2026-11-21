@@ -127,7 +127,12 @@ class SetTracker:
     RepCounter runs on the last `countWindow` s only; a rep is confirmed once its top is
     `settle` s old and is appended (never recomputed) if it starts after the last confirmed
     rep. The set ends `setEndGap` s after the last *detected* rep (confirmed or not), so slow
-    sets are not split; a set whose recording would exceed `maxHistory` s is ended there."""
+    sets are not split; a set whose recording would exceed `maxHistory` s is ended there.
+
+    `armedFrom` (#148): reps that start before it are never counted. The watch sets it to the
+    Crown-turn time when the next set is armed, and to +inf while resting, so motion at rest
+    (a hand shake) can't make a set; the sample history is kept, so the set recording still
+    gets its pre-roll from before the Crown turn."""
     cfg: RepConfig = RepConfig()
     setEndGap: float = 6.0
     preRoll: float = 3.0
@@ -135,6 +140,7 @@ class SetTracker:
     idleHistory: float = 20.0
     countWindow: float = 30.0
     maxHistory: float = 180.0
+    armedFrom: float = -np.inf
 
     def __post_init__(self):
         self.live: List[Rep] = []
@@ -158,6 +164,7 @@ class SetTracker:
         i = self.idx[t[self.idx] >= latest - self.countWindow]
         reps = count_reps(t[i], ua[i], g[i], self.cfg).reps
         after = self.live[-1].end if self.live else -np.inf
+        reps = [r for r in reps if r.start >= self.armedFrom]
         new = [r for r in reps if r.start > after and r.end <= latest - self.settle]
         if new:
             self.live += new
@@ -176,7 +183,8 @@ class SetTracker:
             latest = t[i[-1]]
             i = i[t[i] >= latest - self.countWindow]
             after = self.live[-1].end if self.live else -np.inf
-            self.live += [r for r in count_reps(t[i], ua[i], g[i], self.cfg).reps if r.start > after]
+            self.live += [r for r in count_reps(t[i], ua[i], g[i], self.cfg).reps
+                          if r.start > after and r.start >= self.armedFrom]
         return self._finish() if self.live else None
 
     def _finish(self):
