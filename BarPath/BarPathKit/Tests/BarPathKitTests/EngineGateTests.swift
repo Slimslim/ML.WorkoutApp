@@ -38,11 +38,51 @@ final class EngineGateTests: XCTestCase {
         return try Data(contentsOf: url)
     }
 
+    struct GoldenResult: Decodable, Equatable {
+        let totalSeconds: Double
+        let finished: Bool
+        let isCapped: Bool
+        let capSegmentIndex: Int?
+        let partialRepsLimit: Int?
+        let repsAtCapLimit: Int?
+        let partialReps: Int?
+        let repsAtCap: Int?
+        let capPositionText: String?
+        let runSeconds: Double
+        let stationSeconds: Double
+    }
+
     struct GoldenTrace: Decodable {
         let events: [Event]
         let starts: [Double]
         let finish: Double?
         let splits: [SegmentResult]
+        let result: GoldenResult
+    }
+
+    /// Reps entered on the watch after a cap finish (engine_gate.PARTIAL_REPS).
+    static let partialReps: Int = 7
+
+    /// The result the watch writes at End (WorkoutSessionModel.makeResult), as engine_gate.result_fields.
+    static func resultFields(_ p: WorkoutProgress, splits: [SegmentResult], end: Double) -> GoldenResult {
+        let start: Double = p.startTime ?? end
+        let finish: Double? = p.finishTime
+        var r = WorkoutResult(definition: p.definition, startDate: Date(timeIntervalSince1970: start),
+                              finishDate: finish.map { (t: Double) -> Date in Date(timeIntervalSince1970: t) },
+                              endDate: Date(timeIntervalSince1970: end), totalSeconds: (finish ?? end) - start,
+                              segments: splits, events: p.events)
+        if finish != nil {
+            if r.isCapped {
+                r.repsAtCap = Swift.min(Swift.max(0, partialReps), r.repsAtCapLimit ?? partialReps)
+            } else {
+                r.partialReps = Swift.min(Swift.max(0, partialReps), r.partialRepsLimit ?? partialReps)
+            }
+        }
+        return GoldenResult(totalSeconds: r.totalSeconds, finished: finish != nil, isCapped: r.isCapped,
+                            capSegmentIndex: r.capSegmentIndex, partialRepsLimit: r.partialRepsLimit,
+                            repsAtCapLimit: r.repsAtCapLimit, partialReps: r.partialReps,
+                            repsAtCap: r.repsAtCap, capPositionText: r.capPositionText,
+                            runSeconds: r.runSeconds, stationSeconds: r.stationSeconds)
     }
 
     struct GoldenCase: Decodable {
@@ -183,7 +223,25 @@ final class EngineGateTests: XCTestCase {
                 let want: GoldenTrace = c.traces[i]
                 for engineOn in [false, true] {
                     let label: String = "\(c.name) script \(i) engine \(engineOn ? "new" : "classic")"
+                    var p: WorkoutProgress = RepeatBlock.startProgress(for: c.definition, engineOn: engineOn)
+                    _ = RepeatBlockProgressTests.run(&p, script: script)
+                    var end: Double = 0
+                    for a in script where a.t > end {
+                        end = a.t
+                    }
                     let got: Run = EngineGateTests.run(c.definition, engineOn: engineOn, script: script)
+                    let result: GoldenResult = EngineGateTests.resultFields(p, splits: got.splits, end: end)
+                    XCTAssertEqual(result.finished, want.result.finished, label)
+                    XCTAssertEqual(result.isCapped, want.result.isCapped, label)
+                    XCTAssertEqual(result.capSegmentIndex, want.result.capSegmentIndex, label)
+                    XCTAssertEqual(result.partialRepsLimit, want.result.partialRepsLimit, label)
+                    XCTAssertEqual(result.repsAtCapLimit, want.result.repsAtCapLimit, label)
+                    XCTAssertEqual(result.partialReps, want.result.partialReps, label)
+                    XCTAssertEqual(result.repsAtCap, want.result.repsAtCap, label)
+                    XCTAssertEqual(result.capPositionText, want.result.capPositionText, label)
+                    XCTAssertEqual(result.totalSeconds, want.result.totalSeconds, accuracy: 1e-9, label)
+                    XCTAssertEqual(result.runSeconds, want.result.runSeconds, accuracy: 1e-9, label)
+                    XCTAssertEqual(result.stationSeconds, want.result.stationSeconds, accuracy: 1e-9, label)
                     XCTAssertEqual(got.events, want.events, label)
                     XCTAssertEqual(got.finish, want.finish, label)
                     XCTAssertEqual(got.starts.count, want.starts.count, label)

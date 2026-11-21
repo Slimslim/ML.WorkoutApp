@@ -829,7 +829,20 @@
        "end": 592.0,
        "duration": 37.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 592.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 100,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 296.0,
+      "stationSeconds": 296.0
+     }
     },
     {
      "events": [
@@ -1148,7 +1161,20 @@
        "end": 283.0,
        "duration": 41.5
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 283.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 100,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 150.5,
+      "stationSeconds": 132.5
+     }
     },
     {
      "events": [
@@ -1173,7 +1199,20 @@
        "end": 6000.0,
        "duration": 6000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 6000.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 6000.0,
+      "stationSeconds": 0
+     }
     },
     {
      "events": [
@@ -1444,7 +1483,20 @@
        "end": 1440.0,
        "duration": 90.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 1440.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 100,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 720.0,
+      "stationSeconds": 720.0
+     }
     },
     {
      "events": [
@@ -1507,7 +1559,20 @@
        "end": 150.0,
        "duration": 68.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 109.0,
+      "stationSeconds": 41.0
+     }
     },
     {
      "events": [
@@ -1724,7 +1789,20 @@
        "end": 4217.0,
        "duration": 4030.6
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4217.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 4214.599999999999,
+      "stationSeconds": 2.40000000000002
+     }
     },
     {
      "events": [
@@ -1777,7 +1855,20 @@
        "end": 4205.0,
        "duration": 4000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4205.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 205.0,
+      "stationSeconds": 4000.0
+     }
     }
    ]
   },
@@ -2608,7 +2699,20 @@
        "end": 592.0,
        "duration": 37.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 592.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 100,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 296.0,
+      "stationSeconds": 296.0
+     }
     },
     {
      "events": [
@@ -2927,7 +3031,20 @@
        "end": 283.0,
        "duration": 41.5
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 283.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 100,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 150.5,
+      "stationSeconds": 132.5
+     }
     },
     {
      "events": [
@@ -2952,7 +3069,20 @@
        "end": 6000.0,
        "duration": 6000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 6000.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 6000.0,
+      "stationSeconds": 0
+     }
     },
     {
      "events": [
@@ -3223,7 +3353,20 @@
        "end": 1440.0,
        "duration": 90.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 1440.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 100,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 720.0,
+      "stationSeconds": 720.0
+     }
     },
     {
      "events": [
@@ -3286,7 +3429,20 @@
        "end": 150.0,
        "duration": 68.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 109.0,
+      "stationSeconds": 41.0
+     }
     },
     {
      "events": [
@@ -3503,7 +3659,20 @@
        "end": 4217.0,
        "duration": 4030.6
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4217.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 4214.599999999999,
+      "stationSeconds": 2.40000000000002
+     }
     },
     {
      "events": [
@@ -3556,7 +3725,20 @@
        "end": 4205.0,
        "duration": 4000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4205.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 205.0,
+      "stationSeconds": 4000.0
+     }
     }
    ]
   },
@@ -4387,7 +4569,20 @@
        "end": 592.0,
        "duration": 37.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 592.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 50,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 296.0,
+      "stationSeconds": 296.0
+     }
     },
     {
      "events": [
@@ -4706,7 +4901,20 @@
        "end": 283.0,
        "duration": 41.5
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 283.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 50,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 150.5,
+      "stationSeconds": 132.5
+     }
     },
     {
      "events": [
@@ -4731,7 +4939,20 @@
        "end": 6000.0,
        "duration": 6000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 6000.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 6000.0,
+      "stationSeconds": 0
+     }
     },
     {
      "events": [
@@ -5002,7 +5223,20 @@
        "end": 1440.0,
        "duration": 90.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 1440.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 50,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 720.0,
+      "stationSeconds": 720.0
+     }
     },
     {
      "events": [
@@ -5065,7 +5299,20 @@
        "end": 150.0,
        "duration": 68.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 109.0,
+      "stationSeconds": 41.0
+     }
     },
     {
      "events": [
@@ -5282,7 +5529,20 @@
        "end": 4217.0,
        "duration": 4030.6
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4217.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 4214.599999999999,
+      "stationSeconds": 2.40000000000002
+     }
     },
     {
      "events": [
@@ -5335,7 +5595,20 @@
        "end": 4205.0,
        "duration": 4000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4205.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 205.0,
+      "stationSeconds": 4000.0
+     }
     }
    ]
   },
@@ -5956,7 +6229,20 @@
        "end": 370.0,
        "duration": 37.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 370.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 185.0,
+      "stationSeconds": 185.0
+     }
     },
     {
      "events": [
@@ -6167,7 +6453,20 @@
        "end": 215.5,
        "duration": 67.5
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 215.5,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 96.0,
+      "stationSeconds": 119.5
+     }
     },
     {
      "events": [
@@ -6192,7 +6491,20 @@
        "end": 6000.0,
        "duration": 6000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 6000.0,
+      "finished": false,
+      "isCapped": true,
+      "capSegmentIndex": 0,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": "in Run (R1)",
+      "runSeconds": 6000.0,
+      "stationSeconds": 0
+     }
     },
     {
      "events": [
@@ -6367,7 +6679,20 @@
        "end": 900.0,
        "duration": 90.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 900.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 450.0,
+      "stationSeconds": 450.0
+     }
     },
     {
      "events": [
@@ -6430,7 +6755,20 @@
        "end": 150.0,
        "duration": 68.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 109.0,
+      "stationSeconds": 41.0
+     }
     },
     {
      "events": [
@@ -6605,7 +6943,20 @@
        "end": 155.4,
        "duration": 0.4000000000000057
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 155.4,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 153.39999999999998,
+      "stationSeconds": 2.000000000000014
+     }
     },
     {
      "events": [
@@ -6658,7 +7009,20 @@
        "end": 4205.0,
        "duration": 4000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4205.0,
+      "finished": false,
+      "isCapped": true,
+      "capSegmentIndex": 1,
+      "partialRepsLimit": 80,
+      "repsAtCapLimit": 80,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": "in Wall Balls (R1)",
+      "runSeconds": 205.0,
+      "stationSeconds": 4000.0
+     }
     }
    ]
   },
@@ -7065,7 +7429,20 @@
        "end": 185.0,
        "duration": 37.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 185.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 185.0
+     }
     },
     {
      "events": [
@@ -7184,7 +7561,20 @@
        "end": 148.0,
        "duration": 96.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 148.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 148.0
+     }
     },
     {
      "events": [
@@ -7209,7 +7599,20 @@
        "end": 6000.0,
        "duration": 6000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 6000.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 6000.0
+     }
     },
     {
      "events": [
@@ -7304,7 +7707,20 @@
        "end": 450.0,
        "duration": 90.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 450.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 450.0
+     }
     },
     {
      "events": [
@@ -7367,7 +7783,20 @@
        "end": 150.0,
        "duration": 68.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 150.0
+     }
     },
     {
      "events": [
@@ -7462,7 +7891,20 @@
        "end": 93.0,
        "duration": 30.6
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 93.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 93.0
+     }
     },
     {
      "events": [
@@ -7515,7 +7957,20 @@
        "end": 4205.0,
        "duration": 4000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4205.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 4205.0
+     }
     }
    ]
   },
@@ -10091,7 +10546,20 @@
        "end": 2400.0,
        "duration": 32.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 2400.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 2400.0
+     }
     },
     {
      "events": [
@@ -11126,7 +11594,20 @@
        "end": 2400.0,
        "duration": 1509.5
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 2400.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 2400.0
+     }
     },
     {
      "events": [
@@ -11157,7 +11638,20 @@
        "end": 2400.0,
        "duration": 2400.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 2400.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 2400.0
+     }
     },
     {
      "events": [
@@ -11700,7 +12194,20 @@
        "end": 2400.0,
        "duration": 60.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 2400.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 25,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 2400.0
+     }
     },
     {
      "events": [
@@ -11763,7 +12270,20 @@
        "end": 150.0,
        "duration": 68.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 25,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 150.0
+     }
     },
     {
      "events": [
@@ -11986,7 +12506,20 @@
        "end": 2400.0,
        "duration": 2213.6
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 2400.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 25,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 2400.0
+     }
     },
     {
      "events": [
@@ -12045,7 +12578,20 @@
        "end": 2400.0,
        "duration": 2195.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 2400.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 20,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 2400.0
+     }
     }
    ]
   },
@@ -12614,7 +13160,20 @@
        "end": 333.0,
        "duration": 37.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 333.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 111.0,
+      "stationSeconds": 222.0
+     }
     },
     {
      "events": [
@@ -12803,7 +13362,20 @@
        "end": 4202.5,
        "duration": 4083.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4202.5,
+      "finished": false,
+      "isCapped": true,
+      "capSegmentIndex": 8,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": 12,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": "in Pull-ups (R3)",
+      "runSeconds": 39.0,
+      "stationSeconds": 4163.5
+     }
     },
     {
      "events": [
@@ -12828,7 +13400,20 @@
        "end": 6000.0,
        "duration": 6000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 6000.0,
+      "finished": false,
+      "isCapped": true,
+      "capSegmentIndex": 0,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": "in Run (R1)",
+      "runSeconds": 6000.0,
+      "stationSeconds": 0
+     }
     },
     {
      "events": [
@@ -12987,7 +13572,20 @@
        "end": 810.0,
        "duration": 90.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 810.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 270.0,
+      "stationSeconds": 540.0
+     }
     },
     {
      "events": [
@@ -13050,7 +13648,20 @@
        "end": 150.0,
        "duration": 68.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 41.0,
+      "stationSeconds": 109.0
+     }
     },
     {
      "events": [
@@ -13209,7 +13820,20 @@
        "end": 155.0,
        "duration": 30.599999999999994
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 155.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 61.99999999999999,
+      "stationSeconds": 93.0
+     }
     },
     {
      "events": [
@@ -13262,7 +13886,20 @@
        "end": 4205.0,
        "duration": 4000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4205.0,
+      "finished": false,
+      "isCapped": true,
+      "capSegmentIndex": 1,
+      "partialRepsLimit": 21,
+      "repsAtCapLimit": 21,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": "in KB Swings (R1)",
+      "runSeconds": 205.0,
+      "stationSeconds": 4000.0
+     }
     }
    ]
   },
@@ -14112,7 +14749,20 @@
        "end": 518.0,
        "duration": 37.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 518.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 518.0
+     }
     },
     {
      "events": [
@@ -14447,7 +15097,20 @@
        "end": 283.0,
        "duration": 41.5
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 283.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 283.0
+     }
     },
     {
      "events": [
@@ -14734,7 +15397,20 @@
        "end": 1080.0,
        "duration": 0.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 1080.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 1080.0
+     }
     },
     {
      "events": [
@@ -15021,7 +15697,20 @@
        "end": 990.0,
        "duration": 90.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 990.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 990.0
+     }
     },
     {
      "events": [
@@ -15084,7 +15773,20 @@
        "end": 150.0,
        "duration": 68.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 150.0
+     }
     },
     {
      "events": [
@@ -15371,7 +16073,20 @@
        "end": 540.0,
        "duration": 0.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 540.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 540.0
+     }
     },
     {
      "events": [
@@ -15670,7 +16385,20 @@
        "end": 1080.0,
        "duration": 0.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 1080.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 1080.0
+     }
     }
    ]
   },
@@ -17924,7 +18652,20 @@
        "end": 2220.0,
        "duration": 37.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 2220.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 2220.0
+     }
     },
     {
      "events": [
@@ -18953,7 +19694,20 @@
        "end": 4890.5,
        "duration": 4000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4890.5,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 4890.5
+     }
     },
     {
      "events": [
@@ -18978,7 +19732,20 @@
        "end": 6000.0,
        "duration": 6000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 6000.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 6000.0
+     }
     },
     {
      "events": [
@@ -19953,7 +20720,20 @@
        "end": 5400.0,
        "duration": 90.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 5400.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 5400.0
+     }
     },
     {
      "events": [
@@ -20016,7 +20796,20 @@
        "end": 150.0,
        "duration": 68.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 150.0
+     }
     },
     {
      "events": [
@@ -20233,7 +21026,20 @@
        "end": 4217.0,
        "duration": 4030.6
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4217.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 4217.0
+     }
     },
     {
      "events": [
@@ -20286,7 +21092,20 @@
        "end": 4205.0,
        "duration": 4000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4205.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 4205.0
+     }
     }
    ]
   },
@@ -21914,7 +22733,20 @@
        "end": 1200.0,
        "duration": 16.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 1200.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 1200.0
+     }
     },
     {
      "events": [
@@ -22645,7 +23477,20 @@
        "end": 1200.0,
        "duration": 579.5
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 1200.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 31,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 1200.0
+     }
     },
     {
      "events": [
@@ -22676,7 +23521,20 @@
        "end": 1200.0,
        "duration": 1200.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 1200.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 1200.0
+     }
     },
     {
      "events": [
@@ -22915,7 +23773,20 @@
        "end": 1200.0,
        "duration": 30.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 1200.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 31,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 1200.0
+     }
     },
     {
      "events": [
@@ -22978,7 +23849,20 @@
        "end": 150.0,
        "duration": 68.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 150.0
+     }
     },
     {
      "events": [
@@ -23201,7 +24085,20 @@
        "end": 1200.0,
        "duration": 1013.6
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 1200.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 1200.0
+     }
     },
     {
      "events": [
@@ -23260,7 +24157,20 @@
        "end": 1200.0,
        "duration": 995.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 1200.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 31,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 1200.0
+     }
     }
    ]
   },
@@ -23622,7 +24532,20 @@
        "end": 148.0,
        "duration": 37.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 148.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 74.0,
+      "stationSeconds": 74.0
+     }
     },
     {
      "events": [
@@ -23719,7 +24642,20 @@
        "end": 4135.0,
        "duration": 4096.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4135.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 26.0,
+      "stationSeconds": 4109.0
+     }
     },
     {
      "events": [
@@ -23744,7 +24680,20 @@
        "end": 6000.0,
        "duration": 6000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 6000.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 6000.0,
+      "stationSeconds": 0
+     }
     },
     {
      "events": [
@@ -23823,7 +24772,20 @@
        "end": 360.0,
        "duration": 90.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 360.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 180.0,
+      "stationSeconds": 180.0
+     }
     },
     {
      "events": [
@@ -23886,7 +24848,20 @@
        "end": 150.0,
        "duration": 68.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 109.0,
+      "stationSeconds": 41.0
+     }
     },
     {
      "events": [
@@ -23965,7 +24940,20 @@
        "end": 62.4,
        "duration": 0.3999999999999986
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 62.4,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 61.6,
+      "stationSeconds": 0.7999999999999972
+     }
     },
     {
      "events": [
@@ -24018,7 +25006,20 @@
        "end": 4205.0,
        "duration": 4000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4205.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 20,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 205.0,
+      "stationSeconds": 4000.0
+     }
     }
    ]
   },
@@ -24849,7 +25850,20 @@
        "end": 592.0,
        "duration": 37.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 592.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 50,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 296.0,
+      "stationSeconds": 296.0
+     }
     },
     {
      "events": [
@@ -25168,7 +26182,20 @@
        "end": 283.0,
        "duration": 41.5
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 283.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 50,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 150.5,
+      "stationSeconds": 132.5
+     }
     },
     {
      "events": [
@@ -25193,7 +26220,20 @@
        "end": 6000.0,
        "duration": 6000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 6000.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 6000.0,
+      "stationSeconds": 0
+     }
     },
     {
      "events": [
@@ -25464,7 +26504,20 @@
        "end": 1440.0,
        "duration": 90.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 1440.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 50,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 720.0,
+      "stationSeconds": 720.0
+     }
     },
     {
      "events": [
@@ -25527,7 +26580,20 @@
        "end": 150.0,
        "duration": 68.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 109.0,
+      "stationSeconds": 41.0
+     }
     },
     {
      "events": [
@@ -25744,7 +26810,20 @@
        "end": 4217.0,
        "duration": 4030.6
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4217.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 4214.599999999999,
+      "stationSeconds": 2.40000000000002
+     }
     },
     {
      "events": [
@@ -25797,7 +26876,20 @@
        "end": 4205.0,
        "duration": 4000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4205.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 205.0,
+      "stationSeconds": 4000.0
+     }
     }
    ]
   },
@@ -26628,7 +27720,20 @@
        "end": 592.0,
        "duration": 37.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 592.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 50,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 296.0,
+      "stationSeconds": 296.0
+     }
     },
     {
      "events": [
@@ -26947,7 +28052,20 @@
        "end": 283.0,
        "duration": 41.5
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 283.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 50,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 150.5,
+      "stationSeconds": 132.5
+     }
     },
     {
      "events": [
@@ -26972,7 +28090,20 @@
        "end": 6000.0,
        "duration": 6000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 6000.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 6000.0,
+      "stationSeconds": 0
+     }
     },
     {
      "events": [
@@ -27243,7 +28374,20 @@
        "end": 1440.0,
        "duration": 90.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 1440.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 50,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 720.0,
+      "stationSeconds": 720.0
+     }
     },
     {
      "events": [
@@ -27306,7 +28450,20 @@
        "end": 150.0,
        "duration": 68.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 109.0,
+      "stationSeconds": 41.0
+     }
     },
     {
      "events": [
@@ -27523,7 +28680,20 @@
        "end": 4217.0,
        "duration": 4030.6
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4217.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 4214.599999999999,
+      "stationSeconds": 2.40000000000002
+     }
     },
     {
      "events": [
@@ -27576,7 +28746,20 @@
        "end": 4205.0,
        "duration": 4000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4205.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 205.0,
+      "stationSeconds": 4000.0
+     }
     }
    ]
   },
@@ -27984,7 +29167,20 @@
        "end": 185.0,
        "duration": 37.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 185.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 37.0,
+      "stationSeconds": 148.0
+     }
     },
     {
      "events": [
@@ -28103,7 +29299,20 @@
        "end": 148.0,
        "duration": 96.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 148.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 96.0,
+      "stationSeconds": 52.0
+     }
     },
     {
      "events": [
@@ -28128,7 +29337,20 @@
        "end": 6000.0,
        "duration": 6000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 6000.0,
+      "finished": false,
+      "isCapped": true,
+      "capSegmentIndex": 0,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": "in Row",
+      "runSeconds": 0,
+      "stationSeconds": 6000.0
+     }
     },
     {
      "events": [
@@ -28223,7 +29445,20 @@
        "end": 450.0,
        "duration": 90.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 450.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 90.0,
+      "stationSeconds": 360.0
+     }
     },
     {
      "events": [
@@ -28286,7 +29521,20 @@
        "end": 150.0,
        "duration": 68.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 30,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 150.0
+     }
     },
     {
      "events": [
@@ -28381,7 +29629,20 @@
        "end": 93.0,
        "duration": 30.6
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 93.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 30.6,
+      "stationSeconds": 62.4
+     }
     },
     {
      "events": [
@@ -28434,7 +29695,20 @@
        "end": 4205.0,
        "duration": 4000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4205.0,
+      "finished": false,
+      "isCapped": true,
+      "capSegmentIndex": 1,
+      "partialRepsLimit": 40,
+      "repsAtCapLimit": 40,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": "in Wall Balls",
+      "runSeconds": 0,
+      "stationSeconds": 4205.0
+     }
     }
    ]
   },
@@ -29235,7 +30509,20 @@
        "end": 300.0,
        "duration": 0.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 300.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 300.0
+     }
     },
     {
      "events": [
@@ -29554,7 +30841,20 @@
        "end": 283.0,
        "duration": 109.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 283.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 283.0
+     }
     },
     {
      "events": [
@@ -29825,7 +31125,20 @@
        "end": 480.0,
        "duration": 0.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 480.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 480.0
+     }
     },
     {
      "events": [
@@ -30096,7 +31409,20 @@
        "end": 480.0,
        "duration": 30.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 480.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 480.0
+     }
     },
     {
      "events": [
@@ -30191,7 +31517,20 @@
        "end": 150.0,
        "duration": 30.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 3,
+      "repsAtCapLimit": null,
+      "partialReps": 3,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 150.0
+     }
     },
     {
      "events": [
@@ -30462,7 +31801,20 @@
        "end": 180.0,
        "duration": 0.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 180.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 180.0
+     }
     },
     {
      "events": [
@@ -30745,7 +32097,20 @@
        "end": 480.0,
        "duration": 0.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 480.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 480.0
+     }
     }
    ]
   },
@@ -31578,7 +32943,20 @@
        "end": 180.0,
        "duration": 0.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 180.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 180.0
+     }
     },
     {
      "events": [
@@ -31897,7 +33275,20 @@
        "end": 283.0,
        "duration": 163.5
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 283.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 283.0
+     }
     },
     {
      "events": [
@@ -32168,7 +33559,20 @@
        "end": 240.0,
        "duration": 0.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 240.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 240.0
+     }
     },
     {
      "events": [
@@ -32439,7 +33843,20 @@
        "end": 190.0,
        "duration": 10.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 190.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 190.0
+     }
     },
     {
      "events": [
@@ -32662,7 +34079,20 @@
        "end": 150.0,
        "duration": 0.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 150.0
+     }
     },
     {
      "events": [
@@ -32933,7 +34363,20 @@
        "end": 124.4,
        "duration": 0.4000000000000057
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 124.4,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 124.4
+     }
     },
     {
      "events": [
@@ -33216,7 +34659,20 @@
        "end": 210.0,
        "duration": 0.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 210.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 210.0
+     }
     }
    ]
   },
@@ -33959,7 +35415,20 @@
        "end": 407.0,
        "duration": 37.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 407.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 407.0
+     }
     },
     {
      "events": [
@@ -34246,7 +35715,20 @@
        "end": 360.0,
        "duration": 173.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 360.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 360.0
+     }
     },
     {
      "events": [
@@ -34485,7 +35967,20 @@
        "end": 900.0,
        "duration": 0.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 900.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 900.0
+     }
     },
     {
      "events": [
@@ -34724,7 +36219,20 @@
        "end": 810.0,
        "duration": 90.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 810.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 810.0
+     }
     },
     {
      "events": [
@@ -34787,7 +36295,20 @@
        "end": 150.0,
        "duration": 68.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 150.0
+     }
     },
     {
      "events": [
@@ -35026,7 +36547,20 @@
        "end": 186.4,
        "duration": 0.4000000000000057
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 186.4,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 186.4
+     }
     },
     {
      "events": [
@@ -35277,7 +36811,20 @@
        "end": 900.0,
        "duration": 0.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 900.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 900.0
+     }
     }
    ]
   },
@@ -35883,7 +37430,20 @@
        "end": 370.0,
        "duration": 37.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 370.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 15,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 370.0
+     }
     },
     {
      "events": [
@@ -36094,7 +37654,20 @@
        "end": 215.5,
        "duration": 67.5
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 215.5,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 15,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 215.5
+     }
     },
     {
      "events": [
@@ -36119,7 +37692,20 @@
        "end": 6000.0,
        "duration": 6000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 6000.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 6000.0
+     }
     },
     {
      "events": [
@@ -36294,7 +37880,20 @@
        "end": 900.0,
        "duration": 90.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 900.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 15,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 900.0
+     }
     },
     {
      "events": [
@@ -36357,7 +37956,20 @@
        "end": 150.0,
        "duration": 68.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 150.0
+     }
     },
     {
      "events": [
@@ -36532,7 +38144,20 @@
        "end": 155.4,
        "duration": 0.4000000000000057
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 155.4,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 15,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 155.4
+     }
     },
     {
      "events": [
@@ -36585,7 +38210,20 @@
        "end": 4205.0,
        "duration": 4000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4205.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 15,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 4205.0
+     }
     }
    ]
   },
@@ -37345,7 +38983,20 @@
        "end": 720.0,
        "duration": 128.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 720.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 720.0
+     }
     },
     {
      "events": [
@@ -37652,7 +39303,20 @@
        "end": 720.0,
        "duration": 478.5
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 720.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 720.0
+     }
     },
     {
      "events": [
@@ -37683,7 +39347,20 @@
        "end": 720.0,
        "duration": 720.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 720.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 720.0
+     }
     },
     {
      "events": [
@@ -37826,7 +39503,20 @@
        "end": 720.0,
        "duration": 90.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 720.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 720.0
+     }
     },
     {
      "events": [
@@ -37889,7 +39579,20 @@
        "end": 150.0,
        "duration": 68.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 15,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 150.0
+     }
     },
     {
      "events": [
@@ -38112,7 +39815,20 @@
        "end": 720.0,
        "duration": 533.6
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 720.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 720.0
+     }
     },
     {
      "events": [
@@ -38171,7 +39887,20 @@
        "end": 720.0,
        "duration": 515.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 720.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 5,
+      "repsAtCapLimit": null,
+      "partialReps": 5,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 720.0
+     }
     }
    ]
   },
@@ -38614,7 +40343,20 @@
        "end": 600.0,
        "duration": 304.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 600.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 600.0
+     }
     },
     {
      "events": [
@@ -38797,7 +40539,20 @@
        "end": 600.0,
        "duration": 480.5
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 600.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 600.0
+     }
     },
     {
      "events": [
@@ -38828,7 +40583,20 @@
        "end": 600.0,
        "duration": 600.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 600.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 600.0
+     }
     },
     {
      "events": [
@@ -38955,7 +40723,20 @@
        "end": 600.0,
        "duration": 60.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 600.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 15,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 600.0
+     }
     },
     {
      "events": [
@@ -39018,7 +40799,20 @@
        "end": 150.0,
        "duration": 68.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 15,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 150.0
+     }
     },
     {
      "events": [
@@ -39177,7 +40971,20 @@
        "end": 600.0,
        "duration": 475.6
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 600.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 600.0
+     }
     },
     {
      "events": [
@@ -39236,7 +41043,20 @@
        "end": 600.0,
        "duration": 395.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 600.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 5,
+      "repsAtCapLimit": null,
+      "partialReps": 5,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 600.0
+     }
     }
    ]
   },
@@ -39805,7 +41625,20 @@
        "end": 333.0,
        "duration": 37.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 333.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 111.0,
+      "stationSeconds": 222.0
+     }
     },
     {
      "events": [
@@ -39994,7 +41827,20 @@
        "end": 4202.5,
        "duration": 4083.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4202.5,
+      "finished": false,
+      "isCapped": true,
+      "capSegmentIndex": 8,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": 12,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": "in Pull-ups (R3)",
+      "runSeconds": 39.0,
+      "stationSeconds": 4163.5
+     }
     },
     {
      "events": [
@@ -40019,7 +41865,20 @@
        "end": 6000.0,
        "duration": 6000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 6000.0,
+      "finished": false,
+      "isCapped": true,
+      "capSegmentIndex": 0,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": "in Run (R1)",
+      "runSeconds": 6000.0,
+      "stationSeconds": 0
+     }
     },
     {
      "events": [
@@ -40178,7 +42037,20 @@
        "end": 810.0,
        "duration": 90.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 810.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 270.0,
+      "stationSeconds": 540.0
+     }
     },
     {
      "events": [
@@ -40241,7 +42113,20 @@
        "end": 150.0,
        "duration": 68.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 41.0,
+      "stationSeconds": 109.0
+     }
     },
     {
      "events": [
@@ -40400,7 +42285,20 @@
        "end": 155.0,
        "duration": 30.599999999999994
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 155.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 61.99999999999999,
+      "stationSeconds": 93.0
+     }
     },
     {
      "events": [
@@ -40453,7 +42351,20 @@
        "end": 4205.0,
        "duration": 4000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4205.0,
+      "finished": false,
+      "isCapped": true,
+      "capSegmentIndex": 1,
+      "partialRepsLimit": 21,
+      "repsAtCapLimit": 21,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": "in KB Swings (R1)",
+      "runSeconds": 205.0,
+      "stationSeconds": 4000.0
+     }
     }
    ]
   },
@@ -40767,7 +42678,20 @@
        "end": 111.0,
        "duration": 37.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 111.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 37.0,
+      "stationSeconds": 74.0
+     }
     },
     {
      "events": [
@@ -40842,7 +42766,20 @@
        "end": 80.5,
        "duration": 54.5
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 80.5,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 13.0,
+      "stationSeconds": 67.5
+     }
     },
     {
      "events": [
@@ -40867,7 +42804,20 @@
        "end": 6000.0,
        "duration": 6000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 6000.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 6000.0,
+      "stationSeconds": 0
+     }
     },
     {
      "events": [
@@ -40930,7 +42880,20 @@
        "end": 270.0,
        "duration": 90.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 270.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 90.0,
+      "stationSeconds": 180.0
+     }
     },
     {
      "events": [
@@ -40993,7 +42956,20 @@
        "end": 150.0,
        "duration": 68.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 41.0,
+      "stationSeconds": 109.0
+     }
     },
     {
      "events": [
@@ -41056,7 +43032,20 @@
        "end": 62.0,
        "duration": 30.6
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 62.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 12,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 31.0,
+      "stationSeconds": 31.0
+     }
     },
     {
      "events": [
@@ -41109,7 +43098,20 @@
        "end": 4205.0,
        "duration": 4000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4205.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 21,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 205.0,
+      "stationSeconds": 4000.0
+     }
     }
    ]
   },
@@ -41636,7 +43638,20 @@
        "end": 296.0,
        "duration": 37.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 296.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 111.0,
+      "stationSeconds": 185.0
+     }
     },
     {
      "events": [
@@ -41803,7 +43818,20 @@
        "end": 148.0,
        "duration": 41.5
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 148.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 39.0,
+      "stationSeconds": 109.0
+     }
     },
     {
      "events": [
@@ -41828,7 +43856,20 @@
        "end": 6000.0,
        "duration": 6000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 6000.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 6000.0,
+      "stationSeconds": 0
+     }
     },
     {
      "events": [
@@ -41971,7 +44012,20 @@
        "end": 540.0,
        "duration": 90.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 540.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 150.0,
+      "stationSeconds": 390.0
+     }
     },
     {
      "events": [
@@ -42050,7 +44104,20 @@
        "end": 150.0,
        "duration": 8.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 49.0,
+      "stationSeconds": 101.0
+     }
     },
     {
      "events": [
@@ -42193,7 +44260,20 @@
        "end": 124.4,
        "duration": 0.4000000000000057
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 124.4,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 61.99999999999999,
+      "stationSeconds": 62.40000000000001
+     }
     },
     {
      "events": [
@@ -42246,7 +44326,870 @@
        "end": 4205.0,
        "duration": 4000.0
       }
+     ],
+     "result": {
+      "totalSeconds": 4205.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 10,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 205.0,
+      "stationSeconds": 4000.0
+     }
+    }
+   ]
+  },
+  {
+   "name": "gate.capShort",
+   "definition": {
+    "id": "gate.capShort",
+    "name": "Gate gate.capShort",
+    "shortName": "G",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 20.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 30.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pushUps",
+      "name": "Push-ups",
+      "target": {
+       "value": 20.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "kettlebellSwings",
+      "name": "KB Swings",
+      "target": {
+       "value": 25.0,
+       "unit": "reps"
+      }
+     }
+    ],
+    "timeCapSeconds": 120.0
+   },
+   "scripts": [
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      37.0,
+      "crown"
+     ],
+     [
+      74.0,
+      "crown"
+     ],
+     [
+      111.0,
+      "crown"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      185.0,
+      "crown"
+     ],
+     [
+      222.0,
+      "crown"
+     ],
+     [
+      259.0,
+      "crown"
+     ],
+     [
+      296.0,
+      "crown"
+     ],
+     [
+      4333.0,
+      "tick"
      ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      13.0,
+      "crown"
+     ],
+     [
+      26.0,
+      "crown"
+     ],
+     [
+      39.0,
+      "crown"
+     ],
+     [
+      52.0,
+      "crown"
+     ],
+     [
+      65.0,
+      "crown"
+     ],
+     [
+      67.5,
+      "undo"
+     ],
+     [
+      80.5,
+      "crown"
+     ],
+     [
+      93.5,
+      "crown"
+     ],
+     [
+      106.5,
+      "crown"
+     ],
+     [
+      119.5,
+      "crown"
+     ],
+     [
+      132.5,
+      "crown"
+     ],
+     [
+      135.0,
+      "undo"
+     ],
+     [
+      4135.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      6000.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      90.0,
+      "crown"
+     ],
+     [
+      180.0,
+      "crown"
+     ],
+     [
+      270.0,
+      "crown"
+     ],
+     [
+      360.0,
+      "crown"
+     ],
+     [
+      450.0,
+      "crown"
+     ],
+     [
+      540.0,
+      "crown"
+     ],
+     [
+      4630.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      41.0,
+      "crown"
+     ],
+     [
+      82.0,
+      "crown"
+     ],
+     [
+      150.0,
+      "end"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      31.0,
+      "crown"
+     ],
+     [
+      31.4,
+      "crown"
+     ],
+     [
+      62.0,
+      "crown"
+     ],
+     [
+      62.4,
+      "crown"
+     ],
+     [
+      93.0,
+      "crown"
+     ],
+     [
+      93.4,
+      "crown"
+     ],
+     [
+      124.0,
+      "crown"
+     ],
+     [
+      124.4,
+      "crown"
+     ],
+     [
+      4217.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      10.0,
+      "crown"
+     ],
+     [
+      200.0,
+      "tick"
+     ],
+     [
+      201.0,
+      "undo"
+     ],
+     [
+      205.0,
+      "crown"
+     ],
+     [
+      4205.0,
+      "tick"
+     ]
+    ]
+   ],
+   "traces": [
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       37.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       74.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       111.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       148.0,
+       "finish",
+       3,
+       "crown"
+      ]
+     ],
+     "starts": [
+      0.0,
+      37.0,
+      74.0,
+      111.0
+     ],
+     "finish": 148.0,
+     "splits": [
+      {
+       "index": 0,
+       "kind": "station",
+       "movement": "burpees",
+       "title": "Burpees 20",
+       "start": 0.0,
+       "end": 37.0,
+       "duration": 37.0
+      },
+      {
+       "index": 1,
+       "kind": "station",
+       "movement": "airSquats",
+       "title": "Air Squats 30",
+       "start": 37.0,
+       "end": 74.0,
+       "duration": 37.0
+      },
+      {
+       "index": 2,
+       "kind": "station",
+       "movement": "pushUps",
+       "title": "Push-ups 20",
+       "start": 74.0,
+       "end": 111.0,
+       "duration": 37.0
+      },
+      {
+       "index": 3,
+       "kind": "station",
+       "movement": "kettlebellSwings",
+       "title": "KB Swings 25",
+       "start": 111.0,
+       "end": 148.0,
+       "duration": 37.0
+      }
+     ],
+     "result": {
+      "totalSeconds": 148.0,
+      "finished": true,
+      "isCapped": true,
+      "capSegmentIndex": 3,
+      "partialRepsLimit": 25,
+      "repsAtCapLimit": 25,
+      "partialReps": null,
+      "repsAtCap": 7,
+      "capPositionText": "7/25 KB Swings",
+      "runSeconds": 0,
+      "stationSeconds": 148.0
+     }
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       13.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       26.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       39.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       52.0,
+       "finish",
+       3,
+       "crown"
+      ],
+      [
+       67.5,
+       "unfinish",
+       3,
+       null
+      ],
+      [
+       80.5,
+       "finish",
+       3,
+       "crown"
+      ],
+      [
+       135.0,
+       "unfinish",
+       3,
+       null
+      ]
+     ],
+     "starts": [
+      0.0,
+      13.0,
+      26.0,
+      39.0
+     ],
+     "finish": null,
+     "splits": [
+      {
+       "index": 0,
+       "kind": "station",
+       "movement": "burpees",
+       "title": "Burpees 20",
+       "start": 0.0,
+       "end": 13.0,
+       "duration": 13.0
+      },
+      {
+       "index": 1,
+       "kind": "station",
+       "movement": "airSquats",
+       "title": "Air Squats 30",
+       "start": 13.0,
+       "end": 26.0,
+       "duration": 13.0
+      },
+      {
+       "index": 2,
+       "kind": "station",
+       "movement": "pushUps",
+       "title": "Push-ups 20",
+       "start": 26.0,
+       "end": 39.0,
+       "duration": 13.0
+      },
+      {
+       "index": 3,
+       "kind": "station",
+       "movement": "kettlebellSwings",
+       "title": "KB Swings 25",
+       "start": 39.0,
+       "end": 4135.0,
+       "duration": 4096.0
+      }
+     ],
+     "result": {
+      "totalSeconds": 4135.0,
+      "finished": false,
+      "isCapped": true,
+      "capSegmentIndex": 3,
+      "partialRepsLimit": 25,
+      "repsAtCapLimit": 25,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": "in KB Swings",
+      "runSeconds": 0,
+      "stationSeconds": 4135.0
+     }
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ]
+     ],
+     "starts": [
+      0.0
+     ],
+     "finish": null,
+     "splits": [
+      {
+       "index": 0,
+       "kind": "station",
+       "movement": "burpees",
+       "title": "Burpees 20",
+       "start": 0.0,
+       "end": 6000.0,
+       "duration": 6000.0
+      }
+     ],
+     "result": {
+      "totalSeconds": 6000.0,
+      "finished": false,
+      "isCapped": true,
+      "capSegmentIndex": 0,
+      "partialRepsLimit": 20,
+      "repsAtCapLimit": 20,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": "in Burpees",
+      "runSeconds": 0,
+      "stationSeconds": 6000.0
+     }
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       90.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       180.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       270.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       360.0,
+       "finish",
+       3,
+       "crown"
+      ]
+     ],
+     "starts": [
+      0.0,
+      90.0,
+      180.0,
+      270.0
+     ],
+     "finish": 360.0,
+     "splits": [
+      {
+       "index": 0,
+       "kind": "station",
+       "movement": "burpees",
+       "title": "Burpees 20",
+       "start": 0.0,
+       "end": 90.0,
+       "duration": 90.0
+      },
+      {
+       "index": 1,
+       "kind": "station",
+       "movement": "airSquats",
+       "title": "Air Squats 30",
+       "start": 90.0,
+       "end": 180.0,
+       "duration": 90.0
+      },
+      {
+       "index": 2,
+       "kind": "station",
+       "movement": "pushUps",
+       "title": "Push-ups 20",
+       "start": 180.0,
+       "end": 270.0,
+       "duration": 90.0
+      },
+      {
+       "index": 3,
+       "kind": "station",
+       "movement": "kettlebellSwings",
+       "title": "KB Swings 25",
+       "start": 270.0,
+       "end": 360.0,
+       "duration": 90.0
+      }
+     ],
+     "result": {
+      "totalSeconds": 360.0,
+      "finished": true,
+      "isCapped": true,
+      "capSegmentIndex": 1,
+      "partialRepsLimit": 25,
+      "repsAtCapLimit": 30,
+      "partialReps": null,
+      "repsAtCap": 7,
+      "capPositionText": "7/30 Air Squats",
+      "runSeconds": 0,
+      "stationSeconds": 360.0
+     }
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       41.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       82.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       150.0,
+       "finish",
+       2,
+       "button"
+      ]
+     ],
+     "starts": [
+      0.0,
+      41.0,
+      82.0
+     ],
+     "finish": 150.0,
+     "splits": [
+      {
+       "index": 0,
+       "kind": "station",
+       "movement": "burpees",
+       "title": "Burpees 20",
+       "start": 0.0,
+       "end": 41.0,
+       "duration": 41.0
+      },
+      {
+       "index": 1,
+       "kind": "station",
+       "movement": "airSquats",
+       "title": "Air Squats 30",
+       "start": 41.0,
+       "end": 82.0,
+       "duration": 41.0
+      },
+      {
+       "index": 2,
+       "kind": "station",
+       "movement": "pushUps",
+       "title": "Push-ups 20",
+       "start": 82.0,
+       "end": 150.0,
+       "duration": 68.0
+      }
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": true,
+      "capSegmentIndex": 2,
+      "partialRepsLimit": 20,
+      "repsAtCapLimit": 20,
+      "partialReps": null,
+      "repsAtCap": 7,
+      "capPositionText": "7/20 Push-ups",
+      "runSeconds": 0,
+      "stationSeconds": 150.0
+     }
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       31.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       31.4,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       62.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       62.4,
+       "finish",
+       3,
+       "crown"
+      ]
+     ],
+     "starts": [
+      0.0,
+      31.0,
+      31.4,
+      62.0
+     ],
+     "finish": 62.4,
+     "splits": [
+      {
+       "index": 0,
+       "kind": "station",
+       "movement": "burpees",
+       "title": "Burpees 20",
+       "start": 0.0,
+       "end": 31.0,
+       "duration": 31.0
+      },
+      {
+       "index": 1,
+       "kind": "station",
+       "movement": "airSquats",
+       "title": "Air Squats 30",
+       "start": 31.0,
+       "end": 31.4,
+       "duration": 0.3999999999999986
+      },
+      {
+       "index": 2,
+       "kind": "station",
+       "movement": "pushUps",
+       "title": "Push-ups 20",
+       "start": 31.4,
+       "end": 62.0,
+       "duration": 30.6
+      },
+      {
+       "index": 3,
+       "kind": "station",
+       "movement": "kettlebellSwings",
+       "title": "KB Swings 25",
+       "start": 62.0,
+       "end": 62.4,
+       "duration": 0.3999999999999986
+      }
+     ],
+     "result": {
+      "totalSeconds": 62.4,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": 25,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 62.4
+     }
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       10.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       201.0,
+       "undo",
+       0,
+       "crown"
+      ],
+      [
+       205.0,
+       "advance",
+       1,
+       "crown"
+      ]
+     ],
+     "starts": [
+      0.0,
+      205.0
+     ],
+     "finish": null,
+     "splits": [
+      {
+       "index": 0,
+       "kind": "station",
+       "movement": "burpees",
+       "title": "Burpees 20",
+       "start": 0.0,
+       "end": 205.0,
+       "duration": 205.0
+      },
+      {
+       "index": 1,
+       "kind": "station",
+       "movement": "airSquats",
+       "title": "Air Squats 30",
+       "start": 205.0,
+       "end": 4205.0,
+       "duration": 4000.0
+      }
+     ],
+     "result": {
+      "totalSeconds": 4205.0,
+      "finished": false,
+      "isCapped": true,
+      "capSegmentIndex": 0,
+      "partialRepsLimit": 30,
+      "repsAtCapLimit": 20,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": "in Burpees",
+      "runSeconds": 0,
+      "stationSeconds": 4205.0
+     }
     }
    ]
   },
@@ -42876,7 +45819,20 @@
        "end": 444.0,
        "duration": 37.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 444.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 444.0
+     }
     },
     {
      "events": [
@@ -43119,7 +46075,20 @@
        "end": 215.5,
        "duration": 41.5
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 215.5,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 215.5
+     }
     },
     {
      "events": [
@@ -43144,7 +46113,20 @@
        "end": 6000.0,
        "duration": 6000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 6000.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 6000.0
+     }
     },
     {
      "events": [
@@ -43351,7 +46333,20 @@
        "end": 1080.0,
        "duration": 90.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 1080.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 1080.0
+     }
     },
     {
      "events": [
@@ -43414,7 +46409,20 @@
        "end": 150.0,
        "duration": 68.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 150.0,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 150.0
+     }
     },
     {
      "events": [
@@ -43621,7 +46629,20 @@
        "end": 186.4,
        "duration": 0.4000000000000057
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 186.4,
+      "finished": true,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": 7,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 186.4
+     }
     },
     {
      "events": [
@@ -43674,7 +46695,20 @@
        "end": 4205.0,
        "duration": 4000.0
       }
-     ]
+     ],
+     "result": {
+      "totalSeconds": 4205.0,
+      "finished": false,
+      "isCapped": false,
+      "capSegmentIndex": null,
+      "partialRepsLimit": null,
+      "repsAtCapLimit": null,
+      "partialReps": null,
+      "repsAtCap": null,
+      "capPositionText": null,
+      "runSeconds": 0,
+      "stationSeconds": 4205.0
+     }
     }
    ]
   }
