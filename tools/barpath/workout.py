@@ -353,9 +353,36 @@ class WorkoutLibrary:
            helen, rowThrusters, free]
     known = all + [amrap20, quickTest]   # off the watch grid but still resolvable
 
+    # E5 (0.18): invented engine test workouts (WorkoutLibrary.engineTests in Swift). Four list
+    # their block once (written out on Classic); the Hyrox simulation is a plain fixed list. Not in
+    # all / known.
+    engineAmrap = WorkoutDefinition(
+        "engine.amrap", "Engine test: AMRAP 8", "AMRAP 8", "amrap", "solo", 480.0, "crossTraining",
+        [_station(Movement.burpees, 10, "reps"), _station(Movement.airSquats, 15, "reps"), _run(200)],
+        listed_once=True)
+    engineEmom = WorkoutDefinition(
+        "engine.emom", "Engine test: EMOM 6 × 1:00", "EMOM 6", "emom", "solo", 360.0, "crossTraining",
+        [_station(Movement.kettlebellSwings, 12, "reps"), _rest()],
+        interval_seconds=60.0, rounds=6, listed_once=True)
+    engineTabata = WorkoutDefinition(
+        "engine.tabata", "Engine test: Tabata air squats", "Tabata", "emom", "solo", 240.0, "crossTraining",
+        [_station(Movement.airSquats, 20, "seconds"),
+         WorkoutSegment("rest", Movement.rest, Movement.display_name(Movement.rest), SegmentTarget(10, "seconds"))],
+        interval_seconds=30.0, rounds=8, listed_once=True)
+    engineRounds5 = WorkoutDefinition(
+        "engine.rounds5", "Engine test: 5 rounds for time", "5 Rounds", "forTime", "solo", 900.0, "crossTraining",
+        [_run(200), _station(Movement.pushUps, 10, "reps"), _station(Movement.burpees, 5, "reps")],
+        rounds=5, listed_once=True)
+    engineHyroxSim = WorkoutDefinition(
+        "engine.hyroxSim", "Engine test: Hyrox simulation", "Hyrox Sim", "forTime", "solo", None, "mixedCardio",
+        _runs_and_stations(500, [_station(Movement.skiErg, 250, "meters"), _station(Movement.sledPush, 25, "meters"),
+                                 _station(Movement.row, 250, "meters"), _station(Movement.wallBalls, 25, "reps")]),
+        round_size=2)
+    engine_tests = [engineAmrap, engineEmom, engineTabata, engineRounds5, engineHyroxSim]
+
     @staticmethod
     def definition(id: str) -> Optional[WorkoutDefinition]:
-        for d in WorkoutLibrary.known:
+        for d in WorkoutLibrary.known + WorkoutLibrary.engine_tests:
             if d.id == id:
                 return d
         return None
@@ -951,6 +978,10 @@ class WorkoutResult:
         segs = self.definition.segments
         count = max(len(segs), max((s.index for s in self.segments), default=-1) + 1)
         count = min(count, len(self.segments) + len(segs))   # a corrupt index must not blow up
+        from .repeat_block import planned_steps
+        planned = planned_steps(self.definition)
+        if planned is not None:
+            count = max(count, planned)   # planned rounds / sets show as planned, not as done
         return dataclasses.replace(self.definition, segments=[segs[i % len(segs)] for i in range(count)],
                                    round_size=len(segs), listed_once=False, rounds=None)
 
@@ -1152,8 +1183,9 @@ class WorkoutResult:
         if seg is None:
             return None
         name = seg.name
-        r = self.definition.round_size
-        if r is not None and r > 1 and len(self.definition.segments) > r:
+        shown = self.display_definition   # a block result: rounds of the block written out
+        r = shown.round_size
+        if r is not None and r > 1 and len(shown.segments) > r:
             name += f" (R{self.cap_segment_index // r + 1})"
         if self.reps_at_cap is None:
             return "in " + name

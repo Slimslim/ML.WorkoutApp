@@ -352,6 +352,19 @@ def test_insights_of_a_block_result_use_its_parts():
     assert insights(r) == insights(r, r.display_definition)
 
 
+def test_marked_amrap_with_an_interval_keeps_round_size_unset():
+    import dataclasses
+    d = dataclasses.replace(_case("t.ladder"), interval_seconds=60.0)
+    assert rb.written_out(d).round_size is None
+
+
+def test_marked_row_thrusters_is_written_out_on_the_fallback():
+    import dataclasses
+    marked = dataclasses.replace(WorkoutLibrary.rowThrusters, listed_once=True)
+    p = rb.start_progress(marked, rb.ENGINE_V2)
+    assert p.block is None and len(p.definition.segments) == 6 * 17 and p.definition.round_size == 17
+
+
 def test_a_marked_fixed_list_stores_today_s_result_on_the_new_engine():
     import dataclasses
     from barpath.workout import split_stats
@@ -372,3 +385,62 @@ def test_a_marked_fixed_list_stores_today_s_result_on_the_new_engine():
 def test_part_index_and_passes_of_a_repeating_block():
     d, p, segs = _capped_amrap()
     assert p.is_repeating_block and p.part_index(3) == 1 and p.passes_started == 2
+
+
+def _block_result(cid, crowns):
+    from datetime import datetime, timezone
+    from barpath.workout import WorkoutResult, split_stats
+    d = _case(cid)
+    p = rb.start_progress(d, rb.ENGINE_V2)
+    rb.run_script(p, [[0.0, "start"]] + [[20.0 * (k + 1), "crown"] for k in range(crowns)] + [[20.0 * crowns + 1, "end"]])
+    t0 = datetime.fromtimestamp(0, tz=timezone.utc)
+    return WorkoutResult(d, t0, t0, t0, 100.0, split_stats(p, p.finish_time, [], []), p.events,
+                         passes=p.passes_started)
+
+
+def test_planned_rounds_and_sets_show_as_planned_not_as_done():
+    emom = _block_result("t.every3", 4)            # Every 3:00 x 6, ended in window 1 or 2
+    assert len(emom.display_definition.segments) == 18 and emom.display_definition.round_size == 3
+    rft = _block_result("t.rft", 8)                # 5 rounds for time, ended in round 3
+    assert len(rft.display_definition.segments) == 15
+    amrap = _block_result("t.ladder", 8)           # AMRAP: no planned length, the steps done
+    assert len(amrap.display_definition.segments) == 9    # 8 Crowns: steps 0..8
+    assert rb.planned_steps(_case("t.ladder")) is None and rb.planned_steps(_case("t.every3")) == 18
+
+
+def test_a_marked_fixed_list_with_an_interval_keeps_today_s_path():
+    import dataclasses
+    d = dataclasses.replace(_case("t.fixed"), interval_seconds=60.0)
+    assert rb.plan_for(d).kind == rb.LEGACY and rb.start_progress(d, rb.ENGINE_V2).block is None
+
+
+def test_cap_text_of_a_capped_rounds_block_keeps_its_round():
+    import dataclasses
+    from datetime import datetime, timezone
+    from barpath.workout import WorkoutResult, split_stats
+    d = dataclasses.replace(_case("t.rft"), time_cap_seconds=100.0)   # 5 rounds of 3 parts, cap 1:40
+    p = rb.start_progress(d, rb.ENGINE_V2)
+    rb.run_script(p, [[0.0, "start"]] + [[20.0 * (k + 1), "crown"] for k in range(7)] + [[150.0, "end"]])
+    t0 = datetime.fromtimestamp(0, tz=timezone.utc)
+    r = WorkoutResult(d, t0, None, t0, 150.0, split_stats(p, 150.0, [], []), p.events, passes=p.passes_started)
+    assert r.cap_segment_index == 5                         # step 5 = pass 1, part 2 at 1:40
+    assert r.cap_position_text.endswith("(R2)"), r.cap_position_text
+
+
+def test_planned_steps_are_bounded_for_a_corrupt_file():
+    import dataclasses
+    huge = dataclasses.replace(_case("t.rft"), rounds=10 ** 12)
+    assert rb.planned_steps(huge) == 3 * rb.MAX_PLANNED_PASSES
+    wide = dataclasses.replace(_case("t.every3"), rounds=None, time_cap_seconds=1e300)
+    assert rb.planned_steps(wide) == 3 * rb.MAX_PLANNED_PASSES
+    # The Classic write-out is bounded the same way, and a tiny interval (cap / interval = inf)
+    # neither raises nor builds a huge list; 0 or below is no interval at all.
+    assert len(rb.written_out(huge).segments) <= len(huge.segments) * rb.MAX_PLANNED_PASSES
+    assert len(rb.written_out(wide).segments) == len(wide.segments) * rb.MAX_PLANNED_PASSES
+    tiny = dataclasses.replace(wide, time_cap_seconds=600.0, interval_seconds=5e-324)
+    assert rb.planned_steps(tiny) is None
+    assert len(rb.written_out(tiny).segments) == len(tiny.segments) * rb.MAX_PLANNED_PASSES
+    for bad in (0.0, -60.0):
+        zero = dataclasses.replace(wide, time_cap_seconds=600.0, interval_seconds=bad)
+        assert rb.planned_steps(zero) is None
+        rb.written_out(zero)

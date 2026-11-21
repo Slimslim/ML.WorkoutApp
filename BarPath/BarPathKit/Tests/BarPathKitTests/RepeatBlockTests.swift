@@ -320,4 +320,62 @@ final class RepeatBlockTests: XCTestCase {
         XCTAssertEqual(p.segmentStarts.count, 15)
         XCTAssertEqual(p.finishTime, 450)
     }
+
+    /// Planned rounds / sets: a repeating block's step limit, else cap / interval windows; nil for
+    /// an AMRAP. A marked fixed list with an interval keeps today's path.
+    func testPlannedStepsAndAFixedListWithAnInterval() throws {
+        let cases: [Case] = try loadCases()
+        func d(_ id: String) -> WorkoutDefinition? {
+            return cases.first(where: { (c: Case) -> Bool in c.definition.id == id })?.definition
+        }
+        guard let every3 = d("t.every3"), let rft = d("t.rft"), let ladder = d("t.ladder"),
+              let fixed = d("t.fixed") else {
+            XCTFail("missing cases")
+            return
+        }
+        XCTAssertEqual(RepeatBlock.plannedSteps(every3), 18)
+        XCTAssertEqual(RepeatBlock.plannedSteps(rft), 15)
+        XCTAssertNil(RepeatBlock.plannedSteps(ladder))
+        XCTAssertNil(RepeatBlock.plannedSteps(fixed))
+        var goEvery: WorkoutDefinition = fixed
+        goEvery.intervalSeconds = 60
+        XCTAssertEqual(RepeatBlock.plan(for: goEvery).kind, RepeatBlock.Kind.legacy)
+        XCTAssertNil(RepeatBlock.startProgress(for: goEvery, engine: .v2).block)
+    }
+
+    /// A corrupt stored result (huge rounds or cap) gives a bounded planned length, never a trap.
+    func testPlannedStepsAreBoundedForACorruptFile() throws {
+        let cases: [Case] = try loadCases()
+        guard let rft = cases.first(where: { (c: Case) -> Bool in c.definition.id == "t.rft" })?.definition,
+              let every3 = cases.first(where: { (c: Case) -> Bool in c.definition.id == "t.every3" })?.definition else {
+            XCTFail("missing cases")
+            return
+        }
+        var huge: WorkoutDefinition = rft
+        huge.rounds = Int.max / 2
+        XCTAssertEqual(RepeatBlock.plannedSteps(huge), 3 * RepeatBlock.maxPlannedPasses)
+        var wide: WorkoutDefinition = every3
+        wide.rounds = nil
+        wide.timeCapSeconds = 1e300
+        XCTAssertEqual(RepeatBlock.plannedSteps(wide), 3 * RepeatBlock.maxPlannedPasses)
+        // The Classic write-out is bounded the same way, and a tiny interval (cap / interval = inf)
+        // neither traps nor builds a huge list; 0 or below is no interval at all.
+        XCTAssertLessThanOrEqual(RepeatBlock.writtenOut(huge).segments.count,
+                                 huge.segments.count * RepeatBlock.maxPlannedPasses)
+        XCTAssertEqual(RepeatBlock.writtenOut(wide).segments.count,
+                       wide.segments.count * RepeatBlock.maxPlannedPasses)
+        var tiny: WorkoutDefinition = wide
+        tiny.timeCapSeconds = 600
+        tiny.intervalSeconds = Double.leastNonzeroMagnitude
+        XCTAssertNil(RepeatBlock.plannedSteps(tiny))
+        XCTAssertEqual(RepeatBlock.writtenOut(tiny).segments.count,
+                       tiny.segments.count * RepeatBlock.maxPlannedPasses)
+        for bad in [0.0, -60.0] {
+            var zero: WorkoutDefinition = wide
+            zero.timeCapSeconds = 600
+            zero.intervalSeconds = bad
+            XCTAssertNil(RepeatBlock.plannedSteps(zero))
+            _ = RepeatBlock.writtenOut(zero)
+        }
+    }
 }

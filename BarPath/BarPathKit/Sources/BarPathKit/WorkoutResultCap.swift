@@ -72,7 +72,9 @@ extension WorkoutResult {
     public var capPositionText: String? {
         guard let segment = capSegment, let index = capSegmentIndex else { return nil }
         var name: String = segment.name
-        if let r = definition.roundSize, r > 1, definition.segments.count > r {
+        // A block result (5c): rounds of the block written out (roundSize = the block length).
+        let shown: WorkoutDefinition = displayDefinition
+        if let r = shown.roundSize, r > 1, shown.segments.count > r {
             name += " (R\(index / r + 1))"
         }
         guard let reps = repsAtCap else { return "in " + name }

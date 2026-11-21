@@ -546,14 +546,28 @@ is E3. The 0.17.1 stopgap (§5a) stays unchanged on the legacy route. Questions 
   `RepeatBlock.enginePlan(for:engineOn:)` gives the plan, anything else gives nil (today's path).
   `WorkoutProgress(definition:block:)` with `block == nil` runs exactly today's code.
 - A marked definition the block can't run (no segments, only rests, an interval block that does
-  not end with a rest) falls back to the legacy route (`listed_once_problems`).
+  not end with a rest) falls back to the **written-out** legacy route (`listed_once_problems`,
+  then `written_out`). A mis-marked written-out row grows (a marked Row + Thrusters becomes 6 × 17
+  segments), and an interval block without a closing rest loses its window wait there (the Crown
+  goes straight to the next set). **Every listed-once interval row must end with a rest**; the E5
+  test workouts do, and a test fails if one doesn't.
 - **Classic (engine off) with a marked definition:** the block is written out first, the way
   today's stored rows are (`written_out` / `RepeatBlock.writtenOut`): Rounds for time × N gets N
   passes with no rest after the last round; EMOM / Tabata gets the round count, else
   ceil(cap / interval) windows; an AMRAP gets `roundSize` = P and then the §5a expansion. So a
   listed-once workout never runs one pass on Classic (the #138 bug). A marked fixed list only
-  loses the mark. One START rule for the watch, Python and the E4 gate:
+  loses the mark. An AMRAP with an interval keeps `roundSize` unset, as §5a does. A written-out
+  interval block keeps the last window's rest, so it finishes at the last window's end (block mode
+  does the same; the stored Row + Thrusters, which lists no last rest, finishes on the last Crown).
+  In a rest, Classic still lets the Crown skip ahead while block mode waits for the window: by
+  design, the gate compares each engine with itself, not the two routes. One START rule for the watch, Python and the E4 gate:
   `RepeatBlock.startProgress(for:engine:)` / `start_progress`.
+- **A marked fixed list with an interval** ("Go every …" done once) takes the legacy route: block
+  mode would end it at the first window.
+- **Planned length in the phone views:** a block result's `displayDefinition` is written out to the
+  planned steps when the plan has them (rounds × N, or ceil(cap / interval) windows), so an EMOM
+  × 10 ended after 3 reads "3 / 10" and 5 rounds for time ended in round 3 reads as not finished;
+  an AMRAP is written out to the steps done. The cap text's round comes from it too.
 - **Marked built-ins behave as today:** every built-in marked listedOnce and run in block mode
   (fixed lists as fixed, the AMRAPs as a repeating block) gives exactly today's events (test).
 

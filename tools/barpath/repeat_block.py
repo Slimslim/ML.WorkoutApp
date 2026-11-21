@@ -105,7 +105,34 @@ def plan_for(d: WorkoutDefinition) -> BlockPlan:
             return BlockPlan(REPEAT, n, rounds, cap, cap is not None, interval, tr)
         if d.format == "forTime" and rounds is not None:
             return BlockPlan(REPEAT, n, rounds, cap, False, interval, tr)
+    if interval is not None:
+        # A marked fixed list with an interval ("Go every" done once) keeps today's path: block mode
+        # would end it at the first window (E3 review).
+        return BlockPlan(LEGACY, n, 1, cap, False, interval)
     return BlockPlan(FIXED, n, 1, cap, False, interval)
+
+
+MAX_PLANNED_PASSES = 1000   # RepeatBlock.maxPlannedPasses
+
+
+def planned_steps(d: WorkoutDefinition) -> Optional[int]:
+    """Steps a repeating block plans to do: its step limit, else ceil(cap / interval) windows of
+    an interval block; None for an AMRAP (only the clock ends it) and for anything not repeating."""
+    import math
+    plan = plan_for(d)
+    if plan.kind != REPEAT or plan.parts <= 0:
+        return None
+    steps = None
+    if plan.rounds is not None:
+        steps = float(plan.rounds) * plan.parts - plan.trailing_rests
+    elif plan.interval_seconds is not None and plan.cap_seconds is not None and d.format == "emom":
+        windows = math.ceil(plan.cap_seconds / plan.interval_seconds - 1e-9) \
+            if math.isfinite(plan.cap_seconds / plan.interval_seconds) else None
+        steps = None if windows is None else max(1, windows) * plan.parts
+    if steps is None or not math.isfinite(steps):
+        return None
+    # Bounded (a corrupt-file guard): a huge `rounds` or cap must not build a huge list.
+    return int(min(max(steps, 0), plan.parts * MAX_PLANNED_PASSES))
 
 
 def engine_plan(d: WorkoutDefinition, engine: str) -> Optional[BlockPlan]:
@@ -139,7 +166,12 @@ def written_out(d: WorkoutDefinition) -> WorkoutDefinition:
         if rounds is not None:
             passes = rounds
         elif interval is not None and cap is not None:
-            passes = max(1, math.ceil(cap / interval - 1e-9))
+            ratio = cap / interval - 1e-9
+            passes = max(1, math.ceil(ratio)) if math.isfinite(ratio) else MAX_PLANNED_PASSES
+    if passes is not None:
+        # Bounded like planned_steps (a corrupt-file guard): a tiny interval or huge rounds must
+        # not build a huge list, nor crash on an infinite window count.
+        passes = min(passes, MAX_PLANNED_PASSES)
     segs = list(d.segments)
     if passes is not None:
         segs = segs * passes
@@ -147,7 +179,9 @@ def written_out(d: WorkoutDefinition) -> WorkoutDefinition:
             tr = _trailing_rests(d)
             if tr:
                 segs = segs[:-tr]
-    repeats = passes is not None or (d.format == "amrap" and cap is not None)
+    # An AMRAP with an interval keeps roundSize unset, as the 5a expansion does (work segments then
+    # don't jump at the window).
+    repeats = passes is not None or (d.format == "amrap" and cap is not None and interval is None)
     return dataclasses.replace(d, segments=segs, round_size=n if repeats else d.round_size,
                                listed_once=False, rounds=None)
 

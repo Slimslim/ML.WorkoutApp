@@ -16,7 +16,9 @@ enum WorkoutGroups {
         WorkoutGroup(title: "Partner", ids: [WorkoutLibrary.partnerWod1.id, WorkoutLibrary.partnerWod2.id]),
         WorkoutGroup(title: "Class", ids: [WorkoutLibrary.helen.id, WorkoutLibrary.rowThrusters.id,
                                            WorkoutLibrary.amrap20.id, WorkoutLibrary.amrap40.id]),
-        WorkoutGroup(title: "Other", ids: [WorkoutLibrary.free.id])
+        WorkoutGroup(title: "Other", ids: [WorkoutLibrary.free.id]),
+        // E5 (0.18): invented test workouts for the new engine (phone Settings › Workout engine).
+        WorkoutGroup(title: "Engine test", ids: WorkoutLibrary.engineTests.map { (d: WorkoutDefinition) -> String in d.id })
     ]
 }
 

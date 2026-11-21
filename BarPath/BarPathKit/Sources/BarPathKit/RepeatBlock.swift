@@ -117,9 +117,40 @@ public enum RepeatBlock {
             return Plan(kind: .repeating, parts: n, rounds: rounds, capSeconds: cap, capEnds: false,
                         intervalSeconds: interval, trailingRests: tr)
         }
+        if interval != nil {
+            // A marked fixed list with an interval ("Go every" done once) keeps today's path: block
+            // mode would end it at the first window (E3 review).
+            return Plan(kind: .legacy, parts: n, rounds: 1, capSeconds: cap, capEnds: false,
+                        intervalSeconds: interval)
+        }
         return Plan(kind: .fixed, parts: n, rounds: 1, capSeconds: cap, capEnds: false,
                     intervalSeconds: interval)
     }
+
+    /// Steps a repeating block plans to do: its step limit, else ceil(cap / interval) windows of an
+    /// interval block; nil for an AMRAP (only the clock ends it) and for anything not repeating.
+    /// Python mirror: `repeat_block.planned_steps`.
+    /// Bounded at `maxPlannedPasses` passes and computed in Double, so a corrupt stored result (a
+    /// huge `rounds` or cap) can neither overflow nor make the phone build a huge list.
+    public static func plannedSteps(_ d: WorkoutDefinition) -> Int? {
+        let p: Plan = plan(for: d)
+        if p.kind != .repeating || p.parts <= 0 { return nil }
+        var steps: Double? = nil
+        if let r = p.rounds {
+            steps = Double(r) * Double(p.parts) - Double(p.trailingRests)
+        } else if d.format == .emom, let i = p.intervalSeconds, let c = p.capSeconds {
+            let windows: Double = (c / i - 1e-9).rounded(.up)
+            if windows.isFinite {
+                steps = Swift.max(1, windows) * Double(p.parts)
+            }
+        }
+        guard let s = steps, s.isFinite else { return nil }
+        let bound: Double = Double(p.parts) * Double(maxPlannedPasses)
+        return Int(Swift.min(Swift.max(s, 0), bound))
+    }
+
+    /// Upper bound on the passes `plannedSteps` reports (a corrupt-file guard, far above any workout).
+    public static let maxPlannedPasses: Int = 1000
 
     /// The plan `WorkoutProgress` runs in block mode, or nil for today's path. Block mode needs both
     /// the engine switch on and a definition marked listedOnce; anything else is today's path.
@@ -157,8 +188,18 @@ public enum RepeatBlock {
             if let r = rounds {
                 passes = r
             } else if let i = interval, let c = cap {
-                passes = Swift.max(1, Int((c / i - 1e-9).rounded(.up)))
+                let ratio: Double = (c / i - 1e-9).rounded(.up)
+                if ratio.isFinite && ratio < Double(maxPlannedPasses) {
+                    passes = Swift.max(1, Int(ratio))
+                } else {
+                    passes = maxPlannedPasses
+                }
             }
+        }
+        // Bounded like plannedSteps (a corrupt-file guard): a tiny interval or huge rounds must
+        // not build a huge list, nor trap converting an infinite window count to Int.
+        if let k = passes, k > maxPlannedPasses {
+            passes = maxPlannedPasses
         }
         var segs: [WorkoutSegment] = d.segments
         if let k = passes {
@@ -175,7 +216,9 @@ public enum RepeatBlock {
         }
         var out: WorkoutDefinition = d
         out.segments = segs
-        if passes != nil || (d.format == .amrap && cap != nil) {
+        // An AMRAP with an interval keeps roundSize unset, as the §5a expansion does (work segments
+        // then don't jump at the window).
+        if passes != nil || (d.format == .amrap && cap != nil && interval == nil) {
             out.roundSize = n
         }
         out.listedOnce = nil
