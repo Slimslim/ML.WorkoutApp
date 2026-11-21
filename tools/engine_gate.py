@@ -7,8 +7,10 @@ Two checks, both in CI (tools/tests/test_engine_gate.py, EngineGateTests.swift):
    the way the watch starts it (`start_progress`) and driven by the same scripts with the engine
    "legacy" and "v2": events, step starts, finish and splits must be equal.
 2. Behaviour (== 0.17.2): Fixtures/engine_gate_golden.json holds the full trace (events, step
-   starts, finish, every split field, and the result the watch writes at End, partial reps / reps at
-   the cap included) of every built-in and fixture row under every script, written
+   starts, finish, every split field with invented HR and pedometer series (`series`), and the
+   result the watch writes at End, partial reps / reps at the cap included) of every built-in and
+   fixture row under every script (boundaries included: a Crown at the cap, a timed rest ending at
+   it), written
    by **running the v0.17.2 code itself** (`--write-golden --ref v0.17.2-rc1`, from a `git archive`
    of that tag). Both engines must reproduce it. A difference is a change to how today's rows (Hyrox
    included) run: never regenerate the golden to get green; it needs the owner's sign-off.
@@ -38,7 +40,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from barpath import repeat_block as rb  # noqa: E402
-from barpath.workout import WorkoutDefinition, WorkoutLibrary, WorkoutResult, split_stats  # noqa: E402
+from barpath.workout import (PedometerSample, TimedValue, WorkoutDefinition, WorkoutLibrary,  # noqa: E402
+                             WorkoutResult, split_stats)
 
 REPO = Path(__file__).resolve().parent.parent
 FIXTURE = REPO / "BarPath" / "BarPathKit" / "Tests" / "BarPathKitTests" / "Fixtures" / "engine_gate_cases.json"
@@ -50,8 +53,8 @@ GOLDEN_REF = "v0.17.2-rc1"
 
 def scripts(d: WorkoutDefinition) -> list:
     """Deterministic runs that cross every kind of step: steady Crowns, fast Crowns with undos, the
-    clock alone, slow Crowns past any cap, an early End, sub-second double Crowns, and an undo
-    right after the clock moved on (a timed rest or a window), then a Crown."""
+    clock alone, slow Crowns past any cap, an early End, sub-second double Crowns, an undo right
+    after the clock moved on (a timed rest or a window) then a Crown, and two cap boundaries."""
     n = len(d.segments)
     out = []
     steady = [[0.0, "start"]] + [[37.0 * (k + 1), "crown"] for k in range(n + 4)] + [[37.0 * (n + 5) + 4000.0, "tick"]]
@@ -76,7 +79,21 @@ def scripts(d: WorkoutDefinition) -> list:
     out.append(double)
     out.append([[0.0, "start"], [10.0, "crown"], [200.0, "tick"], [201.0, "undo"], [205.0, "crown"],
                 [4205.0, "tick"]])
+    # Boundaries: a Crown exactly at the cap (600 s without one), and a Crown 60 s before it, so a
+    # 60 s timed rest after it ends exactly at the cap (gate.amrapRestAtCap). Cap first on a tie.
+    cap = d.time_cap_seconds if d.time_cap_seconds is not None and d.time_cap_seconds > 0 else 600.0
+    out.append([[0.0, "start"], [cap, "crown"], [cap + 4000.0, "tick"]])
+    out.append([[0.0, "start"], [cap - 60.0, "crown"], [cap + 4000.0, "tick"]])
     return out
+
+
+def series(end):
+    """Invented heart-rate (every 5 s) and pedometer (every 10 s, cumulative) series from the
+    start (0) to the end, so the splits' HR, steps, distance, cadence and pace are compared too.
+    Same code in the 0.17.2 runner."""
+    hr = [TimedValue(5.0 * k, 110.0 + (7 * k) % 60) for k in range(int(end // 5) + 1)]
+    ped = [PedometerSample(10.0 * k, 16.0 * k + (k % 3), 25.0 * k + (k % 4)) for k in range(int(end // 10) + 1)]
+    return hr, ped
 
 
 PARTIAL_REPS = 7   # entered on the watch after a cap finish (clamped like makeResult)
@@ -89,7 +106,7 @@ def result_fields(p, end):
     from datetime import datetime, timezone
     start = p.start_time
     finish = p.finish_time
-    segs = split_stats(p, end, [], [])
+    segs = split_stats(p, end, *series(end))
     r = WorkoutResult(p.definition, datetime.fromtimestamp(start, tz=timezone.utc),
                       None if finish is None else datetime.fromtimestamp(finish, tz=timezone.utc),
                       datetime.fromtimestamp(end, tz=timezone.utc),
@@ -113,7 +130,7 @@ def run(d: WorkoutDefinition, engine: str, script: list) -> dict:
     p = rb.start_progress(d, engine)
     events = rb.run_script(p, script)
     end = max(t for t, _ in script)
-    splits = [s.to_dict() for s in split_stats(p, end, [], [])]
+    splits = [s.to_dict() for s in split_stats(p, end, *series(end))]
     return {"events": events, "starts": p.segment_starts, "finish": p.finish_time, "splits": splits,
             "result": result_fields(p, end), "block": p.block is not None}
 
@@ -125,7 +142,8 @@ def run(d: WorkoutDefinition, engine: str, script: list) -> dict:
 # on a tie; an undo suppresses a passed auto change and a passed cap, as WorkoutSessionModel does).
 _GOLDEN_RUNNER = r"""
 import json, sys
-from barpath.workout import WorkoutDefinition, WorkoutProgress, WorkoutResult, amrap_expanded, split_stats
+from barpath.workout import (PedometerSample, TimedValue, WorkoutDefinition, WorkoutProgress,
+                             WorkoutResult, amrap_expanded, split_stats)
 
 PARTIAL_REPS = 7   # entered on the watch after a cap finish (clamped like makeResult)
 
@@ -137,7 +155,7 @@ def result_fields(p, end):
     from datetime import datetime, timezone
     start = p.start_time
     finish = p.finish_time
-    segs = split_stats(p, end, [], [])
+    segs = split_stats(p, end, *series(end))
     r = WorkoutResult(p.definition, datetime.fromtimestamp(start, tz=timezone.utc),
                       None if finish is None else datetime.fromtimestamp(finish, tz=timezone.utc),
                       datetime.fromtimestamp(end, tz=timezone.utc),
@@ -154,6 +172,12 @@ def result_fields(p, end):
             "repsAtCapLimit": r.reps_at_cap_limit, "partialReps": r.partial_reps, "repsAtCap": r.reps_at_cap,
             "capPositionText": r.cap_position_text, "runSeconds": r.run_seconds,
             "stationSeconds": r.station_seconds}
+
+
+def series(end):
+    hr = [TimedValue(5.0 * k, 110.0 + (7 * k) % 60) for k in range(int(end // 5) + 1)]
+    ped = [PedometerSample(10.0 * k, 16.0 * k + (k % 3), 25.0 * k + (k % 4)) for k in range(int(end // 10) + 1)]
+    return hr, ped
 
 
 def tick(p, now, sup):
@@ -194,7 +218,7 @@ def run(d, script):
     end = max(t for t, _ in script)
     return {"events": [[e.t, e.kind, e.segment_index, e.source] for e in p.events],
             "starts": p.segment_starts, "finish": p.finish_time,
-            "splits": [s.to_dict() for s in split_stats(p, end, [], [])],
+            "splits": [s.to_dict() for s in split_stats(p, end, *series(end))],
             "result": result_fields(p, end)}
 
 cases = json.load(sys.stdin)
@@ -334,6 +358,8 @@ def rows() -> list:
         ("short for-time cap, finished past it (reps at the cap)", _row("gate.capShort", "forTime", [
             st("burpees", "Burpees", 20), st("airSquats", "Air Squats", 30), st("pushUps", "Push-ups", 20),
             st("kettlebellSwings", "KB Swings", 25)], cap=120)),
+        ("AMRAP with a 60 s timed rest that ends exactly at the cap (boundary script)",
+         _row("gate.amrapRestAtCap", "amrap", [st("burpees", "Burpees", 15), _rest(60)], cap=300)),
         ("open parts (free-like)", _row("gate.free", "forTime", [_seg("station", "part", "Part %d" % (i + 1))
                                                                  for i in range(12)])),
     ]

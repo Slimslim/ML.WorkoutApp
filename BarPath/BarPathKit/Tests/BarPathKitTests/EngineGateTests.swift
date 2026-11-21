@@ -112,9 +112,40 @@ final class EngineGateTests: XCTestCase {
         for a in script where a.t > end {
             end = a.t
         }
-        let splits: [SegmentResult] = SplitStats.compute(progress: p, now: end, heartRates: [], pedometer: [])
+        let (hr, ped) = EngineGateTests.series(end: end)
+        let splits: [SegmentResult] = SplitStats.compute(progress: p, now: end, heartRates: hr, pedometer: ped)
         return Run(events: events, starts: p.segmentStarts, finish: p.finishTime, splits: splits,
                    block: p.block != nil)
+    }
+
+    /// Invented heart-rate (every 5 s) and pedometer (every 10 s, cumulative) series from the start
+    /// (0) to the end, as `engine_gate.series`, so HR, steps, distance, cadence and pace are compared.
+    static func series(end: Double) -> ([TimedValue], [PedometerSample]) {
+        var hr: [TimedValue] = []
+        let nHR: Int = Int((end / 5.0).rounded(.down))
+        for k in 0...Swift.max(nHR, 0) {
+            hr.append(TimedValue(t: 5.0 * Double(k), value: 110.0 + Double((7 * k) % 60)))
+        }
+        var ped: [PedometerSample] = []
+        let nPed: Int = Int((end / 10.0).rounded(.down))
+        for k in 0...Swift.max(nPed, 0) {
+            ped.append(PedometerSample(t: 10.0 * Double(k), steps: 16.0 * Double(k) + Double(k % 3),
+                                       distance: 25.0 * Double(k) + Double(k % 4)))
+        }
+        return (hr, ped)
+    }
+
+    /// Equal within 1e-9, or both nil.
+    static func assertClose(_ a: Double?, _ b: Double?, _ label: String, file: StaticString = #filePath,
+                            line: UInt = #line) {
+        switch (a, b) {
+        case (nil, nil):
+            return
+        case let (x?, y?):
+            XCTAssertEqual(x, y, accuracy: 1e-9, label, file: file, line: line)
+        default:
+            XCTFail("\(label): \(String(describing: a)) != \(String(describing: b))", file: file, line: line)
+        }
     }
 
     /// Same runs as `engine_gate.scripts` (tools/engine_gate.py), built here for the built-ins.
@@ -152,6 +183,13 @@ final class EngineGateTests: XCTestCase {
         raw.append(double)
         raw.append([[0.0, "start"], [10.0, "crown"], [200.0, "tick"], [201.0, "undo"], [205.0, "crown"],
                     [4205.0, "tick"]])
+        // Boundaries: a Crown exactly at the cap (600 s without one), and one 60 s before it.
+        var cap: Double = 600
+        if let c = d.timeCapSeconds, c > 0 {
+            cap = c
+        }
+        raw.append([[0.0, "start"], [cap, "crown"], [cap + 4000.0, "tick"]])
+        raw.append([[0.0, "start"], [cap - 60.0, "crown"], [cap + 4000.0, "tick"]])
         let data: Data = try JSONSerialization.data(withJSONObject: raw, options: [])
         return try JSONDecoder().decode([[Action]].self, from: data)
     }
@@ -307,9 +345,13 @@ final class EngineGateTests: XCTestCase {
         let names: Set<String> = Set(golden.cases.map { (c: GoldenCase) -> String in c.name })
         for d in WorkoutLibrary.known {
             XCTAssertTrue(names.contains(d.id), "golden lacks \(d.id)")
+            // The built-in is the one the golden ran (the test below runs the stored definition).
+            if let stored = golden.cases.first(where: { (c: GoldenCase) -> Bool in c.name == d.id }) {
+                XCTAssertEqual(stored.definition, d, "built-in \(d.id) differs from the one the 0.17.2 golden ran")
+            }
         }
         for c in golden.cases {
-            XCTAssertEqual(c.scripts.count, 7, c.name)
+            XCTAssertEqual(c.scripts.count, 9, c.name)
             XCTAssertEqual(c.traces.count, c.scripts.count, c.name)
             for (i, script) in c.scripts.enumerated() where i < c.traces.count {
                 let want: GoldenTrace = c.traces[i]
@@ -350,8 +392,14 @@ final class EngineGateTests: XCTestCase {
                         XCTAssertEqual(a.end, b.end, accuracy: 1e-9, label)
                         XCTAssertEqual(a.duration, b.duration, accuracy: 1e-9, label)
                         XCTAssertEqual(a.pass, b.pass, label)
-                        XCTAssertEqual(a.steps, b.steps, label)
-                        XCTAssertEqual(a.distance, b.distance, label)
+                        XCTAssertEqual(a.lifts == nil, b.lifts == nil, label)
+                        EngineGateTests.assertClose(a.heartRateAvg, b.heartRateAvg, label + " heartRateAvg")
+                        EngineGateTests.assertClose(a.heartRateMax, b.heartRateMax, label + " heartRateMax")
+                        EngineGateTests.assertClose(a.heartRateMin, b.heartRateMin, label + " heartRateMin")
+                        EngineGateTests.assertClose(a.steps, b.steps, label + " steps")
+                        EngineGateTests.assertClose(a.distance, b.distance, label + " distance")
+                        EngineGateTests.assertClose(a.cadence, b.cadence, label + " cadence")
+                        EngineGateTests.assertClose(a.paceSecondsPerKm, b.paceSecondsPerKm, label + " pace")
                     }
                 }
             }
