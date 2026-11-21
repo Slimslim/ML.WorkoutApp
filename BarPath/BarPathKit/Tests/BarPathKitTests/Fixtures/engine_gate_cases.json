@@ -10958,6 +10958,524 @@
    ]
   },
   {
+   "name": "short for-time cap, finished past it (reps at the cap)",
+   "definition": {
+    "id": "gate.capShort",
+    "name": "Gate gate.capShort",
+    "shortName": "G",
+    "format": "forTime",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 20.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "airSquats",
+      "name": "Air Squats",
+      "target": {
+       "value": 30.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "pushUps",
+      "name": "Push-ups",
+      "target": {
+       "value": 20.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "station",
+      "movement": "kettlebellSwings",
+      "name": "KB Swings",
+      "target": {
+       "value": 25.0,
+       "unit": "reps"
+      }
+     }
+    ],
+    "timeCapSeconds": 120.0
+   },
+   "scripts": [
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      37.0,
+      "crown"
+     ],
+     [
+      74.0,
+      "crown"
+     ],
+     [
+      111.0,
+      "crown"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      185.0,
+      "crown"
+     ],
+     [
+      222.0,
+      "crown"
+     ],
+     [
+      259.0,
+      "crown"
+     ],
+     [
+      296.0,
+      "crown"
+     ],
+     [
+      4333.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      13.0,
+      "crown"
+     ],
+     [
+      26.0,
+      "crown"
+     ],
+     [
+      39.0,
+      "crown"
+     ],
+     [
+      52.0,
+      "crown"
+     ],
+     [
+      65.0,
+      "crown"
+     ],
+     [
+      67.5,
+      "undo"
+     ],
+     [
+      80.5,
+      "crown"
+     ],
+     [
+      93.5,
+      "crown"
+     ],
+     [
+      106.5,
+      "crown"
+     ],
+     [
+      119.5,
+      "crown"
+     ],
+     [
+      132.5,
+      "crown"
+     ],
+     [
+      135.0,
+      "undo"
+     ],
+     [
+      4135.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      6000.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      90.0,
+      "crown"
+     ],
+     [
+      180.0,
+      "crown"
+     ],
+     [
+      270.0,
+      "crown"
+     ],
+     [
+      360.0,
+      "crown"
+     ],
+     [
+      450.0,
+      "crown"
+     ],
+     [
+      540.0,
+      "crown"
+     ],
+     [
+      4630.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      41.0,
+      "crown"
+     ],
+     [
+      82.0,
+      "crown"
+     ],
+     [
+      150.0,
+      "end"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      31.0,
+      "crown"
+     ],
+     [
+      31.4,
+      "crown"
+     ],
+     [
+      62.0,
+      "crown"
+     ],
+     [
+      62.4,
+      "crown"
+     ],
+     [
+      93.0,
+      "crown"
+     ],
+     [
+      93.4,
+      "crown"
+     ],
+     [
+      124.0,
+      "crown"
+     ],
+     [
+      124.4,
+      "crown"
+     ],
+     [
+      4217.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      10.0,
+      "crown"
+     ],
+     [
+      200.0,
+      "tick"
+     ],
+     [
+      201.0,
+      "undo"
+     ],
+     [
+      205.0,
+      "crown"
+     ],
+     [
+      4205.0,
+      "tick"
+     ]
+    ]
+   ],
+   "expected": [
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       37.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       74.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       111.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       148.0,
+       "finish",
+       3,
+       "crown"
+      ]
+     ],
+     "finish": 148.0,
+     "steps": 4
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       13.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       26.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       39.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       52.0,
+       "finish",
+       3,
+       "crown"
+      ],
+      [
+       67.5,
+       "unfinish",
+       3,
+       null
+      ],
+      [
+       80.5,
+       "finish",
+       3,
+       "crown"
+      ],
+      [
+       135.0,
+       "unfinish",
+       3,
+       null
+      ]
+     ],
+     "finish": null,
+     "steps": 4
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ]
+     ],
+     "finish": null,
+     "steps": 1
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       90.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       180.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       270.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       360.0,
+       "finish",
+       3,
+       "crown"
+      ]
+     ],
+     "finish": 360.0,
+     "steps": 4
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       41.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       82.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       150.0,
+       "finish",
+       2,
+       "button"
+      ]
+     ],
+     "finish": 150.0,
+     "steps": 3
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       31.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       31.4,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       62.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       62.4,
+       "finish",
+       3,
+       "crown"
+      ]
+     ],
+     "finish": 62.4,
+     "steps": 4
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       10.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       201.0,
+       "undo",
+       0,
+       "crown"
+      ],
+      [
+       205.0,
+       "advance",
+       1,
+       "crown"
+      ]
+     ],
+     "finish": null,
+     "steps": 2
+    }
+   ]
+  },
+  {
    "name": "open parts (free-like)",
    "definition": {
     "id": "gate.free",

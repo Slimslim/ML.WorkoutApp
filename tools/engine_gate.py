@@ -7,7 +7,8 @@ Two checks, both in CI (tools/tests/test_engine_gate.py, EngineGateTests.swift):
    the way the watch starts it (`start_progress`) and driven by the same scripts with the engine
    "legacy" and "v2": events, step starts, finish and splits must be equal.
 2. Behaviour (== 0.17.2): Fixtures/engine_gate_golden.json holds the full trace (events, step
-   starts, finish, every split field) of every built-in and fixture row under every script, written
+   starts, finish, every split field, and the result the watch writes at End, partial reps / reps at
+   the cap included) of every built-in and fixture row under every script, written
    by **running the v0.17.2 code itself** (`--write-golden --ref v0.17.2-rc1`, from a `git archive`
    of that tag). Both engines must reproduce it. A difference is a change to how today's rows (Hyrox
    included) run: never regenerate the golden to get green; it needs the owner's sign-off.
@@ -37,7 +38,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from barpath import repeat_block as rb  # noqa: E402
-from barpath.workout import WorkoutDefinition, WorkoutLibrary, split_stats  # noqa: E402
+from barpath.workout import WorkoutDefinition, WorkoutLibrary, WorkoutResult, split_stats  # noqa: E402
 
 REPO = Path(__file__).resolve().parent.parent
 FIXTURE = REPO / "BarPath" / "BarPathKit" / "Tests" / "BarPathKitTests" / "Fixtures" / "engine_gate_cases.json"
@@ -78,14 +79,43 @@ def scripts(d: WorkoutDefinition) -> list:
     return out
 
 
+PARTIAL_REPS = 7   # entered on the watch after a cap finish (clamped like makeResult)
+
+
+def result_fields(p, end):
+    """The WorkoutResult the watch writes at End (WorkoutSessionModel.makeResult): total, finish,
+    partial reps / reps at the cap (PARTIAL_REPS, clamped to the limit, only when finished), and the
+    fields views read. Same code in the 0.17.2 runner."""
+    from datetime import datetime, timezone
+    start = p.start_time
+    finish = p.finish_time
+    segs = split_stats(p, end, [], [])
+    r = WorkoutResult(p.definition, datetime.fromtimestamp(start, tz=timezone.utc),
+                      None if finish is None else datetime.fromtimestamp(finish, tz=timezone.utc),
+                      datetime.fromtimestamp(end, tz=timezone.utc),
+                      (finish if finish is not None else end) - start, segs, list(p.events))
+    if finish is not None:
+        if r.is_capped:
+            lim = r.reps_at_cap_limit
+            r.reps_at_cap = min(max(0, PARTIAL_REPS), lim if lim is not None else PARTIAL_REPS)
+        else:
+            lim = r.partial_reps_limit
+            r.partial_reps = min(max(0, PARTIAL_REPS), lim if lim is not None else PARTIAL_REPS)
+    return {"totalSeconds": r.total_seconds, "finished": finish is not None, "isCapped": r.is_capped,
+            "capSegmentIndex": r.cap_segment_index, "partialRepsLimit": r.partial_reps_limit,
+            "repsAtCapLimit": r.reps_at_cap_limit, "partialReps": r.partial_reps, "repsAtCap": r.reps_at_cap,
+            "capPositionText": r.cap_position_text, "runSeconds": r.run_seconds,
+            "stationSeconds": r.station_seconds}
+
+
 def run(d: WorkoutDefinition, engine: str, script: list) -> dict:
-    """What the watch records for one run: events, step starts, finish, and the splits."""
+    """What the watch records for one run: events, step starts, finish, the splits and the result."""
     p = rb.start_progress(d, engine)
     events = rb.run_script(p, script)
     end = max(t for t, _ in script)
     splits = [s.to_dict() for s in split_stats(p, end, [], [])]
     return {"events": events, "starts": p.segment_starts, "finish": p.finish_time, "splits": splits,
-            "block": p.block is not None}
+            "result": result_fields(p, end), "block": p.block is not None}
 
 
 # ---- the 0.17.2 golden --------------------------------------------------------------------------
@@ -95,7 +125,36 @@ def run(d: WorkoutDefinition, engine: str, script: list) -> dict:
 # on a tie; an undo suppresses a passed auto change and a passed cap, as WorkoutSessionModel does).
 _GOLDEN_RUNNER = r"""
 import json, sys
-from barpath.workout import WorkoutDefinition, WorkoutProgress, amrap_expanded, split_stats
+from barpath.workout import WorkoutDefinition, WorkoutProgress, WorkoutResult, amrap_expanded, split_stats
+
+PARTIAL_REPS = 7   # entered on the watch after a cap finish (clamped like makeResult)
+
+
+def result_fields(p, end):
+    '''The WorkoutResult the watch writes at End (WorkoutSessionModel.makeResult): total, finish,
+    partial reps / reps at the cap (PARTIAL_REPS, clamped to the limit, only when finished), and the
+    fields views read. Same code in the 0.17.2 runner.'''
+    from datetime import datetime, timezone
+    start = p.start_time
+    finish = p.finish_time
+    segs = split_stats(p, end, [], [])
+    r = WorkoutResult(p.definition, datetime.fromtimestamp(start, tz=timezone.utc),
+                      None if finish is None else datetime.fromtimestamp(finish, tz=timezone.utc),
+                      datetime.fromtimestamp(end, tz=timezone.utc),
+                      (finish if finish is not None else end) - start, segs, list(p.events))
+    if finish is not None:
+        if r.is_capped:
+            lim = r.reps_at_cap_limit
+            r.reps_at_cap = min(max(0, PARTIAL_REPS), lim if lim is not None else PARTIAL_REPS)
+        else:
+            lim = r.partial_reps_limit
+            r.partial_reps = min(max(0, PARTIAL_REPS), lim if lim is not None else PARTIAL_REPS)
+    return {"totalSeconds": r.total_seconds, "finished": finish is not None, "isCapped": r.is_capped,
+            "capSegmentIndex": r.cap_segment_index, "partialRepsLimit": r.partial_reps_limit,
+            "repsAtCapLimit": r.reps_at_cap_limit, "partialReps": r.partial_reps, "repsAtCap": r.reps_at_cap,
+            "capPositionText": r.cap_position_text, "runSeconds": r.run_seconds,
+            "stationSeconds": r.station_seconds}
+
 
 def tick(p, now, sup):
     for _ in range(10000):
@@ -135,7 +194,8 @@ def run(d, script):
     end = max(t for t, _ in script)
     return {"events": [[e.t, e.kind, e.segment_index, e.source] for e in p.events],
             "starts": p.segment_starts, "finish": p.finish_time,
-            "splits": [s.to_dict() for s in split_stats(p, end, [], [])]}
+            "splits": [s.to_dict() for s in split_stats(p, end, [], [])],
+            "result": result_fields(p, end)}
 
 cases = json.load(sys.stdin)
 out = []
@@ -184,7 +244,7 @@ def golden_diffs(golden: dict) -> list:
         for i, (script, want) in enumerate(zip(c["scripts"], c["traces"])):
             for engine in (rb.ENGINE_LEGACY, rb.ENGINE_V2):
                 got = run(d, engine, script)
-                for k in ("events", "starts", "finish", "splits"):
+                for k in ("events", "starts", "finish", "splits", "result"):
                     if got[k] != want[k]:
                         diffs.append("%s script %d engine %s: %s differ" % (c["name"], i, engine, k))
     return diffs
@@ -196,7 +256,7 @@ def compare(d: WorkoutDefinition) -> list:
     for i, script in enumerate(scripts(d)):
         off = run(d, rb.ENGINE_LEGACY, script)
         on = run(d, rb.ENGINE_V2, script)
-        for k in ("events", "starts", "finish", "splits"):
+        for k in ("events", "starts", "finish", "splits", "result"):
             if off[k] != on[k]:
                 diffs.append("script %d: %s differ" % (i, k))
     return diffs
@@ -271,6 +331,9 @@ def rows() -> list:
                                                                          rounds_written[:3], rounds=3)),
         ("timed rest between written-out rounds", _row("gate.restRounds", "forTime", (
             [run_(200), st("burpees", "Burpees", 10), _rest(60)] * 3)[:-1], round_size=3)),
+        ("short for-time cap, finished past it (reps at the cap)", _row("gate.capShort", "forTime", [
+            st("burpees", "Burpees", 20), st("airSquats", "Air Squats", 30), st("pushUps", "Push-ups", 20),
+            st("kettlebellSwings", "KB Swings", 25)], cap=120)),
         ("open parts (free-like)", _row("gate.free", "forTime", [_seg("station", "part", "Part %d" % (i + 1))
                                                                  for i in range(12)])),
     ]
