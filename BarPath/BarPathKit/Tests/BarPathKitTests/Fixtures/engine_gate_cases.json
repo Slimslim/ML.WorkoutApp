@@ -556,6 +556,34 @@
       4205.0,
       "tick"
      ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      600.0,
+      "crown"
+     ],
+     [
+      4600.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      540.0,
+      "crown"
+     ],
+     [
+      4600.0,
+      "tick"
+     ]
     ]
    ],
    "expected": [
@@ -1079,6 +1107,42 @@
       ],
       [
        205.0,
+       "advance",
+       1,
+       "crown"
+      ]
+     ],
+     "finish": null,
+     "steps": 2
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       600.0,
+       "advance",
+       1,
+       "crown"
+      ]
+     ],
+     "finish": null,
+     "steps": 2
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       540.0,
        "advance",
        1,
        "crown"
@@ -1644,6 +1708,34 @@
       4205.0,
       "tick"
      ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      600.0,
+      "crown"
+     ],
+     [
+      4600.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      540.0,
+      "crown"
+     ],
+     [
+      4600.0,
+      "tick"
+     ]
     ]
    ],
    "expected": [
@@ -2174,6 +2266,42 @@
      ],
      "finish": null,
      "steps": 2
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       600.0,
+       "advance",
+       1,
+       "crown"
+      ]
+     ],
+     "finish": null,
+     "steps": 2
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       540.0,
+       "advance",
+       1,
+       "crown"
+      ]
+     ],
+     "finish": null,
+     "steps": 2
     }
    ]
   },
@@ -2485,6 +2613,34 @@
       4205.0,
       "tick"
      ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      900.0,
+      "crown"
+     ],
+     [
+      4900.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      840.0,
+      "crown"
+     ],
+     [
+      4900.0,
+      "tick"
+     ]
     ]
    ],
    "expected": [
@@ -2744,6 +2900,42 @@
       ],
       [
        205.0,
+       "advance",
+       1,
+       "crown"
+      ]
+     ],
+     "finish": null,
+     "steps": 2
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       900.0,
+       "advance",
+       1,
+       "crown"
+      ]
+     ],
+     "finish": null,
+     "steps": 2
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       840.0,
        "advance",
        1,
        "crown"
@@ -3277,6 +3469,34 @@
      ],
      [
       4205.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      480.0,
+      "crown"
+     ],
+     [
+      4480.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      420.0,
+      "crown"
+     ],
+     [
+      4480.0,
       "tick"
      ]
     ]
@@ -4031,6 +4251,222 @@
      ],
      "finish": 480.0,
      "steps": 16
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       60.0,
+       "advance",
+       1,
+       "auto"
+      ],
+      [
+       60.0,
+       "advance",
+       2,
+       "auto"
+      ],
+      [
+       120.0,
+       "advance",
+       3,
+       "auto"
+      ],
+      [
+       120.0,
+       "advance",
+       4,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       5,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       6,
+       "auto"
+      ],
+      [
+       240.0,
+       "advance",
+       7,
+       "auto"
+      ],
+      [
+       240.0,
+       "advance",
+       8,
+       "auto"
+      ],
+      [
+       300.0,
+       "advance",
+       9,
+       "auto"
+      ],
+      [
+       300.0,
+       "advance",
+       10,
+       "auto"
+      ],
+      [
+       360.0,
+       "advance",
+       11,
+       "auto"
+      ],
+      [
+       360.0,
+       "advance",
+       12,
+       "auto"
+      ],
+      [
+       420.0,
+       "advance",
+       13,
+       "auto"
+      ],
+      [
+       420.0,
+       "advance",
+       14,
+       "auto"
+      ],
+      [
+       480.0,
+       "advance",
+       15,
+       "auto"
+      ],
+      [
+       480.0,
+       "finish",
+       15,
+       "auto"
+      ]
+     ],
+     "finish": 480.0,
+     "steps": 16
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       60.0,
+       "advance",
+       1,
+       "auto"
+      ],
+      [
+       60.0,
+       "advance",
+       2,
+       "auto"
+      ],
+      [
+       120.0,
+       "advance",
+       3,
+       "auto"
+      ],
+      [
+       120.0,
+       "advance",
+       4,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       5,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       6,
+       "auto"
+      ],
+      [
+       240.0,
+       "advance",
+       7,
+       "auto"
+      ],
+      [
+       240.0,
+       "advance",
+       8,
+       "auto"
+      ],
+      [
+       300.0,
+       "advance",
+       9,
+       "auto"
+      ],
+      [
+       300.0,
+       "advance",
+       10,
+       "auto"
+      ],
+      [
+       360.0,
+       "advance",
+       11,
+       "auto"
+      ],
+      [
+       360.0,
+       "advance",
+       12,
+       "auto"
+      ],
+      [
+       420.0,
+       "advance",
+       13,
+       "auto"
+      ],
+      [
+       420.0,
+       "advance",
+       14,
+       "auto"
+      ],
+      [
+       420.0,
+       "advance",
+       15,
+       "crown"
+      ],
+      [
+       480.0,
+       "finish",
+       15,
+       "auto"
+      ]
+     ],
+     "finish": 480.0,
+     "steps": 16
     }
    ]
   },
@@ -4589,6 +5025,34 @@
      ],
      [
       4205.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      240.0,
+      "crown"
+     ],
+     [
+      4240.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      180.0,
+      "crown"
+     ],
+     [
+      4240.0,
       "tick"
      ]
     ]
@@ -5391,6 +5855,222 @@
      ],
      "finish": 210.0,
      "steps": 16
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       30.0,
+       "advance",
+       1,
+       "auto"
+      ],
+      [
+       30.0,
+       "advance",
+       2,
+       "auto"
+      ],
+      [
+       60.0,
+       "advance",
+       3,
+       "auto"
+      ],
+      [
+       60.0,
+       "advance",
+       4,
+       "auto"
+      ],
+      [
+       90.0,
+       "advance",
+       5,
+       "auto"
+      ],
+      [
+       90.0,
+       "advance",
+       6,
+       "auto"
+      ],
+      [
+       120.0,
+       "advance",
+       7,
+       "auto"
+      ],
+      [
+       120.0,
+       "advance",
+       8,
+       "auto"
+      ],
+      [
+       150.0,
+       "advance",
+       9,
+       "auto"
+      ],
+      [
+       150.0,
+       "advance",
+       10,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       11,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       12,
+       "auto"
+      ],
+      [
+       210.0,
+       "advance",
+       13,
+       "auto"
+      ],
+      [
+       210.0,
+       "advance",
+       14,
+       "auto"
+      ],
+      [
+       240.0,
+       "advance",
+       15,
+       "auto"
+      ],
+      [
+       240.0,
+       "finish",
+       15,
+       "auto"
+      ]
+     ],
+     "finish": 240.0,
+     "steps": 16
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       30.0,
+       "advance",
+       1,
+       "auto"
+      ],
+      [
+       30.0,
+       "advance",
+       2,
+       "auto"
+      ],
+      [
+       60.0,
+       "advance",
+       3,
+       "auto"
+      ],
+      [
+       60.0,
+       "advance",
+       4,
+       "auto"
+      ],
+      [
+       90.0,
+       "advance",
+       5,
+       "auto"
+      ],
+      [
+       90.0,
+       "advance",
+       6,
+       "auto"
+      ],
+      [
+       120.0,
+       "advance",
+       7,
+       "auto"
+      ],
+      [
+       120.0,
+       "advance",
+       8,
+       "auto"
+      ],
+      [
+       150.0,
+       "advance",
+       9,
+       "auto"
+      ],
+      [
+       150.0,
+       "advance",
+       10,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       11,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       12,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       190.0,
+       "advance",
+       14,
+       "auto"
+      ],
+      [
+       210.0,
+       "advance",
+       15,
+       "auto"
+      ],
+      [
+       210.0,
+       "finish",
+       15,
+       "auto"
+      ]
+     ],
+     "finish": 210.0,
+     "steps": 16
     }
    ]
   },
@@ -5891,6 +6571,34 @@
      ],
      [
       4205.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      900.0,
+      "crown"
+     ],
+     [
+      4900.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      840.0,
+      "crown"
+     ],
+     [
+      4900.0,
       "tick"
      ]
     ]
@@ -6561,6 +7269,198 @@
      ],
      "finish": 900.0,
      "steps": 14
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       180.0,
+       "advance",
+       1,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       2,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       3,
+       "auto"
+      ],
+      [
+       360.0,
+       "advance",
+       4,
+       "auto"
+      ],
+      [
+       360.0,
+       "advance",
+       5,
+       "auto"
+      ],
+      [
+       360.0,
+       "advance",
+       6,
+       "auto"
+      ],
+      [
+       540.0,
+       "advance",
+       7,
+       "auto"
+      ],
+      [
+       540.0,
+       "advance",
+       8,
+       "auto"
+      ],
+      [
+       540.0,
+       "advance",
+       9,
+       "auto"
+      ],
+      [
+       720.0,
+       "advance",
+       10,
+       "auto"
+      ],
+      [
+       720.0,
+       "advance",
+       11,
+       "auto"
+      ],
+      [
+       720.0,
+       "advance",
+       12,
+       "auto"
+      ],
+      [
+       900.0,
+       "advance",
+       13,
+       "auto"
+      ],
+      [
+       900.0,
+       "finish",
+       13,
+       "auto"
+      ]
+     ],
+     "finish": 900.0,
+     "steps": 14
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       180.0,
+       "advance",
+       1,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       2,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       3,
+       "auto"
+      ],
+      [
+       360.0,
+       "advance",
+       4,
+       "auto"
+      ],
+      [
+       360.0,
+       "advance",
+       5,
+       "auto"
+      ],
+      [
+       360.0,
+       "advance",
+       6,
+       "auto"
+      ],
+      [
+       540.0,
+       "advance",
+       7,
+       "auto"
+      ],
+      [
+       540.0,
+       "advance",
+       8,
+       "auto"
+      ],
+      [
+       540.0,
+       "advance",
+       9,
+       "auto"
+      ],
+      [
+       720.0,
+       "advance",
+       10,
+       "auto"
+      ],
+      [
+       720.0,
+       "advance",
+       11,
+       "auto"
+      ],
+      [
+       720.0,
+       "advance",
+       12,
+       "auto"
+      ],
+      [
+       840.0,
+       "advance",
+       13,
+       "crown"
+      ],
+      [
+       900.0,
+       "finish",
+       13,
+       "auto"
+      ]
+     ],
+     "finish": 900.0,
+     "steps": 14
     }
    ]
   },
@@ -6990,6 +7890,34 @@
       4205.0,
       "tick"
      ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      600.0,
+      "crown"
+     ],
+     [
+      4600.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      540.0,
+      "crown"
+     ],
+     [
+      4600.0,
+      "tick"
+     ]
     ]
    ],
    "expected": [
@@ -7381,6 +8309,42 @@
       ],
       [
        205.0,
+       "advance",
+       1,
+       "crown"
+      ]
+     ],
+     "finish": null,
+     "steps": 2
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       600.0,
+       "advance",
+       1,
+       "crown"
+      ]
+     ],
+     "finish": null,
+     "steps": 2
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       540.0,
        "advance",
        1,
        "crown"
@@ -7857,6 +8821,34 @@
      ],
      [
       4205.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      720.0,
+      "crown"
+     ],
+     [
+      4720.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      660.0,
+      "crown"
+     ],
+     [
+      4720.0,
       "tick"
      ]
     ]
@@ -8353,6 +9345,48 @@
      ],
      "finish": 720.0,
      "steps": 2
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       720.0,
+       "finish",
+       0,
+       "auto"
+      ]
+     ],
+     "finish": 720.0,
+     "steps": 1
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       660.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       720.0,
+       "finish",
+       1,
+       "auto"
+      ]
+     ],
+     "finish": 720.0,
+     "steps": 2
     }
    ]
   },
@@ -8633,6 +9667,34 @@
      ],
      [
       4205.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      600.0,
+      "crown"
+     ],
+     [
+      4600.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      540.0,
+      "crown"
+     ],
+     [
+      4600.0,
       "tick"
      ]
     ]
@@ -8984,6 +10046,48 @@
       ],
       [
        205.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       600.0,
+       "finish",
+       1,
+       "auto"
+      ]
+     ],
+     "finish": 600.0,
+     "steps": 2
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       600.0,
+       "finish",
+       0,
+       "auto"
+      ]
+     ],
+     "finish": 600.0,
+     "steps": 1
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       540.0,
        "advance",
        1,
        "crown"
@@ -9405,6 +10509,34 @@
       4205.0,
       "tick"
      ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      960.0,
+      "crown"
+     ],
+     [
+      4960.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      900.0,
+      "crown"
+     ],
+     [
+      4960.0,
+      "tick"
+     ]
     ]
    ],
    "expected": [
@@ -9773,6 +10905,42 @@
      ],
      "finish": null,
      "steps": 2
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       960.0,
+       "advance",
+       1,
+       "crown"
+      ]
+     ],
+     "finish": null,
+     "steps": 2
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       900.0,
+       "advance",
+       1,
+       "crown"
+      ]
+     ],
+     "finish": null,
+     "steps": 2
     }
    ]
   },
@@ -10022,6 +11190,34 @@
       4205.0,
       "tick"
      ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      600.0,
+      "crown"
+     ],
+     [
+      4600.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      540.0,
+      "crown"
+     ],
+     [
+      4600.0,
+      "tick"
+     ]
     ]
    ],
    "expected": [
@@ -10221,6 +11417,42 @@
       ],
       [
        205.0,
+       "advance",
+       1,
+       "crown"
+      ]
+     ],
+     "finish": null,
+     "steps": 2
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       600.0,
+       "advance",
+       1,
+       "crown"
+      ]
+     ],
+     "finish": null,
+     "steps": 2
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       540.0,
        "advance",
        1,
        "crown"
@@ -10610,6 +11842,34 @@
       4205.0,
       "tick"
      ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      600.0,
+      "crown"
+     ],
+     [
+      4600.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      540.0,
+      "crown"
+     ],
+     [
+      4600.0,
+      "tick"
+     ]
     ]
    ],
    "expected": [
@@ -10954,6 +12214,42 @@
      ],
      "finish": null,
      "steps": 2
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       600.0,
+       "advance",
+       1,
+       "crown"
+      ]
+     ],
+     "finish": null,
+     "steps": 2
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       540.0,
+       "advance",
+       1,
+       "crown"
+      ]
+     ],
+     "finish": null,
+     "steps": 2
     }
    ]
   },
@@ -11236,6 +12532,34 @@
       4205.0,
       "tick"
      ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      120.0,
+      "crown"
+     ],
+     [
+      4120.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      60.0,
+      "crown"
+     ],
+     [
+      4120.0,
+      "tick"
+     ]
     ]
    ],
    "expected": [
@@ -11471,6 +12795,646 @@
       ]
      ],
      "finish": null,
+     "steps": 2
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       120.0,
+       "advance",
+       1,
+       "crown"
+      ]
+     ],
+     "finish": null,
+     "steps": 2
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       60.0,
+       "advance",
+       1,
+       "crown"
+      ]
+     ],
+     "finish": null,
+     "steps": 2
+    }
+   ]
+  },
+  {
+   "name": "AMRAP with a 60 s timed rest that ends exactly at the cap (boundary script)",
+   "definition": {
+    "id": "gate.amrapRestAtCap",
+    "name": "Gate gate.amrapRestAtCap",
+    "shortName": "G",
+    "format": "amrap",
+    "team": "solo",
+    "healthKitActivity": "crossTraining",
+    "segments": [
+     {
+      "kind": "station",
+      "movement": "burpees",
+      "name": "Burpees",
+      "target": {
+       "value": 15.0,
+       "unit": "reps"
+      }
+     },
+     {
+      "kind": "rest",
+      "movement": "rest",
+      "name": "Rest",
+      "target": {
+       "value": 60.0,
+       "unit": "seconds"
+      }
+     }
+    ],
+    "timeCapSeconds": 300.0
+   },
+   "scripts": [
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      37.0,
+      "crown"
+     ],
+     [
+      74.0,
+      "crown"
+     ],
+     [
+      111.0,
+      "crown"
+     ],
+     [
+      148.0,
+      "crown"
+     ],
+     [
+      185.0,
+      "crown"
+     ],
+     [
+      222.0,
+      "crown"
+     ],
+     [
+      4259.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      13.0,
+      "crown"
+     ],
+     [
+      26.0,
+      "crown"
+     ],
+     [
+      39.0,
+      "crown"
+     ],
+     [
+      52.0,
+      "crown"
+     ],
+     [
+      65.0,
+      "crown"
+     ],
+     [
+      67.5,
+      "undo"
+     ],
+     [
+      80.5,
+      "crown"
+     ],
+     [
+      93.5,
+      "crown"
+     ],
+     [
+      106.5,
+      "crown"
+     ],
+     [
+      4106.5,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      6000.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      90.0,
+      "crown"
+     ],
+     [
+      180.0,
+      "crown"
+     ],
+     [
+      270.0,
+      "crown"
+     ],
+     [
+      360.0,
+      "crown"
+     ],
+     [
+      4450.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      41.0,
+      "crown"
+     ],
+     [
+      82.0,
+      "crown"
+     ],
+     [
+      150.0,
+      "end"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      31.0,
+      "crown"
+     ],
+     [
+      31.4,
+      "crown"
+     ],
+     [
+      62.0,
+      "crown"
+     ],
+     [
+      62.4,
+      "crown"
+     ],
+     [
+      4217.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      10.0,
+      "crown"
+     ],
+     [
+      200.0,
+      "tick"
+     ],
+     [
+      201.0,
+      "undo"
+     ],
+     [
+      205.0,
+      "crown"
+     ],
+     [
+      4205.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      300.0,
+      "crown"
+     ],
+     [
+      4300.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      240.0,
+      "crown"
+     ],
+     [
+      4300.0,
+      "tick"
+     ]
+    ]
+   ],
+   "expected": [
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       37.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       74.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       111.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       148.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       185.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       222.0,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       300.0,
+       "finish",
+       6,
+       "auto"
+      ]
+     ],
+     "finish": 300.0,
+     "steps": 7
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       13.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       26.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       39.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       52.0,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       65.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       67.5,
+       "undo",
+       4,
+       "crown"
+      ],
+      [
+       80.5,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       93.5,
+       "advance",
+       6,
+       "crown"
+      ],
+      [
+       106.5,
+       "advance",
+       7,
+       "crown"
+      ],
+      [
+       166.5,
+       "advance",
+       8,
+       "auto"
+      ],
+      [
+       300.0,
+       "finish",
+       8,
+       "auto"
+      ]
+     ],
+     "finish": 300.0,
+     "steps": 9
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       300.0,
+       "finish",
+       0,
+       "auto"
+      ]
+     ],
+     "finish": 300.0,
+     "steps": 1
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       90.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       150.0,
+       "advance",
+       2,
+       "auto"
+      ],
+      [
+       180.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       240.0,
+       "advance",
+       4,
+       "auto"
+      ],
+      [
+       270.0,
+       "advance",
+       5,
+       "crown"
+      ],
+      [
+       300.0,
+       "finish",
+       5,
+       "auto"
+      ]
+     ],
+     "finish": 300.0,
+     "steps": 6
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       41.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       82.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       150.0,
+       "finish",
+       2,
+       "button"
+      ]
+     ],
+     "finish": 150.0,
+     "steps": 3
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       31.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       31.4,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       62.0,
+       "advance",
+       3,
+       "crown"
+      ],
+      [
+       62.4,
+       "advance",
+       4,
+       "crown"
+      ],
+      [
+       300.0,
+       "finish",
+       4,
+       "auto"
+      ]
+     ],
+     "finish": 300.0,
+     "steps": 5
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       10.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       70.0,
+       "advance",
+       2,
+       "auto"
+      ],
+      [
+       201.0,
+       "undo",
+       1,
+       "crown"
+      ],
+      [
+       205.0,
+       "advance",
+       2,
+       "crown"
+      ],
+      [
+       300.0,
+       "finish",
+       2,
+       "auto"
+      ]
+     ],
+     "finish": 300.0,
+     "steps": 3
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       300.0,
+       "finish",
+       0,
+       "auto"
+      ]
+     ],
+     "finish": 300.0,
+     "steps": 1
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       240.0,
+       "advance",
+       1,
+       "crown"
+      ],
+      [
+       300.0,
+       "finish",
+       1,
+       "auto"
+      ]
+     ],
+     "finish": 300.0,
      "steps": 2
     }
    ]
@@ -11891,6 +13855,34 @@
      ],
      [
       4205.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      600.0,
+      "crown"
+     ],
+     [
+      4600.0,
+      "tick"
+     ]
+    ],
+    [
+     [
+      0.0,
+      "start"
+     ],
+     [
+      540.0,
+      "crown"
+     ],
+     [
+      4600.0,
       "tick"
      ]
     ]
@@ -12332,6 +14324,42 @@
       ],
       [
        205.0,
+       "advance",
+       1,
+       "crown"
+      ]
+     ],
+     "finish": null,
+     "steps": 2
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       600.0,
+       "advance",
+       1,
+       "crown"
+      ]
+     ],
+     "finish": null,
+     "steps": 2
+    },
+    {
+     "events": [
+      [
+       0.0,
+       "start",
+       0,
+       null
+      ],
+      [
+       540.0,
        "advance",
        1,
        "crown"

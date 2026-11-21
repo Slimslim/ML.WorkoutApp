@@ -28,7 +28,15 @@ def test_every_row_runs_exactly_as_0_17_2_on_both_engines():
     assert golden["ref"] == gate.GOLDEN_REF
     ids = {c["name"] for c in golden["cases"]}
     assert {d.id for d in WorkoutLibrary.known} <= ids
-    assert all(len(c["traces"]) == len(c["scripts"]) == 7 for c in golden["cases"])
+    assert all(len(c["traces"]) == len(c["scripts"]) == 9 for c in golden["cases"])
+    # The built-ins are the ones the golden ran: a change to a built-in's definition must not pass
+    # by being compared against itself (the golden test runs the stored definition).
+    stored = {c["name"]: c["definition"] for c in golden["cases"]}
+    changed = [d.id for d in WorkoutLibrary.known if stored[d.id] != d.to_dict()]
+    assert changed == [], "built-ins differ from the ones the 0.17.2 golden ran: %s" % changed
+    # The splits carry HR, steps, distance, cadence and pace (the invented series), not only times.
+    assert any(sp.get("heartRateAvg") is not None and sp.get("distance") is not None
+               for c in golden["cases"] for t in c["traces"] for sp in t["splits"])
     diffs = gate.golden_diffs(golden)
     assert diffs == [], (
         "Today's rows (Hyrox included) run differently from 0.17.2. Do NOT regenerate the golden to "
