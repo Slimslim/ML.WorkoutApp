@@ -30,7 +30,9 @@ struct WorkoutStartView: View {
                 if WorkoutEngine.resolve(engineRaw.isEmpty ? nil : engineRaw) == .v2 {
                     Text("NEW")
                         .font(.system(size: 10, weight: .heavy, design: .rounded))
-                        .foregroundColor(.green)
+                        // Neutral, not green: green next to the green phone dot reads as one signal.
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
                         .accessibilityLabel("New workout engine on")
                 }
                 Spacer()
