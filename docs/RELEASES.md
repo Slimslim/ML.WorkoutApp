@@ -219,10 +219,10 @@ workout engine, behind a phone Settings switch (default on the watch: classic). 
 
 | Ticket | What | Status |
 |---|---|---|
-| E1 | Engine core: repeat block (WORKOUT_SPEC 5c) only for definitions marked `listedOnce`; every stored row on the legacy route; block mode in WorkoutProgress; Python reference + Swift port + parity fixtures | in PR [#156](https://github.com/Slimslim/ML.WorkoutApp/pull/156) |
+| E1 | Engine core: repeat block (WORKOUT_SPEC 5c) only for definitions marked `listedOnce`; every stored row on the legacy route; block mode in WorkoutProgress; Python reference + Swift port + parity fixtures | merged ([#156](https://github.com/Slimslim/ML.WorkoutApp/pull/156)) |
 | E2 | Engine switch: phone Settings → watch `workoutEngine` key, read at workout start | merged ([#155](https://github.com/Slimslim/ML.WorkoutApp/pull/155)) |
-| E3 | Watch wiring: block mode when the switch is on and the definition is marked; results by step with pass; engine in result and header; "NEW" on START | draft PR [#158](https://github.com/Slimslim/ML.WorkoutApp/pull/158), after E1 |
-| E4 | Gate: every built-in and fixed-list fixture identical with the engine off and on, in CI | building |
+| E3 | Watch wiring: block mode when the switch is on and the definition is marked; results by step with pass; engine in result and header; "NEW" on START | merged ([#158](https://github.com/Slimslim/ML.WorkoutApp/pull/158)) |
+| E4 | Gate: every built-in and fixed-list fixture identical with the engine off and on, in CI (`tools/engine_gate.py`, `test_engine_gate.py`, `EngineGateTests.swift`); library rows via `--export` (aggregates only) | in PR [#159](https://github.com/Slimslim/ML.WorkoutApp/pull/159) |
 | E5 | Listed-once test workouts (AMRAP, EMOM, Tabata, rounds × 5) and a Hyrox simulation as a fixed list; invented, no database change | building |
 
 ## Backlog (after the beta; owner picks at the review)

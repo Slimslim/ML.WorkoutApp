@@ -726,7 +726,10 @@ is E3. The 0.17.1 stopgap (§5a) stays unchanged on the legacy route. Questions 
 - Every stored built-in, listed by id in the tests (Hyrox Solo, Doubles, Half, partner WODs,
   AMRAP 20 / 40, Helen, Row + Thrusters, Quick test, Free), takes the legacy route with the engine
   on, and a scripted run gives exactly the events it gives with the engine off. The E4 gate extends
-  this to fixed-list fixture rows in CI.
+  this to fixed-list fixture rows in CI, and pins today's behaviour: `Fixtures/engine_gate_golden.json`
+  holds the full trace (events, step starts, finish, every split field) of every built-in and gate
+  row under 7 scripts, written by running the v0.17.2 code itself; both engines must reproduce it
+  (Python and Swift). Never regenerate it to get green: a difference needs the owner's sign-off.
 
 ### What gets built before 5 Dec (no wiring)
 1. **Python reference** in `tools/barpath`, as pure functions:
