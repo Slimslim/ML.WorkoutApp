@@ -440,6 +440,14 @@ def test_planned_steps_are_bounded_for_a_corrupt_file():
     tiny = dataclasses.replace(wide, time_cap_seconds=600.0, interval_seconds=5e-324)
     assert rb.planned_steps(tiny) is None
     assert len(rb.written_out(tiny).segments) == len(tiny.segments) * rb.MAX_PLANNED_PASSES
+    # The plan's step limit is bounded too: a huge `rounds` on a marked definition, or in a plan
+    # read back from a checkpoint (Swift would trap on rounds * parts).
+    absurd = dataclasses.replace(_case("t.rft"), rounds=2 ** 63 - 1)
+    plan = rb.plan_for(absurd)
+    assert plan.rounds == rb.MAX_PLANNED_PASSES
+    assert plan.step_limit == rb.MAX_PLANNED_PASSES * plan.parts - plan.trailing_rests
+    stored = dataclasses.replace(plan, rounds=2 ** 63 - 1)
+    assert stored.step_limit == plan.step_limit
     for bad in (0.0, -60.0):
         zero = dataclasses.replace(wide, time_cap_seconds=600.0, interval_seconds=bad)
         assert rb.planned_steps(zero) is None

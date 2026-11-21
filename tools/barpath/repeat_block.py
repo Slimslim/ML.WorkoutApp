@@ -31,6 +31,8 @@ END_LIST_DONE = "listDone"       # fixed list: Crown on the last part
 END_ROUNDS_DONE = "roundsDone"   # repeating block with N rounds: Crown on the last work part of pass N
 END_CAP = "cap"                  # AMRAP / EMOM: the clock
 
+MAX_PLANNED_PASSES = 1000   # RepeatBlock.maxPlannedPasses
+
 
 @dataclass(frozen=True)
 class BlockPlan:
@@ -51,7 +53,8 @@ class BlockPlan:
             return self.parts
         if self.rounds is None:
             return None
-        return self.rounds * self.parts - self.trailing_rests
+        # Bounded like plan_for (a plan read back from a corrupt checkpoint, too).
+        return min(self.rounds, MAX_PLANNED_PASSES) * self.parts - self.trailing_rests
 
     def to_dict(self) -> dict:
         return {"kind": self.kind, "parts": self.parts, "rounds": self.rounds,
@@ -92,7 +95,8 @@ def plan_for(d: WorkoutDefinition) -> BlockPlan:
     n = len(d.segments)
     cap = d.time_cap_seconds if _positive(d.time_cap_seconds) else None
     interval = d.interval_seconds if _positive(d.interval_seconds) else None
-    rounds = d.rounds if _positive(d.rounds) else None
+    # Bounded (a corrupt-file guard): a huge `rounds` must not overflow the step limit (Swift traps).
+    rounds = min(d.rounds, MAX_PLANNED_PASSES) if _positive(d.rounds) else None
     if not d.listed_once or listed_once_problems(d):
         return BlockPlan(LEGACY, n, 1, cap, False, interval)
     if n > 0 and _trailing_rests(d) < n:
@@ -112,7 +116,6 @@ def plan_for(d: WorkoutDefinition) -> BlockPlan:
     return BlockPlan(FIXED, n, 1, cap, False, interval)
 
 
-MAX_PLANNED_PASSES = 1000   # RepeatBlock.maxPlannedPasses
 
 
 def planned_steps(d: WorkoutDefinition) -> Optional[int]:
