@@ -320,4 +320,26 @@ final class RepeatBlockTests: XCTestCase {
         XCTAssertEqual(p.segmentStarts.count, 15)
         XCTAssertEqual(p.finishTime, 450)
     }
+
+    /// Planned rounds / sets: a repeating block's step limit, else cap / interval windows; nil for
+    /// an AMRAP. A marked fixed list with an interval keeps today's path.
+    func testPlannedStepsAndAFixedListWithAnInterval() throws {
+        let cases: [Case] = try loadCases()
+        func d(_ id: String) -> WorkoutDefinition? {
+            return cases.first(where: { (c: Case) -> Bool in c.definition.id == id })?.definition
+        }
+        guard let every3 = d("t.every3"), let rft = d("t.rft"), let ladder = d("t.ladder"),
+              let fixed = d("t.fixed") else {
+            XCTFail("missing cases")
+            return
+        }
+        XCTAssertEqual(RepeatBlock.plannedSteps(every3), 18)
+        XCTAssertEqual(RepeatBlock.plannedSteps(rft), 15)
+        XCTAssertNil(RepeatBlock.plannedSteps(ladder))
+        XCTAssertNil(RepeatBlock.plannedSteps(fixed))
+        var goEvery: WorkoutDefinition = fixed
+        goEvery.intervalSeconds = 60
+        XCTAssertEqual(RepeatBlock.plan(for: goEvery).kind, RepeatBlock.Kind.legacy)
+        XCTAssertNil(RepeatBlock.startProgress(for: goEvery, engine: .v2).block)
+    }
 }

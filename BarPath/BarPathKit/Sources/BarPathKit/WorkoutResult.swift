@@ -343,7 +343,12 @@ public struct WorkoutResult: Codable, Equatable, Identifiable {
             maxIndex = s.index
         }
         // Clamped: a corrupt or hand-edited file with a huge index must not allocate a huge list.
-        let count: Int = Swift.min(Swift.max(segs.count, maxIndex + 1), segments.count + segs.count)
+        var count: Int = Swift.min(Swift.max(segs.count, maxIndex + 1), segments.count + segs.count)
+        // Planned rounds / sets show as planned (an EMOM × 10 ended after 3 is "3 / 10"), not as
+        // done; only an AMRAP has no planned length.
+        if let planned = RepeatBlock.plannedSteps(definition) {
+            count = Swift.max(count, planned)
+        }
         var d: WorkoutDefinition = definition
         d.segments = (0..<count).map { (i: Int) -> WorkoutSegment in segs[i % segs.count] }
         d.roundSize = segs.count

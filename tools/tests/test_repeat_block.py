@@ -385,3 +385,30 @@ def test_a_marked_fixed_list_stores_today_s_result_on_the_new_engine():
 def test_part_index_and_passes_of_a_repeating_block():
     d, p, segs = _capped_amrap()
     assert p.is_repeating_block and p.part_index(3) == 1 and p.passes_started == 2
+
+
+def _block_result(cid, crowns):
+    from datetime import datetime, timezone
+    from barpath.workout import WorkoutResult, split_stats
+    d = _case(cid)
+    p = rb.start_progress(d, rb.ENGINE_V2)
+    rb.run_script(p, [[0.0, "start"]] + [[20.0 * (k + 1), "crown"] for k in range(crowns)] + [[20.0 * crowns + 1, "end"]])
+    t0 = datetime.fromtimestamp(0, tz=timezone.utc)
+    return WorkoutResult(d, t0, t0, t0, 100.0, split_stats(p, p.finish_time, [], []), p.events,
+                         passes=p.passes_started)
+
+
+def test_planned_rounds_and_sets_show_as_planned_not_as_done():
+    emom = _block_result("t.every3", 4)            # Every 3:00 x 6, ended in window 1 or 2
+    assert len(emom.display_definition.segments) == 18 and emom.display_definition.round_size == 3
+    rft = _block_result("t.rft", 8)                # 5 rounds for time, ended in round 3
+    assert len(rft.display_definition.segments) == 15
+    amrap = _block_result("t.ladder", 8)           # AMRAP: no planned length, the steps done
+    assert len(amrap.display_definition.segments) == 9    # 8 Crowns: steps 0..8
+    assert rb.planned_steps(_case("t.ladder")) is None and rb.planned_steps(_case("t.every3")) == 18
+
+
+def test_a_marked_fixed_list_with_an_interval_keeps_today_s_path():
+    import dataclasses
+    d = dataclasses.replace(_case("t.fixed"), interval_seconds=60.0)
+    assert rb.plan_for(d).kind == rb.LEGACY and rb.start_progress(d, rb.ENGINE_V2).block is None

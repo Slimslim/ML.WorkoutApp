@@ -978,6 +978,10 @@ class WorkoutResult:
         segs = self.definition.segments
         count = max(len(segs), max((s.index for s in self.segments), default=-1) + 1)
         count = min(count, len(self.segments) + len(segs))   # a corrupt index must not blow up
+        from .repeat_block import planned_steps
+        planned = planned_steps(self.definition)
+        if planned is not None:
+            count = max(count, planned)   # planned rounds / sets show as planned, not as done
         return dataclasses.replace(self.definition, segments=[segs[i % len(segs)] for i in range(count)],
                                    round_size=len(segs), listed_once=False, rounds=None)
 
@@ -1179,8 +1183,9 @@ class WorkoutResult:
         if seg is None:
             return None
         name = seg.name
-        r = self.definition.round_size
-        if r is not None and r > 1 and len(self.definition.segments) > r:
+        shown = self.display_definition   # a block result: rounds of the block written out
+        r = shown.round_size
+        if r is not None and r > 1 and len(shown.segments) > r:
             name += f" (R{self.cap_segment_index // r + 1})"
         if self.reps_at_cap is None:
             return "in " + name

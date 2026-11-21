@@ -117,8 +117,27 @@ public enum RepeatBlock {
             return Plan(kind: .repeating, parts: n, rounds: rounds, capSeconds: cap, capEnds: false,
                         intervalSeconds: interval, trailingRests: tr)
         }
+        if interval != nil {
+            // A marked fixed list with an interval ("Go every" done once) keeps today's path: block
+            // mode would end it at the first window (E3 review).
+            return Plan(kind: .legacy, parts: n, rounds: 1, capSeconds: cap, capEnds: false,
+                        intervalSeconds: interval)
+        }
         return Plan(kind: .fixed, parts: n, rounds: 1, capSeconds: cap, capEnds: false,
                     intervalSeconds: interval)
+    }
+
+    /// Steps a repeating block plans to do: its step limit, else ceil(cap / interval) windows of an
+    /// interval block; nil for an AMRAP (only the clock ends it) and for anything not repeating.
+    /// Python mirror: `repeat_block.planned_steps`.
+    public static func plannedSteps(_ d: WorkoutDefinition) -> Int? {
+        let p: Plan = plan(for: d)
+        if p.kind != .repeating { return nil }
+        if let limit = p.stepLimit { return limit }
+        if d.format == .emom, let i = p.intervalSeconds, let c = p.capSeconds {
+            return Swift.max(1, Int((c / i - 1e-9).rounded(.up))) * p.parts
+        }
+        return nil
     }
 
     /// The plan `WorkoutProgress` runs in block mode, or nil for today's path. Block mode needs both

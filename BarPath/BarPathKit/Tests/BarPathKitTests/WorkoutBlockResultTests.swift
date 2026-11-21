@@ -156,4 +156,23 @@ final class WorkoutBlockResultTests: XCTestCase {
         r.segments[3].index = 1_000_000
         XCTAssertLessThanOrEqual(r.displayDefinition.segments.count, r.segments.count + r.definition.segments.count)
     }
+
+    /// Rounds for time × 5 ended in round 2: the display definition plans all 5 rounds.
+    func testDisplayDefinitionPlansTheRounds() {
+        var d: WorkoutDefinition = amrap()
+        d.format = .forTime
+        d.timeCapSeconds = nil
+        d.rounds = 5
+        var p: WorkoutProgress = RepeatBlock.startProgress(for: d, engine: .v2)
+        p.start(at: 0)
+        p.advance(at: 30, source: .crown)
+        p.advance(at: 60, source: .crown)
+        p.finish(at: 70, source: .button)
+        let segs: [SegmentResult] = SplitStats.compute(progress: p, now: 70, heartRates: [], pedometer: [])
+        let r = WorkoutResult(definition: d, startDate: Date(timeIntervalSince1970: 0),
+                              finishDate: nil, endDate: Date(timeIntervalSince1970: 70), totalSeconds: 70,
+                              segments: segs, events: p.events, passes: p.passesStarted)
+        XCTAssertEqual(r.displayDefinition.segments.count, 10)
+        XCTAssertEqual(r.displayDefinition.roundSize, 2)
+    }
 }

@@ -105,7 +105,25 @@ def plan_for(d: WorkoutDefinition) -> BlockPlan:
             return BlockPlan(REPEAT, n, rounds, cap, cap is not None, interval, tr)
         if d.format == "forTime" and rounds is not None:
             return BlockPlan(REPEAT, n, rounds, cap, False, interval, tr)
+    if interval is not None:
+        # A marked fixed list with an interval ("Go every" done once) keeps today's path: block mode
+        # would end it at the first window (E3 review).
+        return BlockPlan(LEGACY, n, 1, cap, False, interval)
     return BlockPlan(FIXED, n, 1, cap, False, interval)
+
+
+def planned_steps(d: WorkoutDefinition) -> Optional[int]:
+    """Steps a repeating block plans to do: its step limit, else ceil(cap / interval) windows of
+    an interval block; None for an AMRAP (only the clock ends it) and for anything not repeating."""
+    import math
+    plan = plan_for(d)
+    if plan.kind != REPEAT:
+        return None
+    if plan.step_limit is not None:
+        return plan.step_limit
+    if plan.interval_seconds is not None and plan.cap_seconds is not None and d.format == "emom":
+        return max(1, math.ceil(plan.cap_seconds / plan.interval_seconds - 1e-9)) * plan.parts
+    return None
 
 
 def engine_plan(d: WorkoutDefinition, engine: str) -> Optional[BlockPlan]:
