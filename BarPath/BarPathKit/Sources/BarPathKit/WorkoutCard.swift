@@ -114,7 +114,10 @@ public struct WorkoutCard: Equatable {
 
     // MARK: - Building
 
-    public static func make(definition d: WorkoutDefinition) -> WorkoutCard {
+    public static func make(definition given: WorkoutDefinition) -> WorkoutCard {
+        // A listed-once definition (5c) is described as its block written out (the Classic view),
+        // so "5 rounds for time" reads as 5 rounds, exactly like today's written-out rows.
+        let d: WorkoutDefinition = RepeatBlock.writtenOut(given)
         if d.id == freeWorkoutId {
             return WorkoutCard(name: d.name, nameIsFormat: false, typeTag: nil, blockTag: nil,
                                timeDomainLine: nil, repSchemeLine: nil,

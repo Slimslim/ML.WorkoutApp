@@ -209,4 +209,14 @@ final class EngineGateTests: XCTestCase {
         XCTAssertNil(RepeatBlock.writtenOut(d).roundSize)
         XCTAssertEqual(RepeatBlock.writtenOut(WorkoutLibrary.engineAmrap).roundSize, 3)
     }
+
+    /// Cards describe a listed-once test workout like its written-out row ("5 rounds").
+    func testCardsDescribeListedOnceTestWorkoutsLikeWrittenOutRows() {
+        XCTAssertEqual(WorkoutCard.make(definition: WorkoutLibrary.engineRounds5).timeDomainLine, "5 rounds")
+        XCTAssertEqual(WorkoutCard.make(definition: WorkoutLibrary.engineEmom).timeDomainLine, "Every 1:00 × 6")
+        XCTAssertEqual(WorkoutCard.make(definition: WorkoutLibrary.engineTabata).timeDomainLine, "Every 0:30 × 8")
+        for d in WorkoutLibrary.engineTests {
+            XCTAssertEqual(WorkoutCard.make(definition: d), WorkoutCard.make(definition: RepeatBlock.writtenOut(d)), d.id)
+        }
+    }
 }

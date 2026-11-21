@@ -166,6 +166,9 @@ class WorkoutCard:
 
     @classmethod
     def make(cls, d: WorkoutDefinition) -> "WorkoutCard":
+        # A listed-once definition (5c) is described as its block written out (the Classic view).
+        from .repeat_block import written_out
+        d = written_out(d)
         if d.id == FREE_WORKOUT_ID:
             return cls(d.name, False, None, None, None, None, [CardLine(FREE_LINE)], None, FREE_LINE)
 
