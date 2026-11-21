@@ -227,7 +227,8 @@ default at go/no-go on 1 Dec. rc1 Mon 24 Nov.
 | E3 | Watch wiring: block mode when the switch is on and the definition is marked; results by step with pass; engine in result and header; "NEW" on START | merged ([#158](https://github.com/Slimslim/ML.WorkoutApp/pull/158)) |
 | E4 | Gate: every built-in and fixed-list fixture identical with the engine off and on, in CI (`tools/engine_gate.py`, `test_engine_gate.py`, `EngineGateTests.swift`); library rows via `--export` (aggregates only) | merged ([#159](https://github.com/Slimslim/ML.WorkoutApp/pull/159)) |
 | E5 | Listed-once test workouts (AMRAP 8, EMOM 6 × 1:00, Tabata, 5 rounds for time) and a Hyrox simulation as a fixed list; invented, built in (`WorkoutLibrary.engineTests`, phone chooser group "Engine test", off the watch grid), no database change | merged ([#160](https://github.com/Slimslim/ML.WorkoutApp/pull/160)) |
-| E6 | rc1 polish: step limit bounded for a corrupt `rounds`; release and spec docs brought up to date | in PR |
+| E6 | rc1 polish: step limit bounded for a corrupt `rounds`; release and spec docs brought up to date | merged ([#161](https://github.com/Slimslim/ML.WorkoutApp/pull/161)) |
+| E7 | Gate follow-up (E4 review nits): HR and pedometer series in the golden runs, every split field compared in Swift, built-ins checked against the golden's definitions, boundary scripts (Crown at the cap, timed rest ending at the cap); golden still written by v0.17.2-rc1 | in PR |
 
 ## Backlog (after the beta; owner picks at the review)
 

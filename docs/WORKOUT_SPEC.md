@@ -745,9 +745,12 @@ stays unchanged on the legacy route. Questions are marked
   AMRAP 20 / 40, Helen, Row + Thrusters, Quick test, Free), takes the legacy route with the engine
   on, and a scripted run gives exactly the events it gives with the engine off. The E4 gate extends
   this to fixed-list fixture rows in CI, and pins today's behaviour: `Fixtures/engine_gate_golden.json`
-  holds the full trace (events, step starts, finish, every split field) of every built-in and gate
-  row under 7 scripts, written by running the v0.17.2 code itself; both engines must reproduce it
-  (Python and Swift). Never regenerate it to get green: a difference needs the owner's sign-off.
+  holds the full trace (events, step starts, finish, every split field, with invented HR and
+  pedometer series so HR, steps, distance, cadence and pace are compared too, and the result) of
+  every built-in and gate row under 9 scripts, two of them boundaries (a Crown exactly at the cap, a
+  timed rest ending exactly at it), written by running the v0.17.2 code itself; both engines must
+  reproduce it (Python and Swift), and the built-ins must still be the definitions it ran. Never
+  regenerate it to get green: a difference needs the owner's sign-off.
 
 ### What was built first (E1, before the wiring; the wiring followed in E3)
 1. **Python reference** in `tools/barpath`, as pure functions:
