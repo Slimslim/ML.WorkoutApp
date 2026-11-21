@@ -15,7 +15,24 @@ from barpath.workout import WorkoutDefinition, WorkoutLibrary  # noqa: E402
 
 
 def test_fixture_is_up_to_date():
-    assert gate.main(["--check-fixture"]) == 0, "run python3 tools/engine_gate.py --write-fixture"
+    """The routing fixture only (off == on). Today's behaviour is pinned by the 0.17.2 golden below."""
+    assert gate.main(["--check-fixture"]) == 0, (
+        "routing fixture stale: if only scripts or rows changed, run python3 tools/engine_gate.py "
+        "--write-fixture; if `expected` changed, today's rows run differently (see the golden test)")
+
+
+def test_every_row_runs_exactly_as_0_17_2_on_both_engines():
+    """Behaviour, not routing: the full trace (events, step starts, finish, every split field) of
+    every built-in and gate row under every script, written by running the v0.17.2 code itself."""
+    golden = json.loads(gate.GOLDEN.read_text(encoding="utf-8"))
+    assert golden["ref"] == gate.GOLDEN_REF
+    ids = {c["name"] for c in golden["cases"]}
+    assert {d.id for d in WorkoutLibrary.known} <= ids
+    assert all(len(c["traces"]) == len(c["scripts"]) == 7 for c in golden["cases"])
+    diffs = gate.golden_diffs(golden)
+    assert diffs == [], (
+        "Today's rows (Hyrox included) run differently from 0.17.2. Do NOT regenerate the golden to "
+        "get green: this needs the owner's sign-off. First differences: %s" % diffs[:5])
 
 
 @pytest.mark.parametrize("d", WorkoutLibrary.known, ids=lambda d: d.id)
@@ -47,16 +64,19 @@ def test_the_gate_catches_a_difference():
     assert gate.compare(d) != []
 
 
+def _case_by_id(cid):
+    return next(c for c in _cases() if c["definition"]["id"] == cid)
+
+
 def test_export_prints_aggregates_and_ids_only_on_request(tmp_path, capsys):
     rows = [{"id": "lib.invented.a", "definition": c["definition"]} for c in _cases()[:3]]
-    rows.append({"id": "lib.invented.bad", "definition": {"segments": "x"}})
-    marked = dict(_cases()[8]["definition"], listedOnce=True)
+    marked = dict(_case_by_id("gate.amrapOne")["definition"], listedOnce=True)
     rows.append({"id": "lib.invented.marked", "definition": marked})
     p = tmp_path / "rows.json"
     p.write_text(json.dumps(rows))
     assert gate.main(["--export", str(p)]) == 0
     out = json.loads(capsys.readouterr().out)
-    assert out == {"rows": 5, "checked": 4, "unreadable": 1, "markedListedOnce": 1, "differing": 0,
+    assert out == {"rows": 4, "checked": 4, "unreadable": 0, "markedListedOnce": 1, "differing": 0,
                    "differingIds": []}
     assert "lib.invented" not in json.dumps(out)
 
@@ -140,3 +160,18 @@ def test_cards_describe_listed_once_test_workouts_like_written_out_rows():
     assert WorkoutCard.make(WorkoutLibrary.engineTabata).time_domain_line == "Every 0:30 × 8"
     for d in WorkoutLibrary.engine_tests:
         assert WorkoutCard.make(d) == WorkoutCard.make(rb.written_out(d)), d.id
+
+
+def test_export_fails_when_a_row_is_unreadable_or_nothing_was_checked(tmp_path, capsys):
+    bad = tmp_path / "bad.json"
+    bad.write_text(json.dumps([{"id": "lib.invented.a", "definition": _cases()[0]["definition"]},
+                               {"id": "lib.invented.bad", "definition": {"segments": "x"}}]))
+    assert gate.main(["--export", str(bad)]) == 1
+    empty = tmp_path / "empty.json"
+    empty.write_text("[]")
+    assert gate.main(["--export", str(empty)]) == 1
+    wrong = tmp_path / "wrong.json"
+    wrong.write_text(json.dumps({"rows": []}))
+    with pytest.raises(SystemExit):
+        gate.main(["--export", str(wrong)])
+    capsys.readouterr()

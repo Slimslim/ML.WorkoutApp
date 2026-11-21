@@ -28,6 +28,35 @@ final class EngineGateTests: XCTestCase {
         let cases: [Case]
     }
 
+    /// The gate's fixtures must be there: a missing file fails (it never skips like fixtureData).
+    static func gateFixture(_ name: String) throws -> Data {
+        guard let url = fixtureURL(name, "json") else {
+            XCTFail("gate fixture \(name).json is missing from the test bundle")
+            throw NSError(domain: "EngineGateTests", code: 1,
+                          userInfo: [NSLocalizedDescriptionKey: "missing \(name).json"])
+        }
+        return try Data(contentsOf: url)
+    }
+
+    struct GoldenTrace: Decodable {
+        let events: [Event]
+        let starts: [Double]
+        let finish: Double?
+        let splits: [SegmentResult]
+    }
+
+    struct GoldenCase: Decodable {
+        let name: String
+        let definition: WorkoutDefinition
+        let scripts: [[Action]]
+        let traces: [GoldenTrace]
+    }
+
+    struct Golden: Decodable {
+        let ref: String
+        let cases: [GoldenCase]
+    }
+
     struct Run: Equatable {
         let events: [Event]
         let starts: [Double]
@@ -74,6 +103,15 @@ final class EngineGateTests: XCTestCase {
         slow.append([90.0 * Double(n + 3) + 4000.0, "tick"])
         raw.append(slow)
         raw.append([[0.0, "start"], [41.0, "crown"], [82.0, "crown"], [150.0, "end"]])
+        var double: [[Any]] = [[0.0, "start"]]
+        for k in 0..<Swift.min(n, 6) {
+            double.append([31.0 * Double(k + 1), "crown"])
+            double.append([31.0 * Double(k + 1) + 0.4, "crown"])
+        }
+        double.append([31.0 * 7 + 4000.0, "tick"])
+        raw.append(double)
+        raw.append([[0.0, "start"], [10.0, "crown"], [200.0, "tick"], [201.0, "undo"], [205.0, "crown"],
+                    [4205.0, "tick"]])
         let data: Data = try JSONSerialization.data(withJSONObject: raw, options: [])
         return try JSONDecoder().decode([[Action]].self, from: data)
     }
@@ -92,7 +130,7 @@ final class EngineGateTests: XCTestCase {
     }
 
     func testEveryFixedListRowIsIdenticalWithTheEngineOn() throws {
-        let data: Data = try fixtureData("engine_gate_cases", "json")
+        let data: Data = try EngineGateTests.gateFixture("engine_gate_cases")
         let cases: [Case] = try JSONDecoder().decode(Fixture.self, from: data).cases
         XCTAssertGreaterThanOrEqual(cases.count, 12)
         for c in cases {
@@ -111,7 +149,7 @@ final class EngineGateTests: XCTestCase {
 
     /// A row marked listedOnce takes block mode with the engine on: the gate must see the change.
     func testTheGateCatchesADifference() throws {
-        let data: Data = try fixtureData("engine_gate_cases", "json")
+        let data: Data = try EngineGateTests.gateFixture("engine_gate_cases")
         let cases: [Case] = try JSONDecoder().decode(Fixture.self, from: data).cases
         guard let c = cases.first(where: { (c: Case) -> Bool in c.definition.id == "gate.amrapOne" }) else {
             XCTFail("no gate.amrapOne")
@@ -217,6 +255,48 @@ final class EngineGateTests: XCTestCase {
         XCTAssertEqual(WorkoutCard.make(definition: WorkoutLibrary.engineTabata).timeDomainLine, "Every 0:30 × 8")
         for d in WorkoutLibrary.engineTests {
             XCTAssertEqual(WorkoutCard.make(definition: d), WorkoutCard.make(definition: RepeatBlock.writtenOut(d)), d.id)
+        }
+    }
+
+    /// Behaviour, not routing: both engines reproduce the full trace of every built-in and gate
+    /// row that the v0.17.2 code wrote (Fixtures/engine_gate_golden.json). A difference means
+    /// today's rows (Hyrox included) run differently: never regenerate the golden to get green.
+    func testEveryRowRunsExactlyAs0172OnBothEngines() throws {
+        let golden: Golden = try JSONDecoder().decode(Golden.self, from: try EngineGateTests.gateFixture("engine_gate_golden"))
+        XCTAssertEqual(golden.ref, "v0.17.2-rc1")
+        let names: Set<String> = Set(golden.cases.map { (c: GoldenCase) -> String in c.name })
+        for d in WorkoutLibrary.known {
+            XCTAssertTrue(names.contains(d.id), "golden lacks \(d.id)")
+        }
+        for c in golden.cases {
+            XCTAssertEqual(c.scripts.count, 7, c.name)
+            XCTAssertEqual(c.traces.count, c.scripts.count, c.name)
+            for (i, script) in c.scripts.enumerated() where i < c.traces.count {
+                let want: GoldenTrace = c.traces[i]
+                for engineOn in [false, true] {
+                    let label: String = "\(c.name) script \(i) engine \(engineOn ? "new" : "classic")"
+                    let got: Run = EngineGateTests.run(c.definition, engineOn: engineOn, script: script)
+                    XCTAssertEqual(got.events, want.events, label)
+                    XCTAssertEqual(got.finish, want.finish, label)
+                    XCTAssertEqual(got.starts.count, want.starts.count, label)
+                    for (a, b) in zip(got.starts, want.starts) {
+                        XCTAssertEqual(a, b, accuracy: 1e-9, label)
+                    }
+                    XCTAssertEqual(got.splits.count, want.splits.count, label)
+                    for (a, b) in zip(got.splits, want.splits) {
+                        XCTAssertEqual(a.index, b.index, label)
+                        XCTAssertEqual(a.kind, b.kind, label)
+                        XCTAssertEqual(a.movement, b.movement, label)
+                        XCTAssertEqual(a.title, b.title, label)
+                        XCTAssertEqual(a.start, b.start, accuracy: 1e-9, label)
+                        XCTAssertEqual(a.end, b.end, accuracy: 1e-9, label)
+                        XCTAssertEqual(a.duration, b.duration, accuracy: 1e-9, label)
+                        XCTAssertEqual(a.pass, b.pass, label)
+                        XCTAssertEqual(a.steps, b.steps, label)
+                        XCTAssertEqual(a.distance, b.distance, label)
+                    }
+                }
+            }
         }
     }
 }
