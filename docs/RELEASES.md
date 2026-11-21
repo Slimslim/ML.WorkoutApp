@@ -215,7 +215,10 @@ backup OK (6.2 MB, 73 s), restore test OK (39 tables, every row).
 ## Release 0.18: race release, engine only (owner, 20 Nov)
 
 `claude/release-18-race`, cut from release 17.2 (001bf8b), `MARKETING_VERSION` 0.18. Only the new
-workout engine, behind a phone Settings switch (default on the watch: classic). rc1 Mon 24 Nov.
+workout engine, behind a phone Settings switch. Defaults: the **phone defaults to New** in 0.18
+(`WorkoutEngine.phoneDefault`) and sends it to the watch; the **watch runs Classic until it hears
+from the phone** (`watchDefault`, a fresh install or an older phone app). The owner picks the race
+default at go/no-go on 1 Dec. rc1 Mon 24 Nov.
 
 | Ticket | What | Status |
 |---|---|---|
@@ -223,7 +226,8 @@ workout engine, behind a phone Settings switch (default on the watch: classic). 
 | E2 | Engine switch: phone Settings → watch `workoutEngine` key, read at workout start | merged ([#155](https://github.com/Slimslim/ML.WorkoutApp/pull/155)) |
 | E3 | Watch wiring: block mode when the switch is on and the definition is marked; results by step with pass; engine in result and header; "NEW" on START | merged ([#158](https://github.com/Slimslim/ML.WorkoutApp/pull/158)) |
 | E4 | Gate: every built-in and fixed-list fixture identical with the engine off and on, in CI (`tools/engine_gate.py`, `test_engine_gate.py`, `EngineGateTests.swift`); library rows via `--export` (aggregates only) | merged ([#159](https://github.com/Slimslim/ML.WorkoutApp/pull/159)) |
-| E5 | Listed-once test workouts (AMRAP 8, EMOM 6 × 1:00, Tabata, 5 rounds for time) and a Hyrox simulation as a fixed list; invented, built in (`WorkoutLibrary.engineTests`, phone chooser group "Engine test", off the watch grid), no database change | in PR [#160](https://github.com/Slimslim/ML.WorkoutApp/pull/160) |
+| E5 | Listed-once test workouts (AMRAP 8, EMOM 6 × 1:00, Tabata, 5 rounds for time) and a Hyrox simulation as a fixed list; invented, built in (`WorkoutLibrary.engineTests`, phone chooser group "Engine test", off the watch grid), no database change | merged ([#160](https://github.com/Slimslim/ML.WorkoutApp/pull/160)) |
+| E6 | rc1 polish: step limit bounded for a corrupt `rounds`; release and spec docs brought up to date | in PR |
 
 ## Backlog (after the beta; owner picks at the review)
 

@@ -528,11 +528,14 @@ Python: `for_time_cap_time`, `segment_index_at`, `cap_segment_index(now)`; on th
 
 ## 5c. Repeating blocks and fixed lists (brief, #138, owner decision 20 Nov)
 
-Status: **engine core for 0.18 (E1)**: Python reference (`tools/barpath/repeat_block.py`,
-block mode in `WorkoutProgress`), BarPathKit port (`RepeatBlock.swift`, `WorkoutProgress.block`),
-shared fixtures `Fixtures/repeat_block_cases.json` and `Fixtures/repeat_block_progress_cases.json`
-(written by `tools/make_repeat_block_progress_cases.py`). The watch wiring behind the engine switch
-is E3. The 0.17.1 stopgap (§5a) stays unchanged on the legacy route. Questions are marked
+Status: **built for 0.18 (E1-E5 merged into `claude/release-18-race`)**. Engine core (E1): Python
+reference (`tools/barpath/repeat_block.py`, block mode in `WorkoutProgress`), BarPathKit port
+(`RepeatBlock.swift`, `WorkoutProgress.block`), shared fixtures `Fixtures/repeat_block_cases.json`
+and `Fixtures/repeat_block_progress_cases.json` (written by
+`tools/make_repeat_block_progress_cases.py`). The watch runs it behind the phone's engine switch
+(E2, E3): results by step with their pass, the engine in the result and the CSV header. The E4 gate
+pins every built-in to v0.17.2, and E5 adds the listed-once test workouts. The 0.17.1 stopgap (§5a)
+stays unchanged on the legacy route. Questions are marked
 **[Q1]…[Q8]**.
 
 ### Only definitions marked listed-once repeat (0.18, owner 20 Nov via Delivery)
@@ -603,7 +606,7 @@ is E3. The 0.17.1 stopgap (§5a) stays unchanged on the legacy route. Questions 
 - **Q4:** a rest the cap falls in doesn't count as done (as today).
 - **Q6:** an exact repeat. In ED3D7646 the athlete chose the order; the plan was 200/400/600
   repeating. No `vary` for now.
-- **Q7:** OK. New results fall back to the stored titles until the wiring PR.
+- **Q7:** OK. Done in E3: the phone maps step → part, so the stored titles are only the fallback.
 - **Q5 and Q8:** with the owner. The core doesn't depend on a legacy copy, so either answer for Q8 works.
 
 ### What the owner decided
@@ -719,9 +722,10 @@ is E3. The 0.17.1 stopgap (§5a) stays unchanged on the legacy route. Questions 
   a step number. They guard `index < count` and then fall back to the stored title (checked: the
   summary, insights, the report rows). Those guards would show steps past P without their target
   (for example, the run distance for pace).
-  - The wiring PR must map step → part (`index % P`) wherever a target is looked up.
-  - Until then, a new result shown on 0.17.x falls back to the stored titles and measured distance.
-    Is that acceptable for testers, or should new-format results wait for the phone side?
+  - Done in E3: the phone maps step → part (`definitionSegment(forIndex:)`, `displayDefinition`)
+    wherever a target is looked up.
+  - A new result shown on 0.17.x still falls back to the stored titles and measured distance
+    (owner: OK, Q7).
 
 ### Old results and old builds
 - **Old results** (written-out lists, no `pass`) read exactly as today, because step = segment
@@ -745,7 +749,7 @@ is E3. The 0.17.1 stopgap (§5a) stays unchanged on the legacy route. Questions 
   row under 7 scripts, written by running the v0.17.2 code itself; both engines must reproduce it
   (Python and Swift). Never regenerate it to get green: a difference needs the owner's sign-off.
 
-### What gets built before 5 Dec (no wiring)
+### What was built first (E1, before the wiring; the wiring followed in E3)
 1. **Python reference** in `tools/barpath`, as pure functions:
    - the kind of a definition (fixed or repeating, with its round count and cap);
    - step → (pass, part);
