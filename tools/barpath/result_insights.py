@@ -586,8 +586,9 @@ def _check(ctx: _Context) -> Optional[dict]:
 
 def insights(result, definition=None) -> list:
     """Up to 3 insights plus at most 1 cue (last), as dicts {"id", "text", "isCue"}."""
-    if definition is None:
-        definition = result.definition
+    if definition is None or (getattr(result, "is_block_result", False) and definition == result.definition):
+        # A block result (5c) indexes steps: use the block written out to the steps done.
+        definition = result.display_definition if getattr(result, "is_block_result", False) else result.definition
     ctx = _Context(result, definition)
     fmt = definition.format
 

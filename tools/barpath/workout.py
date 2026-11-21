@@ -445,6 +445,23 @@ class WorkoutProgress:
         return window, (target if target is not None else plan.step_limit)
 
     @property
+    def is_repeating_block(self) -> bool:
+        """WorkoutProgress.isRepeatingBlock: a listed-once fixed list is not one."""
+        return self.block is not None and self.block.kind == "repeat"
+
+    def part_index(self, step: int) -> int:
+        if not self.is_repeating_block or self.block.parts <= 0 or step < 0:
+            return step
+        return step % self.block.parts
+
+    @property
+    def passes_started(self) -> Optional[int]:
+        if not self.is_repeating_block or not self.is_started:
+            return None
+        from .repeat_block import position
+        return position(self.block, self.current_index)[0] + 1
+
+    @property
     def waiting_for_window(self) -> bool:
         """Block mode with an interval: the current step is the block's closing rest, the wait for
         the next window. The athlete's Crown is ignored there until the window ends (the watch
@@ -689,6 +706,7 @@ class SegmentResult:
     pace_seconds_per_km: Optional[float] = None
     heart_rate_min: Optional[float] = None
     lifts: Optional[list] = None    # [[start, end], ...] of each lift, seconds since 1970
+    pass_: Optional[int] = None     # 5c block mode: the pass of this step ("pass" in JSON)
 
     _KEYS = (("heartRateAvg", "heart_rate_avg"), ("heartRateMax", "heart_rate_max"), ("steps", "steps"),
              ("distance", "distance"), ("cadence", "cadence"), ("paceSecondsPerKm", "pace_seconds_per_km"),
@@ -703,12 +721,15 @@ class SegmentResult:
                 d[jk] = v
         if self.lifts is not None:
             d["lifts"] = self.lifts
+        if self.pass_ is not None:
+            d["pass"] = self.pass_
         return d
 
     @classmethod
     def from_dict(cls, d: dict) -> "SegmentResult":
         kw = {pk: (None if d.get(jk) is None else float(d[jk])) for jk, pk in cls._KEYS}
         kw["lifts"] = d.get("lifts")
+        kw["pass_"] = None if d.get("pass") is None else int(d["pass"])
         return cls(int(d["index"]), d["kind"], d["movement"], d["title"], float(d["start"]),
                    float(d["end"]), float(d["duration"]), **kw)
 
@@ -741,10 +762,16 @@ def split_stats(progress: WorkoutProgress, now: float, heart_rates: list, pedome
     ped = sorted(pedometer, key=lambda p: p.t)
     step_pts = [(p.t, p.steps) for p in ped]
     dist_pts = [(p.t, p.distance) for p in ped if p.distance is not None]
-    segs = progress.definition.segments
     out = []
     for sp in progress.splits(now):
-        seg = segs[sp.index] if sp.index < len(segs) else None
+        seg = progress._part(sp.index)     # block mode (5c): the step's part; today: the segment
+        pass_ = None
+        if progress.is_repeating_block:   # a listed-once fixed list stores today's result
+            from .repeat_block import position
+            try:
+                pass_ = position(progress.block, sp.index)[0]
+            except ValueError:
+                pass_ = None
         kind = seg.kind if seg else "station"
         movement = seg.movement if seg else ""
         title = seg.title if seg else f"Segment {sp.index + 1}"
@@ -764,7 +791,7 @@ def split_stats(progress: WorkoutProgress, now: float, heart_rates: list, pedome
         if kind == "run" and distance is not None and distance > 50:
             pace = duration / (distance / 1000.0)
         out.append(SegmentResult(sp.index, kind, movement, title, sp.start, sp.end, duration,
-                                 hr_avg, hr_max, steps, distance, cadence, pace, hr_min))
+                                 hr_avg, hr_max, steps, distance, cadence, pace, hr_min, pass_=pass_))
     return out
 
 
@@ -898,6 +925,34 @@ class WorkoutResult:
     edited_at: Optional[datetime] = None      # §5: when the athlete corrected the result
     reps_at_cap: Optional[int] = None         # §5b: for time, reps of the segment running at the cap
     engine: Optional[str] = None              # E2 (0.18): "new" | "classic", the engine the watch ran
+    passes: Optional[int] = None              # 5c block mode: passes started (index = step)
+
+    @property
+    def is_block_result(self) -> bool:
+        """5c: a listed-once definition run as a repeating block (index = step)."""
+        return self.passes is not None and self.definition.listed_once and bool(self.definition.segments)
+
+    def definition_segment(self, index: int):
+        """The definition segment a result index did: part index % P for a block result."""
+        segs = self.definition.segments
+        if index < 0 or not segs:
+            return None
+        if self.is_block_result:
+            return segs[index % len(segs)]
+        return segs[index] if index < len(segs) else None
+
+    @property
+    def display_definition(self) -> WorkoutDefinition:
+        """WorkoutResult.displayDefinition: a block result's block written out to the steps done
+        (at least one pass), roundSize = P. Derived, never stored."""
+        if not self.is_block_result:
+            return self.definition
+        import dataclasses
+        segs = self.definition.segments
+        count = max(len(segs), max((s.index for s in self.segments), default=-1) + 1)
+        count = min(count, len(self.segments) + len(segs))   # a corrupt index must not blow up
+        return dataclasses.replace(self.definition, segments=[segs[i % len(segs)] for i in range(count)],
+                                   round_size=len(segs), listed_once=False, rounds=None)
 
     @property
     def run_seconds(self) -> float:
@@ -931,6 +986,8 @@ class WorkoutResult:
             d["repsAtCap"] = self.reps_at_cap
         if self.engine is not None:
             d["engine"] = self.engine
+        if self.passes is not None:
+            d["passes"] = self.passes
         return d
 
     @classmethod
@@ -957,7 +1014,8 @@ class WorkoutResult:
             partial_reps=None if d.get("partialReps") is None else int(d["partialReps"]),
             edited_at=parse_iso8601(edited) if edited else None,
             reps_at_cap=None if d.get("repsAtCap") is None else int(d["repsAtCap"]),
-            engine=d.get("engine"))
+            engine=d.get("engine"),
+            passes=None if d.get("passes") is None else int(d["passes"]))
 
     # ---- corrections (WORKOUT_SPEC §5, WorkoutResultEditing.swift) ----
 
@@ -1003,10 +1061,8 @@ class WorkoutResult:
         """Reps target of the last recorded segment (upper bound for partial_reps), else None."""
         if not self.segments:
             return None
-        i = self.segments[-1].index
-        if i < 0 or i >= len(self.definition.segments):
-            return None
-        target = self.definition.segments[i].target
+        seg = self.definition_segment(self.segments[-1].index)   # block result: the step's part
+        target = seg.target if seg is not None else None
         if target is None or target.unit != "reps":
             return None
         return max(0, int(_swift_round(target.value)))
@@ -1065,9 +1121,7 @@ class WorkoutResult:
     @property
     def cap_segment(self) -> Optional[WorkoutSegment]:
         i = self.cap_segment_index
-        if i is None or i < 0 or i >= len(self.definition.segments):
-            return None
-        return self.definition.segments[i]
+        return None if i is None else self.definition_segment(i)
 
     @property
     def reps_at_cap_limit(self) -> Optional[int]:

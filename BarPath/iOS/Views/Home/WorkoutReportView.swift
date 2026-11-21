@@ -103,8 +103,8 @@ private struct EmomSet {
             if spans.isEmpty {
                 spans = [(Swift.max(0, st.start - mark), Swift.min(interval, st.end - mark))]
             }
-            let defs: [WorkoutSegment] = result.definition.segments
-            let load: SegmentLoad? = st.index < defs.count ? defs[st.index].load : nil
+            // Block results (5c): a step finds its part.
+            let load: SegmentLoad? = result.definitionSegment(forIndex: st.index)?.load
             return EmomSet(number: item.offset + 1, interval: interval, station: st, load: load,
                            spans: spans, found: !lifts.isEmpty)
         }
@@ -132,7 +132,8 @@ private enum ReportRows {
     static func make(_ result: WorkoutResult) -> (title: String, rows: [ReportRow]) {
         let sets: [EmomSet] = EmomSet.all(result)
         if !sets.isEmpty { return ("Minute by minute", minuteRows(sets)) }
-        let size: Int = result.definition.roundSize ?? 1
+        // A block result (5c): rounds of the block written out (its roundSize is the block length).
+        let size: Int = result.displayDefinition.roundSize ?? 1
         let segments: [SegmentResult] = result.segments
         if size <= 1 {
             let rows: [ReportRow] = segments.enumerated().map { (item: (offset: Int, element: SegmentResult)) -> ReportRow in

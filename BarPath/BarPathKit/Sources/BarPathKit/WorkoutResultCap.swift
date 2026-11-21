@@ -40,8 +40,8 @@ extension WorkoutResult {
 
     /// The definition's segment running at the cap, nil when not capped.
     public var capSegment: WorkoutSegment? {
-        guard let i = capSegmentIndex, i >= 0, i < definition.segments.count else { return nil }
-        return definition.segments[i]
+        guard let i = capSegmentIndex else { return nil }
+        return definitionSegment(forIndex: i)
     }
 
     /// Upper bound for `repsAtCap`: the reps target of the segment running at the cap, or nil

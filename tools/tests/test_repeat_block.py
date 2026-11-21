@@ -256,6 +256,56 @@ def test_block_mode_is_never_on_without_a_plan():
     assert not p.waiting_for_window
 
 
+# ---- E3: results of block mode (index = step, with pass) ---------------------------------------
+
+def _capped_amrap():
+    from barpath.workout import split_stats
+    c = next(c for c in progress_cases() if c["definition"]["id"] == "p.amrapUndo")
+    d = WorkoutDefinition.from_dict(c["definition"])
+    p = WorkoutProgress(d, rb.engine_plan(d, rb.ENGINE_V2))
+    rb.run_script(p, c["script"])
+    return d, p, split_stats(p, p.finish_time, [], [])
+
+
+def test_block_splits_store_steps_with_pass_and_part():
+    d, p, segs = _capped_amrap()
+    assert [s.index for s in segs] == [0, 1, 2, 3]
+    assert [s.pass_ for s in segs] == [0, 0, 1, 1]
+    assert [s.movement for s in segs] == ["burpees", "airSquats", "burpees", "airSquats"]
+    assert segs[0].to_dict()["pass"] == 0
+
+
+def test_block_result_display_definition_and_round_trip():
+    from datetime import datetime, timezone
+    from barpath.workout import WorkoutResult
+    d, p, segs = _capped_amrap()
+    t0 = datetime.fromtimestamp(p.start_time, tz=timezone.utc)
+    r = WorkoutResult(d, t0, t0, t0, 300.0, segs, p.events, engine="new", passes=2)
+    assert r.is_block_result and r.definition_segment(3).movement == "airSquats"
+    shown = r.display_definition
+    assert len(shown.segments) == 4 and shown.round_size == 2 and not shown.listed_once
+    back = WorkoutResult.from_dict(r.to_dict())
+    assert back.passes == 2 and [s.pass_ for s in back.segments] == [0, 0, 1, 1]
+
+
+def test_today_s_results_have_no_pass_and_show_their_definition():
+    from barpath.workout import split_stats
+    p = WorkoutProgress(WorkoutLibrary.helen)
+    p.start(0.0)
+    p.advance(60.0, "crown")
+    segs = split_stats(p, 90.0, [], [])
+    assert all(s.pass_ is None for s in segs) and "pass" not in segs[0].to_dict()
+
+
+def test_block_result_partial_reps_limit_is_the_part_target():
+    from datetime import datetime, timezone
+    from barpath.workout import WorkoutResult
+    d, p, segs = _capped_amrap()
+    t0 = datetime.fromtimestamp(p.start_time, tz=timezone.utc)
+    r = WorkoutResult(d, t0, t0, t0, 300.0, segs, p.events, passes=2)
+    assert r.partial_reps_limit == 20
+
+
 # ---- Classic route for listed-once definitions (written out like today's rows) ------------------
 
 def _case(cid):
@@ -290,3 +340,35 @@ def test_classic_runs_every_pass_not_one():
     tabata = rb.start_progress(_case("t.tabata"), rb.ENGINE_LEGACY)
     rb.run_script(tabata, [[0.0, "start"]] + [[30.0 * k + 20, "crown"] for k in range(8)] + [[300.0, "tick"]])
     assert tabata.is_finished and len(tabata.segment_starts) == 16
+
+
+def test_insights_of_a_block_result_use_its_parts():
+    from datetime import datetime, timezone
+    from barpath.result_insights import insights
+    from barpath.workout import WorkoutResult
+    d, p, segs = _capped_amrap()
+    t0 = datetime.fromtimestamp(p.start_time, tz=timezone.utc)
+    r = WorkoutResult(d, t0, t0, t0, 300.0, segs, p.events, passes=2)
+    assert insights(r) == insights(r, r.display_definition)
+
+
+def test_a_marked_fixed_list_stores_today_s_result_on_the_new_engine():
+    import dataclasses
+    from barpath.workout import split_stats
+    marked = dataclasses.replace(WorkoutLibrary.hyroxSolo, listed_once=True)
+    on_new = rb.start_progress(marked, rb.ENGINE_V2)
+    classic = rb.start_progress(WorkoutLibrary.hyroxSolo, rb.ENGINE_LEGACY)
+    assert on_new.block.kind == rb.FIXED and not on_new.is_repeating_block
+    for p in (on_new, classic):
+        p.start(0.0)
+        for k in range(1, 6):
+            p.advance(60.0 * k, "crown")
+    assert on_new.passes_started is None and on_new.part_index(5) == 5
+    a = [s.to_dict() for s in split_stats(on_new, 400.0, [], [])]
+    b = [s.to_dict() for s in split_stats(classic, 400.0, [], [])]
+    assert a == b and all("pass" not in s for s in a)
+
+
+def test_part_index_and_passes_of_a_repeating_block():
+    d, p, segs = _capped_amrap()
+    assert p.is_repeating_block and p.part_index(3) == 1 and p.passes_started == 2

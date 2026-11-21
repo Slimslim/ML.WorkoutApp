@@ -20,6 +20,10 @@ struct WorkoutCheckpoint: Codable {
     var recordedCSV: Bool
     /// Seconds since 1970 when this checkpoint was written; the end time of a recovered result.
     var savedAt: Double
+    /// E3 (0.18): `WorkoutEngine.recordName` of the engine read at START, so a recovered result
+    /// records it too. Optional: older checkpoints have none. The block plan itself is in
+    /// `progress.block`.
+    var engine: String?
 
     // MARK: Storage
 
