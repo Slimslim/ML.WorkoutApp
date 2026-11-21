@@ -342,4 +342,21 @@ final class RepeatBlockTests: XCTestCase {
         XCTAssertEqual(RepeatBlock.plan(for: goEvery).kind, RepeatBlock.Kind.legacy)
         XCTAssertNil(RepeatBlock.startProgress(for: goEvery, engine: .v2).block)
     }
+
+    /// A corrupt stored result (huge rounds or cap) gives a bounded planned length, never a trap.
+    func testPlannedStepsAreBoundedForACorruptFile() throws {
+        let cases: [Case] = try loadCases()
+        guard let rft = cases.first(where: { (c: Case) -> Bool in c.definition.id == "t.rft" })?.definition,
+              let every3 = cases.first(where: { (c: Case) -> Bool in c.definition.id == "t.every3" })?.definition else {
+            XCTFail("missing cases")
+            return
+        }
+        var huge: WorkoutDefinition = rft
+        huge.rounds = Int.max / 2
+        XCTAssertEqual(RepeatBlock.plannedSteps(huge), 3 * RepeatBlock.maxPlannedPasses)
+        var wide: WorkoutDefinition = every3
+        wide.rounds = nil
+        wide.timeCapSeconds = 1e300
+        XCTAssertEqual(RepeatBlock.plannedSteps(wide), 3 * RepeatBlock.maxPlannedPasses)
+    }
 }

@@ -112,18 +112,27 @@ def plan_for(d: WorkoutDefinition) -> BlockPlan:
     return BlockPlan(FIXED, n, 1, cap, False, interval)
 
 
+MAX_PLANNED_PASSES = 1000   # RepeatBlock.maxPlannedPasses
+
+
 def planned_steps(d: WorkoutDefinition) -> Optional[int]:
     """Steps a repeating block plans to do: its step limit, else ceil(cap / interval) windows of
     an interval block; None for an AMRAP (only the clock ends it) and for anything not repeating."""
     import math
     plan = plan_for(d)
-    if plan.kind != REPEAT:
+    if plan.kind != REPEAT or plan.parts <= 0:
         return None
-    if plan.step_limit is not None:
-        return plan.step_limit
-    if plan.interval_seconds is not None and plan.cap_seconds is not None and d.format == "emom":
-        return max(1, math.ceil(plan.cap_seconds / plan.interval_seconds - 1e-9)) * plan.parts
-    return None
+    steps = None
+    if plan.rounds is not None:
+        steps = float(plan.rounds) * plan.parts - plan.trailing_rests
+    elif plan.interval_seconds is not None and plan.cap_seconds is not None and d.format == "emom":
+        windows = math.ceil(plan.cap_seconds / plan.interval_seconds - 1e-9) \
+            if math.isfinite(plan.cap_seconds / plan.interval_seconds) else None
+        steps = None if windows is None else max(1, windows) * plan.parts
+    if steps is None or not math.isfinite(steps):
+        return None
+    # Bounded (a corrupt-file guard): a huge `rounds` or cap must not build a huge list.
+    return int(min(max(steps, 0), plan.parts * MAX_PLANNED_PASSES))
 
 
 def engine_plan(d: WorkoutDefinition, engine: str) -> Optional[BlockPlan]:

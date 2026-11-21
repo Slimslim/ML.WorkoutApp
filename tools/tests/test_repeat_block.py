@@ -425,3 +425,11 @@ def test_cap_text_of_a_capped_rounds_block_keeps_its_round():
     r = WorkoutResult(d, t0, None, t0, 150.0, split_stats(p, 150.0, [], []), p.events, passes=p.passes_started)
     assert r.cap_segment_index == 5                         # step 5 = pass 1, part 2 at 1:40
     assert r.cap_position_text.endswith("(R2)"), r.cap_position_text
+
+
+def test_planned_steps_are_bounded_for_a_corrupt_file():
+    import dataclasses
+    huge = dataclasses.replace(_case("t.rft"), rounds=10 ** 12)
+    assert rb.planned_steps(huge) == 3 * rb.MAX_PLANNED_PASSES
+    wide = dataclasses.replace(_case("t.every3"), rounds=None, time_cap_seconds=1e300)
+    assert rb.planned_steps(wide) == 3 * rb.MAX_PLANNED_PASSES

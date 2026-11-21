@@ -130,15 +130,27 @@ public enum RepeatBlock {
     /// Steps a repeating block plans to do: its step limit, else ceil(cap / interval) windows of an
     /// interval block; nil for an AMRAP (only the clock ends it) and for anything not repeating.
     /// Python mirror: `repeat_block.planned_steps`.
+    /// Bounded at `maxPlannedPasses` passes and computed in Double, so a corrupt stored result (a
+    /// huge `rounds` or cap) can neither overflow nor make the phone build a huge list.
     public static func plannedSteps(_ d: WorkoutDefinition) -> Int? {
         let p: Plan = plan(for: d)
-        if p.kind != .repeating { return nil }
-        if let limit = p.stepLimit { return limit }
-        if d.format == .emom, let i = p.intervalSeconds, let c = p.capSeconds {
-            return Swift.max(1, Int((c / i - 1e-9).rounded(.up))) * p.parts
+        if p.kind != .repeating || p.parts <= 0 { return nil }
+        var steps: Double? = nil
+        if let r = p.rounds {
+            steps = Double(r) * Double(p.parts) - Double(p.trailingRests)
+        } else if d.format == .emom, let i = p.intervalSeconds, let c = p.capSeconds {
+            let windows: Double = (c / i - 1e-9).rounded(.up)
+            if windows.isFinite {
+                steps = Swift.max(1, windows) * Double(p.parts)
+            }
         }
-        return nil
+        guard let s = steps, s.isFinite else { return nil }
+        let bound: Double = Double(p.parts) * Double(maxPlannedPasses)
+        return Int(Swift.min(Swift.max(s, 0), bound))
     }
+
+    /// Upper bound on the passes `plannedSteps` reports (a corrupt-file guard, far above any workout).
+    public static let maxPlannedPasses: Int = 1000
 
     /// The plan `WorkoutProgress` runs in block mode, or nil for today's path. Block mode needs both
     /// the engine switch on and a definition marked listedOnce; anything else is today's path.
