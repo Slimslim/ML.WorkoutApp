@@ -358,5 +358,24 @@ final class RepeatBlockTests: XCTestCase {
         wide.rounds = nil
         wide.timeCapSeconds = 1e300
         XCTAssertEqual(RepeatBlock.plannedSteps(wide), 3 * RepeatBlock.maxPlannedPasses)
+        // The Classic write-out is bounded the same way, and a tiny interval (cap / interval = inf)
+        // neither traps nor builds a huge list; 0 or below is no interval at all.
+        XCTAssertLessThanOrEqual(RepeatBlock.writtenOut(huge).segments.count,
+                                 huge.segments.count * RepeatBlock.maxPlannedPasses)
+        XCTAssertEqual(RepeatBlock.writtenOut(wide).segments.count,
+                       wide.segments.count * RepeatBlock.maxPlannedPasses)
+        var tiny: WorkoutDefinition = wide
+        tiny.timeCapSeconds = 600
+        tiny.intervalSeconds = Double.leastNonzeroMagnitude
+        XCTAssertNil(RepeatBlock.plannedSteps(tiny))
+        XCTAssertEqual(RepeatBlock.writtenOut(tiny).segments.count,
+                       tiny.segments.count * RepeatBlock.maxPlannedPasses)
+        for bad in [0.0, -60.0] {
+            var zero: WorkoutDefinition = wide
+            zero.timeCapSeconds = 600
+            zero.intervalSeconds = bad
+            XCTAssertNil(RepeatBlock.plannedSteps(zero))
+            _ = RepeatBlock.writtenOut(zero)
+        }
     }
 }

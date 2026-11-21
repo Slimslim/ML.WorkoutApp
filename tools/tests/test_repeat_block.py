@@ -433,3 +433,14 @@ def test_planned_steps_are_bounded_for_a_corrupt_file():
     assert rb.planned_steps(huge) == 3 * rb.MAX_PLANNED_PASSES
     wide = dataclasses.replace(_case("t.every3"), rounds=None, time_cap_seconds=1e300)
     assert rb.planned_steps(wide) == 3 * rb.MAX_PLANNED_PASSES
+    # The Classic write-out is bounded the same way, and a tiny interval (cap / interval = inf)
+    # neither raises nor builds a huge list; 0 or below is no interval at all.
+    assert len(rb.written_out(huge).segments) <= len(huge.segments) * rb.MAX_PLANNED_PASSES
+    assert len(rb.written_out(wide).segments) == len(wide.segments) * rb.MAX_PLANNED_PASSES
+    tiny = dataclasses.replace(wide, time_cap_seconds=600.0, interval_seconds=5e-324)
+    assert rb.planned_steps(tiny) is None
+    assert len(rb.written_out(tiny).segments) == len(tiny.segments) * rb.MAX_PLANNED_PASSES
+    for bad in (0.0, -60.0):
+        zero = dataclasses.replace(wide, time_cap_seconds=600.0, interval_seconds=bad)
+        assert rb.planned_steps(zero) is None
+        rb.written_out(zero)

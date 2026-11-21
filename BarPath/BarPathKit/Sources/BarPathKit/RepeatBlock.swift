@@ -188,8 +188,18 @@ public enum RepeatBlock {
             if let r = rounds {
                 passes = r
             } else if let i = interval, let c = cap {
-                passes = Swift.max(1, Int((c / i - 1e-9).rounded(.up)))
+                let ratio: Double = (c / i - 1e-9).rounded(.up)
+                if ratio.isFinite && ratio < Double(maxPlannedPasses) {
+                    passes = Swift.max(1, Int(ratio))
+                } else {
+                    passes = maxPlannedPasses
+                }
             }
+        }
+        // Bounded like plannedSteps (a corrupt-file guard): a tiny interval or huge rounds must
+        // not build a huge list, nor trap converting an infinite window count to Int.
+        if let k = passes, k > maxPlannedPasses {
+            passes = maxPlannedPasses
         }
         var segs: [WorkoutSegment] = d.segments
         if let k = passes {

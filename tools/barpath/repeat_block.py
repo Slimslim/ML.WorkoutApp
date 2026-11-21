@@ -166,7 +166,12 @@ def written_out(d: WorkoutDefinition) -> WorkoutDefinition:
         if rounds is not None:
             passes = rounds
         elif interval is not None and cap is not None:
-            passes = max(1, math.ceil(cap / interval - 1e-9))
+            ratio = cap / interval - 1e-9
+            passes = max(1, math.ceil(ratio)) if math.isfinite(ratio) else MAX_PLANNED_PASSES
+    if passes is not None:
+        # Bounded like planned_steps (a corrupt-file guard): a tiny interval or huge rounds must
+        # not build a huge list, nor crash on an infinite window count.
+        passes = min(passes, MAX_PLANNED_PASSES)
     segs = list(d.segments)
     if passes is not None:
         segs = segs * passes
